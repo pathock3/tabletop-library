@@ -85,9 +85,6 @@ svg.board { width: 100%; height: 100%; touch-action: manipulation; }
 #fx .flyer svg { position: absolute; inset: 0; }
 #fx .flysq { display: block; filter: drop-shadow(0 8px 6px rgba(0,0,0,.5)); opacity: 0; }
 #fx .shock { border-radius: 50%; border: 6px solid #fff; opacity: 0; }
-#fx .digdim { background: radial-gradient(ellipse at 50% 45%, rgba(10,6,3,.34), rgba(10,6,3,.72)); opacity: 0; }
-#fx .digtxt { display: flex; justify-content: center; align-items: baseline; gap: .35em; text-align: center; font-family: var(--serif); font-weight: 800; font-size: clamp(26px, 6.6vw, 46px); line-height: 1.1; color: #fff3cf; text-shadow: 0 3px 0 #3b2410, 0 0 18px rgba(0,0,0,.7); opacity: 0; }
-#fx .digtxt b { font-size: 1.45em; color: #ffd24a; text-shadow: 0 3px 0 #7a4a0e, 0 0 18px rgba(255,200,60,.7); }
 #fx .coin { border-radius: 50%; background: radial-gradient(circle at 35% 30%, #fff3a8, #f5c542 55%, #a67513); box-shadow: 0 1px 0 rgba(0,0,0,.4); opacity: 0; }
 .sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
 #fx .chest { filter: drop-shadow(0 8px 8px rgba(0,0,0,.5)); }
@@ -141,12 +138,8 @@ svg.board { width: 100%; height: 100%; touch-action: manipulation; }
 /* ---------- the one button on the table, and the opponent's bank banner ---------- */
 .end { position: absolute; right: 6px; bottom: 6px; z-index: 2; background: var(--panel2); border: 2px solid var(--line); border-radius: 18px; padding: 20px 36px; min-height: 68px; font-weight: 800; font-size: 24px; opacity: .85; }
 .end.go { border-color: var(--accent); background: #4a3418; opacity: 1; box-shadow: 0 0 0 4px rgba(245,165,36,.2); }
-.bankcard { position: absolute; z-index: 2; left: 50%; top: 42%; transform: translate(-50%, -50%); text-align: center; color: inherit; cursor: pointer; padding: 18px 30px; border-radius: 20px;
   background: rgba(27,19,14,.92); border: 4px solid var(--c); box-shadow: 0 12px 34px rgba(0,0,0,.6); animation: bankin .35s ease-out; max-width: 92%; }
 @keyframes bankin { 0% { transform: translate(-50%, -50%) scale(.6); opacity: 0; } 100% { transform: translate(-50%, -50%) scale(1); opacity: 1; } }
-.bankcard .bk-who { font-size: clamp(18px, 3.6vw, 26px); font-weight: 800; color: var(--c); }
-.bankcard .bk-pts { font-size: clamp(54px, 11vw, 92px); font-weight: 900; line-height: 1; color: #fff; }
-.bankcard:active { filter: brightness(1.15); }
 .resultsbtn { position: absolute; left: 50%; bottom: calc(env(safe-area-inset-bottom) + 18px); transform: translateX(-50%); z-index: 4; padding: 22px 46px; min-height: 72px; border-radius: 18px; background: var(--accent); color: #2b1b10; font-weight: 800; font-size: 24px; box-shadow: 0 6px 0 rgba(0,0,0,.4), 0 12px 30px rgba(0,0,0,.5); white-space: nowrap; }
 
 /* ---------- screens / overlays ---------- */
@@ -256,6 +249,7 @@ h2 { margin: 18px 0 8px; font-size: 14px; text-transform: uppercase; letter-spac
 .mode.resume b { color: var(--good); }
 .tipback { position: absolute; inset: 0; z-index: 8; display: flex; align-items: flex-end; justify-content: center; padding: 0 16px calc(env(safe-area-inset-bottom) + 18px); background: rgba(10,6,3,.4); }
 .tipback.top { align-items: flex-start; }
+.tipback.mid { align-items: center; z-index: 9; position: absolute; }
 .whatbtn { position: absolute; left: 50%; bottom: 10px; transform: translateX(-50%); z-index: 4; padding: 14px 26px; min-height: 52px; border-radius: 99px; background: linear-gradient(180deg, #f6e8be, #dcc48c); border: 2px solid var(--parch-line); color: var(--inkb); font-family: var(--serif); font-weight: 800; font-size: 19px; box-shadow: 0 4px 0 rgba(0,0,0,.4), 0 8px 18px rgba(0,0,0,.4); animation: bankin2 .3s ease-out; white-space: nowrap; }
 .whatbtn.top { bottom: auto; top: 10px; }
 .gempic { width: 100%; max-width: 420px; display: block; margin: 4px auto 6px; } .gempic .cap { font-family: var(--serif); font-weight: 800; font-size: 13px; fill: var(--inkb); } .gempic .sym { font-size: 30px; font-weight: 800; fill: var(--inkb2); } .gempic .val { font-family: var(--serif); font-weight: 900; font-size: 22px; fill: #f6e7b8; stroke: rgba(0,0,0,.45); stroke-width: 3px; paint-order: stroke; }
@@ -309,8 +303,7 @@ body { background: var(--bg); }
   background:
     url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cg fill='none' stroke-linecap='round'%3E%3Cpath d='M-10 230 Q60 140 130 200 T310 110' stroke='%23d6bd86' stroke-opacity='.10' stroke-width='3' stroke-dasharray='1 10'/%3E%3Cpath d='M-10 60 Q80 20 140 70 T310 40' stroke='%23d6bd86' stroke-opacity='.07' stroke-width='2' stroke-dasharray='1 8'/%3E%3Cpath d='M214 236 l20 20 m0 -20 l-20 20' stroke='%23b3261e' stroke-opacity='.12' stroke-width='5'/%3E%3C/g%3E%3C/svg%3E"),
     radial-gradient(ellipse at 50% -5%, rgba(214,189,134,.20), transparent 62%), radial-gradient(ellipse at 50% 120%, rgba(0,0,0,.45), transparent 60%), var(--bg); }
-h1, .logo, .tip h2, .over-sheet h1, .lvl b, .mode b, .big, .pill, .turncard .tc-who, .bankcard .bk-who { font-family: var(--serif); }
-h1 { letter-spacing: .3px; }
+h1, .logo, .tip h2, .over-sheet h1, .lvl b, .mode b, .big, .pill, .turncard .tc-who, h1 { letter-spacing: .3px; }
 .sub, h2 { color: #bfa77a; }
 
 /* parchment: the cards you read and tap */
@@ -373,8 +366,6 @@ h1 { letter-spacing: .3px; }
 .end.go { background: linear-gradient(180deg, #ffd978, #e8a02c); border-color: #ffe3a0; color: #2b1b10; box-shadow: 0 5px 0 #7a4a0e, 0 0 0 4px rgba(245,165,36,.25); }
 .turncard { background: radial-gradient(ellipse at 50% 40%, rgba(60,40,24,.96), rgba(27,19,14,.97)); border-width: 4px; }
 .turncard .tc-who { text-shadow: 0 3px 0 rgba(0,0,0,.45); }
-.bankcard { background: linear-gradient(172deg, #f2e2b6, var(--parch2)); border-width: 4px; color: var(--inkb); box-shadow: 0 12px 34px rgba(0,0,0,.6), inset 0 0 0 3px rgba(255,248,222,.4); }
-.bankcard .bk-pts { color: var(--wax); font-family: var(--serif); }
 .menu button { background: rgba(59,36,16,.10); color: var(--inkb); border: 1.5px solid rgba(169,139,85,.55); font-family: var(--serif); }
 .menu button.danger { background: linear-gradient(180deg, #d4402f, #a02418); color: #fff3d8; border-color: #e8806f; }
 .menu .mq { color: var(--inkb); }
@@ -389,6 +380,8 @@ h1 { letter-spacing: .3px; }
 .screen.home .ghost { background: rgba(236,217,168,.10); }
 .resultsbtn { font-family: var(--serif); background: linear-gradient(180deg, #ffd978, #e8a02c 60%, #d1851f); border: 2px solid #ffe3a0; }
 
+/* portrait (iPad and iPhone): the menu and End turn buttons sit lower, reaching down into the home-bar margin (a little: the bar itself stays clear) */
+@media (orientation: portrait) { .game { padding-bottom: 2px; } .q, .end, .whatbtn:not(.top) { bottom: calc(2px - min(env(safe-area-inset-bottom), 22px)); } }
 /* ---------- iPhone portrait (402 x 874, minus the status bar and the home bar): no menu screen scrolls ---------- */
 @media (max-width: 480px), (max-height: 700px) {
   .legend { height: 52px; } .legend .hint { font-size: 14px; }
@@ -560,6 +553,7 @@ const GAME_DATA = {
     // How the smart opponent weighs things, and what the 0-10 scores mean in numbers. Calibration numbers (see games/fossil-frenzy/docs/AI.md), shared by every level.
     tuning: {
       retentionAtZero: 0.5,                                      // memory skill 0 = a memory survives a turn half the time; skill 10 = always
+      freshTurns: 2,                                             // ...but nobody forgets what they saw this very round: a fact up to this many turns old is recalled for certain (it only starts fading after that)
       nearMiss: 0.5,                                             // when memory slips: how often it taps a neighbour of the right fossil rather than any fossil
       endHabits: [                                               // an opponent with almost no endgame sense banks by rule of thumb (endSense at or below `upTo`)
         { upTo: 0.5, bankAt: 2, endgameTiles: 0 },               //   bank as soon as it holds 2 sets
@@ -586,7 +580,7 @@ const GAME_DATA = {
   pace: { peek: 650, flip: 600, bank: 0 },
   // The two little films (milliseconds): a match (hold so the flip is seen, lift, slide so the torn edges meet, morph into the square map, fly to the player's maps, settle)
   // and digging a map up (the map becomes an open chest, the points count up).
-  anim: { match: { hold: 320, lift: 140, slide: 260, morph: 220, pause: 60, fly: 400, settle: 380 }, dig: { fly: 320, open: 320, hold: 640, rain: 480, count: 600, end: 220 } },
+  anim: { match: { hold: 320, lift: 140, slide: 260, morph: 220, pause: 60, fly: 400, settle: 380 }, dig: { open: 220, hold: 100, rain: 340, count: 340, end: 140 } },
 
   // ---- SOUND ------------------------------------------------------------
   // Every sound is built from a few synthesised voices (no audio files, so the game stays one file and works offline).
@@ -993,7 +987,7 @@ const Bots = (() => {
     };
 
     // does it recall a fact exactly right now?  (memory^age)
-    const trueRecall = f => (retention() >= 1 ? 1 : Math.max(T.recallFloor, Math.pow(retention(), bot.turnIx - f.t)));      // (a small floor, so a forgetful bot can never be stuck for good)
+    const trueRecall = f => (retention() >= 1 ? 1 : Math.max(T.recallFloor, Math.pow(retention(), Math.max(0, bot.turnIx - f.t - T.freshTurns))));      // (a small floor, so a forgetful bot can never be stuck for good)
     const recalls = f => retention() >= 1 || rnd() < trueRecall(f);
     // how reliable the bot THINKS a memory is: the truth, or — if it is overconfident — closer to certain
     const believedRecall = f => { const p = trueRecall(f); return p + overconfidence() * (1 - p); };
@@ -1815,42 +1809,31 @@ const Campaign = (() => {
       <rect x="16" y="52" width="68" height="34" rx="5" fill="#8a5a2b" stroke="#47290f" stroke-width="3"/><rect x="16" y="62" width="68" height="6" fill="#d9a33a"/><rect x="45" y="58" width="10" height="14" rx="2" fill="#f2c14e" stroke="#47290f" stroke-width="2"/>
       <g class="lid"><path d="M16,52 L16,40 Q16,26 50,26 Q84,26 84,40 L84,52Z" fill="#9c6633" stroke="#47290f" stroke-width="3"/><rect x="16" y="42" width="68" height="6" fill="#d9a33a"/></g></svg>`;
   }
-  // Digging: the map flies from the player's maps to the middle of the table (the page behind it dims a little), becomes an open treasure chest that bursts with coins,
-  // says what happened in big letters ("You dug up treasure: +3"), and the points fly to the score and count up. Transform and opacity only; a tap skips it.
+  // Digging: a treasure chest pops open in the middle of the table, coins burst, and the points fly to the score and count up. Under a second. Transform and opacity only;
+  // a tap skips it. (What happened is said in the little line above the board.)
   function startDigFx(player, x, from, to, rect, then) {
     const A = D.anim.dig;
     ui.fx = { kind: 'dig', player, shown: from, to, anims: [], timers: [], then: then || null, raf: 0 };
     render();
     const pts = root.querySelector(`.chip[data-p="${player}"] .pts`), board = root.querySelector('.boardwrap');
     if (!canFx() || !pts || !board) { endFx(); return; }
-    const fx = ui.fx, w = Math.max(rect.w, 48), P = rectOf(pts), B = rectOf(board), vw = innerWidth, vh = innerHeight;
-    const K = Math.max(150, Math.min(300, 0.46 * Math.min(B.w, B.h))), C = { x: B.x, y: B.y - K * 0.12 }, sq = squareHTML(x, w), TY = C.y + K * 0.64;
-    const name = seatName(player), msg = `${name} dug up treasure: +${to - from}`;          // the same film and words for an opponent as for me
-    const tOpen = A.fly, tText = tOpen + A.open * 0.5, tRain = tText + A.hold, tCount = tRain + A.rain * 0.55, tEnd = Math.max(tCount + A.count, tRain + A.rain + A.end);
-    const dim = fxEl('digdim', { x: vw / 2, y: vh / 2 }, vw, vh);
-    go(fx, dim, [{ opacity: 0 }, { opacity: 1 }], { duration: 220 });
-    go(fx, dim, [{ opacity: 1 }, { opacity: 0 }], { delay: tRain + A.rain * 0.4, duration: A.end * 1.4, composite: 'replace' });
-    const sqEl = fxEl(sq.cls, rect, w, w, sq.html); sqEl.style.setProperty('--set', w + 'px');
-    const k1 = (K * 0.5) / w;
-    go(fx, sqEl, [{ transform: 'none', opacity: 1 }, { transform: `translate(${(C.x - rect.x) * .5}px,${(C.y - rect.y) * .5 - 70}px) scale(${(1 + k1) / 2}) rotate(-6deg)`, offset: .55, opacity: 1 }, { transform: `translate(${C.x - rect.x}px,${C.y - rect.y}px) scale(${k1}) rotate(0deg)`, opacity: 1 }], { duration: A.fly, easing: EASE.io });
-    go(fx, sqEl, [{ opacity: 1 }, { opacity: 0 }], { delay: A.fly - 20, duration: 120, composite: 'replace' });
+    const fx = ui.fx, P = rectOf(pts), B = rectOf(board), N = to - from;
+    const K = Math.max(140, Math.min(260, 0.4 * Math.min(B.w, B.h))), C = { x: B.x, y: B.y };
+    const tRain = A.open + A.hold, tCount = tRain + A.rain * 0.5, tEnd = Math.max(tCount + A.count, tRain + A.rain + A.end);
     const chest = fxEl('chest', C, K, K, chestHTML()); chest.style.opacity = '0';
-    go(fx, chest, [{ opacity: 0, transform: 'scale(.4)' }, { opacity: 1, transform: 'scale(1.12)', offset: .6 }, { opacity: 1, transform: 'scale(1)' }], { delay: tOpen - 40, duration: A.open, easing: EASE.pop });
+    go(fx, chest, [{ opacity: 0, transform: 'scale(.4)' }, { opacity: 1, transform: 'scale(1.12)', offset: .6 }, { opacity: 1, transform: 'scale(1)' }], { duration: A.open, easing: EASE.pop });
     const lid = chest.querySelector('.lid'), glow = chest.querySelector('.glow'), coins = chest.querySelector('.coins');
-    if (lid) go(fx, lid, [{ transform: 'none' }, { transform: 'translate(8px,-14px) rotate(-52deg)' }], { delay: tOpen + 40, duration: A.open * 0.8, easing: EASE.pop });
-    if (glow) go(fx, glow, [{ opacity: 0 }, { opacity: 1 }], { delay: tOpen + 60, duration: A.open * 0.8 });
-    if (coins) go(fx, coins, [{ transform: 'translateY(10px)' }, { transform: 'none' }], { delay: tOpen + 40, duration: A.open, easing: EASE.pop });
+    if (lid) go(fx, lid, [{ transform: 'none' }, { transform: 'translate(8px,-14px) rotate(-52deg)' }], { delay: 30, duration: A.open * 0.9, easing: EASE.pop });
+    if (glow) go(fx, glow, [{ opacity: 0 }, { opacity: 1 }], { delay: 40, duration: A.open * 0.8 });
+    if (coins) go(fx, coins, [{ transform: 'translateY(10px)' }, { transform: 'none' }], { delay: 30, duration: A.open, easing: EASE.pop });
     go(fx, chest, [{ opacity: 1 }, { opacity: 0 }], { delay: tRain, duration: A.end, composite: 'replace' });
-    for (let i = 0; i < 12; i++) {                                           // a burst of coins out of the open chest
-      const ang = (i / 12) * Math.PI * 2 + 0.3, R = K * (0.55 + (i % 3) * 0.16), coin = fxEl('coin', { x: C.x, y: C.y - K * 0.05 }, 16, 16);
-      go(fx, coin, [{ opacity: 0, transform: 'translate(0,0) scale(.5)' }, { opacity: 1, transform: `translate(${Math.cos(ang) * R * .6}px,${Math.sin(ang) * R * .6 - 24}px) scale(1)`, offset: .35 }, { opacity: 0, transform: `translate(${Math.cos(ang) * R}px,${Math.sin(ang) * R + 18}px) scale(.6)` }], { delay: tOpen + 60 + (i % 4) * 30, duration: 620, easing: EASE.out });
+    for (let i = 0; i < 10; i++) {                                           // a burst of coins out of the open chest
+      const ang = (i / 10) * Math.PI * 2 + 0.3, R = K * (0.5 + (i % 3) * 0.14), coin = fxEl('coin', { x: C.x, y: C.y - K * 0.05 }, 16, 16);
+      go(fx, coin, [{ opacity: 0, transform: 'translate(0,0) scale(.5)' }, { opacity: 1, transform: `translate(${Math.cos(ang) * R * .6}px,${Math.sin(ang) * R * .6 - 20}px) scale(1)`, offset: .4 }, { opacity: 0, transform: `translate(${Math.cos(ang) * R}px,${Math.sin(ang) * R + 14}px) scale(.6)` }], { delay: 40 + (i % 3) * 25, duration: 480, easing: EASE.out });
     }
-    const tw = Math.min(vw - 24, 600), txt = fxEl('digtxt', { x: vw / 2, y: TY }, tw, 90, `<span>${esc(msg.replace(/: \+\d+$/, ':'))}</span><b>+${to - from}</b>`);
-    go(fx, txt, [{ opacity: 0, transform: 'translateY(16px) scale(.92)' }, { opacity: 1, transform: 'none' }], { delay: tText, duration: 260, easing: EASE.out });
-    go(fx, txt, [{ opacity: 1 }, { opacity: 0 }], { delay: tRain, duration: 160, composite: 'replace' });
-    at(fx, tText, () => { const L = document.getElementById('live'); if (L) L.textContent = msg; });
-    const plus = fxEl('plus', { x: vw / 2 + tw * 0.28, y: TY }, 110, 60, `+${to - from}`), dx = P.x - (vw / 2 + tw * 0.28), dy = P.y - TY;
-    go(fx, plus, [{ opacity: 0, transform: 'scale(1)' }, { opacity: 1, transform: 'scale(1.15)', offset: .12 }, { opacity: 1, transform: `translate(${dx * .6}px,${dy * .6}px) scale(1)`, offset: .8 }, { opacity: 0, transform: `translate(${dx}px,${dy}px) scale(.7)` }], { delay: tRain, duration: A.rain, easing: EASE.io });
+    const plus = fxEl('plus', { x: C.x, y: C.y - K * 0.1 }, 120, 64, `+${N}`), dx = P.x - C.x, dy = P.y - (C.y - K * 0.1);
+    go(fx, plus, [{ opacity: 0, transform: 'translate(0,10px) scale(.6)' }, { opacity: 1, transform: 'translate(0,-8px) scale(1.2)', offset: .25 }, { opacity: 1, transform: `translate(${dx * .6}px,${dy * .6}px) scale(1)`, offset: .75 }, { opacity: 0, transform: `translate(${dx}px,${dy}px) scale(.7)` }], { delay: 60, duration: A.open + A.hold + A.rain - 60, easing: EASE.io });
+    const L = document.getElementById('live'); if (L) L.textContent = `${seatName(player)} dug up treasure: +${N}`;          // (said aloud for screen readers; the line above the board says it in words)
     const start = performance.now() + tCount;
     const tick = now => {
       if (ui.fx !== fx) return;
@@ -1939,7 +1922,6 @@ const Campaign = (() => {
   // While the opponent's bank banner is up, a tap anywhere (not just on the banner) sends it away and starts my turn.
   // Has my turn got to the point where a tap anywhere ends it? (after the flip — or a pair/bank — never before)
   const tapEndsTurn = () => ui.screen === 'play' && !!ui.st && !ui.st.over && !ui.turnCard && !ui.tip && !ui.fx && !ui.botWaiting && !animating() && !isBot(ui.st.current) && Engine.status(ui.st).canEnd;
-  const bankBannerUp = () => ui.screen === 'play' && !!ui.st && ui.botWaiting && !animating() && !ui.fx && !ui.turnCard && !ui.st.over && !!ui.st.turn.banked && !!ui.st.lastBank;
   function onClick(e) {
     audio.unlock();                                    // sound can only start from inside a tap; this wakes it
     if (ui.fx) { endFx(); return; }                    // a tap skips a film (a match flying to its player, a map being dug)
@@ -1947,8 +1929,7 @@ const Campaign = (() => {
     const el = e.target.closest('[data-act]');
     if (!el) {
       if (ui.menu || ui.help || ui.fossils || ui.settings || ui.tip) return;
-      if (bankBannerUp()) { takeOverFromOpponent(); render(); }
-      else if (tapEndsTurn()) { endTurn(); render(); }                          // once I have flipped, a tap anywhere ends my turn
+      if (tapEndsTurn()) { endTurn(); render(); }                          // once I have flipped, a tap anywhere ends my turn
       return;
     }
     const d = el.dataset, st = ui.st;
@@ -1967,7 +1948,6 @@ const Campaign = (() => {
       case 'what': ui.tip = { id: 'gem', visual: true, endsTurn: false }; ui.what = null; break;
       case 'tip-ok': { const t = ui.tip; ui.tip = null; if (t && t.endsTurn && !st.over && !isBot(st.current) && !ui.botWaiting) endTurn(); break; }
       case 'reminders': ui.pass.reminders = d.v === 'on'; pref.set(PASS_KEY, JSON.stringify(ui.pass)); break;
-      case 'dismissbank': takeOverFromOpponent(); break;
       case 'cell': return cellTap(+d.id);
       case 'set': return setTap(+d.i);
       case 'end':
@@ -2200,21 +2180,20 @@ const Campaign = (() => {
     return `<button class="end${['flipped', 'resolved'].includes(st.phase) ? ' go' : ''}" data-act="end">End turn</button>`;
   }
 
-  // The opponent banked: say so plainly, with what it scored (the total is already in the score bar). It sits on the board but taps pass through it.
-  function bankBannerHTML() {
+
+
+  // The little line that says what just happened, for anyone who looked away: what was dug (mine, or the opponent's turn that is waiting on the board).
+  const happened = () => {
     const st = ui.st, b = st.lastBank;
-    if (!ui.botWaiting || animating() || ui.fx || !st.turn.banked || !b) return '';
-    return `<button class="bankcard" data-act="dismissbank" style="--c:${COLORS[b.player]}"><div class="bk-who">${esc(seatName(b.player))} scored</div>
-      <div class="bk-pts">+${b.total}</div></button>`;
-  }
-
-
+    if (ui.lastEvent) return ui.lastEvent;
+    return ui.botWaiting && !animating() && st.turn.banked && b ? `${seatName(b.player)} dug up treasure: +${b.base}` : '';
+  };
   function gameHTML() {
     const st = ui.st;
     return `<div class="game">
       <div class="bar"><div class="chips n${st.n}">${chipsHTML()}</div></div>
-      <div class="legend">${ui.lastEvent && !ui.turnCard && !ui.fx ? `<span class="event">${esc(ui.lastEvent)}</span>` : ''}<span class="hint">${esc(hintsVisible() ? hint() : '')}</span></div>
-      <div class="main"><div class="boardwrap">${boardSVG()}</div>${bankBannerHTML()}${endButtonHTML()}${ui.what && !ui.tip && !st.over ? `<button class="whatbtn" data-act="what">${esc(D.coach.gem.ask)}</button>` : ''}${ui.turnCard && !st.over ? turnCardHTML() : ''}${st.over && !animating() ? '' : '<button class="q" data-act="menu" aria-label="Menu">☰</button>'}</div>
+      <div class="legend">${happened() && !ui.turnCard && !ui.fx ? `<span class="event">${esc(happened())}</span>` : ''}<span class="hint">${esc(hintsVisible() ? hint() : '')}</span></div>
+      <div class="main"><div class="boardwrap">${boardSVG()}</div>${endButtonHTML()}${ui.what && !ui.tip && !st.over ? `<button class="whatbtn" data-act="what">${esc(D.coach.gem.ask)}</button>` : ''}${ui.turnCard && !st.over ? turnCardHTML() : ''}${st.over && !animating() ? '' : '<button class="q" data-act="menu" aria-label="Menu">☰</button>'}</div>
     </div>${st.over && !animating() && !ui.fx && !ui.overSeen ? resultsButtonHTML() : ''}${st.over && !animating() && ui.overSeen ? overHTML() : ''}${ui.menu ? menuHTML() : ''}${ui.tip && !st.over ? tipHTML() : ''}`;
   }
 
@@ -2338,7 +2317,7 @@ const Campaign = (() => {
     const nextIdx = LV.findIndex((l, i) => unlocked(i) && !Campaign.isBeaten(i, ui.beaten));
     const rows = LV.map((l, i) => {
       const open = unlocked(i), won = Campaign.isBeaten(i, ui.beaten);
-      const state = won ? '<span class="pill ok">✓ Beaten</span>' : open ? `<span class="pill go">${i === nextIdx ? 'Begin' : 'Play'} ›</span>` : '<span class="lockmsg" role="img" aria-label="Locked">🔒</span>';
+      const state = won ? '<span class="pill ok">✓ Beaten</span>' : open ? '' : '<span class="lockmsg" role="img" aria-label="Locked">🔒</span>';          // (the whole card is the button: no Begin)
       return `<button class="lvl${open ? '' : ' locked'}${won ? ' done' : ''}${i === nextIdx ? ' next' : ''}" data-act="level" data-i="${i}"${open ? '' : ' aria-disabled="true"'}>
         ${miniBoard(l)}<span class="lv-text"><b>${esc(l.name)}</b></span><span class="state">${state}</span></button>`;
     }).join('');
@@ -2454,20 +2433,20 @@ const Campaign = (() => {
   // Settings: prompts above the board, and (for playtesting, or if you just want everything) unlock every level.
   function settingsHTML() {
     const seg = `<span class="seg">${['auto', 'on', 'off'].map(v => `<button class="${ui.hints === v ? 'on' : ''}" data-act="hints" data-v="${v}">${v[0].toUpperCase() + v.slice(1)}</button>`).join('')}</span>`;
-    const unlock = ui.settings === 'unlock'
-      ? `<div class="warn"><p class="warn-h">Unlock all opponents?</p>
-           <p>This opens every level right away. Playing through the campaign — beating each opponent to unlock the next — is the intended way to learn the game, and unlocking skips that. You can lock them again here at any time.</p>
+    // the two questions are cards laid over the settings (which stay exactly where they are behind them)
+    const ask = ui.settings === 'unlock'
+      ? `<div class="tip warn" role="alertdialog"><h2>Unlock all opponents?</h2><p>Every level opens right away. Playing through the campaign, beating each opponent to unlock the next, is the intended way to learn the game. You can lock them again here at any time.</p>
            <button class="big" data-act="unlock-yes">Unlock all</button><button class="big alt" data-act="unlock-no">Keep the campaign as is</button></div>`
       : ui.settings === 'reset'
-        ? `<div class="warn"><p class="warn-h">Reset the campaign?</p><p>Every opponent you have beaten goes back to locked, except Beginner, and unlocking all opponents is switched off. Games in progress are not affected.</p>
-             <button class="big danger" data-act="reset-yes">Reset campaign</button><button class="big alt" data-act="reset-no">Keep my progress</button></div>`
-      : `${ui.unlockAll ? '<p class="ok">✓ All opponents are unlocked.</p>' : '<button class="ghost" data-act="unlock-ask">Unlock all opponents…</button>'}<button class="ghost" data-act="reset-ask">Reset campaign…</button>`;
+        ? `<div class="tip warn" role="alertdialog"><h2>Reset the campaign?</h2><p>Every opponent you have beaten goes back to locked, except Beginner, and unlocking all opponents is switched off. Games in progress are not affected.</p>
+             <button class="big danger" data-act="reset-yes">Reset campaign</button><button class="big alt" data-act="reset-no">Keep my progress</button></div>` : '';
+    const campaignRows = `${ui.unlockAll ? '<p class="ok">✓ All opponents are unlocked.</p>' : '<button class="ghost" data-act="unlock-ask">Unlock all opponents…</button>'}<button class="ghost" data-act="reset-ask">Reset campaign…</button>`;
     const soundSeg = `<span class="seg">${[['on', 'On'], ['off', 'Off']].map(([v, t]) => `<button class="${(ui.sound ? 'on' : 'off') === v ? 'on' : ''}" data-act="sound" data-v="${v}">${t}</button>`).join('')}</span>`;
     return `<div class="screen help settings" style="z-index:6"><div class="sheet"><h1>Settings</h1>
       <h3>Sound effects</h3><p>${soundSeg}</p>
       <h3>Prompts above the board</h3><p>${seg}</p><p class="dim">Auto shows them until you have finished one game on this device.</p>
-      <h3>Campaign</h3>${unlock}
-      ${ui.settings === 'unlock' || ui.settings === 'reset' ? '' : '<button class="big" data-act="closesettings">Done</button>'}</div></div>`;
+      <h3>Campaign</h3>${campaignRows}
+      <button class="big" data-act="closesettings">Done</button></div>${ask ? `<div class="tipback mid">${ask}</div>` : ''}</div>`;
   }
 
   // A reminder about tiles on the table must never hide them: the card moves to the half of the page the tile is not in, and the tile itself is drawn again above the dimmed page.

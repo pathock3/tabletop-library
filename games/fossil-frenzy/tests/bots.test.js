@@ -84,11 +84,13 @@ const recallRate = (memory, ageTurns, N = 3000) => {
   return { right: right / N, aimed: aimed / N };
 };
 
-test('memory: a fact recalled right now is exact; one that is a few turns old is recalled with probability memory^age', () => {
+test('memory: what was seen within the last couple of turns is recalled exactly; older facts fade, recalled with probability retention^(age - fresh turns)', () => {
   assert.equal(recallRate(0.5, 0).right, 1, 'seen this very turn: exact');
   assert.equal(recallRate(1, 12).right, 1, 'perfect memory never slips');
-  for (const [m, age] of [[0.9, 3], [0.8, 5], [0.95, 8]]) {
-    const r = recallRate(m, age).right, want = Math.pow(m, age);
+  const fresh = GAME_DATA.ai.tuning.freshTurns;
+  assert.equal(recallRate(0.5, fresh).right, 1, 'seen this round: exact, even for a poor memory');
+  for (const [m, age] of [[0.9, 3 + fresh], [0.8, 5 + fresh], [0.95, 8 + fresh]]) {
+    const r = recallRate(m, age).right, want = Math.pow(m, age - fresh);
     assert.ok(Math.abs(r - want) < 0.04, `memory ${m}, age ${age}: recalled ${r.toFixed(3)}, expected ${want.toFixed(3)}`);
   }
 });
@@ -208,3 +210,23 @@ test('the tutorial bot plays at random: it loses to every campaign level', () =>
 });
 
 void lateGame;
+
+test('the easy opponents go for a pair they have both just seen: it flipped one, the other player flipped the matching one, and it takes the pair (even Beginner and Novice)', () => {
+  for (const id of ['beginner', 'novice']) {
+    const lv = Campaign.levels().find(l => l.id === id);
+    let n = 0, took = 0;
+    for (let seed = 1; seed <= 120; seed++) {
+      const st = Engine.createGame({ players: 2, seed, data: Campaign.gameData(lv) });
+      const bot = Bots.attach(st, [null, lv.ai], seed)[1];
+      while (st.current !== 1) Engine.endTurn(st);
+      const by = {}; st.tokens.filter(t => !t.gem).forEach(t => (by[t.value] = by[t.value] || []).push(t));
+      const v = Object.keys(by).map(Number).sort((a, b) => b - a).find(k => by[k].length >= 2); if (v === undefined) continue;
+      const [A, B] = by[v], rest = st.tokens.filter(t => t.id !== A.id && t.id !== B.id && !t.gem);
+      Engine.peek(st, rest[0].id); Engine.flipOther(st, A.id); Engine.endTurn(st);        // its own turn: it flips A
+      Engine.peek(st, rest[1].id); Engine.flipOther(st, B.id); Engine.endTurn(st);        // the other player flips the match
+      for (let g = 0; g < 50 && !st.over; g++) { const a = bot.decide(Engine.publicView(st, 1)); if (!a || a.type === 'endTurn') break; Engine.apply(st, a); }
+      n++; if (st.turn.matched && st.turn.matched.includes(A.id)) took++;
+    }
+    assert.ok(took / n >= 0.95, `${id}: took the pair ${took} of ${n}`);
+  }
+});

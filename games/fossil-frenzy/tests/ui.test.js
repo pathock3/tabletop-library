@@ -69,7 +69,7 @@ const quitToStart = async page => { await page.tap('[data-act=menu]'); await pag
 const idle = page => page.waitForFunction(() => { const u = window.FossilFrenzyUI.ui; return (!u.steps || u.stage >= u.steps.length) && !u.fx; });   // an opponent's turn has finished being shown (and its film, if it found or dug a map)
 // (a match ends the turn by itself once its film has played; otherwise there is the End turn button)
 const takeATurn = async page => {
-  await idle(page); if (await page.locator('.bankcard').count()) await page.tap('.bankcard');
+  await idle(page);
   const turn = await page.evaluate(() => window.FossilFrenzyUI.ui.st.turnNo);
   await page.tap(await firstFree(page)); await page.tap(await otherFree(page));
   await page.waitForFunction(t => { const u = window.FossilFrenzyUI.ui; return u.st.over || u.st.turnNo !== t || (!u.fx && !!document.querySelector('[data-act=end]')); }, turn, { timeout: 15000 });
@@ -115,7 +115,6 @@ async function playByTaps(page, humanSeats) {
       if (real.over) return ui.overSeen ? { done: true } : { sel: '[data-act=results]' };          // the last match has played out: tap for the results
       if (ui.tip) return { sel: '[data-act=tip-ok]' };
       if (ui.turnCard) return { sel: '[data-act=begin]' };
-      if (document.querySelector('.bankcard')) return { sel: '.bankcard' };      // the opponent banked: its banner sits over the board; tap it to go on
       // while an opponent's finished turn is on the board, my first tap ends it and starts mine: plan from there
       let st = real;
       if (ui.botWaiting) { st = Engine.restore(Engine.serialize(real), { data: real.data }); Engine.endTurn(st); }
@@ -938,7 +937,7 @@ test('no Continue: an opponent\'s turn stays on the board until I tap a fossil, 
   } finally { await browser.close(); }
 });
 
-test('the opponent banks: a clear banner says what it banked, what it scored and its new total — and a tap on the map starts my turn', SKIP, async () => {
+test('the opponent banks: no pop-up, the little line says what it dug and what it scored — and a tap on the board starts my turn', SKIP, async () => {
   const { browser, page, errors } = await open();
   try {
     await campaign(page, 0);
@@ -950,16 +949,13 @@ test('the opponent banks: a clear banner says what it banked, what it scored and
       if (await page.evaluate(() => window.FossilFrenzyUI.ui.botWaiting)) { await page.tap(await firstFree(page)); await page.tap(await otherFree(page)); await page.tap('[data-act=end]'); }
       else await takeATurn(page);
     }
-    const txt = await page.locator('.bankcard').innerText();
-    assert.match(txt, /Beginner scored/);
-    assert.match(txt, /\+7/);
-    assert.doesNotMatch(txt, /Score now/, 'the score is up in the bar already');
+    assert.equal(await page.locator('.bankcard, [data-act=dismissbank]').count(), 0, 'no pop-up for it');
+    assert.match(await page.locator('.event').innerText(), /Beginner dug up treasure: \+7/, 'the little line says what happened');
     assert.equal(await page.locator('.chip.cur .pts').innerText(), '7');
     assert.equal(await page.locator('button', { hasText: /continue/i }).count(), 0);
-    assert.equal(await page.locator('button.bankcard[data-act=dismissbank]').count(), 1, 'the banner is itself a button');
-    await page.tap('.bankcard');                                           // tap it: it goes away and my turn begins (nothing peeked yet)
-    assert.equal(await page.locator('.bankcard').count(), 0);
-    assert.equal(await page.evaluate(() => [window.FossilFrenzyUI.ui.st.current, window.FossilFrenzyUI.ui.st.phase].join()), '0,action');
+    await page.tap(await firstFree(page));                                 // a tap on the board starts my turn (it is my peek)
+    assert.equal(await page.evaluate(() => [window.FossilFrenzyUI.ui.st.current, window.FossilFrenzyUI.ui.st.phase].join()), '0,peeked');
+    assert.equal(await page.locator('.event').count(), 0, 'and the line is gone');
     assert.deepEqual(errors, []);
   } finally { await browser.close(); }
 });
@@ -977,27 +973,6 @@ test('after I bank, the turn is over at once and the opponent starts — what I 
   } finally { await browser.close(); }
 });
 
-test('the opponent\'s bank banner goes away on a tap anywhere: on the map it also starts my turn with that peek; elsewhere it just clears', SKIP, async () => {
-  const { browser, page, errors } = await open();
-  try {
-    for (const where of ['map', 'header']) {
-      await campaign(page, 0);
-      await page.evaluate(() => { const { ui } = window.FossilFrenzyUI; ui.st.players[1].sets = [{ value: 7, gem: false, size: 2, ids: [] }, { value: 3, gem: false, size: 2, ids: [] }]; ui.bots[1].profile.endSense = 0; ui.st.rng = () => 0.01; });
-      for (let i = 0; i < 8 && !(await page.evaluate(() => window.FossilFrenzyUI.ui.botWaiting && window.FossilFrenzyUI.ui.st.turn.banked)); i++) await takeATurn(page);
-      assert.equal(await page.locator('.bankcard').count(), 1);
-      if (where === 'map') {
-        await page.tap(await firstFree(page));
-        assert.equal(await page.evaluate(() => [window.FossilFrenzyUI.ui.st.current, window.FossilFrenzyUI.ui.st.phase].join()), '0,peeked');
-      } else {
-        await page.tap('.legend');                                         // empty space above the board
-        assert.equal(await page.evaluate(() => [window.FossilFrenzyUI.ui.st.current, window.FossilFrenzyUI.ui.st.phase].join()), '0,action');
-      }
-      assert.equal(await page.locator('.bankcard').count(), 0);
-      await quitToStart(page);
-    }
-    assert.deepEqual(errors, []);
-  } finally { await browser.close(); }
-});
 
 test('end of game: the choices are plain buttons — play again (or the next level) and Main menu; no hidden "Levels"', SKIP, async () => {
   const { browser, page, errors } = await open();
@@ -1085,7 +1060,6 @@ test('sound: an opponent\'s moves are heard as they are shown — its peek, its 
     // play a few turns; whenever an opponent's turn is shown its moves must be heard
     let heardOpp = false;
     for (let i = 0; i < 12 && !heardOpp; i++) {
-      if (await page.locator('.bankcard').count()) await page.tap('.bankcard');
       await takeATurn(page);
       await page.waitForTimeout(1600);                                       // let its turn play out
       heardOpp = await page.evaluate(() => window.FossilFrenzyUI.ui.botWaiting && window.FossilFrenzyUI.audio.played.length >= 5);
@@ -1340,7 +1314,6 @@ test('a visible tell: when an opponent slips (taps the wrong spot, or plays a ra
     await campaign(page, 0);                                               // Beginner slips a lot
     let said = '';
     for (let i = 0; i < 60 && !said; i++) {
-      if (await page.locator('.bankcard').count()) await page.tap('.bankcard');
       await takeATurn(page);
       said = await page.evaluate(() => (window.FossilFrenzyUI.ui.botWaiting ? window.FossilFrenzyUI.ui.say : ''));
     }
@@ -1602,7 +1575,7 @@ test('layout, portrait first: iPad portrait (820 x 1180) and iPhone 17 portrait 
   }
 });
 
-test('campaign screen: a full-width card per opponent with its board and name (no sizes, no worths, no unlock text, no dots), Begin / Play / Beaten / a lock; big back button', SKIP, async () => {
+test('campaign screen: a full-width card per opponent with its board and name (no sizes, no worths, no unlock text, no dots, no Begin button: the whole card is the button), Beaten / a lock; big back button', SKIP, async () => {
   for (const [w, h] of [[820, 1180], [402, 874]]) {
     const { browser, page, errors } = await open({ viewport: { width: w, height: h } });
     try {
@@ -1613,7 +1586,7 @@ test('campaign screen: a full-width card per opponent with its board and name (n
       assert.equal(await page.locator('.camp-head .pips, .progress').count(), 0, 'no row of dots next to the title');
       assert.doesNotMatch(await page.locator('.sheet').innerText(), /opponents? beaten|Choose your opponent/i);
       assert.match(await rows.nth(0).innerText(), /Beginner[\s\S]*Beaten/);
-      assert.match(await rows.nth(1).innerText(), /Novice[\s\S]*Begin/);
+      assert.match(await rows.nth(1).innerText(), /Novice/);
       assert.match(await rows.nth(2).innerText(), /Normal/);
       assert.doesNotMatch(await page.locator('.levels').innerText(), /tiles|worth|unlock|Beat \w+ to/i, 'no sizes, gem worths or unlock requirements: the lock says it');
       assert.equal(await rows.nth(2).locator('[aria-label=Locked]').count(), 1);
@@ -1786,15 +1759,6 @@ test('iPhone 17 portrait: no menu screen scrolls — home, settings (and its two
   }
 });
 
-test('the opponent scores: the alert says "<name> scored" and the points, nothing more (no "dug a map", no "tap anywhere")', SKIP, async () => {
-  const { browser, page, errors } = await open();
-  try {
-    await campaign(page, 0);
-    await page.evaluate(() => { const { ui, render } = window.FossilFrenzyUI, st = ui.st; ui.botWaiting = true; st.current = 1; st.turn.banked = true; st.lastBank = { player: 1, value: 7, gem: false, base: 7, total: 7, setsLeft: 0 }; ui.turnCard = false; render(); });
-    assert.deepEqual((await page.locator('.bankcard').innerText()).split('\n').filter(Boolean), ['Beginner scored', '+7']);
-    assert.deepEqual(errors, []);
-  } finally { await browser.close(); }
-});
 
 test('the last match of the game plays its film, and the board stays on the table until a tap brings up the results', SKIP, async () => {
   for (const animated of [true, false]) {
@@ -1845,33 +1809,35 @@ test('the board never moves: maps, a lot of maps, a longer hint, an opponent\'s 
   }
 });
 
-test('scoring is a show: the map goes to the middle of the table, opens as a chest, and says "<name> dug up treasure: +N" in big letters — for me and for the opponent — then the points count up', SKIP, async () => {
+test('scoring is quick: a chest pops open in the middle of the table (under a second), coins burst, the points fly to the score and count up; the little line says what happened — for me and for the opponent; no pop-up', SKIP, async () => {
   const { browser, page, errors } = await open({ animated: true, viewport: { width: 820, height: 1180 } });
   try {
     await passAndPlay(page, 2);
     await page.evaluate(() => { const { ui, render } = window.FossilFrenzyUI; ui.st.players[ui.st.current].sets = [{ value: 9, gem: false, size: 2, ids: [] }]; render(); });
+    const t0 = Date.now();
     await page.tap('.chip.cur .setbtn[data-i="0"]');
-    await page.waitForSelector('#fx .digtxt');
-    const mid = await page.evaluate(() => { const b = document.querySelector('.boardwrap').getBoundingClientRect(), c = document.querySelector('#fx .chest').getBoundingClientRect(), t = document.querySelector('#fx .digtxt').getBoundingClientRect(); return { chestX: Math.abs((c.left + c.width / 2) - (b.left + b.width / 2)), chestW: document.querySelector('#fx .chest').offsetWidth, textW: t.width, textBelow: t.top > c.top + c.height * 0.5, font: parseFloat(getComputedStyle(document.querySelector('#fx .digtxt')).fontSize) }; });
-    assert.ok(mid.chestX < 4, 'the chest is in the middle of the board: ' + mid.chestX);
-    assert.ok(mid.chestW >= 150 && mid.font >= 26, 'big: chest ' + mid.chestW + ', text ' + mid.font);
-    assert.match(await page.locator('#fx .digtxt').innerText().then(t => t.replace(/\s+/g, ' ')), /Player \d dug up treasure: \+9/);
-    await page.waitForFunction(() => document.getElementById('live').textContent.length > 0, null, { timeout: 5000 });
-    assert.match(await page.locator('#live').textContent(), /dug up treasure: \+9/, 'announced for screen readers too');
-    assert.equal(await page.locator('#fx .coin').count(), 12, 'a burst of coins');
+    await page.waitForSelector('#fx .chest');
+    const mid = await page.evaluate(() => { const b = document.querySelector('.boardwrap').getBoundingClientRect(), c = document.querySelector('#fx .chest'); const r = c.getBoundingClientRect(); return { chestX: Math.abs((r.left + r.width / 2) - (b.left + b.width / 2)), chestW: c.offsetWidth }; });
+    assert.ok(mid.chestX < 4 && mid.chestW >= 140, 'a big chest in the middle of the board: ' + JSON.stringify(mid));
+    assert.equal(await page.locator('#fx .plus').innerText(), '+9');
+    assert.equal(await page.locator('#fx .coin').count(), 10, 'a burst of coins');
+    assert.equal(await page.locator('#fx .digtxt, .bankcard').count(), 0, 'no words on top of it');
     await page.waitForFunction(() => !window.FossilFrenzyUI.ui.fx, null, { timeout: 15000 });
-    // the opponent: the same film and words (a rigged turn that is just a bank)
+    assert.ok(Date.now() - t0 < 1800, 'quick: ' + (Date.now() - t0) + ' ms');
+    assert.match(await page.locator('#live').textContent(), /dug up treasure: \+9/, 'announced for screen readers');
+    // the opponent: the same film (a rigged turn that is just a bank), then the little line says it
     await quitToStart(page);
     await page.evaluate(() => localStorage.setItem('tabletop-library-fossil-frenzy-tips', JSON.stringify(['match', 'gem']))); await page.reload();
     await chooseMode(page, 'campaign'); await page.tap('[data-act=level][data-i="0"]'); await page.tap('[data-act=begin]');
     await page.evaluate(() => {
       const { ui, render } = window.FossilFrenzyUI, st = ui.st; ui.turnCard = false; st.current = 1; st.players[1].points = 7; st.players[1].sets = [];
+      st.turn.banked = true; st.lastBank = { player: 1, value: 7, gem: false, base: 7, total: 7, setsLeft: 0 };
       ui.base = { points: 0, sets: [{ value: 7, gem: false, size: 2 }] }; ui.steps = [{ a: { type: 'bank', set: 0 }, snap: { points: 7, sets: [] } }]; ui.stage = 0; ui.botWaiting = true; render(); window.FossilFrenzyUI.startAnim();
     });
     await page.waitForFunction(() => window.FossilFrenzyUI.ui.fx && window.FossilFrenzyUI.ui.fx.kind === 'dig', null, { timeout: 5000 });
-    assert.match(await page.locator('#fx .digtxt').innerText().then(t => t.replace(/\s+/g, ' ')), /Beginner dug up treasure: \+7/);
     await page.waitForFunction(() => !window.FossilFrenzyUI.ui.fx, null, { timeout: 15000 });
     assert.equal(await page.evaluate(() => document.querySelector('.chip[data-p="1"] .pts').textContent), '7');
+    assert.match(await page.locator('.event').innerText(), /Beginner dug up treasure: \+7/);
     assert.deepEqual(errors, []);
   } finally { await browser.close(); }
 });
