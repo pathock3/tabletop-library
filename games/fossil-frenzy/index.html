@@ -292,6 +292,50 @@ h2 { margin: 18px 0 8px; font-size: 14px; text-transform: uppercase; letter-spac
 @keyframes fall { 0% { transform: translateY(0) translateX(0) rotate(0); opacity: 1; } 100% { transform: translateY(105vh) translateX(var(--dx)) rotate(540deg); opacity: .9; } }
 @media (prefers-reduced-motion: reduce) { .unlock { animation: none; } .confetti { display: none; } }
 .dim { color: var(--dim); font-size: 13px; }
+/* ---------- iPhone portrait (402 x 874, minus the status bar and the home bar): no menu screen scrolls ---------- */
+@media (max-width: 480px), (max-height: 700px) {
+  .screen:not(.home) { padding: 12px 16px; }
+  h1 { font-size: 30px; margin-bottom: 2px; }
+  h2 { margin: 12px 0 6px; font-size: 12px; }
+  .sub { margin-bottom: 8px; font-size: 14px; }
+  .back { min-height: 44px; margin: 0 0 8px; }
+  .big { margin-top: 12px; padding: 14px; font-size: 18px; }
+  .big.alt { margin-top: 8px; }
+  .ghost { margin-top: 8px; padding: 10px 14px; }
+  .seatrow { margin: 5px 0; }
+  .seatrow input { padding: 8px 12px; }
+  .seg button { padding: 8px 14px; }
+  .dim { font-size: 12px; }
+  .pass-note { display: none; }
+  .settings h3 { margin: 12px 0 2px; }
+  .settings .warn { padding: 2px 12px 12px; }
+  .settings .warn p { font-size: 14px; margin: 8px 0; }
+  .help .hline { font-size: 14px; margin: 5px 0; }
+  .how { grid-template-columns: 1fr 1fr; gap: 8px; margin: 8px 0 4px; }
+  .hcard { padding: 6px 10px 8px; gap: 2px; }
+  .hcard svg { max-height: 54px; }
+  .hcard b { font-size: 15px; }
+  .hcard p { font-size: 12.5px; line-height: 1.3; }
+  .fine summary { padding: 6px 0; }
+  .fine[open] { max-height: 26vh; overflow-y: auto; -webkit-overflow-scrolling: touch; }
+  .fossils .frow { padding: 5px 0; gap: 10px; }
+  .fossils .frow .mini { min-width: 38px; height: 38px; font-size: 20px; }
+  .fossils .frow b { font-size: 20px; }
+  .fossils .frow span.what { font-size: 13px; }
+  .results { grid-template-columns: 1fr 1fr; gap: 8px; margin: 4px 0; }
+  .place { padding: 8px 10px; gap: 3px; }
+  .place .pn { font-size: 16px; }
+  .place .score { font-size: 48px; letter-spacing: -1px; }
+  .place .tiles { min-height: 24px; }
+  .rowlab { font-size: 11px; }
+  .mini { min-width: 24px; height: 24px; font-size: 13px; }
+  .over-sheet h1 { font-size: 28px; margin-bottom: 6px; }
+  .unlock { margin: 0 0 8px; font-size: 16px; }
+  .lvl { min-height: 80px; padding: 8px 14px 8px 10px; gap: 12px; }
+  .lvl .mini-board { width: 62px; height: 62px; }
+  .levels { gap: 8px; }
+  .camp-head { margin-bottom: 8px; }
+}
 </style>
 </head>
 <body>
@@ -2118,11 +2162,11 @@ const Campaign = (() => {
       <h2>Players</h2><span class="seg">${Array.from({ length: D.players.max - D.players.min + 1 }, (_, k) => k + D.players.min).map(n => `<button class="${p.n === n ? 'on' : ''}" data-act="n" data-v="${n}">${n}</button>`).join('')}</span>
       ${seats}
       <h2>Board size</h2><span class="seg sizes">${D.passBoards.map(b => { const lv = LV[levelIndexOf(b.level)], n = lv.tokens.reduce((a, t) => a + t.count, 0); return `<button class="${passBoard().id === b.id ? 'on' : ''}" data-act="size" data-v="${b.id}"><b>${esc(b.name)}</b><small>${n} tiles</small></button>`; }).join('')}</span>
-      <p class="dim">${p.size ? 'The size you chose.' : `Picked for ${p.n} players: more people, a bigger board.`} Bigger boards have more tiles to remember${LV[levelIndexOf(passBoard().level)].tokens.some(t => t.gem) ? ', and gem maps' : ' (and no gem maps)'}.</p>
+      <p class="dim pass-note">${p.size ? 'The size you chose.' : `Picked for ${p.n} players: more people, a bigger board.`} Bigger boards have more tiles to remember${LV[levelIndexOf(passBoard().level)].tokens.some(t => t.gem) ? ', and gem maps' : ' (and no gem maps)'}.</p>
       <h2>Rules reminders</h2><span class="seg">${[['on', 'On'], ['off', 'Off']].map(([v, t]) => `<button class="${(p.reminders ? 'on' : 'off') === v ? 'on' : ''}" data-act="reminders" data-v="${v}">${t}</button>`).join('')}</span>
-      <p class="dim">A short note the first time a match or a gem comes up. Turn it off once everyone knows the rules.</p>
+      <p class="dim pass-note">A short note the first time a match or a gem comes up. Turn it off once everyone knows the rules.</p>
       <button class="big" data-act="deal">${sv && !sv.campaign ? 'Start a new game' : 'Deal the tiles'}</button>
-      ${sv && !sv.campaign ? '<p class="dim">Your saved game is replaced.</p>' : ''}
+      ${sv && !sv.campaign ? '<p class="dim pass-note">Your saved game is replaced.</p>' : ''}
     </div></div>`;
   }
 

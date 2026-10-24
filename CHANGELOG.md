@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- **Torn Treasure — iPhone 17 (portrait): no menu screen scrolls.** Home, Settings (and its two questions), How to play, Campaign, Pass & Play setup (4 players), the tiles list and the end screen (4 players, full rows) all fit in 874 px and in 780 px (what is left once the status bar and the home bar are taken off), with tighter spacing on narrow screens. The one exception is the opened "fine print" list in How to play, which scrolls inside its own little box (the rest of the screen stays put). The end screen shows the players two by two.
+
 - **Torn Treasure — the campaign cards** say only the opponent's name, a picture of its board and its state (Beaten, Next up, Play, or a lock): no tile counts, no gem worths, no "Beat X to unlock". The "Choose your opponent" line and the "N of 5 beaten" words are gone too: the five progress dots sit at the top, beside the title.
 
 - **Torn Treasure — opens on the Main Menu**, never in the game you last played (a game in progress is one tap away: **Continue**).

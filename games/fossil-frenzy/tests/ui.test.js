@@ -1751,3 +1751,29 @@ test('reminder: gems are explained when a gem is first revealed (not at the star
     assert.deepEqual(errors, []);
   } finally { await browser.close(); }
 });
+
+test('iPhone 17 portrait: no menu screen scrolls — home, settings (and its two questions), how to play, campaign, Pass & Play setup, the tiles list, the end screen — even with 780 px (the status and home bars take the rest)', SKIP, async () => {
+  for (const H of [874, 780]) {
+    const { browser, page, errors } = await open({ viewport: { width: 402, height: H } });
+    try {
+      await page.evaluate(() => localStorage.setItem('tabletop-library-fossil-frenzy-campaign', JSON.stringify({ beaten: ['beginner'] }))); await page.reload();
+      const fits = async name => {
+        const r = await page.evaluate(() => { const s = [...document.querySelectorAll('.screen')].pop(), box = (s.querySelector('.sheet') || s).getBoundingClientRect(); return { sh: s.scrollHeight, ch: s.clientHeight, top: box.top, bottom: box.bottom, h: innerHeight }; });
+        assert.ok(r.sh <= r.ch + 1, `${name} (${H}) scrolls: ${r.sh} > ${r.ch}`);
+        assert.ok(r.top >= 0 && r.bottom <= r.h + 1, `${name} (${H}) is inside the screen: ${r.top}..${r.bottom}`);
+      };
+      await fits('home');
+      await page.tap('[data-act=settings]'); await fits('settings'); await page.tap('[data-act=unlock-ask]'); await fits('settings: unlock'); await page.tap('[data-act=unlock-no]');
+      await page.tap('[data-act=reset-ask]'); await fits('settings: reset'); await page.tap('[data-act=reset-no]'); await page.tap('[data-act=closesettings]');
+      await page.tap('[data-act=help]'); await fits('how to play'); await page.tap('[data-act=closehelp]');
+      await page.tap('[data-act=mode][data-v=campaign]'); await fits('campaign'); await page.tap('[data-act=home]');
+      await page.tap('[data-act=mode][data-v=pass]'); await page.tap('[data-act=n][data-v="4"]'); await fits('pass & play setup, 4 players');
+      await page.tap('[data-act=deal]'); await page.tap('[data-act=begin]');
+      await page.tap('[data-act=menu]'); await page.tap('[data-act=fossils]'); await fits('tiles list'); await page.tap('[data-act=closefossils]');
+      await page.evaluate(() => { const { ui, render } = window.FossilFrenzyUI, st = ui.st; st.over = true; st.phase = 'over'; st.players.forEach((p, i) => { p.points = 40 - i * 5; p.banked = Array.from({ length: 7 - i }, (_, k) => ({ value: [2, 3, 5, 6, 9, 10, 12][k], gem: k === 6, base: 3 })); p.sets = Array.from({ length: 4 }, () => ({ value: 5, gem: false, size: 2, ids: [] })); }); st.result = Engine.computeResult(st); render(); });
+      await fits('end screen, 4 players, full rows');
+      await page.tap('[data-act=home]'); await fits('home, with a game to continue'); await page.tap('[data-act=mode][data-v=pass]'); await fits('pass & play setup'); 
+      assert.deepEqual(errors, []);
+    } finally { await browser.close(); }
+  }
+});
