@@ -553,7 +553,7 @@ const GAME_DATA = {
     // How the smart opponent weighs things, and what the 0-10 scores mean in numbers. Calibration numbers (see games/fossil-frenzy/docs/AI.md), shared by every level.
     tuning: {
       retentionAtZero: 0.5,                                      // memory skill 0 = a memory survives a turn half the time; skill 10 = always
-      freshTurns: 2,                                             // ...but nobody forgets what they saw this very round: a fact up to this many turns old is recalled for certain (it only starts fading after that)
+      freshTurns: 2, freshFade: 0.2,                             // ...but what was seen this very round is almost always still there: for a fact up to `freshTurns` old, memory fades at only `freshFade` of its normal speed (never to certain: even a fresh memory can be off)
       nearMiss: 0.5,                                             // when memory slips: how often it taps a neighbour of the right fossil rather than any fossil
       endHabits: [                                               // an opponent with almost no endgame sense banks by rule of thumb (endSense at or below `upTo`)
         { upTo: 0.5, bankAt: 2, endgameTiles: 0 },               //   bank as soon as it holds 2 sets
@@ -987,7 +987,8 @@ const Bots = (() => {
     };
 
     // does it recall a fact exactly right now?  (memory^age)
-    const trueRecall = f => (retention() >= 1 ? 1 : Math.max(T.recallFloor, Math.pow(retention(), Math.max(0, bot.turnIx - f.t - T.freshTurns))));      // (a small floor, so a forgetful bot can never be stuck for good)
+    const fadedAge = age => (age <= T.freshTurns ? age * T.freshFade : T.freshTurns * T.freshFade + (age - T.freshTurns));          // (a fresh memory fades slowly at first, then at the normal speed)
+    const trueRecall = f => (retention() >= 1 ? 1 : Math.max(T.recallFloor, Math.pow(retention(), fadedAge(bot.turnIx - f.t))));      // (a small floor, so a forgetful bot can never be stuck for good)
     const recalls = f => retention() >= 1 || rnd() < trueRecall(f);
     // how reliable the bot THINKS a memory is: the truth, or — if it is overconfident — closer to certain
     const believedRecall = f => { const p = trueRecall(f); return p + overconfidence() * (1 - p); };

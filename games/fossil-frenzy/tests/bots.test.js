@@ -84,15 +84,16 @@ const recallRate = (memory, ageTurns, N = 3000) => {
   return { right: right / N, aimed: aimed / N };
 };
 
-test('memory: what was seen within the last couple of turns is recalled exactly; older facts fade, recalled with probability retention^(age - fresh turns)', () => {
+test('memory: nothing is recalled for certain except by a perfect memory — a fresh fact almost always (fading slowly at first), an old one with probability retention^age', () => {
+  const T = GAME_DATA.ai.tuning, fade = age => (age <= T.freshTurns ? age * T.freshFade : T.freshTurns * T.freshFade + (age - T.freshTurns));
   assert.equal(recallRate(0.5, 0).right, 1, 'seen this very turn: exact');
   assert.equal(recallRate(1, 12).right, 1, 'perfect memory never slips');
-  const fresh = GAME_DATA.ai.tuning.freshTurns;
-  assert.equal(recallRate(0.5, fresh).right, 1, 'seen this round: exact, even for a poor memory');
-  for (const [m, age] of [[0.9, 3 + fresh], [0.8, 5 + fresh], [0.95, 8 + fresh]]) {
-    const r = recallRate(m, age).right, want = Math.pow(m, age - fresh);
+  for (const [m, age] of [[0.5, 1], [0.76, 2], [0.9, 3], [0.8, 5], [0.95, 8]]) {
+    const r = recallRate(m, age).right, want = Math.pow(m, fade(age));
     assert.ok(Math.abs(r - want) < 0.04, `memory ${m}, age ${age}: recalled ${r.toFixed(3)}, expected ${want.toFixed(3)}`);
+    if (age <= T.freshTurns && m < 1) assert.ok(r < 1 && r > 0.6, 'a fresh memory is almost, never quite, certain: ' + r);
   }
+  assert.ok(recallRate(0.76, 2).right > recallRate(0.76, 4).right && recallRate(0.76, 4).right > recallRate(0.76, 8).right, 'it keeps declining');
 });
 
 test('memory: an older memory is worse than a newer one, and a better memory is better than a worse one', () => {
@@ -211,7 +212,7 @@ test('the tutorial bot plays at random: it loses to every campaign level', () =>
 
 void lateGame;
 
-test('the easy opponents go for a pair they have both just seen: it flipped one, the other player flipped the matching one, and it takes the pair (even Beginner and Novice)', () => {
+test('the easy opponents go for a pair they have both just seen: it flipped one, the other player flipped the matching one, and it nearly always takes the pair (even Beginner and Novice) — but not always: a memory can be off', () => {
   for (const id of ['beginner', 'novice']) {
     const lv = Campaign.levels().find(l => l.id === id);
     let n = 0, took = 0;
@@ -227,6 +228,6 @@ test('the easy opponents go for a pair they have both just seen: it flipped one,
       for (let g = 0; g < 50 && !st.over; g++) { const a = bot.decide(Engine.publicView(st, 1)); if (!a || a.type === 'endTurn') break; Engine.apply(st, a); }
       n++; if (st.turn.matched && st.turn.matched.includes(A.id)) took++;
     }
-    assert.ok(took / n >= 0.95, `${id}: took the pair ${took} of ${n}`);
+    assert.ok(took / n >= 0.75 && took / n < 1, `${id}: took the pair ${took} of ${n} (nearly always, never always)`);
   }
 });
