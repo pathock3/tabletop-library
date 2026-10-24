@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- **Torn Treasure — a fresh visual pass for the theme (explorer's table):** dark leather with a faint map of dotted routes and red X's; **parchment cards** (modes, campaign levels, help, results, in-game menu, reminders) in brown ink with a stitched inner edge; **gold-leaf buttons**, red-wax danger buttons, serif lettering; the main menu has a compass rose behind the tile board and a dotted trail to a red X under the title; the scoreboard is leather with inked serif numbers. **New box art** in the library: a treasure map torn in two, its dotted route running across the tear to a red X, over a row of sand tiles with a matching pair of map halves, on a deep-sea backdrop. New favicon.
+
 - **Torn Treasure — the opponent's score alert** says just "Beginner scored" and "+7" (no "dug up a map", no "tap anywhere").
 - **Torn Treasure — the last match of the game is animated too,** and the board stays on the table until you tap (or press "See the results") — the results screen no longer jumps in.
 - **Torn Treasure — one saved game for the Campaign and one for Pass & Play** (the most recent of each). The Main Menu is just the Campaign and Pass & Play buttons; if that kind of game is saved, it asks: **Continue this game** or **Start a new game** (which replaces it; the other kind of game is kept).

@@ -125,29 +125,35 @@ const LIBRARY = {
   // ---- the cover art: one picture per game, drawn as a toy-like scene (never text-heavy: the name, and what you get to play with) ----
   const hex = (cx, cy, r) => Array.from({ length: 6 }, (_, i) => { const a = Math.PI / 180 * (60 * i - 30); return (cx + r * Math.cos(a)).toFixed(1) + ',' + (cy + r * Math.sin(a)).toFixed(1); }).join(' ');
   const ART = {
-    // Torn Treasure: the real board of 31 tiles — most face down (sand), a few turned up as halves of torn treasure maps, ringed in the players' colours
+    // Torn Treasure: a treasure map torn in two (the dotted route runs across the tear to a red X), and a row of sand tiles with a matching pair of map halves turned up
     'fossil-frenzy': () => {
-      const S = 20, W = Math.sqrt(3) * S, cx = 150, cy = 232, up = { 5: ['7', '#4f8cff'], 6: ['7', '#4f8cff'], 13: ['💎', '#ff5a5f'], 20: ['3', '#ff5a5f'], 25: ['10', '#3ecf8e'] };
-      const corners = new Set(['3,0', '-3,0', '0,3', '0,-3', '3,-3', '-3,3']);
-      let k = 0, tiles = '';
-      for (let r = -3; r <= 3; r++) for (let q = -3; q <= 3; q++) {
-        if (Math.abs(q + r) > 3 || corners.has(q + ',' + r)) continue;
-        const x = cx + W * (q + r / 2), y = cy + 1.5 * S * r, u = up[k++];
-        tiles += `<polygon points="${hex(x, y, S)}" fill="#2a1d14" stroke="#3d2b1d" stroke-width="1.5"/>` + (u
-          ? `<polygon points="${hex(x, y, S * 0.8)}" fill="#ecd9a8" stroke="#a58a58" stroke-width="2"/><text x="${x.toFixed(1)}" y="${(y + 1).toFixed(1)}" text-anchor="middle" dominant-baseline="central" font-size="${u[0].length > 1 && u[0] !== '💎' ? 13 : 16}" font-weight="800" fill="#2b1b10">${u[0]}</text><polygon points="${hex(x, y, S * 0.92)}" fill="none" stroke="${u[1]}" stroke-width="3"/>`
-          : `<polygon points="${hex(x, y, S * 0.8)}" fill="#a47c46" stroke="#5e4527" stroke-width="2"/><path d="M${(x - 7).toFixed(1)},${(y + 2).toFixed(1)} q3.5,-3 7,0 t7,0" fill="none" stroke="#ffeab4" stroke-opacity=".3" stroke-width="1.6" stroke-linecap="round"/><circle cx="${(x + 6).toFixed(1)}" cy="${(y + 8).toFixed(1)}" r="1.3" fill="#4a2f14" fill-opacity=".6"/><circle cx="${(x - 8).toFixed(1)}" cy="${(y - 6).toFixed(1)}" r="1.1" fill="#4a2f14" fill-opacity=".5"/>`);
-      }
-      const title = (t, y, size = 58) => `<text x="150" y="${y}" text-anchor="middle" font-size="${size}" font-weight="900" letter-spacing="-1" fill="url(#ffT)" stroke="#24140a" stroke-width="9" stroke-linejoin="round" paint-order="stroke">${t}</text>`;
+      const S = 19, W = Math.sqrt(3) * S, y0 = 318;
+      const zig = [[156, 168], [147, 189], [158, 212], [148, 236], [157, 260], [150, 282]];
+      const L = `M24,146 L152,146 ${zig.map(p => 'L' + p.join(',')).join(' ')} L152,296 L24,296 Z`;
+      const R = `M164,146 L276,146 L276,296 L164,296 ${zig.slice().reverse().map(p => 'L' + (p[0] + 12) + ',' + p[1]).join(' ')} Z`;
+      const tile = (i, kind) => {
+        const x = 150 + (i - 2) * (W + 2), y = y0;
+        if (kind === 'sand') return `<polygon points="${hex(x, y, S)}" fill="#0c1a20" stroke="#25414a" stroke-width="1.5"/><polygon points="${hex(x, y, S * 0.8)}" fill="#a47c46" stroke="#5e4527" stroke-width="2"/><path d="M${(x - 7).toFixed(1)},${(y + 2).toFixed(1)} q3.5,-3 7,0 t7,0" fill="none" stroke="#ffeab4" stroke-opacity=".3" stroke-width="1.5" stroke-linecap="round"/><circle cx="${(x + 5).toFixed(1)}" cy="${(y - 5).toFixed(1)}" r="1.2" fill="#4a2f14" fill-opacity=".6"/>`;
+        return `<polygon points="${hex(x, y, S)}" fill="#0c1a20" stroke="#25414a" stroke-width="1.5"/><polygon points="${hex(x, y, S * 0.8)}" fill="#ecd9a8" stroke="#a58a58" stroke-width="2"/><text x="${x.toFixed(1)}" y="${(y + 1).toFixed(1)}" text-anchor="middle" dominant-baseline="central" font-size="17" font-weight="900" fill="#12306b">7</text><polygon points="${hex(x, y, S * 0.92)}" fill="none" stroke="${kind === 'a' ? '#4f8cff' : '#ff5a5f'}" stroke-width="3"/>`;
+      };
+      const title = (t, y, size = 58) => `<text x="150" y="${y}" text-anchor="middle" font-size="${size}" font-weight="900" font-family="ui-serif, 'Iowan Old Style', Palatino, Georgia, serif" letter-spacing="-1" fill="url(#ffT)" stroke="#0a1418" stroke-width="9" stroke-linejoin="round" paint-order="stroke">${t}</text>`;
       return `<svg viewBox="0 0 300 380" role="img" aria-label="Torn Treasure"><defs>
-        <radialGradient id="ffB" cx="50%" cy="62%" r="75%"><stop offset="0" stop-color="#7a4620"/><stop offset=".55" stop-color="#3a2110"/><stop offset="1" stop-color="#1c0f08"/></radialGradient>
-        <radialGradient id="ffG" cx="50%" cy="50%" r="50%"><stop offset="0" stop-color="#f5a524" stop-opacity=".5"/><stop offset="1" stop-color="#f5a524" stop-opacity="0"/></radialGradient>
-        <linearGradient id="ffT" x1="0" y1="0" x2="0" y2="1"><stop offset=".1" stop-color="#ffe3a0"/><stop offset=".55" stop-color="#f5a524"/><stop offset="1" stop-color="#c8650f"/></linearGradient></defs>
-        <rect width="300" height="380" fill="url(#ffB)"/><circle cx="150" cy="232" r="150" fill="url(#ffG)"/>
-        <path d="${Array.from({ length: 90 }, (_, i) => { const a = i * .28, r = 4 + i * 1.55; return (i ? 'L' : 'M') + (232 + r * Math.cos(a)).toFixed(1) + ' ' + (60 + r * Math.sin(a)).toFixed(1); }).join('')}" fill="none" stroke="#ffd9a0" stroke-opacity=".1" stroke-width="9" stroke-linecap="round"/>
-        <path d="${Array.from({ length: 70 }, (_, i) => { const a = i * .3 + 2, r = 3 + i * 1.3; return (i ? 'L' : 'M') + (48 + r * Math.cos(a)).toFixed(1) + ' ' + (330 + r * Math.sin(a)).toFixed(1); }).join('')}" fill="none" stroke="#ffd9a0" stroke-opacity=".08" stroke-width="8" stroke-linecap="round"/>
-        ${tiles}${title('TORN', 64)}${title('TREASURE', 114, 47)}
-        <rect x="30" y="344" width="240" height="26" rx="13" fill="#1c0f08" fill-opacity=".85" stroke="#f5a524" stroke-opacity=".6"/>
-        <text x="150" y="358" text-anchor="middle" dominant-baseline="central" font-size="12.5" font-weight="800" textLength="206" lengthAdjust="spacing" fill="#ffe3a0">PEEK · FLIP · MATCH · DIG UP</text></svg>`;
+        <radialGradient id="ffB" cx="50%" cy="58%" r="80%"><stop offset="0" stop-color="#2b6371"/><stop offset=".55" stop-color="#143441"/><stop offset="1" stop-color="#08151b"/></radialGradient>
+        <linearGradient id="ffP" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#f4e5b8"/><stop offset="1" stop-color="#d3b87c"/></linearGradient>
+        <linearGradient id="ffT" x1="0" y1="0" x2="0" y2="1"><stop offset=".1" stop-color="#ffe9a8"/><stop offset=".55" stop-color="#f5b83a"/><stop offset="1" stop-color="#c8721a"/></linearGradient></defs>
+        <rect width="300" height="380" fill="url(#ffB)"/>
+        <g fill="none" stroke="#9fd6e0" stroke-opacity=".10" stroke-width="2" stroke-linecap="round"><path d="M-10 130 q20 -10 40 0 t40 0 t40 0 t40 0 t40 0 t40 0 t40 0"/><path d="M-10 346 q20 -10 40 0 t40 0 t40 0 t40 0 t40 0 t40 0 t40 0"/><path d="M-10 366 q20 -10 40 0 t40 0 t40 0 t40 0 t40 0 t40 0 t40 0"/></g>
+        <g transform="rotate(-3 90 220)"><path d="${L}" transform="translate(4 7)" fill="#000" opacity=".4"/><path d="${L}" fill="url(#ffP)" stroke="#a58a58" stroke-width="2.5" stroke-linejoin="round"/>
+          <path d="M40,262 q22,-18 44,-4 t42,-6" fill="none" stroke="#7a5a2a" stroke-opacity=".5" stroke-width="2.5"/><path d="M52,230 q18,-14 36,-2 q12,10 -2,20 q-22,8 -34,-18Z" fill="#a58a58" fill-opacity=".35" stroke="#7a5a2a" stroke-opacity=".6" stroke-width="1.5"/>
+          <path d="M44,284 Q84,236 126,252 T150,244" fill="none" stroke="#8a1a14" stroke-width="3.5" stroke-linecap="round" stroke-dasharray="1 8"/>
+          <g transform="translate(52 172)" fill="none" stroke="#1d3f86" stroke-width="1.6"><circle r="14"/><path d="M0,-18 L4,-4 L18,0 L4,4 L0,18 L-4,4 L-18,0 L-4,-4Z" fill="#1d3f86" fill-opacity=".35"/></g></g>
+        <g transform="rotate(3 220 220)"><path d="${R}" transform="translate(4 7)" fill="#000" opacity=".4"/><path d="${R}" fill="url(#ffP)" stroke="#a58a58" stroke-width="2.5" stroke-linejoin="round"/>
+          <path d="M170,250 Q196,274 222,236 T240,206" fill="none" stroke="#8a1a14" stroke-width="3.5" stroke-linecap="round" stroke-dasharray="1 8"/>
+          <path d="M236,198 l28,28 m0,-28 l-28,28" stroke="#c4271c" stroke-width="9" stroke-linecap="round"/><path d="M190,170 q16,-12 34,-4 t38,-4" fill="none" stroke="#7a5a2a" stroke-opacity=".5" stroke-width="2.5"/></g>
+        ${tile(0, 'sand')}${tile(1, 'sand')}${tile(2, 'a')}${tile(3, 'b')}${tile(4, 'sand')}
+        ${title('TORN', 66)}${title('TREASURE', 116, 47)}
+        <rect x="30" y="344" width="240" height="26" rx="13" fill="#08151b" fill-opacity=".88" stroke="#f5b83a" stroke-opacity=".7"/>
+        <text x="150" y="358" text-anchor="middle" dominant-baseline="central" font-size="12.5" font-weight="800" textLength="206" lengthAdjust="spacing" fill="#ffe9a8">PEEK · FLIP · MATCH · DIG UP</text></svg>`;
     },
     // Advanced Counting: a felt table, a 3x3 grid of cards — the first three of the count turned up, the rest face down
     'advanced-counting': () => {
