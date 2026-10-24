@@ -40,14 +40,16 @@ async function open({ viewport = { width: 1024, height: 768 }, query = '', anima
 }
 
 // ---------- ways into a game ----------
+// Choosing Campaign or Pass & Play when a game of that kind is saved asks first: these start a NEW game (which replaces the saved one); the tests of the question tap Continue themselves.
+const chooseMode = async (page, v) => { await page.tap(`[data-act=mode][data-v=${v}]`); if (await page.locator('[data-act=newgame]').count()) await page.tap('[data-act=newgame]'); };
 const passAndPlay = async (page, n) => {
-  await page.tap('[data-act=mode][data-v=pass]');
+  await chooseMode(page, 'pass');
   await page.tap(`[data-act=n][data-v="${n}"]`);
   await page.tap('[data-act=deal]');
   await page.tap('[data-act=begin]');
 };
 const campaign = async (page, level = 0) => {
-  await page.tap('[data-act=mode][data-v=campaign]');
+  await chooseMode(page, 'campaign');
   await page.tap(`[data-act=level][data-i="${level}"]`);
   await page.tap('[data-act=begin]');
 };
@@ -92,13 +94,13 @@ const forceFinish = (page, points) => page.evaluate(pts => {
   const { ui, render } = window.FossilFrenzyUI, st = ui.st;
   pts.forEach((p, i) => { st.players[i].points = p; });
   st.players.forEach(p => { p.poppedSets = 0; }); st.lastPopper = -1;     // an opponent that went first may already have popped a pair: keep every tie-break level
-  st.over = true; st.phase = 'over'; st.result = Engine.computeResult(st);
+  st.over = true; st.phase = 'over'; st.result = Engine.computeResult(st); ui.overSeen = true;          // (the results screen straight away: the tap that brings it up has its own test)
   render();
 }, points);
 
 const fingerprint = () => {
   const st = window.FossilFrenzyUI.ui.st;
-  return JSON.stringify([window.FossilFrenzyUI.ui.turnCard, !!window.FossilFrenzyUI.ui.tip, st.phase, st.turnNo, st.matchedCount, st.turn.revealed, st.players.map(p => [p.sets.length, p.points])]);
+  return JSON.stringify([window.FossilFrenzyUI.ui.turnCard, !!window.FossilFrenzyUI.ui.tip, window.FossilFrenzyUI.ui.overSeen, st.phase, st.turnNo, st.matchedCount, st.turn.revealed, st.players.map(p => [p.sets.length, p.points])]);
 };
 
 // Plays a whole game with taps only. A hidden helper bot (perfect memory) chooses what a human would tap.
@@ -110,7 +112,7 @@ async function playByTaps(page, humanSeats) {
   for (let step = 0; step < 2000; step++) {
     const plan = await page.evaluate(() => {
       const { ui } = window.FossilFrenzyUI, real = ui.st;
-      if (real.over) return { done: true };
+      if (real.over) return ui.overSeen ? { done: true } : { sel: '[data-act=results]' };          // the last match has played out: tap for the results
       if (ui.tip) return { sel: '[data-act=tip-ok]' };
       if (ui.turnCard) return { sel: '[data-act=begin]' };
       if (document.querySelector('.bankcard')) return { sel: '.bankcard' };      // the opponent banked: its banner sits over the board; tap it to go on
@@ -165,7 +167,7 @@ test('page is locked (no scrolling or zooming) and the setup screens have a back
     assert.ok(await page.locator('.help').count());
     await page.tap('[data-act=closehelp]');
     assert.equal(await page.locator('.help').count(), 0);
-    await page.tap('[data-act=mode][data-v=pass]');
+    await chooseMode(page, 'pass');
     await page.tap('[data-act=home]');
     assert.equal(await screenOf(page), 'home');
     assert.deepEqual(errors, []);
@@ -176,14 +178,14 @@ test('page is locked (no scrolling or zooming) and the setup screens have a back
 test('Pass & Play: 2, 3 or 4 people — humans only; names are remembered', SKIP, async () => {
   const { browser, page, errors } = await open();
   try {
-    await page.tap('[data-act=mode][data-v=pass]');
+    await chooseMode(page, 'pass');
     assert.equal(await page.locator('[data-act=n]').count(), 3);
     assert.deepEqual(await page.locator('[data-act=n]').allInnerTexts(), ['2', '3', '4']);
     for (const n of [2, 3, 4]) { await page.tap(`[data-act=n][data-v="${n}"]`); assert.equal(await page.locator('input[data-act=name]').count(), n); }
     assert.equal(await page.locator('text=/Bot|Human/').count(), 0, 'no bot seats in Pass & Play');
     await page.fill('input[data-act=name][data-i="0"]', 'Ada');
     await page.reload();
-    await page.tap('[data-act=mode][data-v=pass]');
+    await chooseMode(page, 'pass');
     assert.equal(await page.inputValue('input[data-act=name][data-i="0"]'), 'Ada');
     assert.equal(await page.locator('input[data-act=name]').count(), 4, 'the player count is remembered too');
     assert.deepEqual(errors, []);
@@ -226,7 +228,7 @@ for (const n of [2, 4]) {
 test('Campaign: all five levels are shown by name, only the easiest is open, the rest are greyed and locked', SKIP, async () => {
   const { browser, page, errors } = await open();
   try {
-    await page.tap('[data-act=mode][data-v=campaign]');
+    await chooseMode(page, 'campaign');
     assert.deepEqual(await page.locator('.lvl b').allInnerTexts(), LEVELS);
     assert.equal(await page.locator('.lvl.locked').count(), 4);
     assert.equal(await page.locator('.lvl:not(.locked)').count(), 1);
@@ -241,7 +243,7 @@ test('Campaign: all five levels are shown by name, only the easiest is open, the
 test('Campaign: levels are named only — no percentages or memory figures anywhere in the screen', SKIP, async () => {
   const { browser, page, errors } = await open();
   try {
-    await page.tap('[data-act=mode][data-v=campaign]');
+    await chooseMode(page, 'campaign');
     assert.doesNotMatch(await page.locator('.sheet').innerText(), /%|\d\.\d|memory|remember/i);
     await page.tap('[data-act=home]');
     await page.tap('[data-act=help]');
@@ -253,7 +255,7 @@ test('Campaign: levels are named only — no percentages or memory figures anywh
 test('Campaign: a locked level cannot be started; Beginner starts a game against "Beginner"', SKIP, async () => {
   const { browser, page, errors } = await open();
   try {
-    await page.tap('[data-act=mode][data-v=campaign]');
+    await chooseMode(page, 'campaign');
     await page.tap('[data-act=level][data-i="1"]', { force: true });            // a finger can still land on a greyed-out level
     assert.equal(await screenOf(page), 'campaign', 'tapping a locked level does nothing');
     await page.tap('[data-act=level][data-i="0"]');
@@ -273,12 +275,12 @@ test('Campaign: winning outright unlocks the next level, remembers it, and offer
     assert.match(await page.locator('h1').first().innerText(), /You beat Beginner!/);
     assert.match(await page.locator('.unlock').innerText(), /Novice unlocked/);
     assert.match(await page.locator('[data-act=next]').innerText(), /Novice/);
-    await page.tap('[data-act=home]'); await page.tap('[data-act=mode][data-v=campaign]');
+    await page.tap('[data-act=home]'); await chooseMode(page, 'campaign');
     assert.equal(await page.locator('.lvl.locked').count(), 3);
     assert.match(await page.locator('.lvl').nth(0).innerText(), /Beaten/);
     assert.doesNotMatch(await page.locator('.lvl').nth(1).innerText(), /Ready|Beaten|🔒/, 'an open level shows nothing on the right');
     await page.reload();                                                   // progress survives a reload
-    await page.tap('[data-act=mode][data-v=campaign]');
+    await chooseMode(page, 'campaign');
     assert.equal(await page.locator('.lvl.locked').count(), 3);
     assert.deepEqual(errors, []);
   } finally { await browser.close(); }
@@ -305,7 +307,7 @@ test('Campaign: no note opens level 2 (a gem explains itself when it is first re
     const board = () => page.evaluate(() => { const s = window.FossilFrenzyUI.ui.st; return [s.cells.length, s.tokens.filter(t => t.gem).length, (s.data.tokens.find(t => t.gem) || {}).value || 0]; });
     const want = [[18, 0, 0], [21, 3, 10], [25, 3, 11], [31, 3, 12], [37, 3, 15]];
     for (let i = 0; i < 5; i++) {
-      await page.tap('[data-act=mode][data-v=campaign]'); await page.tap(`[data-act=level][data-i="${i}"]`);
+      await chooseMode(page, 'campaign'); await page.tap(`[data-act=level][data-i="${i}"]`);
       assert.equal(await page.locator('.alertback, .tip, [data-act=alert-ok]').count(), 0, 'nothing is said before the first gem shows');
       assert.deepEqual(await board(), want[i], 'level ' + (i + 1));
       assert.equal(await page.locator('svg.board .cell').count(), want[i][0], 'the board on screen has that many spaces');
@@ -325,7 +327,7 @@ test('Campaign: losing, or a shared win, does not unlock anything', SKIP, async 
     await page.tap('[data-act=again]'); await page.tap('[data-act=begin]');
     await forceFinish(page, [12, 12]);
     assert.match(await page.locator('h1').first().innerText(), /not a win/i);
-    await page.tap('[data-act=home]'); await page.tap('[data-act=mode][data-v=campaign]');
+    await page.tap('[data-act=home]'); await chooseMode(page, 'campaign');
     assert.equal(await page.locator('.lvl.locked').count(), 4, 'still only Beginner is open');
     assert.deepEqual(errors, []);
   } finally { await browser.close(); }
@@ -340,7 +342,7 @@ test('Campaign: beating Master completes the campaign', SKIP, async () => {
     await forceFinish(page, [40, 1]);
     assert.match(await page.locator('h1').first().innerText(), /Campaign complete/);
     assert.equal(await page.locator('[data-act=next]').count(), 0);
-    await page.tap('[data-act=home]'); await page.tap('[data-act=mode][data-v=campaign]');
+    await page.tap('[data-act=home]'); await chooseMode(page, 'campaign');
     assert.equal(await page.locator('.lvl.done').count(), 5);
     assert.deepEqual(errors, []);
   } finally { await browser.close(); }
@@ -349,7 +351,7 @@ test('Campaign: beating Master completes the campaign', SKIP, async () => {
 test('Campaign: ?unlock opens every level for testing (and saves nothing)', SKIP, async () => {
   const { browser, page, errors } = await open({ query: '?unlock' });
   try {
-    await page.tap('[data-act=mode][data-v=campaign]');
+    await chooseMode(page, 'campaign');
     assert.equal(await page.locator('.lvl.locked').count(), 0);
     await page.tap('[data-act=level][data-i="4"]');
     await page.tap('[data-act=begin]');
@@ -471,7 +473,7 @@ test('you bank ONE set, by tapping it, for the number on its fossil', SKIP, asyn
 test('an opponent\'s peek shows as a dashed ring on a face-down space (number hidden), its flip as a solid ring', SKIP, async () => {
   const { browser, page, errors } = await open();
   try {
-    await page.tap('[data-act=mode][data-v=campaign]');
+    await chooseMode(page, 'campaign');
     let checked = 0;
     for (let g = 0; g < 6 && checked < 2; g++) {
       await page.tap('[data-act=level][data-i="0"]');
@@ -490,7 +492,7 @@ test('an opponent\'s peek shows as a dashed ring on a face-down space (number hi
         await takeATurn(page);                                               // my first tap ends the opponent's turn display and starts mine
       }
       await quitToStart(page);
-      await page.tap('[data-act=mode][data-v=campaign]');
+      await chooseMode(page, 'campaign');
     }
     assert.ok(checked >= 1, 'saw at least one non-matching opponent turn');
     assert.deepEqual(errors, []);
@@ -528,7 +530,8 @@ test('save: reloading the page opens the Main Menu; Continue resumes the same ga
     const before = await gameState(page);
     await page.reload();
     assert.equal(await screenOf(page), 'home', 'the game opens on the Main Menu, not in the game you were playing');
-    await page.tap('[data-act=continue]');                                // …and Continue picks it up (a Pass & Play game says whose turn it is first)
+    await page.tap('[data-act=mode][data-v=pass]');                       // Pass & Play asks: carry on with the game in progress, or start a new one…
+    await page.tap('[data-act=continue]');                                // …Continue picks it up (a Pass & Play game says whose turn it is first)
     await page.tap('[data-act=begin]');
     assert.equal(await screenOf(page), 'play');
     assert.equal(await gameState(page), before, 'identical game state after the reload');
@@ -552,6 +555,7 @@ test('save: a campaign game resumes against the same opponent, with its turn sti
     const before = await gameState(page);
     await page.reload();
     assert.equal(await screenOf(page), 'home');
+    await page.tap('[data-act=mode][data-v=campaign]');
     await page.tap('[data-act=continue]');
     assert.deepEqual(await page.evaluate(() => [window.FossilFrenzyUI.ui.mode, window.FossilFrenzyUI.ui.levelIdx, window.FossilFrenzyUI.ui.names, window.FossilFrenzyUI.ui.botWaiting]), ['campaign', 0, ['You', 'Beginner'], true]);
     assert.equal(await gameState(page), before);
@@ -561,7 +565,7 @@ test('save: a campaign game resumes against the same opponent, with its turn sti
   } finally { await browser.close(); }
 });
 
-test('save: leaving a game keeps it (Continue on the Main Menu, also after a reload); a finished game is not kept', SKIP, async () => {
+test('save: leaving a game keeps it; Pass & Play and the Campaign each ask "continue or start new" (also after a reload); a finished game is not kept', SKIP, async () => {
   const { browser, page, errors } = await open();
   try {
     await passAndPlay(page, 2);
@@ -569,64 +573,71 @@ test('save: leaving a game keeps it (Continue on the Main Menu, also after a rel
     const before = await gameState(page);
     await quitToStart(page);
     assert.equal(await screenOf(page), 'home');
-    assert.equal(await page.locator('[data-act=continue]').count(), 1, 'the Main Menu offers to continue it');
+    assert.equal(await page.locator('[data-act=continue]').count(), 0, 'the Main Menu is just Campaign and Pass & Play');
+    assert.equal(await page.locator('[data-act=mode]').count(), 2);
     await page.reload();
     assert.equal(await screenOf(page), 'home', 'a reload does not throw you back into a game you left');
-    assert.equal(await page.locator('.hero-menu [data-act=continue]').count(), 1);
-    await page.tap('[data-act=continue]');
+    await page.tap('[data-act=mode][data-v=pass]');
+    assert.equal(await screenOf(page), 'resume', 'it asks what to do with the game in progress');
+    assert.match(await page.locator('[data-act=continue]').innerText(), /Continue this game/);
+    assert.match(await page.locator('[data-act=newgame]').innerText(), /Start a new game[\s\S]*replaces/);
+    await page.tap('[data-act=continue]'); await page.tap('[data-act=begin]');
     assert.equal(await screenOf(page), 'play');
     assert.equal(await gameState(page), before, 'exactly the game that was left');
     await forceFinish(page, [4, 2]);
     await page.reload();
-    assert.equal(await screenOf(page), 'home');
-    assert.equal(await page.locator('[data-act=continue]').count(), 0, 'a finished game is not offered');
+    await page.tap('[data-act=mode][data-v=pass]');
+    assert.equal(await screenOf(page), 'pass', 'a finished game is not offered');
     assert.deepEqual(errors, []);
   } finally { await browser.close(); }
 });
 
-test('save: Campaign and Pass & Play each offer the saved game — continue it, or start a new one (which replaces it)', SKIP, async () => {
+test('save: the most recent Campaign game and the most recent Pass & Play game are both kept; a new game replaces only its own kind', SKIP, async () => {
   const { browser, page, errors } = await open();
   try {
     await passAndPlay(page, 2);
+    const pass = await gameState(page);
     await quitToStart(page);
     await page.tap('[data-act=mode][data-v=campaign]');
-    assert.equal(await page.locator('[data-act=continue]').count(), 0, 'a saved Pass & Play game is not offered on the Campaign screen');
+    assert.equal(await screenOf(page), 'campaign', 'no Campaign game yet: straight to the levels');
+    await page.tap('[data-act=level][data-i="0"]'); await page.tap('[data-act=begin]');
+    await quitToStart(page);
+    assert.deepEqual(await page.evaluate(() => ['campaign', 'pass'].map(m => !!localStorage.getItem('tabletop-library-fossil-frenzy-save-' + m))), [true, true], 'both are saved');
+    await page.tap('[data-act=mode][data-v=campaign]');
+    assert.match(await page.locator('[data-act=continue]').innerText(), /Continue this game[\s\S]*Beginner/);
     await page.tap('[data-act=home]');
     await page.tap('[data-act=mode][data-v=pass]');
-    assert.match(await page.locator('[data-act=continue]').innerText(), /Continue[\s\S]*Pass & Play/);
-    assert.match(await page.locator('[data-act=deal]').innerText(), /new game/i);
-    await page.tap('[data-act=continue]');
-    assert.equal(await screenOf(page), 'play');
+    assert.match(await page.locator('[data-act=continue]').innerText(), /Continue this game[\s\S]*Player 1 0/);
+    await page.tap('[data-act=continue]'); await page.tap('[data-act=begin]');
+    assert.equal(await gameState(page), pass, 'the Pass & Play game, untouched by the Campaign game');
     await quitToStart(page);
-    await page.tap('[data-act=mode][data-v=campaign]');                                       // playing the campaign now replaces the saved game
-    await page.tap('[data-act=level][data-i="0"]');
-    await quitToStart(page);
-    assert.equal(await page.locator('[data-act=continue]').count(), 1);
-    assert.match(await page.locator('[data-act=continue]').innerText(), /Campaign[\s\S]*Beginner/);
-    await page.tap('[data-act=mode][data-v=pass]');
-    assert.equal(await page.locator('[data-act=continue]').count(), 0, 'the old Pass & Play game is gone');
+    await page.tap('[data-act=mode][data-v=campaign]'); await page.tap('[data-act=newgame]');       // a new Campaign game replaces the Campaign game only
+    assert.equal(await screenOf(page), 'campaign');
+    await page.tap('[data-act=level][data-i="0"]'); await page.tap('[data-act=begin]');
+    assert.equal(await page.evaluate(() => !!localStorage.getItem('tabletop-library-fossil-frenzy-save-pass')), true, 'the Pass & Play game is still there');
     assert.deepEqual(errors, []);
   } finally { await browser.close(); }
 });
-
 test('save: a save from other rules, data from the app\'s earlier name, or a damaged one — cleared with a quiet note, never a crash', SKIP, async () => {
   const { browser, page, errors } = await open();
   try {
     await passAndPlay(page, 2);
-    await page.evaluate(() => { const k = 'tabletop-library-fossil-frenzy-save', sv = JSON.parse(localStorage.getItem(k)); sv.game.fingerprint = 'other'; localStorage.setItem(k, JSON.stringify(sv)); });
+    await page.evaluate(() => { const k = 'tabletop-library-fossil-frenzy-save-pass', sv = JSON.parse(localStorage.getItem(k)); sv.game.fingerprint = 'other'; localStorage.setItem(k, JSON.stringify(sv)); });
     await page.reload();
+    await page.tap('[data-act=mode][data-v=pass]'); await page.tap('[data-act=continue]');
     assert.equal(await screenOf(page), 'home');
     assert.match(await page.locator('.sheet').innerText(), /changed the rules, so your saved game was cleared/);
-    assert.equal(await page.evaluate(() => localStorage.getItem('tabletop-library-fossil-frenzy-save')), null);
-    await page.evaluate(() => localStorage.setItem('tabletop-library-fossil-frenzy-save', '{not json'));
+    assert.equal(await page.evaluate(() => localStorage.getItem('tabletop-library-fossil-frenzy-save-pass')), null);
+    await page.evaluate(() => localStorage.setItem('tabletop-library-fossil-frenzy-save-pass', '{not json'));
     await page.reload();
     assert.equal(await screenOf(page), 'home');
-    assert.match(await page.locator('.sheet').innerText(), /could not be resumed/);
+    await page.tap('[data-act=mode][data-v=pass]');
+    assert.equal(await screenOf(page), 'pass', 'a damaged save is not offered');
     await page.evaluate(() => { localStorage.setItem('fossil-frenzy-save-v2', '{"anything":1}'); localStorage.setItem('fossil-frenzy-campaign-v1', '{"beaten":["beginner"]}'); });   // data from the app's earlier name
     await page.reload();
     assert.equal(await screenOf(page), 'home');
     assert.equal(await page.evaluate(() => ['fossil-frenzy-save-v2', 'fossil-frenzy-campaign-v1'].map(k => localStorage.getItem(k)).join()), ',', 'old-name data is discarded, not read');
-    await page.tap('[data-act=mode][data-v=campaign]');
+    await chooseMode(page, 'campaign');
     assert.equal(await page.locator('.lvl.locked').count(), 4, 'old campaign progress is not carried over');
     assert.deepEqual(errors, []);
   } finally { await browser.close(); }
@@ -637,7 +648,7 @@ test('save: a save from other rules, data from the app\'s earlier name, or a dam
 test('no "Who goes first?" screen: the game opens straight on the table, with a card naming whose turn it is', SKIP, async () => {
   const { browser, page, errors } = await open();
   try {
-    await page.tap('[data-act=mode][data-v=pass]');
+    await chooseMode(page, 'pass');
     await page.fill('input[data-act=name][data-i="0"]', 'Ada');
     await page.fill('input[data-act=name][data-i="1"]', 'Bo');
     await page.tap('[data-act=deal]');
@@ -661,7 +672,7 @@ test('no "Who goes first?" screen: the game opens straight on the table, with a 
 test('who goes first is random: both seats start games', SKIP, async () => {
   const { browser, page, errors } = await open();
   try {
-    await page.tap('[data-act=mode][data-v=pass]');
+    await chooseMode(page, 'pass');
     await page.tap('[data-act=deal]');
     const seen = new Set();
     for (let i = 0; i < 30 && seen.size < 2; i++) {
@@ -676,7 +687,7 @@ test('who goes first is random: both seats start games', SKIP, async () => {
 test('pass & play: every turn opens with a card naming the next player', SKIP, async () => {
   const { browser, page, errors } = await open();
   try {
-    await page.tap('[data-act=mode][data-v=pass]');
+    await chooseMode(page, 'pass');
     await page.tap('[data-act=n][data-v="3"]');
     await page.fill('input[data-act=name][data-i="0"]', 'Ada');
     await page.fill('input[data-act=name][data-i="1"]', 'Bo');
@@ -805,7 +816,7 @@ test('menu: a ☰ button opens rules, retry and back-to-start; retry and leaving
 test('menu: retry (confirmed) deals a fresh game at once, same players — no level or player picking', SKIP, async () => {
   const { browser, page, errors } = await open();
   try {
-    await page.tap('[data-act=mode][data-v=pass]');
+    await chooseMode(page, 'pass');
     await page.tap('[data-act=n][data-v="3"]');
     await page.fill('input[data-act=name][data-i="2"]', 'Cy');
     await page.tap('[data-act=deal]'); await page.tap('[data-act=begin]');
@@ -884,7 +895,7 @@ test('home: it is one screen — nothing to scroll, everything in view — on iP
 test('campaign screen: no "beat each opponent" line (the locks say it)', SKIP, async () => {
   const { browser, page, errors } = await open();
   try {
-    await page.tap('[data-act=mode][data-v=campaign]');
+    await chooseMode(page, 'campaign');
     assert.doesNotMatch(await page.locator('.sheet').innerText(), /unlock the next|beat each/i);
     assert.deepEqual(errors, []);
   } finally { await browser.close(); }
@@ -941,7 +952,7 @@ test('the opponent banks: a clear banner says what it banked, what it scored and
       else await takeATurn(page);
     }
     const txt = await page.locator('.bankcard').innerText();
-    assert.match(txt, /Beginner dug up a map/);
+    assert.match(txt, /Beginner scored/);
     assert.match(txt, /\+7/);
     assert.doesNotMatch(txt, /Score now/, 'the score is up in the bar already');
     assert.equal(await page.locator('.chip.cur .pts').innerText(), '7');
@@ -1011,17 +1022,17 @@ test('settings: Reset campaign is always there — it forgets wins (and any unlo
   try {
     await page.evaluate(() => localStorage.setItem('tabletop-library-fossil-frenzy-campaign', JSON.stringify({ beaten: ['beginner', 'novice'] })));
     await page.reload();
-    await page.tap('[data-act=mode][data-v=campaign]');
+    await chooseMode(page, 'campaign');
     assert.equal(await page.locator('.lvl.done').count(), 2);
     await page.tap('[data-act=home]'); await page.tap('[data-act=settings]');
     assert.equal(await page.locator('[data-act=reset-ask]').count(), 1, 'offered although nothing was unlocked from the menu');
     await page.tap('[data-act=reset-ask]');
     assert.match(await page.locator('.settings .warn').innerText(), /Reset the campaign\?/);
     await page.tap('[data-act=reset-no]');
-    await page.tap('[data-act=closesettings]'); await page.tap('[data-act=mode][data-v=campaign]');
+    await page.tap('[data-act=closesettings]'); await chooseMode(page, 'campaign');
     assert.equal(await page.locator('.lvl.done').count(), 2, 'keeping progress changes nothing');
     await page.tap('[data-act=home]'); await page.tap('[data-act=settings]'); await page.tap('[data-act=reset-ask]'); await page.tap('[data-act=reset-yes]');
-    await page.tap('[data-act=closesettings]'); await page.tap('[data-act=mode][data-v=campaign]');
+    await page.tap('[data-act=closesettings]'); await chooseMode(page, 'campaign');
     assert.equal(await page.locator('.lvl.done').count(), 0);
     assert.equal(await page.locator('.lvl.locked').count(), 4);
     assert.equal(await page.evaluate(() => localStorage.getItem('tabletop-library-fossil-frenzy-campaign')), null);
@@ -1239,7 +1250,7 @@ test('end screen: a win says what happened once (the headline), the unlock is a 
     assert.equal(await page.evaluate(() => { const st = getComputedStyle(document.querySelector('.unlock')); return [st.backgroundImage, st.boxShadow, document.querySelector('.unlock').tagName]; }).then(r => r.join()), 'none,none,P', 'it does not look like a button');
     assert.deepEqual(await page.locator('.over-buttons button').allInnerTexts(), ['Next: Novice', 'Play Beginner again', 'Main menu'], 'a win: on, the same level again, or the menu');
     assert.ok(await page.locator('.confetti').count());
-    await page.tap('[data-act=home]'); await page.tap('[data-act=mode][data-v=campaign]'); await page.tap('[data-act=level][data-i="0"]'); await page.tap('[data-act=begin]');
+    await page.tap('[data-act=home]'); await chooseMode(page, 'campaign'); await page.tap('[data-act=level][data-i="0"]'); await page.tap('[data-act=begin]');
     await forceFinish(page, [5, 20]);
     assert.deepEqual(await page.locator('.over-buttons button').allInnerTexts(), ['Play Beginner again', 'Main menu']);
     assert.equal(await page.locator('.unlock, .confetti').count(), 0);
@@ -1288,7 +1299,7 @@ test('settings: reachable from the main menu and from the in-game menu; holds th
 test('settings: "Unlock all opponents" warns first (recommended: play the campaign), then opens every level — and it sticks', SKIP, async () => {
   const { browser, page, errors } = await open();
   try {
-    await page.tap('[data-act=mode][data-v=campaign]');
+    await chooseMode(page, 'campaign');
     assert.equal(await page.locator('.lvl.locked').count(), 4);
     await page.tap('[data-act=home]');
     await page.tap('[data-act=settings]');
@@ -1300,25 +1311,25 @@ test('settings: "Unlock all opponents" warns first (recommended: play the campai
     assert.doesNotMatch(warning, /you're very welcome|just so you know/i);
     await page.tap('[data-act=unlock-no]');                               // keeping the campaign as is changes nothing
     await page.tap('[data-act=closesettings]');
-    await page.tap('[data-act=mode][data-v=campaign]');
+    await chooseMode(page, 'campaign');
     assert.equal(await page.locator('.lvl.locked').count(), 4, 'still locked after keeping the campaign as is');
     await page.tap('[data-act=home]');
     await page.tap('[data-act=settings]'); await page.tap('[data-act=unlock-ask]'); await page.tap('[data-act=unlock-yes]');
     assert.match(await page.locator('.settings').innerText(), /All opponents are unlocked/);
     await page.tap('[data-act=closesettings]');
-    await page.tap('[data-act=mode][data-v=campaign]');
+    await chooseMode(page, 'campaign');
     assert.equal(await page.locator('.lvl.locked').count(), 0, 'every level is open');
     await page.tap('[data-act=level][data-i="4"]'); await page.tap('[data-act=begin]');
     assert.deepEqual(await page.evaluate(() => window.FossilFrenzyUI.ui.names), ['You', 'Master']);
     assert.equal(await page.evaluate(() => localStorage.getItem('tabletop-library-fossil-frenzy-campaign')), null, 'unlocking is not the same as winning: no progress is recorded');
     await quitToStart(page);
     await page.reload();                                                   // it stays unlocked
-    await page.tap('[data-act=mode][data-v=campaign]');
+    await chooseMode(page, 'campaign');
     assert.equal(await page.locator('.lvl.locked').count(), 0);
     assert.equal(await page.locator('.lvl.done').count(), 0, 'and nothing is marked beaten');
     // and it can be switched back
     await page.tap('[data-act=home]'); await page.tap('[data-act=settings]'); await page.tap('[data-act=reset-ask]'); await page.tap('[data-act=reset-yes]');
-    await page.tap('[data-act=closesettings]'); await page.tap('[data-act=mode][data-v=campaign]');
+    await page.tap('[data-act=closesettings]'); await chooseMode(page, 'campaign');
     assert.equal(await page.locator('.lvl.locked').count(), 4);
     assert.deepEqual(errors, []);
   } finally { await browser.close(); }
@@ -1470,7 +1481,7 @@ test('reminder: the first match on the easiest level says the map is not scored 
 test('reminder (Pass & Play): a gem peeked shows how gems work, once (two gems do not explain again); Rules reminders Off silences it', SKIP, async () => {
   const { browser, page, errors } = await open({ tips: true });
   try {
-    await page.tap('[data-act=mode][data-v=pass]');
+    await chooseMode(page, 'pass');
     assert.equal(await page.locator('[data-act=reminders][data-v=on].on').count(), 1, 'reminders are on by default for Pass & Play');
     await page.tap('[data-act=deal]'); await page.tap('[data-act=begin]');
     const gems = await page.evaluate(() => window.FossilFrenzyUI.ui.st.tokens.filter(t => t.gem).map(t => `[data-act=cell][data-id="${t.cell}"]`));
@@ -1489,10 +1500,10 @@ test('reminder (Pass & Play): a gem peeked shows how gems work, once (two gems d
   const off = await open({ tips: true });
   try {
     const { page: p } = off;
-    await p.tap('[data-act=mode][data-v=pass]');
+    await chooseMode(p, 'pass');
     await p.tap('[data-act=reminders][data-v=off]');
     assert.equal(await p.locator('[data-act=reminders][data-v=off].on').count(), 1);
-    await p.reload(); await p.tap('[data-act=mode][data-v=pass]');
+    await p.reload(); await chooseMode(p, 'pass');
     assert.equal(await p.locator('[data-act=reminders][data-v=off].on').count(), 1, 'remembered');
     await p.tap('[data-act=deal]'); await p.tap('[data-act=begin]');
     const gems = await p.evaluate(() => window.FossilFrenzyUI.ui.st.tokens.filter(t => t.gem).map(t => `[data-act=cell][data-id="${t.cell}"]`));
@@ -1594,7 +1605,7 @@ test('campaign screen: a full-width card per opponent with its board and name (n
     const { browser, page, errors } = await open({ viewport: { width: w, height: h } });
     try {
       await page.evaluate(() => localStorage.setItem('tabletop-library-fossil-frenzy-campaign', JSON.stringify({ beaten: ['beginner'] }))); await page.reload();
-      await page.tap('[data-act=mode][data-v=campaign]');
+      await chooseMode(page, 'campaign');
       const rows = page.locator('.lvl');
       assert.equal(await rows.count(), 5);
       assert.equal(await page.locator('.camp-head .pips i').count(), 5, 'five dots at the top');
@@ -1687,7 +1698,7 @@ test('an opponent\'s match: its maps fly to it and are not put back on the board
 test('Pass & Play board sizes: five to choose from; the size is picked from the number of players until you choose; it is kept for the game, a replay and a save', SKIP, async () => {
   const { browser, page, errors } = await open({ tips: true });
   try {
-    await page.tap('[data-act=mode][data-v=pass]');
+    await chooseMode(page, 'pass');
     assert.equal(await page.locator('[data-act=size]').count(), 5);
     assert.deepEqual(await page.locator('[data-act=size]').allInnerTexts().then(a => a.map(t => t.replace(/\s+/g, ' '))), ['Tiny 18 tiles', 'Small 21 tiles', 'Medium 25 tiles', 'Large 31 tiles', 'Huge 37 tiles']);
     const on = () => page.locator('[data-act=size].on').getAttribute('data-v');
@@ -1700,19 +1711,19 @@ test('Pass & Play board sizes: five to choose from; the size is picked from the 
     assert.match(await page.locator('.sheet').innerText(), /The size you chose/);
     await page.tap('[data-act=n][data-v="2"]');
     assert.equal(await on(), 'tiny', 'a size you chose stays when the number of players changes');
-    await page.reload(); await page.tap('[data-act=mode][data-v=pass]');
+    await page.reload(); await chooseMode(page, 'pass');
     assert.equal(await on(), 'tiny', 'remembered');
     await page.tap('[data-act=deal]'); await page.tap('[data-act=begin]');
     assert.equal(await page.evaluate(() => window.FossilFrenzyUI.ui.st.tokens.length), 18);
     assert.equal(await page.locator('svg.board .cell').count(), 18);
     await page.reload();
-    await page.tap('[data-act=continue]'); await page.tap('[data-act=begin]');
+    await page.tap('[data-act=mode][data-v=pass]'); await page.tap('[data-act=continue]'); await page.tap('[data-act=begin]');
     assert.equal(await page.evaluate(() => window.FossilFrenzyUI.ui.st.tokens.length), 18, 'the saved game keeps its board');
     await forceFinish(page, [4, 2]);
     await page.tap('[data-act=again]');
     assert.equal(await page.evaluate(() => window.FossilFrenzyUI.ui.st.tokens.length), 18, 'play again: the same size');
     await quitToStart(page);
-    await page.tap('[data-act=mode][data-v=pass]'); await page.tap('[data-act=size][data-v=huge]'); await page.tap('[data-act=deal]');
+    await chooseMode(page, 'pass'); await page.tap('[data-act=size][data-v=huge]'); await page.tap('[data-act=deal]');
     assert.equal(await page.evaluate(() => [window.FossilFrenzyUI.ui.st.tokens.length, window.FossilFrenzyUI.ui.st.tokens.filter(t => t.gem).length].join()), '37,3');
     assert.deepEqual(errors, []);
   } finally { await browser.close(); }
@@ -1722,7 +1733,7 @@ test('reminder: gems are explained when a gem is first revealed (not at the star
   const { browser, page, errors } = await open({ tips: true, animated: true, viewport: { width: 820, height: 1180 } });
   try {
     await page.evaluate(() => localStorage.setItem('tabletop-library-fossil-frenzy-campaign', JSON.stringify({ beaten: ['beginner'] }))); await page.reload();
-    await page.tap('[data-act=mode][data-v=campaign]'); await page.tap('[data-act=level][data-i="1"]');
+    await chooseMode(page, 'campaign'); await page.tap('[data-act=level][data-i="1"]');
     assert.equal(await page.locator('.tip').count(), 0, 'nothing at the start of the level');
     // an opponent turns a gem face up: make the opponent\'s next turn do exactly that (rig the shown steps)
     await page.evaluate(() => {
@@ -1744,7 +1755,6 @@ test('reminder: gems are explained when a gem is first revealed (not at the star
     await page.tap('[data-act=tip-ok]');
     assert.equal(await page.locator('.tip').count(), 0);
     await page.tap('[data-act=menu]'); await page.tap('[data-act=menu-ask][data-v=quit]'); await page.tap('[data-act=quit]');
-    await page.tap('[data-act=continue]');
     // now my own: peek a gem on my turn (not shown again: once per device)
     const seen = await page.evaluate(() => JSON.parse(localStorage.getItem('tabletop-library-fossil-frenzy-tips')));
     assert.ok(seen.includes('gem'));
@@ -1766,13 +1776,53 @@ test('iPhone 17 portrait: no menu screen scrolls — home, settings (and its two
       await page.tap('[data-act=settings]'); await fits('settings'); await page.tap('[data-act=unlock-ask]'); await fits('settings: unlock'); await page.tap('[data-act=unlock-no]');
       await page.tap('[data-act=reset-ask]'); await fits('settings: reset'); await page.tap('[data-act=reset-no]'); await page.tap('[data-act=closesettings]');
       await page.tap('[data-act=help]'); await fits('how to play'); await page.tap('[data-act=closehelp]');
-      await page.tap('[data-act=mode][data-v=campaign]'); await fits('campaign'); await page.tap('[data-act=home]');
-      await page.tap('[data-act=mode][data-v=pass]'); await page.tap('[data-act=n][data-v="4"]'); await fits('pass & play setup, 4 players');
+      await chooseMode(page, 'campaign'); await fits('campaign'); await page.tap('[data-act=home]');
+      await chooseMode(page, 'pass'); await page.tap('[data-act=n][data-v="4"]'); await fits('pass & play setup, 4 players');
       await page.tap('[data-act=deal]'); await page.tap('[data-act=begin]');
       await page.tap('[data-act=menu]'); await page.tap('[data-act=fossils]'); await fits('tiles list'); await page.tap('[data-act=closefossils]');
-      await page.evaluate(() => { const { ui, render } = window.FossilFrenzyUI, st = ui.st; st.over = true; st.phase = 'over'; st.players.forEach((p, i) => { p.points = 40 - i * 5; p.banked = Array.from({ length: 7 - i }, (_, k) => ({ value: [2, 3, 5, 6, 9, 10, 12][k], gem: k === 6, base: 3 })); p.sets = Array.from({ length: 4 }, () => ({ value: 5, gem: false, size: 2, ids: [] })); }); st.result = Engine.computeResult(st); render(); });
+      await quitToStart(page); await page.tap('[data-act=mode][data-v=pass]'); await fits('continue or start new'); await page.tap('[data-act=newgame]'); await fits('pass & play setup, new game');
+      await page.tap('[data-act=deal]'); await page.tap('[data-act=begin]');
+      await page.evaluate(() => { const { ui, render } = window.FossilFrenzyUI, st = ui.st; ui.overSeen = true; st.over = true; st.phase = 'over'; st.players.forEach((p, i) => { p.points = 40 - i * 5; p.banked = Array.from({ length: 7 - i }, (_, k) => ({ value: [2, 3, 5, 6, 9, 10, 12][k], gem: k === 6, base: 3 })); p.sets = Array.from({ length: 4 }, () => ({ value: 5, gem: false, size: 2, ids: [] })); }); st.result = Engine.computeResult(st); render(); });
       await fits('end screen, 4 players, full rows');
-      await page.tap('[data-act=home]'); await fits('home, with a game to continue'); await page.tap('[data-act=mode][data-v=pass]'); await fits('pass & play setup'); 
+      await page.tap('[data-act=home]'); await fits('home again'); 
+      assert.deepEqual(errors, []);
+    } finally { await browser.close(); }
+  }
+});
+
+test('the opponent scores: the alert says "<name> scored" and the points, nothing more (no "dug up a map", no "tap anywhere")', SKIP, async () => {
+  const { browser, page, errors } = await open();
+  try {
+    await campaign(page, 0);
+    await page.evaluate(() => { const { ui, render } = window.FossilFrenzyUI, st = ui.st; ui.botWaiting = true; st.current = 1; st.turn.banked = true; st.lastBank = { player: 1, value: 7, gem: false, base: 7, total: 7, setsLeft: 0 }; ui.turnCard = false; render(); });
+    assert.deepEqual((await page.locator('.bankcard').innerText()).split('\n').filter(Boolean), ['Beginner scored', '+7']);
+    assert.deepEqual(errors, []);
+  } finally { await browser.close(); }
+});
+
+test('the last match of the game plays its film, and the board stays on the table until a tap brings up the results', SKIP, async () => {
+  for (const animated of [true, false]) {
+    const { browser, page, errors } = await open({ animated });
+    try {
+      await passAndPlay(page, 2);
+      await page.evaluate(() => {            // leave one pair on the board
+        const { ui, render } = window.FossilFrenzyUI, st = ui.st; const left = st.tokens.filter(t => !t.gem && t.value === 2).slice(0, 2).map(t => t.id);
+        st.tokens.forEach(t => { if (!left.includes(t.id)) { t.matched = true; st.tokenAt[t.cell] = -1; } }); st.matchedCount = st.tokens.length - 2; render();
+      });
+      const [a, b] = await pairOf(page);
+      await page.tap(a); await page.tap(b);
+      if (animated) {
+        assert.equal(await page.evaluate(() => !!window.FossilFrenzyUI.ui.fx), true, 'the last match is animated too');
+        await page.waitForFunction(() => !window.FossilFrenzyUI.ui.fx, null, { timeout: 15000 });
+      }
+      assert.equal(await page.evaluate(() => window.FossilFrenzyUI.ui.st.over), true);
+      assert.equal(await page.locator('.over-sheet').count(), 0, 'the results are not shown yet: the board is');
+      assert.equal(await page.locator('svg.board').count(), 1);
+      assert.equal(await page.locator('[data-act=results]').count(), 1, 'a button says how to go on');
+      await page.waitForTimeout(600);
+      assert.equal(await page.locator('.over-sheet').count(), 0, 'nothing on a timer');
+      await page.tap('.boardwrap');
+      assert.equal(await page.locator('.over-sheet').count(), 1, 'a tap anywhere brings up the results');
       assert.deepEqual(errors, []);
     } finally { await browser.close(); }
   }

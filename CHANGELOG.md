@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+- **Torn Treasure — the opponent's score alert** says just "Beginner scored" and "+7" (no "dug up a map", no "tap anywhere").
+- **Torn Treasure — the last match of the game is animated too,** and the board stays on the table until you tap (or press "See the results") — the results screen no longer jumps in.
+- **Torn Treasure — one saved game for the Campaign and one for Pass & Play** (the most recent of each). The Main Menu is just the Campaign and Pass & Play buttons; if that kind of game is saved, it asks: **Continue this game** or **Start a new game** (which replaces it; the other kind of game is kept).
+
 - **Torn Treasure — iPhone 17 (portrait): no menu screen scrolls.** Home, Settings (and its two questions), How to play, Campaign, Pass & Play setup (4 players), the tiles list and the end screen (4 players, full rows) all fit in 874 px and in 780 px (what is left once the status bar and the home bar are taken off), with tighter spacing on narrow screens. The one exception is the opened "fine print" list in How to play, which scrolls inside its own little box (the rest of the screen stays put). The end screen shows the players two by two.
 
 - **Torn Treasure — the campaign cards** say only the opponent's name, a picture of its board and its state (Beaten, Next up, Play, or a lock): no tile counts, no gem worths, no "Beat X to unlock". The "Choose your opponent" line and the "N of 5 beaten" words are gone too: the five progress dots sit at the top, beside the title.

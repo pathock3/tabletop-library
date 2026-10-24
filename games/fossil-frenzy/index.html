@@ -139,8 +139,8 @@ svg.board { width: 100%; height: 100%; touch-action: manipulation; }
 @keyframes bankin { 0% { transform: translate(-50%, -50%) scale(.6); opacity: 0; } 100% { transform: translate(-50%, -50%) scale(1); opacity: 1; } }
 .bankcard .bk-who { font-size: clamp(18px, 3.6vw, 26px); font-weight: 800; color: var(--c); }
 .bankcard .bk-pts { font-size: clamp(54px, 11vw, 92px); font-weight: 900; line-height: 1; color: #fff; }
-.bankcard .bk-tap { font-size: 13px; color: var(--dim); margin-top: 10px; }
 .bankcard:active { filter: brightness(1.15); }
+.resultsbtn { position: absolute; left: 50%; bottom: calc(env(safe-area-inset-bottom) + 18px); transform: translateX(-50%); z-index: 4; padding: 22px 46px; min-height: 72px; border-radius: 18px; background: var(--accent); color: #2b1b10; font-weight: 800; font-size: 24px; box-shadow: 0 6px 0 rgba(0,0,0,.4), 0 12px 30px rgba(0,0,0,.5); white-space: nowrap; }
 
 /* ---------- screens / overlays ---------- */
 /* ---------- home screen: one screen, never scrolls ---------- */
@@ -1385,7 +1385,7 @@ const Campaign = (() => {
   // ---------------- remembered between visits (if the browser allows) ----------------
   // Everything this game stores lives under the Tabletop Library's name, then the game's.
   const NS = 'tabletop-library-fossil-frenzy-';
-  const PASS_KEY = NS + 'passplay', CAMPAIGN_KEY = NS + 'campaign', SAVE_KEY = NS + 'save', TIPS_KEY = NS + 'tips';
+  const PASS_KEY = NS + 'passplay', CAMPAIGN_KEY = NS + 'campaign', SAVE_KEY = NS + 'save', SAVE_KEYS = { campaign: NS + 'save-campaign', pass: NS + 'save-pass' }, TIPS_KEY = NS + 'tips';
   const SOUND_KEY = NS + 'sound', HINTS_KEY = NS + 'hints', DONE_KEY = NS + 'games-finished', UNLOCKALL_KEY = NS + 'unlock-everything';
   const LEGACY_KEYS = ['fossil-frenzy-setup-v1', 'fossil-frenzy-passplay-v2', 'fossil-frenzy-campaign-v1', 'fossil-frenzy-save-v1', 'fossil-frenzy-save-v2', 'fossil-frenzy-hints', 'fossil-frenzy-games-finished'];
   const pref = {
@@ -1417,7 +1417,7 @@ const Campaign = (() => {
                help: false, menu: null, prevUp: new Set(), popTurn: -1, botWaiting: false, notice: '',
                countedOver: false, outcome: null, turnCard: false, lastEvent: '', say: '',
                steps: null, stage: 0, base: null, animTimer: null, liftKey: '', prevPts: null,
-               tip: null, tipsSeen: new Set(), fx: null, recall: [], filmedTurn: -1, boardLevel: 0 };
+               tip: null, tipsSeen: new Set(), fx: null, recall: [], filmedTurn: -1, boardLevel: 0, overSeen: false, resumeMode: 'campaign' };
   ui.settings = null;                                   // null | 'open' | 'unlock' (the warning before unlocking everything) | 'reset'
   ui.sound = pref.get(SOUND_KEY) !== 'off';             // sound effects: on unless switched off (Menu or Settings), remembered on this device
   ui.endSounded = false;
@@ -1474,8 +1474,8 @@ const Campaign = (() => {
     ui.st = Engine.createGame({ players: n, seed, data: Campaign.gameData(LV[ui.boardLevel]) });
     ui.bots = Bots.attach(ui.st, campaign ? [null, Campaign.botSpec(LV[ui.levelIdx])] : Array(n).fill(null), seed);
     ui.names = campaign ? ['You', LV[ui.levelIdx].name] : ui.pass.names.slice(0, n);
-    pref.del(SAVE_KEY);                                                  // a new game replaces the one that was saved
-    Object.assign(ui, { screen: 'play', prevUp: new Set(), popTurn: -1, botWaiting: false, notice: '', countedOver: false, outcome: null, tip: null, tipsSeen: new Set(), recall: [],
+    pref.del(SAVE_KEYS[ui.mode]);                                        // a new game replaces the one saved for this way of playing (the other one is kept)
+    Object.assign(ui, { screen: 'play', overSeen: false, prevUp: new Set(), popTurn: -1, botWaiting: false, notice: '', countedOver: false, outcome: null, tip: null, tipsSeen: new Set(), recall: [],
                         menu: null, help: false, fossils: false, lastEvent: '', prevPts: null, liftKey: '', endSounded: false });
     nextTurnStarts(true);
   }
@@ -1538,7 +1538,7 @@ const Campaign = (() => {
   // An opponent's last move completed a set: the same film as for a match of mine (its sound already played with the flip).
   function botMatchFx() {
     const st = ui.st, last = ui.steps && ui.steps[ui.steps.length - 1];
-    if (!canFx() || !last || st.over || !st.turn.matched || !['flipOwn', 'flipSecond'].includes(last.a.type)) return;
+    if (!canFx() || !last || !st.turn.matched || !['flipOwn', 'flipSecond'].includes(last.a.type)) return;
     startMatchFx(st.turn.matched.slice(), st.current);
   }
   function finishAnim(redraw = true) {
@@ -1590,32 +1590,43 @@ const Campaign = (() => {
   }
 
   // ---------------- save / resume: a game in progress survives a reload (or iPad Safari discarding the tab) ----------------
+  // One saved game for the Campaign and one for Pass & Play (the most recent of each), each under its own key.
   function saveGame() {
     try {
-      if (!ui.st || ui.st.over) { pref.del(SAVE_KEY); return; }
-      localStorage.setItem(SAVE_KEY, JSON.stringify({           // (leaving a game keeps it: `left` says the player went back to the menus, so a reload does not drop them into it)
-        schema: 2, build: BUILD, screen: 'play', left: ui.screen !== 'play', turnCard: ui.turnCard, botWaiting: ui.botWaiting, mode: ui.mode, levelIdx: ui.levelIdx, boardLevel: ui.boardLevel, names: ui.names,
+      if (!ui.st) return;
+      const key = SAVE_KEYS[ui.mode];
+      if (ui.st.over) { pref.del(key); return; }
+      const summary = ui.mode === 'campaign' ? `${LV[ui.levelIdx].name} · you ${ui.st.players[0].points}, ${LV[ui.levelIdx].name} ${ui.st.players[1].points}` : `${ui.st.players.map(p => `${seatName(p.idx)} ${p.points}`).join(' · ')} · ${ui.st.cells.length} tiles`;
+      localStorage.setItem(key, JSON.stringify({
+        schema: 3, build: BUILD, summary, turnCard: ui.turnCard, botWaiting: ui.botWaiting, mode: ui.mode, levelIdx: ui.levelIdx, boardLevel: ui.boardLevel, names: ui.names,
         recall: ui.recall, tipsSeen: [...ui.tipsSeen],
         game: Engine.serialize(ui.st), bots: ui.bots.map(b => (b ? b.save() : null)),
       }));
     } catch (e) { /* storage unavailable or full: the game still plays, it just cannot be resumed */ }
   }
-  function resumeGame() {
-    const sv = pref.json(SAVE_KEY);
-    if (!sv) { if (pref.get(SAVE_KEY) !== null) { pref.del(SAVE_KEY); ui.notice = 'Your saved game could not be resumed, so it was cleared.'; } return; }
+  const savedOf = mode => { const sv = pref.json(SAVE_KEYS[mode]); return sv && sv.mode === mode && sv.game ? sv : null; };
+  // A game saved by an earlier version (one slot for both) moves to the slot of its way of playing.
+  (function migrate() { const old = pref.json(SAVE_KEY); if (old && old.mode && SAVE_KEYS[old.mode] && !pref.get(SAVE_KEYS[old.mode])) pref.set(SAVE_KEYS[old.mode], JSON.stringify(old)); pref.del(SAVE_KEY); })();
+  // Pick up the saved game of this mode (the player was asked, and chose Continue).
+  function resumeGame(mode) {
+    const sv = savedOf(mode);
+    if (!sv) { pref.del(SAVE_KEYS[mode]); ui.notice = 'That saved game could not be found, so it was cleared.'; ui.screen = 'home'; return false; }
     try {
       if (sv.mode === 'campaign' && !LV[sv.levelIdx]) throw new Error('unknown level');
       const bl = sv.mode === 'campaign' ? sv.levelIdx : (Number.isInteger(sv.boardLevel) ? sv.boardLevel : levelIndexOf('challenging'));          // (a Pass & Play game saved before sizes was on the 31-tile board)
       if (!LV[bl]) throw new Error('unknown level');
       const st = Engine.restore(sv.game, { data: Campaign.gameData(LV[bl]) });
+      clearAnim();
       ui.boardLevel = bl;
-      ui.st = st; ui.bots = Bots.restore(st, sv.bots); ui.names = sv.names; ui.mode = sv.mode === 'campaign' ? 'campaign' : 'pass'; ui.levelIdx = sv.levelIdx | 0;
-      Object.assign(ui, { screen: 'home', turnCard: !!sv.turnCard || sv.screen === 'roll', botWaiting: !!sv.botWaiting, tip: null, fx: null,
-                          recall: Array.isArray(sv.recall) ? sv.recall : [], tipsSeen: new Set(sv.tipsSeen || []),
-                          prevUp: new Set(), popTurn: st.turn.matched ? st.turnNo : -1, steps: null, stage: 0, base: null, lastEvent: '', menu: null });
+      ui.st = st; ui.bots = Bots.restore(st, sv.bots); ui.names = sv.names; ui.mode = mode; ui.levelIdx = sv.levelIdx | 0;
+      Object.assign(ui, { screen: 'play', overSeen: false, turnCard: !!sv.turnCard || (mode === 'pass' && !sv.botWaiting), botWaiting: !!sv.botWaiting, tip: null, fx: null, menu: null, help: false, fossils: false, settings: null,
+                          recall: Array.isArray(sv.recall) ? sv.recall : [], tipsSeen: new Set(sv.tipsSeen || []), countedOver: false, outcome: null, endSounded: false,
+                          prevUp: new Set(), popTurn: st.turn.matched ? st.turnNo : -1, steps: null, stage: 0, base: null, lastEvent: '', filmedTurn: -1 });          // (a Pass & Play game says whose turn it is before anyone taps)
+      return true;
     } catch (e) {
-      pref.del(SAVE_KEY);
+      pref.del(SAVE_KEYS[mode]);
       ui.notice = /rules changed/.test(e.message) ? 'A new version changed the rules, so your saved game was cleared.' : 'Your saved game could not be resumed, so it was cleared.';
+      ui.screen = 'home'; return false;
     }
   }
 
@@ -1765,7 +1776,7 @@ const Campaign = (() => {
         else { endTurn(); render(); return; }
       } else if (st.phase === 'resolved') { endTurn(); render(); return; }
     } catch (e) { console.warn(e.message); }
-    const matchedNow = st.phase === 'resolved' && phase0 !== 'resolved' && !!st.turn.matched && !st.over, film = matchedNow && canFx();
+    const matchedNow = (st.phase === 'resolved' || st.over) && phase0 !== 'resolved' && !!st.turn.matched, film = matchedNow && canFx();          // (the last match of the game plays its film too)
     let chime = '';
     if (phase0 === 'action' && st.phase === 'peeked') { sfx('peek'); if (st.tokens[st.turn.T].gem) showTip('gem', false, [{ tid: st.turn.T, color: COLORS[st.current], dash: true }]); }
     else if (st.phase !== phase0 && phase0 !== 'action') {                        // a public flip happened
@@ -1776,8 +1787,8 @@ const Campaign = (() => {
     }
     if (matchedNow) {
       // A match ends the turn by itself once the maps have flown to their player's area (with "reduce motion": after a tap, as before).
-      if (film) { startMatchFx(st.turn.matched.slice(), st.current, { sound: chime, then: () => { if (!showTip('match', true)) endTurn(); } }); return; }
-      showTip('match');
+      if (film) { startMatchFx(st.turn.matched.slice(), st.current, { sound: chime, then: () => { if (!st.over && !showTip('match', true)) endTurn(); } }); return; }
+      if (!st.over) showTip('match');
     }
     render();
   }
@@ -1807,6 +1818,7 @@ const Campaign = (() => {
   function onClick(e) {
     audio.unlock();                                    // sound can only start from inside a tap; this wakes it
     if (ui.fx) { endFx(); return; }                    // a tap skips a film (a match flying to its player, a map being dug up)
+    if (ui.screen === 'play' && ui.st && ui.st.over && !ui.overSeen && !animating() && !(e.target.closest && e.target.closest('[data-act=menu], [data-act=menu-close]'))) { ui.overSeen = true; render(); return; }          // the board has been seen: now the results
     const el = e.target.closest('[data-act]');
     if (!el) {
       if (ui.menu || ui.help || ui.fossils || ui.settings || ui.tip) return;
@@ -1816,8 +1828,10 @@ const Campaign = (() => {
     }
     const d = el.dataset, st = ui.st;
     switch (d.act) {
-      case 'mode': ui.screen = d.v; break;          // (ui.mode belongs to the game on the table, which may still be a saved one)
-      case 'continue': ui.screen = 'play'; ui.menu = null; if (ui.mode === 'pass' && !ui.botWaiting && !st.over && !animating()) ui.turnCard = true; break;          // pick up the saved game
+      case 'mode': ui.resumeMode = d.v; ui.screen = savedOf(d.v) ? 'resume' : d.v; break;          // a saved game of this kind: ask first (continue it, or start a new one that replaces it)
+      case 'results': ui.overSeen = true; break;
+      case 'newgame': ui.screen = ui.resumeMode; break;
+      case 'continue': resumeGame(d.v); break;
       case 'home': ui.screen = 'home'; break;
       case 'n': ui.pass.n = +d.v; pref.set(PASS_KEY, JSON.stringify(ui.pass)); break;          // (the board size follows the number of players until one is chosen)
       case 'size': ui.pass.size = d.v; pref.set(PASS_KEY, JSON.stringify(ui.pass)); break;
@@ -2063,8 +2077,8 @@ const Campaign = (() => {
   function bankBannerHTML() {
     const st = ui.st, b = st.lastBank;
     if (!ui.botWaiting || animating() || ui.fx || !st.turn.banked || !b) return '';
-    return `<button class="bankcard" data-act="dismissbank" style="--c:${COLORS[b.player]}"><div class="bk-who">${esc(seatName(b.player))} dug up a map</div>
-      <div class="bk-pts">+${b.total}</div><div class="bk-tap">Tap anywhere to go on</div></button>`;
+    return `<button class="bankcard" data-act="dismissbank" style="--c:${COLORS[b.player]}"><div class="bk-who">${esc(seatName(b.player))} scored</div>
+      <div class="bk-pts">+${b.total}</div></button>`;
   }
 
 
@@ -2074,8 +2088,11 @@ const Campaign = (() => {
       <div class="bar"><div class="chips n${st.n}">${chipsHTML()}</div></div>
       <div class="legend">${ui.lastEvent && !ui.turnCard ? `<span class="event">${esc(ui.lastEvent)}</span>` : ''}<span class="hint">${esc(hintsVisible() ? hint() : '')}</span></div>
       <div class="main"><div class="boardwrap">${boardSVG()}</div>${bankBannerHTML()}${endButtonHTML()}${ui.turnCard && !st.over ? turnCardHTML() : ''}${st.over && !animating() ? '' : '<button class="q" data-act="menu" aria-label="Menu">☰</button>'}</div>
-    </div>${st.over && !animating() ? overHTML() : ''}${ui.menu ? menuHTML() : ''}${ui.tip && !st.over ? tipHTML() : ''}`;
+    </div>${st.over && !animating() && !ui.fx && !ui.overSeen ? resultsButtonHTML() : ''}${st.over && !animating() && ui.overSeen ? overHTML() : ''}${ui.menu ? menuHTML() : ''}${ui.tip && !st.over ? tipHTML() : ''}`;
   }
+
+  // The game is over: the board stays on the table (the last match has just played out) until the player taps for the results.
+  const resultsButtonHTML = () => '<button class="resultsbtn" data-act="results">See the results</button>';
 
   // Whose turn it is, said before they start tapping. (In pass & play it also stands in for handing the device over.)
   function turnCardHTML() {
@@ -2127,23 +2144,28 @@ const Campaign = (() => {
   }
 
   // A game left half-played (it is kept until a new one is started or it ends): what the Continue buttons say about it.
-  const savedGame = () => (ui.st && !ui.st.over && ui.screen !== 'play' ? { campaign: ui.mode === 'campaign' } : null);
-  function savedLine() {
-    const st = ui.st;
-    return ui.mode === 'campaign' ? `${LV[ui.levelIdx].name} · you ${st.players[0].points}, ${st.players[1].points}` : st.players.map(p => `${seatName(p.idx)} ${p.points}`).join(' · ');
+  // Asked when you choose Campaign or Pass & Play and a game of that kind was left half-played: carry on with it, or start a new one (which replaces it).
+  function resumeHTML() {
+    const m = ui.resumeMode, sv = savedOf(m);
+    if (!sv) return homeHTML();
+    return `<div class="screen resume-screen"><div class="sheet wide">
+      <button class="back" data-act="home">‹ Torn Treasure</button>
+      <h1>${m === 'campaign' ? 'Campaign' : 'Pass &amp; Play'}</h1>
+      <p class="sub">You have a game in progress.</p>
+      <button class="mode resume" data-act="continue" data-v="${m}"><b>Continue this game</b><span>${esc(sv.summary || '')}</span></button>
+      <button class="mode" data-act="newgame"><b>Start a new game</b><span>It replaces the game in progress.</span></button>
+    </div></div>`;
   }
-  const resumeBtn = () => `<button class="mode resume" data-act="continue"><b>Continue</b><span>${esc(ui.mode === 'campaign' ? 'Campaign' : 'Pass & Play')} · ${esc(savedLine())}</span></button>`;
 
   function homeHTML() {
-    const beaten = LV.filter((l, i) => Campaign.isBeaten(i, ui.beaten)).length, sv = savedGame();
+    const beaten = LV.filter((l, i) => Campaign.isBeaten(i, ui.beaten)).length;
     const pips = LV.map((l, i) => `<i class="${Campaign.isBeaten(i, ui.beaten) ? 'on' : ''}"></i>`).join('');
     return `<div class="screen home">${libraryLink()}<div class="sheet hero">
       <div class="hero-art">${heroSVG()}</div>
       <div class="hero-menu">
         <h1 class="logo">Torn<br>Treasure</h1>
         <p class="sub">Peek. Flip. Match. Dig up.</p>
-        ${sv ? resumeBtn() : ''}
-        <button class="mode${sv ? '' : ' primary'} row" data-act="mode" data-v="campaign"><b>Campaign</b><span class="pips" role="img" aria-label="${beaten} of ${LV.length} opponents beaten">${pips}</span></button>
+        <button class="mode primary row" data-act="mode" data-v="campaign"><b>Campaign</b><span class="pips" role="img" aria-label="${beaten} of ${LV.length} opponents beaten">${pips}</span></button>
         <button class="mode" data-act="mode" data-v="pass"><b>Pass &amp; Play</b><span>${D.players.min}–${D.players.max} people, one device</span></button>
         <div class="ghostrow"><button class="ghost" data-act="help">How to play</button><button class="ghost" data-act="settings">Settings</button></div>
         ${ui.notice ? `<p class="dim" style="margin:8px 0 0">${esc(ui.notice)}</p>` : ''}<p class="dim ver">Version ${esc(BUILD)}</p>
@@ -2152,21 +2174,19 @@ const Campaign = (() => {
   }
 
   function passHTML() {
-    const p = ui.pass, sv = savedGame();
+    const p = ui.pass;
     const seats = Array.from({ length: p.n }, (_, i) => `<div class="seatrow"><span class="dot" style="background:${COLORS[i]}"></span>
         <input value="${esc(p.names[i])}" maxlength="14" data-act="name" data-i="${i}" aria-label="Name of player ${i + 1}"></div>`).join('');
     return `<div class="screen"><div class="sheet wide">
       <button class="back" data-act="home">‹ Torn Treasure</button>
       <h1>Pass &amp; Play</h1><p class="sub">Pass the device around the table.</p>
-      ${sv && !sv.campaign ? resumeBtn() + '<h2>Or start a new game</h2>' : ''}
       <h2>Players</h2><span class="seg">${Array.from({ length: D.players.max - D.players.min + 1 }, (_, k) => k + D.players.min).map(n => `<button class="${p.n === n ? 'on' : ''}" data-act="n" data-v="${n}">${n}</button>`).join('')}</span>
       ${seats}
       <h2>Board size</h2><span class="seg sizes">${D.passBoards.map(b => { const lv = LV[levelIndexOf(b.level)], n = lv.tokens.reduce((a, t) => a + t.count, 0); return `<button class="${passBoard().id === b.id ? 'on' : ''}" data-act="size" data-v="${b.id}"><b>${esc(b.name)}</b><small>${n} tiles</small></button>`; }).join('')}</span>
       <p class="dim pass-note">${p.size ? 'The size you chose.' : `Picked for ${p.n} players: more people, a bigger board.`} Bigger boards have more tiles to remember${LV[levelIndexOf(passBoard().level)].tokens.some(t => t.gem) ? ', and gem maps' : ' (and no gem maps)'}.</p>
       <h2>Rules reminders</h2><span class="seg">${[['on', 'On'], ['off', 'Off']].map(([v, t]) => `<button class="${(p.reminders ? 'on' : 'off') === v ? 'on' : ''}" data-act="reminders" data-v="${v}">${t}</button>`).join('')}</span>
       <p class="dim pass-note">A short note the first time a match or a gem comes up. Turn it off once everyone knows the rules.</p>
-      <button class="big" data-act="deal">${sv && !sv.campaign ? 'Start a new game' : 'Deal the tiles'}</button>
-      ${sv && !sv.campaign ? '<p class="dim pass-note">Your saved game is replaced.</p>' : ''}
+      <button class="big" data-act="deal">Deal the tiles</button>
     </div></div>`;
   }
 
@@ -2178,7 +2198,7 @@ const Campaign = (() => {
     return `<svg class="mini-board" viewBox="${f1(x0 - 2)} ${f1(y0 - 2)} ${f1(x1 - x0 + 4)} ${f1(y1 - y0 + 4)}" aria-hidden="true">${cells.map(c => { const q = pos(c); return `<polygon points="${hexPts(q.x, q.y, S * 0.9)}"/>`; }).join('')}</svg>`;
   }
   function campaignHTML() {
-    const sv = savedGame(), done = LV.filter((l, i) => Campaign.isBeaten(i, ui.beaten)).length;
+    const done = LV.filter((l, i) => Campaign.isBeaten(i, ui.beaten)).length;
     const nextIdx = LV.findIndex((l, i) => unlocked(i) && !Campaign.isBeaten(i, ui.beaten));
     const rows = LV.map((l, i) => {
       const open = unlocked(i), won = Campaign.isBeaten(i, ui.beaten);
@@ -2190,9 +2210,7 @@ const Campaign = (() => {
     return `<div class="screen"><div class="sheet wide">
       <button class="back" data-act="home">‹ Torn Treasure</button>
       <div class="camp-head"><h1>Campaign</h1><span class="pips progress" role="img" aria-label="${done} of ${LV.length} opponents beaten">${LV.map((l, i) => `<i class="${Campaign.isBeaten(i, ui.beaten) ? 'on' : ''}"></i>`).join('')}</span></div>
-      ${sv && sv.campaign ? resumeBtn() + '<h2>Or start a new game</h2>' : ''}
       <div class="levels">${rows}</div>
-      ${sv && sv.campaign ? '<p class="dim">Starting a level replaces your saved game.</p>' : ''}
       ${all ? '<p class="sub" style="margin-top:16px">🏆 You have beaten every opponent.</p>' : ''}
     </div></div>`;
   }
@@ -2339,19 +2357,18 @@ const Campaign = (() => {
 
   function render() {
     if (ui.st && ui.st.over && !ui.countedOver) gameFinished();     // count the game (and record a campaign result) before drawing the end screen
-    if (ui.screen === 'play' && ui.st && ui.st.over && !animating() && !ui.endSounded) {      // the end screen appears now: its sound goes with it
+    if (ui.screen === 'play' && ui.st && ui.st.over && !animating() && ui.overSeen && !ui.endSounded) {      // the end screen appears now: its sound goes with it
       ui.endSounded = true;
       const o = ui.outcome;
       sfx(ui.mode === 'campaign' && o ? (o.won ? (o.completed || (o.newlyUnlocked && !(UNLOCK_ALL || ui.unlockAll)) ? 'unlock' : 'win') : 'lose') : 'win', 200);
     }
-    const html = { home: homeHTML, pass: passHTML, campaign: campaignHTML, play: gameHTML }[ui.screen]();
+    const html = { home: homeHTML, resume: resumeHTML, pass: passHTML, campaign: campaignHTML, play: gameHTML }[ui.screen]();
     root.innerHTML = html + (ui.help ? helpHTML() : '') + (ui.fossils && ui.st ? fossilsHTML() : '') + (ui.settings ? settingsHTML() : '');
     syncTip();
     saveGame();
   }
 
   window.FossilFrenzyUI = { ui, render, onClick, audio, startAnim };
-  resumeGame();
   render();
 })();
 </script>
