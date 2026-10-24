@@ -4,7 +4,7 @@ Patrick Blim-Hockberger's tabletop game designs, adapted as browser games you ca
 
 - **Library:** `index.html` — open it in a browser, no install, works offline.
 - **Games:** `games/<name>/index.html`, each one a single self-contained file that also works on its own.
-  - **Torn Treasure** (`games/fossil-frenzy/`, formerly Fossil Frenzy) — a fast memory game: peek, flip and match torn treasure maps, then dig them up. **Pass & Play** (2–4 people, one device) or **Campaign**: five opponents — Beginner, Novice, Normal, Challenging, Master — each of which you must beat to unlock the next.
+  - **Torn Treasure** (`games/fossil-frenzy/`, formerly Fossil Frenzy) — a fast memory game: peek, flip and match torn treasure maps, then dig them. **Pass & Play** (2–4 people, one device) or **Campaign**: five opponents — Beginner, Novice, Normal, Challenging, Master — each of which you must beat to unlock the next.
 - **Dig Dig Boom** (the flagship) is a separate site; the library links to it once it has an address.
 
 **Deployment:** hosted on Cloudflare (Workers Builds, static assets), connected to this repo.

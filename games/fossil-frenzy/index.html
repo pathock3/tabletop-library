@@ -12,8 +12,8 @@
 <title>Torn Treasure</title>
 <meta property="og:type" content="website">
 <meta property="og:title" content="Torn Treasure">
-<meta property="og:description" content="A fast memory game: peek, flip and match torn treasure maps, then dig them up.">
-<meta name="description" content="A fast memory game: peek, flip and match torn treasure maps, then dig them up.">
+<meta property="og:description" content="A fast memory game: peek, flip and match torn treasure maps, then dig them.">
+<meta name="description" content="A fast memory game: peek, flip and match torn treasure maps, then dig them.">
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg%20xmlns=%22http://www.w3.org/2000/svg%22%20viewBox=%220%200%2064%2064%22%3E%3Crect%20width=%2264%22%20height=%2264%22%20rx=%2214%22%20fill=%22%231b130e%22/%3E%3Cpolygon%20points=%2232,6%2055,19%2055,45%2032,58%209,45%209,19%22%20fill=%22%23a47c46%22%20stroke=%22%235e4527%22%20stroke-width=%223%22/%3E%3Cpath%20d=%22M22%2024L42%2044M42%2024L22%2044%22%20stroke=%22%23d4402f%22%20stroke-width=%226%22%20stroke-linecap=%22round%22/%3E%3C/svg%3E">
 <link rel="icon" type="image/png" href="../../assets/favicon.png">
 <link rel="apple-touch-icon" href="../../assets/apple-touch-icon.png">
@@ -44,7 +44,9 @@ button { font: inherit; color: inherit; border: 0; background: none; padding: 0;
 @keyframes bump { 0% { transform: scale(1); } 35% { transform: scale(1.35); color: var(--accent); } 100% { transform: scale(1); } }
 .chip .say { position: absolute; right: 8px; top: 6px; padding: 3px 10px; border-radius: 99px; background: var(--accent); color: #2b1b10; font-weight: 800; font-size: 14px; animation: bankin2 .35s ease-out; }
 @keyframes bankin2 { 0% { transform: scale(.5); opacity: 0; } 100% { transform: none; opacity: 1; } }
-.chip .sets { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; min-height: calc(var(--set) + 6px); margin-top: 6px; }
+.chip .sets { display: flex; flex-wrap: nowrap; align-items: center; height: calc(var(--set) + 6px); margin-top: 6px; }
+/* the board never moves: the maps sit in ONE row of a fixed height; when there are more than fit, they overlap like a hand of cards (--n is how many there are) */
+.chip .sets > * + * { margin-left: min(8px, calc((100% - var(--n) * var(--set)) / (var(--n) - 1))); }
 .chips.n3, .chips.n4 { --set: 46px; }
 .chips.n4 .nm { font-size: 15px; gap: 4px; }
 /* held sets are buttons: big, raised tiles. The ones you can bank right now glow green and carry a "Bank" label. */
@@ -59,10 +61,10 @@ button { font: inherit; color: inherit; border: 0; background: none; padding: 0;
 .slot { width: var(--set); height: var(--set); border-radius: 9px; border: 2px dashed var(--line); flex: none; }
 @keyframes ready { 0%, 100% { box-shadow: 0 0 0 3px var(--good), 0 0 8px rgba(62,207,142,.25); } 50% { box-shadow: 0 0 0 3px var(--good), 0 0 20px rgba(62,207,142,.7); } }
 @keyframes spot { 0%, 100% { box-shadow: 0 0 0 3px var(--accent), 0 0 6px rgba(245,165,36,.3); } 50% { box-shadow: 0 0 0 3px var(--accent), 0 0 20px rgba(245,165,36,.85); } }
-.bankcap { font-size: 12px; font-weight: 800; letter-spacing: .6px; text-transform: uppercase; color: var(--good); line-height: 1.1; max-width: 4.2em; }
+.bankcap { position: absolute; right: 10px; top: 9px; font-size: 12px; font-weight: 800; letter-spacing: .6px; text-transform: uppercase; color: var(--good); line-height: 1.1; pointer-events: none; }
 .q { position: absolute; left: 6px; bottom: 6px; z-index: 3; width: 68px; height: 68px; border-radius: 18px; background: var(--panel2); border: 2px solid var(--line); color: var(--text); font-weight: 700; font-size: 38px; line-height: 1; opacity: .95; }   /* the menu sits in the board's bottom-left corner, so the scores can span the whole width */
-.legend { display: flex; gap: 14px; align-items: center; justify-content: center; font-size: 12px; color: var(--dim); padding: 0 6px; min-height: 2.5em; }
-.legend .hint { margin: 0 auto; color: var(--text); font-size: 16px; line-height: 1.25; text-align: center; }
+.legend { display: flex; gap: 14px; align-items: center; justify-content: center; font-size: 12px; color: var(--dim); padding: 0 6px; height: 56px; overflow: hidden; }          /* a fixed height, so a longer hint never pushes the board */
+.legend .hint { margin: 0 auto; color: var(--text); font-size: 15px; line-height: 1.25; text-align: center; }
 .main { min-height: 0; display: flex; position: relative; }
 .boardwrap { min-height: 0; min-width: 0; display: flex; flex: 1; }
 .legend .event { color: var(--accent); font-size: 16px; font-weight: 700; }
@@ -75,7 +77,7 @@ svg.board { width: 100%; height: 100%; touch-action: manipulation; }
 .turncard .tc-last { font-size: 19px; color: var(--accent); max-width: 30em; }
 .turncard .tc-tap { margin-top: 14px; padding: 22px 54px; min-height: 76px; border-radius: 18px; background: var(--c); color: #14100c; font-weight: 800; font-size: 28px; box-shadow: 0 6px 0 rgba(0,0,0,.35); }
 
-@media (min-width: 700px) { .game { --set: 78px; gap: 10px; padding: 12px 16px 14px; } .chip .nm { font-size: 22px; } .legend .hint, .legend .event { font-size: 21px; } .q { width: 80px; height: 80px; font-size: 44px; border-radius: 20px; } .end { padding: 24px 46px; min-height: 80px; font-size: 28px; } .turncard .tc-tap { padding: 26px 70px; min-height: 90px; font-size: 32px; } }
+@media (min-width: 700px) { .game { --set: 78px; gap: 10px; padding: 12px 16px 14px; } .chip .nm { font-size: 22px; } .legend { height: 62px; } .legend .hint, .legend .event { font-size: 20px; } .q { width: 80px; height: 80px; font-size: 44px; border-radius: 20px; } .end { padding: 24px 46px; min-height: 80px; font-size: 28px; } .turncard .tc-tap { padding: 26px 70px; min-height: 90px; font-size: 32px; } }
 /* the films (a match, digging a map up) are drawn on this layer above everything; it never takes a tap */
 #fx { position: fixed; inset: 0; z-index: 20; pointer-events: none; overflow: hidden; }
 #fx > div { position: absolute; will-change: transform, opacity; }
@@ -83,6 +85,11 @@ svg.board { width: 100%; height: 100%; touch-action: manipulation; }
 #fx .flyer svg { position: absolute; inset: 0; }
 #fx .flysq { display: block; filter: drop-shadow(0 8px 6px rgba(0,0,0,.5)); opacity: 0; }
 #fx .shock { border-radius: 50%; border: 6px solid #fff; opacity: 0; }
+#fx .digdim { background: radial-gradient(ellipse at 50% 45%, rgba(10,6,3,.34), rgba(10,6,3,.72)); opacity: 0; }
+#fx .digtxt { display: flex; justify-content: center; align-items: baseline; gap: .35em; text-align: center; font-family: var(--serif); font-weight: 800; font-size: clamp(26px, 6.6vw, 46px); line-height: 1.1; color: #fff3cf; text-shadow: 0 3px 0 #3b2410, 0 0 18px rgba(0,0,0,.7); opacity: 0; }
+#fx .digtxt b { font-size: 1.45em; color: #ffd24a; text-shadow: 0 3px 0 #7a4a0e, 0 0 18px rgba(255,200,60,.7); }
+#fx .coin { border-radius: 50%; background: radial-gradient(circle at 35% 30%, #fff3a8, #f5c542 55%, #a67513); box-shadow: 0 1px 0 rgba(0,0,0,.4); opacity: 0; }
+.sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
 #fx .chest { filter: drop-shadow(0 8px 8px rgba(0,0,0,.5)); }
 #fx .chest svg { overflow: visible; } #fx .lid { transform-box: fill-box; transform-origin: 100% 100%; }
 #fx .plus { display: grid; place-items: center; font-weight: 900; font-size: 44px; color: #ffe27a; text-shadow: 0 3px 0 #7a4a08, 0 0 14px rgba(255,200,60,.9); }
@@ -249,6 +256,9 @@ h2 { margin: 18px 0 8px; font-size: 14px; text-transform: uppercase; letter-spac
 .mode.resume b { color: var(--good); }
 .tipback { position: absolute; inset: 0; z-index: 8; display: flex; align-items: flex-end; justify-content: center; padding: 0 16px calc(env(safe-area-inset-bottom) + 18px); background: rgba(10,6,3,.4); }
 .tipback.top { align-items: flex-start; }
+.whatbtn { position: absolute; left: 50%; bottom: 10px; transform: translateX(-50%); z-index: 4; padding: 14px 26px; min-height: 52px; border-radius: 99px; background: linear-gradient(180deg, #f6e8be, #dcc48c); border: 2px solid var(--parch-line); color: var(--inkb); font-family: var(--serif); font-weight: 800; font-size: 19px; box-shadow: 0 4px 0 rgba(0,0,0,.4), 0 8px 18px rgba(0,0,0,.4); animation: bankin2 .3s ease-out; white-space: nowrap; }
+.whatbtn.top { bottom: auto; top: 10px; }
+.gempic { width: 100%; max-width: 420px; display: block; margin: 4px auto 6px; } .gempic .cap { font-family: var(--serif); font-weight: 800; font-size: 13px; fill: var(--inkb); } .gempic .sym { font-size: 30px; font-weight: 800; fill: var(--inkb2); } .gempic .val { font-family: var(--serif); font-weight: 900; font-size: 22px; fill: #f6e7b8; stroke: rgba(0,0,0,.45); stroke-width: 3px; paint-order: stroke; }
 .tip { width: min(560px, 100%); padding: 20px 22px 18px; border-radius: 20px; background: var(--panel2); border: 3px solid var(--accent); box-shadow: 0 18px 50px rgba(0,0,0,.6); animation: bankin2 .3s ease-out; }
 .tip h2 { margin: 0 0 8px; font-size: 26px; color: var(--accent); text-transform: none; letter-spacing: 0; }
 .tip p { margin: 0 0 4px; font-size: 19px; line-height: 1.4; }
@@ -381,6 +391,7 @@ h1 { letter-spacing: .3px; }
 
 /* ---------- iPhone portrait (402 x 874, minus the status bar and the home bar): no menu screen scrolls ---------- */
 @media (max-width: 480px), (max-height: 700px) {
+  .legend { height: 52px; } .legend .hint { font-size: 14px; }
   .screen:not(.home) { padding: 12px 16px; }
   h1 { font-size: 30px; margin-bottom: 2px; }
   h2 { margin: 12px 0 6px; font-size: 12px; }
@@ -428,6 +439,7 @@ h1 { letter-spacing: .3px; }
 <body>
 <div id="app"></div>
 <div id="fx" aria-hidden="true"></div>
+<div id="live" class="sr" role="status" aria-live="polite"></div>
 <svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false"><defs>
   <radialGradient id="gSand" cx="40%" cy="35%" r="80%"><stop offset="0" stop-color="#c49d64"/><stop offset="1" stop-color="#8a6738"/></radialGradient>
   <pattern id="pSpeck" width="15" height="15" patternUnits="userSpaceOnUse"><circle cx="3" cy="4" r="1" fill="rgba(58,36,14,.5)"/><circle cx="10.5" cy="9" r="1.2" fill="rgba(58,36,14,.42)"/><circle cx="6" cy="13" r=".8" fill="rgba(58,36,14,.5)"/><circle cx="12" cy="2" r=".8" fill="rgba(255,232,176,.4)"/><circle cx="1.5" cy="10" r=".7" fill="rgba(255,232,176,.35)"/></pattern>
@@ -518,8 +530,8 @@ const GAME_DATA = {
   // Short notes shown the first time something comes up. In the campaign each appears once on a device (`levels` limits where: the match note is for the easiest level only);
   // in Pass & Play they appear once per game, unless the players switch "Rules reminders" off on the setup screen.
   coach: {
-    match: { levels: ['beginner'], title: 'Map found!', body: 'This map is found but not dug up yet, so it is not scored. To score it, tap it up here on one of your turns instead of peeking: that digs it up, uses your turn and adds its number to your score. Maps you never dig up are worth nothing.' },
-    gem: { title: '💎 Gem maps come in threes', body: 'A gem map is torn in three pieces, so it takes three tiles to put it back together, and it is worth {value}. Peek a gem piece, flip a second one, then tap a third tile (that also shows the piece you peeked): if all three are gem pieces, the map is yours. Otherwise they flip back. Tap anywhere else instead to stop after two.' },
+    match: { levels: ['beginner'], title: 'Map found!', body: 'It isn\'t scored yet. On a later turn, tap it up here instead of peeking to dig it and score its number.' },
+    gem: { title: 'Gem maps', ask: 'What\'s that?', short: 'Peek one, flip one, tap a third. Three gems make a gem map worth {value}; otherwise they flip back.', body: 'Peek one, flip one, tap a third. Three gems make a gem map worth {value}; otherwise they flip back.' },
   },
 
   // ---- THEME ----------------------------------------------------------------
@@ -574,7 +586,7 @@ const GAME_DATA = {
   pace: { peek: 650, flip: 600, bank: 0 },
   // The two little films (milliseconds): a match (hold so the flip is seen, lift, slide so the torn edges meet, morph into the square map, fly to the player's maps, settle)
   // and digging a map up (the map becomes an open chest, the points count up).
-  anim: { match: { hold: 320, lift: 140, slide: 260, morph: 220, pause: 60, fly: 400, settle: 380 }, dig: { rise: 220, open: 300, rain: 520, count: 640, end: 220 } },
+  anim: { match: { hold: 320, lift: 140, slide: 260, morph: 220, pause: 60, fly: 400, settle: 380 }, dig: { fly: 320, open: 320, hold: 640, rain: 480, count: 600, end: 220 } },
 
   // ---- SOUND ------------------------------------------------------------
   // Every sound is built from a few synthesised voices (no audio files, so the game stays one file and works offline).
@@ -1504,7 +1516,7 @@ const Campaign = (() => {
                help: false, menu: null, prevUp: new Set(), popTurn: -1, botWaiting: false, notice: '',
                countedOver: false, outcome: null, turnCard: false, lastEvent: '', say: '',
                steps: null, stage: 0, base: null, animTimer: null, liftKey: '', prevPts: null,
-               tip: null, tipsSeen: new Set(), fx: null, recall: [], filmedTurn: -1, boardLevel: 0, overSeen: false, resumeMode: 'campaign' };
+               tip: null, tipsSeen: new Set(), fx: null, recall: [], filmedTurn: -1, boardLevel: 0, overSeen: false, what: null, resumeMode: 'campaign' };
   ui.settings = null;                                   // null | 'open' | 'unlock' (the warning before unlocking everything) | 'reset'
   ui.sound = pref.get(SOUND_KEY) !== 'off';             // sound effects: on unless switched off (Menu or Settings), remembered on this device
   ui.endSounded = false;
@@ -1527,20 +1539,31 @@ const Campaign = (() => {
   // ---------------- rules reminders ----------------
   // A short note the first time something comes up (see `coach` in the data). Campaign: once per device, only on the levels the note names.
   // Pass & Play: once per game, unless the players switched reminders off. The note waits for a tap on "Got it" before play goes on.
-  function showTip(id, endsTurn = false, focus = []) {          // focus: the tiles the note is about, [{ tid, color, dash }]: they stay in view above it
+  // Should this reminder be given now? Campaign: once per device (and only on the levels it names). Pass & Play: once per game, unless reminders are off. Asking uses it up.
+  function tipAllowed(id) {
     const c = D.coach[id];
-    if (!c || ui.tip || !ui.st) return false;
+    if (!c || !ui.st) return false;
     if (ui.mode === 'campaign') {
       if (c.levels && !c.levels.includes(LV[ui.levelIdx].id)) return false;
       const seen = new Set(pref.json(TIPS_KEY) || []);
       if (seen.has(id)) return false;
       seen.add(id); pref.set(TIPS_KEY, JSON.stringify([...seen]));
-    } else {
-      if (!ui.pass.reminders || ui.tipsSeen.has(id)) return false;
-      ui.tipsSeen.add(id);
+      return true;
     }
-    ui.tip = { id, endsTurn, focus };
+    if (!ui.pass.reminders || ui.tipsSeen.has(id)) return false;
+    ui.tipsSeen.add(id);
     return true;
+  }
+  // A note that has to be read first (the first match): one button, no timer.
+  function showTip(id, endsTurn = false) {
+    if (ui.tip || !tipAllowed(id)) return false;
+    ui.tip = { id, endsTurn };
+    return true;
+  }
+  // A gem has just turned up for the first time: nothing is said, nothing is covered. A small "What's that?" button appears; only if you tap it does a picture explain gems.
+  function askAboutGem(tid) {
+    if (ui.what || ui.tip || !tipAllowed('gem')) return;
+    ui.what = { tid };
   }
   // Pass & Play: the public flips of the other players since my last turn, so I can see them as if I had been watching.
   function noteFlips(p) {
@@ -1569,7 +1592,7 @@ const Campaign = (() => {
   function beginTurn() {
     ui.turnCard = false; ui.lastEvent = '';
     if (animating()) startAnim();
-    else if (ui.mode === 'pass') for (const [tid, by] of recallFor(ui.st.current)) if (ui.st.tokens[tid].gem) { showTip('gem', false, [{ tid, color: COLORS[by] }]); break; }          // someone showed a gem: say how gems work
+    else if (ui.mode === 'pass') for (const [tid] of recallFor(ui.st.current)) if (ui.st.tokens[tid].gem) { askAboutGem(tid); break; }          // someone showed a gem: say how gems work
   }
 
   // Is an opponent's turn still being shown one move at a time?
@@ -1603,13 +1626,13 @@ const Campaign = (() => {
     let T = null; for (let j = 0; j < k; j++) if (ui.steps[j].a.type === 'peek') T = ui.steps[j].a.tid;
     return T !== null && ui.st.tokens[T].gem ? T : null;
   }
-  const gemTip = tid => showTip('gem', false, [{ tid, color: COLORS[ui.st.current] }]);
+  const gemTip = tid => askAboutGem(tid);
   function startAnim() {
     clearAnim();
     if (!animating()) return;
     if (ui.tip) { ui.animTimer = setTimeout(startAnim, 250); return; }          // a reminder is waiting for its tap: the opponent's turn waits too
     if (reducedMotion()) { finishAnim(false); return; }
-    if (ui.stage === 0) { ui.stage = 1; playStep(1); }         // its peek shows at once
+    if (ui.stage === 0 && ui.steps[0].a.type !== 'bank') { ui.stage = 1; playStep(1); }         // its peek shows at once (a turn that is just a bank shows the table first, then the film)
     if (!animating()) return;
     ui.animTimer = setTimeout(() => {
       ui.animTimer = null;
@@ -1619,7 +1642,7 @@ const Campaign = (() => {
       render(); startAnim();
       if (digRect && canFx()) { const to = ui.steps[ui.stage - 1].snap, set = prev.sets[next.a.set]; if (set) startDigFx(ui.st.current, { value: set.value, gem: set.gem }, prev.points, to.points, digRect, null); }
       else if (!animating()) botMatchFx();
-    }, stepMs(ui.steps[ui.stage - 1].a));
+    }, ui.stage > 0 ? stepMs(ui.steps[ui.stage - 1].a) : 700);
   }
   const tileRect = sel => { const el = root.querySelector(sel); return el ? rectOf(el) : null; };
   // An opponent's last move completed a set: the same film as for a match of mine (its sound already played with the flip).
@@ -1639,7 +1662,7 @@ const Campaign = (() => {
   function nextTurnStarts(first = false) {
     const st = ui.st;
     clearAnim();
-    Object.assign(ui, { botWaiting: false, steps: null, stage: 0, base: null, say: '' });
+    Object.assign(ui, { botWaiting: false, steps: null, stage: 0, base: null, say: '', what: null });
     const bot = ui.bots[st.current];
     ui.turnCard = first || (!bot && ui.mode === 'pass');          // pass & play: say whose turn it is before they tap
     if (!bot) return;
@@ -1655,7 +1678,6 @@ const Campaign = (() => {
     ui.say = bot.slips > slips0 ? D.ai.slipSays[st.turnNo % D.ai.slipSays.length] : '';          // a visible tell: it slipped
     if (!ui.turnCard) startAnim();
   }
-  const bankText = b => `${b.gem ? 'a gem map' : 'a ' + b.value + ' map'}: +${b.base}`;
 
   function endTurn() {
     const st = ui.st;
@@ -1793,26 +1815,42 @@ const Campaign = (() => {
       <rect x="16" y="52" width="68" height="34" rx="5" fill="#8a5a2b" stroke="#47290f" stroke-width="3"/><rect x="16" y="62" width="68" height="6" fill="#d9a33a"/><rect x="45" y="58" width="10" height="14" rx="2" fill="#f2c14e" stroke="#47290f" stroke-width="2"/>
       <g class="lid"><path d="M16,52 L16,40 Q16,26 50,26 Q84,26 84,40 L84,52Z" fill="#9c6633" stroke="#47290f" stroke-width="3"/><rect x="16" y="42" width="68" height="6" fill="#d9a33a"/></g></svg>`;
   }
+  // Digging: the map flies from the player's maps to the middle of the table (the page behind it dims a little), becomes an open treasure chest that bursts with coins,
+  // says what happened in big letters ("You dug up treasure: +3"), and the points fly to the score and count up. Transform and opacity only; a tap skips it.
   function startDigFx(player, x, from, to, rect, then) {
     const A = D.anim.dig;
     ui.fx = { kind: 'dig', player, shown: from, to, anims: [], timers: [], then: then || null, raf: 0 };
     render();
-    const pts = root.querySelector(`.chip[data-p="${player}"] .pts`);
-    if (!canFx() || !pts) { endFx(); return; }
-    const fx = ui.fx, w = Math.max(rect.w, 48), P = rectOf(pts), C = { x: rect.x, y: rect.y + w * 0.35 }, sq = squareHTML(x, w);
+    const pts = root.querySelector(`.chip[data-p="${player}"] .pts`), board = root.querySelector('.boardwrap');
+    if (!canFx() || !pts || !board) { endFx(); return; }
+    const fx = ui.fx, w = Math.max(rect.w, 48), P = rectOf(pts), B = rectOf(board), vw = innerWidth, vh = innerHeight;
+    const K = Math.max(150, Math.min(300, 0.46 * Math.min(B.w, B.h))), C = { x: B.x, y: B.y - K * 0.12 }, sq = squareHTML(x, w), TY = C.y + K * 0.64;
+    const name = seatName(player), msg = `${name} dug up treasure: +${to - from}`;          // the same film and words for an opponent as for me
+    const tOpen = A.fly, tText = tOpen + A.open * 0.5, tRain = tText + A.hold, tCount = tRain + A.rain * 0.55, tEnd = Math.max(tCount + A.count, tRain + A.rain + A.end);
+    const dim = fxEl('digdim', { x: vw / 2, y: vh / 2 }, vw, vh);
+    go(fx, dim, [{ opacity: 0 }, { opacity: 1 }], { duration: 220 });
+    go(fx, dim, [{ opacity: 1 }, { opacity: 0 }], { delay: tRain + A.rain * 0.4, duration: A.end * 1.4, composite: 'replace' });
     const sqEl = fxEl(sq.cls, rect, w, w, sq.html); sqEl.style.setProperty('--set', w + 'px');
-    const chest = fxEl('chest', C, w * 2.4, w * 2.4, chestHTML()); chest.style.opacity = '0';
-    const plus = fxEl('plus', C, w * 2, w * 0.9, `+${x.value}`); plus.style.opacity = '0';
-    const tOpen = A.rise, tPlus = tOpen + A.open * 0.6, tCount = tPlus + A.rain * 0.55, tEnd = Math.max(tCount + A.count, tPlus + A.rain + A.end);
-    go(fx, sqEl, [{ transform: 'none', opacity: 1 }, { transform: 'translateY(-10px) scale(1.3)', opacity: 1, offset: .8 }, { transform: 'translateY(-14px) scale(1.5)', opacity: 0 }], { duration: A.rise + 100, easing: EASE.out });
-    go(fx, chest, [{ opacity: 0, transform: 'scale(.4)' }, { opacity: 1, transform: 'scale(1.12)', offset: .6 }, { opacity: 1, transform: 'scale(1)' }], { delay: tOpen - 20, duration: A.open, easing: EASE.pop });
+    const k1 = (K * 0.5) / w;
+    go(fx, sqEl, [{ transform: 'none', opacity: 1 }, { transform: `translate(${(C.x - rect.x) * .5}px,${(C.y - rect.y) * .5 - 70}px) scale(${(1 + k1) / 2}) rotate(-6deg)`, offset: .55, opacity: 1 }, { transform: `translate(${C.x - rect.x}px,${C.y - rect.y}px) scale(${k1}) rotate(0deg)`, opacity: 1 }], { duration: A.fly, easing: EASE.io });
+    go(fx, sqEl, [{ opacity: 1 }, { opacity: 0 }], { delay: A.fly - 20, duration: 120, composite: 'replace' });
+    const chest = fxEl('chest', C, K, K, chestHTML()); chest.style.opacity = '0';
+    go(fx, chest, [{ opacity: 0, transform: 'scale(.4)' }, { opacity: 1, transform: 'scale(1.12)', offset: .6 }, { opacity: 1, transform: 'scale(1)' }], { delay: tOpen - 40, duration: A.open, easing: EASE.pop });
     const lid = chest.querySelector('.lid'), glow = chest.querySelector('.glow'), coins = chest.querySelector('.coins');
-    if (lid) go(fx, lid, [{ transform: 'none' }, { transform: 'translate(8px,-14px) rotate(-52deg)' }], { delay: tOpen + 60, duration: A.open * 0.8, easing: EASE.pop });
-    if (glow) go(fx, glow, [{ opacity: 0 }, { opacity: 1 }], { delay: tOpen + 80, duration: A.open * 0.8 });
-    if (coins) go(fx, coins, [{ transform: 'translateY(10px)' }, { transform: 'none' }], { delay: tOpen + 60, duration: A.open, easing: EASE.pop });
-    const dx = P.x - C.x, dy = P.y - C.y;
-    go(fx, plus, [{ opacity: 0, transform: 'translate(0,10px) scale(.6)' }, { opacity: 1, transform: 'translate(0,-12px) scale(1.2)', offset: .3 }, { opacity: 1, transform: `translate(${dx * .6}px,${dy * .6}px) scale(1)`, offset: .8 }, { opacity: 0, transform: `translate(${dx}px,${dy}px) scale(.7)` }], { delay: tPlus, duration: A.rain, easing: EASE.io });
-    go(fx, chest, [{ opacity: 1 }, { opacity: 0 }], { delay: tPlus + A.rain, duration: A.end, composite: 'replace' });
+    if (lid) go(fx, lid, [{ transform: 'none' }, { transform: 'translate(8px,-14px) rotate(-52deg)' }], { delay: tOpen + 40, duration: A.open * 0.8, easing: EASE.pop });
+    if (glow) go(fx, glow, [{ opacity: 0 }, { opacity: 1 }], { delay: tOpen + 60, duration: A.open * 0.8 });
+    if (coins) go(fx, coins, [{ transform: 'translateY(10px)' }, { transform: 'none' }], { delay: tOpen + 40, duration: A.open, easing: EASE.pop });
+    go(fx, chest, [{ opacity: 1 }, { opacity: 0 }], { delay: tRain, duration: A.end, composite: 'replace' });
+    for (let i = 0; i < 12; i++) {                                           // a burst of coins out of the open chest
+      const ang = (i / 12) * Math.PI * 2 + 0.3, R = K * (0.55 + (i % 3) * 0.16), coin = fxEl('coin', { x: C.x, y: C.y - K * 0.05 }, 16, 16);
+      go(fx, coin, [{ opacity: 0, transform: 'translate(0,0) scale(.5)' }, { opacity: 1, transform: `translate(${Math.cos(ang) * R * .6}px,${Math.sin(ang) * R * .6 - 24}px) scale(1)`, offset: .35 }, { opacity: 0, transform: `translate(${Math.cos(ang) * R}px,${Math.sin(ang) * R + 18}px) scale(.6)` }], { delay: tOpen + 60 + (i % 4) * 30, duration: 620, easing: EASE.out });
+    }
+    const tw = Math.min(vw - 24, 600), txt = fxEl('digtxt', { x: vw / 2, y: TY }, tw, 90, `<span>${esc(msg.replace(/: \+\d+$/, ':'))}</span><b>+${to - from}</b>`);
+    go(fx, txt, [{ opacity: 0, transform: 'translateY(16px) scale(.92)' }, { opacity: 1, transform: 'none' }], { delay: tText, duration: 260, easing: EASE.out });
+    go(fx, txt, [{ opacity: 1 }, { opacity: 0 }], { delay: tRain, duration: 160, composite: 'replace' });
+    at(fx, tText, () => { const L = document.getElementById('live'); if (L) L.textContent = msg; });
+    const plus = fxEl('plus', { x: vw / 2 + tw * 0.28, y: TY }, 110, 60, `+${to - from}`), dx = P.x - (vw / 2 + tw * 0.28), dy = P.y - TY;
+    go(fx, plus, [{ opacity: 0, transform: 'scale(1)' }, { opacity: 1, transform: 'scale(1.15)', offset: .12 }, { opacity: 1, transform: `translate(${dx * .6}px,${dy * .6}px) scale(1)`, offset: .8 }, { opacity: 0, transform: `translate(${dx}px,${dy}px) scale(.7)` }], { delay: tRain, duration: A.rain, easing: EASE.io });
     const start = performance.now() + tCount;
     const tick = now => {
       if (ui.fx !== fx) return;
@@ -1865,12 +1903,12 @@ const Campaign = (() => {
     } catch (e) { console.warn(e.message); }
     const matchedNow = (st.phase === 'resolved' || st.over) && phase0 !== 'resolved' && !!st.turn.matched, film = matchedNow && canFx();          // (the last match of the game plays its film too)
     let chime = '';
-    if (phase0 === 'action' && st.phase === 'peeked') { sfx('peek'); if (st.tokens[st.turn.T].gem) showTip('gem', false, [{ tid: st.turn.T, color: COLORS[st.current], dash: true }]); }
+    if (phase0 === 'action' && st.phase === 'peeked') { sfx('peek'); if (st.tokens[st.turn.T].gem) askAboutGem(st.turn.T); }
     else if (st.phase !== phase0 && phase0 !== 'action') {                        // a public flip happened
       sfx('flip');
       const popped = st.matchedCount > pop0, gems = st.turn.T !== null && st.tokens[st.turn.T].gem && st.tokens[st.turn.F].gem;
       if (popped || !gems) { chime = popped ? (gems ? 'gem' : 'match') : 'miss'; if (!film) sfx(chime, 110); }          // (two gems without the third stay silent: see flipOutcome)
-      if (!popped && st.tokens[st.turn.F].gem) showTip('gem', false, [{ tid: st.turn.F, color: COLORS[st.current] }]);
+      if (!popped && st.tokens[st.turn.F].gem) askAboutGem(st.turn.F);
     }
     if (matchedNow) {
       // A match ends the turn by itself once the maps have flown to their player's area (with "reduce motion": after a tap, as before).
@@ -1890,7 +1928,7 @@ const Campaign = (() => {
     try {
       if (Engine.canBank(st)) {
         const who = st.current, p = st.players[who], set = p.sets[i], from = p.points, rect = tileRect(`.chip.cur .setbtn[data-i="${i}"]`);
-        Engine.bank(st, i); ui.lastEvent = `${seatName(who)} dug up ${bankText(st.lastBank)}`;
+        Engine.bank(st, i); ui.lastEvent = `${seatName(who)} dug up treasure: +${st.lastBank.base}`;
         if (rect && canFx() && !st.over) { startDigFx(who, { value: set.value, gem: set.gem }, from, p.points, rect, endTurn); return; }         // the film, then the turn ends
         sfx('bank'); endTurn();
       }
@@ -1904,7 +1942,7 @@ const Campaign = (() => {
   const bankBannerUp = () => ui.screen === 'play' && !!ui.st && ui.botWaiting && !animating() && !ui.fx && !ui.turnCard && !ui.st.over && !!ui.st.turn.banked && !!ui.st.lastBank;
   function onClick(e) {
     audio.unlock();                                    // sound can only start from inside a tap; this wakes it
-    if (ui.fx) { endFx(); return; }                    // a tap skips a film (a match flying to its player, a map being dug up)
+    if (ui.fx) { endFx(); return; }                    // a tap skips a film (a match flying to its player, a map being dug)
     if (ui.screen === 'play' && ui.st && ui.st.over && !ui.overSeen && !animating() && !(e.target.closest && e.target.closest('[data-act=menu], [data-act=menu-close]'))) { ui.overSeen = true; render(); return; }          // the board has been seen: now the results
     const el = e.target.closest('[data-act]');
     if (!el) {
@@ -1926,6 +1964,7 @@ const Campaign = (() => {
       case 'level': if (unlocked(+d.i)) { ui.mode = 'campaign'; ui.levelIdx = +d.i; startGame(); } break;
       case 'next': ui.levelIdx = Math.min(ui.levelIdx + 1, LV.length - 1); startGame(); break;
       case 'begin': beginTurn(); break;
+      case 'what': ui.tip = { id: 'gem', visual: true, endsTurn: false }; ui.what = null; break;
       case 'tip-ok': { const t = ui.tip; ui.tip = null; if (t && t.endsTurn && !st.over && !isBot(st.current) && !ui.botWaiting) endTurn(); break; }
       case 'reminders': ui.pass.reminders = d.v === 'on'; pref.set(PASS_KEY, JSON.stringify(ui.pass)); break;
       case 'dismissbank': takeOverFromOpponent(); break;
@@ -2035,7 +2074,7 @@ const Campaign = (() => {
   }
   const mapBtn = (x, i, { tag = 'span', cls = '', act = false } = {}) => {
     const tier = tierOf(x), v = setLabel(x);
-    return `<${tag} class="setbtn ${tier}${cls ? ' ' + cls : ''}${act ? ' act' : ''}" data-i="${i}"${act ? ` data-act="set" aria-label="Dig up this map (${x.gem ? 'gem map, ' : ''}${x.value})"` : ''}>${squareArt(tier)}<b class="v">${v}</b></${tag}>`;
+    return `<${tag} class="setbtn ${tier}${cls ? ' ' + cls : ''}${act ? ' act' : ''}" data-i="${i}"${act ? ` data-act="set" aria-label="Dig this map (${x.gem ? 'gem map, ' : ''}${x.value})"` : ''}>${squareArt(tier)}<b class="v">${v}</b></${tag}>`;
   };
 
   function boardSVG() {
@@ -2101,8 +2140,8 @@ const Campaign = (() => {
   // Who acts next: whoever's turn it is — or, while an opponent's finished turn is still on the board, the player after it.
   const actor = () => (ui.botWaiting ? (ui.st.current + 1) % ui.st.n : ui.st.current);
 
-  // The scoreboard: everyone's points, big, and everyone's found maps under them (a map found by a match is worth nothing until it is dug up). The maps of the
-  // player about to act are the ones you tap to dig up — the only place maps are shown.
+  // The scoreboard: everyone's points, big, and everyone's found maps under them (a map found by a match is worth nothing until it is dug). The maps of the
+  // player about to act are the ones you tap to dig — the only place maps are shown.
   function chipsHTML() {
     const st = ui.st, was = ui.prevPts, now = {}, fx = ui.fx;
     const who = actor();
@@ -2114,13 +2153,13 @@ const Campaign = (() => {
       const hiding = !!fx && fx.kind === 'match' && fx.hideSet && fx.player === p.idx;          // the newest map is still flying in
       const matchedShown = p.idx === st.current && !!st.turn.matched && (!animating() || v.sets.length > ui.base.sets.length);
       const bankable = tappable && p.idx === who && v.sets.length > 0, last = v.sets.length - 1;
-      const sets = (bankable ? '<span class="bankcap">Tap to dig up</span>' : '') + (v.sets.length ? v.sets.map((x, i) => ({ x, i })).sort((a, b) => b.x.value - a.x.value || a.i - b.i).map(({ x, i }) => {   // held maps sit highest first; i stays the map's real index (that is what digging up takes)
+      const sets = (v.sets.length ? v.sets.map((x, i) => ({ x, i })).sort((a, b) => b.x.value - a.x.value || a.i - b.i).map(({ x, i }) => {   // held maps sit highest first; i stays the map's real index (that is what digging takes)
         const cls = [ui.popTurn !== st.turnNo && matchedShown && !hiding && i === last ? 'pop' : '', hiding && i === last ? 'landing' : '', ui.tip && ui.tip.id === 'match' && p.idx === st.current && i === last ? 'spot' : ''].filter(Boolean).join(' ');
         const act = tappable && p.idx === who;
         return mapBtn(x, i, { tag: act ? 'button' : 'span', cls, act });
       }).join('') : '<span class="slot"></span>');
       if (p.idx === st.current && matchedShown && !hiding) ui.popTurn = st.turnNo;
-      return `<div class="chip${p.idx === st.current ? ' cur' : ''}" data-p="${p.idx}" style="--c:${COLORS[p.idx]}"><div class="nm"><span class="dot"></span>${esc(seatName(p.idx))}${isBot(p.idx) ? ' 🤖' : ''}</div>${ui.say && p.idx === st.current && ui.botWaiting && !animating() ? `<span class="say">${esc(ui.say)}</span>` : ''}<div class="pts${bump ? ' bump' : ''}" aria-label="${points} points">${points}</div><div class="sets">${sets}</div></div>`;
+      return `<div class="chip${p.idx === st.current ? ' cur' : ''}" data-p="${p.idx}" style="--c:${COLORS[p.idx]}"><div class="nm"><span class="dot"></span>${esc(seatName(p.idx))}${isBot(p.idx) ? ' 🤖' : ''}</div>${ui.say && p.idx === st.current && ui.botWaiting && !animating() ? `<span class="say">${esc(ui.say)}</span>` : ''}<div class="pts${bump ? ' bump' : ''}" aria-label="${points} points">${points}</div><div class="sets" style="--n:${Math.max(v.sets.length, 1)}">${sets}</div>${bankable ? '<span class="bankcap">Tap to dig</span>' : ''}</div>`;
     }).join('');
     ui.prevPts = now;
     return html;
@@ -2131,10 +2170,11 @@ const Campaign = (() => {
     if (st.over && !animating()) return '';
     if (ui.tip && ui.tip.endsTurn) return '';
     if (ui.fx && ui.fx.kind === 'match') return 'A match! The map goes up to your maps.';
+    if (ui.fx && ui.fx.kind === 'dig') return '';
     if (animating()) {
       const name = seatName(st.current), k = ui.stage > 0 ? ui.steps[ui.stage - 1].a.type : null;
       return { null: '', peek: `${name} peeks at a tile (the number stays hidden).`, flipOther: `${name} flips another tile.`,
-               flipOwn: `${name} flips the tile it peeked at.`, flipSecond: `${name} flips a third tile.`, bank: `${name} digs up a map.` }[k] || '';
+               flipOwn: `${name} flips the tile it peeked at.`, flipSecond: `${name} flips a third tile.`, bank: `${name} digs a map.` }[k] || '';
     }
     if (ui.botWaiting) {
       const t = st.turn;
@@ -2144,7 +2184,7 @@ const Campaign = (() => {
     if (ui.turnCard) return '';
     const s = Engine.status(st);
     switch (st.phase) {
-      case 'action': return (s.canBank ? 'Tap a tile to peek — or tap one of your maps at the top to dig it up (that ends your turn).' : 'Tap a tile to peek.') + (ui.mode === 'pass' && recallFor(st.current).size ? ' Ringed tiles were flipped by the others since your last turn.' : '');
+      case 'action': return (s.canBank ? 'Tap a tile to peek — or tap one of your maps at the top to dig it (that ends your turn).' : 'Tap a tile to peek.') + (ui.mode === 'pass' && recallFor(st.current).size ? ' Ringed tiles: flipped since your last turn.' : '');
       case 'peeked': return 'Tap another tile to flip it.';
       case 'flipped': return st.tokens[st.turn.F].gem ? 'A gem piece! If yours is one too, tap a third tile to go for the gem map — or tap anywhere else to end your turn.' : 'No match — tap anywhere to end your turn.';
       case 'gemThird': return 'Flip a third tile.';
@@ -2173,8 +2213,8 @@ const Campaign = (() => {
     const st = ui.st;
     return `<div class="game">
       <div class="bar"><div class="chips n${st.n}">${chipsHTML()}</div></div>
-      <div class="legend">${ui.lastEvent && !ui.turnCard ? `<span class="event">${esc(ui.lastEvent)}</span>` : ''}<span class="hint">${esc(hintsVisible() ? hint() : '')}</span></div>
-      <div class="main"><div class="boardwrap">${boardSVG()}</div>${bankBannerHTML()}${endButtonHTML()}${ui.turnCard && !st.over ? turnCardHTML() : ''}${st.over && !animating() ? '' : '<button class="q" data-act="menu" aria-label="Menu">☰</button>'}</div>
+      <div class="legend">${ui.lastEvent && !ui.turnCard && !ui.fx ? `<span class="event">${esc(ui.lastEvent)}</span>` : ''}<span class="hint">${esc(hintsVisible() ? hint() : '')}</span></div>
+      <div class="main"><div class="boardwrap">${boardSVG()}</div>${bankBannerHTML()}${endButtonHTML()}${ui.what && !ui.tip && !st.over ? `<button class="whatbtn" data-act="what">${esc(D.coach.gem.ask)}</button>` : ''}${ui.turnCard && !st.over ? turnCardHTML() : ''}${st.over && !animating() ? '' : '<button class="q" data-act="menu" aria-label="Menu">☰</button>'}</div>
     </div>${st.over && !animating() && !ui.fx && !ui.overSeen ? resultsButtonHTML() : ''}${st.over && !animating() && ui.overSeen ? overHTML() : ''}${ui.menu ? menuHTML() : ''}${ui.tip && !st.over ? tipHTML() : ''}`;
   }
 
@@ -2189,17 +2229,25 @@ const Campaign = (() => {
       ${ui.lastEvent ? `<span class="tc-last">${esc(ui.lastEvent)}</span>` : ''}<span class="tc-tap">${isBot(i) ? 'Tap to watch' : 'Tap to start your turn'}</span></button>`;
   }
 
-  // A rules reminder: a card at the top of the table (the board stays in view under it), one button, no timer.
+  // What a gem is, as a picture: peek one, flip one, tap a third — three gems make a gem map.
+  function gemPicture() {
+    const g = { gem: true, value: gemValue() }, tile = (x, n, cap) => `<g class="tile">${mapFaceArt(x, 50, 34, g, n)}</g><text x="${x}" y="108" text-anchor="middle" class="cap">${cap}</text>`;
+    const map = squareArt('gem').replace('<svg ', '<svg x="268" y="14" width="76" height="76" ');
+    return `<svg class="gempic" viewBox="0 0 360 120" role="img" aria-label="Peek a gem, flip a gem, tap a third: three gems make a gem map worth ${esc(String(gemValue()))}">
+      ${tile(44, 0, 'Peek')}${tile(124, 1, 'Flip')}${tile(204, 2, 'Tap a third')}
+      <text x="84" y="56" text-anchor="middle" class="sym">+</text><text x="164" y="56" text-anchor="middle" class="sym">+</text><text x="245" y="58" text-anchor="middle" class="sym">=</text>
+      ${map}<text x="306" y="64" text-anchor="middle" class="val">${esc(String(gemValue()))}</text><text x="306" y="108" text-anchor="middle" class="cap">Gem map</text></svg>`;
+  }
+  // A rules reminder: a card at the bottom of the table (the board stays in view), one button, no timer.
   function tipHTML() {
     const c = D.coach[ui.tip.id], body = c.body.replace(/\{value\}/g, gemValue());
-    return `<div class="tipback"><div class="tip" role="alertdialog" aria-label="${esc(c.title)}"><h2>${esc(c.title)}</h2><p>${esc(body)}</p><button class="big" data-act="tip-ok">Got it</button></div></div>`;
+    return `<div class="tipback"><div class="tip" role="alertdialog" aria-label="${esc(c.title)}"><h2>${esc(c.title)}</h2>${ui.tip.visual ? gemPicture() : ''}<p>${esc(ui.tip.visual ? c.short.replace(/\{value\}/g, gemValue()) : body)}</p><button class="big" data-act="tip-ok">Got it</button></div></div>`;
   }
 
   function menuHTML() {
     const m = ui.menu, sure = (q, yes, act) => `<p class="mq">${q}</p><button class="danger" data-act="${act}">${yes}</button><button data-act="menu-close">No, keep playing</button>`;
     const body = m === 'retry' ? sure('Start this game over with a fresh deal? The current game will be lost.', 'Yes, start over', 'retry')
-      : m === 'quit' ? sure('Leave this game and go to the Main Menu? Your game is saved: Continue on the Main Menu picks it up where you left off.', 'Yes, leave', 'quit')
-      : `<button data-act="menu-ask" data-v="retry">Retry</button><button data-act="help">How to play</button><button data-act="fossils">Tiles</button><button data-act="settings">Settings</button><button data-act="menu-ask" data-v="quit">Main Menu</button>`;
+      : `<button data-act="menu-ask" data-v="retry">Retry</button><button data-act="help">How to play</button><button data-act="fossils">Tiles</button><button data-act="settings">Settings</button><button data-act="quit">Main Menu</button>`;
     return `<div class="backdrop" data-act="menu-close"></div><div class="menu" role="menu">${body}</div>`;
   }
 
@@ -2251,10 +2299,10 @@ const Campaign = (() => {
       <div class="hero-art">${heroSVG()}</div>
       <div class="hero-menu">
         <h1 class="logo">Torn<br>Treasure</h1>
-        <p class="sub">Peek. Flip. Match. Dig up.</p>
+        <p class="sub">Peek. Flip. Match. Dig.</p>
         <svg class="trail" viewBox="0 0 330 26" aria-hidden="true"><path d="M4 18 Q40 2 78 14 T150 12 T222 14 T286 12" fill="none" stroke="#e6c677" stroke-width="3" stroke-linecap="round" stroke-dasharray="1 9" opacity=".8"/><path d="M296 4 l20 20 m0 -20 l-20 20" stroke="#d4402f" stroke-width="5" stroke-linecap="round"/></svg>
         <button class="mode primary row" data-act="mode" data-v="campaign"><b>Campaign</b><span class="pips" role="img" aria-label="${beaten} of ${LV.length} opponents beaten">${pips}</span></button>
-        <button class="mode" data-act="mode" data-v="pass"><b>Pass &amp; Play</b><span>${D.players.min}–${D.players.max} people, one device</span></button>
+        <button class="mode" data-act="mode" data-v="pass"><b>Pass &amp; Play</b></button>
         <div class="ghostrow"><button class="ghost" data-act="help">How to play</button><button class="ghost" data-act="settings">Settings</button></div>
         ${ui.notice ? `<p class="dim" style="margin:8px 0 0">${esc(ui.notice)}</p>` : ''}<p class="dim ver">Version ${esc(BUILD)}</p>
       </div>
@@ -2290,14 +2338,14 @@ const Campaign = (() => {
     const nextIdx = LV.findIndex((l, i) => unlocked(i) && !Campaign.isBeaten(i, ui.beaten));
     const rows = LV.map((l, i) => {
       const open = unlocked(i), won = Campaign.isBeaten(i, ui.beaten);
-      const state = won ? '<span class="pill ok">✓ Beaten</span>' : open ? `<span class="pill go">${i === nextIdx ? 'Next up' : 'Play'} ›</span>` : '<span class="lockmsg" role="img" aria-label="Locked">🔒</span>';
+      const state = won ? '<span class="pill ok">✓ Beaten</span>' : open ? `<span class="pill go">${i === nextIdx ? 'Begin' : 'Play'} ›</span>` : '<span class="lockmsg" role="img" aria-label="Locked">🔒</span>';
       return `<button class="lvl${open ? '' : ' locked'}${won ? ' done' : ''}${i === nextIdx ? ' next' : ''}" data-act="level" data-i="${i}"${open ? '' : ' aria-disabled="true"'}>
         ${miniBoard(l)}<span class="lv-text"><b>${esc(l.name)}</b></span><span class="state">${state}</span></button>`;
     }).join('');
     const all = done === LV.length;
     return `<div class="screen"><div class="sheet wide">
       <button class="back" data-act="home">‹ Torn Treasure</button>
-      <div class="camp-head"><h1>Campaign</h1><span class="pips progress" role="img" aria-label="${done} of ${LV.length} opponents beaten">${LV.map((l, i) => `<i class="${Campaign.isBeaten(i, ui.beaten) ? 'on' : ''}"></i>`).join('')}</span></div>
+      <div class="camp-head"><h1>Campaign</h1></div>
       <div class="levels">${rows}</div>
       ${all ? '<p class="sub" style="margin-top:16px">🏆 You have beaten every opponent.</p>' : ''}
     </div></div>`;
@@ -2318,9 +2366,9 @@ const Campaign = (() => {
       return `<div class="place${win ? ' win' : ''}" style="--c:${COLORS[x.idx]}">
         <div class="pn"><span class="dot"></span>${win ? '🏆 ' : ''}${esc(seatName(x.idx))}</div>
         <div class="score">${x.score}</div>
-        <div class="rowlab">Dug up</div>
+        <div class="rowlab">Dug</div>
         <div class="tiles">${p.banked.map(b => tileHTML(b)).join('') || '<span class="dim">none</span>'}</div>
-        <div class="rowlab">Found, not dug up</div>
+        <div class="rowlab">Found, not dug</div>
         <div class="tiles lostrow">${p.sets.slice().sort((a, b) => b.value - a.value).map(s => tileHTML(s, 'lost')).join('') || '<span class="dim">none</span>'}</div>
       </div>`;
     }).join('');
@@ -2349,19 +2397,19 @@ const Campaign = (() => {
   const judgments = () => [
     `The board has ${gameData().tokens.reduce((n, t) => n + t.count, 0)} spaces, one tile on each. There are no pieces and no movement: you can peek at any tile.`,
     'Your first tap is a private peek (the board shows you the number — hold the device toward yourself); your second tap is a public flip. Tiles that do not match flip back at the end of your turn.',
-    'After a peek you must flip another tile: you cannot dig up a map once you have peeked.',
+    'After a peek you must flip another tile: you cannot dig a map once you have peeked.',
     `Matches are pairs${gemValue() ? ' (a gem map is torn in three pieces, so it takes three)' : ''}. Only the tile you peeked can be matched, against the one you flipped. A match puts a map back together: it flies to your maps by itself and your turn ends.`,
-    `A map is worth nothing until it is dug up. Digging up takes one map of your choice, worth the number on it${gemValue() ? ` (a gem map is ${gemValue()})` : ''}. Maps you never dig up are worth nothing.`,
-    'Digging up is your whole turn, so it ends the moment the points are counted — there is no End turn tap afterwards.',
+    `A map is worth nothing until it is dug. Digging takes one map of your choice, worth the number on it${gemValue() ? ` (a gem map is ${gemValue()})` : ''}. Maps you never dig are worth nothing.`,
+    'Digging is your whole turn, so it ends the moment the points are counted — there is no End turn tap afterwards.',
     'Who goes first is decided at random, without a screen for it; a card names whose turn it is before they tap (in Pass & Play, every turn).',
     'After you peek a gem piece and flip a gem piece, tapping a third tile is your consent to reveal your peeked piece too.',
-    'An opponent\'s turn is shown one move at a time: a peek (the tile lifts, the number stays hidden), then the flip, right away. Its turn stays on the board until you tap a tile — that tap starts your turn, so there is no Continue. When it digs up a map, a banner says what it scored and its new total.',
-    'Your found maps live in the scoreboard at the top, under your score — that is also where you tap one to dig it up.',
+    'An opponent\'s turn is shown one move at a time: a peek (the tile lifts, the number stays hidden), then the flip, right away. Its turn stays on the board until you tap a tile — that tap starts your turn, so there is no Continue. When it digs a map, a banner says what it scored and its new total.',
+    'Your found maps live in the scoreboard at the top, under your score — that is also where you tap one to dig it.',
     'Pass & Play: when it is your turn, the tiles the other players flipped publicly since your last turn show face up with a ring in their colour (never the tile they only peeked at).',
     'Rules reminders: the first time a match or a gem comes up, a short note says how it works. In Pass & Play they come once per game and can be switched off on the setup screen; in the Campaign each shows once on a device.',
     'Leaving a game keeps it: Continue on the Main Menu (or on the Campaign / Pass & Play screen) picks it up. Starting a new game replaces it.',
     'Ties go to the most maps found, then whoever found the final map.',
-    'Campaign: you beat a level by winning outright (a shared win does not count). Opponents differ in how well they remember tiles (their memory fades as turns pass, and now and then they tap the wrong spot), and in how well they judge the game: which maps are worth digging up, how close the end is, whether they are winning.',
+    'Campaign: you beat a level by winning outright (a shared win does not count). Opponents differ in how well they remember tiles (their memory fades as turns pass, and now and then they tap the wrong spot), and in how well they judge the game: which maps are worth digging, how close the end is, whether they are winning.',
   ];
   // "Tiles": how many of each number are in THIS game (it comes from the game's own data, so it follows the level).
   // It says nothing about which are still hidden — remembering that is the game.
@@ -2393,10 +2441,10 @@ const Campaign = (() => {
         ${card('1 · Peek', howTile(52, 48, { back: true, ring: B, dash: true, top: '👆' }) + howArrow(100) + howTile(148, 48, { text: '7', ring: B, dash: true, top: '👁' }), 'Tap a tile. Only you see it.')}
         ${card('2 · Flip', howTile(52, 48, { text: '7', ring: B, dash: true }) + howTile(148, 48, { text: '5', ring: B }), 'Tap another. Everyone sees it.')}
         ${card('3 · Match', howTile(52, 48, { text: '7', ring: B }) + `<text x="100" y="49" text-anchor="middle" dominant-baseline="central" font-size="34" font-weight="800" fill="#3ecf8e">=</text>` + howTile(148, 48, { text: '7', ring: B }), 'Same number? The two halves make a map. If not, they flip back — remember them!')}
-        ${card('Or dig up', bankChip + howArrow(100) + `<text x="152" y="46" text-anchor="middle" dominant-baseline="central" font-size="40" font-weight="900" fill="#f5a524">+7</text>`, 'A map scores nothing until it is dug up. Instead of peeking, tap one of your maps to score its number.')}
+        ${card('Or dig', bankChip + howArrow(100) + `<text x="152" y="46" text-anchor="middle" dominant-baseline="central" font-size="40" font-weight="900" fill="#f5a524">+7</text>`, 'A map scores nothing until it is dug. Instead of peeking, tap one of your maps to score its number.')}
       </div>
       ${gemValue() ? `<p class="hline"><b>💎 Gem maps</b> are torn in three pieces: match all three. Worth ${gemValue()}.</p>` : ''}
-      <p class="hline"><b>🏆 Most points wins</b> once every tile is matched. Maps you never dig up score nothing.</p>
+      <p class="hline"><b>🏆 Most points wins</b> once every tile is matched. Maps you never dig score nothing.</p>
       ${ui.st ? '<button class="ghost" data-act="fossils">How many tiles of each number?</button>' : ''}
       <details class="fine"><summary>The fine print</summary><ul>${judgments().filter(j => gemValue() || !/^After you peek a gem/.test(j)).map(j => `<li>${esc(j)}</li>`).join('')}</ul>
         <p class="dim">The full list is in DECISIONS.md. Version ${esc(BUILD)}.</p></details>
@@ -2424,6 +2472,8 @@ const Campaign = (() => {
 
   // A reminder about tiles on the table must never hide them: the card moves to the half of the page the tile is not in, and the tile itself is drawn again above the dimmed page.
   function syncTip() {
+    const wb = root.querySelector('.whatbtn');
+    if (wb && ui.what) { const cell = root.querySelector(`.cell[data-id="${ui.st.tokens[ui.what.tid].cell}"]`), main = root.querySelector('.main'); if (cell && main) { const g = rectOf(cell), m = main.getBoundingClientRect(); if (g.y > m.top + m.height * 0.55) wb.classList.add('top'); } }
     const L = fxLayer();
     if (L) L.querySelectorAll('.spotclone').forEach(e => e.remove());
     if (!ui.tip || !ui.tip.focus || !ui.tip.focus.length || !L || !ui.st) return;

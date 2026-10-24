@@ -2,6 +2,12 @@
 
 ## Unreleased
 
+- **Torn Treasure — the first gem is a picture, not a paragraph:** when a gem first turns up (yours, the opponent's, or one the last Pass & Play player showed) nothing covers the board and nothing waits: a small **"What's that?"** button appears (away from the gem, until the turn ends). Tap it and a card shows it as a picture — peek + flip + tap a third = a gem map — with one short line. Rules reminders Off in Pass & Play: no button.
+
+- **Torn Treasure — scoring is a show, for you and for the opponent:** the map flies from the maps to the middle of the table (the page dims a little), opens as a big treasure chest that bursts with coins, and says in big letters **"You dug up treasure: +3"** (the opponent: "Beginner dug up treasure: +3"); the points then fly to the score and count up. A tap skips it; it is announced to screen readers too; with "reduce motion" there is no film, the words show in the line above the board.
+- **Torn Treasure — the board never moves:** the maps sit in one row of a fixed height under the score (when there are more than fit they overlap like a hand of cards), the "Tap to dig" label floats on the scoreboard, and the hint line has a fixed height — so nothing under the scoreboard shifts, whatever you hold.
+- **Torn Treasure — small things:** no row of dots on the campaign screen; the next level says **Begin**; "dig up" is just **dig** everywhere ("Peek. Flip. Match. Dig."); Pass & Play on the main menu has no subtitle; leaving a game does not ask (it saves); the first-match note is short: "It isn't scored yet. On a later turn, tap it up here instead of peeking to dig it and score its number."
+
 - **Torn Treasure — a fresh visual pass for the theme (explorer's table):** dark leather with a faint map of dotted routes and red X's; **parchment cards** (modes, campaign levels, help, results, in-game menu, reminders) in brown ink with a stitched inner edge; **gold-leaf buttons**, red-wax danger buttons, serif lettering; the main menu has a compass rose behind the tile board and a dotted trail to a red X under the title; the scoreboard is leather with inked serif numbers. **New box art** in the library: a treasure map torn in two, its dotted route running across the tear to a red X, over a row of sand tiles with a matching pair of map halves, on a deep-sea backdrop. New favicon.
 
 - **Torn Treasure — the opponent's score alert** says just "Beginner scored" and "+7" (no "dug up a map", no "tap anywhere").
