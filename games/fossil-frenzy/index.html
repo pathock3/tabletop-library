@@ -229,7 +229,7 @@ h2 { margin: 18px 0 8px; font-size: 14px; text-transform: uppercase; letter-spac
 .pill.ok { background: transparent; color: var(--good); border-color: var(--good); }
 .lvl.locked { opacity: .55; box-shadow: none; filter: grayscale(.7); cursor: default; }
 .lvl.locked:active { transform: none; }
-.lockmsg { display: inline-block; max-width: 9.5em; color: var(--dim); font-size: 15px; font-weight: 700; line-height: 1.25; }
+.lockmsg { display: inline-block; font-size: 26px; line-height: 1; }
 .sheet.wide { max-width: 720px; }
 /* the end screen sits in the middle of the page (and scrolls, if it ever has to, from its top) */
 .screen.over { display: flex; padding-top: 14px; padding-bottom: 14px; }
@@ -238,7 +238,10 @@ h2 { margin: 18px 0 8px; font-size: 14px; text-transform: uppercase; letter-spac
 .over-sheet .results { text-align: left; justify-content: center; }
 .over-sheet .place { align-items: stretch; }
 .over-buttons { display: flex; flex-direction: column; gap: 0; width: min(480px, 100%); margin: 0 auto; }
-.sub.progress { display: flex; align-items: center; gap: 12px; font-size: 17px; }
+.camp-head { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin-bottom: 14px; }
+.camp-head h1 { margin: 0; }
+.camp-head .pips { gap: 10px; }
+.camp-head .pips i { width: 18px; height: 18px; }
 .pips { display: inline-flex; gap: 7px; }
 .pips i { width: 14px; height: 14px; border-radius: 50%; border: 2px solid var(--dim); }
 .pips i.on { background: var(--good); border-color: var(--good); }
@@ -2134,17 +2137,16 @@ const Campaign = (() => {
     const sv = savedGame(), done = LV.filter((l, i) => Campaign.isBeaten(i, ui.beaten)).length;
     const nextIdx = LV.findIndex((l, i) => unlocked(i) && !Campaign.isBeaten(i, ui.beaten));
     const rows = LV.map((l, i) => {
-      const open = unlocked(i), won = Campaign.isBeaten(i, ui.beaten), total = l.tokens.reduce((n, t) => n + t.count, 0), gem = l.tokens.find(t => t.gem);
-      const state = won ? '<span class="pill ok">✓ Beaten</span>' : open ? `<span class="pill go">${i === nextIdx ? 'Next up' : 'Play'} ›</span>` : `<span class="lockmsg"><span aria-hidden="true">🔒</span> Beat ${esc(LV[i - 1].name)} to unlock</span>`;
+      const open = unlocked(i), won = Campaign.isBeaten(i, ui.beaten);
+      const state = won ? '<span class="pill ok">✓ Beaten</span>' : open ? `<span class="pill go">${i === nextIdx ? 'Next up' : 'Play'} ›</span>` : '<span class="lockmsg" role="img" aria-label="Locked">🔒</span>';
       return `<button class="lvl${open ? '' : ' locked'}${won ? ' done' : ''}${i === nextIdx ? ' next' : ''}" data-act="level" data-i="${i}"${open ? '' : ' aria-disabled="true"'}>
-        ${miniBoard(l)}<span class="lv-text"><b>${esc(l.name)}</b><small>${total} tiles${gem ? ` · gem map worth ${gem.value}` : ''}</small></span><span class="state">${state}</span></button>`;
+        ${miniBoard(l)}<span class="lv-text"><b>${esc(l.name)}</b></span><span class="state">${state}</span></button>`;
     }).join('');
     const all = done === LV.length;
     return `<div class="screen"><div class="sheet wide">
       <button class="back" data-act="home">‹ Torn Treasure</button>
-      <h1>Campaign</h1>
-      <p class="sub progress"><span class="pips" role="img" aria-label="${done} of ${LV.length} opponents beaten">${LV.map((l, i) => `<i class="${Campaign.isBeaten(i, ui.beaten) ? 'on' : ''}"></i>`).join('')}</span>${done} of ${LV.length} opponents beaten</p>
-      ${sv && sv.campaign ? resumeBtn() + '<h2>Or start a new game</h2>' : '<h2>Choose your opponent</h2>'}
+      <div class="camp-head"><h1>Campaign</h1><span class="pips progress" role="img" aria-label="${done} of ${LV.length} opponents beaten">${LV.map((l, i) => `<i class="${Campaign.isBeaten(i, ui.beaten) ? 'on' : ''}"></i>`).join('')}</span></div>
+      ${sv && sv.campaign ? resumeBtn() + '<h2>Or start a new game</h2>' : ''}
       <div class="levels">${rows}</div>
       ${sv && sv.campaign ? '<p class="dim">Starting a level replaces your saved game.</p>' : ''}
       ${all ? '<p class="sub" style="margin-top:16px">🏆 You have beaten every opponent.</p>' : ''}

@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- **Torn Treasure — the campaign cards** say only the opponent's name, a picture of its board and its state (Beaten, Next up, Play, or a lock): no tile counts, no gem worths, no "Beat X to unlock". The "Choose your opponent" line and the "N of 5 beaten" words are gone too: the five progress dots sit at the top, beside the title.
+
 - **Torn Treasure — opens on the Main Menu**, never in the game you last played (a game in progress is one tap away: **Continue**).
 - **Torn Treasure — no gem note at the start of Novice.** The gems are explained the first time one is turned up — yours (peeked or flipped), or the opponent's, or one the last player showed in Pass & Play — once per device (once per game in Pass & Play). One explanation only (it covers the third tap too; two gems do not explain again). **The note never covers the gem:** it moves to the other half of the page and the gem is drawn above the dimmed page, ringed. The opponent's turn waits while the note is up.
 

@@ -1589,7 +1589,7 @@ test('layout, portrait first: iPad portrait (820 x 1180) and iPhone 17 portrait 
   }
 });
 
-test('campaign screen: a full-width card per opponent with its board and its size, Next up / Play / Beaten / Beat X to unlock; big back button; progress line', SKIP, async () => {
+test('campaign screen: a full-width card per opponent with its board and name (no sizes, no worths, no unlock text), Next up / Play / Beaten / a lock; big back button; progress line', SKIP, async () => {
   for (const [w, h] of [[820, 1180], [402, 874]]) {
     const { browser, page, errors } = await open({ viewport: { width: w, height: h } });
     try {
@@ -1597,10 +1597,14 @@ test('campaign screen: a full-width card per opponent with its board and its siz
       await page.tap('[data-act=mode][data-v=campaign]');
       const rows = page.locator('.lvl');
       assert.equal(await rows.count(), 5);
-      assert.match(await page.locator('.progress').innerText(), /1 of 5 opponents beaten/);
-      assert.match(await rows.nth(0).innerText(), /Beginner[\s\S]*18 tiles[\s\S]*Beaten/);
-      assert.match(await rows.nth(1).innerText(), /Novice[\s\S]*21 tiles[\s\S]*gem map worth 10[\s\S]*Next up/);
-      assert.match(await rows.nth(2).innerText(), /Normal[\s\S]*Beat Novice to unlock/);
+      assert.equal(await page.locator('.camp-head .pips i').count(), 5, 'five dots at the top');
+      assert.equal(await page.locator('.camp-head .pips i.on').count(), 1, 'one of them filled: Beginner is beaten');
+      assert.doesNotMatch(await page.locator('.sheet').innerText(), /opponents? beaten|Choose your opponent/i, 'the dots say it, no words');
+      assert.match(await rows.nth(0).innerText(), /Beginner[\s\S]*Beaten/);
+      assert.match(await rows.nth(1).innerText(), /Novice[\s\S]*Next up/);
+      assert.match(await rows.nth(2).innerText(), /Normal/);
+      assert.doesNotMatch(await page.locator('.levels').innerText(), /tiles|worth|unlock|Beat \w+ to/i, 'no sizes, gem worths or unlock requirements: the lock says it');
+      assert.equal(await rows.nth(2).locator('[aria-label=Locked]').count(), 1);
       assert.equal(await page.locator('.lvl.next').count(), 1);
       assert.equal(await page.locator('.lvl .mini-board').count(), 5, 'each card shows its board');
       const first = await rows.nth(0).boundingBox(), back = await page.locator('.back').boundingBox();
