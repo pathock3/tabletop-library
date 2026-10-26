@@ -1,5 +1,15 @@
 # Rules questions — running list
 
+## v2.7.1 — questions asked (newest first). Answered ones are removed once built in.
+Q1. **Starting values.** "Tracks reset to the starred values each Dig": what are the stars for Health (10?), Extra Rolls and Grit? The Grit experiment assumed 10 / 0 / 0 (starting with 2 Grit changes little). — asked
+Q2. **Grit and Extra Rolls.** Can you spend Grit *before* an Extra Roll's roll as well (same rate)? Does Grit Caddy ("spend 3+ Grit on one roll") count Grit spent before and after a roll together? The experiment assumed yes to both. — asked
+Q3. **Roll again (Falcon Finisher).** Does its roll count as a roll that can beat the best result and fire upright cards (like an Extra Roll), and can Grit go into it? Assumed: yes it can fire cards, no Grit. — asked
+Q4. **Monster sets.** Is each set (4 / 3 / 2) three Monster cards with fixed printed damage dug in ascending order (1 then 3 then 5 then 7), shuffled among all 30 cards, or is the damage set by "how many Monsters you have survived"? Assumed: set order is fixed, the three sets interleave randomly. — asked
+Q5. **Starter Kit.** Are kit cards put into play at the start of the Dig, or put on top of the Mine and dug first (as in v2.7)? Assumed: top of the Mine. — asked
+Q6. **Grit limit per battle.** Proposed rule from the experiment: at most 4 Grit spent per battle (see `GRIT-EXPERIMENT.md`). Waiting for your answer before building Grit. — asked
+
+---
+
 Only questions still waiting for the owner are listed (**open**), plus calls I made that you can overrule (**assumed** / **my call**). Anything you have ruled on is removed.
 
 ## Written in the sheet itself (Notes column, "Question:")
