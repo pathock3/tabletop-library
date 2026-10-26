@@ -1,15 +1,13 @@
-# Dig Dig BOOM! v2.7 prototype — status
+# Dig Dig BOOM! v2.7.1 — status (branch `claude/ddb-v2-7-1`; v2.7 stays on `claude/peaceful-bardeen-fvc0jn`)
 
-The owner's brief (summarised): prototype the v2.7 rules from the live Google Sheet, in four steps, pausing after each so they can test.
-Cards: https://docs.google.com/spreadsheets/d/1cKcNNs38CydvvhW7rUJIc4DWHgEvT-deluLdhrIpk04 — tab "v2.7 Draft" (gid 2) = cards, tab "v2.7 Rules" (gid 3) = rules. The page fetches both every time it opens (never a copy in the repo). The older rulebook (v2.6, Drive doc "Dig Dig BOOM! Rulebook") and the components PDF are context only: where they conflict with the v2.7 Rules tab, the Rules tab wins.
+The owner's v2.7.1 brief, in the order they asked for it, with a pause after the Grit experiment and after the battle works.
 
 | Step | What | State |
 |---|---|---|
-| 1 | Card design | **Done** — Top Tab, Geode stat 3, Monster stat 1, compact art; the whole deck is on the "Cards" page |
-| 2 | Print view: letter sheets of poker cards + Power line, Drill, Leaderboard | **Built** — "Print sheets" (Letter/A4, cut marks, or bleed pages for a print shop; Power line, Drill, Leaderboard, table mat, card backs) |
-| 3 | Playable solo Dig on iPad (Monster roll exactly per the Rules tab, log of every card's effect) | **Built — ready to test** (the page opens on it). Every card text in the sheet is understood; 60+ rule tests |
-| 4 | Full round loop: Prep, Leaderboard + Crown, hot-seat players, final round | **Single-player version built** ("Play a run"): Escape Bonus, gems, Booster Pack, Starter Kit, reset, Leaderboard (live marker, no pledging in the app), Crown, final round, an AI opponent on its own clock. Hot-seat multiplayer not started. The game saves after every tap and resumes after a reload |
+| 1 | Cards imported once from the "v2.7.1 Cards" tab and built into the game (no sheet at run time) | **Done** (`DDB.cards`; `tools/cards-v271.psv`) |
+| 2 | Grit balance experiment before building Grit | **Done** — `GRIT-EXPERIMENT.md`; the owner suggested capping Grit storage at 3: the track is 0–3, and the app also limits spending to 3 a battle |
+| 3 | Battle system: Ongoing/Consumable/Immediate types, result, auto-firing numbered cards, tapping, Extra Rolls 0–5, Grit before/after, markers, Pet, Burnout, Loot, gauntlet, "Can't Start", colours, Monster card | **Built — ready to test on the iPad** (this is the second pause) |
+| 4 | Prep (Bronze+ … Gold+ packs are in; Escape Bonus, Starter Kit, Reset), Leaderboard with pledges at Start and the Crown Jewel rules, final round | Next |
+| 5 | The AI plays Grit and Consumables well (today: a plain policy chosen by simulation between three Grit habits) | Next |
 
-Working rule from the owner: if a rule is ambiguous, ask — don't guess. Unanswered questions are in `QUESTIONS.md`; the engine keeps each ambiguous point behind a named ruling in the data block so it is one line to change once answered.
-
-Where things stand: everything the owner asked for so far is built and pushed, and the full test suite passes. Waiting on the owner: testing on an iPad, the open questions in `QUESTIONS.md` and the go-ahead for hot-seat multiplayer (the Leaderboard engine, `Board`, already supports any number of players). Nothing else is queued, so no further overnight check-ins are scheduled.
+Open rules questions are in `QUESTIONS.md` (the running list asked so far). The old v2.7 notes are in git history.

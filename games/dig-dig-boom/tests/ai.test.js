@@ -3,11 +3,11 @@ const test = require('node:test');
 const assert = require('node:assert/strict');
 const fs = require('fs'), path = require('path');
 const { Dig, Board, Run, AI, Basic, Match, Engine, DDB } = require('./load.js');
-const cards = Engine.cards(Engine.parseCSV(fs.readFileSync(path.join(__dirname, 'cards-full.csv'), 'utf8')), DDB.columns);
+const cards = Engine.cards();
 const by = id => cards.find(c => c.id === id);
 
 // a run in the middle of round 1 (of 3) with the given Mine on top
-function dugRun(seed, { rounds = 3, mine, heart = 10, dice, kitIds = ['PW-02'] } = {}) {
+function dugRun(seed, { rounds = 3, mine, heart = 10, dice, kitIds = ['ON-06'] } = {}) {
   const run = Run.start(cards, { seed, rounds }); Run.openPack(run);
   run.prep.offer = kitIds.map((id, i) => ({ ...by(id), uid: 7000 + i })); run.prep.pack = { ...run.prep.pack, keep: kitIds.length }; for (const c of run.prep.offer) Run.toggleKeep(run, c.uid); Run.confirmKeep(run);
   Run.toggleKit(run, run.owned[0].uid); Run.beginDig(run, { seed: seed + 1 });

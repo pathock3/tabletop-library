@@ -1,47 +1,35 @@
 const test = require('node:test');
 const assert = require('node:assert/strict');
 const fs = require('fs'), path = require('path');
-const { DDB, DDB_SAMPLE_CSV, Engine: E } = require('./load');
-const fixture = fs.readFileSync(path.join(__dirname, 'fixture.csv'), 'utf8');
-const rows = () => E.parseCSV(fixture);
+const { DDB, Engine: E } = require('./load');
 
-test('csv: quoted commas, doubled quotes and newlines inside quotes survive; blank lines are dropped', () => {
-  const r = E.parseCSV('a,b,c\n1,"x, y",3\n"he said ""hi""","line1\nline2",\n\n');
-  assert.deepEqual(r, [['a', 'b', 'c'], ['1', 'x, y', '3'], ['he said "hi"', 'line1\nline2', '']]);
-  assert.deepEqual(E.parseCSV('a,b\r\n1,2\r\n'), [['a', 'b'], ['1', '2']]);
-});
-
-test('cards: read by column name, Number only on Power cards, Count defaults to 1, notes kept apart from the card', () => {
-  const cards = E.cards(rows(), DDB.columns);
-  assert.equal(cards.length, 11);
-  const bat = cards.find(c => c.id === 'PW-18');
-  assert.deepEqual([bat.name, bat.type, bat.number, bat.deck, bat.count, bat.text], ['Energy Bat', 'Power', 7, 'Booster', 1, '+1 {reroll}. When dug, +2 {grit}']);
+test('cards: Engine.cards() is the card list of the game, with the number only on Ongoing cards, Count at least 1, and the Can\'t Start flag', () => {
+  const cards = E.cards();
+  assert.equal(cards.length, DDB.cards.length);
+  const bat = cards.find(c => c.id === 'ON-18');
+  assert.deepEqual([bat.name, bat.type, bat.number, bat.deck, bat.count, bat.text], ['Energy Bat', 'Ongoing', 7, 'Booster', 1, '+1 {extraroll}. When dug, +2 {grit}']);
   assert.equal(cards.find(c => c.id === 'TR-01').number, null);
-  assert.equal(cards.find(c => c.id === 'TR-01').count, 18);
+  assert.equal(cards.find(c => c.id === 'TR-01').count, 21);
   assert.equal(cards.find(c => c.id === 'IM-29').count, 2);
-  assert.ok(cards.filter(c => c.type !== 'Power').every(c => c.number === null), 'only Power cards carry a number');
+  assert.ok(cards.filter(c => c.type !== 'Ongoing').every(c => c.number === null), 'only Ongoing cards carry a power number');
+  assert.ok(cards.every(c => c.count >= 1), 'a card with a Count of 0 is not imported');
+  assert.equal(cards.find(c => c.id === 'IM-09').cantStart, true); assert.equal(cards.find(c => c.id === 'IM-12').cantStart, false);
 });
 
-test('cards: every type in the sheet is a known type with a colour, an icon and a pattern (type never relies on colour alone)', () => {
-  const cards = E.cards(rows(), DDB.columns);
+test('cards: every type is a known type with a colour, an icon and a pattern (type never relies on colour alone)', () => {
+  const cards = E.cards();
   for (const c of cards) assert.ok(DDB.types[c.type], c.id + ' has an unknown type ' + c.type);
   const colours = Object.values(DDB.types).map(t => t.color), icons = Object.values(DDB.types).map(t => t.icon), pats = Object.values(DDB.types).map(t => t.pattern);
   for (const list of [colours, icons, pats]) assert.equal(new Set(list).size, list.length, 'all different');
-  assert.deepEqual(Object.keys(DDB.types).sort(), ['Immediate', 'Monster', 'Ongoing', 'Power', 'Treasure']);
+  assert.deepEqual(Object.keys(DDB.types).sort(), ['Consumable', 'Immediate', 'Monster', 'Ongoing', 'Treasure']);
 });
 
-test('design notes in the sheet (Why, Notes) are never part of the card text, and the page shows no list of questions', () => {
-  const cards = E.cards(rows(), DDB.columns);
-  assert.ok(cards.every(c => !/Why|Notes|Question/i.test(c.text)));
-  assert.equal(E.questions, undefined, 'the engine no longer collects questions: they live in QUESTIONS.md, not in the game');
-});
-
-test('tokens: {heart} {reroll} {damage} {gem} become icons; unknown codes — {grit} is one now (Grit is cut) — stay as text', () => {
-  const t = E.tokens('+1 {reroll}. When dug, +2 {grit} {nope} {heart}', DDB.iconCodes);
-  assert.deepEqual(t.filter(x => x.t === 'icon').map(x => x.v), ['reroll', 'heart']);
+test('tokens: {heart} {grit} {extraroll} {damage} {gem} become icons; unknown codes stay as text', () => {
+  const t = E.tokens('+1 {extraroll}. When dug, +2 {grit} {nope} {heart}', DDB.iconCodes);
+  assert.deepEqual(t.filter(x => x.t === 'icon').map(x => x.v), ['extraroll', 'grit', 'heart']);
   const flat = t.map(x => x.t === 'icon' ? '<' + x.v + '>' : x.v).join('');
-  assert.ok(flat.includes('{nope}') && flat.includes('{grit}'), 'unknown codes, Grit included, are left as they were written');
-  assert.deepEqual(Object.keys(DDB.iconCodes).sort(), ['damage', 'gem', 'heart', 'reroll']);
+  assert.ok(flat.includes('{nope}'), 'unknown codes are left as they were written');
+  assert.deepEqual(['damage', 'extraroll', 'gem', 'grit', 'heart'].filter(k => k in DDB.iconCodes), ['damage', 'extraroll', 'gem', 'grit', 'heart']);
 });
 
 test('fitting: the largest size that still fits, in quarter steps', () => {
@@ -50,26 +38,22 @@ test('fitting: the largest size that still fits, in quarter steps', () => {
   assert.equal(E.largestFitting(s => false, 10, 44), 10);
 });
 
-test('data: the card sheet and rules tab are the owner\'s Google Sheet; the page does not carry the card list', () => {
-  assert.equal(DDB.sheet.id, '1cKcNNs38CydvvhW7rUJIc4DWHgEvT-deluLdhrIpk04');
-  assert.deepEqual(DDB.sheet.tabs, { cards: 2, rules: 3 });
-  assert.match(DDB.sheet.urls[0](DDB.sheet.id, 2), /^https:\/\/docs\.google\.com\/spreadsheets\/d\/e\/2PACX-[\w-]+\/pub\?gid=2&single=true&output=csv$/, 'the published-to-web link comes first');
-  assert.match(DDB.sheet.urls[1](DDB.sheet.id, 2), /\/gviz\/tq\?tqx=out:csv&gid=2$/);
-  assert.match(DDB.sheet.urls[2](DDB.sheet.id, 3), /export\?format=csv&gid=3$/);
+test('data: the card list is part of the game: no sheet address, no fetching, no saved copy', () => {
+  assert.equal(DDB.sheet, undefined);
   const html = fs.readFileSync(path.join(__dirname, '..', 'index.html'), 'utf8');
-  assert.ok((html.match(/Salvage Yard|Panic Button|Drill Pup/g) || []).length <= 2, 'only the six-row design sample mentions card names');
-  const sample = E.cards(E.parseCSV(DDB_SAMPLE_CSV), DDB.columns);
-  assert.equal(sample.length, 7);
-  assert.deepEqual(new Set(sample.map(c => c.type)), new Set(['Power', 'Ongoing', 'Immediate', 'Treasure', 'Monster']), 'the sample has every type');
+  assert.ok(!/fetch\s*\(/.test(html) && !/XMLHttpRequest/.test(html), 'the game never asks the network for anything');
+  assert.ok(!/docs\.google\.com/.test(html));
 });
 
 test('card geometry: poker size with a 0.125 in bleed and a 0.125 in safe zone', () => {
   assert.deepEqual(DDB.card, { trimW: 250, trimH: 350, bleed: 12.5, safe: 12.5, textMax: 32, textKeep: 27 });
 });
 
-test('stats: a Monster\'s damage ladder and a Treasure\'s gem worth are read from the card text', () => {
-  assert.deepEqual(E.damageSteps('{damage} 1 → 3 → 5 → 7'), [1, 3, 5, 7]);
-  assert.deepEqual(E.damageSteps('{damage} 2 → 4 → 6'), [2, 4, 6]);
-  assert.equal(E.damageSteps('Block 1 {damage}'), null);
+test('stats: a Monster\'s damage ladder and Loot, and a Treasure\'s gem worth, are read from the card text', () => {
+  assert.deepEqual(E.damageSteps('{damage} 1 → 3 → 5 → 7. Loot: 1 {gem}'), [1, 3, 5, 7]);
+  assert.deepEqual(E.damageSteps('{damage} 2 → 4 → 6. Loot: 1 {gem}'), [2, 4, 6]);
+  assert.deepEqual(E.damageSteps('{damage} 3 → 5'), [3, 5]);
+  assert.equal(E.damageSteps('Put 1 damage on the Monster'), null);
+  assert.equal(E.lootOf('{damage} 1 → 3. Loot: 1 {gem}'), 1); assert.equal(E.lootOf('{damage} 8'), 0);
   assert.equal(E.gemWorth('1 {gem}'), 1); assert.equal(E.gemWorth('2 {gem}'), 2); assert.equal(E.gemWorth('+1 {heart}'), null);
 });

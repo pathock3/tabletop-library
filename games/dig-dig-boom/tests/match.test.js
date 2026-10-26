@@ -3,7 +3,7 @@ const test = require('node:test');
 const assert = require('node:assert/strict');
 const fs = require('fs'), path = require('path');
 const { Dig, Board, Run, AI, Basic, Match, Engine, DDB } = require('./load.js');
-const cards = Engine.cards(Engine.parseCSV(fs.readFileSync(path.join(__dirname, 'cards-full.csv'), 'utf8')), DDB.columns);
+const cards = Engine.cards();
 const by = id => cards.find(c => c.id === id);
 // the Booster Deck holds only the cards the game can play (every Grit card is left out)
 const boosterTotal = cards.filter(c => c.deck === 'Booster' && Dig.supported(c) && !DDB.run.boosterBan.some(re => new RegExp(re).test(c.text))).reduce((a, c) => a + c.count, 0);
@@ -113,30 +113,27 @@ test('(the basic AI) the AI does not bank for the lead while it is confident it 
   assert.equal(lo.st.over.kind, 'bank'); assert.equal(lo.st.survived, 1, 'low on Health: it banks after the first Monster');
 });
 
-test('(the basic AI) the AI rerolls when it wants an effect it did not get (the Pet first), only while it has Rerolls, and no more than its limit', () => {
-  const fight = (lineAts, dice, rerolls = 0) => {
-    const { ai, st } = aiDig(7, 2, 10); st.reroll = rerolls; st.dice = dice.slice();
-    st.line = lineAts.map(([id, at, pet]) => ({ card: { ...by(id), uid: 9800 + at }, at, base: at, ...(pet ? { pet: true } : {}) }));
-    st.mine = [{ ...by('MO-01'), uid: 9899 }, ...st.mine]; Dig.dig(st); Dig.roll(st);
+test('(the basic AI) in a battle it puts Grit in the roll when the Monster is big, takes an Extra Roll when the damage would hurt, and never spends more than the battle allows', () => {
+  const fight = (damage, dice, o = {}) => {
+    const { ai, st } = aiDig(7, 2, o.heart || 10); st.reroll = o.rerolls || 0; st.grit = o.grit || 0; st.dice = dice.slice(); st.line = st.line.filter(e => e.pet); st.line[0].at = st.line[0].base = 10;
+    st.mine = [{ ...by('MO-01'), uid: 9899 }, ...st.mine]; Dig.dig(st); st.fight.damage = damage;
     return { ai, st };
   };
-  let { ai, st } = fight([['PW-01', 10, true]], [7]);                    // 7 on the die, Pet at 10, no Rerolls: nothing to do but face it
-  assert.equal(Dig.result(st).total, 7); Basic.act(ai); assert.equal(st.fight, null, 'it took its result and faced the Monster'); assert.equal(st.survived, 1); assert.equal(st.defeated, 0);
-  ({ ai, st } = fight([['PW-01', 10, true]], [7, 10], 1)); Basic.act(ai); assert.equal(st.fight.rolls, 2, 'the Pet is out of reach and it has a Reroll: it rerolled'); assert.equal(st.reroll, 0);
-  assert.equal(Dig.result(st).total, 10); Basic.act(ai); assert.equal(st.defeated, 1, 'the Pet is in reach: it triggered it');
-  ({ ai, st } = fight([['PW-01', 9, true]], [9, 2], 2)); Basic.act(ai); assert.equal(st.fight, null, 'the Pet is at 9 and it rolled 9: no reroll'); assert.equal(st.defeated, 1); assert.equal(st.reroll, 2);
-  ({ ai, st } = fight([['PW-01', 10, true], ['PW-02', 1]], [5, 10], 1)); Basic.act(ai); assert.equal(st.fight.rolls, 2, 'Nurse Newt is already eligible, but the Pet comes first: it rerolled for the Pet');
-  ({ ai, st } = fight([['PW-01', 10, true]], [2, 3, 4, 5, 6], 3)); Basic.act(ai); Basic.act(ai); assert.equal(st.fight.rolls, 3); assert.equal(st.reroll, 1);
-  Basic.act(ai); assert.equal(st.fight, null, 'three rolls is its limit: it faces the Monster with a Reroll left'); assert.equal(st.reroll, 1);
-  ({ ai, st } = fight([['PW-01', 10, true]], [10], 3)); Basic.act(ai); assert.equal(st.reroll, 3, 'a result it is happy with is never rerolled');
+  let { ai, st } = fight(6, [3], { grit: 3 }); Basic.act(ai);
+  assert.equal(st.fight, null, 'it fought the Monster to the end'); assert.equal(st.grit, 0, 'a big Monster: all the Grit went into the roll'); assert.equal(st.heart, 10 - 6, '3 + 3 Grit = 6 and the Pet is at 10: out of reach, so the 6 damage is taken');
+  ({ ai, st } = fight(1, [3], { grit: 3 })); Basic.act(ai); assert.equal(st.grit, 3, 'a small Monster: Grit is kept');
+  ({ ai, st } = fight(6, [2, 10], { rerolls: 2 })); Basic.act(ai); assert.equal(st.reroll, 1, 'the damage would hurt and it has an Extra Roll: it took one'); assert.equal(st.fight, null);
+  ({ ai, st } = fight(6, [2, 9], { rerolls: 0 })); Basic.act(ai); assert.equal(st.fight, null); assert.equal(st.heart, 4, 'no Extra Roll: it takes the damage');
+  ({ ai, st } = fight(9, [4], { grit: 3, heart: 8 })); Basic.act(ai); assert.ok(8 - st.heart <= 9);
+  assert.equal(DDB.rules.grit.battleLimit, 3);
 });
 
 test('(the basic AI) before round 1 the AI keeps the first card of its Bronze Pack and puts it in its Starter Kit: only cards the game can play, and not always the same', () => {
   const picked = new Set();
   for (let seed = 1; seed <= 40; seed++) {
     const m = Match.start(cards, { seed, rounds: 3 }), me = Match.human(m), ai = Match.bot(m); m.brain = Basic;
-    Match.openPack(m); Run.toggleKeep(me, me.prep.offer[0].uid); Run.confirmKeep(me); Run.continueReveal(me); Run.toggleKit(me, me.owned[0].uid); assert.ok(Match.beginRound(m));
-    assert.ok(ai.owned.length >= 1, 'a Mystery Box brings one more'); assert.equal(ai.kit.length, 1, 'round 1: a kit of one'); assert.ok(ai.kit.every(c => Dig.supported(c)));
+    Match.openPack(m); Run.toggleKeep(me, me.prep.offer.find(c => !c.cantStart && !/When kept/.test(c.text)).uid); Run.confirmKeep(me); if (me.prep.step === 'reveal') Run.continueReveal(me); Run.toggleKit(me, me.owned.find(c => !c.cantStart).uid); assert.ok(Match.beginRound(m));
+    assert.ok(ai.owned.length >= 1, 'a Mystery Box brings one more'); assert.equal(ai.kit.length, 1, 'round 1: a kit of one'); assert.ok(ai.kit.every(c => Dig.supported(c) && !c.cantStart), "a Can't Start card is never in a kit");
     assert.notEqual(ai.kit[0].uid, me.kit[0].uid, `seed ${seed}: its own pack, its own card`);
     assert.equal(ai.dig.mine[0].id, ai.kit[0].id, 'it is on top of the AI\'s Mine'); assert.equal(me.dig.mine[0].id, me.kit[0].id);
     picked.add(ai.kit[0].id);

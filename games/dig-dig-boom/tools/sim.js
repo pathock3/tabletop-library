@@ -1,11 +1,9 @@
 // Headless matches for measuring the AI: two brains play the same Match, seats swapped on every other seed.
 //   node games/dig-dig-boom/tools/sim.js            (a quick baseline: the shipped AI against itself)
 // A brain is { act(run), prep(run) } — the same shape as the AI in index.html. `me` and `ai` are the two seats of a Match.
-const fs = require('fs'), path = require('path');
 const G = require('../tests/load.js');
 const { Dig, Run, Match, Engine, DDB } = G;
-const cards = Engine.cards(Engine.parseCSV(fs.readFileSync(process.env.CV_BASE || path.join(__dirname, '..', 'tests', 'cards-full.csv'), 'utf8')), DDB.columns)
-  .concat((process.env.CV_EXTRA ? process.env.CV_EXTRA.split(',') : []).flatMap(f => Engine.cards(Engine.parseCSV(fs.readFileSync(f, 'utf8')), DDB.columns)));          // (CV_EXTRA: candidate cards mixed into the Booster Deck, CV_BASE: another copy of the sheet's cards)
+const cards = Engine.cards();          // (v2.7.1: the cards are built into the game)
 
 // One match. brains = { me, ai }. Returns { winner: 'me'|'ai'|null, rounds: [{ me, ai }] } (the history of each seat).
 function playMatch(brains, seed, rounds, onRound) {

@@ -3,7 +3,7 @@ const test = require('node:test');
 const assert = require('node:assert/strict');
 const fs = require('fs'), path = require('path');
 const { Run, AI, Basic, Match, Board, Engine, DDB } = require('./load.js');
-const cards = Engine.cards(Engine.parseCSV(fs.readFileSync(path.join(__dirname, 'cards-full.csv'), 'utf8')), DDB.columns);
+const cards = Engine.cards();
 const bots = DDB.ai.opponents;
 
 function playRound(m) {

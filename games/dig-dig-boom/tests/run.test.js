@@ -3,14 +3,14 @@ const test = require('node:test');
 const assert = require('node:assert/strict');
 const fs = require('fs'), path = require('path');
 const { Dig, Board, Run, Engine, DDB } = require('./load.js');
-const cards = Engine.cards(Engine.parseCSV(fs.readFileSync(path.join(__dirname, 'cards-full.csv'), 'utf8')), DDB.columns);
+const cards = Engine.cards();
 const by = id => cards.find(c => c.id === id);
 const RN = DDB.run;
-// The Booster Deck is every Booster card the game can play, by its count (Grit cards wait outside it).
+// The Booster Deck is every Booster card the game can play, by its count.
 const deckCards = cards.filter(c => c.deck === 'Booster' && Dig.supported(c) && !RN.boosterBan.some(re => new RegExp(re).test(c.text)));          // (and not the ones that boost gems)
 const deckSize = deckCards.reduce((a, c) => a + c.count, 0);
 // A Burnout card made up for the tests (the fixture is never edited).
-const burn = { id: 'XX-B', name: 'Test Burnout', type: 'Power', number: 2, deck: 'Booster', count: 1, text: '+1 {reroll}, then move this card up 2 (max 10)', uid: 8801 };
+const burn = { id: 'XX-B', name: 'Test Burnout', type: 'Ongoing', number: 2, deck: 'Booster', count: 1, text: '+1 {extraroll}, then move this card up 2 (max 10)', uid: 8801 };
 // The app has no pledging (DDB.rules.pledges is false); the engine still knows it, so these tests switch it on for their own duration.
 const withPledges = fn => { DDB.rules.pledges = true; try { return fn(); } finally { DDB.rules.pledges = false; } };
 
@@ -41,8 +41,8 @@ test('a run starts with the Booster Deck (every Booster card the game can play, 
   const run = Run.start(cards, { seed: 1 });
   assert.equal(run.deck.length, deckSize); assert.equal(run.round, 1); assert.equal(run.rounds, RN.rounds); assert.deepEqual(run.crown, { tracker: RN.crownStart, holder: false });
   assert.equal(run.prep.step, 'pack'); assert.deepEqual(Run.packInfo(run), { name: 'Bronze', draw: 3, keep: 1 });
-  assert.ok(run.deck.every(c => c.deck === 'Booster' && Dig.supported(c)), 'cards the game cannot play (every Grit card) are not in the deck');
-  assert.ok(!run.deck.some(c => /\{grit\}/.test(c.text)));
+  assert.ok(run.deck.every(c => c.deck === 'Booster' && Dig.supported(c)), 'only Booster cards the game can play');
+  assert.ok(run.deck.some(c => /\{grit\}/.test(c.text)), 'the Grit cards are in the deck');
 });
 test('the Booster Deck is shuffled: with a seed it replays, with no seed (real play, the secure random source) no two decks are alike', () => {
   const ids = run => run.deck.map(c => c.id).join();
@@ -64,12 +64,12 @@ test('round 1: open the Bronze Pack, keep one card, choose your Starter Kit from
   assert.ok(Run.beginDig(g, { seed: 4 }));                                          // nothing chosen: you do not want the card in play (say, an Immediate that heals you at full Health)
   assert.equal(g.dig.kit.length, 0); assert.equal(g.dig.geodeGems, 0, 'the gem is a card on the Mine, not yet in the Bank'); assert.equal(g.dig.mine[0].type, 'Treasure', 'the empty place is a gem, face up on top of the Mine'); assert.equal(g.dig.known, RN.startGems, 'it is face up, so known'); assert.ok(g.dig.mine[0].kitGem);
   Dig.dig(g.dig); assert.equal(g.dig.geodeGems, RN.startGems, 'dig one and it is yours'); assert.equal(g.dig.mine.length, g.dig.mine.length);
-  const two = firstRound({ keepIds: ['PW-02'] }); two.prep.kitMax = 2; Run.toggleKit(two, two.owned[0].uid); Run.beginDig(two, { seed: 4 });
-  assert.equal(two.dig.mine[0].id, 'PW-02', 'your card first'); assert.equal(two.dig.mine[1].type, 'Treasure', 'then the gem for the empty place, face up'); assert.equal(two.dig.known, 1 + RN.startGems);
+  const two = firstRound({ keepIds: ['ON-06'] }); two.prep.kitMax = 2; Run.toggleKit(two, two.owned[0].uid); Run.beginDig(two, { seed: 4 });
+  assert.equal(two.dig.mine[0].id, 'ON-06', 'your card first'); assert.equal(two.dig.mine[1].type, 'Treasure', 'then the gem for the empty place, face up'); assert.equal(two.dig.known, 1 + RN.startGems);
 });
 test('Booster Pack (after a Dig): draw the pack\'s number of cards, keep exactly the keep number, the rest are trashed; then choose a Starter Kit', () => {
-  const run = firstRound({ keepIds: ['PW-02', 'PW-03', 'ON-33'] });
-  assert.deepEqual(run.owned.map(c => c.id), ['PW-02']); assert.equal(run.trash.length, 2); assert.equal(run.prep.step, 'kit'); assert.equal(run.prep.kitMax, 1);
+  const run = firstRound({ keepIds: ['ON-06', 'ON-04', 'ON-33'] });
+  assert.deepEqual(run.owned.map(c => c.id), ['ON-06']); assert.equal(run.trash.length, 2); assert.equal(run.prep.step, 'kit'); assert.equal(run.prep.kitMax, 1);
   const r2 = Run.start(cards, { seed: 1 });
   assert.ok(Run.openPack(r2)); assert.equal(r2.prep.offer.length, 3); assert.equal(r2.deck.length, deckSize - 3);
   assert.ok(!Run.confirmKeep(r2), 'you must keep your cards first');
@@ -80,9 +80,9 @@ test('Booster Pack (after a Dig): draw the pack\'s number of cards, keep exactly
 });
 
 test("Starter Kit: last round's kit is already in your kit; cards can be dragged onto a place to put them there, replace what is there, or swap", () => {
-  const run = firstRound({ keepIds: ['PW-02'] }); const first = run.owned[0]; Run.toggleKit(run, first.uid); Run.beginDig(run, { seed: 4 });
+  const run = firstRound({ keepIds: ['ON-06'] }); const first = run.owned[0]; Run.toggleKit(run, first.uid); Run.beginDig(run, { seed: 4 });
   play(run, ['TR-01', 'MO-01'], ['dig', 'dig', 'bank'], 1); Run.finishDig(run); run.prep.step = 'pack'; Run.setEscape ? Run.openPack(run) : 0;
-  run.prep.step = 'keep'; run.prep.offer = [by('PW-09'), by('ON-33')].map((c, i) => ({ ...c, uid: 9900 + i })); run.prep.picked = []; run.prep.pack = { name: 'Silver', draw: 2, keep: 2 };
+  run.prep.step = 'keep'; run.prep.offer = [by('ON-10'), by('ON-33')].map((c, i) => ({ ...c, uid: 9900 + i })); run.prep.picked = []; run.prep.pack = { name: 'Silver', draw: 2, keep: 2 };
   Run.toggleKeep(run, 9900); Run.toggleKeep(run, 9901); assert.ok(Run.confirmKeep(run));
   const pr = run.prep; pr.kitMax = 2;
   assert.deepEqual(pr.kitPick, [first.uid], "last round's kit is already in"); assert.deepEqual(pr.gained, [9900, 9901], 'and what you just won is marked');
@@ -90,42 +90,42 @@ test("Starter Kit: last round's kit is already in your kit; cards can be dragged
   assert.ok(Run.moveKit(run, 9901, 0)); assert.deepEqual(pr.kitPick, [9901, 9900], 'dropped on a full place it replaces what was there (that card goes back to your hand)');
   assert.ok(Run.moveKit(run, 9901, 1)); assert.deepEqual(pr.kitPick, [9900, 9901], 'a kit card dropped on another kit card swaps places');
   assert.ok(!Run.moveKit(run, 9901, 2) && !Run.moveKit(run, 424242, 0), 'only real places and cards you own');
-  Run.beginDig(run, { seed: 5 }); assert.deepEqual(run.dig.mine.slice(0, 2).map(c => c.id), ['PW-09', 'ON-33'], 'the kit goes on top in the order you set');
+  Run.beginDig(run, { seed: 5 }); assert.deepEqual(run.dig.mine.slice(0, 2).map(c => c.id), ['ON-10', 'ON-33'], 'the kit goes on top in the order you set');
 });
 
 test('Starter Kit: 1, 2, 2, 3, 3 cards; the Mine is the 30 starting cards plus every card you own that is not in the kit', () => {
   assert.deepEqual([1, 2, 3, 4, 5, 6].map(r => Run.kitSize({}, r)), [1, 2, 2, 3, 3, 3]);
-  const run = firstRound({ keepIds: ['PW-28'] });
+  const run = firstRound({ keepIds: ['ON-28'] });
   assert.ok(!Run.toggleKit(run, 12345), 'only cards you own'); assert.ok(Run.toggleKit(run, run.owned[0].uid));
   Run.beginDig(run, { seed: 3 });
-  assert.equal(run.phase, 'dig'); assert.equal(run.dig.line.length, 1, 'the Pet'); assert.equal(run.dig.mine.length, 31, 'the kit card is on top of the Mine'); assert.equal(run.dig.mine[0].id, 'PW-28');
-  const r2 = firstRound({ keepIds: ['PW-28'] }); Run.beginDig(r2, { seed: 3 });   // no kit chosen: the card is shuffled into the Mine with the Starting cards
-  assert.equal(r2.dig.mine.length, 32, '31 cards and the gem for the empty place'); assert.equal(r2.dig.line.length, 1); assert.ok(r2.dig.mine.some(c => c.id === 'PW-28')); assert.equal(r2.dig.known, 1, 'only the gem on top is known');
+  assert.equal(run.phase, 'dig'); assert.equal(run.dig.line.length, 1, 'the Pet'); assert.equal(run.dig.mine.length, 31, 'the kit card is on top of the Mine'); assert.equal(run.dig.mine[0].id, 'ON-28');
+  const r2 = firstRound({ keepIds: ['ON-28'] }); Run.beginDig(r2, { seed: 3 });   // no kit chosen: the card is shuffled into the Mine with the Starting cards
+  assert.equal(r2.dig.mine.length, 32, '31 cards and the gem for the empty place'); assert.equal(r2.dig.line.length, 1); assert.ok(r2.dig.mine.some(c => c.id === 'ON-28')); assert.equal(r2.dig.known, 1, 'only the gem on top is known');
 });
 
 test('after a Dig the Mine is rebuilt from scratch: Drill reset, Power cards back at their numbers, everything shuffled in', () => {
-  const run = firstRound({ keepIds: ['PW-02'] }); Run.toggleKit(run, run.owned[0].uid); Run.beginDig(run, { seed: 4 });
+  const run = firstRound({ keepIds: ['ON-06'] }); Run.toggleKit(run, run.owned[0].uid); Run.beginDig(run, { seed: 4 });
   play(run, ['TR-01', 'MO-01'], ['dig', 'dig', 'bank'], 1);
   Run.finishDig(run); run.prep.step = 'kit';
   Run.beginDig(run, { seed: 5 });
-  assert.equal(run.dig.heart, DDB.rules.start.heart); assert.ok(!('grit' in run.dig)); assert.equal(run.dig.reroll, 0);
+  assert.equal(run.dig.heart, DDB.rules.start.heart); assert.equal(run.dig.grit, 0); assert.equal(run.dig.reroll, 0);
   assert.equal(run.dig.mine.length + run.dig.kit.length, 31 + 2, '31 cards, plus a gem for each empty Kit place (none chosen: two places)');
 });
 
 test('a Burnout card climbs the Power line during a Dig and starts the next round back at its printed number', () => {
-  const run = firstRound({ keepIds: ['PW-02'] }); run.owned.push({ ...burn }); Run.toggleKit(run, burn.uid); Run.beginDig(run, { seed: 4 });
+  const run = firstRound({ keepIds: ['ON-06'] }); run.owned.push({ ...burn }); Run.toggleKit(run, burn.uid); Run.beginDig(run, { seed: 4 });
   const st = run.dig; assert.equal(st.mine[0].id, burn.id, 'the kit card is on top');
   Dig.dig(st); assert.equal(st.line.find(e => e.card.id === burn.id).at, 2);
   st.mine = ['MO-01', 'MO-01'].map((id, i) => ({ ...by(id), uid: 9000 + i })); st.dice = [3, 1];
   Dig.dig(st); Dig.roll(st); Dig.autoFace(st); assert.equal(st.line.find(e => e.card.id === burn.id).at, 4, 'it triggered at 3 and burned up 2');
   assert.ok(Dig.bank(st)); Run.finishDig(run); run.prep.step = 'kit'; run.prep.kitMax = 1; run.prep.kitPick = []; Run.toggleKit(run, burn.uid); Run.beginDig(run, { seed: 5 });
-  assert.equal(run.dig.mine[0].id, burn.id, 'the kit card is on top of the Mine, face up'); assert.equal(run.dig.mine.filter(c => c.id === 'PW-02').length, 1, 'the card you own but left out is shuffled in');
+  assert.equal(run.dig.mine[0].id, burn.id, 'the kit card is on top of the Mine, face up'); assert.equal(run.dig.mine.filter(c => c.id === 'ON-06').length, 1, 'the card you own but left out is shuffled in');
   while (!run.dig.line.some(e => e.card.id === burn.id)) Dig.dig(run.dig);
   assert.equal(run.dig.line.find(e => e.card.id === burn.id).at, 2, 'a new Dig: every card at its printed number');
 });
 
 test('Escape Bonus: after banking, one roll of the die adds gems; gems = Geodes + Monsters survived + Escape Bonus', () => {
-  const run = firstRound({ keepIds: ['PW-02'] }); Run.toggleKit(run, run.owned[0].uid); Run.beginDig(run, { seed: 6 });
+  const run = firstRound({ keepIds: ['ON-06'] }); Run.toggleKit(run, run.owned[0].uid); Run.beginDig(run, { seed: 6 });
   play(run, ['TR-01', 'TR-01', 'TR-01', 'MO-01', 'TR-01'], ['dig', 'dig', 'dig', 'dig', 'dig', 'bank'], 6);
   Run.finishDig(run);
   assert.equal(run.prep.step, 'escape'); assert.equal(run.prep.banked, true);
@@ -136,7 +136,7 @@ test('Escape Bonus: after banking, one roll of the die adds gems; gems = Geodes 
 });
 
 test('BOOM: no Escape Bonus, 0 gems, and a Bronze Pack', () => {
-  const run = firstRound({ keepIds: ['PW-02'] }); Run.beginDig(run, { seed: 7 });
+  const run = firstRound({ keepIds: ['ON-06'] }); Run.beginDig(run, { seed: 7 });
   run.dig.heart = 1; play(run, ['TR-01', 'MO-01'], ['dig', 'dig'], 1);
   assert.equal(run.dig.over.kind, 'boom');
   Run.finishDig(run);
@@ -152,7 +152,7 @@ test('the reward ladder (the owner\'s): gems -> draw:keep, in steps of 6, Gold+ 
 });
 
 test('Leaderboard and Crown: the tracker starts at 2; banking above it (3 is enough) takes the Crown and moves the tracker; BOOM locks in nothing', () => {
-  const run = firstRound({ keepIds: ['PW-02'] }); Run.beginDig(run, { seed: 8 });
+  const run = firstRound({ keepIds: ['ON-06'] }); Run.beginDig(run, { seed: 8 });
   run.dig.heart = 10;
   play(run, ['MO-01', 'MO-02', 'TR-01'], ['dig', 'dig', 'bank'], 10);          // two Monsters, each beaten by the Pet: survived 2, not more than 2
   Run.finishDig(run);
@@ -169,7 +169,7 @@ test('Leaderboard and Crown: the tracker starts at 2; banking above it (3 is eno
 });
 
 test('Pledge: only once you have survived as many Monsters as the Crown tracker, and only your current number or 1 more; you cannot bank below it; BOOM removes it', () => withPledges(() => {
-  const run = firstRound({ keepIds: ['PW-02'] }); Run.beginDig(run, { seed: 12 });
+  const run = firstRound({ keepIds: ['ON-06'] }); Run.beginDig(run, { seed: 12 });
   const st = run.dig; st.mine = ['MO-01', 'MO-02', 'MO-01', 'MO-02', 'MO-01'].map((id, i) => ({ ...by(id), uid: 9000 + i })); st.dice = Array(50).fill(10);
   assert.ok(!Dig.canPledge(st, 1) && !Dig.canPledge(st, 0), 'before the Crown you dig or bank freely');
   for (let i = 0; i < 3; i++) { Dig.dig(st); Dig.roll(st); Dig.autoFace(st); }
@@ -184,7 +184,7 @@ test('Pledge: only once you have survived as many Monsters as the Crown tracker,
 }));
 
 test('the app has no pledging: even with the Crown reached, nothing can be pledged and banking is never blocked by one', () => {
-  const run = firstRound({ keepIds: ['PW-02'] }); Run.beginDig(run, { seed: 12 });
+  const run = firstRound({ keepIds: ['ON-06'] }); Run.beginDig(run, { seed: 12 });
   const st = run.dig; st.survived = 3; Run.refresh(run);
   assert.equal(DDB.rules.pledges, false); assert.ok(!Dig.canPledge(st, 3) && !Dig.canPledge(st, 4)); assert.ok(!Run.pledge(run, 4)); assert.ok(Dig.can(st).bank);
 });
@@ -237,18 +237,18 @@ test('the final round BOOM leaves the Crown on the table', () => {
 });
 
 test('Mystery Box: when kept from a Booster Pack, also keep the top card of the Booster Deck', () => {
-  const run = firstRound({ keepIds: ['IM-14', 'PW-02', 'PW-03'] });
+  const run = firstRound({ keepIds: ['IM-14', 'ON-06', 'ON-04'] });
   assert.equal(run.prep.step, 'reveal', 'you see the extra card before the Starter Kit'); assert.ok(!Run.toggleKit(run, run.owned[0].uid), 'and cannot skip ahead'); assert.ok(Run.continueReveal(run)); assert.equal(run.prep.step, 'kit');
   assert.equal(run.owned.length, 2); assert.equal(run.prep.extra.length, 1); assert.equal(run.deck.length, deckSize - 3 - 1, '3 drawn for the pack (the test swaps them for chosen ones) and 1 more taken from the top');
 });
 
 test('Surprise Package: when kept, also keep the next Immediate card of the Booster Deck (cards above it stay in the deck)', () => {
   const run = Run.start(cards, { seed: 11 }); Run.openPack(run);
-  run.prep.offer = ['IM-35', 'PW-02', 'PW-03'].map((id, i) => ({ ...by(id), uid: 7000 + i })); Run.toggleKeep(run, 7000);
+  run.prep.offer = ['IM-31', 'ON-06', 'ON-04'].map((id, i) => ({ ...by(id), uid: 7000 + i })); Run.toggleKeep(run, 7000);
   const before = run.deck.slice(), firstImm = before.find(c => c.type === 'Immediate'); Run.confirmKeep(run);
-  assert.equal(run.prep.step, 'reveal', 'you see the extra card'); assert.equal(run.prep.extra.length, 1); assert.equal(run.prep.extra[0].uid, firstImm.uid); assert.equal(run.prep.extra[0].type, 'Immediate');
-  assert.ok(!run.deck.some(c => c.uid === firstImm.uid), 'it left the deck'); assert.equal(run.deck.length, before.length - 1);
-  const skipped = before.slice(0, before.indexOf(firstImm)); assert.deepEqual(run.deck.slice(0, skipped.length).map(c => c.uid), skipped.map(c => c.uid), 'the cards above it are still on top');
+  assert.equal(run.prep.step, 'reveal', 'you see the extra card'); assert.ok(run.prep.extra.length >= 1); assert.equal(run.prep.extra[0].uid, firstImm.uid);          // (a Mystery Box as the extra card brings one more) assert.equal(run.prep.extra[0].type, 'Immediate');
+  assert.ok(!run.deck.some(c => c.uid === firstImm.uid), 'it left the deck'); assert.equal(run.deck.length, before.length - run.prep.extra.length);
+  const skipped = before.slice(0, before.indexOf(firstImm)); if (run.prep.extra.length === 1) assert.deepEqual(run.deck.slice(0, skipped.length).map(c => c.uid), skipped.map(c => c.uid), 'the cards above it are still on top');
 });
 
 test('random runs of 5 rounds always finish, never lose or duplicate a Booster card, and the Dig screen always has a legal move', () => {
@@ -266,7 +266,7 @@ test('random runs of 5 rounds always finish, never lose or duplicate a Booster c
       } else {
         const st = run.dig, c = Dig.can(st);
         if (st.over) Run.finishDig(run);
-        else if (c.choose) Dig.chooseClone(st, st.line[0]);
+        else if (c.choose) { if (st.pending.kind === 'clone') Dig.chooseClone(st, st.line[0]); else Dig.chooseDug(st, 'resolve'); }
         else if (st.fight && st.fight.phase === 'before') Dig.roll(st);
         else if (st.fight) { if (c.reroll && rr() < .5) Dig.reroll(st); else Dig.autoFace(st); }
         else if (c.bank && st.survived >= 2 && rr() < .3) Dig.bank(st);
@@ -283,10 +283,10 @@ test('random runs of 5 rounds always finish, never lose or duplicate a Booster c
 
 test('saving and resuming: a Dig and a run survive a reload — same cards, same next dice and shuffles, nothing duplicated or lost', () => {
   const roundtrip = o => JSON.parse(JSON.stringify(o));
-  const step = st => { const c = Dig.can(st); if (c.choose) Dig.chooseClone(st, st.line[0]); else if (st.fight && st.fight.phase === 'before') { Dig.roll(st); } else if (st.fight) { if (c.reroll && st.fight.die < 5) Dig.reroll(st); else Dig.autoFace(st); } else if (c.dig) Dig.dig(st); else return false; return true; };
+  const step = st => { const c = Dig.can(st); if (c.choose) { if (st.pending.kind === 'clone') Dig.chooseClone(st, st.line[0]); else Dig.chooseDug(st, 'resolve'); } else if (st.fight && st.fight.phase === 'before') { Dig.roll(st); } else if (st.fight) { if (c.reroll && st.fight.die < 5) Dig.reroll(st); else Dig.autoFace(st); } else if (c.dig) Dig.dig(st); else return false; return true; };
   for (let seed = 1; seed <= 40; seed++) {
     const all = cards.concat([burn]);                          // a Burnout card is in the kit too: where it has climbed to is saved with the Dig
-    const kit = [burn, by('PW-02'), by('ON-33'), by('IM-13'), by('ON-12')].slice(0, 1 + seed % 5);
+    const kit = [burn, by('ON-06'), by('ON-33'), by('IM-13'), by('ON-12')].slice(0, 1 + seed % 5);
     const a = Dig.start(all, kit, { seed, board: { crown: 3 }, start: { reroll: 2 } });
     for (let i = 0; i < 6 + (seed % 15) && !a.over; i++) step(a);
     const b = Dig.load(all, roundtrip(Dig.save(a)));
@@ -295,7 +295,7 @@ test('saving and resuming: a Dig and a run survive a reload — same cards, same
     assert.deepEqual(b.line.map(e => [e.card.id, e.at]), a.line.map(e => [e.card.id, e.at]));
     assert.deepEqual(b.mine.map(c => c.id), a.mine.map(c => c.id));
   }
-  const run = firstRound({ keepIds: ['PW-28'] }); Run.toggleKit(run, run.owned[0].uid);
+  const run = firstRound({ keepIds: ['ON-28'] }); Run.toggleKit(run, run.owned[0].uid);
   const r2 = Run.load(cards, roundtrip(Run.save(run)));
   assert.deepEqual(r2.owned.map(c => c.id), run.owned.map(c => c.id)); assert.equal(r2.deck.length, run.deck.length); assert.deepEqual(r2.prep.kitPick, run.prep.kitPick);
   assert.ok(Run.beginDig(r2, { seed: 3 })); assert.equal(r2.dig.line.length, 1); assert.equal(r2.dig.mine[0].id, r2.kit[0].id);
@@ -306,7 +306,7 @@ test('saving and resuming: a Dig and a run survive a reload — same cards, same
 });
 
 test('the Board changes the moment a Dig ends: a bank locks in and may take the Crown at once, a BOOM removes the Pledge marker (no waiting for Prep)', () => withPledges(() => {
-  const run = firstRound({ keepIds: ['PW-02'] }); Run.beginDig(run, { seed: 20 });
+  const run = firstRound({ keepIds: ['ON-06'] }); Run.beginDig(run, { seed: 20 });
   const st = run.dig; st.mine = Array.from({ length: 6 }, (_, i) => ({ ...by(i % 2 ? 'MO-02' : 'MO-01'), uid: 9400 + i })); st.dice = Array(30).fill(10);
   for (let i = 0; i < 4; i++) { Dig.dig(st); Dig.roll(st); Dig.autoFace(st); }
   assert.ok(Run.pledge(run, 5)); assert.equal(Board.marker(run.board, 'me', 'pledge').n, 5);
@@ -315,7 +315,7 @@ test('the Board changes the moment a Dig ends: a bank locks in and may take the 
   Dig.dig(st); Dig.roll(st); Dig.autoFace(st);
   assert.ok(Run.bank(run)); assert.equal(run.crown.holder, true, 'the Crown moved at the moment of banking'); assert.equal(run.crown.tracker, 5); assert.equal(run.best, 5);
   assert.equal(Board.marker(run.board, 'me', 'pledge'), null);
-  const r2 = firstRound({ keepIds: ['PW-02'] }); Run.beginDig(r2, { seed: 21 });
+  const r2 = firstRound({ keepIds: ['ON-06'] }); Run.beginDig(r2, { seed: 21 });
   const s2 = r2.dig; s2.mine = Array.from({ length: 6 }, (_, i) => ({ ...by('MO-01'), uid: 9500 + i })); s2.dice = Array(30).fill(10);
   for (let i = 0; i < 3; i++) { Dig.dig(s2); Dig.roll(s2); Dig.autoFace(s2); }
   Run.pledge(r2, 4); assert.ok(Board.marker(r2.board, 'me', 'pledge'));
@@ -342,8 +342,8 @@ test('the Dig\'s copy of the Leaderboard is refreshed from the live Board before
 test('Mystery Boxes chain: a Mystery Box that arrives as another one\'s extra card keeps one more card of the Booster Deck in its turn', () => {
   const run = Run.start(cards, { seed: 3 }); Run.openPack(run);
   const box = id => ({ ...cards.find(c => c.id === id), uid: 98000 + Number(id.slice(3)) });
-  const a = box('IM-14'), c = box('IM-16'); run.prep.offer[0] = a; run.deck.unshift(c);          // the top card of the Booster Deck is Mystery Box C
+  const a = box('IM-14'), c = box('IM-15'); run.prep.offer[0] = a; run.deck.unshift(c);          // the top card of the Booster Deck is Mystery Box C
   const after = run.deck[1]; Run.toggleKeep(run, a.uid); assert.ok(Run.confirmKeep(run));
-  assert.deepEqual(run.prep.extra.map(x => x.id), ['IM-16', after.id], 'A brings C, and C brings the card under it');
-  assert.ok(run.owned.some(x => x.id === 'IM-16') && run.owned.some(x => x.id === after.id));
+  assert.deepEqual(run.prep.extra.map(x => x.id), ['IM-15', after.id], 'A brings C, and C brings the card under it');
+  assert.ok(run.owned.some(x => x.id === 'IM-15') && run.owned.some(x => x.id === after.id));
 });
