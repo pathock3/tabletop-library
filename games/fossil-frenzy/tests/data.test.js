@@ -120,7 +120,8 @@ test('Torn Treasure: the theme tiers cover every number in every level, in order
   assert.deepEqual(GAME_DATA.coach.match.levels, ['beginner'], 'the first-match note is for the easiest level');
   assert.doesNotMatch(JSON.stringify(GAME_DATA.coach), /fossil|bank/i, 'in the theme\'s words');
   for (const k of ['hold', 'lift', 'slide', 'morph', 'pause', 'fly', 'settle']) assert.ok(GAME_DATA.anim.match[k] > 0, 'match ' + k);
-  for (const k of ['fly', 'open', 'hold', 'rain', 'count', 'end']) assert.ok(GAME_DATA.anim.dig[k] > 0, 'dig ' + k);
+  for (const k of ['open', 'hold', 'rain', 'count', 'end']) assert.ok(GAME_DATA.anim.dig[k] > 0, 'dig ' + k);
+  assert.ok(Object.values(GAME_DATA.anim.dig).reduce((a, b) => a + b, 0) < 1500, 'a dig film is under about a second');
   assert.ok(GAME_DATA.coach.gem.ask && GAME_DATA.coach.gem.short.split(' ').length < 30, 'the gem note is a button and a picture, with one short line');
   assert.ok(Object.values(GAME_DATA.anim.match).reduce((a, b) => a + b, 0) < 2500, 'a match film is quick');
 });
