@@ -35,29 +35,14 @@ function playMatch(seed, rounds = 3) {
   return m;
 }
 
-test('the Board: your live marker waits at Start until you pledge (from the Crown\'s number on: your number or 1 more); you cannot bank below a pledge; a bank locks the score in; BOOM sends the pledge back to Start', () => {
-  const run = Run.start(cards, { seed: 5, rounds: 3 }); Run.openPack(run); Run.toggleKeep(run, run.prep.offer[0].uid); Run.confirmKeep(run); Run.toggleKit(run, run.owned[0].uid); Run.beginDig(run, { seed: 1 });
-  const st = run.dig; st.mine = ['MO-01', 'MO-02', 'MO-01', 'MO-02', 'MO-01'].map((id, i) => ({ ...by(id), uid: 9900 + i })); st.dice = Array(30).fill(10);
-  assert.deepEqual([Board.marker(run.board, 'me', 'best').n, run.best], [2, 2], 'round 1: your best marker starts on the starred space, 2');
-  for (let i = 1; i <= 2; i++) { Dig.dig(st); Run.refresh(run); assert.equal(Board.marker(run.board, 'me', 'pledge'), null, 'the marker does not move by itself'); Dig.roll(st); Dig.autoFace(st); Run.refresh(run); }
-  assert.equal(st.survived, 2); assert.ok(!Run.pledge(run, 4), 'only your number or 1 more'); assert.ok(!Run.pledge(run, 1));
-  assert.ok(Run.pledge(run, 3)); assert.equal(Board.marker(run.board, 'me', 'pledge').n, 3); assert.equal(st.pledge, 3);
-  assert.ok(!Run.bank(run), 'cannot bank before you have survived 3');
-  assert.ok(!Run.pledge(run, 3) && !Run.pledge(run, 2), 'a pledge only goes up');
-  Dig.dig(st); Dig.roll(st); Dig.autoFace(st); Run.refresh(run);
-  assert.ok(Run.bank(run)); assert.equal(Board.marker(run.board, 'me', 'pledge'), null); assert.equal(run.best, 3); assert.equal(Board.holder(run.board), 'me');
-  const r2 = Run.start(cards, { seed: 5, rounds: 3 }); Run.openPack(r2); Run.toggleKeep(r2, r2.prep.offer[0].uid); Run.confirmKeep(r2); Run.toggleKit(r2, r2.owned[0].uid); Run.beginDig(r2, { seed: 1 });
-  const s2 = r2.dig; s2.mine = ['MO-01', 'MO-02', 'MO-01'].map((id, i) => ({ ...by(id), uid: 9950 + i })); s2.dice = Array(30).fill(10);
-  for (let i = 0; i < 2; i++) { Dig.dig(s2); Dig.roll(s2); Dig.autoFace(s2); }
-  Run.refresh(r2); assert.ok(Run.pledge(r2, 3)); s2.heart = 1; s2.dice = [1]; Dig.dig(s2); Dig.roll(s2); Dig.autoFace(s2); Run.checkOver(r2);
-  assert.equal(s2.over.kind, 'boom'); assert.equal(Board.marker(r2.board, 'me', 'pledge'), null, 'BOOM: back to Start'); assert.equal(r2.best, 2, 'your best stays');
-});
-
-test('the final round has no pledge: your live marker follows every Monster you meet', () => {
-  const run = Run.start(cards, { seed: 5, rounds: 1 }); Run.openPack(run); Run.toggleKeep(run, run.prep.offer[0].uid); Run.confirmKeep(run); Run.toggleKit(run, run.owned[0].uid); Run.beginDig(run, { seed: 1 });
-  const st = run.dig; st.mine = ['MO-01', 'MO-02', 'MO-01'].map((id, i) => ({ ...by(id), uid: 9900 + i })); st.dice = Array(30).fill(10);
-  for (let i = 1; i <= 3; i++) { Dig.dig(st); Run.refresh(run); assert.equal(Board.marker(run.board, 'me', 'pledge').n, i, 'the moment you meet the Monster'); Dig.roll(st); Dig.autoFace(st); Run.refresh(run); }
-  assert.ok(!Run.pledge(run, 4));
+test('the Board updates by itself: your live marker follows every Monster you encounter, a BOOM clears it, a bank locks the score in', () => {
+  const run = Run.start(cards, { seed: 5, rounds: 2 }); Run.openPack(run); Run.toggleKeep(run, run.prep.offer[0].uid); Run.confirmKeep(run); Run.toggleKit(run, run.owned[0].uid); Run.beginDig(run, { seed: 1 });
+  const st = run.dig; st.mine = ['MO-01', 'MO-02', 'MO-01', 'MO-02'].map((id, i) => ({ ...by(id), uid: 9900 + i })); st.dice = Array(30).fill(10);
+  Run.refresh(run); assert.equal(Board.marker(run.board, 'me', 'pledge'), null, 'nothing survived yet');
+  for (let i = 1; i <= 3; i++) { Dig.dig(st); Run.refresh(run); assert.equal(Board.marker(run.board, 'me', 'pledge').n, i, 'the marker moves the moment you ENCOUNTER the Monster, before you face it'); Dig.roll(st); Dig.autoFace(st); Run.refresh(run); assert.equal(Board.marker(run.board, 'me', 'pledge').n, i, 'and stays there once you survive it'); }
+  assert.ok(!Run.pledge(run, 4), 'there is no pledging in the app: nothing to say, the marker already moves for you');
+  Dig.dig(st); Dig.roll(st); Dig.autoFace(st); Run.refresh(run); assert.equal(Board.marker(run.board, 'me', 'pledge').n, 4, 'the marker follows the fourth Monster at once');
+  assert.ok(Run.bank(run)); assert.equal(Board.marker(run.board, 'me', 'pledge'), null); assert.equal(run.best, 4);
 });
 
 test('the live marker takes the best open spot under each number, so the first to get there is ahead', () => {

@@ -1055,11 +1055,6 @@ body[data-mode=play] { background: radial-gradient(130% 75% at 50% -10%, #74401e
 #play .tcard.firenow { animation: firecard .7s ease-in-out backwards; animation-delay: calc(var(--k, 0) * .5s); z-index: 3; }
 #play .chip.useall { min-height: 48px; padding: 6px 20px; border-radius: 16px; border: 3px solid #e9d4ff; background: linear-gradient(180deg, #a15be0, #6d2fb0); color: #fff; font-size: 18px; font-weight: 900; box-shadow: 0 5px 0 #3b1766, 0 10px 18px rgba(0,0,0,.4); }
 #play .chip.useall:active { transform: translateY(3px); box-shadow: 0 2px 0 #3b1766; }
-#play .lbc.pledgeable { cursor: pointer; border-color: var(--accent); animation: pulse 1.4s ease-in-out infinite; }
-#play .pledgerow { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }
-#play .pledgebtn { min-height: 48px; padding: 6px 18px; border-radius: 14px; border: 3px solid #ffe3b0; background: linear-gradient(180deg, #ffb13b, #d9780f); color: #1c1410; font-size: 18px; font-weight: 900; box-shadow: 0 4px 0 #7a3f06; }
-#play .pledgebtn:active { transform: translateY(3px); box-shadow: 0 1px 0 #7a3f06; }
-#play .pledgenote { text-align: center; font-size: 14px; font-weight: 800; color: var(--dim); }
 </style>
 </head>
 <body>
@@ -1314,7 +1309,7 @@ const DDB = {
     survivedGems: 1, geodeGems: 1,
     beyond: { firstDamage: 8, maxDamage: 99, gems: 0 },  // the gauntlet, after all 9 Monsters of the Mine: 8, then +1 for each Monster, worth no Loot (v2.7.1)
     kitSizes: [1, 2, 2, 3, 3],                           // Round tracker: Starter Kit cards per round (owner)
-    pledges: true,                                       // v2.7.1: you pledge on the Leaderboard (your live marker waits at Start until you do); the final round, where nobody banks, has no pledge: the marker follows you
+    pledges: false,                                      // owner: the app has no pledging; your live marker simply follows every Monster you survive (the engine still knows pledges)
     soloKit: 3,                                          // Starter Kit size offered in the solo prototype (the round tracker's round 1 is 1)                              // Round tracker: Starter Kit cards per round (testing)
     maxChain: 6,                                         // safety limit on effects that trigger effects
     rulings: {                                           // each one is a question in QUESTIONS.md; change the value to change the rule
@@ -2464,7 +2459,7 @@ const Dig = (() => {
   function score(st) { return { geodes: st.geodeGems, monsters: st.monsterGems, total: st.geodeGems + st.monsterGems, survived: st.survived }; }
   // The Leaderboard (v2.7): once you have survived as many Monsters as the Crown tracker, you may pledge your current number or 1 more.
   function canPledge(st, n) {
-    const b = st.board; if (!b || !R.pledges || b.final || st.over || st.fight || st.pending) return false;
+    const b = st.board; if (!b || !R.pledges || st.over || st.fight || st.pending) return false;
     return st.survived >= b.crown && (n === st.survived || n === st.survived + 1) && (st.pledge === null || n > st.pledge);
   }
   function pledge(st, n) { if (!canPledge(st, n)) return false; st.pledge = n; log(st, 'sys', `You pledge ${n}.`); return true; }
@@ -2532,7 +2527,6 @@ const Board = (() => {
     return { players: players.map(p => ({ ...p })), crownStart, spots: {}, clock: 0 };
   }
   // Round 1: every player's best marker starts on the starred space, the Crown tracker's 2 (a best of 2 or less is nothing).
-  function seat(b) { for (const p of b.players) if (!marker(b, p.id, 'best')) claim(b, p.id, 'best', b.crownStart); }
   const row = (b, n) => b.spots[n] || (b.spots[n] = Array(Math.max(2, b.players.length * 2)).fill(null));
   // where a player's marker of this kind is: { n, rank (1 = best spot) } or null
   function marker(b, id, kind) {
@@ -2624,7 +2618,7 @@ const Board = (() => {
     remove(b, id, 'pledge');
     return { rank, tookLead: before !== id && holder(b) === id, newBest };
   }
-  return { create, seat, marker, leader, tracker, holder, canPledge, pledge, clearPledge, note, track, wouldLead, leadN, lockIn, rankIf, finalLeader, inLead };
+  return { create, marker, leader, tracker, holder, canPledge, pledge, clearPledge, note, track, wouldLead, leadN, lockIn, rankIf, finalLeader, inLead };
 })();
 </script>
 
@@ -2661,7 +2655,7 @@ const Run = (() => {
     const seed = opts.seed === undefined || opts.seed === null ? null : opts.seed >>> 0;
     const me = opts.me || ME, sh = opts.shared;
     const run = { seed, rng: Dig.makeRng(seed), dice: opts.dice ? opts.dice.slice() : null, all, rounds: opts.rounds || RN.rounds, round: 1, phase: 'prep',
-      owned: [], kit: [], trash: sh ? sh.trash : [], deck: sh ? sh.deck : [], me, shared: !!sh, board: sh ? sh.board : (b => { Board.seat(b); return b; })(Board.create([{ id: me, name: 'You', color: DDB.table.playerColors[0] }])), crown: { tracker: RN.crownStart, holder: false }, best: 0, history: [], dig: null, prep: null, log: [], result: null };
+      owned: [], kit: [], trash: sh ? sh.trash : [], deck: sh ? sh.deck : [], me, shared: !!sh, board: sh ? sh.board : Board.create([{ id: me, name: 'You', color: DDB.table.playerColors[0] }]), crown: { tracker: RN.crownStart, holder: false }, best: 0, history: [], dig: null, prep: null, log: [], result: null };
     if (!sh) run.deck = makeDeck(all, run.rng);
     sync(run);
     run.prep = newPrep(run, null); setPack(run);
@@ -2801,7 +2795,7 @@ const Run = (() => {
   // The Dig keeps a copy of the Leaderboard's numbers (tracker, what it takes to lead). Other players can change them, so refresh before asking the Dig.
   function refresh(run) {
     const st = run.dig; if (!st || !st.board) return;
-    if (!st.over && !st.boardApplied && st.board.final) { const n = Math.max(st.monstersDug, st.survived); if (Board.track(run.board, run.me, n)) Board.note(run.board, { r: run.round, id: run.me, k: 'move', n }); }      // the final round has no pledge (nobody banks): your live marker follows you, the moment you ENCOUNTER a Monster. In the other rounds it waits at Start until you pledge.
+    if (!st.over && !st.boardApplied) { const n = Math.max(st.monstersDug, st.survived); if (Board.track(run.board, run.me, n)) Board.note(run.board, { r: run.round, id: run.me, k: 'move', n }); }      // the live marker moves the moment you ENCOUNTER a Monster (owner), before you have faced it
     st.board.crown = Board.tracker(run.board); st.board.leadN = Board.leadN(run.board, run.me); st.board.lead = Board.inLead(run.board, run.me); st.board.leader = Board.finalLeader(run.board);
   }
   // The moment a Dig ends (bank or BOOM) the Board changes: a BOOM removes the Pledge marker, a bank locks the score in and may take the Crown right away.
@@ -2817,12 +2811,10 @@ const Run = (() => {
     const st = run.dig; if (!st || st.over || run.phase !== 'dig') return false;
     refresh(run);
     if (!Dig.canPledge(st, n) || !Board.canPledge(run.board, run.me, st.survived, n)) return false;
-    Board.pledge(run.board, run.me, st.survived, n); Dig.pledge(st, n); Board.note(run.board, { r: run.round, id: run.me, k: 'move', n });
+    Board.pledge(run.board, run.me, st.survived, n); Dig.pledge(st, n);
     st.board.leadN = Board.leadN(run.board, run.me);          // your spot may now be good enough to lead at the Crown's own number
     return true;
   }
-  // What a player does as soon as they may: call the number they have reached (a spot under it is theirs the moment they say it, so whoever says it first is ahead).
-  function pledgeNow(run) { const st = run.dig; return !!st && !st.over && st.survived >= 1 && pledge(run, st.survived); }
   // The final round ends when nobody still digging has to: the players left standing are all out (BOOM) but one, and that one is in the lead.
   // runs: every player's Run. Returns true if it ended someone's Dig.
   function finalCheck(runs) {
@@ -2836,7 +2828,7 @@ const Run = (() => {
     checkOver(r); return true;
   }
   const reserve = n => { uid = Math.max(uid, n + 1); };
-  return { makeDeck, setEscape, reserve, pledge, pledgeNow, bank, finalCheck, refresh, checkOver, sync, save, load, start, rollEscape, packInfo, openPack, keepCount, toggleKeep, moveKeep, confirmKeep, continueReveal, toggleKit, moveKit, beginDig, finishDig, ladderFor, kitSize };
+  return { makeDeck, setEscape, reserve, pledge, bank, finalCheck, refresh, checkOver, sync, save, load, start, rollEscape, packInfo, openPack, keepCount, toggleKeep, moveKeep, confirmKeep, continueReveal, toggleKit, moveKit, beginDig, finishDig, ladderFor, kitSize };
 })();
 
 /* =====================================================================
@@ -2856,7 +2848,6 @@ const Basic = (() => {
     if (c.choose) { if (st.pending.kind === 'clone') Dig.chooseClone(st, st.line.find(e => !e.pet) || st.line[0]); else Dig.chooseDug(st, 'resolve'); return true; }
     if (f) { Dig.autoBattle(st); return true; }
     if (st.board.final && st.board.lead) return false;                       // in the final round the leader waits; everyone else has to keep digging
-    if (!st.board.final && c.dig && Run.pledgeNow(run)) return true;          // it calls its number as soon as it may
     const confident = st.heart >= A.confidentHealth;
     if (c.bank && st.digs >= A.giveUpDigs) { Run.bank(run); return true; }          // a loop of cards (Echo and Rewind Tape) that never reaches a Monster: it stops digging
     if (c.bank && st.survived >= 1 && (st.heart <= A.bankAtHealth || st.mine.length === 0 || (!confident && st.survived >= st.board.leadN))) { Run.bank(run); return true; }          // (an empty Mine means only gauntlet Monsters are left: it stops there)
@@ -2890,7 +2881,6 @@ const Match = (() => {
     const seed = opts.seed === undefined || opts.seed === null ? null : opts.seed >>> 0, rng = Dig.makeRng(seed), colors = DDB.table.playerColors;
     const opp = opts.bots && opts.bots.length ? opts.bots : [{ id: BOT, name: 'AI', color: colors[1] }];
     const board = Board.create([{ id: HUMAN, name: 'You', color: colors[0] }, ...opp.map(o => ({ id: o.id, name: o.name, color: o.color, ai: true, ...(o.tag ? { tag: o.tag } : {}), ...(o.level ? { level: o.level } : {}), ...(o.speed ? { speed: o.speed } : {}) }))]);
-    Board.seat(board);
     const shared = { board, deck: Run.makeDeck(all, rng), trash: [] };
     const m = { seed, rng, dice: opts.dice ? opts.dice.slice() : null, all, board, deck: shared.deck, trash: shared.trash, rounds: opts.rounds || DDB.run.rounds, runs: {}, bots: opp.map(o => o.id), result: null, aiDug: 0 };
     m.runs[HUMAN] = Run.start(all, { ...opts, seed, me: HUMAN, shared });
@@ -3108,7 +3098,6 @@ const AI = (() => {
         }
         Dig.autoBattle(st, pick); return true;
       }
-      if (!ctx.final && c.dig && Run.pledgeNow(run)) return true;          // it calls its number as soon as it may
       if (ctx.final) { if (st.board.lead) return false; Dig.dig(st); return true; }          // the final round: the leader waits, everyone else has to keep digging
       if (c.bank && st.digs >= A.giveUpDigs) { Run.bank(run); return true; }          // a loop of cards (Echo and Rewind Tape) that never reaches a Monster
       if (!c.dig) return false;
@@ -3657,8 +3646,6 @@ const AI = (() => {
     });
   }
   const tagOf = (run, p) => p.id === run.me ? 'You' : (p.tag || p.name);
-  // May you call this number now? (You have reached the Crown's number, it is your number or 1 more, and it is higher than what you have already called.)
-  const canPledge = n => !!S.run && !!S.st && S.panel === 'dig' && S.run.phase === 'dig' && Dig.canPledge(S.st, n) && Board.canPledge(S.run.board, S.run.me, S.st.survived, n);
   function lbHTML(run, st) {
     const bd = run.board, tr = Board.tracker(bd), holder = Board.holder(bd), me = run.me, players = bd.players;
     const here = st && !st.over ? Math.max(st.monstersDug, st.survived) : -1;
@@ -3672,8 +3659,7 @@ const AI = (() => {
     let cells = '';
     for (let n = 0; n <= max; n++) {
       const dots = marks.filter(x => x.m.n === n).map(x => `<i class="mk ${x.k}" style="--pc:${x.p.color}" title="${A.esc(x.p.name)}: ${x.k === 'best' ? 'best Dig' : 'this Dig'}">${x.m.rank > 1 ? x.m.rank : ''}</i>`).join('');
-      const pl = st && canPledge(n);
-      cells += `<div class="lbc ${n === here ? 'here' : ''} ${n <= tr ? 'free' : ''} ${pl ? 'pledgeable' : ''}" ${pl ? `data-p="pledge" data-n="${n}" role="button" aria-label="Pledge ${n}"` : ''}><span class="ln">${n}</span><span class="lm">${!holder && n === crownCol ? '<b class="crownmk">♛</b>' : ''}${dots}</span></div>`;
+      cells += `<div class="lbc ${n === here ? 'here' : ''} ${n <= tr ? 'free' : ''}"><span class="ln">${n}</span><span class="lm">${!holder && n === crownCol ? '<b class="crownmk">♛</b>' : ''}${dots}</span></div>`;
     }
     const finalNote = run.round >= run.rounds && st && !st.over && st.board ? (st.board.lead ? ' · <b style="color:var(--accent)">you are in the lead</b>' : '') : '';          // (the final round's number to beat is told on the final-round note and the prompt, not up here)
     const hp = holder && players.find(p => p.id === holder), holdName = hp ? (holder === me ? '<b style="color:var(--accent)">you</b>' : `<b>${A.esc(hp.name)}</b>`) : '';
@@ -3920,7 +3906,7 @@ const AI = (() => {
   }
   // One round of the run, as the Leaderboard looked when it ended (every piece where its Dig stopped, with its gem or starburst); `from` is where everybody's best stood before it.
   function histAnim(run, r, k) {
-    const log = run.board.log || [], events = log.filter(e => e.r === r), from = Object.fromEntries(run.board.players.map(p => [p.id, run.board.crownStart]));
+    const log = run.board.log || [], events = log.filter(e => e.r === r), from = Object.fromEntries(run.board.players.map(p => [p.id, 0]));
     for (const e of log) if (e.r < r && e.k === 'bank') from[e.id] = Math.max(from[e.id] || 0, e.n);
     return { from, events, k: k === undefined ? events.length : k, hist: true, newBest: false, timer: null, rects: null, fx: null, fast: false };
   }
@@ -4040,11 +4026,9 @@ const AI = (() => {
     const lastRound = !!(S.run && st.board && st.board.final);
     const myBest = S.run ? (Board.marker(S.run.board, S.run.me, 'best') || { n: 0 }).n : 0, past = lastRound && st.board.lead && Math.max(st.monstersDug, st.survived) > myBest;          // in the last round your job is to get one past your best; only then may you wait and speed the others up
     const say = lastRound ? (st.board.allOut ? 'You won! Keep digging to push your score higher, or see the result.' : st.board.lead ? (past ? `You are in the lead with ${(leaderLine() || {}).n}. Keep digging to push it higher, or wait to see if everyone else goes BOOM.` : `You are in the lead with ${(leaderLine() || {}).n}. Try to get one past it.`) : leaderLine() ? `${leaderLine().name} ${leaderLine().is} in the lead with ${leaderLine().n}. Try to beat that score.` : 'The last round: nobody banks. Dig until you are in the lead.') : can.bank ? 'Tap the Mine to dig, or the Bank to keep your gems' : 'Tap the Mine to dig';
-    const pledgeNs = lastRound ? [] : [st.survived, st.survived + 1].filter(canPledge), pledgeNote = lastRound ? '' : st.pledge !== null ? `<div class="pledgenote">You have pledged ${st.pledge}: you cannot bank until you have survived that many.</div>` : '';
-    const pledgeRow = pledgeNs.length ? `<div class="pledgerow">${pledgeNs.map(n => `<button class="chip pledgebtn" data-p="pledge" data-n="${n}">Pledge ${n}</button>`).join('')}</div><div class="pledgenote">Call your number to get ahead of the others.</div>` : '';
     const holdBtn = lastRound && st.board.allOut ? `<button class="btn" data-p="hold">See the result</button>` : '';
     const ffBtn = past && aiDigging() ? `<button class="btn alt ffbtn" data-p="ff" ${S.ff ? 'disabled' : ''}>${S.ff ? 'Fast-forwarding…' : 'Fast-forward your opponents'}</button>` : '';          // you wait; this speeds the opponent up until they pass you or go BOOM
-    return { html: `<div class="action"><div class="aprompt">${say}</div>${pledgeRow}${pledgeNote}${ffBtn}${holdBtn}</div>`, die: '' };
+    return { html: `<div class="action"><div class="aprompt">${say}</div>${ffBtn}${holdBtn}</div>`, die: '' };
   }
   // ----- little things that pop. What is new since the last drawing is remembered, so each flourish plays once, on the thing that just happened. -----
   const fxOf = st => st ? { last: st.last ? st.last.uid : null, mon: st.fight ? st.fight.monster.uid : null, roll: st.fight && st.fight.phase === 'after' ? `${st.digs}:${st.fight.rolls}:${st.fight.die}` : null, gems: st.geodeGems + st.monsterGems, over: st.over } : { last: null, mon: null, roll: null, gems: 0, over: null };
@@ -4120,7 +4104,7 @@ const AI = (() => {
         <li>Result changes apply in order: bonuses, then double, then "becomes", then "less than".</li>
         <li>"Whenever you gain" only counts when the track actually moves.</li>
         <li>The last round is a race: nobody banks. Whoever is in the lead may wait; the rest must keep digging.</li>
-        <li>The Leaderboard: your <b>best</b> chip (top row) is your best banked Dig and starts on 2. Your other marker waits at Start. Once you have survived as many Monsters as the Crown's number, you may <b>pledge</b> (tap the number): your own number or one more. The first to call a number gets the better spot under it. After pledging you cannot bank until you have survived that many. BOOM sends your pledge back to Start; your best stays. The final round has no pledges: your marker follows you.</li>
+        <li>Your marker on the Leaderboard moves the moment you meet a Monster. BOOM clears it.</li>
         <li>Your Starter Kit goes on top of the Mine in the order you tap it; every other card you own is shuffled in. A card that says "Can't Start" never goes in a Starter Kit.</li>
         <li>Monsters you are done with go in the Monster pile, never the discard.</li>
         <li>Easy, Medium and Hard dig on their own clocks (the harder, the quicker: whoever reaches a number first takes the better spot); when you are done, tap on and they finish their Digs behind the scenes; the Leaderboard then plays back what happened.</li></ul></details>
@@ -4375,7 +4359,6 @@ const AI = (() => {
       case 'gritminus': if (f && f.phase === 'before') Dig.planGrit(st, f.plan - 1); break;
       case 'gritspend': if (f) Dig.spendGrit(st, 1); break;
       case 'grit': if (f && f.phase === 'before') { const left = Dig.gritLeft(st, f); Dig.planGrit(st, f.plan >= left ? 0 : f.plan + 1); } else if (f && f.phase === 'after') Dig.spendGrit(st, 1); break;
-      case 'pledge': if (S.run) Run.pledge(S.run, Number(ds.n)); break;
       case 'showlog': S.showLog = !S.showLog; break;
       case 'log': S.showLog = true; S.gmenu = false; break;
       case 'dig': if (st) { if (st.fight && st.fight.defeat) { S.confirmFace = false; Dig.face(st); } Dig.dig(st); } break;

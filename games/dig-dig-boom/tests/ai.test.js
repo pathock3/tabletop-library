@@ -32,7 +32,7 @@ test('the AI cannot see the order of the cards it has not seen: shuffle them and
     const a = dugRun(seed, { rounds: 4, heart }), b = dugRun(seed, { rounds: 4, heart });
     for (const x of [a, b]) { x.st.survived = survived; x.st.monstersDug = survived; x.st.digs = survived * 3; x.st.monsterGems = survived; x.st.geodeGems = 4; x.st.setCount = { 'MO-01': 3, 'MO-02': 2 }; }       // the next Monsters hit hard
     const known = Math.min(b.st.known, b.st.mine.length); b.st.mine = b.st.mine.slice(0, known).concat(b.st.mine.slice(known).reverse());
-    const act = x => { const before = x.st.digs; for (let i = 0; i < 3 && !x.st.over && x.st.digs === before; i++) AI.act(x.run); return x.st.over && x.st.over.kind === 'bank' ? 'bank' : x.st.digs > before ? 'dig' : 'other'; };
+    const act = x => { const before = x.st.digs; AI.act(x.run); return x.st.over && x.st.over.kind === 'bank' ? 'bank' : x.st.digs > before ? 'dig' : 'other'; };
     const ra = act(a), rb = act(b); assert.equal(ra, rb, `seed ${seed}, Health ${heart}, ${survived} survived: the same choice whatever the hidden order`);
     compared++; if (ra === 'bank') banked++; else dug++;
   }

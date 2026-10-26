@@ -652,37 +652,21 @@ test('run: a tap on the tally skips ahead to the die (and past the landing to th
   } finally { await browser.close(); }
 });
 
-test('run: BOOM skips the Escape Bonus and gives a Bronze Pack; your live marker waits at Start until you pledge (you cannot before the Crown\'s number); BOOM takes it away', SKIP, async () => {
+test('run: BOOM skips the Escape Bonus and gives a Bronze Pack; your marker moves the moment you ENCOUNTER a Monster, before you roll; BOOM takes it away (no pledging)', SKIP, async () => {
   const { browser, page, errors } = await open({ menu: true });
   try {
     await startRun(page);
     await script(page, { mine: ['MO-01', 'MO-02'], dice: [10, 1], start: { heart: 1 } });
-    assert.equal(await page.locator('#play .lbc .mk.pledge').count(), 1, 'nothing pledged: your piece stands at Start'); assert.equal(await page.locator('#play .lbc:first-child .mk.pledge').count(), 1);
+    assert.equal(await page.locator('#play .lbc .mk.pledge').count(), 1, 'nothing encountered yet: your piece stands on 0'); assert.equal(await page.locator('#play .lbc:first-child .mk.pledge').count(), 1);
     await page.click('#play [data-p=dig]');
-    assert.equal(await page.locator('#play .lbc:has(.mk.pledge) .ln').innerText(), '0', 'meeting a Monster does not move it');
+    assert.equal(await page.locator('#play .lbc.here').innerText().then(t => t.split('\n')[0].trim()), '1', 'the Monster is in front of you and already counts');
+    assert.equal(await page.locator('#play .lbc:has(.mk.pledge) .ln').innerText(), '1');
     await page.click('#play [data-p=roll]'); await faceIt(page);
-    assert.equal(await page.locator('#play .lbc.pledgeable, #play .pledgebtn').count(), 0, 'one Monster survived is below the Crown\'s number: nothing to pledge yet');
-    await page.click('#play [data-p=dig]'); await page.click('#play [data-p=roll]'); await faceIt(page);
+    await page.click('#play [data-p=dig]'); assert.equal(await page.locator('#play .lbc.here').innerText().then(t => t.split('\n')[0].trim()), '2');
+    await page.click('#play [data-p=roll]'); await faceIt(page);
     assert.match(await page.locator('#play .over').innerText(), /BOOM/); assert.equal(await page.locator('#play .lbc .mk.pledge').count(), 0, 'BOOM cleared the live marker');
     await page.click('#play [data-p=prep]'); await page.click('#play [data-p=boardgo]');
     assert.equal(await page.locator('#play .eq').count(), 0, 'no Escape Bonus after a BOOM'); assert.equal(await page.locator('#play .pack b').innerText(), 'Bronze');
-    assert.deepEqual(errors, []);
-  } finally { await browser.close(); }
-});
-
-test('pledge: once you have survived as many Monsters as the Crown\'s number, tap Pledge (or the number on the Leaderboard): your number or 1 more; then you cannot bank until you have survived that many', SKIP, async () => {
-  const { browser, page, errors } = await open({ menu: true, viewport: { width: 820, height: 1180 } });
-  try {
-    await startRun(page);
-    await script(page, { mine: ['TR-01', 'TR-01'], dice: [] });
-    await page.evaluate(() => { const P = window.DigDigBoomPlay, st = P.S.st; st.survived = 2; st.monstersDug = 2; P.act('dig'); });
-    assert.deepEqual(await page.locator('#play .pledgebtn').allInnerTexts(), ['Pledge 2', 'Pledge 3'], 'your number, or 1 more');
-    assert.equal(await page.locator('#play .lbc.pledgeable').count(), 2, 'the same two numbers are lit on the Leaderboard');
-    await page.click('#play .pledgebtn:has-text("Pledge 3")');
-    assert.equal(await page.locator('#play .lbc:has(.mk.pledge) .ln').innerText(), '3', 'your marker moved to 3');
-    assert.equal(await page.locator('#play .pledgebtn').count(), 0, 'a pledge only goes up: 3 is called, 3 or 2 cannot be again');
-    assert.match(await page.locator('#play .pledgenote').innerText(), /pledged 3[\s\S]*cannot bank/i);
-    assert.ok(await page.locator('#play [data-p=bank]').isDisabled(), 'no banking below your pledge');
     assert.deepEqual(errors, []);
   } finally { await browser.close(); }
 });
@@ -1140,14 +1124,14 @@ test('table: a Careful note in the middle of the screen, to be dismissed, when t
   } finally { await browser.close(); }
 });
 
-test('leaderboard: 0 instead of Start; a gold-trimmed chip for each player stacked on 2; the Crown waits on 3 and moves onto the holder\'s name; the players are named in their colours; New Best! when you improve', SKIP, async () => {
+test('leaderboard: 0 instead of Start; a gold-trimmed chip for each player stacked on 0; the Crown waits on 3 and moves onto the holder\'s name; the players are named in their colours; New Best! when you improve', SKIP, async () => {
   const { browser, page, errors } = await open({ menu: true });
   try {
     await page.evaluate(() => { window.DigDigBoomPlay.S.opp = true; }); await page.click('#play [data-p=startrun]'); await page.waitForSelector('#play [data-p=openpack]');
     await page.evaluate(() => { const P = window.DigDigBoomPlay; P.S.bests0 = { me: 0, easy: 0, medium: 0, hard: 0 }; P.S.panel = 'board'; P.render(); });
     assert.deepEqual((await page.locator('#play .bigboard .bcol .bn').allInnerTexts()).slice(0, 4).map(t => t.replace(/\D/g, '')), ['0', '1', '2', '3'], 'numbers start at 0');
     assert.equal(await page.locator('#play .bigboard .bn:has-text("Start")').count(), 0);
-    assert.equal(await page.locator('#play .bigboard .bgrid .bcol >> nth=3').locator('.pchip').count(), 4, 'all four best chips are stacked on 2, the starred space');
+    assert.equal(await page.locator('#play .bigboard .bgrid .bcol >> nth=1').locator('.pchip').count(), 4, 'all four chips are stacked on 0');
     assert.equal(await page.locator('#play .bigboard .bcol:nth-child(5) .bcrown').count(), 1, 'the Crown waits on 3');
     assert.equal(await page.locator('#play .bigboard .bspot:not(.lab)').count() % 4, 0); assert.equal(await page.locator('#play .bigboard .blabels .bspot').count(), 4, 'a row for each player');
     const colors = await page.locator('#play .bplayers .bpl').evaluateAll(els => els.map(e => getComputedStyle(e).color));
