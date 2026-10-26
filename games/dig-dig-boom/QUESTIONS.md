@@ -1,17 +1,7 @@
 # Rules questions — running list
 
-## v2.7.1 — questions asked (newest first). Answered ones are removed once built in.
-Answered (owner): the starred values are Health 10 / Extra Rolls 0 / Grit 0; Grit may be spent before any roll, Extra Rolls included, and Grit Caddy counts all the Grit of one roll; "roll again" (Falcon Finisher) is a roll that can fire cards, with no Grit; each Monster set is fixed printed damage dug in ascending order; the Starter Kit goes on top of the Mine.
-Q6. **Grit limit.** Your idea: make the cap on Grit *storage* the limit. See `GRIT-EXPERIMENT.md` (section E): a track of 3 plus "you can spend at most 3 Grit in a battle" is what the app does now (`DDB.rules.caps.grit`, `DDB.rules.grit.battleLimit`). — built, tell me if you want it different
-Q7. **After-roll Grit rate (3 for +1).** Kept at 3: with a track of 3 a full track buys exactly +1. At 2 for 1 the simulation says it is only slightly stronger (+0.1 Monsters) under the 3-a-battle limit; at 1 for 1 it is overpowered. — kept as you wrote it
-Q8. **Order of firing.** Cards at or below the result fire one at a time, lowest number first; a card that rolls again or raises the result lets the chain go on. Does the order ever matter to you (say, a card of yours you would want to fire later)? — assumed lowest first
-Q9. **Dice Bag's own "When dug, +1 Extra Roll"** counts as gaining an Extra Roll, so it gives 2 (it is in play when it is dug). — assumed
-Q10. **"Each Ongoing card you have"** (Patch-Up, Tool Shed, Junk Golem's cousins) counts every Ongoing card in play, the Pet included. — assumed
-Q11. **Consumables that talk about a Monster you "dig" or "take damage from"** (Caffeine, Energy Drink, Steroids, Fletching Tools, Rage Potion): you can use them while that Monster is in front of you (for Steroids, Fletching Tools and Rage Potion: once your result is high enough, and for the last two only while there is damage to take). — assumed
-Q12. **Scrap Dealer / Last Stand** may discard any Ongoing card except the Pet ("always in play"). — assumed
-Q13. **The gauntlet** starts when the Mine is empty (every card of it dug), not the moment the 9th Monster has been dug. — assumed (as in v2.7)
-Q14. **Finisher** may be used once per battle; if its extra roll defeats the Monster it is discarded, otherwise you keep it. — assumed
-Q15. **Monster names** ("Monster (set of 4)" and so on) are placeholders until you name them. — waiting for you
+## v2.7.1 — nothing waiting on you
+Settled with the owner so far: Health 10 / Extra Rolls 0 / Grit 0 at the start of a Dig; Grit may go into any roll, Extra Rolls included; Grit Caddy counts all the Grit of one roll; the Grit track is 3 and at most 3 Grit a battle (built; `DDB.rules.caps.grit`, `DDB.rules.grit.battleLimit`); 3 Grit after the roll for +1; the Pet is just another Ongoing card (counts for "each Ongoing card you have", can be discarded by Scrap Dealer, can be put under a Cloning Machine); the gauntlet starts when the Mine is empty; Monster sets are fixed damage in ascending order; the Starter Kit goes on top of the Mine; every card you use lies down for the rest of the battle, and an Extra Roll's result replaces the last; Monster names are placeholders until you name them.
 
 ---
 

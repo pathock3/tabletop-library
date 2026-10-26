@@ -1053,6 +1053,13 @@ body[data-mode=play] { background: radial-gradient(130% 75% at 50% -10%, #74401e
 #play .tableau > * + .tcard.done { margin-left: calc(var(--cb) * 15px + var(--ov)); }          /* (a card lying on its side keeps the overlap of the row) */
 @keyframes firecard { 0% { transform: none; box-shadow: none; } 28% { transform: translateY(-18px) scale(1.07); box-shadow: 0 0 0 4px var(--accent), 0 0 26px 8px rgba(255,177,59,.75); } 62% { transform: translateY(-18px) scale(1.07); box-shadow: 0 0 0 4px var(--accent), 0 0 26px 8px rgba(255,177,59,.75); } 100% { transform: rotate(90deg) scale(.8); box-shadow: none; } }
 #play .tcard.firenow { animation: firecard .7s ease-in-out backwards; animation-delay: calc(var(--k, 0) * .5s); z-index: 3; }
+#play .chip.useall { min-height: 48px; padding: 6px 20px; border-radius: 16px; border: 3px solid #e9d4ff; background: linear-gradient(180deg, #a15be0, #6d2fb0); color: #fff; font-size: 18px; font-weight: 900; box-shadow: 0 5px 0 #3b1766, 0 10px 18px rgba(0,0,0,.4); }
+#play .chip.useall:active { transform: translateY(3px); box-shadow: 0 2px 0 #3b1766; }
+#play .lbc.pledgeable { cursor: pointer; border-color: var(--accent); animation: pulse 1.4s ease-in-out infinite; }
+#play .pledgerow { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }
+#play .pledgebtn { min-height: 48px; padding: 6px 18px; border-radius: 14px; border: 3px solid #ffe3b0; background: linear-gradient(180deg, #ffb13b, #d9780f); color: #1c1410; font-size: 18px; font-weight: 900; box-shadow: 0 4px 0 #7a3f06; }
+#play .pledgebtn:active { transform: translateY(3px); box-shadow: 0 1px 0 #7a3f06; }
+#play .pledgenote { text-align: center; font-size: 14px; font-weight: 800; color: var(--dim); }
 </style>
 </head>
 <body>
@@ -1257,6 +1264,9 @@ const DDB = {
     { id: "ON-74", name: "Trash Compactor", type: "Ongoing", number: null, deck: "Booster", count: 1, text: "Any time, discard any of your unused Consumables for +1 {heart} each" },
     { id: "ON-75", name: "Recycler", type: "Ongoing", number: null, deck: "Booster", count: 1, text: "Whenever you discard a Consumable, +1 {grit}" },
     { id: "CO-35", name: "Comeback Kit", type: "Consumable", number: null, deck: "Booster", count: 1, text: "Discard for +2 {heart}, then put this card on the bottom of your Mine" },
+    { id: "ON-76", name: "Bargain Badger", type: "Ongoing", number: null, deck: "Booster", count: 1, text: "When dug, +1 {grit}. After you roll, 2 {grit} gives +1 to your result instead of 3" },
+    { id: "ON-77", name: "Encore Parrot", type: "Ongoing", number: null, deck: "Booster", count: 1, text: "Once per battle, untap all your Ongoing cards" },
+    { id: "CO-36", name: "Refresh Elixir", type: "Consumable", number: null, deck: "Booster", count: 1, text: "Discard to untap all your Ongoing cards" },
   ],
   // Card types (v2.7 Rules, "Card types"): colour, icon, and a second cue (pattern) so no type depends on colour alone.
   // (v2.7.1: Ongoing gold, Consumable green, Immediate purple, Treasure (Geode) blue, Monster red. There is no Power type: an Ongoing card with a number fires when the roll reaches it.)
@@ -1304,7 +1314,7 @@ const DDB = {
     survivedGems: 1, geodeGems: 1,
     beyond: { firstDamage: 8, maxDamage: 99, gems: 0 },  // the gauntlet, after all 9 Monsters of the Mine: 8, then +1 for each Monster, worth no Loot (v2.7.1)
     kitSizes: [1, 2, 2, 3, 3],                           // Round tracker: Starter Kit cards per round (owner)
-    pledges: false,                                      // owner: the app has no pledging; your live marker simply follows every Monster you survive (the engine still knows pledges)
+    pledges: true,                                       // v2.7.1: you pledge on the Leaderboard (your live marker waits at Start until you do); the final round, where nobody banks, has no pledge: the marker follows you
     soloKit: 3,                                          // Starter Kit size offered in the solo prototype (the round tracker's round 1 is 1)                              // Round tracker: Starter Kit cards per round (testing)
     maxChain: 6,                                         // safety limit on effects that trigger effects
     rulings: {                                           // each one is a question in QUESTIONS.md; change the value to change the rule
@@ -1449,6 +1459,8 @@ const DDB = {
       ['compactor',  /^Any time, discard any of your unused Consumables for \+(\d+) \{heart\} each$/],
       ['timeWizard', /^When you dig an Immediate card, you may shuffle it back into your Mine instead$/],
       ['discardSelf', /^Any time, discard this for \+(\d+) \{(grit|extraroll|heart)\}$/],
+      ['afterRate',  /^After you roll, (\d+) \{grit\} gives \+1 to your result instead of \d+$/],
+      ['untapAll',   /^Once per battle, untap all your Ongoing cards$/],
       ['whenDug',    /^When dug, (.+)$/],
     ],
     events: [                                            // what comes after "Whenever"
@@ -1506,6 +1518,7 @@ const DDB = {
       ['timeTurner',   /^Discard to move an Immediate card from your discard pile to the top of your Mine$/],
       ['unstable',     /^If your roll is 1-2, discard to make it a (\d+)$/],
       ['petDefeatGain', /^When your Pet defeats a Monster, discard for ((?:\+\d+ \{(?:heart|grit|extraroll)\})(?:(?:, | and )(?:\+\d+ \{(?:heart|grit|extraroll)\}))*)$/],
+      ['untapAll',     /^Discard to untap all your Ongoing cards$/],
       ['defeatGain',   /^When you defeat a Monster, discard for ((?:\+\d+ \{(?:heart|grit|extraroll)\})(?:(?:, | and )(?:\+\d+ \{(?:heart|grit|extraroll)\}))*)$/],
     ],
   },
@@ -1562,9 +1575,9 @@ const Engine = (() => {
 
    A battle: a Monster is dug (phase "before") -> you may spend Grit before the roll (plan it, 1 Grit = +1) and use "before any roll" Consumables ->
    you roll (phase "after"): the result is the die plus Grit plus the cards' bonuses, never the bare die -> every upright numbered Ongoing card at or below the result
-   fires, lowest number first, one at a time (its effect, then it is tapped) until nothing new fires -> you may spend Grit (3 = +1 to the result; cards it reaches fire),
-   take an Extra Roll (the best result so far counts; tapped cards stay tapped), or use Consumables -> you face the Monster: damage minus damage markers.
-   After the battle every card is untapped and the markers go away.
+   is powered up: you tap the ones you want (its effect, then it lies down; a card that lies down cannot be used again in this battle) -> you may spend Grit (3 = +1 to the result),
+   take an Extra Roll (the new roll is your result; tapped cards stay tapped, and the roll powers up the cards that are still upright), or use Consumables -> you face the Monster:
+   damage minus damage markers. After the battle every card is untapped and the markers go away.
    ===================================================================== */
 const Dig = (() => {
   const R = DDB.rules, P = DDB.phrases, RL = R.rulings, G = R.grit;
@@ -1672,6 +1685,8 @@ const Dig = (() => {
         case 'scrapDealer': o.actions.push({ op: 'scrap', n: n(1), res: RESNAME[m[2]] }); break;
         case 'compactor': o.actions.push({ op: 'compactor', n: n(1) }); break;
         case 'timeWizard': o.flags.timeWizard = true; break;
+        case 'afterRate': o.flags.afterRate = n(1); break;
+        case 'untapAll': o.actions.push({ op: 'untapAll' }); break;
         case 'discardSelf': o.actions.push({ op: 'discardSelf', n: n(1), res: RESNAME[m[2]] }); break;
       }
     }
@@ -1821,12 +1836,12 @@ const Dig = (() => {
       case 'halve': if (f) { f.halve = true; log(st, 'effect', `${src}: this Monster deals half {damage}`); } break;
       case 'defeat': if (f) { f.defeat = true; if (ctx.pet) f.byPet = true; log(st, 'effect', `${src}: the Monster is defeated`); } break;
       case 'noDamage': if (f) { f.noDamage = true; log(st, 'effect', `${src}: you take no damage`); } break;
-      case 'falcon': {                                         // "Roll again": a roll like an Extra Roll (a card rolls it, so no Grit goes into it): if it beats your result, cards it reaches fire
+      case 'falcon': {                                         // "Roll again": a roll like an Extra Roll (a card rolls it, so no Grit goes into it): it is your result now, and it powers up the cards that are still upright
         if (!f) break;
-        const d = rollDie(st), v = rollValue(st, f, d, 0, {}).total;
+        const d = rollDie(st), rv = rollValue(st, f, d, 0, {}, false), v = rv.total;
         log(st, 'roll', `${src}: rolls again — ${d} → ${v}`);
+        runDeferred(st); f.rollFired = []; f.die = d; f.lastDie = d; f.rolls++; f.result = v; f.parts = rv.parts;
         if (v >= e.a) { f.defeat = true; log(st, 'effect', `${src}: ${v} is ${e.a} or more — the Monster is defeated`); } else log(st, 'effect', `${src}: ${v} is not enough`);
-        if (v > f.result) { f.result = v; log(st, 'effect', `${src}: your result is now ${v}`); }
         break;
       }
       case 'burnout': {                                       // right after it fires (never otherwise, never down): up, and no further than its max
@@ -2001,7 +2016,7 @@ const Dig = (() => {
     if (opt.autoDefeat) { fire(st, 'digMonster', { damage: dmg }, 1); f.defeat = true; log(st, 'effect', `The Monster is defeated without a roll`); if (!over(st)) finishFight(st, true); st.fight = over(st) ? null : prev; return; }
     fire(st, 'digMonster', { damage: dmg }, 1);
     if (over(st)) return;
-    if (st.flags.clover !== undefined) { f.fixed = st.flags.clover; delete st.flags.clover; f.phase = 'after'; f.result = f.fixed; f.parts = [{ label: 'Fixed', v: f.fixed }]; log(st, 'roll', `No roll: your result is ${f.fixed}`); chain(st); }
+    if (st.flags.clover !== undefined) { f.fixed = st.flags.clover; delete st.flags.clover; f.phase = 'after'; f.result = f.fixed; f.parts = [{ label: 'Fixed', v: f.fixed }]; log(st, 'roll', `No roll: your result is ${f.fixed}`); }
   }
   // What a roll adds up to: the die (or dice), the Grit you spent, the cards' bonuses, then what cards change the result into. Never the bare die.
   function modsTotal(st, f) {
@@ -2054,20 +2069,22 @@ const Dig = (() => {
   function spentOnRoll(st, f) {                                // "Whenever you spend 3+ Grit on one roll": once a roll's Grit reaches the number, the watchers hear of it
     for (const o of st.ongoing) for (const w of compile(o).ongoing.watchers) if (w.ev === 'spendGrit' && f.rollSpent >= w.min && !(f.caddy || (f.caddy = {}))[o.uid + ':' + f.rolls]) { f.caddy[o.uid + ':' + f.rolls] = true; run(st, [w.react], { src: o, depth: 0 }); }
   }
-  // After the roll: 3 Grit is +1 to the result (cards it now reaches fire).
+  // After the roll: 3 Grit is +1 to the result (the cards it now reaches are powered up); a card can make it 2.
+  const gritAfterCost = st => { const r = flag(st, 'afterRate'); return r === undefined ? G.after : Math.min(G.after, r); };
   function spendGrit(st, steps = 1) {
-    const f = st.fight; if (!f || f.phase !== 'after' || over(st) || f.fixed !== null && false) return false;
-    const cost = steps * G.after; if (steps < 1 || cost > gritLeft(st, f)) return false;
+    const f = st.fight; if (!f || f.phase !== 'after' || over(st)) return false;
+    const cost = steps * gritAfterCost(st); if (steps < 1 || cost > gritLeft(st, f)) return false;
     st.grit -= cost; f.spent += cost; f.rollSpent += cost;
     f.result += steps; f.parts = [...f.parts, { label: 'Grit after', v: steps }];
     log(st, 'effect', `You spend ${cost} {grit}: +${steps} to your result → ${f.result}`);
-    spentOnRoll(st, f); chain(st); return true;
+    spentOnRoll(st, f); return true;
   }
-  function canSpendGrit(st) { const f = st.fight; return !!f && !over(st) && f.phase === 'after' && gritLeft(st, f) >= G.after; }
+  function canSpendGrit(st) { const f = st.fight; return !!f && !over(st) && f.phase === 'after' && gritLeft(st, f) >= gritAfterCost(st); }
   // ---- rolling ----
   function roll(st) {
     if (!can(st).roll) return false;
     const f = st.fight, first = f.rolls === 0 && !f.again;
+    if (f.deferred.length) runDeferred(st);          // what was waiting for the other cards of the last roll happens now
     f.rollSpent = 0;
     const boost = planBoost(st, f);
     if (f.plan > 0) { st.grit -= f.plan; f.spent += f.plan; f.rollSpent = f.plan; log(st, 'effect', `You spend ${f.plan} {grit} before the roll: +${boost}`); }
@@ -2082,11 +2099,9 @@ const Dig = (() => {
     applyRoll(st, f, rv);
     return true;
   }
-  // A roll (or an effect that rolls) has a value: if it beats your best, that is your result and the cards up to it fire.
+  // A roll has a value: that is your result now (an Extra Roll does not keep the best one), and the cards that are still upright and at or below it are powered up.
   function applyRoll(st, f, rv) {
-    f.lastParts = rv.parts; f.lastTotal = rv.total;
-    if (rv.total > f.result) { f.result = rv.total; f.parts = rv.parts; chain(st); }
-    else log(st, 'effect', `${rv.total} does not beat your result of ${f.result}: it stays`);
+    f.result = rv.total; f.parts = rv.parts; f.lastTotal = rv.total;
     afterRoll(st, f);
   }
   function afterRoll(st, f) {                                // free Extra Rolls from Ongoing cards that look at the result
@@ -2105,25 +2120,60 @@ const Dig = (() => {
   // For the AI and tests: an Extra Roll and the roll at once, with `grit` Grit put into it.
   function rerollNow(st, grit = 0, opt = {}) { if (!reroll(st, opt)) return false; if (st.fight && st.fight.phase === 'before') { planGrit(st, grit); roll(st); } return true; }
 
-  // ---------------- the chain: the cards the result reaches fire, one at a time ----------------
-  const upright = st => { const f = st.fight; return st.line.filter(e => !e.tapped && e.at <= f.result).sort((a, b) => a.at - b.at || st.line.indexOf(a) - st.line.indexOf(b))[0] || null; };
-  const needsFinal = effs => effs.some(e => (e.op === 'gainPer' && e.per === 'otherTriggers') || (e.op === 'if' && e.cond && e.cond.noOther) || (e.op === 'seq' && needsFinal(e.list)));
-  function fireEntry(st, e) {
-    const f = st.fight, effs = compile(e.card).effects;
-    e.tapped = true; f.fired.push(e); f.rollFired.push(e);
-    log(st, 'roll', `${e.card.name} (${e.at}) fires`, { card: e.card.uid });
-    if (needsFinal(effs)) f.deferred.push(e);
-    else for (let k = 0; k < timesE(e) && !over(st); k++) run(st, effs, { src: e.card, depth: 0, pet: !!e.pet });
-    if (!over(st)) fire(st, 'triggers', { n: f.rollFired.length }, 1);
-  }
-  function chain(st) {
-    const f = st.fight; if (!f) return;
-    for (let guard = 0; guard < 200 && st.fight === f && !over(st); guard++) {
-      const e = upright(st); if (!e) break;
-      fireEntry(st, e);
+  // ---------------- using the cards the result reaches ----------------
+  // A card is powered up when it is upright and its number is at or below your result. It is OFFERED when everything it asks for is true right now:
+  // "If you have 4 {heart} or less, ..." does nothing at 7 {heart}, so it waits (still upright) for a time when it does.
+  const needHeart = (st, effs) => {                                   // the most {heart} you may have for this card to do anything, or null when it asks nothing of the kind (or is met)
+    let need = null;
+    for (const e of effs) {
+      if (e.op === 'seq') { const n = needHeart(st, e.list); if (n === null) return null; need = n; continue; }
+      if (e.op === 'if' && e.cond && e.cond.heartAtMost !== undefined && st.heart > e.cond.heartAtMost) { need = e.cond.heartAtMost; continue; }
+      return null;                                                    // some effect has no such condition: the card does something
     }
-    if (st.fight === f && !over(st) && f.deferred.length) runDeferred(st);
+    return need;
+  };
+  const unmetFor = (st, entry) => needHeart(st, compile(entry.card).effects);
+  // A card with nothing left to do is not offered: one that only softens the damage once there is no damage left to take, one that only defeats the Monster once it is defeated,
+  // one that only heals you at full Health, one that only gives what the track is already full of.
+  const flatOps = effs => effs.flatMap(e => e.op === 'seq' ? flatOps(e.list) : [e]);
+  const heals = e => (e.op === 'list' && e.items.every(it => !it.lose && it.res === 'heart')) || e.op === 'gainHalf' || e.op === 'gainDmg' || (e.op === 'gainPer' && e.res === 'heart');
+  function pointless(st, entry) {
+    const f = st.fight, effs = flatOps(compile(entry.card).effects), ops = effs.map(e => e.op);
+    if (!ops.length) return false;
+    if (effs.every(e => e.op === 'if' && e.cond.dmgAtMost !== undefined && f.damage > e.cond.dmgAtMost)) return true;          // "If this Monster's damage is 3 or less": it is not
+    if (st.heart >= R.caps.heart && effs.every(heals)) return true;
+    if (effs.every(e => e.op === 'list' && e.items.every(it => !it.lose && st[it.res] >= R.caps[it.res]))) return true;
+    const soften = ['mark', 'markPer', 'halve', 'noDamage', 'survive1'];
+    if (f.defeat) return ops.every(o => soften.includes(o) || o === 'defeat');
+    return previewDamage(st) === 0 && ops.every(o => soften.includes(o));
+  }
+  // A card that only saves you from BOOM (Lucky Cricket) is never tapped by you: it works by itself, at the moment the damage would knock you out.
+  const autoOnly = e => { const ops = flatOps(compile(e.card).effects).map(x => x.op); return ops.length > 0 && ops.every(o => o === 'survive1'); };
+  function eligible(st, withAuto) {
+    const f = st.fight; if (!f || f.phase !== 'after' || over(st)) return [];
+    return st.line.filter(e => !e.tapped && e.at <= f.result && unmetFor(st, e) === null && !pointless(st, e) && (withAuto || !autoOnly(e))).sort((a, b) => a.at - b.at || st.line.indexOf(a) - st.line.indexOf(b));
+  }
+  // Effects that need to know which OTHER cards were used ("for each other card that triggers", "if no other card triggers") wait until you have chosen.
+  const needsFinal = effs => effs.some(e => (e.op === 'gainPer' && e.per === 'otherTriggers') || (e.op === 'if' && e.cond && e.cond.noOther) || (e.op === 'seq' && needsFinal(e.list)));
+  // Use a card: it does its thing (twice with a Cloning Machine under it) and lies down until the battle is over.
+  function trigger(st, entry, hold) {
+    const f = st.fight; if (!f || over(st) || !eligible(st, true).includes(entry)) return false;
+    const effs = compile(entry.card).effects;
+    entry.tapped = true; f.fired.push(entry); f.rollFired.push(entry);
+    log(st, 'roll', `You use ${entry.card.name} (${entry.at})${needsFinal(effs) ? ' — it counts the other cards once you have chosen' : ''}`, { card: entry.card.uid });
+    if (needsFinal(effs)) f.deferred.push(entry);
+    else for (let k = 0; k < timesE(entry) && !over(st) && st.fight === f; k++) run(st, effs, { src: entry.card, depth: 0, pet: !!entry.pet });
+    if (!over(st) && st.fight === f) fire(st, 'triggers', { n: f.rollFired.length }, 1);
+    if (!hold && st.fight === f && !over(st) && f.deferred.length && !eligible(st).length) runDeferred(st);          // no other card can be used any more: "if no other card triggers" is settled
     if (st.fight === f && !over(st) && f.finisher && f.defeat) { discardCons(st, f.finisher); f.finisher = null; }
+    return true;
+  }
+  const triggerFully = trigger;
+  function triggerAll(st) {                                // the order a hurried player would use: lowest number first, again and again while a card raises the result
+    const f = st.fight;
+    for (let n = 0; n < 6 && st.fight && !over(st); n++) { const m = mayUse(st); if (!m.length) break; useMod(st, m[0]); }          // (what you may change comes first: a changed result can reach more cards)
+    for (let n = 0; n < 60 && st.fight === f && !over(st); n++) { const el = eligible(st); if (!el.length) break; trigger(st, el[0], true); }
+    if (st.fight === f && f && f.deferred.length && !over(st)) runDeferred(st);
   }
   function runDeferred(st) {
     const f = st.fight; const list = f.deferred.splice(0);
@@ -2174,6 +2224,7 @@ const Dig = (() => {
       case 'unstable': return after(st) && f.fixed === null && f.result <= 2;
       case 'petDefeatGain': return inFight(st) && st.fight.defeat && st.fight.byPet;
       case 'defeatGain': return inFight(st) && st.fight.defeat;
+      case 'untapAll': return inFight(st) && st.line.some(e => e.tapped);
     }
     return false;
   }
@@ -2214,7 +2265,7 @@ const Dig = (() => {
         if (f.result >= ab.min) {
           const want = opt.die === undefined ? R.die : clamp(Math.round(opt.die), 1, R.die), rv = rollValue(st, f, want, 0, {}, false);
           log(st, 'effect', `${src}: you set the die to ${want} → ${rv.total}`); f.die = want; f.lastDie = want;
-          if (rv.total > f.result) { f.result = rv.total; f.parts = rv.parts; chain(st); }
+          f.result = rv.total; f.parts = rv.parts;
         } else gain(st, 'grit', ab.items[0].n, src);
         break;
       }
@@ -2224,12 +2275,14 @@ const Dig = (() => {
       case 'vial': putMarkers(st, Math.ceil(f.result / 2), src); break;
       case 'scanner': gain(st, 'grit', ab.a, src); apply(st, { op: 'look', n: ab.b }, ctx); break;
       case 'timeTurner': { const i = opt.pick !== undefined ? st.discard.findIndex(x => x.uid === opt.pick && x.type === 'Immediate') : lastIndex(st.discard, x => x.type === 'Immediate'); if (i >= 0) { const [x] = st.discard.splice(i, 1); st.mine.unshift(x); st.known = Math.min(st.mine.length, st.known + 1); log(st, 'effect', `${src}: ${x.name} goes on top of your Mine`); } break; }
-      case 'unstable': f.result = ab.a; f.parts = [...f.parts, { label: 'Made a', v: ab.a, set: true }]; log(st, 'effect', `${src}: your roll becomes a ${ab.a}`); chain(st); break;
+      case 'untapAll': untapAll(st, src); break;
+      case 'unstable': f.result = ab.a; f.parts = [...f.parts, { label: 'Made a', v: ab.a, set: true }]; log(st, 'effect', `${src}: your roll becomes a ${ab.a}`); break;
     }
     if (discard && st.cons.includes(c)) discardCons(st, c);
     refreshPet(st);
     return true;
   }
+  function untapAll(st, src) { let n = 0; for (const e of st.line) if (e.tapped) { e.tapped = false; n++; } log(st, 'effect', `${src}: ${n} card${n === 1 ? '' : 's'} stand${n === 1 ? 's' : ''} up again`); }
   // ---- Ongoing cards with an "any time" ability ----
   function actions(st) {
     const out = [];
@@ -2239,6 +2292,7 @@ const Dig = (() => {
       else if (ab.op === 'scrap') out.push({ card: o, ab });
       else if (ab.op === 'compactor') { if (st.cons.length) out.push({ card: o, ab }); }
       else if (ab.op === 'discardSelf') out.push({ card: o, ab });
+      else if (ab.op === 'untapAll') { const f = st.fight; if (f && st.line.some(e => e.tapped) && !(f.untapUsed || []).includes(o.uid)) out.push({ card: o, ab }); }
     }
     return out;
   }
@@ -2248,8 +2302,9 @@ const Dig = (() => {
     const a = found[0], ab = a.ab, src = c.name;
     if (ab.op === 'workbench') { if (a.dir === 'g2e') { st.grit -= ab.g; gain(st, 'reroll', ab.e, src); } else { st.reroll -= ab.e2; gain(st, 'grit', ab.g2, src); } return true; }
     if (ab.op === 'discardSelf') { removeOngoing(st, c); gain(st, ab.res, ab.n, src); return true; }
+    if (ab.op === 'untapAll') { (st.fight.untapUsed || (st.fight.untapUsed = [])).push(c.uid); untapAll(st, src); return true; }
     if (ab.op === 'scrap') {
-      const mine = (opt.pick || []).map(u => allOngoing(st).find(x => x.uid === u)).filter(x => x && !isPet(st, x));
+      const mine = (opt.pick || []).map(u => allOngoing(st).find(x => x.uid === u)).filter(Boolean);          // (the Pet is just another Ongoing card)
       if (!mine.length) return false;
       for (const x of mine) { removeOngoing(st, x); gain(st, ab.res, ab.n, src); }
       return true;
@@ -2263,7 +2318,6 @@ const Dig = (() => {
     return false;
   }
   const allOngoing = st => [...st.line.map(e => e.card), ...st.ongoing];
-  const isPet = (st, c) => !!st.pet && st.pet === c;
   function removeOngoing(st, c) {
     const e = entryOf(st, c); if (e) st.line.splice(st.line.indexOf(e), 1);
     const i = st.ongoing.indexOf(c); if (i >= 0) st.ongoing.splice(i, 1);
@@ -2281,8 +2335,8 @@ const Dig = (() => {
   function useMod(st, o) {
     const f = st.fight; if (!f || !mayUse(st).includes(o)) return false;
     const t = compile(o).ongoing.transforms.find(x => x.may); f.used.push(o.uid);
-    f.result = Math.max(f.result, t.to); f.parts = [...f.parts, { label: o.name, v: t.to, set: true }];
-    log(st, 'roll', `You use ${o.name}: your result is now ${f.result}`); chain(st); return true;
+    f.result = t.to; f.parts = [...f.parts, { label: o.name, v: t.to, set: true }];
+    log(st, 'roll', `You use ${o.name}: your result is now ${f.result}`); return true;
   }
   // The most the next card you dig could do to you: the next Monster of each set you still have in the Mine; with the Mine known on top, only that card; at the bottom, the gauntlet.
   function maxNextDamage(st) {
@@ -2306,6 +2360,7 @@ const Dig = (() => {
   function face(st) {
     if (!can(st).face) return false;
     const f = st.fight;
+    runDeferred(st); if (over(st)) return true;
     if (!f.faced && !f.defeat) f.faced = true;
     let dmg = previewDamage(st);
     if (!f.defeat && dmg >= st.heart && f.surviveAt === null && anyFlag(st, 'panic') && !st.panicUsed && f.fixed === null) {
@@ -2329,6 +2384,7 @@ const Dig = (() => {
       endBattle(); fire(st, 'defeat', {}, 1); return;
     }
     let take = 0;
+    if (dmg >= st.heart && dmg > 0 && f.surviveAt === null) { const lc = eligible(st, true).find(autoOnly); if (lc) trigger(st, lc, true); }          // Lucky Cricket: it would have been BOOM, so it works (no tap from you)
     if (dmg > 0) {
       take = dmg;
       if (take >= st.heart && f.surviveAt !== null) { take = st.heart - f.surviveAt; log(st, 'effect', `Lucky save: you survive with ${f.surviveAt} {heart}`); }
@@ -2408,7 +2464,7 @@ const Dig = (() => {
   function score(st) { return { geodes: st.geodeGems, monsters: st.monsterGems, total: st.geodeGems + st.monsterGems, survived: st.survived }; }
   // The Leaderboard (v2.7): once you have survived as many Monsters as the Crown tracker, you may pledge your current number or 1 more.
   function canPledge(st, n) {
-    const b = st.board; if (!b || !R.pledges || st.over || st.fight || st.pending) return false;
+    const b = st.board; if (!b || !R.pledges || b.final || st.over || st.fight || st.pending) return false;
     return st.survived >= b.crown && (n === st.survived || n === st.survived + 1) && (st.pledge === null || n > st.pledge);
   }
   function pledge(st, n) { if (!canPledge(st, n)) return false; st.pledge = n; log(st, 'sys', `You pledge ${n}.`); return true; }
@@ -2440,24 +2496,24 @@ const Dig = (() => {
   // uses a Consumable that saves you, then faces the Monster. `o`: { grit: 'smart'|'none'|N, rolls: max Extra Rolls }
   function autoBattle(st, o = {}) {
     const g = o.grit === undefined ? 'smart' : o.grit;
-    for (let guard = 0; guard < 60 && st.fight && !over(st); guard++) {
+    for (let guard = 0; guard < 80 && st.fight && !over(st); guard++) {
       const f = st.fight;
       if (f.phase === 'before') {
         const want = typeof g === 'number' ? g : g === 'none' ? 0 : (f.damage >= st.heart - 2 || f.damage >= 4 ? gritLeft(st, f) : 0);
         planGrit(st, want); roll(st); continue;
       }
+      if (eligible(st).length || mayUse(st).length) { triggerAll(st); continue; }          // the cards the roll powers up are used
       const dmg = previewDamage(st);
-      if (dmg > 0 && dmg >= st.heart && can(st).gritAfter) { const need = Math.min(Math.floor(gritLeft(st, f) / G.after), 3); if (need > 0 && spendGrit(st, need)) continue; }
+      if (dmg > 0 && dmg >= st.heart && can(st).gritAfter) { const need = Math.min(Math.floor(gritLeft(st, f) / gritAfterCost(st)), 3); if (need > 0 && spendGrit(st, need)) continue; }
       if (dmg > 0 && (dmg >= 4 || st.heart - dmg <= 3) && can(st).reroll && (o.rolls === undefined || f.rolls <= o.rolls)) { if (reroll(st)) continue; }          // the damage would hurt: another roll
       const heal = st.heart <= 4 && usable(st).find(x => ['gain', 'gainPerCard', 'gainHalfRoll', 'ifHeartIs'].includes(x.ab.op) && (x.ab.op !== 'gain' || x.ab.items.every(i => i.res === 'heart')));
       if (heal && useConsumable(st, heal.card)) continue;
-      const may = mayUse(st)[0]; if (may && dmg > 0 && useMod(st, may)) continue;
       face(st);
     }
     return true;
   }
   const autoFace = autoBattle;
-  return { save, load, compile, supported, parseEffects, parseOngoing, parseConsumable, start, clone, can, pledge, canPledge, dig, chooseDug, roll, reroll, rerollNow, planGrit, spendGrit, gritLeft, face, autoFace, autoBattle, usable, useConsumable, actions, useAction, mayUse, planBoost: st => (st.fight ? planBoost(st, st.fight) : 0), useMod, bank, chooseClone, cloneTargets, peekBonus, maxNextDamage, dynamic, hold, score, result, makeRng, shuffle, flag, previewDamage, isNumbered, refreshPet };
+  return { save, load, compile, supported, parseEffects, parseOngoing, parseConsumable, start, clone, can, pledge, canPledge, dig, chooseDug, roll, reroll, rerollNow, planGrit, spendGrit, gritLeft, gritAfterCost, eligible, trigger, triggerFully, triggerAll, unmetFor, face, autoFace, autoBattle, usable, useConsumable, actions, useAction, mayUse, planBoost: st => (st.fight ? planBoost(st, st.fight) : 0), useMod, bank, chooseClone, cloneTargets, peekBonus, maxNextDamage, dynamic, hold, score, result, makeRng, shuffle, flag, previewDamage, isNumbered, refreshPet };
 })();
 </script>
 
@@ -2475,6 +2531,8 @@ const Board = (() => {
   function create(players, crownStart = RN.crownStart) {
     return { players: players.map(p => ({ ...p })), crownStart, spots: {}, clock: 0 };
   }
+  // Round 1: every player's best marker starts on the starred space, the Crown tracker's 2 (a best of 2 or less is nothing).
+  function seat(b) { for (const p of b.players) if (!marker(b, p.id, 'best')) claim(b, p.id, 'best', b.crownStart); }
   const row = (b, n) => b.spots[n] || (b.spots[n] = Array(Math.max(2, b.players.length * 2)).fill(null));
   // where a player's marker of this kind is: { n, rank (1 = best spot) } or null
   function marker(b, id, kind) {
@@ -2566,7 +2624,7 @@ const Board = (() => {
     remove(b, id, 'pledge');
     return { rank, tookLead: before !== id && holder(b) === id, newBest };
   }
-  return { create, marker, leader, tracker, holder, canPledge, pledge, clearPledge, note, track, wouldLead, leadN, lockIn, rankIf, finalLeader, inLead };
+  return { create, seat, marker, leader, tracker, holder, canPledge, pledge, clearPledge, note, track, wouldLead, leadN, lockIn, rankIf, finalLeader, inLead };
 })();
 </script>
 
@@ -2603,7 +2661,7 @@ const Run = (() => {
     const seed = opts.seed === undefined || opts.seed === null ? null : opts.seed >>> 0;
     const me = opts.me || ME, sh = opts.shared;
     const run = { seed, rng: Dig.makeRng(seed), dice: opts.dice ? opts.dice.slice() : null, all, rounds: opts.rounds || RN.rounds, round: 1, phase: 'prep',
-      owned: [], kit: [], trash: sh ? sh.trash : [], deck: sh ? sh.deck : [], me, shared: !!sh, board: sh ? sh.board : Board.create([{ id: me, name: 'You', color: DDB.table.playerColors[0] }]), crown: { tracker: RN.crownStart, holder: false }, best: 0, history: [], dig: null, prep: null, log: [], result: null };
+      owned: [], kit: [], trash: sh ? sh.trash : [], deck: sh ? sh.deck : [], me, shared: !!sh, board: sh ? sh.board : (b => { Board.seat(b); return b; })(Board.create([{ id: me, name: 'You', color: DDB.table.playerColors[0] }])), crown: { tracker: RN.crownStart, holder: false }, best: 0, history: [], dig: null, prep: null, log: [], result: null };
     if (!sh) run.deck = makeDeck(all, run.rng);
     sync(run);
     run.prep = newPrep(run, null); setPack(run);
@@ -2743,7 +2801,7 @@ const Run = (() => {
   // The Dig keeps a copy of the Leaderboard's numbers (tracker, what it takes to lead). Other players can change them, so refresh before asking the Dig.
   function refresh(run) {
     const st = run.dig; if (!st || !st.board) return;
-    if (!st.over && !st.boardApplied) { const n = Math.max(st.monstersDug, st.survived); if (Board.track(run.board, run.me, n)) Board.note(run.board, { r: run.round, id: run.me, k: 'move', n }); }      // the live marker moves the moment you ENCOUNTER a Monster (owner), before you have faced it
+    if (!st.over && !st.boardApplied && st.board.final) { const n = Math.max(st.monstersDug, st.survived); if (Board.track(run.board, run.me, n)) Board.note(run.board, { r: run.round, id: run.me, k: 'move', n }); }      // the final round has no pledge (nobody banks): your live marker follows you, the moment you ENCOUNTER a Monster. In the other rounds it waits at Start until you pledge.
     st.board.crown = Board.tracker(run.board); st.board.leadN = Board.leadN(run.board, run.me); st.board.lead = Board.inLead(run.board, run.me); st.board.leader = Board.finalLeader(run.board);
   }
   // The moment a Dig ends (bank or BOOM) the Board changes: a BOOM removes the Pledge marker, a bank locks the score in and may take the Crown right away.
@@ -2759,10 +2817,12 @@ const Run = (() => {
     const st = run.dig; if (!st || st.over || run.phase !== 'dig') return false;
     refresh(run);
     if (!Dig.canPledge(st, n) || !Board.canPledge(run.board, run.me, st.survived, n)) return false;
-    Board.pledge(run.board, run.me, st.survived, n); Dig.pledge(st, n);
+    Board.pledge(run.board, run.me, st.survived, n); Dig.pledge(st, n); Board.note(run.board, { r: run.round, id: run.me, k: 'move', n });
     st.board.leadN = Board.leadN(run.board, run.me);          // your spot may now be good enough to lead at the Crown's own number
     return true;
   }
+  // What a player does as soon as they may: call the number they have reached (a spot under it is theirs the moment they say it, so whoever says it first is ahead).
+  function pledgeNow(run) { const st = run.dig; return !!st && !st.over && st.survived >= 1 && pledge(run, st.survived); }
   // The final round ends when nobody still digging has to: the players left standing are all out (BOOM) but one, and that one is in the lead.
   // runs: every player's Run. Returns true if it ended someone's Dig.
   function finalCheck(runs) {
@@ -2776,7 +2836,7 @@ const Run = (() => {
     checkOver(r); return true;
   }
   const reserve = n => { uid = Math.max(uid, n + 1); };
-  return { makeDeck, setEscape, reserve, pledge, bank, finalCheck, refresh, checkOver, sync, save, load, start, rollEscape, packInfo, openPack, keepCount, toggleKeep, moveKeep, confirmKeep, continueReveal, toggleKit, moveKit, beginDig, finishDig, ladderFor, kitSize };
+  return { makeDeck, setEscape, reserve, pledge, pledgeNow, bank, finalCheck, refresh, checkOver, sync, save, load, start, rollEscape, packInfo, openPack, keepCount, toggleKeep, moveKeep, confirmKeep, continueReveal, toggleKit, moveKit, beginDig, finishDig, ladderFor, kitSize };
 })();
 
 /* =====================================================================
@@ -2796,6 +2856,7 @@ const Basic = (() => {
     if (c.choose) { if (st.pending.kind === 'clone') Dig.chooseClone(st, st.line.find(e => !e.pet) || st.line[0]); else Dig.chooseDug(st, 'resolve'); return true; }
     if (f) { Dig.autoBattle(st); return true; }
     if (st.board.final && st.board.lead) return false;                       // in the final round the leader waits; everyone else has to keep digging
+    if (!st.board.final && c.dig && Run.pledgeNow(run)) return true;          // it calls its number as soon as it may
     const confident = st.heart >= A.confidentHealth;
     if (c.bank && st.digs >= A.giveUpDigs) { Run.bank(run); return true; }          // a loop of cards (Echo and Rewind Tape) that never reaches a Monster: it stops digging
     if (c.bank && st.survived >= 1 && (st.heart <= A.bankAtHealth || st.mine.length === 0 || (!confident && st.survived >= st.board.leadN))) { Run.bank(run); return true; }          // (an empty Mine means only gauntlet Monsters are left: it stops there)
@@ -2829,6 +2890,7 @@ const Match = (() => {
     const seed = opts.seed === undefined || opts.seed === null ? null : opts.seed >>> 0, rng = Dig.makeRng(seed), colors = DDB.table.playerColors;
     const opp = opts.bots && opts.bots.length ? opts.bots : [{ id: BOT, name: 'AI', color: colors[1] }];
     const board = Board.create([{ id: HUMAN, name: 'You', color: colors[0] }, ...opp.map(o => ({ id: o.id, name: o.name, color: o.color, ai: true, ...(o.tag ? { tag: o.tag } : {}), ...(o.level ? { level: o.level } : {}), ...(o.speed ? { speed: o.speed } : {}) }))]);
+    Board.seat(board);
     const shared = { board, deck: Run.makeDeck(all, rng), trash: [] };
     const m = { seed, rng, dice: opts.dice ? opts.dice.slice() : null, all, board, deck: shared.deck, trash: shared.trash, rounds: opts.rounds || DDB.run.rounds, runs: {}, bots: opp.map(o => o.id), result: null, aiDug: 0 };
     m.runs[HUMAN] = Run.start(all, { ...opts, seed, me: HUMAN, shared });
@@ -3046,6 +3108,7 @@ const AI = (() => {
         }
         Dig.autoBattle(st, pick); return true;
       }
+      if (!ctx.final && c.dig && Run.pledgeNow(run)) return true;          // it calls its number as soon as it may
       if (ctx.final) { if (st.board.lead) return false; Dig.dig(st); return true; }          // the final round: the leader waits, everyone else has to keep digging
       if (c.bank && st.digs >= A.giveUpDigs) { Run.bank(run); return true; }          // a loop of cards (Echo and Rewind Tape) that never reaches a Monster
       if (!c.dig) return false;
@@ -3594,6 +3657,8 @@ const AI = (() => {
     });
   }
   const tagOf = (run, p) => p.id === run.me ? 'You' : (p.tag || p.name);
+  // May you call this number now? (You have reached the Crown's number, it is your number or 1 more, and it is higher than what you have already called.)
+  const canPledge = n => !!S.run && !!S.st && S.panel === 'dig' && S.run.phase === 'dig' && Dig.canPledge(S.st, n) && Board.canPledge(S.run.board, S.run.me, S.st.survived, n);
   function lbHTML(run, st) {
     const bd = run.board, tr = Board.tracker(bd), holder = Board.holder(bd), me = run.me, players = bd.players;
     const here = st && !st.over ? Math.max(st.monstersDug, st.survived) : -1;
@@ -3607,7 +3672,8 @@ const AI = (() => {
     let cells = '';
     for (let n = 0; n <= max; n++) {
       const dots = marks.filter(x => x.m.n === n).map(x => `<i class="mk ${x.k}" style="--pc:${x.p.color}" title="${A.esc(x.p.name)}: ${x.k === 'best' ? 'best Dig' : 'this Dig'}">${x.m.rank > 1 ? x.m.rank : ''}</i>`).join('');
-      cells += `<div class="lbc ${n === here ? 'here' : ''} ${n <= tr ? 'free' : ''}"><span class="ln">${n}</span><span class="lm">${!holder && n === crownCol ? '<b class="crownmk">♛</b>' : ''}${dots}</span></div>`;
+      const pl = st && canPledge(n);
+      cells += `<div class="lbc ${n === here ? 'here' : ''} ${n <= tr ? 'free' : ''} ${pl ? 'pledgeable' : ''}" ${pl ? `data-p="pledge" data-n="${n}" role="button" aria-label="Pledge ${n}"` : ''}><span class="ln">${n}</span><span class="lm">${!holder && n === crownCol ? '<b class="crownmk">♛</b>' : ''}${dots}</span></div>`;
     }
     const finalNote = run.round >= run.rounds && st && !st.over && st.board ? (st.board.lead ? ' · <b style="color:var(--accent)">you are in the lead</b>' : '') : '';          // (the final round's number to beat is told on the final-round note and the prompt, not up here)
     const hp = holder && players.find(p => p.id === holder), holdName = hp ? (holder === me ? '<b style="color:var(--accent)">you</b>' : `<b>${A.esc(hp.name)}</b>`) : '';
@@ -3854,7 +3920,7 @@ const AI = (() => {
   }
   // One round of the run, as the Leaderboard looked when it ended (every piece where its Dig stopped, with its gem or starburst); `from` is where everybody's best stood before it.
   function histAnim(run, r, k) {
-    const log = run.board.log || [], events = log.filter(e => e.r === r), from = Object.fromEntries(run.board.players.map(p => [p.id, 0]));
+    const log = run.board.log || [], events = log.filter(e => e.r === r), from = Object.fromEntries(run.board.players.map(p => [p.id, run.board.crownStart]));
     for (const e of log) if (e.r < r && e.k === 'bank') from[e.id] = Math.max(from[e.id] || 0, e.n);
     return { from, events, k: k === undefined ? events.length : k, hist: true, newBest: false, timer: null, rects: null, fx: null, fast: false };
   }
@@ -3894,7 +3960,7 @@ const AI = (() => {
   const cw = (html, v) => `<span class="cw" style="--s:var(--${v})"><span class="cs">${html}</span></span>`;
   // Cards with a number from the smallest to the biggest (lying on their side once they have fired), then your other Ongoing cards, then your Consumables: you check "what can I do?" left to right.
   function tableauHTML(st, freshUid) {
-    const f = st.fight, after = f && f.phase === 'after', total = after ? f.result : null;
+    const f = st.fight, after = f && f.phase === 'after', total = after ? f.result : null, elig = after ? Dig.eligible(st) : [];
     const usableCons = new Set(Dig.usable(st).map(x => x.card)), acts = new Set(Dig.actions(st).map(x => x.card)), mod = new Set(after ? Dig.mayUse(st) : []);
     const underOf = c => (st.under[c.uid] || []).map((m, i) => `<span class="underc" style="--k:${i}">${cw(A.playCard(m, 1), 'cb')}</span>`).join('');
     const held = st.last && !st.over && !f && (st.last.type === 'Ongoing' || st.last.type === 'Consumable') ? st.last : null;          // still lying in the dug pile: it moves up when you dig the next card
@@ -3903,14 +3969,14 @@ const AI = (() => {
     const power = st.line.filter(e => e.card !== held).map((e, i) => ({ e, i })).sort((a, b) => a.e.at - b.e.at || a.i - b.i).map(x => x.e);
     // the cards that have just fired do it one at a time: each lifts, glows, and lies down in turn (only the first time they are drawn lying down)
     if (S.fireDig !== st) { S.fireDig = st; S.fireSeen = new Set(); }
-    const fireKey = e => e.card.uid + ':' + st.monstersDug, order = f ? f.fired.filter(e => e.tapped && !S.fireSeen.has(fireKey(e))) : [];
+    const fireKey = e => e.card.uid + ':' + st.monstersDug, order = f ? f.fired.filter(e => e.tapped && !S.fireSeen.has(fireKey(e))) : [];          // (each card you use lifts, glows and lies down)
     for (const e of order) S.fireSeen.add(fireKey(e));
     const cards = power.map(e => {
       const cloning = st.pending && st.pending.kind === 'clone';
-      const fk = order.indexOf(e);
-      const cls = ['tcard', isNew(e.card) ? 'arrive' : '', cloning ? 'pick' : '', e.tapped ? 'done' : '', fk >= 0 && !window.DDB_NO_FIRE_FX ? 'firenow' : '', (total !== null && e.at > total && !e.tapped) ? 'off' : ''].join(' ');
-      const tag = (e.tapped ? '✓ ' : '') + (e.cloned ? '×2' : e.at > e.base ? '↑' + e.at : e.at < e.base ? '↓' + e.at : '');
-      return `<button class="${cls} ${(st.under[e.card.uid] || []).length ? 'hasunder' : ''}" ${fk >= 0 ? `style="--k:${fk}"` : ''} data-p="${cloning ? 'card' : 'zoom'}" data-uid="${e.card.uid}" data-id="${A.esc(e.card.id)}" aria-label="${A.esc(e.card.name)}, Ongoing ${e.at}${e.tapped ? ', fired' : ''}">${underOf(e.card)}${cw(A.playCard({ ...e.card, number: e.at }, 1), 'cb')}${tag ? `<span class="tg">${A.esc(tag)}</span>` : ''}</button>`;
+      const fk = order.indexOf(e), can = elig.includes(e), need = after && !e.tapped ? Dig.unmetFor(st, e) : null;          // reached by the result, but not everything it asks for is true
+      const cls = ['tcard', isNew(e.card) ? 'arrive' : '', cloning ? 'pick' : '', can ? 'elig' : '', e.tapped ? 'done' : '', fk >= 0 && !window.DDB_NO_FIRE_FX ? 'firenow' : '', (total !== null && e.at > total && !e.tapped) || need !== null ? 'off' : ''].join(' ');
+      const tag = (e.tapped ? '✓ ' : '') + (e.cloned ? '×2' : e.at > e.base ? '↑' + e.at : e.at < e.base ? '↓' + e.at : '') + (f && f.deferred.includes(e) ? ' waits' : '') + (need !== null ? `needs ≤${need} ♥` : '');
+      return `<button class="${cls} ${(st.under[e.card.uid] || []).length ? 'hasunder' : ''}" ${fk >= 0 ? `style="--k:${fk}"` : ''} data-p="card" data-uid="${e.card.uid}" data-id="${A.esc(e.card.id)}" aria-label="${A.esc(e.card.name)}, Ongoing ${e.at}${e.tapped ? ', used' : ''}${can ? ', you can use it now' : ''}">${underOf(e.card)}${cw(A.playCard({ ...e.card, number: e.at }, 1), 'cb')}${tag ? `<span class="tg">${A.esc(tag)}</span>` : ''}</button>`;
     });
     const ongoing = st.ongoing.filter(o => o !== held), cons = st.cons.filter(o => o !== held);
     const broke = o => false;
@@ -3954,14 +4020,15 @@ const AI = (() => {
       const rollKey = `${st.digs}:${f.rolls}:${f.die}`, shown = f.fixed !== null ? f.fixed : f.die, fresh = rollKey !== S.fx.roll;
       // the die says the roll; one line adds up the result: 7 + 2 Grit + 1 cards = 10
       const parts = f.parts || [], calc = `<div class="calc">${parts.length > 1 ? parts.map((p, i) => i === 0 ? `${p.v}` : p.set ? `→ ${p.v}` : `${p.v >= 0 ? '+' : '−'} ${Math.abs(p.v)}${p.label === 'Grit' || p.label === 'Grit after' ? ' ' + ic('grit') : ''}`).join(' ') + ' =' : 'Result'} <b>${f.result}</b></div>`;
-      const beat = f.lastTotal !== undefined && f.lastTotal < f.result && f.rolls > 1 ? `<div class="calcparts">That roll made ${f.lastTotal}: your result stays ${f.result}</div>` : '';
+      const elig = Dig.eligible(st);
+      const useAll = elig.length > 1 ? `<button class="chip useall" data-p="triggerall">Use all ${elig.length}</button>` : '';
       const fired = f.fired.length ? `<div class="fired" role="status" aria-label="${f.fired.length} card${f.fired.length === 1 ? '' : 's'} fired">${f.fired.map(e => `<i>${A.esc(e.card.name)}</i>`).join('')}</div>` : '';
-      const dmg = Dig.previewDamage(st), lethal = dmg >= st.heart && dmg > 0, savers = [Dig.mayUse(st).length ? 'use a card' : '', lethal && can.reroll ? (st.reroll > 0 ? 'use an Extra Roll' : 'spend Health on an Extra Roll') : '', lethal && can.gritAfter ? 'spend Grit' : '', lethal && Dig.usable(st).length ? 'use a Consumable' : ''].filter(Boolean), sure = savers.length > 0 && S.confirmFace;          // this would end your Dig and you can still do something: the first tap on "take damage" only asks
+      const dmg = Dig.previewDamage(st), lethal = dmg >= st.heart && dmg > 0, savers = [elig.length || Dig.mayUse(st).length ? 'use cards' : '', lethal && can.reroll ? (st.reroll > 0 ? 'use an Extra Roll' : 'spend Health on an Extra Roll') : '', lethal && can.gritAfter ? 'spend Grit' : '', lethal && Dig.usable(st).length ? 'use a Consumable' : ''].filter(Boolean), sure = savers.length > 0 && S.confirmFace;          // this would end your Dig and you can still do something: the first tap on "take damage" only asks
       const rr = can.reroll ? `<button class="rerollbtn" data-p="reroll" aria-label="Extra Roll">${ic('extraroll')}<span>Extra Roll</span><small>${st.reroll} left</small></button>` : '';
-      const gb = can.gritAfter ? `<button class="gritbtn" data-p="gritspend" aria-label="Spend ${R.grit.after} Grit for +1">${ic('grit')}<span>${R.grit.after} → +1</span><small>${st.grit} left</small></button>` : '';
+      const gb = can.gritAfter ? `<button class="gritbtn" data-p="gritspend" aria-label="Spend ${Dig.gritAfterCost(st)} Grit for +1">${ic('grit')}<span>${Dig.gritAfterCost(st)} → +1</span><small>${st.grit} left</small></button>` : '';
       const die = `<span class="deckdie"><span class="dieb rollbtn still">${d10(fresh ? '' : shown, fresh ? 'fx-tumble' : '', shown)}</span></span>`;
       const take = f.defeat ? '' : `<button class="takedmg ${lethal ? 'lethal' : ''} ${sure ? 'sure' : ''} ${fresh ? 'waitroll' : ''}" data-p="face">${sure ? `You can still ${savers.join(' or ')}.<br>Tap again to take ${dmg} ${ic('damage')}` : dmg ? `Take ${dmg} ${ic('damage')}` : `Take 0 ${ic('damage')}`}</button>`;          // (a defeated Monster needs no tap: dig on, or bank)
-      return { die, html: `<div class="action">${calc}${beat}${fired}<div class="astack">${take}<div class="abtns">${rr}${gb}</div></div></div>` };
+      return { die, html: `<div class="action">${calc}${fired}${useAll}<div class="astack">${take}<div class="abtns">${rr}${gb}</div></div></div>` };
     }
     if (st.pending && st.pending.kind === 'dug') {
       const p = st.pending;
@@ -3973,9 +4040,11 @@ const AI = (() => {
     const lastRound = !!(S.run && st.board && st.board.final);
     const myBest = S.run ? (Board.marker(S.run.board, S.run.me, 'best') || { n: 0 }).n : 0, past = lastRound && st.board.lead && Math.max(st.monstersDug, st.survived) > myBest;          // in the last round your job is to get one past your best; only then may you wait and speed the others up
     const say = lastRound ? (st.board.allOut ? 'You won! Keep digging to push your score higher, or see the result.' : st.board.lead ? (past ? `You are in the lead with ${(leaderLine() || {}).n}. Keep digging to push it higher, or wait to see if everyone else goes BOOM.` : `You are in the lead with ${(leaderLine() || {}).n}. Try to get one past it.`) : leaderLine() ? `${leaderLine().name} ${leaderLine().is} in the lead with ${leaderLine().n}. Try to beat that score.` : 'The last round: nobody banks. Dig until you are in the lead.') : can.bank ? 'Tap the Mine to dig, or the Bank to keep your gems' : 'Tap the Mine to dig';
+    const pledgeNs = lastRound ? [] : [st.survived, st.survived + 1].filter(canPledge), pledgeNote = lastRound ? '' : st.pledge !== null ? `<div class="pledgenote">You have pledged ${st.pledge}: you cannot bank until you have survived that many.</div>` : '';
+    const pledgeRow = pledgeNs.length ? `<div class="pledgerow">${pledgeNs.map(n => `<button class="chip pledgebtn" data-p="pledge" data-n="${n}">Pledge ${n}</button>`).join('')}</div><div class="pledgenote">Call your number to get ahead of the others.</div>` : '';
     const holdBtn = lastRound && st.board.allOut ? `<button class="btn" data-p="hold">See the result</button>` : '';
     const ffBtn = past && aiDigging() ? `<button class="btn alt ffbtn" data-p="ff" ${S.ff ? 'disabled' : ''}>${S.ff ? 'Fast-forwarding…' : 'Fast-forward your opponents'}</button>` : '';          // you wait; this speeds the opponent up until they pass you or go BOOM
-    return { html: `<div class="action"><div class="aprompt">${say}</div>${ffBtn}${holdBtn}</div>`, die: '' };
+    return { html: `<div class="action"><div class="aprompt">${say}</div>${pledgeRow}${pledgeNote}${ffBtn}${holdBtn}</div>`, die: '' };
   }
   // ----- little things that pop. What is new since the last drawing is remembered, so each flourish plays once, on the thing that just happened. -----
   const fxOf = st => st ? { last: st.last ? st.last.uid : null, mon: st.fight ? st.fight.monster.uid : null, roll: st.fight && st.fight.phase === 'after' ? `${st.digs}:${st.fight.rolls}:${st.fight.die}` : null, gems: st.geodeGems + st.monsterGems, over: st.over } : { last: null, mon: null, roll: null, gems: 0, over: null };
@@ -4036,22 +4105,22 @@ const AI = (() => {
     return `<div class="panel helppanel"><div class="shead"><button class="chip back" data-p="closehelp">‹ Back</button><h2>How to play</h2></div><div class="scroll">
       <div class="how">
         ${card('1 · Dig', `<span class="cw hmini" style="--s:.36"><span class="cs"><span class="cardback"></span></span></span>${arrow}${mini(geo, { gem: 2 })}`, 'Tap the Mine to flip a card. Gems go in your Bank.')}
-        ${card('2 · Face the Monster', `${mini(monA, { step: 1 })}<span class="hdie">${d10(6, '')}</span>${mini(pet, { cls: 'glow' })}`, 'Tap the die. Every upright numbered card at or below your result fires, lowest first, and lies down. Survive, and take the Loot.')}
+        ${card('2 · Face the Monster', `${mini(monA, { step: 1 })}<span class="hdie">${d10(6, '')}</span>${mini(pet, { cls: 'glow' })}`, 'Tap the die. Every upright numbered card at or below your result glows: tap the ones you want, and each lies down. Survive, and take the Loot.')}
         ${card('3 · Bank or push on', `<span class="hbankpic">5 ${ic('gem')}</span>${arrow}<span class="hsafe">Safe</span>`, 'Bank to keep your gems. Health at 0 is BOOM: you lose everything.')}
       </div>
       <p class="hline">${ic('heart')} <b>Win rounds</b> to open Booster Packs and build a better Mine. Be in the lead when the last round ends.</p>
       <details class="fine"><summary>The fine print</summary><ul>
         <li>The die is a d${R.die}; Health starts at ${R.start.heart}, Extra Rolls ${R.start.reroll} (up to ${R.caps.reroll}), Grit ${R.start.grit} (up to ${R.caps.grit}). Health at 0 is BOOM.</li>
-        <li>Your <b>result</b> is the die plus the Grit you put in plus your cards' bonuses: never the bare die. Every upright card with a number at or below it fires, lowest number first, one at a time (its effect, then it lies down). A card that raises your result can fire cards it now reaches, the Pet too. After the battle every card stands up again and the markers go away.</li>
-        <li><b>Grit</b>: before you roll, each Grit you put in is +1 to that roll. After you roll, ${R.grit.after} Grit is +1 to your result and the cards it reaches fire. You can spend at most ${R.grit.battleLimit} Grit in one battle.</li>
-        <li><b>Extra Rolls</b>: spend one to roll again. Your best result so far counts, cards that have fired stay lying down, and if the new result beats your best, the cards up to it fire.</li>
+        <li>Your <b>result</b> is the die plus the Grit you put in plus your cards' bonuses: never the bare die. Every upright card with a number at or below it is powered up and glows: tap the ones you want (or "Use all"). A card you use does its thing and lies down, and cannot be used again in this battle. A card that raises your result powers up more cards, the Pet too. After the battle every card stands up again and the markers go away.</li>
+        <li><b>Grit</b>: before you roll, each Grit you put in is +1 to that roll. After you roll, ${R.grit.after} Grit is +1 to your result (a card can make it fewer). You can spend at most ${R.grit.battleLimit} Grit in one battle.</li>
+        <li><b>Extra Rolls</b>: spend one to roll again. The new roll is your result (the old one is gone), cards you have already used stay lying down, and the new result powers up the cards that are still upright.</li>
         <li>Cards that put damage on the Monster put markers on it: you take its damage minus its markers (never below 0). Damage is halved before markers are taken off.</li>
         <li>Survive a Monster from your Mine, defeated or not, and take its Loot: a gem. Gauntlet Monsters (8, then 9, 10 …) after the Mine pay no Loot.</li>
         <li>Consumables go to your play area when dug and glow when you can use them: use one once, when its text says, then it is discarded. Immediate cards do their thing when dug.</li>
         <li>Result changes apply in order: bonuses, then double, then "becomes", then "less than".</li>
         <li>"Whenever you gain" only counts when the track actually moves.</li>
         <li>The last round is a race: nobody banks. Whoever is in the lead may wait; the rest must keep digging.</li>
-        <li>Your marker on the Leaderboard moves the moment you meet a Monster. BOOM clears it.</li>
+        <li>The Leaderboard: your <b>best</b> chip (top row) is your best banked Dig and starts on 2. Your other marker waits at Start. Once you have survived as many Monsters as the Crown's number, you may <b>pledge</b> (tap the number): your own number or one more. The first to call a number gets the better spot under it. After pledging you cannot bank until you have survived that many. BOOM sends your pledge back to Start; your best stays. The final round has no pledges: your marker follows you.</li>
         <li>Your Starter Kit goes on top of the Mine in the order you tap it; every other card you own is shuffled in. A card that says "Can't Start" never goes in a Starter Kit.</li>
         <li>Monsters you are done with go in the Monster pile, never the discard.</li>
         <li>Easy, Medium and Hard dig on their own clocks (the harder, the quicker: whoever reaches a number first takes the better spot); when you are done, tap on and they finish their Digs behind the scenes; the Leaderboard then plays back what happened.</li></ul></details>
@@ -4093,7 +4162,7 @@ const AI = (() => {
       const ab = Dig.actions(st).find(x => x.card === c);
       body = `<h3>${A.esc(c.name)}</h3><p>Discard it for +${ab.ab.n} ${ic(ab.ab.res === 'reroll' ? 'extraroll' : ab.ab.res)}?</p><div class="pickbtns"><button class="btn" data-p="pickgo" data-v="go">Discard it</button><button class="btn alt" data-p="pickcancel">Not now</button></div>`;
     } else if (pk.op === 'scrap' || pk.op === 'compactor') {
-      const ab = Dig.actions(st).find(x => x.card === c).ab, pool = pk.op === 'scrap' ? [...st.line.map(e => e.card), ...st.ongoing].filter(x => x !== st.pet) : st.cons;
+      const ab = Dig.actions(st).find(x => x.card === c).ab, pool = pk.op === 'scrap' ? [...st.line.map(e => e.card), ...st.ongoing] : st.cons;
       const per = pk.op === 'scrap' ? `+${ab.n} ${ic(ab.res === 'reroll' ? 'extraroll' : ab.res)}` : `+${ab.n} ${ic('heart')}`;
       body = `<h3>${A.esc(c.name)}</h3><p>Tap the cards to discard, ${per} each.</p><div class="pickrow">${pool.map(x => mini(x, 'picktoggle', pk.sel.includes(x.uid) ? 'sel' : '')).join('')}</div><div class="pickbtns"><button class="btn" data-p="pickgo" data-v="go" ${pk.sel.length ? '' : 'disabled'}>Discard ${pk.sel.length || ''}</button><button class="btn alt" data-p="pickcancel">Not now</button></div>`;
     }
@@ -4279,7 +4348,8 @@ const AI = (() => {
       case 'finalok': S.finalSeen = S.st; S.finalHow = false; startDelays(); break;
       case 'finalhow': S.finalHow = !S.finalHow; break;
       case 'zoom': S.zoom = findCard(ds.uid); break;
-      case 'card': { const c = findCard(ds.uid); if (st && st.pending && st.pending.kind === 'clone' && c && st.line.some(x => x.card === c)) Dig.chooseClone(st, c); else S.zoom = c; break; }
+      case 'card': { const c = findCard(ds.uid), e = st && st.line.find(x => x.card === c); if (st && st.pending && st.pending.kind === 'clone' && e) Dig.chooseClone(st, c); else if (e && f && f.phase === 'after' && Dig.eligible(st).includes(e)) Dig.trigger(st, e); else S.zoom = c; break; }
+      case 'triggerall': if (st) Dig.triggerAll(st); break;
       case 'usemod': { const o = findCard(ds.uid); if (st && o) Dig.useMod(st, o); break; }
       case 'usecons': {
         const c = findCard(ds.uid), found = st ? Dig.usable(st).filter(x => x.card === c) : []; if (!found.length) { S.zoom = c; break; }
@@ -4305,12 +4375,13 @@ const AI = (() => {
       case 'gritminus': if (f && f.phase === 'before') Dig.planGrit(st, f.plan - 1); break;
       case 'gritspend': if (f) Dig.spendGrit(st, 1); break;
       case 'grit': if (f && f.phase === 'before') { const left = Dig.gritLeft(st, f); Dig.planGrit(st, f.plan >= left ? 0 : f.plan + 1); } else if (f && f.phase === 'after') Dig.spendGrit(st, 1); break;
+      case 'pledge': if (S.run) Run.pledge(S.run, Number(ds.n)); break;
       case 'showlog': S.showLog = !S.showLog; break;
       case 'log': S.showLog = true; S.gmenu = false; break;
       case 'dig': if (st) { if (st.fight && st.fight.defeat) { S.confirmFace = false; Dig.face(st); } Dig.dig(st); } break;
       case 'roll': Dig.roll(st); break;
       case 'reroll': if (f && f.phase === 'after') Dig.reroll(st); break;          // (you then put Grit into the roll if you like, and tap the die)
-      case 'face': { const dmg = Dig.previewDamage(st), cn = Dig.can(st), lethal = dmg > 0 && dmg >= st.heart; if (st && (Dig.mayUse(st).length || (lethal && (cn.reroll || cn.gritAfter || Dig.usable(st).length))) && !S.confirmFace) { S.confirmFace = true; break; } S.confirmFace = false; Dig.face(st); break; }
+      case 'face': { const dmg = Dig.previewDamage(st), cn = Dig.can(st), lethal = dmg > 0 && dmg >= st.heart; if (st && (Dig.eligible(st).length || Dig.mayUse(st).length || (lethal && (cn.reroll || cn.gritAfter || Dig.usable(st).length))) && !S.confirmFace) { S.confirmFace = true; break; } S.confirmFace = false; Dig.face(st); break; }
       case 'bank': if (st && st.fight && st.fight.defeat) { S.confirmFace = false; Dig.face(st); } if (S.run) Run.bank(S.run); else Dig.bank(st); break;
       case 'hold': Dig.hold(st); if (S.run) Run.checkOver(S.run); return act('prep', el);          // you won: no little message first, straight to the Leaderboard and then the full-screen result
       case 'heart': break;
