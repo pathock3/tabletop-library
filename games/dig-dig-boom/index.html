@@ -42,6 +42,9 @@ h2 { margin: 0 0 4px; font-size: 22px; }
 .row { display: flex; flex-wrap: wrap; gap: 16px; align-items: flex-start; }
 .cell { display: flex; flex-direction: column; gap: 4px; align-items: center; }
 .cap { font-size: 12px; color: var(--dim); }
+.cardshead { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; margin-bottom: 4px; }
+.cardshead h1 { margin: 0; }
+.cardshead .back { min-height: 44px; }
 .fan { position: relative; margin: 6px 0 4px; }
 .fan .card { position: absolute; }
 .qs { font-size: 14px; line-height: 1.45; }
@@ -55,7 +58,7 @@ summary { cursor: pointer; font-weight: 700; padding: 8px 0; }
 .card { position: relative; overflow: hidden; border-radius: 0; background: var(--ink-bg, #fff); color: #1d1712; font-family: "Avenir Next", "Helvetica Neue", Arial, system-ui, sans-serif; flex: none; }
 .card.round { border-radius: calc(var(--u) * 12.5); }
 .card .abs { position: absolute; }
-.card .paper { background: #fffaf0; }
+.card .paper { background: #fff; }
 .card .band { color: var(--on, #fff); }
 .card .name { font-weight: 800; line-height: 1; white-space: nowrap; letter-spacing: -.01em; }
 .card .name, .card .typeword { text-align: left; }
@@ -85,6 +88,7 @@ body[data-mode=play] { padding: 0; height: 100vh; height: 100dvh; overflow: hidd
 #play { height: 100%; display: flex; flex-direction: column; user-select: none; -webkit-user-select: none; -webkit-touch-callout: none; padding: calc(env(safe-area-inset-top) / var(--k, 1)) calc(env(safe-area-inset-right) / var(--k, 1)) calc(env(safe-area-inset-bottom) / var(--k, 1)) calc(env(safe-area-inset-left) / var(--k, 1)); }
 #play .pbar { display: flex; align-items: center; gap: 8px; padding: 6px 10px; flex: none; }
 #play .pbar .chip { padding: 6px 12px; font-size: 14px; }
+#play .pbar .chip[data-p=gmenu] { min-height: 52px; padding: 8px 22px; font-size: 20px; font-weight: 900; border-radius: 16px; }          /* Pause: big enough to hit without looking */
 #play .pbar .back { min-height: 44px; padding: 6px 12px 6px 8px; font-size: 14px; }
 #play .pmain { flex: 1; min-height: 0; display: grid; grid-template-columns: minmax(0, 1fr); gap: 10px; padding: 0 10px 10px; }
 #play .ptable { min-height: 0; display: flex; flex-direction: column; gap: 8px; position: relative; }
@@ -129,6 +133,13 @@ body[data-mode=play] { padding: 0; height: 100vh; height: 100dvh; overflow: hidd
 #play .btn { min-height: 56px; padding: 12px 22px; border-radius: 14px; background: var(--accent); color: #1c1410; font-weight: 900; font-size: 18px; }
 #play .btn.alt { background: var(--panel); color: var(--text); border: 2px solid var(--line); }
 #play .zoom { position: fixed; inset: 0; z-index: 36; background: rgba(0,0,0,.72); display: flex; align-items: center; justify-content: center; flex-direction: column; gap: 12px; }
+#play .skipnote { text-align: center; font-size: 15px; font-weight: 800; color: var(--dim); max-width: 300px; }
+#play .skipnote.ask { color: #ffd45e; font-size: 17px; }
+#play .zoom .monhow { max-width: 440px; padding: 12px 18px 12px 14px; border-radius: 16px; background: #2a1f18; border: 2px solid #6a4e34; color: var(--text); font-size: 16px; line-height: 1.3; }
+#play .zoom .monhow h3 { margin: 0 0 4px; font-size: 18px; }
+#play .zoom .monhow ol { margin: 0; padding-left: 22px; }
+#play .zoom .monhow li { margin: 3px 0; }
+#play .zoom .monhow .ic { width: 1.1em; height: 1.1em; vertical-align: -.2em; }
 #play .zoom .closehint { color: #fff; opacity: .75; font-size: 14px; }
 #play .zoom .warn { color: #ffb4a8; font-size: 14px; max-width: 340px; text-align: center; }
 #play .panel { position: fixed; inset: 0; z-index: 15; background: var(--bg); display: flex; flex-direction: column; padding: max(10px, env(safe-area-inset-top)) 14px 10px; }
@@ -296,7 +307,7 @@ body[data-mode=play] { background: radial-gradient(130% 75% at 50% -10%, #74401e
 #play .kitbar { display: flex; align-items: center; justify-content: center; gap: 10px; flex-wrap: wrap; }
 #play .foot .btn { min-width: 200px; }
 #play .gmenu-back { position: fixed; inset: 0; z-index: 18; background: rgba(0,0,0,.45); }
-#play .gmenu { position: fixed; z-index: 19; top: max(52px, calc(env(safe-area-inset-top) + 46px)); right: max(10px, env(safe-area-inset-right)); width: 240px; display: flex; flex-direction: column; gap: 6px; padding: 10px; border-radius: 16px; background: linear-gradient(180deg, #3d2c1f, #2a1e15); border: 2px solid #6a4e34; box-shadow: 0 14px 30px rgba(0,0,0,.55); }
+#play .gmenu { position: fixed; z-index: 19; top: max(68px, calc(env(safe-area-inset-top) + 62px)); right: max(10px, env(safe-area-inset-right)); width: 240px; display: flex; flex-direction: column; gap: 6px; padding: 10px; border-radius: 16px; background: linear-gradient(180deg, #3d2c1f, #2a1e15); border: 2px solid #6a4e34; box-shadow: 0 14px 30px rgba(0,0,0,.55); }
 #play .gmenu button { min-height: 50px; border-radius: 12px; background: rgba(255,255,255,.07); font-weight: 800; font-size: 17px; text-align: left; padding: 0 14px; }
 #play .gmenu button:active { background: rgba(255,255,255,.16); }
 @keyframes flipin { 0% { transform: perspective(700px) rotateY(88deg) scale(.8); opacity: 0; } 60% { transform: perspective(700px) rotateY(-8deg) scale(1.05); opacity: 1; } 100% { transform: none; } }
@@ -438,7 +449,7 @@ body[data-mode=play] { background: radial-gradient(130% 75% at 50% -10%, #74401e
 #play .pbar { padding-top: var(--top); }
 #play .home { padding-top: var(--top); }
 #play .libback { top: var(--top); }
-#play .gmenu { top: calc(var(--top) + 48px); }
+#play .gmenu { top: calc(var(--top) + 64px); }
 #play .panel { padding-top: var(--top); }
 #play .panel.setup { padding-top: var(--top); }
 #play .tableau, #play .mat { }
@@ -790,6 +801,7 @@ body[data-mode=play] { background: radial-gradient(130% 75% at 50% -10%, #74401e
 #play .bstack .bband::after { content: ""; position: absolute; left: 0; right: 0; bottom: 3px; border-top: 2px dashed rgba(90,61,23,.45); }
 #play .bstack .blabels .bband::after { display: none; }
 /* a piece's Dig ends: a BOOM blows it up; a bank shows what it earned and floats away */
+.fastfx .bfx, .fastfx .bfx * { animation-duration: .2s !important; }          /* Fast forward: the little effects keep up */
 .bfx { position: fixed; z-index: 60; pointer-events: none; display: flex; align-items: center; justify-content: center; }
 .bfx.ghost { border-radius: 50%; animation: bghost .55s ease-in forwards; }
 @keyframes bghost { 0% { opacity: 1; transform: scale(1); } 100% { opacity: 0; transform: scale(.2); } }
@@ -1026,7 +1038,7 @@ body[data-mode=play] { background: radial-gradient(130% 75% at 50% -10%, #74401e
 #play .gritbtn .ic { width: 28px; height: 28px; }
 #play .gritbtn small { font-size: 13px; font-weight: 800; opacity: .85; }
 #play .gritbtn:active { transform: translateY(3px); box-shadow: 0 2px 0 #6a2a05; }
-#play .tcard.cons::before { content: ""; position: absolute; inset: -3px; border-radius: 14px; border: 3px solid #2eaf68; pointer-events: none; z-index: 0; opacity: .0; }
+#play .tcard.cons::before { content: ""; position: absolute; inset: -3px; border-radius: 14px; border: 3px solid #7a3fb8; pointer-events: none; z-index: 0; opacity: .0; }
 #play .mcard.elig { outline: 4px solid var(--accent); outline-offset: 3px; border-radius: 12px; }
 #play .dugopt { min-height: 52px; font-size: 18px; font-weight: 800; padding: 6px 16px; }
 #play .dugopt small { opacity: .75; font-weight: 700; }
@@ -1064,8 +1076,8 @@ body[data-mode=play] { background: radial-gradient(130% 75% at 50% -10%, #74401e
     <filter id="prot"><feColorMatrix type="matrix" values="0.152 1.053 -0.205 0 0  0.115 0.786 0.099 0 0  -0.004 -0.048 1.052 0 0  0 0 0 1 0"/></filter>
     <!-- resource icons: each has its own SILHOUETTE as well as its colour -->
     <symbol id="i-heart" viewBox="0 0 24 24"><path d="M12 21.2S3.4 15.9 2.4 9.9C1.8 6.2 4.2 3.6 7.2 3.6c2 0 3.7 1 4.8 2.6 1.1-1.6 2.8-2.6 4.8-2.6 3 0 5.4 2.6 4.8 6.3-1 6-9.6 11.3-9.6 11.3z" fill="#e8344e" stroke="#5c0c1a" stroke-width="1.6" stroke-linejoin="round"/><path d="M6.4 8.2c.3-1.3 1.2-2 2.4-2" fill="none" stroke="#ffd0d6" stroke-width="1.6" stroke-linecap="round"/></symbol>
-    <symbol id="i-reroll" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="4.5" fill="#2eaf68" stroke="#0b4727" stroke-width="1.6"/><g fill="#fff"><circle cx="8" cy="8" r="1.7"/><circle cx="16" cy="8" r="1.7"/><circle cx="12" cy="12" r="1.7"/><circle cx="8" cy="16" r="1.7"/><circle cx="16" cy="16" r="1.7"/></g></symbol>
-    <symbol id="i-grit" viewBox="0 0 24 24"><g fill="#e8731a" stroke="#6a2a05" stroke-width="1.4" stroke-linejoin="round"><path d="M10.4 2h3.2l.6 2.6 1.9.8 2.3-1.4 2.3 2.3-1.4 2.3.8 1.9 2.6.6v3.2l-2.6.6-.8 1.9 1.4 2.3-2.3 2.3-2.3-1.4-1.9.8-.6 2.6h-3.2l-.6-2.6-1.9-.8-2.3 1.4-2.3-2.3 1.4-2.3-.8-1.9L2 13.6v-3.2l2.6-.6.8-1.9L4 5.6l2.3-2.3 2.3 1.4 1.9-.8z"/><circle cx="12" cy="12" r="3.4" fill="#ffe0b0"/></g></symbol>
+    <symbol id="i-extraroll" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="4.5" fill="#2eaf68" stroke="#0b4727" stroke-width="1.6"/><g fill="#fff"><circle cx="8" cy="8" r="1.7"/><circle cx="16" cy="8" r="1.7"/><circle cx="12" cy="12" r="1.7"/><circle cx="8" cy="16" r="1.7"/><circle cx="16" cy="16" r="1.7"/></g></symbol>
+    <symbol id="i-grit" viewBox="0 0 24 24"><g fill="#e8731a" stroke="#6a2a05" stroke-width="1.3" stroke-linejoin="round" stroke-linecap="round"><path d="M4.6 10.4V8.6a2.1 2.1 0 0 1 4.2 0 2.1 2.1 0 0 1 4.2 0 2.1 2.1 0 0 1 4.2 0 2.1 2.1 0 0 1 2.6 2v4.6c0 3.4-2.7 6.2-6.1 6.2h-2.6c-3.4 0-6.5-2.7-6.5-6.2z"/><path d="M8.8 8.6v3.6M13 8.6v3.6M17.2 8.6v3.6" fill="none"/><path d="M4.6 12.4c1.6 1.6 4.1 2.2 6.6 1.6" fill="none"/></g></symbol>
     <symbol id="i-damage" viewBox="0 0 24 24"><path d="M12 1.5l2.6 5.6 5.7-2.6-1.9 6 5.7 2.4-5.9 1.9 1.8 6-5.4-3.2L12 22.5l-1.5-5.4-5.4 3.2 1.8-6-5.9-1.9 5.7-2.4-1.9-6 5.7 2.6z" fill="#d6141f" stroke="#4a0509" stroke-width="1.5" stroke-linejoin="round"/><circle cx="12" cy="12" r="3.2" fill="#ffd0a8"/></symbol>
     <symbol id="i-gem" viewBox="0 0 24 24"><path d="M6 3.5h12l4 5.5-10 12L2 9z" fill="#2fb7e6" stroke="#0a3f66" stroke-width="1.6" stroke-linejoin="round"/><path d="M2 9h20M9 3.5L7.5 9 12 21M15 3.5L16.5 9 12 21" fill="none" stroke="#e8fbff" stroke-width="1.2" stroke-linejoin="round" opacity=".85"/></symbol>
     <!-- card type icons -->
@@ -1112,9 +1124,9 @@ const DDB = {
   cards: [
     { id: "ON-01", name: "Pet", type: "Ongoing", number: 9, deck: "Starting", count: 1, text: "Defeat the Monster. You take no {damage}." },
     { id: "TR-01", name: "Geode", type: "Treasure", number: null, deck: "Starting", count: 21, text: "1 {gem}" },
-    { id: "MO-01", name: "Monster (set of 4)", type: "Monster", number: null, deck: "Starting", count: 4, text: "{damage} 1 → 3 → 5 → 7. Loot: 1 {gem}" },
-    { id: "MO-02", name: "Monster (set of 3)", type: "Monster", number: null, deck: "Starting", count: 3, text: "{damage} 2 → 4 → 6. Loot: 1 {gem}" },
-    { id: "MO-03", name: "Monster (set of 2)", type: "Monster", number: null, deck: "Starting", count: 2, text: "{damage} 3 → 5. Loot: 1 {gem}" },
+    { id: "MO-01", name: "Monster", type: "Monster", number: null, deck: "Starting", count: 4, text: "{damage} 1 → 3 → 5 → 7. Loot: 1 {gem}" },
+    { id: "MO-02", name: "Monster", type: "Monster", number: null, deck: "Starting", count: 3, text: "{damage} 2 → 4 → 6. Loot: 1 {gem}" },
+    { id: "MO-03", name: "Monster", type: "Monster", number: null, deck: "Starting", count: 2, text: "{damage} 3 → 5. Loot: 1 {gem}" },
     { id: "ON-02", name: "Prickly Porcupine", type: "Ongoing", number: 1, deck: "Booster", count: 1, text: "Lose 1 {heart}, then +2 {grit}" },
     { id: "ON-03", name: "Unlucky Duck", type: "Ongoing", number: 1, deck: "Booster", count: 1, text: "If no other card triggers, +1 {extraroll}" },
     { id: "ON-04", name: "Gritty Gecko", type: "Ongoing", number: 2, deck: "Booster", count: 1, text: "+1 {grit}" },
@@ -1185,7 +1197,7 @@ const DDB = {
     { id: "ON-69", name: "Wrecking Ball", type: "Ongoing", number: null, deck: "Booster", count: 1, text: "Double your result against your first Monster each Dig" },
     { id: "CO-01", name: "Adrenaline Shot", type: "Consumable", number: null, deck: "Booster", count: 1, text: "If you have 1 {heart}, discard for +6 {heart}." },
     { id: "CO-02", name: "Average Potion", type: "Consumable", number: null, deck: "Booster", count: 1, text: "Before any roll, discard to just make it a 6." },
-    { id: "CO-03", name: "Beating Heart", type: "Consumable", number: null, deck: "Booster", count: 1, text: "If you would BOOM and your roll was 5+, discard to survive with 1 {heart}." },
+    { id: "CO-03", name: "Beating Heart", type: "Consumable", number: 5, deck: "Booster", count: 1, text: "If you would BOOM, discard to survive with 1 {heart}." },
     { id: "CO-04", name: "Big Swing", type: "Consumable", number: null, deck: "Booster", count: 1, text: "Before any roll, discard to double it." },
     { id: "CO-05", name: "Blast Plating", type: "Consumable", number: null, deck: "Booster", count: 1, text: "When a Monster would damage you, discard to put 4 damage on it." },
     { id: "CO-06", name: "Caffeine", type: "Consumable", number: null, deck: "Booster", count: 1, text: "When you dig a Monster with 7+ {damage}, you may discard for +4 {grit}." },
@@ -1193,12 +1205,12 @@ const DDB = {
     { id: "CO-08", name: "Confidence Booster", type: "Consumable", number: null, deck: "Booster", count: 1, text: "Discard before rolling. If your Pet defeats the Monster, +2 {extraroll}." },
     { id: "CO-09", name: "Dire Potion", type: "Consumable", number: null, deck: "Booster", count: 1, text: "If your roll is less than or equal to your {heart}, discard to roll again with +1." },
     { id: "CO-10", name: "Double Shot", type: "Consumable", number: null, deck: "Booster", count: 1, text: "Before any roll, discard to roll twice and add them together." },
-    { id: "CO-11", name: "Duct Tape", type: "Consumable", number: null, deck: "Booster", count: 1, text: "Discard to take any Consumable or Ongoing card from your discard pile, or for +2 {grit}." },
+    { id: "CO-11", name: "Duct Tape", type: "Consumable", number: null, deck: "Booster", count: 1, text: "Discard to take any Single-Use or Ongoing card from your discard pile, or for +2 {grit}." },
     { id: "CO-12", name: "Dumpster Dive", type: "Consumable", number: null, deck: "Booster", count: 1, text: "Discard for +1 {heart} for each Booster Card in your discard pile." },
     { id: "CO-13", name: "Energy Drink", type: "Consumable", number: null, deck: "Booster", count: 1, text: "When dug, +2 {grit}. When you dig a Monster with 7+ {damage}, discard for +1 {extraroll}." },
     { id: "CO-14", name: "Finisher", type: "Consumable", number: null, deck: "Booster", count: 1, text: "When your Pet doesn't defeat a Monster, you may roll once more. If that roll defeats it, discard this." },
-    { id: "CO-15", name: "Fletching Tools", type: "Consumable", number: null, deck: "Booster", count: 1, text: "When dug, +1 {grit}. When you take {damage}, if your roll was 7+, discard for +2 {extraroll}." },
-    { id: "CO-16", name: "Generator", type: "Consumable", number: null, deck: "Booster", count: 1, text: "Discard to gain any Consumable from your discard pile, or for +2 {grit}." },
+    { id: "CO-15", name: "Fletching Tools", type: "Consumable", number: 7, deck: "Booster", count: 1, text: "When dug, +1 {grit}. When you take {damage}, discard for +2 {extraroll}." },
+    { id: "CO-16", name: "Generator", type: "Consumable", number: null, deck: "Booster", count: 1, text: "Discard to gain any Single-Use card from your discard pile, or for +2 {grit}." },
     { id: "CO-17", name: "Giant Juice", type: "Consumable", number: null, deck: "Booster", count: 1, text: "Before rolling against a Monster with 7+ {damage}, discard for +3." },
     { id: "CO-18", name: "Good Fortune", type: "Consumable", number: null, deck: "Booster", count: 1, text: "Discard to take up to 2 Immediate cards from your discard pile and shuffle them into your Mine." },
     { id: "CO-19", name: "Healing Potion", type: "Consumable", number: null, deck: "Booster", count: 1, text: "Discard for +4 {heart}." },
@@ -1209,10 +1221,10 @@ const DDB = {
     { id: "CO-24", name: "Mystery Snack", type: "Consumable", number: null, deck: "Booster", count: 1, text: "Discard for {heart} equal to half your roll, rounded up." },
     { id: "CO-25", name: "Poison Dart", type: "Consumable", number: null, deck: "Booster", count: 1, text: "Discard to put 3 damage on a Monster." },
     { id: "CO-26", name: "Portable Scanner", type: "Consumable", number: null, deck: "Booster", count: 1, text: "Discard for +1 {grit} and Scan 5." },
-    { id: "CO-27", name: "Rage Potion", type: "Consumable", number: null, deck: "Booster", count: 1, text: "When you take {damage}, if your roll was 6+, discard for +1 {extraroll} and +2 {grit}." },
-    { id: "CO-28", name: "Recycling Bin", type: "Consumable", number: null, deck: "Booster", count: 1, text: "Discard for +1 {heart} for each Consumable in your discard pile, including this one." },
+    { id: "CO-27", name: "Rage Potion", type: "Consumable", number: 6, deck: "Booster", count: 1, text: "When you take {damage}, discard for +1 {extraroll} and +2 {grit}." },
+    { id: "CO-28", name: "Recycling Bin", type: "Consumable", number: null, deck: "Booster", count: 1, text: "Discard for +1 {heart} for each Single-Use card in your discard pile, including this one." },
     { id: "CO-29", name: "Shoo Spray", type: "Consumable", number: null, deck: "Booster", count: 1, text: "When dug, +2 {grit}. When you dig a card, discard to put it on the bottom of your Mine instead of resolving it." },
-    { id: "CO-30", name: "Steroids", type: "Consumable", number: null, deck: "Booster", count: 1, text: "When dug, +1 {grit}. When you dig a Monster, if your roll is 9+, you may discard for +2 {extraroll}." },
+    { id: "CO-30", name: "Steroids", type: "Consumable", number: 9, deck: "Booster", count: 1, text: "When dug, +1 {grit}. When you dig a Monster, you may discard for +2 {extraroll}." },
     { id: "CO-31", name: "Time Turner", type: "Consumable", number: null, deck: "Booster", count: 1, text: "Discard to move an Immediate card from your discard pile to the top of your Mine." },
     { id: "CO-32", name: "Unstable Explosive", type: "Consumable", number: null, deck: "Booster", count: 1, text: "If your roll is 1-2, discard to make it a 10." },
     { id: "CO-33", name: "Vial of Poison", type: "Consumable", number: null, deck: "Booster", count: 1, text: "Discard to put damage on the Monster equal to half your roll, rounded up." },
@@ -1252,23 +1264,23 @@ const DDB = {
     { id: "IM-33", name: "Wishing Well", type: "Immediate", number: null, deck: "Booster", count: 1, text: "Shuffle the top 2 Immediate cards of your discard pile back into your Mine" },
     { id: "IM-34", name: "Wormhole", type: "Immediate", number: null, deck: "Booster", count: 1, text: "Reveal cards from your Mine until you find an Immediate card. Do it, then shuffle the rest back" },
     { id: "IM-35", name: "Wrench Rat", type: "Immediate", number: null, deck: "Booster", count: 1, text: "+2 to your next roll" },
-    { id: "ON-70", name: "Junk Golem", type: "Ongoing", number: 6, deck: "Booster", count: 1, text: "Put 1 damage on the Monster for each Consumable in your discard pile" },
+    { id: "ON-70", name: "Junk Golem", type: "Ongoing", number: 6, deck: "Booster", count: 1, text: "Put 1 damage on the Monster for each Single-Use card in your discard pile" },
     { id: "ON-71", name: "Scrap Dealer", type: "Ongoing", number: null, deck: "Booster", count: 1, text: "Any time, discard any of your Ongoing cards, including this one, for +2 {grit} each" },
     { id: "ON-72", name: "Last Stand", type: "Ongoing", number: null, deck: "Booster", count: 1, text: "Any time, discard any of your Ongoing cards, including this one, for +1 {extraroll} each" },
     { id: "ON-73", name: "Time Wizard", type: "Ongoing", number: null, deck: "Booster", count: 1, text: "When you dig an Immediate card, you may shuffle it back into your Mine instead. Any time, discard this for +2 {grit}" },
-    { id: "ON-74", name: "Trash Compactor", type: "Ongoing", number: null, deck: "Booster", count: 1, text: "Any time, discard any of your unused Consumables for +1 {heart} each" },
-    { id: "ON-75", name: "Recycler", type: "Ongoing", number: null, deck: "Booster", count: 1, text: "Whenever you discard a Consumable, +1 {grit}" },
+    { id: "ON-74", name: "Trash Compactor", type: "Ongoing", number: null, deck: "Booster", count: 1, text: "Any time, discard any of your unused Single-Use cards for +1 {heart} each" },
+    { id: "ON-75", name: "Recycler", type: "Ongoing", number: null, deck: "Booster", count: 1, text: "Whenever you discard a Single-Use card, +1 {grit}" },
     { id: "CO-35", name: "Comeback Kit", type: "Consumable", number: null, deck: "Booster", count: 1, text: "Discard for +2 {heart}, then put this card on the bottom of your Mine" },
     { id: "ON-76", name: "Bargain Badger", type: "Ongoing", number: null, deck: "Booster", count: 1, text: "When dug, +1 {grit}. After you roll, 2 {grit} gives +1 to your result instead of 3" },
     { id: "ON-77", name: "Encore Parrot", type: "Ongoing", number: null, deck: "Booster", count: 1, text: "Once per battle, untap all your Ongoing cards" },
     { id: "CO-36", name: "Refresh Elixir", type: "Consumable", number: null, deck: "Booster", count: 1, text: "Discard to untap all your Ongoing cards" },
   ],
   // Card types (v2.7 Rules, "Card types"): colour, icon, and a second cue (pattern) so no type depends on colour alone.
-  // (v2.7.1: Ongoing gold, Consumable green, Immediate purple, Treasure (Geode) blue, Monster red. There is no Power type: an Ongoing card with a number fires when the roll reaches it.)
+  // (v2.7.1: Ongoing silver, Single-Use (Consumable) purple, Immediate yellow, Treasure (Geode) blue, Monster red. There is no Power type: an Ongoing card with a number fires when the roll reaches it.)
   types: {
-    Ongoing:    { icon: 't-ongoing',    color: '#f2c21b', on: '#1d1712', pattern: 'p-ongoing',    role: 'Stays in play for the Dig; a number fires it when the roll reaches it' },
-    Consumable: { icon: 't-consumable', color: '#2eaf68', on: '#ffffff', pattern: 'p-consumable', role: 'In play when dug; you choose when to use it, once' },
-    Immediate:  { icon: 't-immediate',  color: '#7a3fb8', on: '#ffffff', pattern: 'p-immediate',  role: 'Do it when dug, then discard' },
+    Ongoing:    { icon: 't-ongoing',    color: '#b9c0c9', on: '#1d1712', pattern: 'p-ongoing',    role: 'Stays in play for the Dig; a number fires it when the roll reaches it' },
+    Consumable: { icon: 't-consumable', color: '#7a3fb8', on: '#ffffff', label: 'Single-Use', pattern: 'p-consumable', role: 'In play when dug; you choose when to use it, once' },
+    Immediate:  { icon: 't-immediate',  color: '#f2c21b', on: '#1d1712', pattern: 'p-immediate',  role: 'Do it when dug, then discard' },
     Treasure:   { icon: 't-treasure',   color: '#2b86d1', on: '#ffffff', pattern: 'p-treasure',   role: 'Geodes' },
     Monster:    { icon: 't-monster',    color: '#cf2f2f', on: '#ffffff', pattern: 'p-monster',    role: 'Roll, resolve, take damage' },
   },
@@ -1290,14 +1302,14 @@ const DDB = {
     { sym: 'm-skull',   name: 'bonus skull', hot: 'rgba(235,220,255,.95)', c1: '#9a7fe0', c2: '#6d55b8', border: '#2d1f66', ink: '#150d33' },
   ],
   // {code} in Card Text -> icon
-  iconCodes: { heart: 'i-heart', grit: 'i-grit', extraroll: 'i-reroll', reroll: 'i-reroll', damage: 'i-damage', gem: 'i-gem' },          // ({reroll} is the old spelling of {extraroll})
+  iconCodes: { heart: 'i-heart', grit: 'i-grit', extraroll: 'i-extraroll', damage: 'i-damage', gem: 'i-gem' },
   // Poker-size card, in hundredths of an inch (1 unit = 0.01 in).
   screen: { designHeight: 640 },                      // the game is laid out for a screen at least this tall (CSS px); a shorter one (an iPhone on its side) gets the same layout, scaled down to fit
   card: { trimW: 250, trimH: 350, bleed: 12.5, safe: 12.5, textMax: 32, textKeep: 27 },          // textMax: the biggest effect text on a card; textKeep: it is only made smaller than this to fit a long text, or to keep lines of more than a word or two
   // ---- The rules of a Dig (v2.7 Rules tab). Numbers here are the rules; the engine (script "dig") only does what they say. ----
   rules: {
     die: 10,                                             // sides of the die (owner: a d10)
-    caps: { heart: 10, reroll: 5, grit: 3 },             // Drill tracks (v2.7.1): Health 0-10, Extra Rolls 0-5, Grit 0-3 (the Grit track is 3 long: see GRIT-EXPERIMENT.md; the sheet's {extraroll} is `reroll` in the code)
+    caps: { heart: 10, reroll: 3, grit: 3 },             // Drill tracks (v2.7.1): Health 0-10, Extra Rolls 0-3 (owner), Grit 0-3 (the Grit track is 3 long: see GRIT-EXPERIMENT.md; the sheet's {extraroll} is `reroll` in the code)
     start: { heart: 10, reroll: 0, grit: 0 },            // each track's starred space: where it is at the start of every Dig (owner: 10 / 0 / 0)
     // Grit (v2.7.1): spend it before a roll (+1 to that roll for each) or after seeing it (3 Grit = +1 to the result, and cards the result now reaches fire).
     // `battleLimit`: at most this many Grit can be spent in one battle, so Grit a card hands back mid-battle cannot be spent again and again (the refill loop: GRIT-EXPERIMENT.md).
@@ -1427,7 +1439,7 @@ const DDB = {
       ['ongoing',       /^Ongoing card you have$/],
       ['immediateInDiscardThis', /^Immediate card in your discard pile, including this one$/],
       ['immediateInDiscard',     /^Immediate card in your discard pile$/],
-      ['consumableInDiscard',    /^Consumable in your discard pile$/],
+      ['consumableInDiscard',    /^Single-Use card in your discard pile$/],
       ['survivedDig',   /^Monster you've survived this Dig$/],
     ],
     ongoing: [                                           // Ongoing cards without a number: one sentence of the text each
@@ -1451,7 +1463,7 @@ const DDB = {
       ['drone',      /^The first \{grit\} you spend before each roll gives \+(\d+)$/],
       ['workbench',  /^Any time, trade (\d+) \{grit\} for (\d+) \{extraroll\}, or (\d+) \{extraroll\} for (\d+) \{grit\}$/],
       ['scrapDealer', /^Any time, discard any of your Ongoing cards, including this one, for \+(\d+) \{(grit|extraroll)\} each$/],
-      ['compactor',  /^Any time, discard any of your unused Consumables for \+(\d+) \{heart\} each$/],
+      ['compactor',  /^Any time, discard any of your unused Single-Use cards for \+(\d+) \{heart\} each$/],
       ['timeWizard', /^When you dig an Immediate card, you may shuffle it back into your Mine instead$/],
       ['discardSelf', /^Any time, discard this for \+(\d+) \{(grit|extraroll|heart)\}$/],
       ['afterRate',  /^After you roll, (\d+) \{grit\} gives \+1 to your result instead of \d+$/],
@@ -1468,7 +1480,7 @@ const DDB = {
       ['defeat',      /^you defeat a Monster$/],
       ['spendReroll', /^you spend an? \{extraroll\}$/],
       ['spendGrit',   /^you spend (\d+)\+ \{grit\} on one roll$/],
-      ['discardConsumable', /^you discard a Consumable$/],
+      ['discardConsumable', /^you discard a Single-Use card$/],
       ['triggers',    /^(\d+)\+ cards trigger on one roll$/],
       ['rollExact',   /^you roll an? (\d+)$/],
     ],
@@ -1485,7 +1497,7 @@ const DDB = {
       ['gain',         /^Discard for ((?:\+\d+ \{(?:heart|grit|extraroll)\})(?:(?:, | and )(?:\+\d+ \{(?:heart|grit|extraroll)\}))*)$/],
       ['gainBottom',   /^Discard for (\+\d+ \{(?:heart|grit|extraroll)\}), then put this card on the bottom of your Mine$/],
       ['gainHalfRoll', /^Discard for \{heart\} equal to half your roll, rounded up$/],
-      ['gainPerCard',  /^Discard for \+(\d+) \{heart\} for each (Booster Card|Consumable) in your discard pile(, including this one)?$/],
+      ['gainPerCard',  /^Discard for \+(\d+) \{heart\} for each (Booster Card|Single-Use card) in your discard pile(, including this one)?$/],
       ['ifHeartIs',    /^If you have (\d+) \{heart\}, discard for \+(\d+) \{heart\}$/],
       ['preSet',       /^Before any roll, discard to just make it a (\d+)$/],
       ['preDouble',    /^Before any roll, discard to double it$/],
@@ -1494,13 +1506,13 @@ const DDB = {
       ['prePlusBooster', /^Before any roll, discard for \+1 for each Booster Card in your discard pile$/],
       ['confidence',   /^Discard before rolling\. If your Pet defeats the Monster, \+(\d+) \{extraroll\}$/],
       ['dire',         /^If your roll is less than or equal to your \{heart\}, discard to roll again with \+(\d+)$/],
-      ['beating',      /^If you would BOOM and your roll was (\d+)\+, discard to survive with (\d+) \{heart\}$/],
+      ['beating',      /^If you would BOOM, discard to survive with (\d+) \{heart\}$/],
       ['blast',        /^When a Monster would damage you, discard to put (\d+) damage on it$/],
       ['digMonsterGain', /^When you dig a Monster with (\d+)\+ \{damage\}, (?:you may )?discard for ((?:\+\d+ \{(?:heart|grit|extraroll)\})(?:(?:, | and )(?:\+\d+ \{(?:heart|grit|extraroll)\}))*)$/],
-      ['ductTape',     /^Discard to take any Consumable or Ongoing card from your discard pile, or for \+(\d+) \{grit\}$/],
-      ['generator',    /^Discard to gain any Consumable from your discard pile, or for \+(\d+) \{grit\}$/],
+      ['ductTape',     /^Discard to take any Single-Use or Ongoing card from your discard pile, or for \+(\d+) \{grit\}$/],
+      ['generator',    /^Discard to gain any Single-Use card from your discard pile, or for \+(\d+) \{grit\}$/],
       ['finisher',     /^When your Pet doesn't defeat a Monster, you may roll once more\. If that roll defeats it, discard this$/],
-      ['damageGain',   /^When you take \{damage\}, if your roll was (\d+)\+, discard for ((?:\+\d+ \{(?:heart|grit|extraroll)\})(?:(?:, | and )(?:\+\d+ \{(?:heart|grit|extraroll)\}))*)$/],
+      ['damageGain',   /^When you take \{damage\}, discard for ((?:\+\d+ \{(?:heart|grit|extraroll)\})(?:(?:, | and )(?:\+\d+ \{(?:heart|grit|extraroll)\}))*)$/],
       ['goodFortune',  /^Discard to take up to (\d+) Immediate cards from your discard pile and shuffle them into your Mine$/],
       ['luck',         /^After you roll, discard\. If your roll was (\d+)\+, set the die to any number\. Otherwise, \+(\d+) \{grit\}$/],
       ['coin',         /^When you roll 1-2, discard for \+(\d+) \{extraroll\}$/],
@@ -1509,7 +1521,7 @@ const DDB = {
       ['vial',         /^Discard to put damage on the Monster equal to half your roll, rounded up$/],
       ['scanner',      /^Discard for \+(\d+) \{grit\} and Scan (\d+)$/],
       ['shoo',         /^When you dig a card, discard to put it on the bottom of your Mine instead of resolving it$/],
-      ['rollGain',     /^When you dig a Monster, if your roll is (\d+)\+, you may discard for ((?:\+\d+ \{(?:heart|grit|extraroll)\})(?:(?:, | and )(?:\+\d+ \{(?:heart|grit|extraroll)\}))*)$/],
+      ['rollGain',     /^When you dig a Monster, you may discard for ((?:\+\d+ \{(?:heart|grit|extraroll)\})(?:(?:, | and )(?:\+\d+ \{(?:heart|grit|extraroll)\}))*)$/],
       ['timeTurner',   /^Discard to move an Immediate card from your discard pile to the top of your Mine$/],
       ['unstable',     /^If your roll is 1-2, discard to make it a (\d+)$/],
       ['petDefeatGain', /^When your Pet defeats a Monster, discard for ((?:\+\d+ \{(?:heart|grit|extraroll)\})(?:(?:, | and )(?:\+\d+ \{(?:heart|grit|extraroll)\}))*)$/],
@@ -1529,7 +1541,7 @@ const Engine = (() => {
   function cards() {
     return DDB.cards.map(c => ({ id: c.id, name: c.name, type: c.type, number: c.number === undefined ? null : c.number, deck: c.deck, count: c.count || 1, text: c.text, cantStart: !!c.cantStart, trigger: '', note: '' }));
   }
-  // "+1 {reroll}. When dug, +1 {heart}" -> [{t:'text',v:'+1 '},{t:'icon',v:'reroll'},...]
+  // "+1 {extraroll}. When dug, +1 {heart}" -> [{t:'text',v:'+1 '},{t:'icon',v:'extraroll'},...]
   function tokens(text, iconCodes) {
     const out = []; const re = /\{(\w+)\}/g; let last = 0, m;
     while ((m = re.exec(text))) {
@@ -1688,15 +1700,15 @@ const Dig = (() => {
     return o;
   }
   // A Consumable: what it does when dug, and each way you can use it.
-  function parseConsumable(text) {
-    const c = { dug: [], abilities: [], unsupported: [] };
+  function parseConsumable(text, number) {          // number: the roll a card with a number in its corner needs (the same rule as an Ongoing card's number)
+    const c = { dug: [], abilities: [], unsupported: [] }, min = number === null || number === undefined ? 0 : number;
     const whole = match(PH.consumable, text.replace(/\.\s*$/, '')), sentences = whole && whole.op !== 'dug' ? [text.replace(/\.\s*$/, '')] : splitSentences(text);          // (a few cards are one idea over two sentences)
     for (const s of sentences) {
       const h = match(PH.consumable, s); if (!h) { c.unsupported.push(s); continue; }
       const m = h.m;
       if (h.op === 'dug') { const e = parseSentence(m[1]); if (!e) c.unsupported.push(s); else c.dug.push(e); continue; }
-      const ab = { op: h.op, a: m[1] === undefined ? undefined : isNaN(Number(m[1])) ? m[1] : Number(m[1]), b: m[2] === undefined ? undefined : isNaN(Number(m[2])) ? m[2] : Number(m[2]), c: m[3] };
-      if (['gain', 'digMonsterGain', 'damageGain', 'rollGain', 'petDefeatGain', 'defeatGain'].includes(h.op)) ab.items = listItems(m[h.op === 'gain' ? 1 : h.op === 'petDefeatGain' || h.op === 'defeatGain' ? 1 : 2]);
+      const ab = { op: h.op, a: m[1] === undefined ? undefined : isNaN(Number(m[1])) ? m[1] : Number(m[1]), b: m[2] === undefined ? undefined : isNaN(Number(m[2])) ? m[2] : Number(m[2]), c: m[3], min };
+      if (['gain', 'digMonsterGain', 'damageGain', 'rollGain', 'petDefeatGain', 'defeatGain'].includes(h.op)) ab.items = listItems(m[h.op === 'digMonsterGain' ? 2 : 1]);
       if (h.op === 'gainBottom') ab.items = listItems(m[1]);
       if (h.op === 'coin' || h.op === 'confidence') ab.items = [{ lose: false, n: Number(m[1]), res: 'reroll' }];
       if (h.op === 'scanner') ab.items = [{ lose: false, n: Number(m[1]), res: 'grit' }];
@@ -1713,7 +1725,7 @@ const Dig = (() => {
     else if (card.type === 'Monster') { b.ladder = Engine.damageSteps(card.text); b.loot = Engine.lootOf(card.text); if (!b.ladder) b.unsupported.push(card.text); }
     else if (card.type === 'Ongoing' && isNumbered(card)) { const e = parseEffects(card.text); b.effects = e.effects; b.dug = e.dug; b.unsupported = e.unsupported; }
     else if (card.type === 'Ongoing') { b.ongoing = parseOngoing(card.text); b.dug = b.ongoing.dug; b.unsupported = b.ongoing.unsupported; }
-    else if (card.type === 'Consumable') { b.cons = parseConsumable(card.text); b.dug = b.cons.dug; b.unsupported = b.cons.unsupported; }
+    else if (card.type === 'Consumable') { b.cons = parseConsumable(card.text, card.number); b.dug = b.cons.dug; b.unsupported = b.cons.unsupported; }
     else { const e = parseEffects(card.text); b.effects = e.effects; b.dug = e.dug; b.unsupported = e.unsupported; }
     if (card.type === 'Treasure' && b.worth === null) b.unsupported.push(card.text);
     cache.set(card.id, { text: card.text, b }); return b;
@@ -2074,6 +2086,12 @@ const Dig = (() => {
     log(st, 'effect', `You spend ${cost} {grit}: +${steps} to your result → ${f.result}`);
     spentOnRoll(st, f); return true;
   }
+  // Would one more spend of Grit after the roll power up a card you cannot use now? (Otherwise the game does not suggest it.)
+  function gritUseful(st) {
+    const f = st.fight; if (!f || over(st) || f.phase !== 'after' || !canSpendGrit(st)) return false;
+    const c = clone(st), g = c.fight; if (!g || !spendGrit(c)) return false;
+    return eligible(c).length + usable(c).length + mayUse(c).length > eligible(st).length + usable(st).length + mayUse(st).length;
+  }
   function canSpendGrit(st) { const f = st.fight; return !!f && !over(st) && f.phase === 'after' && gritLeft(st, f) >= gritAfterCost(st); }
   // ---- rolling ----
   function roll(st) {
@@ -2164,12 +2182,27 @@ const Dig = (() => {
     return true;
   }
   const triggerFully = trigger;
-  function triggerAll(st) {                                // the order a hurried player would use: lowest number first, again and again while a card raises the result
+  function triggerAll(st) {                                // the order a hurried player would use: your Pet first, then lowest number first, again and again while a card raises the result
     const f = st.fight;
+    const pet0 = eligible(st).find(e => e.pet); if (pet0) trigger(st, pet0, true);
     for (let n = 0; n < 6 && st.fight && !over(st); n++) { const m = mayUse(st); if (!m.length) break; useMod(st, m[0]); }          // (what you may change comes first: a changed result can reach more cards)
-    for (let n = 0; n < 60 && st.fight === f && !over(st); n++) { const el = eligible(st); if (!el.length) break; trigger(st, el[0], true); }
+    for (let n = 0; n < 60 && st.fight === f && !over(st); n++) { const el = eligible(st); if (!el.length) break; trigger(st, el.find(e => e.pet) || el[0], true); }
     if (st.fight === f && f && f.deferred.length && !over(st)) runDeferred(st);
+    if (st.fight === f && f && f.defeat) useAllDefeat(st);          // a defeated Monster: the cards that react to it are used too
   }
+  // "Whenever you defeat a Monster, ...": these Ongoing cards glow once the Monster is defeated and you tap them (or Use all), so you can follow what happens. Unused ones are skipped when you dig on.
+  function defeatReady(st) {
+    const f = st.fight; if (!f || !f.defeat || f.phase !== 'after' || over(st)) return [];
+    const used = f.defeatUsed || [], out = [];
+    for (const o of st.ongoing) for (const w of compile(o).ongoing.watchers) if (w.ev === 'defeat' && !used.includes(o.uid)) out.push({ card: o, w });
+    return out;
+  }
+  function useDefeat(st, card) {
+    const r = defeatReady(st).find(x => x.card === card); if (!r) return false;
+    const f = st.fight; (f.defeatUsed = f.defeatUsed || []).push(card.uid);
+    log(st, 'effect', `${card.name}: you defeated the Monster`); run(st, [r.w.react], { src: card, depth: 1 }); return true;
+  }
+  function useAllDefeat(st) { let n = 0; for (const r of defeatReady(st)) if (useDefeat(st, r.card)) n++; return n; }
   function runDeferred(st) {
     const f = st.fight; const list = f.deferred.splice(0);
     for (const e of list) { if (over(st)) return; for (let k = 0; k < timesE(e); k++) run(st, compile(e.card).effects, { src: e.card, depth: 0 }); }
@@ -2201,20 +2234,20 @@ const Dig = (() => {
       case 'prePlusVs': return before(st) && f.damage >= ab.a;
       case 'prePlusBooster': case 'confidence': return before(st);
       case 'dire': return after(st) && f.result <= st.heart && f.fixed === null;
-      case 'beating': return after(st) && f.result >= ab.a && dmgNow(st) >= st.heart && f.surviveAt === null;
+      case 'beating': return after(st) && f.result >= ab.min && dmgNow(st) >= st.heart && f.surviveAt === null;
       case 'blast': return after(st) && dmgNow(st) > 0;
       case 'digMonsterGain': return inFight(st) && f.damage >= ab.a;
       case 'ductTape': return true;
       case 'generator': return true;
       case 'finisher': return after(st) && !f.defeat && !f.finisherUsed && !f.byPet && f.fixed === null;
-      case 'damageGain': return after(st) && dmgNow(st) > 0 && f.result >= ab.a;
+      case 'damageGain': return after(st) && dmgNow(st) > 0 && f.result >= ab.min;
       case 'goodFortune': return st.discard.some(x => x.type === 'Immediate');
       case 'luck': return after(st) && f.fixed === null;
       case 'coin': return after(st) && f.lastDie !== null && f.lastDie <= 2;
       case 'inverter': return after(st);
       case 'putDamage': return inFight(st);
       case 'vial': return after(st);
-      case 'rollGain': return after(st) && f.result >= ab.a;
+      case 'rollGain': return after(st) && f.result >= ab.min;
       case 'timeTurner': return st.discard.some(x => x.type === 'Immediate');
       case 'unstable': return after(st) && f.fixed === null && f.result <= 2;
       case 'petDefeatGain': return inFight(st) && st.fight.defeat && st.fight.byPet;
@@ -2238,7 +2271,7 @@ const Dig = (() => {
         if (ab.op === 'ifHeartIs') gain(st, 'heart', ab.b, src); else run(st, [{ op: 'list', items: ab.items }], ctx); break;
       case 'gainBottom': run(st, [{ op: 'list', items: ab.items }], ctx); st.cons.splice(st.cons.indexOf(c), 1); st.mine.push(c); st.known = Math.max(0, Math.min(st.known, st.mine.length - 1)); log(st, 'effect', `${src} goes on the bottom of your Mine`); discard = false; break;
       case 'gainHalfRoll': gain(st, 'heart', Math.ceil(f.result / 2), src); break;
-      case 'gainPerCard': gain(st, 'heart', ab.a * (ab.b === 'Consumable' ? st.discard.filter(x => x.type === 'Consumable').length + (ab.c ? 1 : 0) : st.discard.filter(x => x.deck === DDB.run.boosterDeck).length), src); break;
+      case 'gainPerCard': gain(st, 'heart', ab.a * (ab.b === 'Single-Use card' ? st.discard.filter(x => x.type === 'Consumable').length + (ab.c ? 1 : 0) : st.discard.filter(x => x.deck === DDB.run.boosterDeck).length), src); break;
       case 'preSet': f.pre.set = ab.a; log(st, 'effect', `${src}: your next roll's die will be a ${ab.a}`); break;
       case 'preDouble': f.pre.double = (f.pre.double || 0) + 1; log(st, 'effect', `${src}: your next roll will be doubled`); break;
       case 'preTwice': f.pre.twice = true; log(st, 'effect', `${src}: you will roll twice and add the dice`); break;
@@ -2246,7 +2279,7 @@ const Dig = (() => {
       case 'prePlusBooster': { const n = st.discard.filter(x => x.deck === DDB.run.boosterDeck).length; f.pre.plus = (f.pre.plus || 0) + n; log(st, 'effect', `${src}: +${n} to your next roll`); break; }
       case 'confidence': f.confidenceGain = (f.confidenceGain || 0) + ab.a; log(st, 'effect', `${src}: if your Pet defeats this Monster, +${ab.a} {extraroll}`); break;
       case 'dire': f.pre.plus = (f.pre.plus || 0) + ab.a; f.phase = 'before'; f.again = true; log(st, 'effect', `${src}: roll again with +${ab.a}`); break;
-      case 'beating': f.surviveAt = ab.b; log(st, 'effect', `${src}: if this would BOOM you, you survive with ${ab.b} {heart}`); break;
+      case 'beating': f.surviveAt = ab.a; log(st, 'effect', `${src}: if this would BOOM you, you survive with ${ab.a} {heart}`); break;
       case 'blast': putMarkers(st, ab.a, src); break;
       case 'ductTape': case 'generator': {
         const pick = opt.pick !== undefined && opt.pick !== null ? st.discard.find(x => x.uid === opt.pick && (ab.op === 'generator' ? x.type === 'Consumable' : (x.type === 'Consumable' || x.type === 'Ongoing'))) : null;
@@ -2376,7 +2409,10 @@ const Dig = (() => {
       const bounty = flag(st, 'bounty') || 0, g = m.bonus ? 0 : Math.max(bounty, loot);
       st.monsterGems += g; log(st, 'effect', `${m.name} is defeated${g ? ` — Loot: ${g} {gem}` : ''}`);
       if (f.confidenceGain && f.byPet) gain(st, 'reroll', f.confidenceGain, 'Confidence Booster');
-      endBattle(); fire(st, 'defeat', {}, 1); return;
+      const left = auto ? [] : defeatReady(st);
+      endBattle();
+      if (auto) fire(st, 'defeat', {}, 1); else for (const r of left) log(st, 'sys', `${r.card.name} was not used`);
+      return;
     }
     let take = 0;
     if (dmg >= st.heart && dmg > 0 && f.surviveAt === null) { const lc = eligible(st, true).find(autoOnly); if (lc) trigger(st, lc, true); }          // Lucky Cricket: it would have been BOOM, so it works (no tap from you)
@@ -2440,7 +2476,7 @@ const Dig = (() => {
     const lineMap = new Map(), line = st.line.map(e => { const n = { ...e }; lineMap.set(e, n); return n; }), remap = list => (list || []).map(e => lineMap.get(e) || e);
     return { ...st, seed: null, rng: makeRng(seed === undefined ? 1 : seed), dice: null, log: [], quiet: true, over: st.over && { ...st.over }, flags: { ...st.flags },
       mine: st.mine.slice(), discard: st.discard.slice(), monsterPile: st.monsterPile.slice(), ongoing: st.ongoing.slice(), cons: st.cons.slice(), cloned: st.cloned.slice(), under: Object.fromEntries(Object.entries(st.under).map(([k, cs]) => [k, cs.slice()])), kit: st.kit, line,
-      pending: st.pending && { ...st.pending }, fight: st.fight && { ...st.fight, fired: remap(st.fight.fired), rollFired: remap(st.fight.rollFired), deferred: remap(st.fight.deferred), used: (st.fight.used || []).slice(), pre: { ...st.fight.pre }, parts: st.fight.parts.slice(), caddy: st.fight.caddy && { ...st.fight.caddy } },
+      pending: st.pending && { ...st.pending }, fight: st.fight && { ...st.fight, fired: remap(st.fight.fired), rollFired: remap(st.fight.rollFired), deferred: remap(st.fight.deferred), used: (st.fight.used || []).slice(), defeatUsed: (st.fight.defeatUsed || []).slice(), pre: { ...st.fight.pre }, parts: st.fight.parts.slice(), caddy: st.fight.caddy && { ...st.fight.caddy } },
       setCount: { ...st.setCount }, board: st.board && { ...st.board }, rules: st.rules };
   }
   // What a card is worth RIGHT NOW, for the cards whose number depends on the game: a short line for the zoomed card, or null when the card does not depend on anything.
@@ -2503,12 +2539,13 @@ const Dig = (() => {
       if (dmg > 0 && (dmg >= 4 || st.heart - dmg <= 3) && can(st).reroll && (o.rolls === undefined || f.rolls <= o.rolls)) { if (reroll(st)) continue; }          // the damage would hurt: another roll
       const heal = st.heart <= 4 && usable(st).find(x => ['gain', 'gainPerCard', 'gainHalfRoll', 'ifHeartIs'].includes(x.ab.op) && (x.ab.op !== 'gain' || x.ab.items.every(i => i.res === 'heart')));
       if (heal && useConsumable(st, heal.card)) continue;
+      if (f.defeat && useAllDefeat(st)) continue;
       face(st);
     }
     return true;
   }
   const autoFace = autoBattle;
-  return { save, load, compile, supported, parseEffects, parseOngoing, parseConsumable, start, clone, can, pledge, canPledge, dig, chooseDug, roll, reroll, rerollNow, planGrit, spendGrit, gritLeft, gritAfterCost, eligible, trigger, triggerFully, triggerAll, unmetFor, face, autoFace, autoBattle, usable, useConsumable, actions, useAction, mayUse, planBoost: st => (st.fight ? planBoost(st, st.fight) : 0), useMod, bank, chooseClone, cloneTargets, peekBonus, maxNextDamage, dynamic, hold, score, result, makeRng, shuffle, flag, previewDamage, isNumbered, refreshPet };
+  return { save, load, compile, supported, parseEffects, parseOngoing, parseConsumable, start, clone, can, pledge, canPledge, dig, chooseDug, roll, reroll, rerollNow, planGrit, spendGrit, gritUseful, defeatReady, useDefeat, useAllDefeat, gritLeft, gritAfterCost, eligible, trigger, triggerFully, triggerAll, unmetFor, face, autoFace, autoBattle, usable, useConsumable, actions, useAction, mayUse, planBoost: st => (st.fight ? planBoost(st, st.fight) : 0), useMod, bank, chooseClone, cloneTargets, peekBonus, maxNextDamage, dynamic, hold, score, result, makeRng, shuffle, flag, previewDamage, isNumbered, refreshPet };
 })();
 </script>
 
@@ -2659,7 +2696,7 @@ const Run = (() => {
     if (!sh) run.deck = makeDeck(all, run.rng);
     sync(run);
     run.prep = newPrep(run, null); setPack(run);
-    log(run, `A new run: ${run.rounds} rounds. Crown tracker at ${run.crown.tracker}. Before round 1, open a ${RN.firstPack} Pack.`);
+    log(run, `A new game: ${run.rounds} rounds. Crown tracker at ${run.crown.tracker}. Before round 1, open a ${RN.firstPack} Pack.`);
     return run;
   }
   // A Prep: the Escape Bonus step only exists after a banked Dig.
@@ -2803,7 +2840,7 @@ const Run = (() => {
     const st = run.dig; if (!st || !st.over || st.boardApplied || run.phase !== 'dig') return false;
     st.boardApplied = true;
     if (st.over.kind === 'bank') { const lock = Board.lockIn(run.board, run.me, st.survived); run.endInfo = { stoleCrown: lock.tookLead, newBest: lock.newBest, rank: lock.rank }; Board.note(run.board, { r: run.round, id: run.me, k: 'bank', n: st.survived, gems: st.over.total, crown: lock.tookLead, newBest: lock.newBest, final: !!(st.board && st.board.final) }); }
-    else { Board.clearPledge(run.board, run.me); run.endInfo = { stoleCrown: false, newBest: false, rank: null }; Board.note(run.board, { r: run.round, id: run.me, k: 'boom', n: st.survived }); }
+    else { Board.clearPledge(run.board, run.me); run.endInfo = { stoleCrown: false, newBest: false, rank: null }; Board.note(run.board, { r: run.round, id: run.me, k: 'boom', n: Math.max(st.monstersDug, st.survived) }); }
     sync(run); return true;
   }
   function bank(run) { refresh(run); const st = run.dig; if (!st || !Dig.bank(st)) return false; checkOver(run); return true; }
@@ -3206,8 +3243,9 @@ const AI = (() => {
   window.DigDigBoomUI = { state, load, render: () => render(), setMode, build: BUILD, api: {}, fromLibrary: () => fromLibrary() };
 
   // ---------------- icons ----------------
-  const ic = (code, extra = '') => `<svg class="ic" viewBox="0 0 24 24" aria-label="${code}"${extra}><use href="#i-${code}"/></svg>`;
+  const ic = (code, extra = '') => `<svg class="ic" viewBox="0 0 24 24" aria-label="${code}"${extra}><use href="#${D.iconCodes[code] || 'i-' + code}"/></svg>`;
   const textHTML = (text) => E.tokens(text, D.iconCodes).map(t => t.t === 'icon' ? ic(t.v) : esc(t.v)).join('').replace(/ (<svg)/g, '\u00a0$1');          // an icon stays with the word before it: never a line of its own
+  const typeName = t => (D.types[t] && D.types[t].label) || t;          // the word on a card: Consumable cards are called Single-Use
   const typeIcon = (type, size, color) => `<svg viewBox="0 0 24 24" style="width:${size};height:${size};color:${color}" aria-hidden="true"><use href="#${D.types[type].icon}"/></svg>`;
 
   // ---------------- text fitting (measured in the browser, at 1 px per unit) ----------------
@@ -3249,16 +3287,16 @@ const AI = (() => {
   const gemSvg = (g, sz, extra = '') => `<svg viewBox="0 0 24 24" style="--g:${g.color};--gl:${g.light};--gd:${g.dark};width:${sz};height:${sz};flex:none;${extra}"><use href="#gem-${g.cut}"/></svg>`;
   function tab(c, W, gem) {
     const t = gem ? { ...typeColors(c), color: gem.color, on: gem.on } : typeColors(c);
-    let s = box(0, 0, W, 375, '', `background:${t.color}`);
-    s += box(22, 22, W - 44, 375 - 44, 'paper', `border-radius:${u(10)}`);
-    s += box(28, 28, W - 56, 64, 'band', `background:${t.color};--on:${t.on};border-radius:${u(7)}`);
+    let s = box(0, 0, W, 375, '', 'background:#14110e');          // every card has the same black trim; the type's colour fills the card inside it
+    s += box(21, 21, W - 42, 375 - 42, '', `background:${t.color};border-radius:${u(13)}`);
+    s += box(28, 28, W - 56, 64, 'band', `background:${t.color};--on:${t.on};border-radius:${u(7)};border:${u(2.5)} solid rgba(20,17,14,.7)`);
     s += `<svg class="abs" style="left:${u(28)};top:${u(28)};width:${u(W - 56)};height:${u(64)};border-radius:${u(7)}" preserveAspectRatio="none"><rect width="100%" height="100%" fill="url(#${t.pattern})"/></svg>`;
     s += box(33, 36, 46, 46, 'disc', '', typeIcon(c.type, '78%', '#1d1712'));
     const loot = c.type === 'Monster' && !c.bonus ? E.lootOf(c.text) : 0, pays = c.type === 'Treasure', nw = c.number === null && !pays && !loot ? W - 56 - 62 : W - 56 - 62 - 50;
     if (c.type === 'Monster') s += nameBlock(c.name, 86, 33, nw, 52, 32, 17.5);          // a Monster's name says what it is: no type line under it
     else {
       s += nameBlock(c.name, 86, 34, nw, 38, 30, 17.5);
-      s += box(86, 72, nw, 15, 'typeword band', `font-size:${u(13)}`, esc(c.type));
+      s += box(86, 72, nw, 15, 'typeword band', `font-size:${u(13)}`, esc(typeName(c.type)));
     }
     s += powerBadge(W - 28 - 50, 35, 44, c);
     if (pays) s += gemBadge(W - 28 - 50, 35, 44, c, gem, E.gemWorth(c.text));
@@ -3277,6 +3315,7 @@ const AI = (() => {
   function buildR2(c, tw, art, stat, step, gemIdx) {
     const W = 275, gem = gemOf(c, gemIdx);
     let s = tab(c, W);
+    if (c.type !== 'Treasure') s += box(28, 98, W - 56, 250, 'paper', `border-radius:${u(8)};border:${u(2)} solid rgba(20,17,14,.55)`);          // the white text box
     const steps = c.type === 'Monster' ? E.damageSteps(c.text) : null, worth = c.type === 'Treasure' ? E.gemWorth(c.text) : null;
     const isStat = steps || worth !== null;
     if (!isStat) {
@@ -3311,7 +3350,7 @@ const AI = (() => {
   }
   // One card, as cut (2.5 x 3.5 in, rounded), at `scale` pixels per 0.01 in. The design is drawn on the card plus a 0.125 in margin, which is trimmed away here.
   function r2Card(c, tw, art, stat, scale, step, gemIdx) {
-    const card = `<div class="card" data-id="${esc(c.id)}" data-dir="B2" data-art="${art}" data-stat="${stat}" style="--u:${scale}px;width:${u(275)};height:${u(375)}" role="img" aria-label="${esc(c.name)}, ${esc(c.type)}${c.number !== null ? ', ' + c.number : ''}. ${esc(c.text)}">${buildR2(c, tw, art, stat, step, gemIdx)}</div>`;
+    const card = `<div class="card" data-id="${esc(c.id)}" data-dir="B2" data-art="${art}" data-stat="${stat}" style="--u:${scale}px;width:${u(275)};height:${u(375)}" role="img" aria-label="${esc(c.name)}, ${esc(typeName(c.type))}${c.number !== null ? ', ' + c.number : ''}. ${esc(c.text)}">${buildR2(c, tw, art, stat, step, gemIdx)}</div>`;
     return `<div style="position:relative;--u:${scale}px;width:${u(250)};height:${u(350)};overflow:hidden;border-radius:${u(12.5)};flex:none"><div style="position:absolute;left:${u(-12.5)};top:${u(-12.5)}">${card}</div></div>`;
   }
   // ---------------- the chosen design: Top Tab, Geode = stat 3, Monster = stat 1, standard art ----------------
@@ -3340,16 +3379,15 @@ const AI = (() => {
     twOwn.set(key, v); return v;
   }
   function playCard(c, scale, opts = {}) { return r2Card(c, textSizeFor(c), 'compact', statFor(c), scale, opts.step, opts.gem); }
-  Object.assign(window.DigDigBoomUI.api, { ic, textHTML, esc, playCard, gemAt, gemOf, gemSvg, monsterLook });
+  Object.assign(window.DigDigBoomUI.api, { ic, typeName, textHTML, esc, playCard, gemAt, gemOf, gemSvg, monsterLook });
   function deckHTML(scale) {
     const pool = state.all.filter(c => c.type !== 'Monster' && c.type !== 'Treasure' && Dig.supported(c));
     const b = R2.textBox(); let tw = 44;
     for (const c of pool) tw = Math.min(tw, fitFont(textHTML(c.text), b.w, b.h));
     const BY = D.rules.beyond, bonus = Array.from({ length: 4 }, (_, i) => ({ id: 'BONUS-' + (BY.firstDamage + i), name: 'Gauntlet Monster', type: 'Monster', number: null, deck: 'Bonus', count: 1, text: `{damage} ${BY.firstDamage + i}`, bonus: true, damageNow: BY.firstDamage + i, uid: -(BY.firstDamage + i) }));          // the Monsters from beyond the Mine: one card for each damage
     const order = Object.keys(D.types), list = state.all.filter(c => Dig.supported(c) && (state.filter === 'all' || c.type === state.filter)).sort((a, b2) => order.indexOf(a.type) - order.indexOf(b2.type)).concat(state.filter === 'all' || state.filter === 'Monster' ? bonus : []);
-    const cells = list.flatMap(c => c.type === 'Treasure' ? D.gems.map((g, i) => `<div class="cell">${r2Card(c, tw, 'compact', statFor(c), scale, undefined, i)}<span class="cap">${esc(c.id)} · ${esc(c.name)} · ${esc(g.name)}</span></div>`) : [`<div class="cell">${r2Card(c, tw, 'compact', statFor(c), scale)}<span class="cap">${esc(c.id)} · ${esc(c.name)}${c.count > 1 ? ' ×' + c.count : ''}</span></div>`]).join('');
-    return `<section class="dir" id="deck" data-round="deck"><h2>The whole deck</h2>
-      <p class="sub">Coloured border and header with the name, type and power number; no art slot, so the rules text gets the whole card. A Geode is one giant count-and-gem on a brown card, and every Geode is a different gem (six colours and cuts, three of each), so a flip is a little surprise. Monsters: art, then the damage ladder in big tiles, with the gems a survived Monster is worth. Rules text is <b>${E.formatSize(tw)}</b> on every card. ${list.length} cards, built into the game.</p>
+    const cells = list.flatMap(c => c.type === 'Treasure' ? D.gems.map((g, i) => `<div class="cell">${r2Card(c, tw, 'compact', statFor(c), scale, undefined, i)}</div>`) : [`<div class="cell">${r2Card(c, tw, 'compact', statFor(c), scale)}</div>`]).join('');
+    return `<section class="dir" id="deck" data-round="deck">
       <div class="row" id="deckRow">${cells}</div></section>`;
   }
   // ---------------- small helpers for the card drawing (all numbers are units of 0.01 in) ----------------
@@ -3368,28 +3406,19 @@ const AI = (() => {
   // The gem in the corner: the same on every card that pays gems (a Geode's own gem, or the blue Loot gem of a Monster), with how many it pays. "Survive a Monster, take its Loot."
   const gemBadge = (x, y, d, c, gem, n) => box(x, y, d, d, 'gembadge', `border-radius:50%;background:#fffaf0;border:${u(3.5)} solid #1d1712;display:flex;align-items:center;justify-content:center`,
     `${gem ? gemSvg(gem, u(26)) : gemIcon(26)}<span style="position:absolute;right:${u(-7)};bottom:${u(-7)};min-width:${u(19)};height:${u(19)};border-radius:${u(10)};background:#1d1712;color:#fff;font:900 ${u(13)}/${u(19)}px system-ui,sans-serif;text-align:center">${n === null || n === undefined ? '' : n}</span>`)
-    + (c.type === 'Monster' ? box(x - 6, y + d + 2, d + 12, 12, 'lootword', `font-size:${u(9)};font-weight:900;letter-spacing:.16em;color:#fff;text-align:center;text-shadow:0 1px 0 rgba(0,0,0,.55)`, 'LOOT') : '');
+    ;
   const powerBadge = (x, y, d, c) => c.number === null ? '' : box(x, y, d, d, 'num', `font-size:${u(d * 0.64)};border-width:${u(4)};border-color:#1d1712`, String(c.number));
   const typeColors = c => D.types[c.type];
   // ---------------- the page ----------------
-  function statusLine() { return `<span class="status"><b>v2.7.1 cards</b> · ${state.all.length} cards, built into the game</span>`; }
   // The way back to the library is only for somebody who came from it: the shelf links here with ?from=library (the tab remembers it), a link you share goes straight to this game with nothing of the library in it.
   const fromLibrary = () => { let came = /[?&]from=library\b/.test(location.search); try { if (came) sessionStorage.setItem('tabletop-library-from', '1'); else came = sessionStorage.getItem('tabletop-library-from') === '1'; } catch (e) { /* no storage: only a page opened from the shelf shows it */ } return /^https?:$/.test(location.protocol) && came; };
   function render() {
     if (document.body.dataset.mode !== 'cards') return;
-    const libLink = fromLibrary() ? `<a class="back libback" href="${esc(D.library.href)}"><span>‹</span> ${esc(D.library.name)}</a>` : '';
     const scale = Math.min(innerWidth - 40, 1000) < 500 ? 0.78 : 1;
-    let html = `<div style="display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;align-items:center">${libLink}${statusLine()}</div>
-      <h1>${esc(D.title)} — the cards</h1>
-      <div class="bar">
-        <button class="chip" data-act="mode" data-v="play">▶ Play</button>
-        <span class="note">Show</span> ${['all', ...Object.keys(D.types)].map(t => `<button class="chip ${state.filter === t ? 'on' : ''}" data-act="filter" data-v="${t}">${t === 'all' ? 'All' : t}</button>`).join('')}
-        ${[['color', 'Colour'], ['gray', 'Greyscale'], ['deut', 'Red-green (deuteranopia)'], ['prot', 'Red-green (protanopia)']].map(([v, t]) => `<button class="chip ${state.view === v ? 'on' : ''}" data-act="view" data-v="${v}">${t}</button>`).join('')}
-      </div>`;
+    let html = `<div class="cardshead"><button class="chip back" data-act="mode" data-v="play">‹ More</button><h1>The cards</h1></div>
+      <div class="bar">${['all', ...Object.keys(D.types)].map(t => `<button class="chip ${state.filter === t ? 'on' : ''}" data-act="filter" data-v="${t}">${t === 'all' ? 'All' : typeName(t)}</button>`).join('')}</div>`;
     if (!state.all.length) { $app.innerHTML = html; return; }
     html += deckHTML(scale);
-    html += `<details><summary>Icon key</summary><p class="sub">${Object.keys(D.iconCodes).map(k => `${ic(k, ' style="width:28px;height:28px;vertical-align:middle"')} {${k}}`).join(' &nbsp; ')}</p></details>`;
-    html += `<p class="status" style="margin-top:24px">Version ${esc(BUILD)}</p>`;
     $app.className = 'view-' + state.view;
     $app.innerHTML = html;
   }
@@ -3441,7 +3470,20 @@ const AI = (() => {
   }
   // The game is saved in this browser after every tap, so a reload (iPad Safari does that) puts you back where you were.
   const SAVE_KEY = 'ddb.solo.save.v1';
+  // Your best game: the finished game with the highest final score is kept in this browser, with its whole Leaderboard, so you can look at each round and watch it again.
+  const BESTGAME_KEY = 'ddb.bestgame.v1';
+  const readBestGame = () => { try { return JSON.parse(localStorage.getItem(BESTGAME_KEY)); } catch (e) { return null; } };
+  function keepBestGame() {
+    const m = S.match; if (!m || !m.result || m.bestChecked || S.viewBest) return; m.bestChecked = true;
+    try {
+      const score = m.result.bests.me || 0, old = readBestGame();
+      if (!old || score > old.score) localStorage.setItem(BESTGAME_KEY, JSON.stringify({ v: 1, score, won: !!m.result.human, at: Date.now(), match: Match.save(m) }));
+    } catch (e) { /* private window or full: fine */ }
+  }
+  function closeBest() { const t = S.stash; S.viewBest = false; S.stash = null; if (t) { S.match = t.match; S.run = t.run; S.st = t.st; S.back = t.back; S.boardAnim = null; S.doneTab = null; } S.panel = 'more'; }
   function persist() {
+    if (S.viewBest) return;          // looking at your best game: your own game in progress stays as it was saved
+    if (S.panel === 'done') keepBestGame();
     try {
       const panel = S.panel === 'menu' || S.panel === 'more' ? S.back : S.panel;
       if (!panel || (!S.st && !S.run)) { localStorage.removeItem(SAVE_KEY); return; }
@@ -3491,10 +3533,10 @@ const AI = (() => {
     const offline = false;
     const count = n => list.filter(c => c.type === n).length;
     const stepper = (act, v, extra = '') => `<span class="stepper"><button data-p="${act}" data-d="-1" aria-label="less">−</button><span>${v}</span><button data-p="${act}" data-d="1" aria-label="more">+</button></span>${extra}`;
-    return `<div class="panel setup"><div class="shead"><button class="chip back" data-p="more">‹ Settings</button><h2>Playtest: choose your Starter Kit</h2></div><div class="scroll" id="setupScroll">
+    return `<div class="panel setup"><div class="shead"><button class="chip back" data-p="more">‹ More</button><h2>Playtest: choose your Starter Kit</h2></div><div class="scroll" id="setupScroll">
       <p class="note">Your Mine is the ${all.filter(c => c.deck === R.startingDeck && c.type !== 'Ongoing').reduce((a, c) => a + c.count, 0)} Starting cards. Pick Booster cards to start this Dig with: they are the first cards you dig, in the order you pick them.${offline ? ' <b style="color:#ff9a8a">Your sheet could not be reached, so only the design sample is available — reload when you are online.</b>' : ''}</p>
       <div class="tabs">
-        ${['Ongoing', 'Consumable', 'Immediate'].map(t => `<button class="chip ${S.tab === t ? 'on' : ''}" data-p="tab" data-v="${t}">${t} (${count(t)})${S.kit.filter(id => (list.find(c => c.id === id) || {}).type === t).length ? ' · ' + S.kit.filter(id => (list.find(c => c.id === id) || {}).type === t).length + ' in kit' : ''}</button>`).join('')}
+        ${['Ongoing', 'Consumable', 'Immediate'].map(t => `<button class="chip ${S.tab === t ? 'on' : ''}" data-p="tab" data-v="${t}">${A.typeName(t)} (${count(t)})${S.kit.filter(id => (list.find(c => c.id === id) || {}).type === t).length ? ' · ' + S.kit.filter(id => (list.find(c => c.id === id) || {}).type === t).length + ' in kit' : ''}</button>`).join('')}
         <span class="note" style="margin-left:auto">Kit size ${stepper('size', S.kitSize)}</span>
         <button class="chip" data-p="random">Random kit</button>
         <button class="chip" data-p="clear">Clear</button>
@@ -3620,16 +3662,17 @@ const AI = (() => {
         <p class="tagline">Strap into a drill and launch yourself toward the center of the earth!</p>
         ${inProgress ? `<button class="mode primary row" data-p="resume"><b>Continue</b>${run ? pips : ''}</button>` : ''}
         ${newRun}
-        <div class="ghostrow"><button class="ghost" data-p="help">How to play</button><button class="ghost" data-p="more">Settings</button></div>
+        <div class="ghostrow"><button class="ghost" data-p="help">How to play</button><button class="ghost" data-p="more">More</button></div>
         ${note ? `<p class="homenote warn">${note}</p>` : ''}
       </div></div></div>`;
   }
-  // Settings: the options of a run, the cards, and a controlled playtest. A back button, a title, a list: nothing else.
+  // More: the cards and a controlled playtest. A back button, a title, a list: nothing else.
   function moreHTML() {
     const b = readBest(), inProgress = resumable();
     const row = (title, note, control) => `<div class="srow"><div class="stext"><b>${title}</b>${note ? `<span>${note}</span>` : ''}</div>${control}</div>`;
-    return `<div class="panel setup settings"><div class="shead"><button class="chip back" data-p="menu">‹ Main menu</button><h2>Settings</h2></div><div class="scroll"><div class="slist">
+    return `<div class="panel setup settings"><div class="shead"><button class="chip back" data-p="menu">‹ Main menu</button><h2>More</h2></div><div class="scroll"><div class="slist">
       ${row('The cards', 'Every card, as designed', `<button class="btn alt" data-p="cards">See the cards</button>`)}
+      ${(g => g ? row('Your best game', `Final score ${g.score}${g.won ? ' · a win' : ''} · ${A.esc(new Date(g.at).toLocaleDateString())}`, `<button class="btn alt" data-p="viewbest">See it</button>`) : '')(readBestGame())}
       ${row('Playtest', `Pick any cards and try one Dig${inProgress ? '. Starting one replaces your game in progress' : ''}${b.survived || b.gems ? `. Best: ${b.survived} Monsters survived · ${b.gems} gems banked` : ''}`, `<button class="btn ${S.confirmNew === 'practice' ? 'confirm' : 'alt'}" data-p="practice" ${cards().length ? '' : 'disabled'}>${S.confirmNew === 'practice' ? 'Tap again to replace your game' : 'Playtest'}</button>`)}
     </div><p class="vers">Version ${A.esc(UI.build)}</p></div></div>`;
   }
@@ -3760,22 +3803,22 @@ const AI = (() => {
     if (window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches) return;
     const o0 = fx && old['bdisc' + fx.id];
     if (o0) {          // the piece whose Dig just ended: it fades where it stood, with a little BOOM or what it earned
-      const host = document.createElement('div'); host.style.cssText = `position:fixed;left:0;top:0;width:0;height:0;transform-origin:0 0;transform:scale(${K});pointer-events:none;z-index:60`; document.body.appendChild(host); setTimeout(() => host.remove(), 1400);          // (the little effects are drawn in design pixels, like the board they sit on)
+      const host = document.createElement('div'); host.style.cssText = `position:fixed;left:0;top:0;width:0;height:0;transform-origin:0 0;transform:scale(${K});pointer-events:none;z-index:60`; if (an.fast) host.className = 'fastfx'; document.body.appendChild(host); setTimeout(() => host.remove(), 1400);          // (the little effects are drawn in design pixels, like the board they sit on)
       const mk = (cls, html) => { const d = document.createElement('div'); d.className = 'bfx ' + cls; d.style.cssText = `left:${o0.left}px;top:${o0.top}px;width:${o0.width}px;height:${o0.height}px`; d.innerHTML = html; host.appendChild(d); return d; };
       const pl = S.run.board.players.find(p => p.id === fx.id);
       if (fx.k === 'leave') { const g = mk('ghost', ''), c = pl ? pl.color : '#888'; g.style.background = `radial-gradient(circle at 34% 28%, color-mix(in srgb, ${c} 55%, #fff), ${c} 58%, color-mix(in srgb, ${c} 55%, #000))`; g.style.border = `2px solid color-mix(in srgb, ${c} 60%, #000)`; }
       if (fx.k === 'boom') {
         mk('boom', `<i class="flash"></i><i class="ring"></i><i class="core"></i>${Array.from({ length: 26 }, (_, i) => { const a = i / 26 * 6.283 + (i % 2) * .12, d = 50 + (i % 4) * 22; return `<i class="sp" style="--dx:${Math.round(Math.cos(a) * d)}px;--dy:${Math.round(Math.sin(a) * d)}px;--s:${7 + (i * 5) % 11}px"></i>`; }).join('')}`);
-        const g = $.querySelector('.bgrid'); if (g) { g.classList.remove('bshake'); void g.offsetWidth; g.classList.add('bshake'); }
+        const g = $.querySelector('.bgrid'); if (g) { g.classList.remove('bshake'); void g.offsetWidth; g.classList.add('bshake'); if (an.fast) g.style.animationDuration = '.12s'; else g.style.animationDuration = ''; }
       }
     }
     for (const el of $.querySelectorAll('.bgrid .bdisc[data-pid], .bgrid .pchip[data-pid]')) {
       const o = old[el.className.split(' ')[0] + el.dataset.pid]; if (!o) continue;
       const r = rr(el), dx = o.left - r.left, dy = o.top - r.top;
-      if (Math.abs(dx) + Math.abs(dy) > 2) el.animate([{ translate: `${dx}px ${dy}px`, zIndex: 5 }, { translate: '0 0', zIndex: 5 }], { duration: 300, easing: 'cubic-bezier(.4,.1,.3,1)' });
+      if (Math.abs(dx) + Math.abs(dy) > 2) el.animate([{ translate: `${dx}px ${dy}px`, zIndex: 5 }, { translate: '0 0', zIndex: 5 }], { duration: an.fast ? 75 : 300, easing: 'cubic-bezier(.4,.1,.3,1)' });
     }
   }
-  const REPLAY_MS = an => window.DDB_BOARD_PACE !== undefined ? window.DDB_BOARD_PACE : an && an.fast ? 40 : 480;
+  const REPLAY_MS = an => window.DDB_BOARD_PACE !== undefined ? window.DDB_BOARD_PACE : an && an.fast ? 120 : 480;          // Fast forward is the same show, four times quicker
   function boardNext() {          // the next event; the whole round plays on by itself, and a bank or a BOOM lingers a little (its piece stays, with its gem or starburst)
     const an = S.boardAnim; if (!an || an.k >= an.events.length) return;
     an.rects = boardRects(); an.k++; const ev = an.events[an.k - 1]; an.fx = ev.k === 'boom' ? ev : null; render();
@@ -3783,7 +3826,7 @@ const AI = (() => {
   }
   function boardPlay(first, linger) {
     const an = S.boardAnim; if (!an || an.timer || an.k >= an.events.length) return;
-    const ms = REPLAY_MS(an) * (an.fast ? 1 : first ? 2 : linger ? 2.6 : 1);
+    const ms = REPLAY_MS(an) * (first ? 2 : linger ? 2.6 : 1);
     const go = () => { an.timer = null; if (S.boardAnim !== an) return; if (S.gmenu || S.help) { an.timer = setTimeout(go, 250); return; }          // the menu or How to play is open: the replay waits for you
       if (S.panel === 'board' || S.panel === 'done') boardNext(); };
     an.timer = setTimeout(go, ms);
@@ -3892,13 +3935,13 @@ const AI = (() => {
       const gemIc = `<svg class="kgem" viewBox="0 0 24 24" aria-hidden="true"><use href="#i-gem"/></svg>`;
       const slots = Array.from({ length: pr.kitMax }, (_, i) => { const c = kitCards[i]; return `<div class="kslot ${c ? '' : 'empty'}" data-i="${i}" style="width:${250 * ss}px;height:${sh}px">${c ? pcard(c, ss, { act: 'kitpick', sel: true, badge: i + 1, i: i, deal: false, ...tagOf2(c) }) : `${gemIc}<span>gem</span>`}</div>`; }).join('');
       const n = kitCards.length, same = prev.length && prev.length === n && prev.every((id, i) => id === pr.kitPick[i]);
-      const say = 'These will be the first cards you draw.';
+      const say = 'You will draw these first.';
       const from = first ? S.keepFrom : null, rest = first && !pr.extra.length ? pr.offer.filter(c => !pr.picked.includes(c.uid)) : [];          // (after a Mystery Box they flew away on the pack screen already: only once)
       const sweep = rest.length ? `<div class="sweep" aria-hidden="true">${rest.map((c, i) => {
         const r = from && from[c.uid] ? from[c.uid] : { x: VW() / 2 - 63 + (i - (rest.length - 1) / 2) * 130, y: VH() * .34, w: 125, h: 175 };
         return `<span class="sweepcard" style="--i:${i};left:${Math.round(r.x)}px;top:${Math.round(r.y)}px;width:${Math.round(r.w)}px;height:${Math.round(r.h)}px;--tx:${-Math.round(r.x + r.w + 120)}px;--ty:${-Math.round(r.y + r.h + 100)}px">${A.playCard(c, r.w / 250)}</span>`;
       }).join('')}</div>` : '';
-      body = `${sweep}<div class="kitbar"><b>Starter Kit</b></div><div class="krow"><div class="kslots ${first ? 'kfirst' : ''}">${slots}</div><p class="kdef">${say}<small>Any place you leave empty gets a ${ic('gem')} gem instead.</small></p></div><div class="poolhead">Your cards</div><div class="cards pool ${first ? 'kfirst' : ''}" style="min-height:${Math.round(350 * ps) + 24}px">${hand.map((c, i) => pcard(c, ps, { act: 'kitpick', i, ...tagOf2(c) })).join('')}</div>`;
+      body = `${sweep}<div class="kitbar"><b>Starter Kit</b></div><div class="krow"><div class="kslots ${first ? 'kfirst' : ''}">${slots}</div><p class="kdef">${say}<small>Empty spots will be filled with Geodes.</small></p></div><div class="poolhead">Your cards</div><div class="cards pool ${first ? 'kfirst' : ''}" style="min-height:${Math.round(350 * ps) + 24}px">${hand.map((c, i) => pcard(c, ps, { act: 'kitpick', i, ...tagOf2(c) })).join('')}</div>`;
       foot = `<button class="btn" data-p="startround">Start round ${run.round}${run.round === run.rounds ? ' · final' : ''}</button>`;
     }
     const stage = step === 'kit' || step === 'keep' || step === 'reveal' || (step === 'pack' && !pr.banked) ? body : `<div class="prepstage">${body}</div>`;
@@ -3910,7 +3953,7 @@ const AI = (() => {
     for (const e of log) if (e.r < r && e.k === 'bank') from[e.id] = Math.max(from[e.id] || 0, e.n);
     return { from, events, k: k === undefined ? events.length : k, hist: true, newBest: false, timer: null, rects: null, fx: null, fast: false };
   }
-  // The end of a run: the Leaderboard is the result. A big line says who won; the tabs at the top left look back at any round (its Leaderboard as it ended, and a button to watch it again); buttons look at the cards you built, and start a new run.
+  // The end of a run: the Leaderboard is the result. A big line says who won; the tabs at the top left look back at any round (its Leaderboard as it ended, and a button to watch it again); buttons look at the cards you built, and start a new game.
   function doneHTML() {
     const run = S.run, r = run.result, m = S.match, mr = m && m.result;
     const won = m ? mr.winner === 'me' : r.crown, sel = S.doneTab && S.doneTab <= run.rounds ? S.doneTab : run.rounds, tab = sel === run.rounds ? null : sel;          // one tab for each round, the last one (the end of the game) lit to begin with
@@ -3918,7 +3961,7 @@ const AI = (() => {
     const tabs = `<div class="dtabs" role="tablist">${Array.from({ length: run.rounds }, (_, i) => `<button class="dtab ${sel === i + 1 ? 'on' : ''}" data-p="donetab" data-k="${i + 1}" role="tab" aria-label="${i + 1 === run.rounds ? 'Round ' + (i + 1) + ', the end of the game' : 'Round ' + (i + 1)}">${i + 1}</button>`).join('')}</div>`;
     const an = tab ? (S.boardAnim && S.boardAnim.round === tab ? S.boardAnim : histAnim(run, tab)) : null, playing = !!an && an.k < an.events.length;
     const cap = tab && an && an.k > 0 ? `<p class="bcap" role="status">${A.esc(boardText(run, an.events[an.k - 1], an.from))}</p>` : '';
-    return `<div class="panel setup bigboard enddone" style="--bv:${boardScale()}">${tabs}<div class="scroll"><h2 class="endtitle ${won && !tab ? 'won' : ''}">${A.esc(title)}</h2>${boardGrid(run, an)}${cap}</div><div class="foot"><span class="endbtns">${tab ? (playing ? (an.fast ? '' : '<button class="btn alt" data-p="boardfast">Fast forward ⏩</button>') : '<button class="btn alt" data-p="donereplay">Watch again</button>') : ''}${run.owned.length ? `<button class="btn alt" data-p="owned">Your cards (${run.owned.length})</button>` : ''}</span><button class="btn" data-p="startrun">New run</button></div></div>`;
+    return `<div class="panel setup bigboard enddone" style="--bv:${boardScale()}">${tabs}<div class="scroll"><h2 class="endtitle ${won && !tab ? 'won' : ''}">${A.esc(title)}</h2>${boardGrid(run, an)}${cap}</div><div class="foot"><span class="endbtns">${tab ? (playing ? (an.fast ? '' : '<button class="btn alt" data-p="boardfast">Fast forward ⏩</button>') : '<button class="btn alt" data-p="donereplay">Watch again</button>') : ''}${run.owned.length ? `<button class="btn alt" data-p="owned">Your cards (${run.owned.length})</button>` : ''}</span>${S.viewBest ? '<button class="btn" data-p="closebest">‹ Back</button>' : '<button class="btn" data-p="startrun">New game</button>'}</div></div>`;
   }
   // ----- the table -----
   function track(res, max, cur, live, color, plan = 0) {
@@ -3966,8 +4009,9 @@ const AI = (() => {
     });
     const ongoing = st.ongoing.filter(o => o !== held), cons = st.cons.filter(o => o !== held);
     const broke = o => false;
-    const ong = ongoing.map(o => `<button class="tcard inplay ${acts.has(o) || mod.has(o) ? 'elig' : ''} ${isNew(o) ? 'arrive' : ''} ${(st.under[o.uid] || []).length ? 'hasunder' : ''}" data-p="${mod.has(o) ? 'usemod' : acts.has(o) ? 'action' : 'zoom'}" data-uid="${o.uid}" data-id="${A.esc(o.id)}" aria-label="${A.esc(o.name)}, Ongoing">${underOf(o)}${cw(A.playCard(o, 1), 'cb')}</button>`);
-    const con = cons.map(o => `<button class="tcard inplay cons ${usableCons.has(o) ? 'elig' : ''} ${isNew(o) ? 'arrive' : ''}" data-p="${usableCons.has(o) ? 'usecons' : 'zoom'}" data-uid="${o.uid}" data-id="${A.esc(o.id)}" aria-label="${A.esc(o.name)}, Consumable${usableCons.has(o) ? ', you can use it now' : ''}">${cw(A.playCard(o, 1), 'cb')}</button>`);
+    const ready = new Set(Dig.defeatReady(st).map(x => x.card)), usedD = o => !!f && f.defeat && (f.defeatUsed || []).includes(o.uid);
+    const ong = ongoing.map(o => `<button class="tcard inplay ${acts.has(o) || mod.has(o) || ready.has(o) ? 'elig' : ''} ${usedD(o) ? 'done' : ''} ${isNew(o) ? 'arrive' : ''} ${(st.under[o.uid] || []).length ? 'hasunder' : ''}" data-p="${ready.has(o) ? 'usedefeat' : mod.has(o) ? 'usemod' : acts.has(o) ? 'action' : 'zoom'}" data-uid="${o.uid}" data-id="${A.esc(o.id)}" aria-label="${A.esc(o.name)}, Ongoing${ready.has(o) ? ', you can use it now' : ''}">${underOf(o)}${cw(A.playCard(o, 1), 'cb')}${usedD(o) ? '<span class="tg">✓</span>' : ''}</button>`);
+    const con = cons.map(o => `<button class="tcard inplay cons ${usableCons.has(o) ? 'elig' : ''} ${isNew(o) ? 'arrive' : ''}" data-p="${usableCons.has(o) ? 'usecons' : 'zoom'}" data-uid="${o.uid}" data-id="${A.esc(o.id)}" aria-label="${A.esc(o.name)}, Single-Use${usableCons.has(o) ? ', you can use it now' : ''}">${cw(A.playCard(o, 1), 'cb')}</button>`);
     S.tabSeen = nowSeen;
     const groups = [cards, ong, con].filter(g => g.length);
     return `<section class="tableau" data-n="${cards.length + ong.length + con.length}">${groups.map(g => g.join('')).join('<span class="tsep"></span>')}</section>`;
@@ -3982,7 +4026,7 @@ const AI = (() => {
     if (f) S.dugShown = f.monster;
     const marks = f ? f.markers : 0;          // damage markers on the Monster: what you take is its damage minus these
     const markers = marks > 0 ? `<span class="dmarks" role="img" aria-label="${marks} damage markers">${Array.from({ length: Math.min(marks, 7) }, () => '<i></i>').join('')}${marks > 7 ? `<b>+${marks - 7}</b>` : ''}</span>` : '';
-    if (f) return `<div class="mcard" aria-label="${A.esc(f.monster.name)}${marks ? ', ' + marks + ' damage markers' : ''}"><span class="flipwrap ${f.monster.uid !== fx.mon ? 'landing' : ''}">${f.monster.uid !== fx.mon ? under(before) + drawn(cw(A.playCard(f.monster, 1, { step: f.step }), 'ca'), backOf('var(--ca)')) : cw(A.playCard(f.monster, 1, { step: f.step }), 'ca')}${f.defeat ? '<span class="stamp defeated">Defeated</span>' : ''}</span>${markers}</div>`;       // the Monster is not a button: you leave the fight by tapping the Mine (dig on) or the Bank (stop)
+    if (f) return `<button class="mcard" data-p="zoom" data-uid="${f.monster.uid}" aria-label="${A.esc(f.monster.name)}${marks ? ', ' + marks + ' damage markers' : ''}. Tap to see how Monsters work"><span class="flipwrap ${f.monster.uid !== fx.mon ? 'landing' : ''}">${f.monster.uid !== fx.mon ? under(before) + drawn(cw(A.playCard(f.monster, 1, { step: f.step }), 'ca'), backOf('var(--ca)')) : cw(A.playCard(f.monster, 1, { step: f.step }), 'ca')}${f.defeat ? '<span class="stamp defeated">Defeated</span>' : ''}</span>${markers}</button>`;       // tap the Monster for the big card and how Monsters work; you leave the fight by tapping the Mine (dig on) or the Bank (stop)
     // Every card you dig lands here, face up. A Power or Ongoing card stays here until you dig the next card; then it moves up to the others (see tableauHTML).
     const show = st.last;
     S.dugShown = show || null;
@@ -4007,14 +4051,17 @@ const AI = (() => {
       // the die says the roll; one line adds up the result: 7 + 2 Grit + 1 cards = 10
       const parts = f.parts || [], calc = `<div class="calc">${parts.length > 1 ? parts.map((p, i) => i === 0 ? `${p.v}` : p.set ? `→ ${p.v}` : `${p.v >= 0 ? '+' : '−'} ${Math.abs(p.v)}${p.label === 'Grit' || p.label === 'Grit after' ? ' ' + ic('grit') : ''}`).join(' ') + ' =' : 'Result'} <b>${f.result}</b></div>`;
       const elig = Dig.eligible(st);
-      const useAll = elig.length > 1 ? `<button class="chip useall" data-p="triggerall">Use all ${elig.length}</button>` : '';
+      const rdy = Dig.defeatReady(st), names = rdy.map(r => r.card.name).join(' and '), nUse = elig.length + rdy.length;
+      const useAll = nUse > 1 ? `<button class="chip useall" data-p="triggerall">Use all ${nUse}</button>` : '';
+      const rdyNote = rdy.length ? `<div class="skipnote ${S.confirmSkip === f ? 'ask' : ''}">${S.confirmSkip === f ? `You can still use ${A.esc(names)}.<br>Tap again to go on without ${rdy.length > 1 ? 'them' : 'it'}.` : `The Monster is defeated: tap ${A.esc(names)} to use ${rdy.length > 1 ? 'them' : 'it'}.`}</div>` : '';
       const fired = f.fired.length ? `<div class="fired" role="status" aria-label="${f.fired.length} card${f.fired.length === 1 ? '' : 's'} fired">${f.fired.map(e => `<i>${A.esc(e.card.name)}</i>`).join('')}</div>` : '';
-      const dmg = Dig.previewDamage(st), lethal = dmg >= st.heart && dmg > 0, savers = [elig.length || Dig.mayUse(st).length ? 'use cards' : '', lethal && can.reroll ? (st.reroll > 0 ? 'use an Extra Roll' : 'spend Health on an Extra Roll') : '', lethal && can.gritAfter ? 'spend Grit' : '', lethal && Dig.usable(st).length ? 'use a Consumable' : ''].filter(Boolean), sure = savers.length > 0 && S.confirmFace;          // this would end your Dig and you can still do something: the first tap on "take damage" only asks
+      const gu = can.gritAfter && Dig.gritUseful(st);          // Grit is only suggested when it would power up another card
+      const dmg = Dig.previewDamage(st), lethal = dmg >= st.heart && dmg > 0, savers = [elig.length || Dig.mayUse(st).length ? 'use cards' : '', lethal && can.reroll ? (st.reroll > 0 ? 'use an Extra Roll' : 'spend Health on an Extra Roll') : '', lethal && gu ? 'spend Grit' : '', lethal && Dig.usable(st).length ? 'use a Single-Use card' : ''].filter(Boolean), sure = savers.length > 0 && S.confirmFace;          // this would end your Dig and you can still do something: the first tap on "take damage" only asks
       const rr = can.reroll ? `<button class="rerollbtn" data-p="reroll" aria-label="Extra Roll">${ic('extraroll')}<span>Extra Roll</span><small>${st.reroll} left</small></button>` : '';
-      const gb = can.gritAfter ? `<button class="gritbtn" data-p="gritspend" aria-label="Spend ${Dig.gritAfterCost(st)} Grit for +1">${ic('grit')}<span>${Dig.gritAfterCost(st)} → +1</span><small>${st.grit} left</small></button>` : '';
+      const gb = gu ? `<button class="gritbtn" data-p="gritspend" aria-label="Spend ${Dig.gritAfterCost(st)} Grit for +1">${ic('grit')}<span>${Dig.gritAfterCost(st)} → +1</span><small>${st.grit} left</small></button>` : '';
       const die = `<span class="deckdie"><span class="dieb rollbtn still">${d10(fresh ? '' : shown, fresh ? 'fx-tumble' : '', shown)}</span></span>`;
       const take = f.defeat ? '' : `<button class="takedmg ${lethal ? 'lethal' : ''} ${sure ? 'sure' : ''} ${fresh ? 'waitroll' : ''}" data-p="face">${sure ? `You can still ${savers.join(' or ')}.<br>Tap again to take ${dmg} ${ic('damage')}` : dmg ? `Take ${dmg} ${ic('damage')}` : `Take 0 ${ic('damage')}`}</button>`;          // (a defeated Monster needs no tap: dig on, or bank)
-      return { die, html: `<div class="action">${calc}${fired}${useAll}<div class="astack">${take}<div class="abtns">${rr}${gb}</div></div></div>` };
+      return { die, html: `<div class="action">${calc}${fired}${rdyNote}${useAll}<div class="astack">${take}<div class="abtns">${rr}${gb}</div></div></div>` };
     }
     if (st.pending && st.pending.kind === 'dug') {
       const p = st.pending;
@@ -4025,7 +4072,7 @@ const AI = (() => {
     // The last round is a race: nobody banks. Say so, and say what to do: keep digging until you lead; once you lead, wait (digging on only risks the lead).
     const lastRound = !!(S.run && st.board && st.board.final);
     const myBest = S.run ? (Board.marker(S.run.board, S.run.me, 'best') || { n: 0 }).n : 0, past = lastRound && st.board.lead && Math.max(st.monstersDug, st.survived) > myBest;          // in the last round your job is to get one past your best; only then may you wait and speed the others up
-    const say = lastRound ? (st.board.allOut ? 'You won! Keep digging to push your score higher, or see the result.' : st.board.lead ? (past ? `You are in the lead with ${(leaderLine() || {}).n}. Keep digging to push it higher, or wait to see if everyone else goes BOOM.` : `You are in the lead with ${(leaderLine() || {}).n}. Try to get one past it.`) : leaderLine() ? `${leaderLine().name} ${leaderLine().is} in the lead with ${leaderLine().n}. Try to beat that score.` : 'The last round: nobody banks. Dig until you are in the lead.') : can.bank ? 'Tap the Mine to dig, or the Bank to keep your gems' : 'Tap the Mine to dig';
+    const say = lastRound ? (st.board.allOut ? 'You are winning. Keep digging to push your score higher, but a BOOM now costs you this score: only your best from earlier rounds would count. Or see the result.' : st.board.lead ? (past ? `You are in the lead with ${(leaderLine() || {}).n}. Keep digging to push it higher, or wait to see if everyone else goes BOOM.` : `You are in the lead with ${(leaderLine() || {}).n}. Try to get one past it.`) : leaderLine() ? `${leaderLine().name} ${leaderLine().is} in the lead with ${leaderLine().n}. Try to beat that score.` : 'The last round: nobody banks. Dig until you are in the lead.') : can.bank ? 'Tap the Mine to dig, or the Bank to keep your gems' : 'Tap the Mine to dig';
     const holdBtn = lastRound && st.board.allOut ? `<button class="btn" data-p="hold">See the result</button>` : '';
     const ffBtn = past && aiDigging() ? `<button class="btn alt ffbtn" data-p="ff" ${S.ff ? 'disabled' : ''}>${S.ff ? 'Fast-forwarding…' : 'Fast-forward your opponents'}</button>` : '';          // you wait; this speeds the opponent up until they pass you or go BOOM
     return { html: `<div class="action"><div class="aprompt">${say}</div>${ffBtn}${holdBtn}</div>`, die: '' };
@@ -4093,21 +4140,6 @@ const AI = (() => {
         ${card('3 · Bank or push on', `<span class="hbankpic">5 ${ic('gem')}</span>${arrow}<span class="hsafe">Safe</span>`, 'Bank to keep your gems. Health at 0 is BOOM: you lose everything.')}
       </div>
       <p class="hline">${ic('heart')} <b>Win rounds</b> to open Booster Packs and build a better Mine. Be in the lead when the last round ends.</p>
-      <details class="fine"><summary>The fine print</summary><ul>
-        <li>The die is a d${R.die}; Health starts at ${R.start.heart}, Extra Rolls ${R.start.reroll} (up to ${R.caps.reroll}), Grit ${R.start.grit} (up to ${R.caps.grit}). Health at 0 is BOOM.</li>
-        <li>Your <b>result</b> is the die plus the Grit you put in plus your cards' bonuses: never the bare die. Every upright card with a number at or below it is powered up and glows: tap the ones you want (or "Use all"). A card you use does its thing and lies down, and cannot be used again in this battle. A card that raises your result powers up more cards, the Pet too. After the battle every card stands up again and the markers go away.</li>
-        <li><b>Grit</b>: before you roll, each Grit you put in is +1 to that roll. After you roll, ${R.grit.after} Grit is +1 to your result (a card can make it fewer). You can spend at most ${R.grit.battleLimit} Grit in one battle.</li>
-        <li><b>Extra Rolls</b>: spend one to roll again. The new roll is your result (the old one is gone), cards you have already used stay lying down, and the new result powers up the cards that are still upright.</li>
-        <li>Cards that put damage on the Monster put markers on it: you take its damage minus its markers (never below 0). Damage is halved before markers are taken off.</li>
-        <li>Survive a Monster from your Mine, defeated or not, and take its Loot: a gem. Gauntlet Monsters (8, then 9, 10 …) after the Mine pay no Loot.</li>
-        <li>Consumables go to your play area when dug and glow when you can use them: use one once, when its text says, then it is discarded. Immediate cards do their thing when dug.</li>
-        <li>Result changes apply in order: bonuses, then double, then "becomes", then "less than".</li>
-        <li>"Whenever you gain" only counts when the track actually moves.</li>
-        <li>The last round is a race: nobody banks. Whoever is in the lead may wait; the rest must keep digging.</li>
-        <li>Your marker on the Leaderboard moves the moment you meet a Monster. BOOM clears it.</li>
-        <li>Your Starter Kit goes on top of the Mine in the order you tap it; every other card you own is shuffled in. A card that says "Can't Start" never goes in a Starter Kit.</li>
-        <li>Monsters you are done with go in the Monster pile, never the discard.</li>
-        <li>Easy, Medium and Hard dig on their own clocks (the harder, the quicker: whoever reaches a number first takes the better spot); when you are done, tap on and they finish their Digs behind the scenes; the Leaderboard then plays back what happened.</li></ul></details>
     </div></div>`;
   }
   // When the next card you dig could be a Monster that would put you out (its damage is at least your Health), a "Careful" note comes up in the middle of the screen and has to be dismissed before you go on:
@@ -4163,8 +4195,8 @@ const AI = (() => {
     const keep = $.querySelector('#setupScroll'), ks = keep ? keep.scrollTop : 0;
     // The header is only for the table: the Leaderboard and Menu. Everywhere else (Prep, the end of a run) there is just a small Menu in the corner.
     const bar = S.panel === 'dig'
-      ? `<div class="pbar">${S.run ? lbHTML(S.run, S.st) : '<span class="pgrow"></span>'}<button class="chip" data-p="gmenu">Menu</button></div>`
-      : `<div class="pbar slim"><button class="chip" data-p="gmenu">Menu</button></div>`;
+      ? `<div class="pbar">${S.run ? lbHTML(S.run, S.st) : '<span class="pgrow"></span>'}<button class="chip" data-p="gmenu">Pause</button></div>`
+      : `<div class="pbar slim"><button class="chip" data-p="gmenu">Pause</button></div>`;
     dangerCheck();
     let body;
     if (S.panel === 'menu') body = homeHTML();
@@ -4175,7 +4207,11 @@ const AI = (() => {
     else if (S.panel === 'setup' || !S.st) body = setupHTML();
     else body = `<div class="pmain"><div class="ptable ${S.st.fight && S.st.fight.phase === 'before' && !S.st.over ? 'await-roll' : ''}" data-step="${S.st.over ? 'over' : S.st.fight ? (S.st.fight.phase === 'before' ? 'roll' : 'damage') : 'dig'}">${tableHTML()}</div></div>`;       // a Monster is in front of you and nothing else matters until you roll: the rest of the table dims
     const zdyn = S.zoom && S.st && S.panel === 'dig' ? Dig.dynamic(S.st, S.zoom) : null;          // a card whose power depends on the game says what it is worth right now
-    const z = S.zoom ? `<div class="zoom" data-p="unzoom">${A.playCard(S.zoom, Math.min(1.35, (VH() - 110) / 350))}${zdyn ? `<div class="zdyn">Right now: <b>${T(zdyn)}</b></div>` : ''}${Dig.supported(S.zoom) ? '' : '<div class="warn">This card\'s effect is not built yet.</div>'}</div>` : '';
+    const monNote = m => {
+      const steps = Engine.damageSteps(m.text), loot = m.bonus ? R.beyond.gems : Engine.lootOf(m.text);
+      return `<div class="monhow"><h3>How Monsters work</h3><ol><li>Roll the die. Your roll, plus any Grit and card bonuses, powers up your cards.</li><li>Some cards defeat a Monster or put damage markers on it.</li><li>Then you face it: you take its damage, minus its markers. A defeated Monster deals none.</li><li>${loot ? `Survive it and take its Loot: ${loot} ${ic('gem')}.` : 'Monsters from beyond the Mine have no Loot.'}</li>${steps && steps.length > 1 ? `<li>The next Monster in its set hits harder: ${steps.join(' → ')}.</li>` : ''}</ol></div>`;
+    };
+    const z = S.zoom ? `<div class="zoom" data-p="unzoom">${A.playCard(S.zoom, Math.min(1.35, (VH() - (S.zoom.type === 'Monster' ? 330 : 110)) / 350))}${S.zoom.type === 'Monster' ? monNote(S.zoom) : ''}${zdyn ? `<div class="zdyn">Right now: <b>${T(zdyn)}</b></div>` : ''}${Dig.supported(S.zoom) ? '' : '<div class="warn">This card\'s effect is not built yet.</div>'}</div>` : '';
     const bottom = S.panel === 'dig' && S.st && !S.st.mine.length && !S.st.over && !S.st.fight && !S.st.pending && S.emptySeen !== S.st && !S.help;          // you dug the last card of your Mine: say what happens next, once
     const B = D.rules.beyond, note = bottom ? `<div class="mnote-back"><div class="mnote" role="dialog" aria-label="The bottom of your Mine"><h3>You've reached the bottom of your Mine</h3><p>Keep digging to face the <b>gauntlet</b>: Monsters with no Loot, face up, starting at <b>${B.firstDamage}</b> damage and going up by <b>1</b> each time. You can still bank at any time.</p><button class="btn" data-p="emptyok">Got it</button></div></div>` : '';
     let fin = '';
@@ -4189,7 +4225,7 @@ const AI = (() => {
       const list = S.run.owned, sc = Math.min(.55, fitCards(list.length, .55, Math.min(VW(), 1180) - 80, VH() - 190, 12)), inKit = new Set((S.run.kit || []).map(c => c.uid));
       ownedP = `<div class="ownedback" data-p="ownedclose"><div class="ownedpanel" role="dialog" aria-label="Your cards"><h3>Your cards</h3><div class="cards">${list.map(c => `<span class="ocard" data-p="zoom" data-uid="${c.uid}" style="width:${250 * sc}px;height:${350 * sc}px">${A.playCard(c, sc)}${inKit.has(c.uid) ? '<span class="ctag last">In your kit</span>' : ''}</span>`).join('') || '<span class="note">You do not own any cards yet.</span>'}</div></div></div>`;
     }
-    $.innerHTML = (S.panel === 'menu' || S.panel === 'more' || (S.panel === 'setup' && !S.run) ? '' : bar) + body + (S.gmenu ? gmenuHTML() : '') + (S.help ? helpHTML() : '') + z + note + fin + dangerHTML() + ffNoteHTML() + lbFullHTML() + ownedP + pickHTML() + logHTML();
+    $.innerHTML = (S.panel === 'menu' || S.panel === 'more' || S.viewBest || (S.panel === 'setup' && !S.run) ? '' : bar) + body + (S.gmenu ? gmenuHTML() : '') + (S.help ? helpHTML() : '') + z + note + fin + dangerHTML() + ffNoteHTML() + lbFullHTML() + ownedP + pickHTML() + logHTML();
     const sc = $.querySelector('#setupScroll'); if (sc) sc.scrollTop = ks;
     fitHero(); heroPlay(); fitTable(); playDice(); boardAnimate();
     if (S.packFrom) { const fp = $.querySelector('.flypack'); if (fp) { const r = rr(fp); fp.style.setProperty('--fx', Math.round(S.packFrom.x - (r.left + r.width / 2)) + 'px'); fp.style.setProperty('--fy', Math.round(S.packFrom.y - (r.top + r.height / 2)) + 'px'); } S.packFrom = null; }
@@ -4265,9 +4301,12 @@ const AI = (() => {
     const st = S.st, f = st && st.fight, ds = el.dataset; 
     if (a !== 'startrun' && a !== 'practice') S.confirmNew = null;
     if (a !== 'face') S.confirmFace = false;
+    if (a !== 'dig' && a !== 'bank') S.confirmSkip = null;
     switch (a) {
       case 'menu': if (S.panel !== 'menu' && S.panel !== 'more') S.back = S.panel; S.panel = 'menu'; S.help = false; S.gmenu = false; break;
       case 'more': S.panel = 'more'; break;
+      case 'viewbest': { const g = readBestGame(); if (!g) break; try { const match = Match.load(cards(), g.match); S.stash = { match: S.match, run: S.run, st: S.st, back: S.back }; S.match = match; S.run = Match.human(match); S.st = S.run.dig; S.boardAnim = null; S.doneTab = null; S.viewBest = true; S.panel = 'done'; } catch (e) { /* a card has changed since: it cannot be shown */ } break; }
+      case 'closebest': closeBest(); break;
       case 'gmenu': S.gmenu = true; break;
       case 'gmenuclose': S.gmenu = false; break;
       case 'dangerok': S.dangerNote = false; break;
@@ -4333,7 +4372,8 @@ const AI = (() => {
       case 'finalhow': S.finalHow = !S.finalHow; break;
       case 'zoom': S.zoom = findCard(ds.uid); break;
       case 'card': { const c = findCard(ds.uid), e = st && st.line.find(x => x.card === c); if (st && st.pending && st.pending.kind === 'clone' && e) Dig.chooseClone(st, c); else if (e && f && f.phase === 'after' && Dig.eligible(st).includes(e)) Dig.trigger(st, e); else S.zoom = c; break; }
-      case 'triggerall': if (st) Dig.triggerAll(st); break;
+      case 'triggerall': S.confirmSkip = null; if (st) Dig.triggerAll(st); break;
+      case 'usedefeat': { S.confirmSkip = null; const c = findCard(ds.uid); if (st && c) Dig.useDefeat(st, c); break; }
       case 'usemod': { const o = findCard(ds.uid); if (st && o) Dig.useMod(st, o); break; }
       case 'usecons': {
         const c = findCard(ds.uid), found = st ? Dig.usable(st).filter(x => x.card === c) : []; if (!found.length) { S.zoom = c; break; }
@@ -4361,11 +4401,11 @@ const AI = (() => {
       case 'grit': if (f && f.phase === 'before') { const left = Dig.gritLeft(st, f); Dig.planGrit(st, f.plan >= left ? 0 : f.plan + 1); } else if (f && f.phase === 'after') Dig.spendGrit(st, 1); break;
       case 'showlog': S.showLog = !S.showLog; break;
       case 'log': S.showLog = true; S.gmenu = false; break;
-      case 'dig': if (st) { if (st.fight && st.fight.defeat) { S.confirmFace = false; Dig.face(st); } Dig.dig(st); } break;
+      case 'dig': if (st) { if (st.fight && st.fight.defeat && Dig.defeatReady(st).length && S.confirmSkip !== st.fight) { S.confirmSkip = st.fight; break; } S.confirmSkip = null; if (st.fight && st.fight.defeat) { S.confirmFace = false; Dig.face(st); } Dig.dig(st); } break;
       case 'roll': Dig.roll(st); break;
       case 'reroll': if (f && f.phase === 'after') Dig.reroll(st); break;          // (you then put Grit into the roll if you like, and tap the die)
       case 'face': { const dmg = Dig.previewDamage(st), cn = Dig.can(st), lethal = dmg > 0 && dmg >= st.heart; if (st && (Dig.eligible(st).length || Dig.mayUse(st).length || (lethal && (cn.reroll || cn.gritAfter || Dig.usable(st).length))) && !S.confirmFace) { S.confirmFace = true; break; } S.confirmFace = false; Dig.face(st); break; }
-      case 'bank': if (st && st.fight && st.fight.defeat) { S.confirmFace = false; Dig.face(st); } if (S.run) Run.bank(S.run); else Dig.bank(st); break;
+      case 'bank': if (st && st.fight && st.fight.defeat && Dig.defeatReady(st).length && S.confirmSkip !== st.fight) { S.confirmSkip = st.fight; break; } S.confirmSkip = null; if (st && st.fight && st.fight.defeat) { S.confirmFace = false; Dig.face(st); } if (S.run) Run.bank(S.run); else Dig.bank(st); break;
       case 'hold': Dig.hold(st); if (S.run) Run.checkOver(S.run); return act('prep', el);          // you won: no little message first, straight to the Leaderboard and then the full-screen result
       case 'heart': break;
     }

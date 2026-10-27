@@ -45,6 +45,16 @@ test('the Board updates by itself: your live marker follows every Monster you en
   assert.ok(Run.bank(run)); assert.equal(Board.marker(run.board, 'me', 'pledge'), null); assert.equal(run.best, 4);
 });
 
+test('a BOOM is noted on the Monster you were on, not the number you had survived (the Leaderboard and its words agree with where the piece stood)', () => {
+  const run = Run.start(cards, { seed: 5, rounds: 2 }); Run.openPack(run); Run.toggleKeep(run, run.prep.offer[0].uid); Run.confirmKeep(run); Run.toggleKit(run, run.owned[0].uid); Run.beginDig(run, { seed: 1 });
+  const st = run.dig; st.mine = ['MO-01', 'MO-02', 'MO-01', 'MO-02', 'MO-01'].map((id, i) => ({ ...by(id), uid: 9800 + i })); st.dice = Array(30).fill(10);
+  for (let i = 0; i < 4; i++) { Dig.dig(st); Dig.roll(st); Dig.autoFace(st); Run.refresh(run); }
+  st.heart = 1; st.dice = [1]; Dig.dig(st); Run.refresh(run); assert.equal(Board.marker(run.board, 'me', 'pledge').n, 5, 'the piece stands on the fifth Monster');
+  Dig.roll(st); Dig.autoFace(st); Run.checkOver(run);
+  assert.equal(st.over.kind, 'boom'); const e = run.board.log.find(x => x.k === 'boom' && x.id === 'me');
+  assert.equal(e.n, 5, 'BOOM at the Monster you were on (5), not the 4 you had survived');
+});
+
 test('the live marker takes the best open spot under each number, so the first to get there is ahead', () => {
   const b = Board.create([{ id: 'a' }, { id: 'b' }]);
   Board.track(b, 'a', 3); Board.track(b, 'b', 3);

@@ -4,7 +4,7 @@ One file: `index.html`. Open it directly or from the build. On the library shelf
 
 ## Where the rules live
 - **The cards are in the game** (v2.7.1): `DDB.cards` in the `data` script, imported once from the owner's "v2.7.1 Cards" tab (record: `tools/cards-v271.psv`, printed by `tools/embed-cards.js`). The game never reads the sheet and keeps no saved copy. To change a card, change its line in `DDB.cards`.
-- **`<script id="data">`** (`DDB`): the cards, card types and colours, and every rule number (`DDB.rules`: the d10, the tracks (Health 0–10, Extra Rolls 0–5, Grit 0–3), start values, `grit` (rates and the 3-a-battle limit), rulings; `DDB.run`: rounds, reward ladder, Crown start; `DDB.phrases`: the phrase book).
+- **`<script id="data">`** (`DDB`): the cards, card types and colours, and every rule number (`DDB.rules`: the d10, the tracks (Health 0–10, Extra Rolls 0–3, Grit 0–3), start values, `grit` (rates and the 3-a-battle limit), rulings; `DDB.run`: rounds, reward ladder, Crown start; `DDB.phrases`: the phrase book).
 - **Card behaviour is read from the card text.** `DDB.phrases` lists sentence patterns (for numbered Ongoing and Immediate cards, unnumbered Ongoing cards, Consumables); the `dig` script maps each to an effect. A text the phrase book does not understand is shown as "not built yet", and `tests/dig.test.js` fails if any card of the game is not understood. To teach the game a new kind of sentence: add a pattern to `DDB.phrases` and handle its `op` in `Dig`.
 
 ## Scripts (in order)

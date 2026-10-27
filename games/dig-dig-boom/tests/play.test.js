@@ -88,17 +88,17 @@ test('menu: the front of the box — the logo and a tiny game playing itself (a 
   }
 });
 
-test('menu: Play, How to play and Settings and nothing else — no text under the buttons, no footnote; Settings has Rounds 2 to 7, the cards and a playtest, with a way back and no second Menu', SKIP, async () => {
+test('menu: Play, How to play and More and nothing else — no text under the buttons, no footnote; More has the cards and a playtest (nothing to set), with a way back and no second Pause', SKIP, async () => {
   const { browser, page, errors } = await open({ menu: true });
   try {
     const home = await page.locator('#play .homemenu').innerText();
     assert.match(home, /Play/); assert.doesNotMatch(home, /Practice|The cards|See the cards|[Pp]rint|Nobody|Opponent|against the AI|Cards and rules|Version/);
-    assert.deepEqual((await page.locator('#play .homemenu button').allInnerTexts()).map(t => t.trim()), ['Play', 'How to play', 'Settings']);
+    assert.deepEqual((await page.locator('#play .homemenu button').allInnerTexts()).map(t => t.trim()), ['Play', 'How to play', 'More']);
     await page.click('#play [data-p=more]');
-    assert.equal(await page.locator('#play .pbar').count(), 0, 'no second Menu on the Settings screen');
+    assert.equal(await page.locator('#play .pbar').count(), 0, 'no Pause button on the More screen');
     assert.equal(await page.locator('#play [data-p=gmenu]').count(), 0);
     const menu = await page.locator('#play .settings').innerText();
-    assert.match(menu, /Settings[\s\S]*The cards[\s\S]*Playtest/); assert.doesNotMatch(menu, /[Tt]rash|Nobody|Opponent|[Pp]rint|Rounds/);
+    assert.match(menu, /More[\s\S]*The cards[\s\S]*Playtest/); assert.doesNotMatch(menu, /Settings/); assert.doesNotMatch(menu, /[Tt]rash|Nobody|Opponent|[Pp]rint|Rounds/);
     assert.equal(await page.locator('#play .seg button').count(), 0, 'no choice of rounds');
     await page.click('#play [data-p=menu]'); await page.waitForSelector('#play .homemenu');
     assert.deepEqual(errors, []);
@@ -146,7 +146,7 @@ test('table: dig a Geode, then a Monster — tap the die, take an Extra Roll, ta
   const { browser, page, errors } = await open();
   try {
     await begin(page, { mine: ['TR-01', 'MO-01', 'TR-01'], dice: [2, 5], start: { heart: 6, reroll: 1 } });
-    assert.equal(await page.locator('#play .track').count(), 3, 'Health, Extra Rolls and Grit'); assert.equal(await page.locator('#play .tbody .tc').count(), 11 + 6 + 4);
+    assert.equal(await page.locator('#play .track').count(), 3, 'Health, Extra Rolls and Grit'); assert.equal(await page.locator('#play .tbody .tc').count(), 11 + 4 + 4);
     await page.click('#play [data-p=dig]');
     assert.match(await logText(page), /You dig Geode[\s\S]*Geode: \+1/);
     assert.match(await page.locator('#play [data-p=bank]').innerText(), /^BANK\s*1/i);
@@ -344,7 +344,7 @@ test('table: after the roll a button takes the damage — then you see your new 
   try {
     await begin(page, { mine: ['TR-01', 'MO-01', 'TR-01', 'MO-02', 'MO-01'], dice: [4, 1], start: { heart: 3 } });
     await page.click('#play [data-p=dig]'); await page.click('#play [data-p=dig]');
-    assert.equal(await page.locator('#play .mcard[data-p]').count(), 0, 'the Monster card is not tappable');
+    assert.equal(await page.locator('#play .mcard[data-p]:not([data-p=zoom])').count(), 0, 'the Monster card only opens the big card: it is not an action');
     assert.equal(await page.locator('#play [data-p=face]').count(), 0, 'no damage button before the roll');
     assert.equal(await page.locator('#play .steps').count(), 0, 'no step line');
     await page.click('#play [data-p=roll]');
@@ -467,7 +467,7 @@ test('look: every Geode is a different gem (six colours and cuts); the Health, E
     assert.equal(new Set(seen.map(x => x.cut)).size, 6, 'and six different cuts, so colour is never the only clue');
     const cells = await page.evaluate(() => [...document.querySelectorAll('#play .track')].map(t => [...t.querySelectorAll('.tc')].map(c => { const r = c.getBoundingClientRect(); return [Math.round(r.left * 10) / 10, Math.round(r.width * 10) / 10]; })));
     const [heart, reroll, grit] = cells;
-    assert.equal(heart.length, 11); assert.equal(reroll.length, 6, 'Extra Rolls go up to 5'); assert.equal(grit.length, 4, 'Grit goes up to 3');
+    assert.equal(heart.length, 11); assert.equal(reroll.length, 4, 'Extra Rolls go up to 3'); assert.equal(grit.length, 4, 'Grit goes up to 3');
     for (const row of [reroll, grit]) row.forEach((c, i) => { assert.ok(Math.abs(c[0] - heart[i][0]) < 0.6 && Math.abs(c[1] - heart[i][1]) < 0.6, `square ${i} lines up with Health's: ${c} vs ${heart[i]}`); });
     assert.deepEqual(errors, []);
   } finally { await browser.close(); }
@@ -522,7 +522,7 @@ test('run: round 1 opens a Bronze Pack (draw 3, keep 1), then you choose your St
     assert.equal(await page.locator('#play [data-p=kitpick]').count(), 1, 'one card to choose from: the one you kept');
     assert.equal(await page.locator('#play [data-p=kitgem]').count(), 0, 'no gem to pick: an empty place is a gem');
     assert.equal(await page.locator('#play .kitbar .count').count(), 0, 'no "0 of 1" count: the outlined places say it');
-    assert.match(await page.locator('#play .kdef').innerText(), /^These will be the first cards you draw\.\s*Any place you leave empty gets a\s+gem instead\.$/, 'the Starter Kit is defined, not explained');
+    assert.match(await page.locator('#play .kdef').innerText(), /^You will draw these first\.\s*Empty spots will be filled with Geodes\.$/, 'the Starter Kit is defined, not explained');
     assert.equal(await page.locator('#play .kslot.empty .kgem').count(), 1, 'round 1 has one Starter Kit place: when it is left empty it shows the gem it will be filled with');
     assert.equal(await page.evaluate(() => getComputedStyle(document.querySelector('#play .kitbar b')).fontSize), '42px', 'the Keep and Starter Kit titles use the same size');
     assert.equal(await page.locator('#play .pips2').count(), 0, 'no circles');
@@ -995,7 +995,7 @@ test('the last round: when everyone else has gone BOOM you have won, but the Dig
     await page.click('#play [data-p=finalok]');
     await page.evaluate(() => { const P = window.DigDigBoomPlay, m = P.S.match; Board.lockIn(m.board, 'me', 5); for (const id of Match.botIds(m)) { const r = m.runs[id]; r.dig.over = { kind: 'boom', why: 'test', seq: 99 }; Run.checkOver(r); } Run.refresh(P.S.run); Match.finalCheck(m); P.render(); });
     assert.equal(await page.locator('#play .over').count(), 0, 'your Dig has not ended by itself');
-    assert.match(await page.locator('#play .aprompt').innerText(), /You won[\s\S]*Keep digging/i);
+    assert.match(await page.locator('#play .aprompt').innerText(), /You are winning[\s\S]*Keep digging[\s\S]*BOOM now costs you/i);
     assert.equal(await page.locator('#play [data-p=dig]:not([disabled])').count(), 1, 'you may keep digging');
     await page.click('#play [data-p=hold]'); await page.waitForSelector('#play .bigboard');
     assert.equal(await page.locator('#play .over').count(), 0, 'no ribbon and no little message first: straight to the Leaderboard');
@@ -1317,6 +1317,114 @@ test('the cards a roll reaches fire one at a time: each lifts and lies down in t
     assert.match(fx[0].name, /Gritty Gecko|Nurse Newt/); assert.match(fx[2].name, /Grit Gopher/);
     await page.evaluate(() => window.DigDigBoomPlay.render());
     assert.equal(await page.locator('#play .tcard.firenow').count(), 0, 'drawn again, they simply lie down: no second show');
+    assert.deepEqual(errors, []);
+  } finally { await browser.close(); }
+});
+
+test('Pause is the big button in the corner; tap a Monster in a battle for the big card and how Monsters work (no "Loot", no "set of" on the card)', SKIP, async () => {
+  const { browser, page, errors } = await open({ viewport: { width: 820, height: 1180 } });
+  try {
+    await begin(page, { mine: ['MO-01'], dice: [3] });
+    assert.equal((await page.locator('#play [data-p=gmenu]').innerText()).trim(), 'Pause');
+    assert.ok((await page.locator('#play [data-p=gmenu]').boundingBox()).height >= 48, 'big enough to hit without looking');
+    await page.click('#play [data-p=dig]');
+    assert.doesNotMatch(await page.locator('#play .mcard').innerText(), /loot|set of/i);
+    await page.click('#play .mcard');
+    const z = await page.locator('#play .zoom').innerText();
+    assert.match(z, /How Monsters work[\s\S]*Roll the die[\s\S]*damage markers[\s\S]*Loot/); assert.equal(await page.locator('#play .zoom .card').count(), 1, 'the big card');
+    await page.click('#play .zoom'); assert.equal(await page.locator('#play .zoom').count(), 0, 'tap to put it back');
+    assert.equal(await page.locator('#play [data-p=roll]').count(), 1, 'the battle is still there');
+    assert.deepEqual(errors, []);
+  } finally { await browser.close(); }
+});
+
+test('"Whenever you defeat a Monster": the card glows once the Monster is defeated; tapping it uses it; going on without it asks first; Use all uses it too', SKIP, async () => {
+  const { browser, page, errors } = await open({ viewport: { width: 820, height: 1180 } });
+  try {
+    await begin(page, { mine: ['MO-01', 'MO-02'], dice: [10, 10], line: ['ON-13'], ongoing: ['ON-61'], start: { heart: 5 } });
+    await page.click('#play [data-p=dig]'); await page.click('#play [data-p=roll]');
+    await page.locator('#play .tcard.elig:not(.inplay)').last().click();          // the Pet (the biggest number) defeats it
+    assert.match(await page.locator('#play .stamp').innerText(), /defeated/i);
+    assert.equal(await page.locator('#play .tcard.inplay.elig').count(), 1, 'Salvage Claw glows');
+    assert.match(await page.locator('#play .skipnote').innerText(), /defeated: tap Salvage Claw to use it/);
+    assert.deepEqual(await stOf(page, () => { const s = window.DigDigBoomPlay.S.st; return [s.heart, s.grit]; }), [5, 0], 'nothing happens until you tap it');
+    await page.click('#play [data-p=dig]');          // the Mine
+    assert.match(await page.locator('#play .skipnote.ask').innerText(), /You can still use Salvage Claw[\s\S]*Tap again/, 'the first tap only asks');
+    assert.equal(await stOf(page, () => !!window.DigDigBoomPlay.S.st.fight), true, 'still in the fight');
+    await page.click('#play .tcard.inplay.elig');
+    assert.deepEqual(await stOf(page, () => { const s = window.DigDigBoomPlay.S.st; return [s.heart, s.grit]; }), [6, 1], 'one Grit and one Health');
+    assert.equal(await page.locator('#play .skipnote').count(), 0, 'and nothing left to ask about');
+    await page.click('#play [data-p=dig]'); await page.click('#play [data-p=roll]');          // the next Monster: Use all, the Pet first
+    await page.click('#play [data-p=triggerall]');
+    assert.deepEqual(await stOf(page, () => { const s = window.DigDigBoomPlay.S.st; return [s.heart, s.grit, s.fight.fired[0].pet]; }), [7, 2, true], 'the Pet went first, and Salvage Claw was used by Use all: no next dig needed');
+    assert.deepEqual(errors, []);
+  } finally { await browser.close(); }
+});
+
+test('after a roll, Grit is only offered when it would power up another card', SKIP, async () => {
+  const { browser, page, errors } = await open({ viewport: { width: 820, height: 1180 } });
+  try {
+    await begin(page, { mine: ['MO-01'], dice: [4], start: { grit: 3 } });
+    await page.click('#play [data-p=dig]'); await page.click('#play [data-p=roll]'); await page.waitForSelector('#play [data-p=face]');
+    assert.equal(await page.locator('#play .gritbtn').count(), 0, 'nothing a +1 would reach: no suggestion');
+    const b2 = await open({ viewport: { width: 820, height: 1180 } });
+    try {
+      await begin(b2.page, { mine: ['MO-01'], dice: [4], start: { grit: 3 }, line: ['ON-13'] });          // Dart Frog needs a 5
+      await b2.page.click('#play [data-p=dig]'); await b2.page.click('#play [data-p=roll]'); await b2.page.waitForSelector('#play [data-p=face]');
+      assert.equal(await b2.page.locator('#play .gritbtn').count(), 1, '4 and 1 more reaches the Dart Frog');
+    } finally { await b2.browser.close(); }
+    assert.deepEqual(errors, []);
+  } finally { await browser.close(); }
+});
+
+// A finished game for the "best game" tests: played in Node with the plain policy, saved the way the page saves it.
+function finishedGame(seed, rounds = 2) {
+  const L = require('./load.js'), all = L.Engine.cards(), m = L.Match.start(all, { seed, rounds });
+  for (let r = 1; r <= rounds; r++) {
+    const me = L.Match.human(m);
+    if (me.prep.step === 'escape') L.Match.rollEscape(m); L.Match.openPack(m); L.AI.prep(me); L.Match.beginRound(m);
+    for (let g = 0; g < 4000 && !me.dig.over; g++) {
+      const st = me.dig, before = st.digs;
+      if (!L.AI.act(me)) { if (L.Match.finalCheck(m)) continue; if (me.dig.board && me.dig.board.allOut && L.Dig.hold(me.dig)) { L.Run.checkOver(me); continue; } if (!L.Match.aiStep(m)) throw new Error('stuck'); continue; }
+      L.Run.checkOver(me); L.Match.finalCheck(m); if (st.digs > before && !me.dig.over) L.Match.aiStep(m);
+    }
+    L.Match.finishRound(m);
+  }
+  return m;
+}
+
+test('your best game: a finished game is kept with its whole Leaderboard (only when its final score beats the saved one); More lists it, shows each round and lets you watch it again', SKIP, async () => {
+  const L = require('./load.js'), m = finishedGame(3, 2), json = JSON.stringify(L.Match.save(m));
+  const { browser, page, errors } = await open({ menu: true });
+  try {
+    assert.equal(await page.evaluate(() => localStorage.getItem('ddb.bestgame.v1')), null, 'none before a game is finished');
+    await page.evaluate(j => { const P = window.DigDigBoomPlay, all = window.DigDigBoomUI.state.all, m = Match.load(all, JSON.parse(j)); P.S.match = m; P.S.run = Match.human(m); P.S.st = P.S.run.dig; P.S.panel = 'done'; P.act('closehelp'); }, json);
+    const saved = await page.evaluate(() => JSON.parse(localStorage.getItem('ddb.bestgame.v1')));
+    assert.equal(saved.score, m.result.bests.me, 'the final score is kept'); assert.ok(saved.match.result, 'with the whole game');
+    await page.evaluate(() => { const P = window.DigDigBoomPlay; P.S.match = null; P.S.run = null; P.S.st = null; P.S.back = null; P.S.panel = 'menu'; P.render(); });
+    await page.evaluate(s => { const o = JSON.parse(localStorage.getItem('ddb.bestgame.v1')); o.score = 99; localStorage.setItem('ddb.bestgame.v1', JSON.stringify(o)); }, 0);
+    await page.evaluate(j => { const P = window.DigDigBoomPlay, all = window.DigDigBoomUI.state.all, m = Match.load(all, JSON.parse(j)); P.S.match = m; P.S.run = Match.human(m); P.S.st = P.S.run.dig; P.S.panel = 'done'; P.act('closehelp'); }, json);
+    assert.equal(await page.evaluate(() => JSON.parse(localStorage.getItem('ddb.bestgame.v1')).score), 99, 'a lower score does not replace the best one');
+    await page.evaluate(() => { const P = window.DigDigBoomPlay; P.S.match = null; P.S.run = null; P.S.st = null; P.S.back = null; P.S.panel = 'menu'; P.render(); });
+    await page.click('#play [data-p=more]');
+    assert.match(await page.locator('#play .settings').innerText(), /Your best game[\s\S]*Final score 99/);
+    await page.click('#play [data-p=viewbest]'); await page.waitForSelector('#play .enddone');
+    assert.equal(await page.locator('#play .dtab').count(), 2, 'a tab for each round'); assert.equal(await page.locator('#play [data-p=gmenu]').count(), 0, 'nothing to pause: it is only a look');
+    assert.equal(await page.locator('#play [data-p=startrun]').count(), 0, 'and no New game button here');
+    await page.click('#play [data-p=donetab][data-k="1"]'); assert.match(await page.locator('#play .endtitle').innerText(), /Round 1/);
+    assert.equal(await page.locator('#play [data-p=donereplay], #play [data-p=boardfast]').count(), 1, 'watch it again');
+    await page.click('#play [data-p=closebest]'); await page.waitForSelector('#play .settings');
+    assert.deepEqual(errors, []);
+  } finally { await browser.close(); }
+});
+
+test('More: the cards page has a way back to More, and the fine print is gone from How to play', SKIP, async () => {
+  const { browser, page, errors } = await open({ menu: true });
+  try {
+    await page.click('#play [data-p=help]'); assert.equal(await page.locator('#play .fine, #play details').count(), 0, 'no fine print'); await page.click('#play [data-p=closehelp]');
+    await page.click('#play [data-p=more]'); await page.click('#play [data-p=cards]'); await page.waitForSelector('#deckRow .card');
+    await page.click('[data-act=mode][data-v=play]'); await page.waitForSelector('#play .settings');
+    assert.match(await page.locator('#play .settings').innerText(), /More[\s\S]*The cards/);
     assert.deepEqual(errors, []);
   } finally { await browser.close(); }
 });

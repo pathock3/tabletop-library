@@ -11,7 +11,8 @@ test('cards: Engine.cards() is the card list of the game, with the number only o
   assert.equal(cards.find(c => c.id === 'TR-01').number, null);
   assert.equal(cards.find(c => c.id === 'TR-01').count, 21);
   assert.equal(cards.find(c => c.id === 'IM-29').count, 2);
-  assert.ok(cards.filter(c => c.type !== 'Ongoing').every(c => c.number === null), 'only Ongoing cards carry a power number');
+  assert.ok(cards.filter(c => c.type !== 'Ongoing' && c.type !== 'Consumable').every(c => c.number === null), 'only Ongoing and Single-Use cards carry a number');
+  assert.deepEqual(cards.filter(c => c.type === 'Consumable' && c.number !== null).map(c => [c.id, c.number]), [['CO-03', 5], ['CO-15', 7], ['CO-27', 6], ['CO-30', 9]], 'a Single-Use card that needs a roll has it in the corner');
   assert.ok(cards.every(c => c.count >= 1), 'a card with a Count of 0 is not imported');
   assert.equal(cards.find(c => c.id === 'IM-09').cantStart, true); assert.equal(cards.find(c => c.id === 'IM-12').cantStart, false);
 });

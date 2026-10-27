@@ -32,11 +32,13 @@ test('the cards: the list in the game is the list imported from the sheet (tools
   rows.forEach((r, i) => { const c = DDB.cards[i]; assert.equal(c.id, r[0]); assert.equal(c.name, r[1]); assert.equal(c.type, r[2]); assert.equal(c.number === null ? '' : String(c.number), r[3]); assert.equal(c.deck, r[4]); assert.equal(String(c.count), r[5]); assert.equal(c.text, r[6]); assert.equal(!!c.cantStart, r[7] === 'Yes'); });
 });
 
-test('types: Ongoing gold, Consumable green, Immediate purple, Treasure blue, Monster red; each has an icon and a pattern; there is no Power type', () => {
+test('types: Ongoing silver, Single-Use (Consumable) purple, Immediate yellow, Treasure blue, Monster red; each has an icon and a pattern; there is no Power type', () => {
   assert.deepEqual(Object.keys(DDB.types).sort(), ['Consumable', 'Immediate', 'Monster', 'Ongoing', 'Treasure']);
-  const col = { Ongoing: '#f2c21b', Consumable: '#2eaf68', Immediate: '#7a3fb8', Treasure: '#2b86d1', Monster: '#cf2f2f' };
+  const col = { Ongoing: '#b9c0c9', Consumable: '#7a3fb8', Immediate: '#f2c21b', Treasure: '#2b86d1', Monster: '#cf2f2f' };
   for (const [t, c] of Object.entries(col)) { assert.equal(DDB.types[t].color, c); assert.ok(DDB.types[t].icon && DDB.types[t].pattern); }
   assert.ok(Object.keys(DDB.iconCodes).includes('grit') && Object.keys(DDB.iconCodes).includes('extraroll'));
+  assert.equal(DDB.types.Consumable.label, 'Single-Use');
+  assert.ok(!Object.keys(DDB.iconCodes).includes('reroll'), 'one name for Extra Roll');
 });
 
 test('the Mine: 30 cards — 21 Geodes and 9 Monsters (sets of 4, 3 and 2); the Pet is always in play and is not one of them', () => {
@@ -113,8 +115,8 @@ test('using: each card can be used at most once per battle, even if an Extra Rol
   assert.equal(Dig.eligible(st).length, 0); assert.equal(st.reroll, 1);
 });
 
-test('Extra Rolls: each one is a new roll and its result replaces the last (no "best of"); cards already used stay down; each costs 1 of 0–5', () => {
-  assert.equal(DDB.rules.caps.reroll, 5);
+test('Extra Rolls: each one is a new roll and its result replaces the last (no "best of"); cards already used stay down; each costs 1 of 0–3', () => {
+  assert.equal(DDB.rules.caps.reroll, 3);
   const st = play(mk({ dice: [3, 1, 8], start: { reroll: 2 } }), 'ON-04', 'ON-17', 'ON-22');          // 2, 7, 8 (Falcon rolls again)
   fight(st, 'MO-01'); Dig.roll(st); assert.equal(st.fight.result, 3);
   assert.deepEqual(Dig.eligible(st).map(e => e.card.id), ['ON-04']); Dig.triggerAll(st);
@@ -125,10 +127,10 @@ test('Extra Rolls: each one is a new roll and its result replaces the last (no "
   assert.equal(st.reroll, 0); assert.ok(!Dig.can(st).reroll, 'no Extra Roll left');
 });
 
-test('Extra Rolls: cap 5 on the track', () => {
+test('Extra Rolls: cap 3 on the track', () => {
   const st = mk(); Dig.start(ALL, []);
   for (let i = 0; i < 8; i++) play(st, 'IM-10');          // Lucky Dice: +2 each
-  assert.equal(st.reroll, 5);
+  assert.equal(st.reroll, 3);
 });
 
 test('Grit before the roll: each Grit you plan is +1 to that roll, and is spent when you roll', () => {
@@ -205,7 +207,7 @@ test('Grit: Pep Horn adds 1 whenever you gain Grit; Grit Caddy gives 1 back when
 });
 
 test('the battle ends: every card stands up again and the damage markers go away', () => {
-  const st = play(mk({ dice: [9] }), 'ON-13', 'ON-04');          // Dart Frog (5): 2 damage on the Monster
+  const st = play(mk({ dice: [6] }), 'ON-13', 'ON-04');          // Dart Frog (5): 2 damage on the Monster (a 9 would send the Pet in first)
   fight(st, 'MO-01'); go(st);
   assert.equal(st.fight.markers, 2); assert.ok(st.line.some(e => e.tapped));
   Dig.face(st);
@@ -317,7 +319,7 @@ test('"whenever" cards: Adrenaline Pump (heart → Grit), Nurse Bot, Dice Bag, P
 
 test('Dice Bag: gaining an Extra Roll gives 1 more; its own +1 when dug counts too', () => {
   const st = play(mk(), 'ON-44'); assert.equal(st.reroll, 2, 'it is in play when it is dug, so its own Extra Roll counts');
-  play(st, 'IM-10'); assert.equal(st.reroll, 5, '+2 and 1 more, up to the 5 of the track');
+  play(st, 'IM-10'); assert.equal(st.reroll, 3, '+2 and 1 more, up to the 3 of the track');
 });
 
 test('digging a Monster: Danger Siren (6+ damage → +2 Grit), Bumper (1 damage marker on it)', () => {
@@ -477,4 +479,42 @@ test('autoBattle: a plain player spends Grit before big Monsters, rolls, and fac
 
 test('Can\'t Start: those cards are never in a Starter Kit (the Prep tests check the kit itself)', () => {
   for (const id of ['IM-01', 'IM-06', 'IM-08', 'IM-09', 'IM-10', 'IM-11', 'IM-28']) assert.ok(ALL.find(c => c.id === id).cantStart, id);
+});
+
+test('a Single-Use card with a number in its corner needs that roll (Beating Heart 5, Fletching Tools 7, Rage Potion 6, Steroids 9): the text no longer says it', () => {
+  for (const [id, n] of [['CO-03', 5], ['CO-15', 7], ['CO-27', 6], ['CO-30', 9]]) { const c = ALL.find(x => x.id === id); assert.equal(c.number, n); assert.ok(!/roll (was|is) \d/.test(c.text), c.text); assert.ok(Dig.supported(c), id); }
+  const st = play(mk({ dice: [4], start: { heart: 1, grit: 3 } }), 'CO-03'); fight(st, 'MO-01'); go(st);
+  assert.equal(st.fight.result, 4); assert.ok(!Dig.usable(st).length, 'a 4 is not the 5 the card needs');
+  assert.ok(Dig.gritUseful(st), '3 Grit after the roll makes it a 5: that powers the card up'); Dig.spendGrit(st);
+  assert.equal(Dig.usable(st).length, 1); Dig.useConsumable(st, st.cons[0]); Dig.face(st); assert.ok(!st.over);
+});
+
+test('Grit after the roll is only suggested when it would power up another card', () => {
+  const st = play(mk({ dice: [4], start: { grit: 3 } }), 'ON-13'); fight(st, 'MO-01'); Dig.roll(st);          // Dart Frog needs 5
+  assert.equal(st.fight.result, 4); assert.ok(Dig.can(st).gritAfter && Dig.gritUseful(st), '4 + 1 reaches the Dart Frog');
+  const s2 = play(mk({ dice: [3], start: { grit: 3 } }), 'ON-13'); fight(s2, 'MO-01'); Dig.roll(s2);
+  assert.ok(Dig.can(s2).gritAfter && !Dig.gritUseful(s2), '3 + 1 is still under the Dart Frog: nothing to suggest');
+  const s3 = mk({ dice: [4], start: { grit: 3 } }); fight(s3, 'MO-01'); Dig.roll(s3); assert.ok(!Dig.gritUseful(s3), 'no cards at all');
+});
+
+test('"Whenever you defeat a Monster" cards wait for you: they glow once it is defeated, you tap them, and what is not used is skipped when you go on', () => {
+  const st = play(mk({ start: { heart: 5 } }), 'ON-61'); fight(st, 'MO-01'); st.fight.phase = 'after'; st.fight.defeat = true;          // Salvage Claw: +1 Grit and +1 Health
+  assert.deepEqual(Dig.defeatReady(st).map(r => r.card.name), ['Salvage Claw']); assert.equal(st.grit, 0); assert.equal(st.heart, 5, 'nothing happens until you tap it');
+  assert.ok(Dig.useDefeat(st, st.ongoing[0])); assert.equal(st.grit, 1); assert.equal(st.heart, 6); assert.ok(!Dig.defeatReady(st).length, 'once per defeat');
+  Dig.face(st); assert.equal(st.grit, 1, 'moving on does not give it again'); assert.equal(st.heart, 6);
+  const s2 = play(mk({ start: { heart: 5 } }), 'ON-61'); fight(s2, 'MO-01'); s2.fight.phase = 'after'; s2.fight.defeat = true; Dig.face(s2);
+  assert.equal(s2.grit, 0); assert.equal(s2.heart, 5); assert.match(say(s2), /Salvage Claw was not used/);
+});
+
+test('Use all uses the cards that react to a defeat too, at once; and your Pet goes first', () => {
+  const st = play(mk({ dice: [9], start: { heart: 5 } }), 'ON-13', 'ON-52', 'ON-65'); fight(st, 'MO-01'); Dig.roll(st);          // Dart Frog (5), Monster Jerky (+3 Health), Trophy Case (+2 Grit); a 9 reaches the Pet
+  Dig.triggerAll(st);
+  assert.ok(st.fight.fired[0].pet, 'the Pet fired first'); assert.ok(st.fight.defeat);
+  assert.equal(st.heart, 8); assert.equal(st.grit, 2, 'the defeat cards were used by Use all: no next dig needed');
+  assert.ok(!Dig.defeatReady(st).length);
+});
+
+test('the plain policy (the AI, tests) uses the cards that react to a defeat before it moves on', () => {
+  const st = play(mk({ dice: [9], start: { heart: 5 } }), 'ON-67'); fight(st, 'MO-01'); Dig.autoBattle(st);          // Victory Bell: +1 Extra Roll
+  assert.equal(st.fight, null); assert.equal(st.reroll, 1);
 });
