@@ -34,7 +34,7 @@ test('the cards: the list in the game is the list imported from the sheet (tools
 
 test('types: Ongoing silver, Single-Use (Consumable) purple, Immediate yellow, Treasure blue, Monster red; each has an icon and a pattern; there is no Power type', () => {
   assert.deepEqual(Object.keys(DDB.types).sort(), ['Consumable', 'Immediate', 'Monster', 'Ongoing', 'Treasure']);
-  const col = { Ongoing: '#b9c0c9', Consumable: '#7a3fb8', Immediate: '#f2c21b', Treasure: '#2b86d1', Monster: '#cf2f2f' };
+  const col = { Ongoing: '#c3cad3', Consumable: '#7a3fb8', Immediate: '#ffd84a', Treasure: '#2b86d1', Monster: '#cf2f2f' };
   for (const [t, c] of Object.entries(col)) { assert.equal(DDB.types[t].color, c); assert.ok(DDB.types[t].icon && DDB.types[t].pattern); }
   assert.ok(Object.keys(DDB.iconCodes).includes('grit') && Object.keys(DDB.iconCodes).includes('extraroll'));
   assert.equal(DDB.types.Consumable.label, 'Single-Use');
@@ -517,4 +517,26 @@ test('Use all uses the cards that react to a defeat too, at once; and your Pet g
 test('the plain policy (the AI, tests) uses the cards that react to a defeat before it moves on', () => {
   const st = play(mk({ dice: [9], start: { heart: 5 } }), 'ON-67'); fight(st, 'MO-01'); Dig.autoBattle(st);          // Victory Bell: +1 Extra Roll
   assert.equal(st.fight, null); assert.equal(st.reroll, 1);
+});
+
+test('damage on the Monster that is as much as the damage it deals defeats it: it is marked defeated, not "take 0"', () => {
+  const st = play(mk({ dice: [6] }), 'ON-13'); fight(st, 'MO-01'); go(st);          // Dart Frog: 2 damage on a Monster that deals 1
+  assert.equal(st.fight.markers, 2); assert.ok(st.fight.defeat, 'defeated'); assert.equal(Dig.previewDamage(st), 0);
+  assert.match(say(st), /it is defeated/);
+  Dig.face(st); assert.equal(st.defeated, 1); assert.equal(st.survived, 1); assert.equal(st.heart, DDB.rules.start.heart, 'no damage taken');
+  const s2 = play(mk({ dice: [6] }), 'ON-13'); fight(s2, 'MO-02'); go(s2);          // 2 damage on a Monster that deals 2: also enough
+  assert.ok(s2.fight.defeat);
+  const s3 = play(mk({ dice: [6] }), 'ON-13'); fight(s3, 'MO-03'); go(s3);          // MO-03 deals 3: 2 markers are not enough
+  assert.ok(!s3.fight.defeat); assert.equal(Dig.previewDamage(s3), 1);
+});
+
+test('"When you take damage" Single-Use cards (Rage Potion 6, Fletching Tools 7) are used after the damage is taken, not before', () => {
+  const st = play(mk({ dice: [7], start: { heart: 6 } }), 'CO-27'); fight(st, 'MO-02'); Dig.roll(st);
+  assert.ok(st.fight.result >= 6 && Dig.previewDamage(st) > 0); assert.ok(!Dig.usable(st).length, 'not while the damage is still to come');
+  Dig.face(st); assert.equal(st.heart, 4); assert.equal(Dig.usable(st).length, 1, 'now');
+  Dig.useConsumable(st, st.cons[0]); assert.equal(st.reroll, 1); assert.equal(st.grit, 2); assert.equal(st.cons.length, 0);
+  const s2 = play(mk({ dice: [5], start: { heart: 6 } }), 'CO-27'); fight(s2, 'MO-02'); Dig.roll(s2); Dig.face(s2);
+  assert.ok(!Dig.usable(s2).length, 'a 5 is not the 6 it needs');
+  const s3 = play(mk({ dice: [7], start: { heart: 6 } }), 'CO-27'); fight(s3, 'MO-02'); Dig.roll(s3); Dig.face(s3); top(s3, 'TR-01'); Dig.dig(s3);
+  assert.ok(!Dig.usable(s3).length, 'once you dig on, the chance has gone');
 });

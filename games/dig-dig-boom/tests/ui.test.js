@@ -46,15 +46,15 @@ test('cards: every card of the game is drawn in the one design, nothing is read 
   } finally { await browser.close(); }
 });
 
-test('cards: type is told on every card — icon, type word, pattern and colour (a Monster\'s name says it, so it has no separate type word) — and a number only on Ongoing and Single-Use cards that have one', SKIP, async () => {
+test('cards: type is told on every card — icon, type word and colour (no pattern behind the name: it is easier to read) (a Monster\'s name says it, so it has no separate type word) — and a number only on Ongoing and Single-Use cards that have one', SKIP, async () => {
   const { browser, page, errors } = await open();
   try {
     const info = await page.locator('#deckRow .card').evaluateAll(els => els.map(e => ({
       label: e.getAttribute('aria-label'), icons: e.querySelectorAll('svg use[href^="#t-"]').length,
       word: [...e.querySelectorAll('.typeword')].some(w => /^(Ongoing|Single-Use|Immediate|Treasure|Monster)/i.test(w.textContent.trim())),
-      pattern: e.querySelectorAll('rect[fill^="url(#p-"]').length, nums: [...e.querySelectorAll('.num')].map(n => n.textContent.trim()),
+      nums: [...e.querySelectorAll('.num')].map(n => n.textContent.trim()),
     })));
-    for (const c of info) { assert.ok(c.icons >= 1, 'icon: ' + c.label); assert.ok(c.word || /, Monster\./.test(c.label), 'type word: ' + c.label); assert.ok(c.pattern >= 1, 'pattern: ' + c.label); }
+    for (const c of info) { assert.ok(c.icons >= 1, 'icon: ' + c.label); assert.ok(c.word || /, Monster\./.test(c.label), 'type word: ' + c.label); }
     assert.ok(info.filter(c => /, (Ongoing|Single-Use), \d+\./.test(c.label)).every(c => c.nums.length >= 1), 'numbered cards show their number in the corner');
     assert.ok(info.filter(c => !/, (Ongoing|Single-Use), \d+\./.test(c.label)).every(c => c.nums.length === 0), 'nobody else does');
     assert.deepEqual(info.filter(c => /, Single-Use, \d+\./.test(c.label)).map(c => c.label.split(',')[0]).sort(), ['Beating Heart', 'Fletching Tools', 'Rage Potion', 'Steroids'], 'a Single-Use card that needs a roll has it in the corner');
@@ -65,7 +65,7 @@ test('cards: type is told on every card — icon, type word, pattern and colour 
 test('cards: the colours are the owner\'s — Ongoing silver, Single-Use purple, Immediate yellow, Treasure blue, Monster red — inside one black trim, with a white text box; no header carries a timing label', SKIP, async () => {
   const { browser, page, errors } = await open();
   try {
-    const col = { Ongoing: 'rgb(185, 192, 201)', 'Single-Use': 'rgb(122, 63, 184)', Immediate: 'rgb(242, 194, 27)', Treasure: 'rgb(43, 134, 209)', Monster: 'rgb(207, 47, 47)' };
+    const col = { Ongoing: 'rgb(195, 202, 211)', 'Single-Use': 'rgb(122, 63, 184)', Immediate: 'rgb(255, 216, 74)', Treasure: 'rgb(43, 134, 209)', Monster: 'rgb(207, 47, 47)' };
     for (const [t, c] of Object.entries(col)) {
       const seen = await page.locator('#deckRow .card').evaluateAll((els, t) => els.filter(e => new RegExp(', ' + t + '[,.]').test(e.getAttribute('aria-label'))).map(e => getComputedStyle(e.querySelector('.band')).backgroundColor), t);
       assert.ok(seen.length && seen.every(x => x === c), `${t}: ${[...new Set(seen)]}`);
@@ -111,7 +111,7 @@ test('cards: a Geode is a huge gem count; a Monster has its damage ladder in big
     assert.ok(await page.locator('#deckRow .card[data-id=TR-01]').first().evaluate(e => parseFloat(getComputedStyle(e.querySelector('.gemtile')).fontSize) > 100), 'the gem count is huge');
     for (const id of ['MO-01', 'MO-02', 'MO-03']) {
       const loot = await page.locator(`#deckRow .card[data-id=${id}]`).evaluate(e => ({ word: !!e.querySelector('.lootword') || /loot/i.test(e.textContent), gem: !!e.querySelector('.gembadge'), n: (e.querySelector('.gembadge') || {}).textContent, name: e.getAttribute('aria-label') }));
-      assert.ok(loot.gem && !loot.word, id + ' shows its Loot gem, and not the word'); assert.equal(loot.n.trim(), '1'); assert.ok(/^Monster, Monster/.test(loot.name), 'just "Monster": ' + loot.name);
+      assert.ok(loot.gem && !loot.word, id + ' shows its Loot gem, and not the word'); assert.equal(loot.n.trim(), '1'); assert.ok(/^(Ember Imp|Gloop|Spore Cap), Monster/.test(loot.name) && !/set of/.test(loot.name), 'a name of its own: ' + loot.name);
     }
     const geo = await page.locator('#deckRow .card[data-id=TR-01]').first().evaluate(e => e.querySelector('.gembadge').getBoundingClientRect().width), mon = await page.locator('#deckRow .card[data-id=MO-01]').evaluate(e => e.querySelector('.gembadge').getBoundingClientRect().width);
     assert.ok(mon < geo && mon > geo * 0.7, 'the Loot gem is smaller than the Geode\'s, and still clearly there');

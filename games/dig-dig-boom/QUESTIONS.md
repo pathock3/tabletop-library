@@ -97,8 +97,8 @@ The Machine now goes under a Power **or** Ongoing card. For an Ongoing card I ma
 ## The last round: can the leader bank?
 Today nobody banks in the last round; the leader just waits and the round ends when everyone else is out. A player who is in the lead (say, 29 gems at the bottom of the Mine) sees the Bank greyed out and is told to wait. Should the leader be able to stand (bank) once they are in the lead?
 
-## After the 19th Bonus Monster
-There are Bonus Monster cards for damage 8 to 19. If a Dig goes past 19 Bonus Monsters the game repeats a 19.
+## The gauntlet (Bonus Monsters)
+Made as they are needed, not printed ahead: the first is 8 and each one after is 1 more (up to `DDB.rules.beyond.maxDamage`, 99). The cards page shows four as samples; any number works and the card fits any number. (Owner asked: pre-made or made as needed? Made as needed.)
 
 ## From the combat redesign (rulings I made; tell me if you meant otherwise)
 - **Ongoing cards "at or below the die"**: Ongoing cards have no number, so they still work as always-on effects (not as cards that fire at a number). If you want Ongoing cards on the Power line with numbers, give them one in the sheet and tell me.
@@ -108,3 +108,9 @@ There are Bonus Monster cards for damage 8 to 19. If a Dig goes past 19 Bonus Mo
 - **Resolving order**: cards still fire when you tap them (or "Use all"); nothing fires by itself except what the AI and "Use all" do.
 - The Bonus Monster Loot is 1 (your latest ruling), not 2.
 - **Echo + Rewind Tape loop:** with both in your Mine, digging Rewind Tape puts Echo on top, Echo does Rewind Tape (which puts Rewind Tape on top), and so on: you dig for ever, and in the last round (no Bank) there is no way out. Say if one of them should change (for instance Echo "only copies cards that are not Rewind Tape", or Rewind Tape shuffles the card in).
+
+## Round three (rulings I made)
+- **Enough damage defeats a Monster:** when the damage on it (after halving) is as much as it deals, it is defeated, as if a card had defeated it: it says so, it pays its Loot, and there is nothing to take.
+- **"When you take damage" Single-Use cards** (Rage Potion, Fletching Tools) are used after the damage is taken, until you dig on; the roll they need is the roll of that battle.
+- **BOOM on the Leaderboard** is told on the Monster the piece stood on (the one you were facing), not on the number you had survived.
+- **Best game:** the finished game with the highest final Leaderboard number is kept (a tie keeps the older one).

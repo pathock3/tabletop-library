@@ -1,9 +1,9 @@
 ID|Name|Type|Number|Deck|Count|Card Text|Can't Start
 ON-01|Pet|Ongoing|9|Starting|1|Defeat the Monster. You take no {damage}.|
 TR-01|Geode|Treasure||Starting|21|1 {gem}|
-MO-01|Monster|Monster||Starting|4|{damage} 1 → 3 → 5 → 7. Loot: 1 {gem}|
-MO-02|Monster|Monster||Starting|3|{damage} 2 → 4 → 6. Loot: 1 {gem}|
-MO-03|Monster|Monster||Starting|2|{damage} 3 → 5. Loot: 1 {gem}|
+MO-01|Ember Imp|Monster||Starting|4|{damage} 1 → 3 → 5 → 7. Loot: 1 {gem}|
+MO-02|Gloop|Monster||Starting|3|{damage} 2 → 4 → 6. Loot: 1 {gem}|
+MO-03|Spore Cap|Monster||Starting|2|{damage} 3 → 5. Loot: 1 {gem}|
 ON-02|Prickly Porcupine|Ongoing|1|Booster|1|Lose 1 {heart}, then +2 {grit}|
 ON-03|Unlucky Duck|Ongoing|1|Booster|1|If no other card triggers, +1 {extraroll}|
 ON-04|Gritty Gecko|Ongoing|2|Booster|1|+1 {grit}|
@@ -11,11 +11,11 @@ ON-05|Nervous Mouse|Ongoing|2|Booster|1|If you have 5 {heart} or less, +1 {extra
 ON-06|Nurse Newt|Ongoing|2|Booster|1|+1 {heart}|
 ON-07|Snowball Beetle|Ongoing|2|Booster|1|+2 {grit}, then move this card up 2 (max 10)|
 ON-08|Helper Hamster|Ongoing|3|Booster|1|+1 {grit} and +1 {heart}|
-ON-09|Pill Bug|Ongoing|3|Booster|1|Put 1 damage on the Monster|
+ON-09|Pill Bug|Ongoing|3|Booster|1|Put 1 {damage} on the Monster|
 ON-10|Snack Raccoon|Ongoing|3|Booster|1|+3 {heart}|
 ON-11|Grit Gopher|Ongoing|4|Booster|1|+2 {grit}|
 ON-12|Conga Crab|Ongoing|5|Booster|1|+1 {grit} for each other card that triggers|
-ON-13|Dart Frog|Ongoing|5|Booster|1|Put 2 damage on the Monster|
+ON-13|Dart Frog|Ongoing|5|Booster|1|Put 2 {damage} on the Monster|
 ON-14|Good Boy|Ongoing|5|Booster|1|+1 {grit} and +1 {heart}|
 ON-15|Lucky Cricket|Ongoing|5|Booster|1|If this Monster would make you BOOM, survive with 1 {heart}|
 ON-16|Venom Spider|Ongoing|6|Booster|1|This Monster deals half {damage}, rounded down|
@@ -23,7 +23,7 @@ ON-17|Do-Over Dodo|Ongoing|7|Booster|1|+1 {extraroll}|
 ON-18|Energy Bat|Ongoing|7|Booster|1|+1 {extraroll}. When dug, +2 {grit}|
 ON-19|Jolt Eel|Ongoing|7|Booster|1|If you have 3 {heart} or less, +5 {heart}|
 ON-20|Moss Sloth|Ongoing|7|Booster|1|+2 {heart}|
-ON-21|Tank Tortoise|Ongoing|7|Booster|1|Put 3 damage on the Monster|
+ON-21|Tank Tortoise|Ongoing|7|Booster|1|Put 3 {damage} on the Monster|
 ON-22|Falcon Finisher|Ongoing|8|Booster|1|Roll again. If it's 6 or more, defeat this Monster|
 ON-23|Magpie|Ongoing|8|Booster|1|Do the effect of the top Immediate card in your discard pile|
 ON-24|Muscle Mole|Ongoing|8|Booster|1|+2 {grit}. When dug, +1 {grit}|
@@ -39,7 +39,7 @@ ON-33|Adrenaline Pump|Ongoing||Booster|1|Whenever you gain {heart}, +1 {grit}|
 ON-34|Applause Meter|Ongoing||Booster|1|Whenever 3+ cards trigger on one roll, +2 {extraroll}|
 ON-35|Backfire|Ongoing||Booster|1|If your result is 1, you may make it a 10|
 ON-36|Bounty Poster|Ongoing||Booster|1|Monsters you defeat are worth 2 {gem}|
-ON-37|Bumper|Ongoing||Booster|1|Whenever you dig a Monster, put 1 damage on it|
+ON-37|Bumper|Ongoing||Booster|1|Whenever you dig a Monster, put 1 {damage} on it|
 ON-38|Cloning Machine|Ongoing||Booster|1|Place under one of your cards with a power number. That card triggers twice|
 ON-39|Confetti Cannon|Ongoing||Booster|1|Whenever you dig an Immediate card, +1 {grit}|
 ON-40|Cowcatcher|Ongoing||Booster|1|Your next Monster deals no {damage}, then discard this|
@@ -76,7 +76,7 @@ CO-01|Adrenaline Shot|Consumable||Booster|1|If you have 1 {heart}, discard for +
 CO-02|Average Potion|Consumable||Booster|1|Before any roll, discard to just make it a 6.|
 CO-03|Beating Heart|Consumable|5|Booster|1|If you would BOOM, discard to survive with 1 {heart}.|
 CO-04|Big Swing|Consumable||Booster|1|Before any roll, discard to double it.|
-CO-05|Blast Plating|Consumable||Booster|1|When a Monster would damage you, discard to put 4 damage on it.|
+CO-05|Blast Plating|Consumable||Booster|1|When a Monster would damage you, discard to put 4 {damage} on it.|
 CO-06|Caffeine|Consumable||Booster|1|When you dig a Monster with 7+ {damage}, you may discard for +4 {grit}.|
 CO-07|Carrot Cake|Consumable||Booster|1|When you defeat a Monster, discard for +5 {heart}.|
 CO-08|Confidence Booster|Consumable||Booster|1|Discard before rolling. If your Pet defeats the Monster, +2 {extraroll}.|
@@ -96,7 +96,7 @@ CO-21|Lucky Unlucky Coin|Consumable||Booster|1|When you roll 1-2, discard for +2
 CO-22|Matter Inverter|Consumable||Booster|1|Discard to set your {heart} to your roll. If it was 1-4, +1 {heart}.|
 CO-23|Momentum Tonic|Consumable||Booster|1|Before any roll, discard for +1 for each Booster Card in your discard pile.|
 CO-24|Mystery Snack|Consumable||Booster|1|Discard for {heart} equal to half your roll, rounded up.|
-CO-25|Poison Dart|Consumable||Booster|1|Discard to put 3 damage on a Monster.|
+CO-25|Poison Dart|Consumable||Booster|1|Discard to put 3 {damage} on a Monster.|
 CO-26|Portable Scanner|Consumable||Booster|1|Discard for +1 {grit} and Scan 5.|
 CO-27|Rage Potion|Consumable|6|Booster|1|When you take {damage}, discard for +1 {extraroll} and +2 {grit}.|
 CO-28|Recycling Bin|Consumable||Booster|1|Discard for +1 {heart} for each Single-Use card in your discard pile, including this one.|
@@ -104,7 +104,7 @@ CO-29|Shoo Spray|Consumable||Booster|1|When dug, +2 {grit}. When you dig a card,
 CO-30|Steroids|Consumable|9|Booster|1|When dug, +1 {grit}. When you dig a Monster, you may discard for +2 {extraroll}.|
 CO-31|Time Turner|Consumable||Booster|1|Discard to move an Immediate card from your discard pile to the top of your Mine.|
 CO-32|Unstable Explosive|Consumable||Booster|1|If your roll is 1-2, discard to make it a 10.|
-CO-33|Vial of Poison|Consumable||Booster|1|Discard to put damage on the Monster equal to half your roll, rounded up.|
+CO-33|Vial of Poison|Consumable||Booster|1|Discard to put {damage} on the Monster equal to half your roll, rounded up.|
 CO-34|Victory Snack|Consumable||Booster|1|When your Pet defeats a Monster, discard for +2 {extraroll}.|
 IM-01|All In|Immediate||Booster|1|Set your {heart} to 2. Fill up your {extraroll}|Yes
 IM-02|Boomerang|Immediate||Booster|1|+2 {grit}. Slide this card back into the middle of your Mine|
@@ -141,7 +141,7 @@ IM-32|Tool Shed|Immediate||Booster|1|+1 {grit} for each Ongoing card you have|
 IM-33|Wishing Well|Immediate||Booster|1|Shuffle the top 2 Immediate cards of your discard pile back into your Mine|
 IM-34|Wormhole|Immediate||Booster|1|Reveal cards from your Mine until you find an Immediate card. Do it, then shuffle the rest back|
 IM-35|Wrench Rat|Immediate||Booster|1|+2 to your next roll|
-ON-70|Junk Golem|Ongoing|6|Booster|1|Put 1 damage on the Monster for each Single-Use card in your discard pile|
+ON-70|Junk Golem|Ongoing|6|Booster|1|Put 1 {damage} on the Monster for each Single-Use card in your discard pile|
 ON-71|Scrap Dealer|Ongoing||Booster|1|Any time, discard any of your Ongoing cards, including this one, for +2 {grit} each|
 ON-72|Last Stand|Ongoing||Booster|1|Any time, discard any of your Ongoing cards, including this one, for +1 {extraroll} each|
 ON-73|Time Wizard|Ongoing||Booster|1|When you dig an Immediate card, you may shuffle it back into your Mine instead. Any time, discard this for +2 {grit}|
