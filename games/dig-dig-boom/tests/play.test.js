@@ -566,7 +566,7 @@ test('run: bank, tap the die for the Escape Bonus (a d10 that rolls and shows th
     assert.equal(await page.locator('#play [data-p=kitpick]').count(), 3, 'the card from round 1 and the two you kept');
     assert.equal(await page.locator('#play .kslot .pcard').count(), 1, "last round's Starter Kit is already in its place");
     assert.match(await page.locator('#play .kslot .ctag.last').innerText(), /last round/i); assert.equal(await page.locator('#play .pool .ctag.new, #play .pool .ctag.last').count(), 2, 'what you just won is marked: new (or Can\'t start, when a card you drew cannot go in a Starter Kit)');
-    await page.click('#play [data-p=kitpick] >> nth=1');                                  // a new card joins the kit
+    await page.locator('#play .pool [data-p=kitpick]:not(:has(.ctag.last))').first().click();          // a new card joins the kit (not one that cannot start)
     assert.equal(await page.locator('#play .kslot .pcard').count(), 2); 
     const order0 = await stOf(page, () => window.DigDigBoomPlay.S.run.prep.kitPick.slice());
     const src = await page.locator('#play .kslot[data-i="1"] .pcard').boundingBox(), dst = await page.locator('#play .kslot[data-i="0"]').boundingBox();
@@ -1436,7 +1436,8 @@ test('the table: Bank is in the middle of the bottom row, the buttons you press 
     await begin(page, { mine: ['MO-01', 'TR-01', 'TR-01', 'ON-18'], dice: [3] });
     await page.click('#play [data-p=dig]'); await page.click('#play [data-p=roll]'); await page.waitForSelector('#play [data-p=face]:not(.waitroll)');
     const box = async sel => page.locator(sel).first().boundingBox(), mine = await box('#play .deck'), bank = await box('#play [data-p=bank]'), take = await box('#play [data-p=face]');
-    assert.ok(bank.x > mine.x + mine.width, 'Bank is right of the Mine'); assert.ok(bank.x + bank.width / 2 > 820 * 0.35 && bank.x + bank.width / 2 < 820 * 0.65, 'in the middle: ' + JSON.stringify(bank));
+    assert.ok(bank.x > mine.x + mine.width, 'Bank is right of the Mine'); assert.ok(Math.abs(bank.x + bank.width / 2 - 410) <= 4, 'centred left to right: ' + JSON.stringify(bank));
+    const use = await page.locator('#play .chip.useall').count(); if (use) { const ub = await box('#play .chip.useall'); assert.ok(Math.abs(ub.width - take.width) < 2 && Math.abs(ub.height - take.height) < 2, 'Use all is the size of Take damage'); }
     assert.ok(take.x > bank.x + bank.width - 10, 'Take damage is to the right of Bank'); assert.ok(take.x + take.width > 820 * 0.8, 'and under the right thumb: ' + JSON.stringify(take));
     assert.equal(await page.locator('#play .deck .cnt').count(), 0, 'no number badge on the Mine any more');
     assert.match(await page.locator('#play .pilestrip').innerText(), /^\d+ left$/);
@@ -1494,6 +1495,9 @@ test('the Leaderboard: How it works, tap a piece / chip / column to be told what
     await page.click('#play .bgrid .pchip[data-pid] >> nth=0'); assert.match(await page.locator('#play .lbtip').innerText(), /best Dig[\s\S]*(place|not banked)/); await page.click('#play .lbtip');
     await page.click('#play .bgrid .bcol[data-n="2"]'); assert.match(await page.locator('#play .lbtip').innerText(), /2 Monsters|Nobody is here/); await page.click('#play .lbtip'); assert.equal(await page.locator('#play .lbtip').count(), 0);
     await page.click('#play [data-p=donetab][data-k="1"]');
+    await page.click('#play [data-p=donereplay]'); await page.click('#play [data-p=boardfast]');
+    assert.equal((await page.locator('#play [data-p=boardskip]').innerText()).replace(/\W/g, ''), 'Skip', 'after Fast forward the button says Skip');
+    await page.click('#play [data-p=boardskip]'); assert.equal(await page.locator('#play [data-p=donereplay]').count(), 1, 'Skip goes to the end: nothing left to play');
     const piece = page.locator('#play .bgrid .bdisc[data-pid]').first(); if (await piece.count()) { await piece.click(); assert.match(await page.locator('#play .lbtip').innerText(), /banked|BOOM|is on Monster/); await page.click('#play .lbtip'); }
     // a player who went BOOM this round stays on the little board, as a starburst where they stopped
     await page.evaluate(() => { const P = window.DigDigBoomPlay, S = P.S; S.match = null; S.run = null; S.st = null; S.back = null; S.panel = 'menu'; P.render(); });
@@ -1501,6 +1505,21 @@ test('the Leaderboard: How it works, tap a piece / chip / column to be told what
     await page.evaluate(() => { const P = window.DigDigBoomPlay, S = P.S; S.run.board.log = S.run.board.log || []; S.run.board.log.push({ r: S.run.round, id: 'easy', k: 'boom', n: 5 }); P.render(); });
     assert.equal(await page.locator('#play .lb .mk.boom').count(), 1, 'the starburst of the player who went BOOM');
     assert.match(await page.locator('#play .lb .mk.boom').getAttribute('title'), /went BOOM here/);
+    assert.deepEqual(errors, []);
+  } finally { await browser.close(); }
+});
+
+test('the Leaderboard tip opens above the full-size Leaderboard, and a card\'s needed roll sits inside the die', SKIP, async () => {
+  const { browser, page, errors } = await open({ menu: true, viewport: { width: 820, height: 1180 } });
+  try {
+    await startRun(page, { opp: true });
+    await page.click('#play .lb'); await page.waitForSelector('#play .lbfull');
+    await page.click('#play .lbfull .bgrid .bcol[data-n="0"]'); await page.waitForSelector('#play .lbtip');
+    assert.ok(await page.evaluate(() => { const t = document.querySelector('#play .lbtip').getBoundingClientRect(); const e = document.elementFromPoint(t.left + t.width / 2, t.top + t.height / 2); return !!e.closest('.lbtip'); }), 'the tip can be seen: nothing covers it');
+    await page.click('#play .lbtip'); await page.click('#play .lbfull', { position: { x: 6, y: 6 } });
+    await page.evaluate(() => window.DigDigBoomPlay.act('pilecount'));
+    const nums = await page.evaluate(() => [...document.querySelectorAll('#play .tcard .num, #play .pcard .num')].map(n => ({ svg: !!n.querySelector('svg path'), t: n.textContent.trim() })));
+    assert.ok(nums.every(n => n.svg && /^\d+$/.test(n.t)), 'every number is in a die: ' + JSON.stringify(nums));
     assert.deepEqual(errors, []);
   } finally { await browser.close(); }
 });

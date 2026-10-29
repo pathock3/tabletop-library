@@ -17,9 +17,10 @@
 <link rel="icon" type="image/png" href="../../assets/favicon.png">
 <link rel="apple-touch-icon" href="../../assets/apple-touch-icon.png">
 <style>
-:root { --bg: #1c1410; --panel: #2a1f18; --line: #4b3a2c; --text: #f4ead8; --dim: #c4b49c; --accent: #ffb13b; --good: #52d28a; }
+:root {
+  --font: -apple-system, BlinkMacSystemFont, "SF Pro Text", system-ui, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; --bg: #1c1410; --panel: #2a1f18; --line: #4b3a2c; --text: #f4ead8; --dim: #c4b49c; --accent: #ffb13b; --good: #52d28a; }
 * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-html, body { margin: 0; background: var(--bg); color: var(--text); font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", system-ui, "Segoe UI", Roboto, sans-serif; overscroll-behavior: none; }
+html, body { margin: 0; background: var(--bg); color: var(--text); font-family: var(--font); overscroll-behavior: none; }
 body { padding: max(14px, env(safe-area-inset-top)) max(14px, env(safe-area-inset-right)) 40px max(14px, env(safe-area-inset-left)); }
 button { font: inherit; color: inherit; border: 0; background: none; padding: 0; cursor: pointer; touch-action: manipulation; }
 a { color: var(--accent); }
@@ -55,7 +56,7 @@ summary { cursor: pointer; font-weight: 700; padding: 8px 0; }
 /* ---------- the cards ----------
    Every card is drawn on a grid of hundredths of an inch (275 x 375 portrait, 375 x 275 landscape: 2.5 x 3.5 in poker size plus
    0.125 in margin all round). --u is how many screen pixels one unit is. Positions are computed in the script. */
-.card { position: relative; overflow: hidden; border-radius: 0; background: var(--ink-bg, #fff); color: #1d1712; font-family: "Avenir Next", "Helvetica Neue", Arial, system-ui, sans-serif; flex: none; }
+.card { position: relative; overflow: hidden; border-radius: 0; background: var(--ink-bg, #fff); color: #1d1712; font-family: var(--font); flex: none; }
 .card.round { border-radius: calc(var(--u) * 12.5); }
 .card .abs { position: absolute; }
 .card .paper { background: #fff; }
@@ -83,7 +84,7 @@ table.cmp th { background: var(--panel); color: var(--accent); }
 .view-gray .card { filter: grayscale(1); }
 .view-deut .card { filter: url(#deut); }
 .view-prot .card { filter: url(#prot); }
-.meas { position: absolute; left: -9999px; top: 0; visibility: hidden; font-weight: 700; line-height: 1.13; font-family: "Avenir Next", "Helvetica Neue", Arial, system-ui, sans-serif; }
+.meas { position: absolute; left: -9999px; top: 0; visibility: hidden; font-weight: 700; line-height: 1.13; font-family: var(--font); }
 /* ---------- the game screen (solo Dig) ---------- */
 body[data-mode=play] #app, body[data-mode=cards] #play { display: none; }
 body[data-mode=play] { padding: 0; height: 100vh; height: 100dvh; overflow: hidden; position: fixed; inset: 0; width: 100%; }
@@ -318,7 +319,7 @@ body[data-mode=play] { background: radial-gradient(130% 75% at 50% -10%, #74401e
 #play .foot .btn { min-width: 200px; }
 #play .enddone .foot .btn { min-height: 72px; font-size: 24px; min-width: 190px; padding: 14px 26px; }          /* the buttons at the end of a game: big */
 #play .enddone .foot { gap: 14px; }
-#play .bigboard .foot .btn[data-p=boardgo] { min-height: 80px; font-size: 28px; min-width: 300px; }          /* the way on to the Booster Pack */
+#play .bigboard .foot .btn[data-p=boardgo], #play .bigboard .foot .btn[data-p=boardfast], #play .bigboard .foot .btn[data-p=boardskip] { min-height: 80px; font-size: 28px; min-width: 300px; }          /* the way on to the Booster Pack */
 #play .gmenu-back { position: fixed; inset: 0; z-index: 18; background: rgba(0,0,0,.45); }
 #play .gmenu { position: fixed; z-index: 19; top: max(68px, calc(env(safe-area-inset-top) + 62px)); right: max(10px, env(safe-area-inset-right)); width: 240px; display: flex; flex-direction: column; gap: 6px; padding: 10px; border-radius: 16px; background: linear-gradient(180deg, #3d2c1f, #2a1e15); border: 2px solid #6a4e34; box-shadow: 0 14px 30px rgba(0,0,0,.55); }
 #play .gmenu button { min-height: 50px; border-radius: 12px; background: rgba(255,255,255,.07); font-weight: 800; font-size: 17px; text-align: left; padding: 0 14px; }
@@ -634,7 +635,7 @@ body[data-mode=play] { background: radial-gradient(130% 75% at 50% -10%, #74401e
 #play .tlab svg { filter: drop-shadow(0 1px 0 rgba(255,255,255,.4)); }
 #play .track { border: 0; padding: 0; gap: 4px; width: calc(var(--col) * var(--n) + 4px * (var(--n) - 1)); }
 #play .track.live { animation: none; outline: 3px solid #1c8a4d; outline-offset: 4px; border-radius: 12px; }
-#play .tc { height: 44px; border-radius: 10px; border: 2px solid #8a6c3c; background: #ead9b7; color: #4a3520; opacity: 1; font-family: "Iowan Old Style", "Palatino", Georgia, serif; font-weight: 800; font-size: 20px;
+#play .tc { height: 44px; border-radius: 10px; border: 2px solid #8a6c3c; background: #ead9b7; color: #4a3520; opacity: 1; font-family: var(--font); font-weight: 800; font-size: 20px;
   box-shadow: inset 0 3px 6px rgba(70,42,12,.45), 0 1px 0 rgba(255,255,255,.55); position: relative; }
 #play .tc b { font-weight: inherit; }
 #play .tc.lit { background: #ead9b7; opacity: 1; }
@@ -643,7 +644,7 @@ body[data-mode=play] { background: radial-gradient(130% 75% at 50% -10%, #74401e
 #play .tc.now b { position: absolute; left: 50%; top: 50%; width: 46px; height: 46px; margin: -26px 0 0 -23px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 24px; font-weight: 900; color: #fff; text-shadow: 0 1px 2px rgba(0,0,0,.6);
   background: radial-gradient(circle at 34% 28%, color-mix(in srgb, var(--tc) 55%, #fff), var(--tc) 58%, color-mix(in srgb, var(--tc) 55%, #000)); border: 3px solid color-mix(in srgb, var(--tc) 60%, #000); box-shadow: 0 6px 0 color-mix(in srgb, var(--tc) 45%, #000), 0 10px 12px rgba(0,0,0,.5); }
 #play .mpile h4 { color: #5a4426; }
-#play .mset .lad i { background: #ead9b7; color: #7a1d1d; border: 2px solid #8a6c3c; box-shadow: inset 0 2px 4px rgba(70,42,12,.4); font-family: "Iowan Old Style", "Palatino", Georgia, serif; }
+#play .mset .lad i { background: #ead9b7; color: #7a1d1d; border: 2px solid #8a6c3c; box-shadow: inset 0 2px 4px rgba(70,42,12,.4); font-family: var(--font); }
 #play .mset .lad i.next { position: relative; background: radial-gradient(circle at 34% 28%, #ff8a7a, #cf2f2f 60%, #8c1414); color: #fff; border-color: #6b0f0f; box-shadow: 0 4px 0 #5e0b0b, 0 8px 10px rgba(0,0,0,.45); transform: translateY(-3px); }
 #play .mset .lad i.met { background: #bda57a; color: #6a5636; border-color: #8a6c3c; box-shadow: inset 0 2px 4px rgba(70,42,12,.4); text-decoration: line-through; opacity: .85; }
 /* the Leaderboard is a little cardboard strip with discs on it */
@@ -759,12 +760,12 @@ body[data-mode=play] { background: radial-gradient(130% 75% at 50% -10%, #74401e
 #play .bc { position: relative; height: 70px; border-radius: 10px; background: #ead9b7; border: 2px solid #8a6c3c; box-shadow: inset 0 3px 6px rgba(70,42,12,.45); display: flex; align-items: center; justify-content: center; }
 #play .bc.free { background: #f0d68e; }
 #play .crow .bc { height: 56px; }
-#play .bn { font-weight: 800; font-size: 18px; color: #6b5636; font-family: "Iowan Old Style", Georgia, serif; }
+#play .bn { font-weight: 800; font-size: 18px; color: #6b5636; font-family: var(--font); }
 #play .bcrown { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-size: 38px; font-weight: 400; color: #b58a00; background: rgba(240,214,142,.85); border-radius: 8px; }
 #play .bcrown.held { color: #d99a00; text-shadow: 0 0 10px rgba(255,190,60,.8); }
 #play .bdisc { width: 46px; height: 46px; border-radius: 50%; background: radial-gradient(circle at 34% 28%, color-mix(in srgb, var(--pc) 55%, #fff), var(--pc) 58%, color-mix(in srgb, var(--pc) 55%, #000)); border: 3px solid color-mix(in srgb, var(--pc) 60%, #000); box-shadow: 0 6px 0 color-mix(in srgb, var(--pc) 45%, #000), 0 10px 12px rgba(0,0,0,.5); animation: discdrop .6s cubic-bezier(.3,.9,.3,1) var(--d) backwards; }
 @keyframes discdrop { 0% { transform: translateY(-120px) scale(1.4); opacity: 0; } 70% { opacity: 1; } 100% { transform: none; } }
-#play .bscore { font-size: 34px; font-weight: 900; text-align: right; color: #3a2a18; font-family: "Iowan Old Style", Georgia, serif; }
+#play .bscore { font-size: 34px; font-weight: 900; text-align: right; color: #3a2a18; font-family: var(--font); }
 #play .bnote { text-align: center; font-size: 24px; font-weight: 800; margin: 18px 0 0; }
 #play .bigboard { position: relative; }
 #play .eq .unseen { visibility: hidden; }
@@ -804,7 +805,7 @@ body[data-mode=play] { background: radial-gradient(130% 75% at 50% -10%, #74401e
 #play .bigboard .foot { display: flex; justify-content: flex-end; gap: 14px; }
 #play .bstack .bgrid { display: grid; gap: 5px; }
 #play .bstack .bcol { display: flex; flex-direction: column; gap: 5px; }
-#play .bstack .bhead { height: 56px; border-radius: 10px; background: #ead9b7; border: 2px solid #8a6c3c; display: flex; align-items: center; justify-content: center; gap: 4px; font-family: Georgia, serif; font-weight: 700; font-size: 22px; color: #5a3d17; position: relative; }
+#play .bstack .bhead { height: 56px; border-radius: 10px; background: #ead9b7; border: 2px solid #8a6c3c; display: flex; align-items: center; justify-content: center; gap: 4px; font-family: var(--font); font-weight: 700; font-size: 22px; color: #5a3d17; position: relative; }
 #play .bstack .bcol.free .bhead { background: #f0d68e; }
 #play .bstack .blabels .bhead { background: transparent; border: 0; align-items: flex-end; justify-content: flex-start; padding: 6px 8px 0 0; text-align: right; }
 #play .bstack .blabels .bhead .blab { font: 900 20px/1 system-ui, -apple-system, sans-serif; letter-spacing: .06em; text-transform: uppercase; color: #5a3d17; }
@@ -989,24 +990,29 @@ body[data-mode=play] { background: radial-gradient(130% 75% at 50% -10%, #74401e
 @media (max-height: 780px) { #play .over h2 { font-size: 48px; padding: 8px 0 10px; } #play .over h2::before, #play .over h2::after { top: 14px; } #play .over .big { font-size: 30px; } #play .over .row2 .btn { min-height: 64px; font-size: 24px; min-width: 240px; } }
 
 /* ---- the table's bottom row: Mine and flip spot on the left, Bank in the middle (a button you press once, so it is hard to hit by accident), and the buttons you press all the time on the right, under your thumb ---- */
-#play .mat { height: calc(350px * var(--ca) + 38px); }
-#play .mat .piles { order: 2; align-self: flex-end; }
-#play .mat .dicez { order: 3; flex: 1; justify-content: flex-end; }
+#play .mat { height: calc(350px * var(--ca) + 74px); }          /* under the cards: the strip for the Mine, and the Bank in the middle of the screen */
+#play .mat .piles { position: absolute; left: 50%; bottom: 0; transform: translateX(-50%); width: auto; height: auto; margin: 0; z-index: 2; }
+#play .mat .dicez { order: 3; flex: 1; align-self: flex-start; height: calc(350px * var(--ca)); justify-content: flex-end; }
 #play .mat .action { align-items: flex-end; }
 #play .mat .astack, #play .mat .abtns { align-items: flex-end; justify-content: flex-end; }
-#play .mat .pile.bankp, #play .mat .pile.bankp.live { width: 150px; min-height: 96px; padding: 10px 10px; flex-direction: column; gap: 4px; font-size: 28px; border-radius: 22px; }
+#play .mat .pile.bankp, #play .mat .pile.bankp.live { width: 250px; min-height: 64px; padding: 6px 20px; flex-direction: row; gap: 14px; font-size: 30px; border-radius: 22px; }
 #play .mat .pile.bankp .gemline { font-size: 30px; }
 #play .mat .pile.bankp .gemline svg { width: 32px; height: 32px; }
 @media (max-width: 520px) {          /* a phone upright: Mine, flip spot and Bank on one row, the buttons you press on a row of their own under it, on the right */
   #play .mat { height: auto; flex-wrap: wrap; row-gap: 6px; }
   #play .mat .dicez { order: 3; flex: 1 1 100%; align-self: auto; min-height: 120px; }
-  #play .mat .pile.bankp, #play .mat .pile.bankp.live { width: 92px; min-height: 80px; padding: 6px; font-size: 20px; border-radius: 16px; }
+  #play .mat .piles { position: static; transform: none; order: 2; align-self: flex-end; }
+  #play .mat .dicez { height: auto; }
+  #play .mat .pile.bankp, #play .mat .pile.bankp.live { width: 92px; min-height: 80px; padding: 6px; font-size: 20px; border-radius: 16px; flex-direction: column; gap: 4px; }
   #play .mat .pile.bankp .gemline { font-size: 22px; }
   #play .mat .pile.bankp .gemline svg { width: 22px; height: 22px; }
   #play .mat .stack { margin-bottom: 36px; }
 }
+#play .aprompt, #play .skipnote, #play .gnote, #play .bcap, #play .calc .calcparts { text-wrap: balance; }
+#play .bcap { max-width: 640px; margin-left: auto; margin-right: auto; }
 #play .pilestrip { position: absolute; left: 0; top: calc(350px * var(--ca) + 16px); width: calc(250px * var(--ca)); height: 30px; border-radius: 10px; background: #2a1e15; border: 2px solid #6a4e34; color: var(--text); font-size: 15px; font-weight: 800; display: flex; align-items: center; justify-content: center; }
 #play .pilestrip:active { background: #3d2c1f; }
+#play .mnote-back.top { z-index: 60; }
 #play .lbtip { max-width: 440px; font-size: 20px; line-height: 1.4; text-align: center; }
 #play .lbtip p { margin: 0 0 8px; }
 #play .lbtip .dim, #play .lbhelp .dim { color: var(--dim); font-size: 16px; }
@@ -1114,6 +1120,7 @@ body[data-mode=play] { background: radial-gradient(130% 75% at 50% -10%, #74401e
 @keyframes firecard { 0% { transform: none; box-shadow: none; } 28% { transform: translateY(-18px) scale(1.07); box-shadow: 0 0 0 4px var(--accent), 0 0 26px 8px rgba(255,177,59,.75); } 62% { transform: translateY(-18px) scale(1.07); box-shadow: 0 0 0 4px var(--accent), 0 0 26px 8px rgba(255,177,59,.75); } 100% { transform: rotate(90deg) scale(.8); box-shadow: none; } }
 #play .tcard.firenow { animation: firecard .7s ease-in-out backwards; animation-delay: calc(var(--k, 0) * .5s); z-index: 3; }
 #play .chip.useall { min-height: 48px; padding: 6px 20px; border-radius: 16px; border: 3px solid #e9d4ff; background: linear-gradient(180deg, #a15be0, #6d2fb0); color: #fff; font-size: 18px; font-weight: 900; box-shadow: 0 5px 0 #3b1766, 0 10px 18px rgba(0,0,0,.4); }
+#play .action .astack .chip.useall, #play .action .astack .takedmg:not(.sure) { width: 200px; min-height: 64px; padding: 8px 12px; font-size: 24px; line-height: 1.15; border-radius: 18px; display: flex; align-items: center; justify-content: center; }
 #play .chip.useall:active { transform: translateY(3px); box-shadow: 0 2px 0 #3b1766; }
 </style>
 </head>
@@ -3478,7 +3485,8 @@ const AI = (() => {
   const gemBadge = (x, y, d, c, gem, n) => box(x, y, d, d, 'gembadge', `border-radius:50%;background:#fffaf0;border:${u(3.5)} solid #1d1712;display:flex;align-items:center;justify-content:center`,
     `${gem ? gemSvg(gem, u(26)) : gemIcon(26)}<span style="position:absolute;right:${u(-7)};bottom:${u(-7)};min-width:${u(19)};height:${u(19)};border-radius:${u(10)};background:#1d1712;color:#fff;font:900 ${u(13)}/${u(19)}px system-ui,sans-serif;text-align:center">${n === null || n === undefined ? '' : n}</span>`)
     ;
-  const powerBadge = (x, y, d, c) => c.number === null ? '' : box(x, y, d, d, 'num', `font-size:${u(d * 0.64)};border-width:${u(4)};border-color:#1d1712`, String(c.number));
+  // The roll a card needs sits inside the same ten-sided die as everywhere else in the game.
+  const powerBadge = (x, y, d, c) => c.number === null ? '' : box(x - 3, y - 3, d + 6, d + 6, 'num', 'background:none;border:0;border-radius:0', `<svg viewBox="0 0 100 100" style="width:100%;height:100%;filter:drop-shadow(0 ${u(2)} 0 rgba(0,0,0,.35))" aria-hidden="true"><path d="M50 4 L91 27 L91 73 L50 96 L9 73 L9 27 Z" fill="#fffaf0" stroke="#14110e" stroke-width="7" stroke-linejoin="round"/><path d="M50 14 L82 33 L82 67 L50 86 L18 67 L18 33 Z" fill="none" stroke="#14110e" stroke-width="2.5" opacity=".3"/><text x="50" y="${c.number > 9 ? 63 : 66}" text-anchor="middle" font-size="${c.number > 9 ? 44 : 58}" font-weight="900" fill="#14110e" font-family="inherit">${c.number}</text></svg>`);
   const typeColors = c => D.types[c.type];
   // ---------------- the page ----------------
   // The way back to the library is only for somebody who came from it: the shelf links here with ?from=library (the tab remembers it), a link you share goes straight to this game with nothing of the library in it.
@@ -3707,12 +3715,12 @@ const AI = (() => {
     const t = $.querySelector('.ptable'); if (!t) return;
     const kids = [...t.children], mat = t.querySelector('.mat'), tab = t.querySelector('.tableau');
     const gap = 10, W = t.clientWidth, H = t.clientHeight, fixed = kids.filter(k => k !== mat && k !== tab).reduce((a, k) => a + k.offsetHeight + gap, 0);
-    const rest = Math.max(200, H - fixed - gap * 2 - 18 - 36 - (W < 520 ? 130 : 0));          // (36: the strip under the Mine)
+    const rest = Math.max(200, H - fixed - gap * 2 - 18 - (W < 520 ? 130 : 0));
     const dice = 170;                                                // room for the action zone beside the Mine, the flip spot and the Bank
     const ca = Math.max(.4, Math.min(1, rest * .52 / 350, (W - dice - gap * 4) / 750));
     const n = Math.max(1, Number(tab && tab.dataset.n) || 1), sepW = tab && tab.querySelector('.tsep') ? 22 : 0, items = n + (sepW ? 1 : 0), Wa = W - 8;
     const lying = tab ? tab.querySelectorAll('.tcard.done').length : 0;          // a card that has fired lies on its side: it takes 30 / 250 more room
-    let cb = Math.min(1, (rest - 350 * ca) / 350, (Wa - gap * (items - 1) - sepW) / (n * 250 + lying * 30));
+    let cb = Math.min(1, (rest - 350 * ca - 74) / 350, (Wa - gap * (items - 1) - sepW) / (n * 250 + lying * 30));
     let ov = 0;
     if (cb < .4) { cb = .4; ov = Math.ceil((n * 250 * cb + lying * 30 * cb + gap * (items - 1) + sepW - Wa) / Math.max(1, n - 1)); }       // too many cards even at the smallest size: they overlap, left edge (name, number) stays visible
     t.style.setProperty('--ca', ca.toFixed(3)); t.style.setProperty('--cb', cb.toFixed(3)); t.style.setProperty('--ov', ov > 0 ? `-${ov}px` : '0px');
@@ -3886,7 +3894,7 @@ const AI = (() => {
     for (const q of here) { const e = ended[q.id]; bits.push(e ? (e.k === 'boom' ? `${nm(q)} went BOOM here.` : `${nm(q)} banked here.`) : `${nm(q)} ${is(q)} on this Monster in this round's Dig.`); }
     return `<b>${n === 0 ? 'The start' : mons(n)}</b><br>${bits.length ? bits.map(A.esc).join('<br>') : 'Nobody is here.'}<br><span class="dim">Each column is a number of Monsters survived.</span>`;
   }
-  const lbHelpHTML = () => `<div class="mnote-back" data-p="lbhelpclose"><div class="mnote lbhelp" role="dialog" aria-label="How the Leaderboard works"><h3>How the Leaderboard works</h3><ul>
+  const lbHelpHTML = () => `<div class="mnote-back top" data-p="lbhelpclose"><div class="mnote lbhelp" role="dialog" aria-label="How the Leaderboard works"><h3>How the Leaderboard works</h3><ul>
     <li><b>Each column</b> is a number of Monsters survived. Higher is better.</li>
     <li><b>The poker chips on top</b> are everyone's best banked Dig, kept between rounds. If two players bank the same number, the one who got there first holds the better spot.</li>
     <li><b>The pieces below</b> are this round's Digs. A piece moves up each time its player meets a Monster, so speed matters: the quicker you reach a number, the better your spot. They have not banked yet, so nothing is locked in.</li>
@@ -3894,7 +3902,7 @@ const AI = (() => {
     <li>When a round ends the board <b>plays back what happened</b>, in order. Fast forward runs it four times quicker.</li>
     <li>The <b>Crown</b> goes to the best chip. It waits on ${D.run.crownStart + 1} until someone banks that many. In the last round nobody banks: your piece is your score.</li>
     <li><b>Tap</b> any piece, chip or column to see what it means.</li></ul><button class="btn" data-p="lbhelpclose">Got it</button></div></div>`;
-  const lbTipHTML = () => S.lbTip ? `<div class="mnote-back" data-p="lbtipclose"><div class="mnote lbtip" role="dialog" aria-label="On the Leaderboard"><p>${S.lbTip}</p><small class="dim">Tap anywhere to close.</small></div></div>` : '';
+  const lbTipHTML = () => S.lbTip ? `<div class="mnote-back top" data-p="lbtipclose"><div class="mnote lbtip" role="dialog" aria-label="On the Leaderboard"><p>${S.lbTip}</p><small class="dim">Tap anywhere to close.</small></div></div>` : '';
   // The round, played back: every move of every marker in the order it happened, quickly, until someone's Dig ends (a bank or a BOOM); then it waits for a tap and says what happened.
   const boardEvents = run => (run.board.log || []).filter(e => e.r === (run.phase === 'done' ? run.round : run.round - 1));
   function replayState(run, an) {
@@ -3965,7 +3973,7 @@ const AI = (() => {
     const run = S.run, final = run.phase === 'done', an = S.boardAnim, more = !!an && an.k < an.events.length;          // (a tap goes on after each result; Fast forward runs through them all; the button to go on is there all the time)
     const cap = !an ? '' : `<p class="bcap" role="status">${an.k === 0 ? `Round ${run.round - 1} is over.` : A.esc(boardText(run, an.events[an.k - 1], an.from)).replace('New Best!', '<em class="newbest">New Best!</em>')}</p>`;
     const bv = boardScale();          // everything on this screen is drawn at this size, so it always fits: nothing here scrolls
-    return `<div class="panel setup bigboard" style="--bv:${bv}"><button class="btn alt lbhelpbtn" data-p="lbhelp">How it works</button><div class="scroll"><h2 class="steptitle">Leaderboard</h2>${boardGrid(run, an)}${cap}</div><div class="foot">${more && !an.fast ? '<button class="btn alt" data-p="boardfast">Fast forward ⏩</button>' : ''}<button class="btn" data-p="boardgo">${final ? 'See the result' : 'Booster Pack'}</button></div></div>`;
+    return `<div class="panel setup bigboard" style="--bv:${bv}"><button class="btn alt lbhelpbtn" data-p="lbhelp">How it works</button><div class="scroll"><h2 class="steptitle">Leaderboard</h2>${boardGrid(run, an)}${cap}</div><div class="foot">${more ? (an.fast ? '<button class="btn alt" data-p="boardskip">Skip ⏭</button>' : '<button class="btn alt" data-p="boardfast">Fast forward ⏩</button>') : ''}<button class="btn" data-p="boardgo">${final ? 'See the result' : 'Booster Pack'}</button></div></div>`;
   }
   // The tally after a bank, shown one piece at a time while a thermometer fills up beside it: Treasure, a pause, Monsters, a pause, then you tap the die; and only when the die has landed does the pack appear.
   const TP = () => window.DDB_TALLY_PACE || 1;                         // tests speed this up
@@ -4084,7 +4092,7 @@ const AI = (() => {
     const tabs = `<div class="dtabs" role="tablist">${Array.from({ length: run.rounds }, (_, i) => `<button class="dtab ${sel === i + 1 ? 'on' : ''}" data-p="donetab" data-k="${i + 1}" role="tab" aria-label="${i + 1 === run.rounds ? 'Round ' + (i + 1) + ', the end of the game' : 'Round ' + (i + 1)}">${i + 1}</button>`).join('')}</div>`;
     const an = tab ? (S.boardAnim && S.boardAnim.round === tab ? S.boardAnim : histAnim(run, tab)) : null, playing = !!an && an.k < an.events.length;
     const cap = tab && an && an.k > 0 ? `<p class="bcap" role="status">${A.esc(boardText(run, an.events[an.k - 1], an.from))}</p>` : '';
-    return `<div class="panel setup bigboard enddone" style="--bv:${boardScale()}">${tabs}<button class="btn alt lbhelpbtn" data-p="lbhelp">How it works</button><div class="scroll"><h2 class="endtitle ${won && !tab ? 'won' : ''}">${A.esc(title)}</h2>${boardGrid(run, an)}${cap}</div><div class="foot"><span class="endbtns">${tab ? (playing ? (an.fast ? '' : '<button class="btn alt" data-p="boardfast">Fast forward ⏩</button>') : '<button class="btn alt" data-p="donereplay">Watch again</button>') : ''}${run.owned.length ? `<button class="btn alt" data-p="owned">Your cards (${run.owned.length})</button>` : ''}</span>${S.viewBest ? '<button class="btn" data-p="closebest">‹ Back</button>' : '<button class="btn alt" data-p="mainmenu">Main menu</button><button class="btn" data-p="startrun">New game</button>'}</div></div>`;
+    return `<div class="panel setup bigboard enddone" style="--bv:${boardScale()}">${tabs}<button class="btn alt lbhelpbtn" data-p="lbhelp">How it works</button><div class="scroll"><h2 class="endtitle ${won && !tab ? 'won' : ''}">${A.esc(title)}</h2>${boardGrid(run, an)}${cap}</div><div class="foot"><span class="endbtns">${tab ? (playing ? (an.fast ? '<button class="btn alt" data-p="boardskip">Skip ⏭</button>' : '<button class="btn alt" data-p="boardfast">Fast forward ⏩</button>') : '<button class="btn alt" data-p="donereplay">Watch again</button>') : ''}${run.owned.length ? `<button class="btn alt" data-p="owned">Your cards (${run.owned.length})</button>` : ''}</span>${S.viewBest ? '<button class="btn" data-p="closebest">‹ Back</button>' : '<button class="btn alt" data-p="mainmenu">Main menu</button><button class="btn" data-p="startrun">New game</button>'}</div></div>`;
   }
   // ----- the table -----
   function track(res, max, cur, live, color, plan = 0) {
@@ -4184,7 +4192,7 @@ const AI = (() => {
       const gb = gu ? `<button class="gritbtn" data-p="gritspend" aria-label="Spend ${Dig.gritAfterCost(st)} Grit for +1">${ic('grit')}<span>${Dig.gritAfterCost(st)} → +1</span><small>${st.grit} left</small></button>` : '';
       const die = `<span class="deckdie"><span class="dieb rollbtn still">${d10(fresh ? '' : shown, fresh ? 'fx-tumble' : '', shown)}</span></span>`;
       const take = f.defeat ? '' : `<button class="takedmg ${lethal ? 'lethal' : ''} ${sure ? 'sure' : ''} ${fresh ? 'waitroll' : ''}" data-p="face">${sure ? `You can still ${savers.join(' or ')}.<br>Tap again to take ${dmg} ${ic('damage')}` : dmg ? `Take ${dmg} ${ic('damage')}` : `Take 0 ${ic('damage')}`}</button>`;          // (a defeated Monster needs no tap: dig on, or bank)
-      return { die, html: `<div class="action">${calc}${fired}${rdyNote}${useAll}<div class="astack">${take}<div class="abtns">${rr}${gb}</div></div></div>` };
+      return { die, html: `<div class="action">${calc}${fired}${rdyNote}<div class="astack">${useAll}${take}<div class="abtns">${rr}${gb}</div></div></div>` };
     }
     if (st.pending && st.pending.kind === 'dug') {
       const p = st.pending;
@@ -4499,6 +4507,7 @@ const AI = (() => {
       case 'gloss': { const k = ds.k; if (S.zoom) S.gloss = S.gloss === k ? null : k; break; }
       case 'emptyok': S.emptySeen = S.st; break;
       case 'owned': S.showOwned = true; break;
+      case 'boardskip': { const an = S.boardAnim; if (an) { clearTimeout(an.timer); an.timer = null; an.k = an.events.length; an.fast = false; an.fx = null; an.rects = null; } break; }
       case 'boardfast': { const an = S.boardAnim; if (an) { an.fast = true; an.stop = false; clearTimeout(an.timer); an.timer = null; boardPlay(); } break; }
       case 'donetab': { const an = S.boardAnim; if (an) { clearTimeout(an.timer); } S.boardAnim = null; S.doneTab = Number(ds.k); break; }
       case 'donereplay': { if (S.boardAnim) clearTimeout(S.boardAnim.timer); const an = S.boardAnim = { ...histAnim(S.run, S.doneTab, 0), round: S.doneTab }; boardPlay(true); break; }
