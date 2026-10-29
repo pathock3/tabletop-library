@@ -811,8 +811,8 @@ const Sound = (() => {
     }
     return `${open ? '<div class="scrim" data-act="closeprofile"></div>' : ''}<div class="profile"><button class="pbtn" data-act="profile" aria-label="Profile"><span class="who">☺</span><span class="pname">${esc(cur.name)}</span><span class="chev">▴</span></button>${drop}</div>`;
   }
-  // The way back to the library is only for somebody who came from it: the shelf links here with ?from=library (the tab remembers it), a link you share goes straight to this game with nothing of the library in it.
-  const fromLibrary = () => { let came = /[?&]from=library\b/.test(location.search); try { if (came) sessionStorage.setItem('tabletop-library-from', '1'); else came = sessionStorage.getItem('tabletop-library-from') === '1'; } catch (e) { /* no storage: only a page opened from the shelf shows it */ } return /^https?:$/.test(location.protocol) && came; };
+  // The way back to the library is only for somebody who came from it: the shelf links here with ?from=library (a reload remembers it; a link typed or pasted in is a fresh visit and does not), a link you share goes straight to this game with nothing of the library in it.
+  const fromLibrary = () => { let came = /[?&]from=library\b/.test(location.search); try { if (came) sessionStorage.setItem('tabletop-library-from', '1'); else { const nav = (performance.getEntriesByType && performance.getEntriesByType('navigation')[0]) || {}; if (nav.type === 'navigate') sessionStorage.removeItem('tabletop-library-from'); else came = sessionStorage.getItem('tabletop-library-from') === '1'; } } catch (e) { /* no storage: only a page opened from the shelf shows it */ } return /^https?:$/.test(location.protocol) && came; };
   const libraryLink = () => (D.library && fromLibrary() ? `<a class="libback" href="${esc(D.library.href)}"><span aria-hidden="true">‹</span> ${esc(D.library.name)}</a>` : '');
   function continueHTML() {
     const ci = P.continueIndex(profile());
