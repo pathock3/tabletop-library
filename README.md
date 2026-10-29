@@ -8,8 +8,8 @@ Patrick Blim-Hockberger's tabletop game designs, adapted as browser games you ca
 - **Dig Dig Boom** (the flagship) is a separate site; the library links to it once it has an address.
 
 **Deployment:** hosted on Cloudflare (Workers Builds, static assets), connected to this repo.
-- **Live:** `https://tabletop-library.patrick-blim-hockberger.workers.dev/` is the library; Fossil Frenzy is at `…/games/fossil-frenzy/`. It changes only when `main` changes.
-- **Dev (preview):** every other branch is built as a preview, so a change can be tried on an iPad before it goes live (the branch `claude/peaceful-bardeen-fvc0jn` → `https://claude-peaceful-bardeen-fvc0jn-tabletop-library.patrick-blim-hockberger.workers.dev/`).
+- **Live:** `https://tabletop-library.patrick-blim-hockberger.workers.dev/` is the library; Fossil Frenzy is at `…/games/fossil-frenzy/`. It changes whenever `main` does (a failing test keeps the old version up).
+- **Preview (optional):** every other branch is built as a preview with its own address (the branch `claude/peaceful-bardeen-fvc0jn` → `https://claude-peaceful-bardeen-fvc0jn-tabletop-library.patrick-blim-hockberger.workers.dev/`), for trying something risky on an iPad. Day-to-day work goes straight to `main`, so the live link is never behind. A preview address has its own browser storage: a game saved there is not on the live link.
 - Build command `npm run build` (runs the tests, then copies the library page and each game into `_site/`, stamped with commit · date · branch — shown quietly at the bottom of each page), deploy command `npx wrangler deploy`, config in `wrangler.jsonc`. `.github/workflows/ci.yml` only runs the tests.
 - On an iPad, Safari → Share → *Add to Home Screen* on the library page gives a full-screen app.
 
