@@ -1363,7 +1363,7 @@ const DDB = {
   // What the symbols and keywords on a card mean: the zoomed card shows a chip for each one on it (and the symbols in its text can be tapped). [[caps.grit]] etc. are filled in from `rules`.
   glossary: [
     { key: 'heart', name: 'Health', icon: 'heart', re: /\{heart\}/, text: 'Your Health, up to [[caps.heart]]. Damage takes it away. At 0 you go BOOM.' },
-    { key: 'grit', name: 'Grit', icon: 'grit', re: /\{grit\}/, text: 'Saved-up effort, up to [[caps.grit]]. Before a roll, each Grit you put in is +1 to the roll. After a roll, [[grit.after]] Grit is +1 to your result. You can spend at most [[grit.battleLimit]] in one battle.' },
+    { key: 'grit', name: 'Grit', icon: 'grit', re: /\{grit\}/, text: 'Saved-up effort, up to [[caps.grit]]. Before a roll, each Grit you put in is +1 to the roll. After a roll, [[grit.after]] Grit is +1 to your result.' },
     { key: 'extraroll', name: 'Extra Roll', icon: 'extraroll', re: /\{extraroll\}/, text: 'Spend one to roll again. The new roll is your result (the old one is gone). You can hold up to [[caps.reroll]].' },
     { key: 'damage', name: 'Damage', icon: 'damage', re: /\{damage\}/, text: 'What a Monster does to your Health when you face it. Damage put on a Monster (the tokens on it) is taken off what it deals: with as much on it as it deals, it is defeated.' },
     { key: 'gem', name: 'Gem', icon: 'gem', re: /\{gem\}/, text: 'Gems are your score for the round: the more you bank, the better the Booster Pack you open.' },
@@ -1386,8 +1386,7 @@ const DDB = {
     caps: { heart: 10, reroll: 5, grit: 6 },             // Drill tracks (v2.7.1): Health 0-10, Extra Rolls 0-5, Grit 0-6 (owner), Grit 0-3 (the Grit track is 3 long: see GRIT-EXPERIMENT.md; the sheet's {extraroll} is `reroll` in the code)
     start: { heart: 10, reroll: 0, grit: 0 },            // each track's starred space: where it is at the start of every Dig (owner: 10 / 0 / 0)
     // Grit (v2.7.1): spend it before a roll (+1 to that roll for each) or after seeing it (3 Grit = +1 to the result, and cards the result now reaches fire).
-    // `battleLimit`: at most this many Grit can be spent in one battle, so Grit a card hands back mid-battle cannot be spent again and again (the refill loop: GRIT-EXPERIMENT.md).
-    grit: { before: 1, after: 3, battleLimit: 3 },
+    grit: { before: 1, after: 3 },
     rerollCost: 1,
     pet: { at: 9 },                                      // the Pet (the Starting Ongoing card, power number 9) fires when the result reaches 9; Pet Whistle / Pet Treat lower it
     line: { min: 1, max: 10 },
@@ -2151,7 +2150,7 @@ const Dig = (() => {
   }
   const resultTotal = st => (st.fight ? st.fight.result : 0);
   // ---- Grit ----
-  const gritLeft = (st, f) => Math.max(0, Math.min(st.grit, G.battleLimit - (f ? f.spent : 0)));          // what you may still spend in this battle
+  const gritLeft = (st, f) => Math.max(0, st.grit);          // what you may spend: all you have (the only limit is what the track can hold)
   function planGrit(st, n) {                                  // before a roll: how much Grit goes into it (+1 each). Nothing is spent until you roll.
     const f = st.fight; if (!f || f.phase !== 'before' || over(st)) return false;
     f.plan = clamp(Math.floor(n), 0, gritLeft(st, f)); return true;
@@ -4196,9 +4195,9 @@ const AI = (() => {
   function diceHTML(st, can) {
     const f = st.fight;
     if (f) {
-      const after = f.phase === 'after', left = Dig.gritLeft(st, f), lim = R.grit.battleLimit;
+      const after = f.phase === 'after', left = Dig.gritLeft(st, f);
       if (!after) {          // a Monster is in front of you: Grit goes into the roll (+1 each) if you want; the die to tap is on the Mine
-        const plan = f.plan, say = plan ? `+${Dig.planBoost(st)} to your roll` : left ? 'Put Grit in the roll?' : st.grit ? `You have spent ${f.spent} of ${lim} ${ic('grit')} this battle` : '';
+        const plan = f.plan, say = plan ? `+${Dig.planBoost(st)} to your roll` : left ? 'Put Grit in the roll?' : '';
         const planner = st.grit > 0 || plan > 0 ? `<div class="gritplan"><span class="gval">${ic('grit')}<b>${plan}</b></span><span class="gbtns"><button class="gbtn" data-p="gritminus" ${plan > 0 ? '' : 'disabled'} aria-label="Less Grit">−</button><button class="gbtn" data-p="gritplus" ${plan < left ? '' : 'disabled'} aria-label="More Grit">+</button></span></div><div class="gnote">${say}</div>` : '';
         const again = f.again ? `<div class="aprompt">${ic('extraroll')} Rolling again</div>` : '';
         return { html: `<div class="action">${again}${planner}</div>`, die: '' };          // the die to tap is in the right-hand column, above the Bank (see tableHTML)

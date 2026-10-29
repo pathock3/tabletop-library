@@ -177,15 +177,13 @@ test('untapping: Encore Parrot (once per battle) and Refresh Elixir stand every 
   Dig.triggerAll(st); assert.equal(st.grit, 3);
 });
 
-test('Grit: you can spend at most 3 in a battle (the rule that stops Grit refilling Grit), and the track holds 6', () => {
-  assert.equal(DDB.rules.caps.grit, 6); assert.equal(DDB.rules.grit.battleLimit, 3);
-  const st = play(mk({ dice: [2], start: { grit: 3 } }), 'ON-29');          // Hype Squirrel: +3 Grit at 10
-  fight(st, 'MO-01'); Dig.planGrit(st, 3); go(st);          // 2 + 3 = 5: nothing reaches 10 yet; 3 Grit spent
-  assert.equal(st.grit, 0); assert.equal(st.fight.spent, 3);
-  assert.ok(!Dig.can(st).gritAfter, 'no Grit left to spend after the roll');
-  st.grit = 6;
-  assert.equal(Dig.gritLeft(st, st.fight), 0, 'the battle limit is used up even though the track is full again');
-  assert.ok(!Dig.spendGrit(st, 1));
+test('Grit: the only limit is what the track holds (6): you may spend all of it, and there is no separate limit per battle', () => {
+  assert.equal(DDB.rules.caps.grit, 6); assert.equal(DDB.rules.grit.battleLimit, undefined, 'no per-battle limit in the rules');
+  const st = play(mk({ dice: [2], start: { grit: 6 } }), 'ON-29');
+  fight(st, 'MO-01'); assert.equal(Dig.gritLeft(st, st.fight), 6); Dig.planGrit(st, 6); go(st);
+  assert.equal(st.grit, 0); assert.equal(st.fight.spent, 6, 'all six went into the roll');
+  st.grit = 6; assert.equal(Dig.gritLeft(st, st.fight), 6, 'and more can be spent after the roll: nothing says otherwise');
+  assert.ok(Dig.can(st).gritAfter);
 });
 
 test('Grit: gaining it past the end of the track is lost', () => {

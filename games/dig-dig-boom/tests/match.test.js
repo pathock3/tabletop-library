@@ -135,7 +135,6 @@ test('(the basic AI) in a battle it puts Grit in the roll when the Monster is bi
   ({ ai, st } = fight(6, [2, 10], { rerolls: 2 })); Basic.act(ai); assert.equal(st.reroll, 1, 'the damage would hurt and it has an Extra Roll: it took one'); assert.equal(st.fight, null);
   ({ ai, st } = fight(6, [2, 9], { rerolls: 0 })); Basic.act(ai); assert.equal(st.fight, null); assert.equal(st.heart, 4, 'no Extra Roll: it takes the damage');
   ({ ai, st } = fight(9, [4], { grit: 3, heart: 8 })); Basic.act(ai); assert.ok(8 - st.heart <= 9);
-  assert.equal(DDB.rules.grit.battleLimit, 3);
 });
 
 test('(the basic AI) before round 1 the AI keeps the first card of its Bronze Pack and puts it in its Starter Kit: only cards the game can play, and not always the same', () => {
