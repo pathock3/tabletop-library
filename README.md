@@ -10,6 +10,7 @@ Patrick Blim-Hockberger's tabletop game designs, adapted as browser games you ca
 **Deployment:** hosted on Cloudflare (Workers Builds, static assets), connected to this repo.
 - **Live:** `https://tabletop-library.patrick-blim-hockberger.workers.dev/` is the library; Fossil Frenzy is at `…/games/fossil-frenzy/`. It changes whenever `main` does (a failing test keeps the old version up).
 - **Preview (optional):** every other branch is built as a preview with its own address (the branch `claude/peaceful-bardeen-fvc0jn` → `https://claude-peaceful-bardeen-fvc0jn-tabletop-library.patrick-blim-hockberger.workers.dev/`), for trying something risky on an iPad. Day-to-day work goes straight to `main`, so the live link is never behind. A preview address has its own browser storage: a game saved there is not on the live link.
+- **Cloudflare settings that must stay as they are** (Workers & Pages → `tabletop-library` → Settings → Builds, Production): production branch `main`, build command `npm run build`, deploy command `npx wrangler deploy`, root directory `/`. (If the build command is anything else, the games are missing from the live site and their pages are blank.)
 - Build command `npm run build` (runs the tests, then copies the library page and each game into `_site/`, stamped with commit · date · branch — shown quietly at the bottom of each page), deploy command `npx wrangler deploy`, config in `wrangler.jsonc`. `.github/workflows/ci.yml` only runs the tests.
 - On an iPad, Safari → Share → *Add to Home Screen* on the library page gives a full-screen app.
 
