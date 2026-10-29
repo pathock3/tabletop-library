@@ -1150,6 +1150,34 @@ body[data-mode=play] { background: radial-gradient(130% 75% at 50% -10%, #74401e
 .duel #play .pbar.slim { top: auto; bottom: 14px; right: 14px; }          /* each player's own Undo: bottom right of their half, clear of the tracks */
 .duel .seatundo { min-height: 52px; padding: 8px 20px; font-size: 18px; font-weight: 800; border-radius: 16px; }
 .duel .seatundo:disabled { opacity: .35; }
+
+.duel #play.duelband.slim .pbar, .duel #play.duelband.full .pbar { padding: 6px 10px; }          /* the same room above and below, so the middle is really in the middle */
+.duel #play.duelband .pbar.mid { justify-content: center; }
+.duel #play.duelband .pbar .chip[data-p=gmenu] { min-height: 52px; }
+.duel .duelname { position: absolute; left: 12px; top: 6px; z-index: 6; display: flex; align-items: center; gap: 7px; font-size: 15px; font-weight: 800; color: #fff3d6; opacity: .72; pointer-events: none; text-shadow: 0 1px 2px rgba(0,0,0,.6); }
+.duel .duelname i { width: 12px; height: 12px; border-radius: 50%; border: 2px solid rgba(255,255,255,.75); }
+.duelmenu small { text-align: center; color: #d9c7a5; font-size: 14px; font-weight: 600; }
+.duel .duelturn { display: none; position: fixed; inset: 0; z-index: 95; background: #120b07; color: #fff3d6; flex-direction: column; align-items: center; justify-content: center; gap: 14px; text-align: center; padding: 30px; }
+.duel .duelturn b { font-size: 34px; font-weight: 900; color: #ffd45e; }
+.duel .duelturn span { font-size: 20px; font-weight: 700; max-width: 520px; }
+.duel.turn .duelturn { display: flex; }
+#play .cmode { font-size: 17px; font-weight: 800; opacity: .75; }
+#play .namepick { display: flex; flex-direction: column; padding: 0; height: 100%; }
+#play .namepick .nhalf { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 14px; position: relative; background: radial-gradient(130% 75% at 50% -10%, #74401e 0%, #3a2211 36%, #1b120c 80%); }
+#play .namepick .nhalf.top { transform: rotate(180deg); }
+#play .namepick .ndot { width: 30px; height: 30px; border-radius: 50%; border: 3px solid #fff3d6; }
+#play .namepick .ncap { font-size: 22px; font-weight: 800; color: #fff3d6; }
+#play .namepick .ninput { width: 72%; max-width: 480px; font: inherit; font-size: 36px; font-weight: 800; padding: 14px 20px; text-align: center; border-radius: 18px; border: 3px solid #e7b866; background: #24180f; color: #fff3d6; user-select: text; -webkit-user-select: text; }
+#play .namepick .nmid { flex: none; display: flex; align-items: center; justify-content: center; gap: 18px; padding: 14px; background: #120b07; border-top: 3px solid #6b4a27; border-bottom: 3px solid #6b4a27; }
+#play .namepick .nmid .btn { min-width: 260px; min-height: 64px; font-size: 24px; }
+#play.duelseat .panel.prep .scroll, .duel .duelseat .panel.prep .scroll { gap: 6px; }
+.duel #play .kitbar b, .duel #play .kitbar .count { font-size: 30px; }
+.duel #play .kitbar + .kslots, .duel #play .kitbar + .krow { margin-top: 10px; }
+.duel #play .poolhead { margin: 2px 0 0; }
+.duel #play .panel.prep { position: relative; }
+.duel #play .panel.prep .foot { position: absolute; top: 8px; right: 12px; padding: 0; border: 0; z-index: 5; }          /* Keep / Ready sit beside the title: the cards get the room */
+.duel #play .panel.prep .foot .btn { min-width: 0; min-height: 56px; padding: 8px 22px; font-size: 20px; }
+.duel #play .panel.prep .foot .ownedbtn { display: none; }
 </style>
 </head>
 <body>
@@ -3044,6 +3072,8 @@ const Match = (() => {
   const levelBrains = {};
   // The AI's decisions for a seat: its level's brain (a simulation can give every computer seat another brain, m.brain).
   const brainOf = (m, id) => { if (m.brain) return m.brain; const p = m.board.players.find(x => x.id === id); return p && p.level ? (levelBrains[p.level] || (levelBrains[p.level] = AI.level(p.level))) : AI; };
+  // A name is what the players typed (trimmed, one line, at most 12 letters), or the default when they left it empty.
+  const cleanName = (n, dflt) => String(n || '').replace(/\s+/g, ' ').trim().slice(0, 12) || dflt;
   function start(all, opts = {}) {
     const seed = opts.seed === undefined || opts.seed === null ? null : opts.seed >>> 0, rng = Dig.makeRng(seed), colors = DDB.table.playerColors;
     const opp = opts.bots && opts.bots.length ? opts.bots : [{ id: BOT, name: 'AI', color: colors[1] }];
@@ -3181,11 +3211,14 @@ const Duel = (() => {
   const rollDie = d => (d.dice && d.dice.length ? d.dice.shift() : 1 + d.rng.int(DDB.rules.die));
   const runs = d => IDS.map(id => d.runs[id]);
   const other = id => IDS.find(x => x !== id);
+  // A name is what the players typed (trimmed, one line, at most 12 letters), or the default when they left it empty.
+  const cleanName = (n, dflt) => String(n || '').replace(/\s+/g, ' ').trim().slice(0, 12) || dflt;
   function start(all, opts = {}) {
     const seed = opts.seed === undefined || opts.seed === null ? null : opts.seed >>> 0, rng = Dig.makeRng(seed), colors = DDB.table.playerColors;
-    const board = Board.create([{ id: 'p1', name: 'Player 1', tag: 'P1', color: colors[0] }, { id: 'p2', name: 'Player 2', tag: 'P2', color: colors[1] }]);
+    const names = Object.fromEntries(IDS.map((id, i) => [id, cleanName(opts.names && opts.names[id], `Player ${i + 1}`)]));
+    const board = Board.create(IDS.map((id, i) => ({ id, name: names[id], tag: names[id], color: colors[i] })));
     const shared = { board, deck: Run.makeDeck(all, rng), trash: [] };
-    const d = { kind: 'duel', seed, rng, dice: opts.dice ? opts.dice.slice() : null, all, board, deck: shared.deck, trash: shared.trash, rounds: opts.rounds || DDB.run.rounds, runs: {}, bots: [], ids: IDS,
+    const d = { kind: 'duel', seed, rng, dice: opts.dice ? opts.dice.slice() : null, all, board, deck: shared.deck, trash: shared.trash, rounds: opts.rounds || DDB.run.rounds, runs: {}, bots: [], ids: IDS, names,
       result: null, stage: 'prep', ready: { p1: false, p2: false }, moved: { p1: false, p2: false }, escape: null };
     IDS.forEach((id, i) => { d.runs[id] = Run.start(all, { ...opts, seed: seed === null ? null : seed + 1 + i, me: id, shared }); });
     return d;
@@ -3230,7 +3263,24 @@ const Duel = (() => {
   }
   // The middle die has been shown: everyone goes on to their own Leaderboard and Prep.
   const afterRoll = d => { if (d.stage === 'roll') d.stage = 'prep'; };
-  return { start, openPack, ready, begin, finalCheck, bothOver, proceed, finishRound, afterRoll, other, runs, IDS };
+  // Saving and resuming (a reload, or leaving to the main menu and tapping Continue): the same shape as a Match's.
+  function save(d) {
+    const refOf = c => ({ id: c.id, uid: c.uid });
+    return { v: 1, seed: d.seed, rng: d.rng.state(), dice: d.dice, rounds: d.rounds, escape: d.escape, result: d.result, stage: d.stage, ready: d.ready, moved: d.moved, names: d.names, board: d.board, deck: d.deck.map(refOf), trash: d.trash.map(refOf),
+      runs: Object.fromEntries(IDS.map(id => [id, Run.save(d.runs[id])])) };
+  }
+  function load(all, x) {
+    if (x.v !== 1) throw new Error('an older save');
+    const memo = new Map();
+    const deref = r => { if (memo.has(r.uid)) return memo.get(r.uid); const base = all.find(c => c.id === r.id); if (!base) throw new Error('the sheet no longer has card ' + r.id); const c = { ...base, uid: r.uid }; memo.set(r.uid, c); return c; };
+    const rng = Dig.makeRng(x.seed); rng.restore(x.rng);
+    const shared = { board: x.board, deck: x.deck.map(deref), trash: x.trash.map(deref) };
+    const d = { kind: 'duel', seed: x.seed, rng, dice: x.dice, all, board: shared.board, deck: shared.deck, trash: shared.trash, rounds: x.rounds, runs: {}, bots: [], ids: IDS, names: x.names, result: x.result, stage: x.stage, ready: x.ready, moved: x.moved, escape: x.escape };
+    for (const k of memo.keys()) Run.reserve(k);
+    for (const id of IDS) d.runs[id] = Run.load(all, x.runs[id], shared);
+    return d;
+  }
+  return { start, save, load, openPack, ready, begin, finalCheck, bothOver, proceed, finishRound, afterRoll, other, runs, IDS };
 })();
 </script>
 
@@ -3635,6 +3685,7 @@ const AI = (() => {
    The table is the UI: tap the Mine to dig, the die to roll, the Extra Rolls to roll again, the Monster to face it.
    ===================================================================== */
 // One game screen. The page makes one for the whole window (the main one); a two-player game makes two, one for each half of the iPad (cfg.host: the box it fills; cfg.duel: { d, id }).
+const DUEL_KEY = 'ddb.duel.save.v1';          // (a two-player game in progress, kept in this browser like the solo one)
 function DDBSeat(root, cfg) {
   'use strict'; cfg = cfg || {};
   const D = DDB, R = D.rules, UI = window.DigDigBoomUI, A = UI.api, $ = root;
@@ -3856,7 +3907,7 @@ function DDBSeat(root, cfg) {
       <div class="homemenu">
         <h1 class="logo" style="${logoStyle}"><span class="l1">Dig Dig</span><span class="l2">BOOM!<i>✦</i></span></h1>
         <p class="tagline">Strap into a drill and launch yourself toward the center of the earth!</p>
-        ${inProgress ? `<button class="mode primary row" data-p="resume"><b>Continue</b>${run ? pips : ''}</button>` : ''}
+        ${inProgress ? `<button class="mode primary row" data-p="resume"><b>Continue</b>${duelSaved() ? '<span class="cmode">Two players</span>' : run ? pips : ''}</button>` : ''}
         ${newRun}
         <div class="ghostrow"><button class="ghost" data-p="help">How to play</button><button class="ghost" data-p="more">More</button></div>
         ${note ? `<p class="homenote warn">${note}</p>` : ''}
@@ -3869,6 +3920,15 @@ function DDBSeat(root, cfg) {
       <button class="modebtn" data-p="startai"><b>Play the AI</b><span>Easy, Medium and Hard at one table</span></button>
       <button class="modebtn" data-p="startduel"><b>Two players</b><span>One iPad, sitting across from each other</span></button></div></div></div>`;
   }
+  // Two players: each types a name (the top half is turned round for the player opposite), then Start in the middle. The names are remembered for next time.
+  const NAMES_KEY = 'ddb.duel.names';
+  const readNames = () => { try { return JSON.parse(localStorage.getItem(NAMES_KEY)) || {}; } catch (e) { return {}; } };
+  function duelNamesHTML() {
+    const nm = readNames(), half = (id, i, cls) => `<div class="nhalf ${cls}"><i class="ndot" style="background:${D.table.playerColors[i]}"></i><span class="ncap">Player ${i + 1}: type your name</span><input class="ninput" data-id="${id}" maxlength="12" autocomplete="off" autocorrect="off" spellcheck="false" placeholder="Player ${i + 1}" value="${A.esc(nm[id] || '')}"></div>`;
+    return `<div class="panel setup namepick">${half('p2', 1, 'top')}<div class="nmid"><button class="chip back" data-p="startrun">‹ Back</button><button class="btn" data-p="duelgo">Start game</button></div>${half('p1', 0, 'bottom')}</div>`;
+  }
+  // Which player is which: a small label in the corner of each half, in the colour of that player's marker on the Leaderboard.
+  const duelTag = () => { if (!cfg.duel || !S.run) return ''; const p = S.run.board.players.find(x => x.id === S.run.me); return p ? `<div class="duelname"><i style="background:${p.color}"></i>${A.esc(p.name)}</div>` : ''; };
   function moreHTML() {
     const b = readBest(), inProgress = resumable();
     const row = (title, note, control) => `<div class="srow"><div class="stext"><b>${title}</b>${note ? `<span>${note}</span>` : ''}</div>${control}</div>`;
@@ -3878,7 +3938,10 @@ function DDBSeat(root, cfg) {
       ${row('Playtest', `Pick any cards and try one Dig${inProgress ? '. Starting one replaces your game in progress' : ''}${b.survived || b.gems ? `. Best: ${b.survived} Monsters survived · ${b.gems} gems banked` : ''}`, `<button class="btn ${S.confirmNew === 'practice' ? 'confirm' : 'alt'}" data-p="practice" ${cards().length ? '' : 'disabled'}>${S.confirmNew === 'practice' ? 'Tap again to replace your game' : 'Playtest'}</button>`)}
     </div><p class="vers">Version ${A.esc(UI.build)}</p></div></div>`;
   }
-  const resumable = () => !!S.back && ((S.run && S.run.phase !== 'done') || (!S.run && S.st && !S.st.over));
+  const duelSaved = () => { try { return !!localStorage.getItem(DUEL_KEY); } catch (e) { return false; } };
+  // Starting a game of one kind lets go of a game of the other kind (the New game button already asked).
+  function forget() { S.run = null; S.match = null; S.st = null; S.back = null; S.panel = 'menu'; try { localStorage.removeItem(SAVE_KEY); } catch (e) { /* fine */ } }
+  const resumable = () => duelSaved() || !!S.back && ((S.run && S.run.phase !== 'done') || (!S.run && S.st && !S.st.over));
   // The Leaderboard: positions are Monsters survived. The Crown tracker starts at 3; your best locked-in score stays between rounds.
   const nameOf = (run, id) => (run.board.players.find(p => p.id === id) || {}).name || id;
   // A ten-sided die, drawn as one: the kite you see looking down at a d10. n = the number it shows ('' for a blank one waiting to be tapped).
@@ -4126,6 +4189,8 @@ function DDBSeat(root, cfg) {
   }
   // What each part of the sum is (tap it to see this line).
   const tallySays = pr => ({ geo: `${pr.geodes} gem${pr.geodes === 1 ? '' : 's'} from Geode cards.`, mon: `${pr.monsters} gem${pr.monsters === 1 ? '' : 's'} from Monster cards: ${D.rules.survivedGems} for each Monster you survived.`, die: `The Escape Bonus: when you escape, you get a random bonus from 1 to ${D.rules.die}.`, sum: `Your gems this round. The more you have, the bigger your Booster Pack.` });
+  // How much room the cards of the pack and Starter Kit screens have. In a two-player game the screen is only about as tall as half the iPad and nothing else matters, so they get nearly all of it.
+  const prepRoom = (extra = 0) => cfg.duel ? { avail: VH() - 120 - extra / 2, ss: .9, ps: 1 } : { avail: VH() - 32 - 150 - 92 - 30 - 20 - extra, ss: .6, ps: .8 };
   function prepHTML() {
     const run = S.run, pr = run.prep, step = pr.step, rolled = pr.escape !== null;
     const key = `${run.round}:${pr.escape}`, tumble = rolled && S.fxEsc !== key; S.fxEsc = key;
@@ -4147,8 +4212,8 @@ function DDBSeat(root, cfg) {
     else if (step === 'pack') {
       // The same layout the cards will be dealt into: the Keep places on top and, in the middle of the row below, the closed pack. It tears open right there.
       const info = Run.packInfo(run), col = (D.run.ladder.find(l => l.name === info.name) || {}).color || '#b8743a', plus = /\+$/.test(info.name);
-      const need = Math.min(info.keep, info.draw), W = Math.min(VW(), 1180) - 48, avail = VH() - 32 - 150 - 92 - 30 - 20;
-      const ss = Math.min(.6, fitCards(need, .6, W, avail * .46)), sh = 350 * ss, ps = Math.min(.8, fitCards(info.draw, .8, W, avail - sh - 14, 12));
+      const need = Math.min(info.keep, info.draw), W = Math.min(VW(), 1180) - 48, room = prepRoom(), avail = room.avail;
+      const ss = Math.min(room.ss, fitCards(need, room.ss, W, avail * .46)), sh = 350 * ss, ps = Math.min(room.ps, fitCards(info.draw, room.ps, W, avail - sh - 14, 12));
       const slots = Array.from({ length: need }, (_, i) => `<div class="kslot empty" data-i="${i}" style="width:${250 * ss}px;height:${sh}px"><span class="kplus">keep</span></div>`).join('');
       body = `<div class="kitbar"><b>${A.esc(packName(info.name))} Pack</b></div><div class="kslots">${slots}</div><div class="poolhead">Your cards</div><div class="cards pool closedpack" style="height:${350 * ps}px;--pks:${Math.min(1, Math.max(.45, 350 * ps / 270)).toFixed(3)}"><button class="pack" data-p="openpack" style="--pc:${col}" aria-label="Open the ${A.esc(packName(info.name))} Pack">${packArt(info.name, info.draw, info.keep)}</button></div>`;
       foot = `<button class="btn" data-p="keepgo" disabled>Keep</button>`;          // (already there, so nothing moves when the cards are dealt)
@@ -4156,18 +4221,18 @@ function DDBSeat(root, cfg) {
       const need = Run.keepCount(run);
       const fxKey = `${run.round}:${pr.offer.map(c => c.uid).join()}`, first = S.fxPack !== fxKey; S.fxPack = fxKey;       // the pack tears open once, the first time these cards are drawn
       // The same layout as the Starter Kit: your places on top, the cards you drew below. Tap a card to move it up (tap it again to put it back), or drag it.
-      const W = Math.min(VW(), 1180) - 48, avail = VH() - 32 - 150 - 92 - 30 - 20;
-      const ss = Math.min(.6, fitCards(need, .6, W, avail * .46)), sh = 350 * ss;
+      const W = Math.min(VW(), 1180) - 48, room = prepRoom(), avail = room.avail;
+      const ss = Math.min(room.ss, fitCards(need, room.ss, W, avail * .46)), sh = 350 * ss;
       const chosen = pr.picked.map(id => pr.offer.find(c => c.uid === id)).filter(Boolean), hand = pr.offer.filter(c => !pr.picked.includes(c.uid));
-      const ps = Math.min(.8, fitCards(hand.length, .8, W, avail - sh - 14, 12));
+      const ps = Math.min(room.ps, fitCards(hand.length, room.ps, W, avail - sh - 14, 12));
       const slots = Array.from({ length: need }, (_, i) => { const c = chosen[i]; return `<div class="kslot ${c ? '' : 'empty'}" data-i="${i}" style="width:${250 * ss}px;height:${sh}px">${c ? pcard(c, ss, { act: 'pick', sel: true, badge: i + 1, kslot: true }) : '<span class="kplus">keep</span>'}</div>`; }).join('');
       body = `<div class="kitbar"><b>${A.esc(packName(pr.pack.name))} Pack</b></div><div class="kslots">${slots}</div><div class="poolhead">Your cards</div><div class="cards pool ${first && S.packFrom ? 'fly' : ''}" style="--pks:${Math.min(1, Math.max(.45, 350 * ps / 270)).toFixed(3)}">${first ? tearHTML(pr.pack) : ''}${first && S.packFrom ? flyPackHTML(pr.pack) : ''}${hand.map((c, i) => pcard(c, ps, { act: 'pick', i: pr.offer.indexOf(c), deal: first, dx: ((pr.offer.length - 1) / 2 - pr.offer.indexOf(c)) * (250 * ps + 14) })).join('')}</div>`;
       foot = `${run.owned.length ? `<button class="btn alt ownedbtn" data-p="owned">Your cards (${run.owned.length})</button>` : ''}<button class="btn" data-p="keepgo" ${pr.picked.length === need ? '' : 'disabled'}>Keep</button>`;
     } else if (step === 'reveal') {            // a Mystery Box: the same screen as the pack. The cards you did not keep fly away, then the next card of the deck is dealt face down in the row and turns over; nothing moves on until you say so
       const key = `${run.round}:reveal`, first = S.fxReveal !== key; S.fxReveal = key;
       const kept = pr.offer.filter(c => pr.picked.includes(c.uid)), rest = pr.offer.filter(c => !pr.picked.includes(c.uid)), need = kept.length;
-      const W = Math.min(VW(), 1180) - 48, avail = VH() - 32 - 150 - 92 - 30 - 20;
-      const ss = Math.min(.6, fitCards(need, .6, W, avail * .46)), sh = 350 * ss, ps = Math.min(.8, fitCards(rest.length, .8, W, avail - sh - 14, 12));          // (the same sizes as on the pack screen)
+      const W = Math.min(VW(), 1180) - 48, room = prepRoom(), avail = room.avail;
+      const ss = Math.min(room.ss, fitCards(need, room.ss, W, avail * .46)), sh = 350 * ss, ps = Math.min(room.ps, fitCards(rest.length, room.ps, W, avail - sh - 14, 12));          // (the same sizes as on the pack screen)
       const slots = kept.map((c, i) => `<div class="kslot" data-i="${i}" style="width:${250 * ss}px;height:${sh}px">${pcard(c, ss, { act: 'noop', sel: true, badge: i + 1, kslot: true })}</div>`).join('');
       const from = first ? S.keepFrom : null;
       const sweep = first && rest.length ? `<div class="sweep" aria-hidden="true">${rest.map((c, i) => {
@@ -4179,11 +4244,11 @@ function DDBSeat(root, cfg) {
       foot = `<button class="btn" data-p="continuereveal">Choose your Starter Kit</button>`;
     } else {            // the Starter Kit: your places on top (last round's kit is already in them), the rest of your cards below
       const key = `${run.round}:kit`, first = S.fxKit !== key; S.fxKit = key;
-      const W = Math.min(VW(), 1180) - 48, avail = VH() - 32 - 150 - 92 - 30 - 52;
-      const ss = Math.min(.6, fitCards(pr.kitMax, .6, W, avail * .46)), sh = 350 * ss;
+      const W = Math.min(VW(), 1180) - 48, room = prepRoom(32), avail = room.avail;
+      const ss = Math.min(room.ss, fitCards(pr.kitMax, room.ss, W, avail * .46)), sh = 350 * ss;
       const prev = (run.kit || []).map(c => c.uid), kitCards = pr.kitPick.map(id => run.owned.find(c => c.uid === id)).filter(Boolean);
       const hand = run.owned.filter(c => !pr.kitPick.includes(c.uid)).sort((x, y) => (pr.gained.includes(y.uid) ? 1 : 0) - (pr.gained.includes(x.uid) ? 1 : 0));          // what you just won comes first, top left
-      const ps = Math.min(.8, fitCards(Math.max(1, hand.length), .8, W, avail - sh - 14, 12));          // (an empty hand keeps the size and room of one card, so nothing moves)
+      const ps = Math.min(room.ps, fitCards(Math.max(1, hand.length), room.ps, W, avail - sh - 14, 12));          // (an empty hand keeps the size and room of one card, so nothing moves)
       const tagOf = c => (first && S.keepFrom && pr.picked.includes(c.uid) ? { kept: true } : {}) ;
       const tagOf2 = c => ({ ...tagOf(c), ...(c.cantStart ? { tag: "Can't start", tagCls: 'last' } : pr.gained.includes(c.uid) ? { tag: 'NEW', tagCls: 'new' } : prev.includes(c.uid) ? { tag: 'Last round', tagCls: 'last' } : {}) });
       const gemIc = `<svg class="kgem" viewBox="0 0 24 24" aria-hidden="true"><use href="#i-gem"/></svg>`;
@@ -4462,6 +4527,7 @@ function DDBSeat(root, cfg) {
     if (S.panel === 'menu') body = homeHTML();
     else if (S.panel === 'more') body = moreHTML();
     else if (S.panel === 'mode') body = modeHTML();
+    else if (S.panel === 'duelnames') body = duelNamesHTML();
     else if (S.panel === 'board' && S.run) body = boardHTML();
     else if (S.panel === 'prep' && S.run) body = prepHTML();
     else if (S.panel === 'done' && S.run) body = doneHTML();
@@ -4497,7 +4563,7 @@ function DDBSeat(root, cfg) {
       const list = S.run.owned, fitAll = (n, hi, w, h, gap) => { let b = .2; for (let rows = 1; rows <= 8 && rows <= Math.max(1, n); rows++) { const per = Math.ceil(n / rows); b = Math.max(b, Math.min(hi, (w - (per - 1) * gap) / (per * 250), (h - (rows - 1) * gap) / (rows * 350))); } return b; }, sc = fitAll(list.length, .7, Math.min(VW(), 1180) - 72, VH() - 150, 10), inKit = new Set((S.run.kit || []).map(c => c.uid));
       ownedP = `<div class="ownedback" data-p="ownedclose"><div class="ownedpanel" role="dialog" aria-label="Your cards"><h3>Your cards</h3><div class="cards">${list.map(c => `<span class="ocard" data-p="zoom" data-uid="${c.uid}" style="width:${250 * sc}px;height:${350 * sc}px">${A.playCard(c, sc)}${inKit.has(c.uid) ? '<span class="ctag last">In your kit</span>' : ''}</span>`).join('') || '<span class="note">You do not own any cards yet.</span>'}</div></div></div>`;
     }
-    $.innerHTML = (S.panel === 'menu' || S.panel === 'more' || S.panel === 'mode' || S.viewBest || S.panel === 'done' || (S.panel === 'setup' && !S.run) ? '' : bar) + body + (S.gmenu ? gmenuHTML() : '') + (S.help ? helpHTML() : '') + z + note + pileDlg + (S.lbHelp ? lbHelpHTML() : '') + lbTipHTML() + fin + dangerHTML() + ffNoteHTML() + lbFullHTML() + ownedP + pickHTML() + logHTML();
+    $.innerHTML = (S.panel === 'menu' || S.panel === 'more' || S.panel === 'mode' || S.panel === 'duelnames' || S.viewBest || S.panel === 'done' || (S.panel === 'setup' && !S.run) ? '' : bar) + body + (S.gmenu ? gmenuHTML() : '') + (S.help ? helpHTML() : '') + z + note + pileDlg + (S.lbHelp ? lbHelpHTML() : '') + lbTipHTML() + fin + dangerHTML() + ffNoteHTML() + lbFullHTML() + ownedP + pickHTML() + logHTML() + duelTag();
     const sc = $.querySelector('#setupScroll'); if (sc) sc.scrollTop = ks;
     fitHero(); heroPlay(); fitTable(); playDice(); boardAnimate();
     if (S.packFrom) { const fp = $.querySelector('.flypack'); if (fp) { const r = rr(fp); fp.style.setProperty('--fx', Math.round(S.packFrom.x - (r.left + r.width / 2)) + 'px'); fp.style.setProperty('--fy', Math.round(S.packFrom.y - (r.top + r.height / 2)) + 'px'); } S.packFrom = null; }
@@ -4569,7 +4635,7 @@ function DDBSeat(root, cfg) {
   // Everyone's best Dig so far (0 until they bank): where the chips were when the round began, so the Leaderboard can slide them to where they are now.
   const bestsNow = () => S.run ? Object.fromEntries(S.run.board.players.map(p => { const m = Board.marker(S.run.board, p.id, 'best'); return [p.id, m ? m.n : 0]; })) : {};
   function enterDig() { S.st = S.run.dig; S.panel = 'dig'; S.ff = false; S.lbFull = false; S.bests0 = bestsNow(); S.boardAnim = null; S.undo = null; S.fx = fxOf(S.st); S.tally = null; }          // (a two-player game: the other seat begins the Dig too)
-  function startGame() { if (S.opp) { S.match = Match.start(cards(), { rounds: S.rounds, bots: D.ai.opponents }); S.run = Match.human(S.match); } else { S.match = null; S.run = Run.start(cards(), { rounds: S.rounds }); } S.st = null; S.panel = 'prep'; S.back = null; S.zoom = null; }
+  function startGame() { try { localStorage.removeItem(DUEL_KEY); } catch (e) { /* fine */ } if (S.opp) { S.match = Match.start(cards(), { rounds: S.rounds, bots: D.ai.opponents }); S.run = Match.human(S.match); } else { S.match = null; S.run = Run.start(cards(), { rounds: S.rounds }); } S.st = null; S.panel = 'prep'; S.back = null; S.zoom = null; }
   function startRound() { if (cfg.duel) { Duel.ready(S.match, S.run.me); if (S.run.phase === 'dig' && S.run.dig && S.st !== S.run.dig) enterDig(); return; } if (S.match ? Match.beginRound(S.match) : Run.beginDig(S.run)) { S.st = S.run.dig; S.panel = 'dig'; S.ff = false; S.lbFull = false; startDelays(); S.bests0 = bestsNow(); S.boardAnim = null; } }
   // Undo: before each action in a Dig the state is kept (a copy), so the last action can be taken back. One step, and not after the Dig is over.
   const UNDOABLE = ['dig', 'roll', 'face', 'triggerall', 'card', 'usecons', 'usedefeat', 'action', 'pickgo', 'dugchoose', 'usemod', 'reroll', 'gritspend'];
@@ -4604,11 +4670,12 @@ function DDBSeat(root, cfg) {
       case 'dangerok': S.dangerNote = false; break;
       case 'ffok': S.ffNote = null; break;
       case 'mainmenu': if (S.panel !== 'menu' && S.panel !== 'more') S.back = S.panel; S.panel = 'menu'; S.gmenu = false; S.help = false; break;
-      case 'resume': S.panel = S.back || 'menu'; break;
+      case 'resume': if (duelSaved()) { if (!DuelHost.resume()) S.panel = 'menu'; break; } S.panel = S.back || 'menu'; break;
       case 'practice': if (resumable() && S.confirmNew !== 'practice') { S.confirmNew = 'practice'; break; } S.confirmNew = null; S.run = null; S.match = null; S.st = null; S.panel = 'setup'; S.back = null; break;
       case 'startrun': { if (resumable() && S.confirmNew !== 'startrun') { S.confirmNew = 'startrun'; break; } S.confirmNew = null; if (window.DDB_NO_MODE_PICKER) { startGame(); break; } S.panel = 'mode'; S.back = null; break; }
       case 'startai': startGame(); break;
-      case 'startduel': DuelHost.start(); break;
+      case 'startduel': S.panel = 'duelnames'; break;
+      case 'duelgo': { const names = {}; $.querySelectorAll('.ninput').forEach(i => { names[i.dataset.id] = i.value; }); try { localStorage.setItem(NAMES_KEY, JSON.stringify(names)); } catch (e) { /* fine */ } forget(); DuelHost.start({ names }); break; }
       case 'openpack': {          // the pack answers at once (it swells), and the opening itself, which takes a moment to draw, follows on the next frame; more taps meanwhile do nothing
         if (S.opening) return; S.opening = true;
         const pk0 = $.querySelector('[data-p=openpack]'); if (pk0) pk0.classList.add('pressed');
@@ -4750,7 +4817,7 @@ function DDBSeat(root, cfg) {
   };
   winOn('pointerup', e => endDrag(e, true)); winOn('pointercancel', e => endDrag(e, false));
   $.addEventListener('click', e => { if (S.noClickUntil) { const swallow = performance.now() < S.noClickUntil; S.noClickUntil = 0; if (swallow) { e.preventDefault(); return; } } if (S.noClick) { e.preventDefault(); return; } const el = e.target.closest('[data-p]'); if (!el || el.disabled) return; e.preventDefault(); act(el.dataset.p, el); });
-  if (cfg.main) { document.addEventListener('ddb-cards', () => { restore(); render(); }); document.addEventListener('ddb-mode', render); }
+  if (cfg.main) { document.addEventListener('ddb-cards', () => { restore(); render(); if (window.DigDigBoomDuel) window.DigDigBoomDuel.autoResume(); }); document.addEventListener('ddb-mode', render); }
   let sized = HW() + 'x' + HH(), sizeTimer = null;
   winOn('resize', () => {
     applyScale();
@@ -4759,7 +4826,7 @@ function DDBSeat(root, cfg) {
     clearTimeout(sizeTimer);          // turning the iPad changes the size the table and the cards are drawn for: draw them again
     sizeTimer = setTimeout(() => { const now = HW() + 'x' + HH(); if (now !== sized) { sized = now; if (!drag) render(); } }, 150);
   });
-  const api = { S, render, d10, bandHTML: () => lbHTML({ ...S.match.runs.p1, me: '' }, null), enterDig, enterBoard: goBoard, act: (a, d) => act(a, { dataset: d || {} }), tick: aiTick, applyScale, dispose: () => { for (const f of offs) f(); stopClocks(); }, root: $ };
+  const api = { S, forget, render, d10, bandHTML: () => lbHTML({ ...S.match.runs.p1, me: '' }, null), enterDig, enterBoard: goBoard, act: (a, d) => act(a, { dataset: d || {} }), tick: aiTick, applyScale, dispose: () => { for (const f of offs) f(); stopClocks(); }, root: $ };
   if (cfg.main) { window.DigDigBoomPlay = api; restore(); render(); }          // the saved copy of your cards is already in: the real menu (Continue and all) shows on the first frame
   return api;
 }
@@ -4767,15 +4834,32 @@ DDBSeat(document.getElementById('play'), { main: true });
 
 // ---- Two players, one iPad: one seat on each side, the Leaderboard and Pause in the middle ----
 const DuelHost = (() => {
-  let host = null, d = null, seats = null, rolling = false, sig = {}, menu = false, ask = false;
+  let host = null, d = null, seats = null, rolling = false, sig = {}, menu = false, ask = false, mode = '', tried = false, timers = [];
   const IDS = ['p2', 'p1'];          // top to bottom: Player 2 sits across from Player 1, and the top seat is turned the other way round
   const mainRoot = () => document.getElementById('play');
   const band = () => host.querySelector('.duelband');
+  const cardsIn = () => window.DigDigBoomUI.state.all;
+  // The Leaderboard is only in the middle while you dig (everything else is the seats' own business); the rest of the time the middle is just the Pause button, and the cards get the room.
+  const bandMode = () => (d.stage === 'dig' ? 'full' : 'slim');
   function bandHTML() {
-    return `<div class="pbar">${seats.p1.bandHTML()}<button class="chip" data-p="gmenu">Pause</button></div>`;
+    return bandMode() === 'full' ? `<div class="pbar">${seats.p1.bandHTML()}<button class="chip" data-p="gmenu">Pause</button></div>` : `<div class="pbar mid"><button class="chip" data-p="gmenu">Pause</button></div>`;
   }
   // The signature of what a seat needs to know about the other: when it changes the seat is drawn again.
   const sigOf = id => [d.stage, d.ready.p1, d.ready.p2, d.moved.p1, d.moved.p2, Duel.bothOver(d), d.runs[id].phase].join('|');
+  // Measure the seats again (the middle changed, or the iPad was turned) and draw them.
+  function layout() {
+    if (!host) return;
+    host.classList.toggle('turn', innerWidth > innerHeight);          // two people can't sit across from each other on a sideways iPad: ask for it upright
+    if (innerWidth > innerHeight) return;
+    for (const id of IDS) { seats[id].applyScale(); sig[id] = null; }
+    sync();
+  }
+  function save() {
+    try {
+      if (!d || d.result) localStorage.removeItem(DUEL_KEY);
+      else localStorage.setItem(DUEL_KEY, JSON.stringify({ v: 1, duel: Duel.save(d), panels: { p1: seats.p1.S.panel, p2: seats.p2.S.panel } }));
+    } catch (e) { /* private window or full: it just will not resume */ }
+  }
   function sync() {
     if (!host) return;
     for (const id of IDS) { const sd = seats[id], S = sd.S, run = d.runs[id];
@@ -4783,8 +4867,11 @@ const DuelHost = (() => {
       if (!rolling && d.stage !== 'roll' && S.panel === 'dig' && S.st && S.st.over && Duel.IDS.every(x => d.moved[x])) sd.enterBoard();          // the round is over for both (no roll to wait for): each goes to their own Leaderboard
     }
     if (d.stage === 'roll' && !rolling) roll();
-    band().innerHTML = bandHTML();
+    const m = bandMode(), changed = m !== mode;
+    mode = m; band().className = 'duelband ' + m; band().innerHTML = bandHTML();
+    if (changed) for (const id of IDS) { seats[id].applyScale(); sig[id] = null; }
     for (const id of IDS) { const k = sigOf(id) + '|' + seats[id].S.panel; if (sig[id] !== k) { sig[id] = k; seats[id].render(); } }
+    save();
   }
   // The Escape Bonus: ONE roll of the die in the middle of the iPad, the same number for both.
   function roll() {
@@ -4797,23 +4884,46 @@ const DuelHost = (() => {
     setTimeout(() => { if (!host || d.stage !== 'roll') return; el.remove(); rolling = false; Duel.afterRoll(d); for (const id of IDS) if (seats[id].S.panel === 'dig') seats[id].enterBoard(); sync(); }, window.DDB_DUEL_ROLL_MS !== undefined ? window.DDB_DUEL_ROLL_MS : 2600);
   }
   function menuHTML() {
-    return `<div class="duelmenuback" data-p="menuclose"></div><div class="duelmenu" role="menu"><button data-p="menuclose">Back to the game</button><button data-p="leave" class="${ask ? 'confirm' : ''}">${ask ? 'Tap again to leave the game' : 'Main menu'}</button></div>`;
+    return `<div class="duelmenuback" data-p="menuclose"></div><div class="duelmenu" role="menu"><button data-p="menuclose">Back to the game</button><button data-p="leave" class="${ask ? 'confirm' : ''}">${ask ? 'Tap again to leave the game' : 'Main menu'}</button><small>Your game is kept: Continue brings you back.</small></div>`;
   }
   function drawMenu() { let m = host.querySelector('.duelmenuwrap'); if (!m) { m = document.createElement('div'); m.id = 'play'; m.className = 'duelmenuwrap'; host.appendChild(m); } m.innerHTML = menu ? menuHTML() : ''; m.style.display = menu ? '' : 'none'; }
-  function start() {
+  // Put the two seats on the table for the game `game` (new, or one that was saved); `panels` says what each seat was looking at.
+  function build(game, panels) {
     stop();
-    d = Duel.start(window.DigDigBoomUI.state.all, { rounds: DDB.run.rounds }); rolling = false; sig = {}; menu = false; ask = false;
+    d = game; rolling = false; sig = {}; menu = false; ask = false; mode = '';
     host = document.createElement('div'); host.className = 'duel';
-    host.innerHTML = `<div class="seatbox top"><div id="play" class="duelseat"></div></div><div class="duelband" id="play"></div><div class="seatbox bottom"><div id="play" class="duelseat"></div></div>`;
+    host.innerHTML = `<div class="seatbox top"><div id="play" class="duelseat"></div></div><div class="duelband" id="play"></div><div class="seatbox bottom"><div id="play" class="duelseat"></div></div><div class="duelturn"><b>Turn the iPad upright</b><span>Two players sit across from each other with the iPad in portrait. Your game is waiting.</span></div>`;
     document.body.appendChild(host); mainRoot().style.display = 'none';
+    try { if (screen.orientation && screen.orientation.lock) screen.orientation.lock('portrait').catch(() => {}); } catch (e) { /* Safari on iPad can't lock it: the "turn it upright" note does the job */ }
+    if (d.stage === 'roll') Duel.afterRoll(d);          // (it was saved while the die was showing: the number is already in both of them)
     seats = {}; const boxes = host.querySelectorAll('.seatbox');
     IDS.forEach((id, i) => { const box = boxes[i]; seats[id] = DDBSeat(box.querySelector('.duelseat'), { host: box, duel: { d, id }, onAct: () => sync(), onExit: a => { if (a === 'startrun') leave('startrun'); else { menu = true; drawMenu(); } } });
-      const S = seats[id].S; S.match = d; S.run = d.runs[id]; S.st = null; S.panel = 'prep'; S.opp = true; });
+      const sd = seats[id], S = sd.S; S.match = d; S.run = d.runs[id]; S.st = null; S.panel = 'prep'; S.opp = true;
+      const pn = panels && panels[id];
+      if (pn === 'dig' && S.run.dig) sd.enterDig(); else if (pn === 'board' || pn === 'done') S.panel = pn; });
     band().addEventListener('click', e => { const b = e.target.closest('[data-p=gmenu]'); if (b) { menu = true; ask = false; drawMenu(); } });
     host.addEventListener('click', e => { const b = e.target.closest('.duelmenuwrap [data-p]'); if (!b) return; if (b.dataset.p === 'menuclose') { menu = false; ask = false; drawMenu(); } else if (b.dataset.p === 'leave') { if (!ask) { ask = true; drawMenu(); } else leave('menu'); } });
-    band().innerHTML = bandHTML();          // (the middle first, so the seats measure the room they really have)
+    band().innerHTML = bandHTML(); mode = bandMode(); band().className = 'duelband ' + mode;          // (the middle first, so the seats measure the room they really have)
     for (const id of IDS) { seats[id].applyScale(); seats[id].render(); }
+    host.classList.toggle('turn', innerWidth > innerHeight);
     sync();
+  }
+  function start(opts = {}) {
+    build(Duel.start(cardsIn(), { rounds: DDB.run.rounds, names: opts.names }), null);
+    try { localStorage.removeItem('ddb.solo.save.v1'); } catch (e) { /* fine */ }
+  }
+  // Continue from the main menu (or after a reload): the saved game, each seat where it was.
+  function resume() {
+    let x = null; try { x = JSON.parse(localStorage.getItem(DUEL_KEY)); } catch (e) { x = null; }
+    try { if (!x || x.v !== 1) throw new Error('nothing to continue'); build(Duel.load(cardsIn(), x.duel), x.panels); return true; }
+    catch (e) { try { localStorage.removeItem(DUEL_KEY); } catch (e2) { /* fine */ } stop(); return false; }
+  }
+  // A reload (iPad Safari does that to a backgrounded tab) puts you straight back, like the solo game; a fresh visit shows the main menu with Continue.
+  function autoResume() {
+    if (tried || host || !cardsIn().length) return;
+    tried = true;
+    const nav = (performance.getEntriesByType && performance.getEntriesByType('navigation')[0]) || {};
+    if (nav.type !== 'navigate' && !window.DDB_NO_AUTORESUME) { let has = false; try { has = !!localStorage.getItem(DUEL_KEY); } catch (e) { has = false; } if (has) resume(); }
   }
   function leave(to) {
     stop();
@@ -4825,9 +4935,12 @@ const DuelHost = (() => {
     host.remove(); host = null; d = null; seats = null; rolling = false;
     const r = mainRoot(); if (r) r.style.display = '';
   }
-  return { start, stop, get active() { return !!host; }, get d() { return d; }, get seats() { return seats; } };
+  const relayout = () => { if (!host) return; for (const t of timers) clearTimeout(t); timers = [60, 350, 900].map(t => setTimeout(layout, t)); };          // (turning the iPad: the size settles a moment after the turn)
+  window.addEventListener('resize', relayout); window.addEventListener('orientationchange', relayout);
+  return { start, resume, autoResume, stop, get active() { return !!host; }, get d() { return d; }, get seats() { return seats; } };
 })();
 window.DigDigBoomDuel = DuelHost;          // (tests look at the two-player game through this)
+DuelHost.autoResume();
 
 </script>
 </body>

@@ -22,9 +22,11 @@ async function open() {
   await page.waitForSelector('#play .home');
   return { browser, page, errors };
 }
-async function startDuel(page) {
+async function startDuel(page, names) {
   await page.click('#play [data-p=startrun]'); await page.waitForSelector('#play .modepick');
-  await page.click('#play [data-p=startduel]'); await page.waitForSelector('.duel');
+  await page.click('#play [data-p=startduel]'); await page.waitForSelector('#play .namepick');
+  if (names) { await page.fill('.ninput[data-id=p1]', names[0]); await page.fill('.ninput[data-id=p2]', names[1]); }
+  await page.click('#play [data-p=duelgo]'); await page.waitForSelector('.duel');
 }
 // Open the pack, keep the first card and get to the Starter Kit, for one seat.
 async function prep(page, seat) {
@@ -54,7 +56,7 @@ test('Two players: two seats (the top one turned round), one Leaderboard and Pau
   assert.ok(Math.abs(g.top.height - g.bot.height) < 2, 'halves are equal');
   assert.ok(g.pause.top >= g.band.top && g.pause.bottom <= g.band.bottom, 'Pause is in the middle');
   assert.notEqual(g.rot, 'none');
-  assert.equal(await page.locator('.duel .duelband .lb').count(), 1, 'one Leaderboard');
+  assert.equal(await page.locator('.duel .duelband .lb').count(), 0, 'no Leaderboard in the middle while choosing cards');
   assert.equal(await page.locator('.duel [data-p=gmenu]').count(), 1, 'one Pause button');
   assert.deepEqual(errors, []); await browser.close();
 });
@@ -102,5 +104,71 @@ test('Two players: Pause asks before leaving, then the main menu', SKIP, async (
   await page.click('.duelmenu [data-p=leave]'); assert.equal(await page.locator('.duel').count(), 1, 'one tap is not enough');
   await page.click('.duelmenu [data-p=leave]');
   await page.waitForSelector('#play .home'); assert.equal(await page.locator('.duel').count(), 0);
+  assert.deepEqual(errors, []); await browser.close();
+});
+
+test('Two players: names (typed at the start) tell the players apart, in the corners and on the Leaderboard', SKIP, async () => {
+  const { browser, page, errors } = await open();
+  await startDuel(page, ['Ada', 'Grace']);
+  assert.match(await page.locator(BOT + '.duelname').innerText(), /Ada/);
+  assert.match(await page.locator(TOP + '.duelname').innerText(), /Grace/);
+  await prep(page, BOT); await prep(page, TOP);
+  await page.click(BOT + '[data-p=startround]'); await page.click(TOP + '[data-p=startround]'); await page.waitForSelector(BOT + '[data-p=dig]');
+  const legend = await page.locator('.duel .duelband .lb').innerText();
+  assert.match(legend, /ADA/i); assert.match(legend, /GRACE/i);
+  assert.deepEqual(errors, []); await browser.close();
+});
+
+test('Two players: the middle holds the Leaderboard only while digging, and it is centred', SKIP, async () => {
+  const { browser, page, errors } = await open();
+  await startDuel(page);
+  const mid = () => page.evaluate(() => { const r = s => document.querySelector(s).getBoundingClientRect(), b = r('.duel .duelband'), x = document.querySelector('.duel .duelband .lb'); return { h: b.height, gapTop: x ? r('.duel .duelband .lb').top - b.top : null, gapBottom: x ? b.bottom - r('.duel .duelband .lb').bottom : null }; });
+  const slim = await mid(); assert.ok(slim.h < 80, 'a thin middle while choosing cards: ' + slim.h);
+  await prep(page, BOT); await prep(page, TOP);
+  await page.click(BOT + '[data-p=startround]'); await page.click(TOP + '[data-p=startround]'); await page.waitForSelector(BOT + '[data-p=dig]');
+  const full = await mid();
+  assert.ok(full.gapTop !== null && Math.abs(full.gapTop - full.gapBottom) <= 2, `centred: ${full.gapTop} above, ${full.gapBottom} below`);
+  assert.deepEqual(errors, []); await browser.close();
+});
+
+test('Two players: the cards on the pack and Starter Kit screens are big', SKIP, async () => {
+  const { browser, page, errors } = await open();
+  await startDuel(page);
+  await page.click(BOT + '[data-p=openpack]'); await page.waitForSelector(BOT + '[data-p=pick]'); await page.waitForTimeout(1500);
+  const h = await page.evaluate(sel => document.querySelector(sel + '.kslot').getBoundingClientRect().height, BOT);
+  assert.ok(h >= 150, 'a Keep place is at least 150 px tall: ' + h);
+  const fits = await page.evaluate(sel => { const seat = document.querySelector(sel).getBoundingClientRect(), c = [...document.querySelectorAll(sel + '.pool .pcard')].map(x => x.getBoundingClientRect()); return c.every(r => r.bottom <= seat.bottom && r.top >= seat.top); }, BOT);
+  assert.ok(fits, 'nothing runs off the half');
+  assert.deepEqual(errors, []); await browser.close();
+});
+
+test('Two players: leaving to the main menu keeps the game, Continue brings it back, so does a reload', SKIP, async () => {
+  const { browser, page, errors } = await open();
+  await startDuel(page, ['Ada', 'Grace']);
+  await prep(page, BOT); await prep(page, TOP);
+  await page.click(BOT + '[data-p=startround]'); await page.click(TOP + '[data-p=startround]'); await page.waitForSelector(BOT + '[data-p=dig]');
+  await page.click(BOT + '[data-p=dig]');
+  const mine = () => page.evaluate(() => window.DigDigBoomDuel.d.runs.p1.dig.mine.length);
+  const before = await mine();
+  await page.click('.duel [data-p=gmenu]'); await page.click('.duelmenu [data-p=leave]'); await page.click('.duelmenu [data-p=leave]');
+  await page.waitForSelector('#play .home');
+  assert.equal(await page.locator('#play [data-p=resume]').count(), 1, 'Continue is there');
+  await page.click('#play [data-p=resume]'); await page.waitForSelector('.duel');
+  assert.equal(await mine(), before, 'the same game, the same Mine');
+  assert.match(await page.locator(BOT + '.duelname').innerText(), /Ada/);
+  await page.reload(); await page.waitForSelector('.duel');
+  assert.equal(await mine(), before, 'after a reload too');
+  assert.deepEqual(errors, []); await browser.close();
+});
+
+test('Two players: on a sideways iPad the game asks for it upright and carries on when it is', SKIP, async () => {
+  const { browser, page, errors } = await open();
+  await startDuel(page);
+  await page.setViewportSize({ width: 1180, height: 820 });
+  await page.waitForSelector('.duel.turn .duelturn', { state: 'visible' });
+  await page.setViewportSize({ width: 820, height: 1180 });
+  await page.waitForSelector('.duel:not(.turn)'); await page.waitForTimeout(1100);
+  const g = await page.evaluate(() => { const r = s => document.querySelector(s).getBoundingClientRect(); return { top: r('.duel .seatbox.top'), bot: r('.duel .seatbox.bottom'), band: r('.duel .duelband') }; });
+  assert.ok(Math.abs(g.top.height - g.bot.height) < 2 && g.top.bottom <= g.band.top + 1 && g.band.bottom <= g.bot.top + 1, 'the layout is as it was');
   assert.deepEqual(errors, []); await browser.close();
 });

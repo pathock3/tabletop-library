@@ -66,3 +66,25 @@ test('a whole Duel plays out for two players with the plain policy: every round,
   assert.ok(d.result && d.result.duel); assert.equal(d.result.winner, Board.holder(d.board)); assert.ok(['p1', 'p2', null].includes(d.result.winner));
   assert.equal(d.result.rounds.length, 3);
 });
+
+test('the two players have names (what they typed, tidied, or Player 1 / Player 2) that show on the Leaderboard', () => {
+  const d = Duel.start(cards, { seed: 2, rounds: 2, names: { p1: '  Ada   Lovelace  ', p2: '' } });
+  assert.equal(d.names.p1, 'Ada Lovelace'); assert.equal(d.names.p2, 'Player 2');
+  assert.deepEqual(d.board.players.map(p => p.name), ['Ada Lovelace', 'Player 2']);
+  assert.equal(Duel.start(cards, { seed: 2, rounds: 2, names: { p1: 'A'.repeat(30) } }).names.p1.length, 12);
+});
+
+test('a Duel is saved and loaded back as it was, in the middle of a Dig', () => {
+  const d = Duel.start(cards, { seed: 5, rounds: 3, names: { p1: 'Ada', p2: 'Grace' } });
+  for (const id of Duel.IDS) { Duel.openPack(d, id); AI.prep(d.runs[id]); }
+  Duel.ready(d, 'p1'); Duel.ready(d, 'p2');
+  Dig.dig(d.runs.p1.dig); Dig.dig(d.runs.p2.dig);
+  const x = JSON.parse(JSON.stringify(Duel.save(d))), e = Duel.load(cards, x);
+  assert.equal(e.stage, 'dig'); assert.deepEqual(e.names, d.names); assert.deepEqual(e.moved, d.moved);
+  assert.equal(e.runs.p1.board, e.runs.p2.board); assert.equal(e.runs.p1.deck, e.runs.p2.deck, 'still one shared deck');
+  assert.deepEqual(e.runs.p1.dig.mine.map(c => c.uid), d.runs.p1.dig.mine.map(c => c.uid));
+  assert.deepEqual(e.deck.map(c => c.uid), d.deck.map(c => c.uid));
+  // and it goes on from there: the same rolls come out of the same generator
+  assert.equal(e.rng.state ? JSON.stringify(e.rng.state()) : '', JSON.stringify(d.rng.state()));
+  digAll(e); assert.ok(Duel.bothOver(e));
+});
