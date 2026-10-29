@@ -26,7 +26,7 @@ async function open({ viewport = { width: 1180, height: 820 }, menu = false } = 
   const browser = await chromium.launch(exe ? { executablePath: exe } : {});
   const page = await (await browser.newContext({ viewport, hasTouch: true })).newPage();
   const errors = []; page.on('pageerror', e => errors.push(e.message));
-  await page.addInitScript(() => { window.DDB_AI_PACE = 3600000; window.DDB_TALLY_PACE = 0.01; window.DDB_NO_DANGER = true; window.DDB_NO_FIRE_FX = true; window.DDB_HERO_PACE = window.DDB_HERO_PACE || 1; });         // the AI's own clock never fires on its own in a test: tests call DigDigBoomPlay.tick()
+  await page.addInitScript(() => { window.DDB_NO_MODE_PICKER = true; window.DDB_AI_PACE = 3600000; window.DDB_TALLY_PACE = 0.01; window.DDB_NO_DANGER = true; window.DDB_NO_FIRE_FX = true; window.DDB_HERO_PACE = window.DDB_HERO_PACE || 1; });         // the AI's own clock never fires on its own in a test: tests call DigDigBoomPlay.tick()
   await page.goto(FILE);
   await page.waitForSelector('#play .home');
   if (!menu) { await page.waitForSelector('#play [data-p=more]'); await page.click('#play [data-p=more]'); await page.waitForSelector('#play [data-p=practice]:not([disabled])'); await page.click('#play [data-p=practice]'); await page.waitForSelector('#play .tabs'); }

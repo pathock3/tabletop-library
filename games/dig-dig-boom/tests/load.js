@@ -9,7 +9,7 @@ function load() {
     if (!m) throw new Error('missing <script id="' + id + '">');
     vm.runInThisContext(m[1], { filename: 'index.html#' + id });
   }
-  cache = vm.runInThisContext('({ DDB, Engine, Dig, Board, Run, AI, Basic, Match })');
+  cache = vm.runInThisContext('({ DDB, Engine, Dig, Board, Run, AI, Basic, Match, Duel })');
   return cache;
 }
 module.exports = load();

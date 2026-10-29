@@ -259,7 +259,7 @@ body[data-mode=play] { background: radial-gradient(130% 75% at 50% -10%, #74401e
 /* Prep */
 #play .prep .scroll { display: flex; flex-direction: column; gap: 12px; }
 #play .prepstage { flex: 1; min-height: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 14px; padding: 6px 0; }
-#play .bigdie { width: min(34vh, 220px); display: flex; flex-direction: column; align-items: center; gap: 6px; filter: drop-shadow(0 7px 0 rgba(0,0,0,.45)); animation: pulse 1.4s ease-in-out infinite; border-radius: 22px; }
+#play .bigdie { width: min(calc(var(--vh, 1vh) * 34), 220px); display: flex; flex-direction: column; align-items: center; gap: 6px; filter: drop-shadow(0 7px 0 rgba(0,0,0,.45)); animation: pulse 1.4s ease-in-out infinite; border-radius: 22px; }
 #play .bigdie .d10 { height: auto; aspect-ratio: 1; }
 #play .eq { display: flex; align-items: center; justify-content: center; gap: 10px; flex-wrap: wrap; }
 #play .eq .t { min-width: 64px; height: 64px; padding: 0 10px; border-radius: 14px; background: linear-gradient(180deg, #4a3523, #2f2218); border: 2px solid #6a4e34; display: flex; align-items: center; justify-content: center; gap: 6px; font-weight: 900; font-size: 28px; }
@@ -345,13 +345,13 @@ body[data-mode=play] { background: radial-gradient(130% 75% at 50% -10%, #74401e
 #play .hero-stage { position: relative; width: 560px; height: 620px; flex: none; transform: scale(var(--k, .8)); transform-origin: center; }
 #play .homemenu { position: relative; display: flex; flex-direction: column; align-items: stretch; min-height: 0; }
 #play .logo { margin: 0 0 4px; line-height: .86; text-align: left; font-weight: 900; letter-spacing: -2px; filter: drop-shadow(0 4px 0 rgba(0,0,0,.45)); animation: logoin .7s ease-out .15s backwards; }
-#play .logo .l1 { display: block; font-size: clamp(38px, min(9vw, 9vh), 84px); background: linear-gradient(180deg, #ffe9a8 10%, #ffb62e 60%, #d9731a 100%); -webkit-background-clip: text; background-clip: text; color: transparent; }
-#play .logo .l2 { display: block; font-size: clamp(58px, min(15vw, 15vh), 140px); letter-spacing: -3px; background: linear-gradient(180deg, #fff3b0 0%, #ffa42b 38%, #ee4a1c 78%, #b81d12 100%); -webkit-background-clip: text; background-clip: text; color: transparent; transform: rotate(-2.5deg); transform-origin: left center; animation: boompulse 4.5s ease-in-out infinite; }
+#play .logo .l1 { display: block; font-size: clamp(38px, min(calc(var(--vw, 1vw) * 9), calc(var(--vh, 1vh) * 9)), 84px); background: linear-gradient(180deg, #ffe9a8 10%, #ffb62e 60%, #d9731a 100%); -webkit-background-clip: text; background-clip: text; color: transparent; }
+#play .logo .l2 { display: block; font-size: clamp(58px, min(calc(var(--vw, 1vw) * 15), calc(var(--vh, 1vh) * 15)), 140px); letter-spacing: -3px; background: linear-gradient(180deg, #fff3b0 0%, #ffa42b 38%, #ee4a1c 78%, #b81d12 100%); -webkit-background-clip: text; background-clip: text; color: transparent; transform: rotate(-2.5deg); transform-origin: left center; animation: boompulse 4.5s ease-in-out infinite; }
 #play .logo .l2 i { font-style: normal; display: inline-block; font-size: .5em; color: #ffe08a; -webkit-text-fill-color: #ffe08a; vertical-align: top; margin-left: 4px; filter: drop-shadow(0 0 8px #ffb13b); }
 @keyframes logoin { 0% { transform: translateY(14px); opacity: 0; } 100% { transform: none; opacity: 1; } }
 @keyframes boompulse { 0%, 88%, 100% { transform: rotate(-2.5deg) scale(1); } 93% { transform: rotate(-2.5deg) scale(1.06); } }
-#play .tagline { margin: 4px 0 2px; font-size: clamp(14px, 2.3vh, 18px); color: #e9cfa6; font-weight: 700; }
-#play .mode { display: flex; flex-direction: column; align-items: flex-start; gap: 2px; width: 100%; text-align: left; margin-top: clamp(8px, 1.6vh, 14px); padding: clamp(10px, 2vh, 18px) 20px; border-radius: 16px; background: linear-gradient(180deg, #4a3523, #2f2218); border: 2px solid #6a4e34; box-shadow: 0 5px 0 #130c07, 0 12px 20px rgba(0,0,0,.35); color: var(--text); }
+#play .tagline { margin: 4px 0 2px; font-size: clamp(14px, calc(var(--vh, 1vh) * 2.3), 18px); color: #e9cfa6; font-weight: 700; }
+#play .mode { display: flex; flex-direction: column; align-items: flex-start; gap: 2px; width: 100%; text-align: left; margin-top: clamp(8px, calc(var(--vh, 1vh) * 1.6), 14px); padding: clamp(10px, calc(var(--vh, 1vh) * 2), 18px) 20px; border-radius: 16px; background: linear-gradient(180deg, #4a3523, #2f2218); border: 2px solid #6a4e34; box-shadow: 0 5px 0 #130c07, 0 12px 20px rgba(0,0,0,.35); color: var(--text); }
 #play .mode b { font-size: 22px; font-weight: 900; }
 #play .mode span { font-size: 14px; color: var(--dim); }
 #play .mode:active { transform: translateY(2px); box-shadow: 0 2px 0 #130c07; }
@@ -366,7 +366,7 @@ body[data-mode=play] { background: radial-gradient(130% 75% at 50% -10%, #74401e
 #play .mode .pips i.on { background: #2b1b10; border-color: #2b1b10; }
 #play .mode .pips i.now { box-shadow: inset 0 0 0 3px #ffc349, inset 0 0 0 6px #2b1b10; }
 #play .mode .stack { display: flex; flex-direction: column; gap: 2px; align-items: flex-start; }
-#play .ghostrow { display: flex; gap: 10px; margin-top: clamp(8px, 1.4vh, 12px); }
+#play .ghostrow { display: flex; gap: 10px; margin-top: clamp(8px, calc(var(--vh, 1vh) * 1.4), 12px); }
 #play .ghost { flex: 1; min-height: 48px; border-radius: 14px; background: rgba(255,255,255,.06); border: 2px solid rgba(255,255,255,.1); font-weight: 800; font-size: 16px; }
 #play .ghost:active { background: rgba(255,255,255,.12); }
 #play .minor { display: flex; gap: 16px; justify-content: center; margin-top: 6px; }
@@ -673,7 +673,7 @@ body[data-mode=play] { background: radial-gradient(130% 75% at 50% -10%, #74401e
 #play .tallymain { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 22px; min-width: 330px; min-height: 360px; }
 #play .pop { animation: popin .45s cubic-bezier(.2,.8,.3,1) backwards; }
 @keyframes popin { 0% { transform: scale(.4); opacity: 0; } 70% { transform: scale(1.12); opacity: 1; } 100% { transform: none; } }
-#play .gchart { position: relative; width: 380px; height: min(58vh, 520px); flex: none; }
+#play .gchart { position: relative; width: 380px; height: min(calc(var(--vh, 1vh) * 58), 520px); flex: none; }
 #play .gtube { position: absolute; left: 70px; top: 0; bottom: 0; width: 34px; border-radius: 17px; background: #1b110a; border: 4px solid #6b4a27; box-shadow: inset 0 4px 10px rgba(0,0,0,.7); overflow: hidden; }
 #play .gfill { position: absolute; left: 0; right: 0; bottom: 0; height: var(--lv); background: linear-gradient(180deg, #ffe08a, #ff9a2b 45%, #e5481c); transition: height 1.3s cubic-bezier(.3,.8,.3,1); box-shadow: 0 0 18px rgba(255,160,50,.8); }
 #play .gbubble { position: absolute; left: 112px; bottom: calc(var(--lv) - 22px); height: 44px; padding: 0 14px; border-radius: 99px; background: #fffaf0; color: #1d1712; font-weight: 900; font-size: 24px; display: flex; align-items: center; gap: 4px; box-shadow: 0 4px 0 rgba(0,0,0,.4); transition: bottom 1.3s cubic-bezier(.3,.8,.3,1); z-index: 2; }
@@ -736,7 +736,7 @@ body[data-mode=play] { background: radial-gradient(130% 75% at 50% -10%, #74401e
 #play .pcard .ctag.last { background: #2b6f9c; }
 #play .sweep { position: absolute; inset: 0; z-index: 7; pointer-events: none; overflow: hidden; }
 #play .sweepcard { position: absolute; left: 50%; top: 34%; margin-left: -63px; width: 125px; height: 175px; display: block; animation: sweepaway .8s cubic-bezier(.5,0,.8,.4) both; animation-delay: calc(.1s + var(--i) * .09s); }
-@keyframes sweepaway { 0% { transform: translate(var(--sx), 0) scale(1) rotate(0); opacity: 1; } 100% { transform: translate(calc(-50vw + 80px - 63px), calc(-34vh + 10px)) scale(.28) rotate(-18deg); opacity: .1; } }
+@keyframes sweepaway { 0% { transform: translate(var(--sx), 0) scale(1) rotate(0); opacity: 1; } 100% { transform: translate(calc(-calc(var(--vw, 1vw) * 50) + 80px - 63px), calc(-calc(var(--vh, 1vh) * 34) + 10px)) scale(.28) rotate(-18deg); opacity: .1; } }
 #play .kfirst .pcard { animation: dealin .45s cubic-bezier(.2,.8,.3,1) backwards; animation-delay: calc(.6s + var(--i) * .07s); }
 #play .under { position: absolute; left: 0; top: 0; display: block; z-index: 0; }
 #play .draw { z-index: 1; }
@@ -797,7 +797,7 @@ body[data-mode=play] { background: radial-gradient(130% 75% at 50% -10%, #74401e
 #play .pool.fly .pcard.deal::after { animation-delay: calc(1.76s + var(--i) * .2s); }
 /* the bottom of the Mine */
 #play .mnote-back { position: fixed; inset: 0; z-index: 30; display: flex; align-items: center; justify-content: center; background: rgba(10,6,3,.62); }
-#play .mnote { width: min(560px, calc(100vw - 48px)); padding: 26px 30px 24px; border-radius: 22px; background: linear-gradient(180deg, #3a2a1d, #2a1f18); border: 3px solid #e7b866; box-shadow: 0 18px 50px rgba(0,0,0,.6); text-align: center; }
+#play .mnote { width: min(560px, calc(calc(var(--vw, 1vw) * 100) - 48px)); padding: 26px 30px 24px; border-radius: 22px; background: linear-gradient(180deg, #3a2a1d, #2a1f18); border: 3px solid #e7b866; box-shadow: 0 18px 50px rgba(0,0,0,.6); text-align: center; }
 #play .mnote h3 { margin: 0 0 12px; font-size: 28px; font-weight: 900; color: #ffd45e; }
 #play .mnote p { margin: 0 0 20px; font-size: 21px; line-height: 1.35; color: var(--text); }
 #play .mnote p b { color: #fff; }
@@ -851,7 +851,7 @@ body[data-mode=play] { background: radial-gradient(130% 75% at 50% -10%, #74401e
 #play .cardback::after { content: none; }
 /* the final round, announced */
 #play .fnote-back { position: fixed; inset: 0; z-index: 31; display: flex; align-items: center; justify-content: center; background: rgba(10,6,3,.78); }
-#play .fnote { width: min(700px, calc(100vw - 40px)); padding: 30px 34px 28px; border-radius: 26px; background: linear-gradient(180deg, #4a2a1d, #2a1712); border: 4px solid #ffb13b; box-shadow: 0 0 0 6px rgba(255,177,59,.18), 0 24px 70px rgba(0,0,0,.7); text-align: center; }
+#play .fnote { width: min(700px, calc(calc(var(--vw, 1vw) * 100) - 40px)); padding: 30px 34px 28px; border-radius: 26px; background: linear-gradient(180deg, #4a2a1d, #2a1712); border: 4px solid #ffb13b; box-shadow: 0 0 0 6px rgba(255,177,59,.18), 0 24px 70px rgba(0,0,0,.7); text-align: center; }
 #play .fnote .fbig { font-size: 76px; line-height: 1; font-weight: 900; letter-spacing: .04em; color: #ffd45e; text-shadow: 0 4px 0 #8a3a0c, 0 10px 24px rgba(255,140,40,.5); }
 #play .fnote .fsub { margin: 10px 0 4px; font-size: 24px; font-weight: 800; color: var(--text); }
 #play .fnote .fwhere { margin: 10px 0 0; font-size: 24px; font-weight: 800; color: #fff; }
@@ -875,7 +875,7 @@ body[data-mode=play] { background: radial-gradient(130% 75% at 50% -10%, #74401e
 /* your cards, to look at while you choose */
 #play .foot .ownedbtn { margin-right: auto; min-width: 0; padding-left: 22px; padding-right: 22px; }
 #play .ownedback { position: fixed; inset: 0; z-index: 32; display: flex; align-items: center; justify-content: center; background: rgba(10,6,3,.82); }
-#play .ownedpanel { max-width: calc(100vw - 24px); max-height: calc(100vh - 24px); overflow: hidden; padding: 16px 18px 12px; border-radius: 22px; background: #241a14; border: 3px solid #e7b866; text-align: center; }
+#play .ownedpanel { max-width: calc(calc(var(--vw, 1vw) * 100) - 24px); max-height: calc(calc(var(--vh, 1vh) * 100) - 24px); overflow: hidden; padding: 16px 18px 12px; border-radius: 22px; background: #241a14; border: 3px solid #e7b866; text-align: center; }
 #play .ownedpanel h3 { margin: 0 0 12px; font-size: 26px; font-weight: 900; color: #ffd45e; }
 #play .ownedpanel .cards { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; }
 #play .ownedpanel .ocard { position: relative; display: block; flex: none; }
@@ -974,7 +974,7 @@ body[data-mode=play] { background: radial-gradient(130% 75% at 50% -10%, #74401e
 #play .over.boom { background: rgba(40,8,6,.66); }
 #play .over > * { pointer-events: auto; }
 #play .over .confetti { pointer-events: none; z-index: 0; }
-#play .over h2 { position: relative; z-index: 1; width: min(900px, 84vw); margin: 0; padding: 12px 0 14px; font-size: 64px; line-height: 1; font-weight: 900; letter-spacing: .08em; text-transform: uppercase; color: #3d2200;
+#play .over h2 { position: relative; z-index: 1; width: min(900px, calc(var(--vw, 1vw) * 84)); margin: 0; padding: 12px 0 14px; font-size: 64px; line-height: 1; font-weight: 900; letter-spacing: .08em; text-transform: uppercase; color: #3d2200;
   background: linear-gradient(180deg, #fff0a8 0%, #ffd24a 22%, #f4a91c 62%, #cf7d0a 100%); border-top: 4px solid #fff7d0; border-bottom: 4px solid #8a5200; text-shadow: 0 2px 0 rgba(255,255,255,.6), 0 -1px 0 rgba(120,70,0,.4);
   box-shadow: 0 12px 0 rgba(0,0,0,.3), 0 22px 34px rgba(0,0,0,.55), inset 0 3px 0 rgba(255,255,255,.55), inset 0 -4px 0 rgba(150,85,0,.35); }
 #play .over h2::before, #play .over h2::after { content: ""; position: absolute; top: 20px; width: 120px; height: 100%; z-index: -1; background: linear-gradient(180deg, #e0961a, #a85f06); border-top: 4px solid #f4c85a; border-bottom: 4px solid #6b3d00; }
@@ -1017,7 +1017,7 @@ body[data-mode=play] { background: radial-gradient(130% 75% at 50% -10%, #74401e
 #play .lbtip { max-width: 440px; font-size: 20px; line-height: 1.4; text-align: center; }
 #play .lbtip p { margin: 0 0 8px; }
 #play .lbtip .dim, #play .lbhelp .dim { color: var(--dim); font-size: 16px; }
-#play .lbhelp { max-width: 560px; max-height: 86vh; overflow-y: auto; text-align: left; }
+#play .lbhelp { max-width: 560px; max-height: calc(var(--vh, 1vh) * 86); overflow-y: auto; text-align: left; }
 #play .lbhelp ul { margin: 6px 0 12px; padding-left: 20px; font-size: 18px; line-height: 1.35; }
 #play .lbhelp li { margin: 6px 0; }
 #play .bigboard { position: relative; }
@@ -1097,16 +1097,16 @@ body[data-mode=play] { background: radial-gradient(130% 75% at 50% -10%, #74401e
 #play .mcard.elig { outline: 4px solid var(--accent); outline-offset: 3px; border-radius: 12px; }
 #play .dugopt { min-height: 52px; font-size: 18px; font-weight: 800; padding: 6px 16px; }
 #play .dugopt small { opacity: .75; font-weight: 700; }
-#play .mnote.pick { max-width: min(92vw, 760px); }
-#play .pickrow { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; margin: 10px 0; max-height: 52vh; overflow: auto; }
+#play .mnote.pick { max-width: min(calc(var(--vw, 1vw) * 92), 760px); }
+#play .pickrow { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; margin: 10px 0; max-height: calc(var(--vh, 1vh) * 52); overflow: auto; }
 #play .pickcard { position: relative; width: 100px; height: 140px; padding: 0; border: 3px solid transparent; border-radius: 12px; background: none; }
 #play .pickcard.sel { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(255,177,59,.55); }
 #play .pickbtns { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; margin-top: 8px; }
 #play .pickbtns.nums .btn { min-width: 64px; }
 #play .pickbtns.col { flex-direction: column; align-items: stretch; }
 #play .pickbtns .btn .ic { width: 1.1em; height: 1.1em; vertical-align: -.2em; }
-#play .mnote.logp { max-width: min(92vw, 640px); text-align: left; }
-#play .logl { max-height: 60vh; overflow: auto; margin: 8px 0 12px; font-size: 15px; }
+#play .mnote.logp { max-width: min(calc(var(--vw, 1vw) * 92), 640px); text-align: left; }
+#play .logl { max-height: calc(var(--vh, 1vh) * 60); overflow: auto; margin: 8px 0 12px; font-size: 15px; }
 #play .logl .lg { margin: 0 0 4px; padding: 3px 8px; border-radius: 6px; background: rgba(255,255,255,.06); }
 #play .logl .lg.roll { background: rgba(120,160,255,.14); }
 #play .logl .lg.damage { background: rgba(255,90,70,.16); }
@@ -1123,6 +1123,33 @@ body[data-mode=play] { background: radial-gradient(130% 75% at 50% -10%, #74401e
 #play .chip.useall { min-height: 48px; padding: 6px 20px; border-radius: 16px; border: 3px solid #e9d4ff; background: linear-gradient(180deg, #a15be0, #6d2fb0); color: #fff; font-size: 18px; font-weight: 900; box-shadow: 0 5px 0 #3b1766, 0 10px 18px rgba(0,0,0,.4); }
 #play .action .astack .chip.useall, #play .action .astack .takedmg:not(.sure) { width: 200px; min-height: 64px; padding: 8px 12px; font-size: 24px; line-height: 1.15; border-radius: 18px; display: flex; align-items: center; justify-content: center; }
 #play .chip.useall:active { transform: translateY(3px); box-shadow: 0 2px 0 #3b1766; }
+
+/* ---- Two players, one iPad: Player 2's seat (turned the other way round), the Leaderboard and Pause in the middle, Player 1's seat ---- */
+.mode-pick-placeholder { }
+#play .modelist { display: flex; flex-direction: column; gap: 18px; max-width: 620px; margin: 24px auto; }
+#play .modebtn { display: flex; flex-direction: column; align-items: flex-start; gap: 6px; padding: 26px 30px; min-height: 130px; border-radius: 22px; background: linear-gradient(180deg, #4a3624, #2f2217); border: 3px solid #e7b866; box-shadow: 0 6px 0 #120c08; text-align: left; }
+#play .modebtn b { font-size: 34px; font-weight: 900; color: #ffd45e; }
+#play .modebtn span { font-size: 20px; font-weight: 700; color: var(--text); }
+#play .modebtn:active { transform: translateY(3px); box-shadow: 0 2px 0 #120c08; }
+.duel { position: fixed; inset: 0; z-index: 50; display: flex; flex-direction: column; background: #120b07; padding-top: env(safe-area-inset-top); }
+.duel .seatbox { position: relative; flex: 1; min-height: 0; overflow: hidden; background: radial-gradient(130% 75% at 50% -10%, #74401e 0%, #3a2211 36%, #1b120c 80%); }
+.duel .seatbox.top { transform: rotate(180deg); }
+.duel .duelseat { position: absolute; inset: 0; height: auto; padding: 0; --top: 8px; }
+.duel #play.duelband { flex: none; height: auto; padding: 0; display: block; background: #120b07; border-top: 3px solid #6b4a27; border-bottom: 3px solid #6b4a27; z-index: 3; }
+.duel .duelband .pbar { padding: 6px 10px; }
+.duel .duelband .pbar .chip[data-p=gmenu] { min-height: 52px; }
+.duel #play.duelroll { position: fixed; left: 50%; top: 50%; transform: translate(-50%, -50%); z-index: 80; width: auto; height: auto; padding: 14px 28px 16px; border-radius: 28px; background: rgba(20,12,8,.94); border: 4px solid #ffd45e; box-shadow: 0 14px 40px rgba(0,0,0,.6); display: flex; flex-direction: column; align-items: center; gap: 8px; pointer-events: none; }
+.duel .duelroll .d10 { width: 150px; height: 150px; }
+.duel .duelroll .rolltxt { font-size: 22px; font-weight: 800; color: #fff3d6; text-align: center; max-width: 320px; }
+.duel .duelroll .rolltxt b { color: #ffd45e; font-size: 30px; }
+.duel #play.duelmenuwrap { position: fixed; inset: 0; z-index: 90; height: auto; padding: 0; display: block; }
+.duelmenuback { position: fixed; inset: 0; background: rgba(0,0,0,.55); }
+.duelmenu { position: fixed; left: 50%; top: 50%; transform: translate(-50%, -50%); width: 300px; display: flex; flex-direction: column; gap: 10px; padding: 14px; border-radius: 18px; background: linear-gradient(180deg, #3d2c1f, #2a1e15); border: 2px solid #6a4e34; box-shadow: 0 14px 30px rgba(0,0,0,.55); }
+.duelmenu button { min-height: 60px; border-radius: 14px; background: rgba(255,255,255,.08); font-weight: 800; font-size: 20px; color: #fff3d6; }
+.duelmenu button.confirm { background: #e0481c; }
+.duel #play .pbar.slim { top: auto; bottom: 14px; right: 14px; }          /* each player's own Undo: bottom right of their half, clear of the tracks */
+.duel .seatundo { min-height: 52px; padding: 8px 20px; font-size: 18px; font-weight: 800; border-radius: 16px; }
+.duel .seatundo:disabled { opacity: .35; }
 </style>
 </head>
 <body>
@@ -3143,6 +3170,68 @@ const Match = (() => {
   }
   return { start, aiStep, settle, finalCheck, rollEscape, openPack, prepAI, prepAIAsync, beginRound, finishRound, save, load, human, bot, bots, botIds, brainOf, HUMAN, BOT };
 })();
+
+/* =====================================================================
+   DUEL — two people at one iPad, one on each side. No computer opponents. Both play at the same time and share one Leaderboard, one Booster Deck and one Trash.
+   They dig together (each waits when finished), the Escape Bonus is ONE roll of the die for both, then each does their Prep (pack, Starter Kit) at their own pace;
+   a round begins when both are Ready. Like Match, it only knows the rules: the screen (two seats and the middle) is elsewhere.
+   ===================================================================== */
+const Duel = (() => {
+  const IDS = ['p1', 'p2'];
+  const rollDie = d => (d.dice && d.dice.length ? d.dice.shift() : 1 + d.rng.int(DDB.rules.die));
+  const runs = d => IDS.map(id => d.runs[id]);
+  const other = id => IDS.find(x => x !== id);
+  function start(all, opts = {}) {
+    const seed = opts.seed === undefined || opts.seed === null ? null : opts.seed >>> 0, rng = Dig.makeRng(seed), colors = DDB.table.playerColors;
+    const board = Board.create([{ id: 'p1', name: 'Player 1', tag: 'P1', color: colors[0] }, { id: 'p2', name: 'Player 2', tag: 'P2', color: colors[1] }]);
+    const shared = { board, deck: Run.makeDeck(all, rng), trash: [] };
+    const d = { kind: 'duel', seed, rng, dice: opts.dice ? opts.dice.slice() : null, all, board, deck: shared.deck, trash: shared.trash, rounds: opts.rounds || DDB.run.rounds, runs: {}, bots: [], ids: IDS,
+      result: null, stage: 'prep', ready: { p1: false, p2: false }, moved: { p1: false, p2: false }, escape: null };
+    IDS.forEach((id, i) => { d.runs[id] = Run.start(all, { ...opts, seed: seed === null ? null : seed + 1 + i, me: id, shared }); });
+    return d;
+  }
+  // Booster Pack: whoever opens first draws first (one shared deck).
+  const openPack = (d, id) => Run.openPack(d.runs[id]);
+  // You are Ready once your Starter Kit is chosen. When both are, the round begins for both.
+  function ready(d, id) {
+    const run = d.runs[id];
+    if (d.stage !== 'prep' || !run.prep || run.prep.step !== 'kit' || run.phase !== 'prep') return false;
+    d.ready[id] = true;
+    if (IDS.every(x => d.ready[x])) return begin(d);
+    return true;
+  }
+  function begin(d) {
+    if (!IDS.every(id => d.runs[id].prep && d.runs[id].prep.step === 'kit')) return false;
+    for (const id of IDS) if (!Run.beginDig(d.runs[id])) return false;
+    d.stage = 'dig'; d.ready = { p1: false, p2: false }; d.moved = { p1: false, p2: false }; d.escape = null;
+    return true;
+  }
+  // The final round: the leader's Dig ends when the other is out.
+  const finalCheck = d => Run.finalCheck(runs(d));
+  const bothOver = d => d.stage === 'dig' && IDS.every(id => d.runs[id].dig && d.runs[id].dig.over);
+  // "Continue" after your Dig is over. When both have, the round ends for both: the Escape Bonus is rolled once (if anybody banked), the Preps (or the end of the game) follow.
+  function proceed(d, id) {
+    if (!bothOver(d) || d.moved[id]) return false;
+    d.moved[id] = true;
+    if (IDS.every(x => d.moved[x])) finishRound(d);
+    return true;
+  }
+  function finishRound(d) {
+    for (const r of runs(d)) Run.finishDig(r);
+    const a = d.runs.p1;
+    if (a.phase === 'done') {
+      const w = Board.holder(d.board);
+      d.result = { duel: true, winner: w, rounds: a.history.map((h, i) => ({ round: h.round, runs: { p1: d.runs.p1.history[i], p2: d.runs.p2.history[i] } })), bests: { p1: d.runs.p1.best, p2: d.runs.p2.best } };
+      d.stage = 'prep'; return true;
+    }
+    if (runs(d).some(r => r.prep && r.prep.step === 'escape')) { d.escape = rollDie(d); for (const r of runs(d)) Run.setEscape(r, d.escape); d.stage = 'roll'; }
+    else d.stage = 'prep';
+    return true;
+  }
+  // The middle die has been shown: everyone goes on to their own Leaderboard and Prep.
+  const afterRoll = d => { if (d.stage === 'roll') d.stage = 'prep'; };
+  return { start, openPack, ready, begin, finalCheck, bothOver, proceed, finishRound, afterRoll, other, runs, IDS };
+})();
 </script>
 
 <script id="ai">
@@ -3545,21 +3634,25 @@ const AI = (() => {
    PLAY — the solo Dig on screen. Reads the table from the Dig engine; every tap is one action of the engine.
    The table is the UI: tap the Mine to dig, the die to roll, the Extra Rolls to roll again, the Monster to face it.
    ===================================================================== */
-(() => {
-  'use strict';
-  const D = DDB, R = D.rules, UI = window.DigDigBoomUI, A = UI.api, $ = document.getElementById('play');
-  // A short screen (an iPhone on its side) gets the layout of a taller one, scaled down: the game is drawn VW x VH "design pixels" and the whole thing is shrunk by K to fit.
+// One game screen. The page makes one for the whole window (the main one); a two-player game makes two, one for each half of the iPad (cfg.host: the box it fills; cfg.duel: { d, id }).
+function DDBSeat(root, cfg) {
+  'use strict'; cfg = cfg || {};
+  const D = DDB, R = D.rules, UI = window.DigDigBoomUI, A = UI.api, $ = root;
+  const offs = [], winOn = (t, f) => { window.addEventListener(t, f); offs.push(() => window.removeEventListener(t, f)); };          // (window listeners, so a seat can be taken down again)
+  const HW = () => cfg.host ? cfg.host.clientWidth : innerWidth, HH = () => cfg.host ? cfg.host.clientHeight : innerHeight;
+  // A short screen (an iPhone on its side, or half an iPad) gets the layout of a taller one, scaled down: the game is drawn VW x VH "design pixels" and the whole thing is shrunk by K to fit.
   let K = 1;
-  const VW = () => innerWidth / K, VH = () => innerHeight / K;
+  const VW = () => HW() / K, VH = () => HH() / K;
   const rr = el => { const r = el.getBoundingClientRect(); return { left: r.left / K, top: r.top / K, width: r.width / K, height: r.height / K }; };          // where something is, in design pixels
   function applyScale() {
-    K = Math.min(1, innerHeight / D.screen.designHeight);
-    if (K < 1) { $.style.cssText = `position:absolute;left:0;top:0;width:${innerWidth / K}px;height:${innerHeight / K}px;transform:scale(${K});transform-origin:0 0;--k:${K}`; $.classList.add('scaled'); }
+    K = Math.min(1, HH() / D.screen.designHeight);
+    if (K < 1) { $.style.cssText = `position:absolute;left:0;top:0;width:${HW() / K}px;height:${HH() / K}px;transform:scale(${K});transform-origin:0 0;--k:${K}`; $.classList.add('scaled'); }
     else { $.style.cssText = ''; $.classList.remove('scaled'); }
+    $.style.setProperty('--vh', (HH() / K / 100) + 'px'); $.style.setProperty('--vw', (HW() / K / 100) + 'px');          // (1vh and 1vw of this screen, for a screen that is not the whole window)
   }
   applyScale();
   // S.opp: always true in the app (owner: one AI opponent, no option to play without); the solo Run path stays in the engine and tests switch it off.
-  const S = { tally: null, st: null, run: null, rounds: D.run.rounds, kit: [], kitSize: R.soloKit, start: { ...R.start }, tab: 'Ongoing', kitTab: 'Ongoing', fxEsc: null, gmenu: false, zoom: null, help: false, panel: 'menu', back: null, restored: false, confirmNew: null, match: null, opp: true };
+  const S = { duel: cfg.duel || null, tally: null, st: null, run: null, rounds: D.run.rounds, kit: [], kitSize: R.soloKit, start: { ...R.start }, tab: 'Ongoing', kitTab: 'Ongoing', fxEsc: null, gmenu: false, zoom: null, help: false, panel: 'menu', back: null, restored: false, confirmNew: null, match: null, opp: true };
   const cards = () => UI.state.all;
   // Personal bests live in this browser only (best Monsters survived, best gems banked). Never needed for play.
   const BEST_KEY = 'ddb.solo.best';
@@ -3585,7 +3678,7 @@ const AI = (() => {
   }
   function closeBest() { const t = S.stash; S.viewBest = false; S.stash = null; if (t) { S.match = t.match; S.run = t.run; S.st = t.st; S.back = t.back; S.boardAnim = null; S.doneTab = null; } S.panel = 'more'; }
   function persist() {
-    if (S.viewBest) return;          // looking at your best game: your own game in progress stays as it was saved
+    if (S.viewBest || cfg.duel) return;          // (a two-player game is not saved)          // looking at your best game: your own game in progress stays as it was saved
     if (S.panel === 'done') keepBestGame();
     try {
       const panel = S.panel === 'menu' || S.panel === 'more' ? S.back : S.panel;
@@ -3770,6 +3863,12 @@ const AI = (() => {
       </div></div></div>`;
   }
   // More: the cards and a controlled playtest. A back button, a title, a list: nothing else.
+  // New game: who do you play?
+  function modeHTML() {
+    return `<div class="panel setup modepick"><div class="shead"><button class="chip back" data-p="menu">‹ Main menu</button><h2>New game</h2></div><div class="scroll"><div class="modelist">
+      <button class="modebtn" data-p="startai"><b>Play the AI</b><span>Easy, Medium and Hard at one table</span></button>
+      <button class="modebtn" data-p="startduel"><b>Two players</b><span>One iPad, sitting across from each other</span></button></div></div></div>`;
+  }
   function moreHTML() {
     const b = readBest(), inProgress = resumable();
     const row = (title, note, control) => `<div class="srow"><div class="stext"><b>${title}</b>${note ? `<span>${note}</span>` : ''}</div>${control}</div>`;
@@ -4097,7 +4196,8 @@ const AI = (() => {
         return `<span class="sweepcard" style="--i:${i};left:${Math.round(r.x)}px;top:${Math.round(r.y)}px;width:${Math.round(r.w)}px;height:${Math.round(r.h)}px;--tx:${-Math.round(r.x + r.w + 120)}px;--ty:${-Math.round(r.y + r.h + 100)}px">${A.playCard(c, r.w / 250)}</span>`;
       }).join('')}</div>` : '';
       body = `${sweep}<div class="kitbar"><b>Starter Kit</b></div><div class="krow"><div class="kslots ${first ? 'kfirst' : ''}">${slots}</div><p class="kdef">${say}<small>Empty spots will be filled with Geodes.</small></p></div><div class="poolhead">Your cards</div><div class="cards pool ${first ? 'kfirst' : ''}" style="min-height:${Math.round(350 * ps) + 24}px">${hand.map((c, i) => pcard(c, ps, { act: 'kitpick', i, ...tagOf2(c) })).join('')}</div>`;
-      foot = `<button class="btn" data-p="startround">Start round ${run.round}${run.round === run.rounds ? ' · final' : ''}</button>`;
+      const dd = cfg.duel && S.match, rdy = dd && dd.ready[run.me];
+      foot = `<button class="btn ${rdy ? 'waiting' : ''}" data-p="startround" ${rdy ? 'disabled' : ''}>${dd ? (rdy ? 'Waiting for the other player…' : run.round === run.rounds ? 'Ready · final round' : 'Ready') : `Start round ${run.round}${run.round === run.rounds ? ' · final' : ''}`}</button>`;
     }
     const stage = step === 'kit' || step === 'keep' || step === 'reveal' || (step === 'pack' && !pr.banked) ? body : `<div class="prepstage">${body}</div>`;
     return `<div class="panel setup prep"><div class="scroll" id="setupScroll">${stage}</div>${foot ? `<div class="foot">${foot}</div>` : ''}</div>`;
@@ -4111,8 +4211,8 @@ const AI = (() => {
   // The end of a run: the Leaderboard is the result. A big line says who won; the tabs at the top left look back at any round (its Leaderboard as it ended, and a button to watch it again); buttons look at the cards you built, and start a new game.
   function doneHTML() {
     const run = S.run, r = run.result, m = S.match, mr = m && m.result;
-    const won = m ? mr.winner === 'me' : r.crown, sel = S.doneTab && S.doneTab <= run.rounds ? S.doneTab : run.rounds, tab = sel === run.rounds ? null : sel;          // one tab for each round, the last one (the end of the game) lit to begin with
-    const title = tab ? `Round ${tab}` : m ? (mr.winner === 'me' ? 'You win!' : mr.winner ? `${(run.board.players.find(p => p.id === mr.winner) || { name: 'The AI' }).name} wins` : 'Nobody took the Crown') : (r.crown ? 'You hold the Crown!' : 'The Crown stays on the table');
+    const won = m ? mr.winner === run.me : r.crown, sel = S.doneTab && S.doneTab <= run.rounds ? S.doneTab : run.rounds, tab = sel === run.rounds ? null : sel;          // one tab for each round, the last one (the end of the game) lit to begin with
+    const title = tab ? `Round ${tab}` : m ? (mr.winner === run.me ? 'You win!' : mr.winner ? `${(run.board.players.find(p => p.id === mr.winner) || { name: 'The AI' }).name} wins` : 'Nobody took the Crown') : (r.crown ? 'You hold the Crown!' : 'The Crown stays on the table');
     const tabs = `<div class="dtabs" role="tablist">${Array.from({ length: run.rounds }, (_, i) => `<button class="dtab ${sel === i + 1 ? 'on' : ''}" data-p="donetab" data-k="${i + 1}" role="tab" aria-label="${i + 1 === run.rounds ? 'Round ' + (i + 1) + ', the end of the game' : 'Round ' + (i + 1)}">${i + 1}</button>`).join('')}</div>`;
     const an = tab ? (S.boardAnim && S.boardAnim.round === tab ? S.boardAnim : histAnim(run, tab)) : null, playing = !!an && an.k < an.events.length;
     const cap = tab && an && an.k > 0 ? `<p class="bcap" role="status">${A.esc(boardText(run, an.events[an.k - 1], an.from))}</p>` : '';
@@ -4266,7 +4366,8 @@ const AI = (() => {
     const ovFx = st.over && st.over !== fx.over ? 'fx' : '';
     if (st.over && S.run) {
       const fin = S.run.round === S.run.rounds;
-      const next = `<div class="row2"><button class="btn" data-p="prep">${fin ? 'See the result' : st.over.kind === 'boom' ? 'To Leaderboard' : 'To Prep'}</button></div>`;          // (the opponents finish their Digs behind the scenes when you tap)
+      const dd = cfg.duel && S.match, both = dd && Duel.bothOver(dd), mv = dd && dd.moved[S.run.me], wait = dd && (mv || !both);
+      const next = `<div class="row2"><button class="btn ${wait ? 'waiting' : ''}" data-p="prep" ${wait ? 'disabled' : ''}>${dd ? (mv ? 'Waiting for the other player…' : !both ? 'Waiting for the other player to finish…' : fin ? 'See the result' : 'Continue') : fin ? 'See the result' : st.over.kind === 'boom' ? 'To Leaderboard' : 'To Prep'}</button></div>`;          // (the opponents finish their Digs behind the scenes when you tap)
       over = st.over.kind === 'boom'
         ? `<div class="over boom ${ovFx}">${boomFxHTML()}<h2>BOOM!</h2><div class="obody">${next}</div></div>`
         : `<div class="over ${ovFx}">${ovFx ? confettiHTML(16) : ''}<h2>${fin ? 'In the lead!' : 'Banked!'}</h2><div class="obody"><div class="big">${fin ? '' : `<b>${s.total}</b> ${ic('gem', ' style="width:54px;height:54px;vertical-align:-12px"')}<br>`}<b>${st.survived}</b> Monster${st.survived === 1 ? '' : 's'} survived${(S.run.endInfo || {}).stoleCrown ? ' · ♛' : ''}${fin ? '<br>Everyone else is out' : ''}</div>${next}</div></div>`;
@@ -4353,13 +4454,14 @@ const AI = (() => {
     if (document.body.dataset.mode !== 'play') return;
     const keep = $.querySelector('#setupScroll'), ks = keep ? keep.scrollTop : 0;
     // The header is only for the table: the Leaderboard and Menu. Everywhere else (Prep, the end of a run) there is just a small Menu in the corner.
-    const bar = S.panel === 'dig'
+    const bar = cfg.duel ? (S.panel === 'dig' && S.st && !S.st.over ? `<div class="pbar slim"><button class="chip seatundo" data-p="undo" ${undoReady() ? '' : 'disabled'}>Undo</button></div>` : '') : S.panel === 'dig'
       ? `<div class="pbar">${S.run ? lbHTML(S.run, S.st) : '<span class="pgrow"></span>'}<button class="chip" data-p="gmenu">Pause</button></div>`
       : `<div class="pbar slim"><button class="chip" data-p="gmenu">Pause</button></div>`;
     dangerCheck();
     let body;
     if (S.panel === 'menu') body = homeHTML();
     else if (S.panel === 'more') body = moreHTML();
+    else if (S.panel === 'mode') body = modeHTML();
     else if (S.panel === 'board' && S.run) body = boardHTML();
     else if (S.panel === 'prep' && S.run) body = prepHTML();
     else if (S.panel === 'done' && S.run) body = doneHTML();
@@ -4395,7 +4497,7 @@ const AI = (() => {
       const list = S.run.owned, fitAll = (n, hi, w, h, gap) => { let b = .2; for (let rows = 1; rows <= 8 && rows <= Math.max(1, n); rows++) { const per = Math.ceil(n / rows); b = Math.max(b, Math.min(hi, (w - (per - 1) * gap) / (per * 250), (h - (rows - 1) * gap) / (rows * 350))); } return b; }, sc = fitAll(list.length, .7, Math.min(VW(), 1180) - 72, VH() - 150, 10), inKit = new Set((S.run.kit || []).map(c => c.uid));
       ownedP = `<div class="ownedback" data-p="ownedclose"><div class="ownedpanel" role="dialog" aria-label="Your cards"><h3>Your cards</h3><div class="cards">${list.map(c => `<span class="ocard" data-p="zoom" data-uid="${c.uid}" style="width:${250 * sc}px;height:${350 * sc}px">${A.playCard(c, sc)}${inKit.has(c.uid) ? '<span class="ctag last">In your kit</span>' : ''}</span>`).join('') || '<span class="note">You do not own any cards yet.</span>'}</div></div></div>`;
     }
-    $.innerHTML = (S.panel === 'menu' || S.panel === 'more' || S.viewBest || S.panel === 'done' || (S.panel === 'setup' && !S.run) ? '' : bar) + body + (S.gmenu ? gmenuHTML() : '') + (S.help ? helpHTML() : '') + z + note + pileDlg + (S.lbHelp ? lbHelpHTML() : '') + lbTipHTML() + fin + dangerHTML() + ffNoteHTML() + lbFullHTML() + ownedP + pickHTML() + logHTML();
+    $.innerHTML = (S.panel === 'menu' || S.panel === 'more' || S.panel === 'mode' || S.viewBest || S.panel === 'done' || (S.panel === 'setup' && !S.run) ? '' : bar) + body + (S.gmenu ? gmenuHTML() : '') + (S.help ? helpHTML() : '') + z + note + pileDlg + (S.lbHelp ? lbHelpHTML() : '') + lbTipHTML() + fin + dangerHTML() + ffNoteHTML() + lbFullHTML() + ownedP + pickHTML() + logHTML();
     const sc = $.querySelector('#setupScroll'); if (sc) sc.scrollTop = ks;
     fitHero(); heroPlay(); fitTable(); playDice(); boardAnimate();
     if (S.packFrom) { const fp = $.querySelector('.flypack'); if (fp) { const r = rr(fp); fp.style.setProperty('--fx', Math.round(S.packFrom.x - (r.left + r.width / 2)) + 'px'); fp.style.setProperty('--fy', Math.round(S.packFrom.y - (r.top + r.height / 2)) + 'px'); } S.packFrom = null; }
@@ -4466,7 +4568,9 @@ const AI = (() => {
   }
   // Everyone's best Dig so far (0 until they bank): where the chips were when the round began, so the Leaderboard can slide them to where they are now.
   const bestsNow = () => S.run ? Object.fromEntries(S.run.board.players.map(p => { const m = Board.marker(S.run.board, p.id, 'best'); return [p.id, m ? m.n : 0]; })) : {};
-  function startRound() { if (S.match ? Match.beginRound(S.match) : Run.beginDig(S.run)) { S.st = S.run.dig; S.panel = 'dig'; S.ff = false; S.lbFull = false; startDelays(); S.bests0 = bestsNow(); S.boardAnim = null; } }
+  function enterDig() { S.st = S.run.dig; S.panel = 'dig'; S.ff = false; S.lbFull = false; S.bests0 = bestsNow(); S.boardAnim = null; S.undo = null; S.fx = fxOf(S.st); S.tally = null; }          // (a two-player game: the other seat begins the Dig too)
+  function startGame() { if (S.opp) { S.match = Match.start(cards(), { rounds: S.rounds, bots: D.ai.opponents }); S.run = Match.human(S.match); } else { S.match = null; S.run = Run.start(cards(), { rounds: S.rounds }); } S.st = null; S.panel = 'prep'; S.back = null; S.zoom = null; }
+  function startRound() { if (cfg.duel) { Duel.ready(S.match, S.run.me); if (S.run.phase === 'dig' && S.run.dig && S.st !== S.run.dig) enterDig(); return; } if (S.match ? Match.beginRound(S.match) : Run.beginDig(S.run)) { S.st = S.run.dig; S.panel = 'dig'; S.ff = false; S.lbFull = false; startDelays(); S.bests0 = bestsNow(); S.boardAnim = null; } }
   // Undo: before each action in a Dig the state is kept (a copy), so the last action can be taken back. One step, and not after the Dig is over.
   const UNDOABLE = ['dig', 'roll', 'face', 'triggerall', 'card', 'usecons', 'usedefeat', 'action', 'pickgo', 'dugchoose', 'usemod', 'reroll', 'gritspend'];
   const undoReady = () => !!S.undo && S.panel === 'dig' && !!S.st && !S.st.over && S.undo.owner === (S.run || null) && S.undo.round === (S.run ? S.run.round : 0) && S.undo.tok === S.st.tok;          // (tok: it belongs to this Dig, not an earlier one)
@@ -4478,8 +4582,14 @@ const AI = (() => {
     S.fx = fxOf(st); S.confirmFace = false; S.confirmSkip = null; S.pick = null; S.zoom = null; S.gloss = null;
     return true;
   }
+  // After a round: first a look at where everyone stands (the Leaderboard plays back what happened); the last round goes on to the end.
+  function goBoard() {
+    S.panel = S.run.phase === 'done' && !(S.bests0 && S.match) ? 'done' : 'board'; S.tally = null;
+    if (S.bests0 && S.match) { const now = bestsNow(); S.boardAnim = { from: S.bests0, newBest: now[S.run.me] > (S.bests0[S.run.me] || 0), events: boardEvents(S.run), k: 0, stop: false, timer: null, rects: null, fx: null }; boardPlay(true); }
+  }
   function act(a, el) {
     const st = S.st, f = st && st.fight, ds = el.dataset;
+    if (cfg.duel && (a === 'startrun' || a === 'mainmenu' || a === 'menu')) { if (cfg.onExit) cfg.onExit(a); return; }          // (leaving a two-player game is the middle's business)
     const undoSnap = S.panel === 'dig' && st && !st.over && UNDOABLE.includes(a) ? JSON.parse(JSON.stringify(Dig.save(st))) : null, undoLog = st ? st.log.length : 0; 
     if (a !== 'startrun' && a !== 'practice') S.confirmNew = null;
     if (a !== 'face') S.confirmFace = false;
@@ -4496,14 +4606,16 @@ const AI = (() => {
       case 'mainmenu': if (S.panel !== 'menu' && S.panel !== 'more') S.back = S.panel; S.panel = 'menu'; S.gmenu = false; S.help = false; break;
       case 'resume': S.panel = S.back || 'menu'; break;
       case 'practice': if (resumable() && S.confirmNew !== 'practice') { S.confirmNew = 'practice'; break; } S.confirmNew = null; S.run = null; S.match = null; S.st = null; S.panel = 'setup'; S.back = null; break;
-      case 'startrun': { if (resumable() && S.confirmNew !== 'startrun') { S.confirmNew = 'startrun'; break; } S.confirmNew = null; if (S.opp) { S.match = Match.start(cards(), { rounds: S.rounds, bots: D.ai.opponents }); S.run = Match.human(S.match); } else { S.match = null; S.run = Run.start(cards(), { rounds: S.rounds }); } S.st = null; S.panel = 'prep'; S.back = null; S.zoom = null; break; }
+      case 'startrun': { if (resumable() && S.confirmNew !== 'startrun') { S.confirmNew = 'startrun'; break; } S.confirmNew = null; if (window.DDB_NO_MODE_PICKER) { startGame(); break; } S.panel = 'mode'; S.back = null; break; }
+      case 'startai': startGame(); break;
+      case 'startduel': DuelHost.start(); break;
       case 'openpack': {          // the pack answers at once (it swells), and the opening itself, which takes a moment to draw, follows on the next frame; more taps meanwhile do nothing
         if (S.opening) return; S.opening = true;
         const pk0 = $.querySelector('[data-p=openpack]'); if (pk0) pk0.classList.add('pressed');
         requestAnimationFrame(() => setTimeout(() => { S.opening = false; act('openpackgo', el); }, 0));
         return;
       }
-      case 'openpackgo': { const pk = $.querySelector('[data-p=openpack]'); if (pk && pk.closest('.tallymain')) { const r = rr(pk); S.packFrom = { x: r.left + r.width / 2, y: r.top + r.height / 2 }; } } if (S.match) { Match.openPack(S.match, { defer: true }); setTimeout(() => { if (S.match) Match.prepAIAsync(S.match, persist); }, 400); } else Run.openPack(S.run); break;
+      case 'openpackgo': { const pk = $.querySelector('[data-p=openpack]'); if (pk && pk.closest('.tallymain')) { const r = rr(pk); S.packFrom = { x: r.left + r.width / 2, y: r.top + r.height / 2 }; } } if (S.match && !cfg.duel) { Match.openPack(S.match, { defer: true }); setTimeout(() => { if (S.match) Match.prepAIAsync(S.match, persist); }, 400); } else if (cfg.duel) Duel.openPack(S.match, S.run.me); else Run.openPack(S.run); break;
       case 'pick': {                       // tap a card to choose it, tap it again to put it back; once you have chosen all you may, you must put one back before choosing another
         const uid = Number(ds.uid), pr = S.run.prep;
         Run.toggleKeep(S.run, uid); break;                  // (the engine refuses a card beyond the limit)
@@ -4529,7 +4641,7 @@ const AI = (() => {
       }
       case 'startround': startRound(); break;
       case 'ff': S.ff = true; stopClocks(); break;
-      case 'prep': S.lbFull = false; if (S.match) Match.finishRound(S.match); else Run.finishDig(S.run); S.panel = S.run.phase === 'done' && !(S.bests0 && S.match) ? 'done' : 'board'; S.tally = null; if (S.bests0 && S.match) { const now = bestsNow(); S.boardAnim = { from: S.bests0, newBest: now[S.run.me] > (S.bests0[S.run.me] || 0), events: boardEvents(S.run), k: 0, stop: false, timer: null, rects: null, fx: null }; boardPlay(true); } break;          // a round: first a look at where everyone stands; the last round: straight to the end, which is the Leaderboard          // first, a look at where everyone stands
+      case 'prep': S.lbFull = false; if (cfg.duel) { Duel.proceed(S.match, S.run.me); break; } if (S.match) Match.finishRound(S.match); else Run.finishDig(S.run); goBoard(); break;          // a round: first a look at where everyone stands; the last round: straight to the end, which is the Leaderboard          // first, a look at where everyone stands
       case 'boardgo': if (S.boardAnim) { clearTimeout(S.boardAnim.timer); S.boardAnim.timer = null; S.boardAnim.k = S.boardAnim.events.length; S.boardAnim.stop = false; } S.panel = S.run.phase === 'done' ? 'done' : 'prep'; break;
             case 'tab': S.tab = ds.v; break;
       case 'kit': { const c = cards().find(x => x.id === ds.id); if (!c || !Dig.supported(c)) break; const i = S.kit.indexOf(c.id); if (i >= 0) S.kit.splice(i, 1); else if (S.kit.length < S.kitSize) S.kit.push(c.id); break; }
@@ -4600,16 +4712,17 @@ const AI = (() => {
       case 'heart': break;
     }
     if (undoSnap && S.st === st && st.log.length !== undoLog) S.undo = { snap: undoSnap, owner: S.run || null, round: S.run ? S.run.round : 0, tok: st.tok || (st.tok = ++undoTok) };
-    if (S.run) { Run.checkOver(S.run); if (S.run.phase === 'dig') Run.refresh(S.run); if (S.match) Match.finalCheck(S.match); else Run.finalCheck([S.run]); }
+    if (S.run) { Run.checkOver(S.run); if (S.run.phase === 'dig') Run.refresh(S.run); if (cfg.duel) Duel.finalCheck(S.match); else if (S.match) Match.finalCheck(S.match); else Run.finalCheck([S.run]); }
     if (S.st && S.st.over && !S.st.best && !S.run) recordBest(S.st);
     persist(); render();
+    if (cfg.onAct) cfg.onAct(api);          // (a two-player game: the other seat and the middle may need to follow)
   }
   // Dragging in the Starter Kit: pick a card up and drop it on a place to put it there, swap with the card in it, or reorder.
   let drag = null;
   // A pack opens the instant a finger lands on it (not when it lifts): a tap that the iPad turns into a long press or a slide, or that a redraw interrupts, never gets lost. The click that follows is swallowed.
   $.addEventListener('pointerdown', e => { const pk = e.target.closest('[data-p=openpack]'); if (pk && !pk.disabled && !(e.pointerType === 'mouse' && e.button > 0)) { S.noClickUntil = performance.now() + 700; act('openpack', pk); } });
   $.addEventListener('pointerdown', e => { const el = e.target.closest('.pcard[data-p=kitpick], .pcard[data-p=pick]'); if (!el || (e.pointerType === 'mouse' && e.button > 0)) return; drag = { el, uid: Number(el.dataset.uid), x0: e.clientX, y0: e.clientY, moved: false, ghost: null }; });
-  window.addEventListener('pointermove', e => {
+  winOn('pointermove', e => {
     if (!drag) return;
     if (!drag.moved && Math.hypot(e.clientX - drag.x0, e.clientY - drag.y0) > 12) {
       drag.moved = true; const r = drag.el.getBoundingClientRect(), g = drag.el.cloneNode(true); g.removeAttribute('data-p'); g.classList.remove('deal'); g.querySelectorAll('.dback').forEach(x => x.remove()); g.style.animation = 'none'; g.querySelectorAll('*').forEach(x => { x.style.animation = 'none'; }); g.classList.add('dragghost');          // (a copy of a card that was just dealt must not replay the deal: its turn-over made the drag flicker between the card's back and its face; it is placed under the finger before it is shown and has no transition, or it would glide in from the top-left corner and lag behind the finger)
@@ -4635,20 +4748,87 @@ const AI = (() => {
     }
     render();
   };
-  window.addEventListener('pointerup', e => endDrag(e, true)); window.addEventListener('pointercancel', e => endDrag(e, false));
+  winOn('pointerup', e => endDrag(e, true)); winOn('pointercancel', e => endDrag(e, false));
   $.addEventListener('click', e => { if (S.noClickUntil) { const swallow = performance.now() < S.noClickUntil; S.noClickUntil = 0; if (swallow) { e.preventDefault(); return; } } if (S.noClick) { e.preventDefault(); return; } const el = e.target.closest('[data-p]'); if (!el || el.disabled) return; e.preventDefault(); act(el.dataset.p, el); });
-  document.addEventListener('ddb-cards', () => { restore(); render(); }); document.addEventListener('ddb-mode', render);
-  let sized = innerWidth + 'x' + innerHeight, sizeTimer = null;
-  window.addEventListener('resize', () => {
+  if (cfg.main) { document.addEventListener('ddb-cards', () => { restore(); render(); }); document.addEventListener('ddb-mode', render); }
+  let sized = HW() + 'x' + HH(), sizeTimer = null;
+  winOn('resize', () => {
     applyScale();
     if (document.body.dataset.mode !== 'play') return;
     fitHero();
     clearTimeout(sizeTimer);          // turning the iPad changes the size the table and the cards are drawn for: draw them again
-    sizeTimer = setTimeout(() => { const now = innerWidth + 'x' + innerHeight; if (now !== sized) { sized = now; if (!drag) render(); } }, 150);
+    sizeTimer = setTimeout(() => { const now = HW() + 'x' + HH(); if (now !== sized) { sized = now; if (!drag) render(); } }, 150);
   });
-  window.DigDigBoomPlay = { S, render, act: (a, d) => act(a, { dataset: d || {} }), tick: aiTick };
-  restore(); render();          // the saved copy of your cards is already in: the real menu (Continue and all) shows on the first frame
+  const api = { S, render, d10, bandHTML: () => lbHTML({ ...S.match.runs.p1, me: '' }, null), enterDig, enterBoard: goBoard, act: (a, d) => act(a, { dataset: d || {} }), tick: aiTick, applyScale, dispose: () => { for (const f of offs) f(); stopClocks(); }, root: $ };
+  if (cfg.main) { window.DigDigBoomPlay = api; restore(); render(); }          // the saved copy of your cards is already in: the real menu (Continue and all) shows on the first frame
+  return api;
+}
+DDBSeat(document.getElementById('play'), { main: true });
+
+// ---- Two players, one iPad: one seat on each side, the Leaderboard and Pause in the middle ----
+const DuelHost = (() => {
+  let host = null, d = null, seats = null, rolling = false, sig = {}, menu = false, ask = false;
+  const IDS = ['p2', 'p1'];          // top to bottom: Player 2 sits across from Player 1, and the top seat is turned the other way round
+  const mainRoot = () => document.getElementById('play');
+  const band = () => host.querySelector('.duelband');
+  function bandHTML() {
+    return `<div class="pbar">${seats.p1.bandHTML()}<button class="chip" data-p="gmenu">Pause</button></div>`;
+  }
+  // The signature of what a seat needs to know about the other: when it changes the seat is drawn again.
+  const sigOf = id => [d.stage, d.ready.p1, d.ready.p2, d.moved.p1, d.moved.p2, Duel.bothOver(d), d.runs[id].phase].join('|');
+  function sync() {
+    if (!host) return;
+    for (const id of IDS) { const sd = seats[id], S = sd.S, run = d.runs[id];
+      if (d.stage === 'dig' && S.st !== run.dig) sd.enterDig();                                  // both are Ready: the Dig begins for both
+      if (!rolling && d.stage !== 'roll' && S.panel === 'dig' && S.st && S.st.over && Duel.IDS.every(x => d.moved[x])) sd.enterBoard();          // the round is over for both (no roll to wait for): each goes to their own Leaderboard
+    }
+    if (d.stage === 'roll' && !rolling) roll();
+    band().innerHTML = bandHTML();
+    for (const id of IDS) { const k = sigOf(id) + '|' + seats[id].S.panel; if (sig[id] !== k) { sig[id] = k; seats[id].render(); } }
+  }
+  // The Escape Bonus: ONE roll of the die in the middle of the iPad, the same number for both.
+  function roll() {
+    rolling = true;
+    const el = document.createElement('div'); el.id = 'play'; el.className = 'duelroll';
+    el.innerHTML = `${seats.p1.d10('', 'fx-tumble', d.escape)}<div class="rolltxt">Escape Bonus: <b>${d.escape}</b> gems for everyone who banked</div>`;
+    host.appendChild(el);
+    const num = el.querySelector('.dnum'); let n = 0;
+    const iv = setInterval(() => { n++; if (n >= 12 || !el.isConnected) { clearInterval(iv); if (num) num.textContent = d.escape; return; } if (num) num.textContent = 1 + Math.floor(Math.random() * 10); }, 70);
+    setTimeout(() => { if (!host || d.stage !== 'roll') return; el.remove(); rolling = false; Duel.afterRoll(d); for (const id of IDS) if (seats[id].S.panel === 'dig') seats[id].enterBoard(); sync(); }, window.DDB_DUEL_ROLL_MS !== undefined ? window.DDB_DUEL_ROLL_MS : 2600);
+  }
+  function menuHTML() {
+    return `<div class="duelmenuback" data-p="menuclose"></div><div class="duelmenu" role="menu"><button data-p="menuclose">Back to the game</button><button data-p="leave" class="${ask ? 'confirm' : ''}">${ask ? 'Tap again to leave the game' : 'Main menu'}</button></div>`;
+  }
+  function drawMenu() { let m = host.querySelector('.duelmenuwrap'); if (!m) { m = document.createElement('div'); m.id = 'play'; m.className = 'duelmenuwrap'; host.appendChild(m); } m.innerHTML = menu ? menuHTML() : ''; m.style.display = menu ? '' : 'none'; }
+  function start() {
+    stop();
+    d = Duel.start(window.DigDigBoomUI.state.all, { rounds: DDB.run.rounds }); rolling = false; sig = {}; menu = false; ask = false;
+    host = document.createElement('div'); host.className = 'duel';
+    host.innerHTML = `<div class="seatbox top"><div id="play" class="duelseat"></div></div><div class="duelband" id="play"></div><div class="seatbox bottom"><div id="play" class="duelseat"></div></div>`;
+    document.body.appendChild(host); mainRoot().style.display = 'none';
+    seats = {}; const boxes = host.querySelectorAll('.seatbox');
+    IDS.forEach((id, i) => { const box = boxes[i]; seats[id] = DDBSeat(box.querySelector('.duelseat'), { host: box, duel: { d, id }, onAct: () => sync(), onExit: a => { if (a === 'startrun') leave('startrun'); else { menu = true; drawMenu(); } } });
+      const S = seats[id].S; S.match = d; S.run = d.runs[id]; S.st = null; S.panel = 'prep'; S.opp = true; });
+    band().addEventListener('click', e => { const b = e.target.closest('[data-p=gmenu]'); if (b) { menu = true; ask = false; drawMenu(); } });
+    host.addEventListener('click', e => { const b = e.target.closest('.duelmenuwrap [data-p]'); if (!b) return; if (b.dataset.p === 'menuclose') { menu = false; ask = false; drawMenu(); } else if (b.dataset.p === 'leave') { if (!ask) { ask = true; drawMenu(); } else leave('menu'); } });
+    band().innerHTML = bandHTML();          // (the middle first, so the seats measure the room they really have)
+    for (const id of IDS) { seats[id].applyScale(); seats[id].render(); }
+    sync();
+  }
+  function leave(to) {
+    stop();
+    const m = window.DigDigBoomPlay; if (m) m.act(to === 'startrun' ? 'startrun' : 'menu');
+  }
+  function stop() {
+    if (!host) return;
+    for (const id of IDS) seats[id].dispose();
+    host.remove(); host = null; d = null; seats = null; rolling = false;
+    const r = mainRoot(); if (r) r.style.display = '';
+  }
+  return { start, stop, get active() { return !!host; }, get d() { return d; }, get seats() { return seats; } };
 })();
+window.DigDigBoomDuel = DuelHost;          // (tests look at the two-player game through this)
+
 </script>
 </body>
 </html>
