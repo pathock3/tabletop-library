@@ -239,7 +239,7 @@ test('the final round BOOM leaves the Crown on the table', () => {
 test('Mystery Box: when kept from a Booster Pack, also keep the top card of the Booster Deck', () => {
   const run = firstRound({ keepIds: ['IM-14', 'ON-06', 'ON-04'] });
   assert.equal(run.prep.step, 'reveal', 'you see the extra card before the Starter Kit'); assert.ok(!Run.toggleKit(run, run.owned[0].uid), 'and cannot skip ahead'); assert.ok(Run.continueReveal(run)); assert.equal(run.prep.step, 'kit');
-  assert.equal(run.owned.length, 2); assert.equal(run.prep.extra.length, 1); assert.equal(run.deck.length, deckSize - 3 - 1, '3 drawn for the pack (the test swaps them for chosen ones) and 1 more taken from the top');
+  assert.equal(run.owned.length, 1 + run.prep.extra.length); assert.ok(run.prep.extra.length >= 1, 'the top card of the Booster Deck (a Mystery Box there brings one more)'); assert.equal(run.deck.length, deckSize - 3 - run.prep.extra.length, '3 drawn for the pack (the test swaps them for chosen ones) and the extra card(s) taken from the top');
 });
 
 test('Surprise Package: when kept, also keep the next Immediate card of the Booster Deck (cards above it stay in the deck)', () => {

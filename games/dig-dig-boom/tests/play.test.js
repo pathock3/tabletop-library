@@ -146,7 +146,7 @@ test('table: dig a Geode, then a Monster — tap the die, take an Extra Roll, ta
   const { browser, page, errors } = await open();
   try {
     await begin(page, { mine: ['TR-01', 'MO-01', 'TR-01'], dice: [2, 5], start: { heart: 6, reroll: 1 } });
-    assert.equal(await page.locator('#play .track').count(), 3, 'Health, Extra Rolls and Grit'); assert.equal(await page.locator('#play .tbody .tc').count(), 11 + 4 + 4);
+    assert.equal(await page.locator('#play .track').count(), 3, 'Health, Extra Rolls and Grit'); assert.equal(await page.locator('#play .tbody .tc').count(), 11 + 6 + 7);
     await page.click('#play [data-p=dig]');
     assert.match(await logText(page), /You dig Geode[\s\S]*Geode: \+1/);
     assert.match(await page.locator('#play [data-p=bank]').innerText(), /^BANK\s*1/i);
@@ -467,7 +467,7 @@ test('look: every Geode is a different gem (six colours and cuts); the Health, E
     assert.equal(new Set(seen.map(x => x.cut)).size, 6, 'and six different cuts, so colour is never the only clue');
     const cells = await page.evaluate(() => [...document.querySelectorAll('#play .track')].map(t => [...t.querySelectorAll('.tc')].map(c => { const r = c.getBoundingClientRect(); return [Math.round(r.left * 10) / 10, Math.round(r.width * 10) / 10]; })));
     const [heart, reroll, grit] = cells;
-    assert.equal(heart.length, 11); assert.equal(reroll.length, 4, 'Extra Rolls go up to 3'); assert.equal(grit.length, 4, 'Grit goes up to 3');
+    assert.equal(heart.length, 11); assert.equal(reroll.length, 6, 'Extra Rolls go up to 5'); assert.equal(grit.length, 7, 'Grit goes up to 6');
     for (const row of [reroll, grit]) row.forEach((c, i) => { assert.ok(Math.abs(c[0] - heart[i][0]) < 0.6 && Math.abs(c[1] - heart[i][1]) < 0.6, `square ${i} lines up with Health's: ${c} vs ${heart[i]}`); });
     assert.deepEqual(errors, []);
   } finally { await browser.close(); }
@@ -1520,6 +1520,45 @@ test('the Leaderboard tip opens above the full-size Leaderboard, and a card\'s n
     await page.evaluate(() => window.DigDigBoomPlay.act('pilecount'));
     const nums = await page.evaluate(() => [...document.querySelectorAll('#play .tcard .num, #play .pcard .num')].map(n => ({ svg: !!n.querySelector('svg path'), t: n.textContent.trim() })));
     assert.ok(nums.every(n => n.svg && /^\d+$/.test(n.t)), 'every number is in a die: ' + JSON.stringify(nums));
+    assert.deepEqual(errors, []);
+  } finally { await browser.close(); }
+});
+
+test('Undo (in the Pause menu) takes back one action, is greyed out when there is nothing to undo, and a BOOM ends with To Leaderboard; the new cards: Battery Beetle taps cards for Grit', SKIP, async () => {
+  const { browser, page, errors } = await open({ viewport: { width: 820, height: 1180 } });
+  try {
+    await begin(page, { mine: ['TR-01', 'MO-01', 'TR-01'], dice: [4, 4], line: ['ON-13'], ongoing: ['ON-78'] });
+    const undoBtn = () => page.locator('#play .gmenu [data-p=undo]');
+    await page.click('#play [data-p=gmenu]'); assert.equal(await undoBtn().isDisabled(), true, 'nothing to undo yet'); await page.click('#play [data-p=gmenuclose]');
+    await page.click('#play [data-p=dig]');
+    assert.equal(await stOf(page, () => window.DigDigBoomPlay.S.st.geodeGems), 1);
+    await page.click('#play [data-p=gmenu]'); assert.equal(await undoBtn().isDisabled(), false); await page.click('#play .gmenu [data-p=undo]');
+    assert.deepEqual(await stOf(page, () => { const s = window.DigDigBoomPlay.S.st; return [s.geodeGems, s.mine.length, !s.last]; }), [0, 3, true], 'the dig is taken back');
+    await page.click('#play [data-p=gmenu]'); assert.equal(await undoBtn().isDisabled(), true, 'one step only'); await page.click('#play [data-p=gmenuclose]');
+    await page.click('#play [data-p=dig]'); await page.click('#play [data-p=dig]'); await page.click('#play [data-p=roll]');
+    const d0 = await stOf(page, () => window.DigDigBoomPlay.S.st.fight.die);
+    await page.click('#play [data-p=gmenu]'); await page.click('#play .gmenu [data-p=undo]');
+    assert.equal(await stOf(page, () => window.DigDigBoomPlay.S.st.fight.phase), 'before', 'the roll is taken back'); await page.click('#play [data-p=roll]');
+    assert.equal(await stOf(page, () => window.DigDigBoomPlay.S.st.fight.die), d0, 'and rolling again gives the same die: undo is not a re-roll');
+    await page.waitForSelector('#play .tcard.inplay.elig');          // Battery Beetle: tap numbered cards for Grit
+    await page.click('#play .tcard.inplay.elig'); await page.waitForSelector('#play .pickrow');
+    await page.click('#play .pickrow .pickcard >> nth=0'); await page.click('#play [data-p=pickgo]');
+    assert.equal(await stOf(page, () => window.DigDigBoomPlay.S.st.grit), 1, 'one card tapped: one Grit'); assert.equal(await page.locator('#play .tcard.done').count(), 1, 'and it lies down');
+    assert.deepEqual(errors, []);
+  } finally { await browser.close(); }
+});
+
+test('after a BOOM the button says To Leaderboard; the cards you own fit on one screen without scrolling', SKIP, async () => {
+  const { browser, page, errors } = await open({ menu: true, viewport: { width: 820, height: 1180 } });
+  try {
+    await startRun(page, { opp: true });
+    await script(page, { mine: ['MO-03', 'MO-03'], dice: [1, 1], start: { heart: 1 } });
+    await page.click('#play [data-p=dig]'); await page.click('#play [data-p=roll]'); await page.click('#play [data-p=face]');
+    assert.equal((await page.locator('#play .over [data-p=prep]').innerText()).trim(), 'To Leaderboard');
+    const L = require('./load.js'), json = JSON.stringify(L.Match.save(finishedGame(3, 2)));
+    await page.evaluate(j => { const P = window.DigDigBoomPlay, S = P.S, all = window.DigDigBoomUI.state.all, m = Match.load(all, JSON.parse(j)); S.match = m; S.run = Match.human(m); S.st = S.run.dig; S.run.owned = all.filter(c => ['Ongoing', 'Immediate'].includes(c.type)).slice(0, 24).map((c, i) => ({ ...c, uid: 5000 + i })); S.panel = 'done'; S.showOwned = true; P.render(); }, json);
+    const m = await page.evaluate(() => { const e = document.querySelector('#play .ownedpanel'); return { sh: e.scrollHeight, ch: e.clientHeight, sw: e.scrollWidth, cw: e.clientWidth }; });
+    assert.ok(m.sh <= m.ch + 1 && m.sw <= m.cw + 1, 'no scrolling inside the panel: ' + JSON.stringify(m));
     assert.deepEqual(errors, []);
   } finally { await browser.close(); }
 });

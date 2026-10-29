@@ -323,6 +323,7 @@ body[data-mode=play] { background: radial-gradient(130% 75% at 50% -10%, #74401e
 #play .gmenu-back { position: fixed; inset: 0; z-index: 18; background: rgba(0,0,0,.45); }
 #play .gmenu { position: fixed; z-index: 19; top: max(68px, calc(env(safe-area-inset-top) + 62px)); right: max(10px, env(safe-area-inset-right)); width: 240px; display: flex; flex-direction: column; gap: 6px; padding: 10px; border-radius: 16px; background: linear-gradient(180deg, #3d2c1f, #2a1e15); border: 2px solid #6a4e34; box-shadow: 0 14px 30px rgba(0,0,0,.55); }
 #play .gmenu button { min-height: 50px; border-radius: 12px; background: rgba(255,255,255,.07); font-weight: 800; font-size: 17px; text-align: left; padding: 0 14px; }
+#play .gmenu button:disabled { opacity: .35; }
 #play .gmenu button:active { background: rgba(255,255,255,.16); }
 @keyframes flipin { 0% { transform: perspective(700px) rotateY(88deg) scale(.8); opacity: 0; } 60% { transform: perspective(700px) rotateY(-8deg) scale(1.05); opacity: 1; } 100% { transform: none; } }
 @keyframes slam { 0% { transform: translateY(-46px) scale(1.25) rotate(-3deg); opacity: 0; } 50% { transform: translateY(5px) scale(.97) rotate(1deg); opacity: 1; } 68% { transform: translateX(-5px); } 82% { transform: translateX(4px); } 100% { transform: none; } }
@@ -874,9 +875,9 @@ body[data-mode=play] { background: radial-gradient(130% 75% at 50% -10%, #74401e
 /* your cards, to look at while you choose */
 #play .foot .ownedbtn { margin-right: auto; min-width: 0; padding-left: 22px; padding-right: 22px; }
 #play .ownedback { position: fixed; inset: 0; z-index: 32; display: flex; align-items: center; justify-content: center; background: rgba(10,6,3,.82); }
-#play .ownedpanel { max-width: calc(100vw - 40px); max-height: calc(100vh - 40px); overflow: auto; padding: 20px 24px 14px; border-radius: 22px; background: #241a14; border: 3px solid #e7b866; text-align: center; }
+#play .ownedpanel { max-width: calc(100vw - 24px); max-height: calc(100vh - 24px); overflow: hidden; padding: 16px 18px 12px; border-radius: 22px; background: #241a14; border: 3px solid #e7b866; text-align: center; }
 #play .ownedpanel h3 { margin: 0 0 12px; font-size: 26px; font-weight: 900; color: #ffd45e; }
-#play .ownedpanel .cards { display: flex; flex-wrap: wrap; gap: 12px; justify-content: center; }
+#play .ownedpanel .cards { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; }
 #play .ownedpanel .ocard { position: relative; display: block; flex: none; }
 #play .ownedpanel .closehint { margin-top: 10px; color: var(--dim); font-size: 15px; }
 #play .takedmg.waitroll { visibility: hidden; pointer-events: none; }          /* no "take the damage" until the die has landed */
@@ -1329,6 +1330,8 @@ const DDB = {
     { id: "ON-76", name: "Bargain Badger", type: "Ongoing", number: null, deck: "Booster", count: 1, text: "When dug, +1 {grit}. After you roll, 2 {grit} gives +1 to your result instead of 3" },
     { id: "ON-77", name: "Encore Parrot", type: "Ongoing", number: null, deck: "Booster", count: 1, text: "Once per battle, untap all your Ongoing cards" },
     { id: "CO-36", name: "Refresh Elixir", type: "Consumable", number: null, deck: "Booster", count: 1, text: "Discard to untap all your Ongoing cards" },
+    { id: "ON-78", name: "Battery Beetle", type: "Ongoing", number: null, deck: "Booster", count: 1, text: "In a battle, tap any of your numbered Ongoing cards for +1 {grit} each" },
+    { id: "ON-79", name: "Wake-Up Rooster", type: "Ongoing", number: null, deck: "Booster", count: 1, text: "Tap this card to untap 2 of your Ongoing cards" },
   ],
   // Card types (v2.7 Rules, "Card types"): colour, icon, and a second cue (pattern) so no type depends on colour alone.
   // (v2.7.1: Ongoing silver, Single-Use (Consumable) purple, Immediate yellow, Treasure (Geode) blue, Monster red. There is no Power type: an Ongoing card with a number fires when the roll reaches it.)
@@ -1380,7 +1383,7 @@ const DDB = {
   // ---- The rules of a Dig (v2.7 Rules tab). Numbers here are the rules; the engine (script "dig") only does what they say. ----
   rules: {
     die: 10,                                             // sides of the die (owner: a d10)
-    caps: { heart: 10, reroll: 3, grit: 3 },             // Drill tracks (v2.7.1): Health 0-10, Extra Rolls 0-3 (owner), Grit 0-3 (the Grit track is 3 long: see GRIT-EXPERIMENT.md; the sheet's {extraroll} is `reroll` in the code)
+    caps: { heart: 10, reroll: 5, grit: 6 },             // Drill tracks (v2.7.1): Health 0-10, Extra Rolls 0-5, Grit 0-6 (owner), Grit 0-3 (the Grit track is 3 long: see GRIT-EXPERIMENT.md; the sheet's {extraroll} is `reroll` in the code)
     start: { heart: 10, reroll: 0, grit: 0 },            // each track's starred space: where it is at the start of every Dig (owner: 10 / 0 / 0)
     // Grit (v2.7.1): spend it before a roll (+1 to that roll for each) or after seeing it (3 Grit = +1 to the result, and cards the result now reaches fire).
     // `battleLimit`: at most this many Grit can be spent in one battle, so Grit a card hands back mid-battle cannot be spent again and again (the refill loop: GRIT-EXPERIMENT.md).
@@ -1539,6 +1542,8 @@ const DDB = {
       ['discardSelf', /^Any time, discard this for \+(\d+) \{(grit|extraroll|heart)\}$/],
       ['afterRate',  /^After you roll, (\d+) \{grit\} gives \+1 to your result instead of \d+$/],
       ['untapAll',   /^Once per battle, untap all your Ongoing cards$/],
+      ['tapFor',     /^In a battle, tap any of your numbered Ongoing cards for \+(\d+) \{(grit|extraroll)\} each$/],
+      ['untapTwo',   /^Tap this card to untap (\d+) of your Ongoing cards$/],
       ['whenDug',    /^When dug, (.+)$/],
     ],
     events: [                                            // what comes after "Whenever"
@@ -1765,6 +1770,8 @@ const Dig = (() => {
         case 'timeWizard': o.flags.timeWizard = true; break;
         case 'afterRate': o.flags.afterRate = n(1); break;
         case 'untapAll': o.actions.push({ op: 'untapAll' }); break;
+        case 'tapFor': o.actions.push({ op: 'tapFor', n: n(1), res: RESNAME[m[2]] }); break;
+        case 'untapTwo': o.actions.push({ op: 'untapTwo', n: n(1) }); break;
         case 'discardSelf': o.actions.push({ op: 'discardSelf', n: n(1), res: RESNAME[m[2]] }); break;
       }
     }
@@ -2234,6 +2241,7 @@ const Dig = (() => {
     if (effs.every(e => e.op === 'if' && e.cond.dmgAtMost !== undefined && f.damage > e.cond.dmgAtMost)) return true;          // "If this Monster's damage is 3 or less": it is not
     if (st.heart >= R.caps.heart && effs.every(heals)) return true;
     if (effs.every(e => e.op === 'list' && e.items.every(it => !it.lose && st[it.res] >= R.caps[it.res]))) return true;
+    if (effs.every(e => e.op === 'if' && e.cond && e.cond.noOther && (f.rollFired.some(x => x !== entry) || (e.then && e.then.op === 'list' && e.then.items.every(it => !it.lose && st[it.res] >= R.caps[it.res]))))) return true;          // "If no other card triggers": not once another has, and not when there is no room for what it gives
     const soften = ['mark', 'markPer', 'halve', 'noDamage', 'survive1'];
     if (f.defeat) return ops.every(o => soften.includes(o) || o === 'defeat');
     return previewDamage(st) === 0 && ops.every(o => soften.includes(o));
@@ -2399,6 +2407,8 @@ const Dig = (() => {
       else if (ab.op === 'compactor') { if (st.cons.length) out.push({ card: o, ab }); }
       else if (ab.op === 'discardSelf') out.push({ card: o, ab });
       else if (ab.op === 'untapAll') { const f = st.fight; if (f && st.line.some(e => e.tapped) && !(f.untapUsed || []).includes(o.uid)) out.push({ card: o, ab }); }
+      else if (ab.op === 'tapFor') { if (st.fight && st.line.some(e => !e.tapped) && st[ab.res] < R.caps[ab.res]) out.push({ card: o, ab }); }          // (only while there is room on the track for what it gives)
+      else if (ab.op === 'untapTwo') { const f = st.fight; if (f && st.line.some(e => e.tapped) && !(f.untapUsed || []).includes(o.uid)) out.push({ card: o, ab }); }
     }
     return out;
   }
@@ -2409,6 +2419,19 @@ const Dig = (() => {
     if (ab.op === 'workbench') { if (a.dir === 'g2e') { st.grit -= ab.g; gain(st, 'reroll', ab.e, src); } else { st.reroll -= ab.e2; gain(st, 'grit', ab.g2, src); } return true; }
     if (ab.op === 'discardSelf') { removeOngoing(st, c); gain(st, ab.res, ab.n, src); return true; }
     if (ab.op === 'untapAll') { (st.fight.untapUsed || (st.fight.untapUsed = [])).push(c.uid); untapAll(st, src); return true; }
+    if (ab.op === 'tapFor') {          // tap numbered cards you choose (they lie down: they cannot be used this battle), +n for each
+      const room = R.caps[ab.res] - st[ab.res], mine = (opt.pick || []).map(u => st.line.find(e => e.card.uid === u && !e.tapped)).filter(Boolean).slice(0, Math.max(0, Math.ceil(room / ab.n)));
+      if (!mine.length) return false;
+      for (const e of mine) { e.tapped = true; gain(st, ab.res, ab.n, src); }
+      log(st, 'effect', `${src}: ${mine.length} card${mine.length === 1 ? '' : 's'} tapped`); return true;
+    }
+    if (ab.op === 'untapTwo') {          // the card lies down for the rest of the battle; up to n tapped cards you choose stand up
+      const mine = (opt.pick || []).map(u => st.line.find(e => e.card.uid === u && e.tapped)).filter(Boolean).slice(0, ab.n);
+      if (!mine.length) return false;
+      (st.fight.untapUsed || (st.fight.untapUsed = [])).push(c.uid);
+      for (const e of mine) e.tapped = false;
+      log(st, 'effect', `${src}: ${mine.map(e => e.card.name).join(' and ')} stand${mine.length === 1 ? 's' : ''} up again`); return true;
+    }
     if (ab.op === 'scrap') {
       const mine = (opt.pick || []).map(u => allOngoing(st).find(x => x.uid === u)).filter(Boolean);          // (the Pet is just another Ongoing card)
       if (!mine.length) return false;
@@ -2677,6 +2700,8 @@ const Board = (() => {
   function note(b, ev) { (b.log || (b.log = [])).push(ev); }
   // The digital board moves your live marker for you: each Monster encountered puts it on the best open spot under your new number
   // (a pledge puts it ahead of you; it stays there until you catch up).
+  // Undo: put the live marker back on a lower number (or take it off the board at 0).
+  function setLive(b, id, n) { if (n < 1) remove(b, id, 'pledge'); else claim(b, id, 'pledge', n); }
   function track(b, id, survived) {
     if (survived < 1) return false;
     const m = marker(b, id, 'pledge');
@@ -2734,7 +2759,7 @@ const Board = (() => {
     remove(b, id, 'pledge');
     return { rank, tookLead: before !== id && holder(b) === id, newBest };
   }
-  return { create, marker, leader, tracker, holder, canPledge, pledge, clearPledge, note, track, wouldLead, leadN, lockIn, rankIf, finalLeader, inLead };
+  return { create, setLive, marker, leader, tracker, holder, canPledge, pledge, clearPledge, note, track, wouldLead, leadN, lockIn, rankIf, finalLeader, inLead };
 })();
 </script>
 
@@ -4140,7 +4165,7 @@ const AI = (() => {
     });
     const ongoing = st.ongoing.filter(o => o !== held), cons = st.cons.filter(o => o !== held);
     const broke = o => false;
-    const ready = new Set(Dig.defeatReady(st).map(x => x.card)), usedD = o => !!f && f.defeat && (f.defeatUsed || []).includes(o.uid);
+    const ready = new Set(Dig.defeatReady(st).map(x => x.card)), usedD = o => !!f && ((f.defeat && (f.defeatUsed || []).includes(o.uid)) || (f.untapUsed || []).includes(o.uid));
     const ong = ongoing.map(o => `<button class="tcard inplay ${acts.has(o) || mod.has(o) || ready.has(o) ? 'elig' : ''} ${usedD(o) ? 'done' : ''} ${isNew(o) ? 'arrive' : ''} ${(st.under[o.uid] || []).length ? 'hasunder' : ''}" data-p="${ready.has(o) ? 'usedefeat' : mod.has(o) ? 'usemod' : acts.has(o) ? 'action' : 'zoom'}" data-uid="${o.uid}" data-id="${A.esc(o.id)}" aria-label="${A.esc(o.name)}, Ongoing${ready.has(o) ? ', you can use it now' : ''}">${underOf(o)}${cw(A.playCard(o, 1), 'cb')}${usedD(o) ? '<span class="tg">✓</span>' : ''}</button>`);
     const con = cons.map(o => `<button class="tcard inplay cons ${usableCons.has(o) ? 'elig' : ''} ${isNew(o) ? 'arrive' : ''}" data-p="${usableCons.has(o) ? 'usecons' : 'zoom'}" data-uid="${o.uid}" data-id="${A.esc(o.id)}" aria-label="${A.esc(o.name)}, Single-Use${usableCons.has(o) ? ', you can use it now' : ''}">${cw(A.playCard(o, 1), 'cb')}</button>`);
     S.tabSeen = nowSeen;
@@ -4242,7 +4267,7 @@ const AI = (() => {
     const ovFx = st.over && st.over !== fx.over ? 'fx' : '';
     if (st.over && S.run) {
       const fin = S.run.round === S.run.rounds;
-      const next = `<div class="row2"><button class="btn" data-p="prep">${fin ? 'See the result' : 'To Prep'}</button></div>`;          // (the opponents finish their Digs behind the scenes when you tap)
+      const next = `<div class="row2"><button class="btn" data-p="prep">${fin ? 'See the result' : st.over.kind === 'boom' ? 'To Leaderboard' : 'To Prep'}</button></div>`;          // (the opponents finish their Digs behind the scenes when you tap)
       over = st.over.kind === 'boom'
         ? `<div class="over boom ${ovFx}">${boomFxHTML()}<h2>BOOM!</h2><div class="obody">${next}</div></div>`
         : `<div class="over ${ovFx}">${ovFx ? confettiHTML(16) : ''}<h2>${fin ? 'In the lead!' : 'Banked!'}</h2><div class="obody"><div class="big">${fin ? '' : `<b>${s.total}</b> ${ic('gem', ' style="width:54px;height:54px;vertical-align:-12px"')}<br>`}<b>${st.survived}</b> Monster${st.survived === 1 ? '' : 's'} survived${(S.run.endInfo || {}).stoleCrown ? ' · ♛' : ''}${fin ? '<br>Everyone else is out' : ''}</div>${next}</div></div>`;
@@ -4256,7 +4281,7 @@ const AI = (() => {
   }
   // The in-game menu: quiet, small. Your game is saved after every tap, so "Main menu" leaves nothing to lose; there you can Continue it or start a new one.
   function gmenuHTML() {
-    return `<div class="gmenu-back" data-p="gmenuclose"></div><div class="gmenu" role="menu"><button data-p="gmenuclose">Back to the game</button><button data-p="help">How to play</button><button data-p="mainmenu">Main menu</button></div>`;
+    return `<div class="gmenu-back" data-p="gmenuclose"></div><div class="gmenu" role="menu"><button data-p="gmenuclose">Back to the game</button><button data-p="undo" ${undoReady() ? '' : 'disabled'}>Undo</button><button data-p="help">How to play</button><button data-p="mainmenu">Main menu</button></div>`;
   }
   // How to play: three little pictures and a line each. The game walks you through the rest; the judgment calls are folded away underneath.
   function helpHTML() {
@@ -4308,6 +4333,10 @@ const AI = (() => {
     } else if (pk.op === 'discardSelf') {
       const ab = Dig.actions(st).find(x => x.card === c);
       body = `<h3>${A.esc(c.name)}</h3><p>Discard it for +${ab.ab.n} ${ic(ab.ab.res === 'reroll' ? 'extraroll' : ab.ab.res)}?</p><div class="pickbtns"><button class="btn" data-p="pickgo" data-v="go">Discard it</button><button class="btn alt" data-p="pickcancel">Not now</button></div>`;
+    } else if (pk.op === 'tapFor' || pk.op === 'untapTwo') {
+      const ab = Dig.actions(st).find(x => x.card === c).ab, tapFor = pk.op === 'tapFor', ents = st.line.filter(e => tapFor ? !e.tapped : e.tapped), room = tapFor ? Math.max(0, Math.ceil((R.caps[ab.res] - st[ab.res]) / ab.n)) : ab.n;
+      const res = tapFor ? ic(ab.res === 'reroll' ? 'extraroll' : ab.res) : '';
+      body = `<h3>${A.esc(c.name)}</h3><p>${tapFor ? `Tap the cards to tap: +${ab.n} ${res} for each (room for ${room}). A tapped card cannot be used this battle.` : `Tap up to ${ab.n} cards to stand up again.`}</p><div class="pickrow">${ents.map(e => mini({ ...e.card, number: e.at }, 'picktoggle', pk.sel.includes(e.card.uid) ? 'sel' : '')).join('')}</div><div class="pickbtns"><button class="btn" data-p="pickgo" data-v="go" ${pk.sel.length ? '' : 'disabled'}>${tapFor ? 'Tap' : 'Untap'} ${pk.sel.length || ''}</button><button class="btn alt" data-p="pickcancel">Not now</button></div>`;
     } else if (pk.op === 'scrap' || pk.op === 'compactor') {
       const ab = Dig.actions(st).find(x => x.card === c).ab, pool = pk.op === 'scrap' ? [...st.line.map(e => e.card), ...st.ongoing] : st.cons;
       const per = pk.op === 'scrap' ? `+${ab.n} ${ic(ab.res === 'reroll' ? 'extraroll' : ab.res)}` : `+${ab.n} ${ic('heart')}`;
@@ -4364,7 +4393,7 @@ const AI = (() => {
     }
     let ownedP = '';
     if (S.showOwned && S.run && (S.panel === 'prep' || S.panel === 'done')) {          // a look at the cards you already own, while you choose (tap anywhere to close)
-      const list = S.run.owned, sc = Math.min(.55, fitCards(list.length, .55, Math.min(VW(), 1180) - 80, VH() - 190, 12)), inKit = new Set((S.run.kit || []).map(c => c.uid));
+      const list = S.run.owned, fitAll = (n, hi, w, h, gap) => { let b = .2; for (let rows = 1; rows <= 8 && rows <= Math.max(1, n); rows++) { const per = Math.ceil(n / rows); b = Math.max(b, Math.min(hi, (w - (per - 1) * gap) / (per * 250), (h - (rows - 1) * gap) / (rows * 350))); } return b; }, sc = fitAll(list.length, .7, Math.min(VW(), 1180) - 72, VH() - 150, 10), inKit = new Set((S.run.kit || []).map(c => c.uid));
       ownedP = `<div class="ownedback" data-p="ownedclose"><div class="ownedpanel" role="dialog" aria-label="Your cards"><h3>Your cards</h3><div class="cards">${list.map(c => `<span class="ocard" data-p="zoom" data-uid="${c.uid}" style="width:${250 * sc}px;height:${350 * sc}px">${A.playCard(c, sc)}${inKit.has(c.uid) ? '<span class="ctag last">In your kit</span>' : ''}</span>`).join('') || '<span class="note">You do not own any cards yet.</span>'}</div></div></div>`;
     }
     $.innerHTML = (S.panel === 'menu' || S.panel === 'more' || S.viewBest || S.panel === 'done' || (S.panel === 'setup' && !S.run) ? '' : bar) + body + (S.gmenu ? gmenuHTML() : '') + (S.help ? helpHTML() : '') + z + note + pileDlg + (S.lbHelp ? lbHelpHTML() : '') + lbTipHTML() + fin + dangerHTML() + ffNoteHTML() + lbFullHTML() + ownedP + pickHTML() + logHTML();
@@ -4439,8 +4468,20 @@ const AI = (() => {
   // Everyone's best Dig so far (0 until they bank): where the chips were when the round began, so the Leaderboard can slide them to where they are now.
   const bestsNow = () => S.run ? Object.fromEntries(S.run.board.players.map(p => { const m = Board.marker(S.run.board, p.id, 'best'); return [p.id, m ? m.n : 0]; })) : {};
   function startRound() { if (S.match ? Match.beginRound(S.match) : Run.beginDig(S.run)) { S.st = S.run.dig; S.panel = 'dig'; S.ff = false; S.lbFull = false; startDelays(); S.bests0 = bestsNow(); S.boardAnim = null; } }
+  // Undo: before each action in a Dig the state is kept (a copy), so the last action can be taken back. One step, and not after the Dig is over.
+  const UNDOABLE = ['dig', 'roll', 'face', 'triggerall', 'card', 'usecons', 'usedefeat', 'action', 'pickgo', 'dugchoose', 'usemod', 'reroll', 'gritspend'];
+  const undoReady = () => !!S.undo && S.panel === 'dig' && !!S.st && !S.st.over && S.undo.owner === (S.run || null) && S.undo.round === (S.run ? S.run.round : 0) && S.undo.tok === S.st.tok;          // (tok: it belongs to this Dig, not an earlier one)
+  let undoTok = 0;
+  function undoNow() {
+    if (!undoReady()) return false;
+    const old = S.undo, st = Dig.load(cards(), JSON.parse(JSON.stringify(old.snap))); st.tok = old.tok; S.undo = null;
+    S.st = st; if (S.run) { S.run.dig = st; const n = Math.max(st.monstersDug, st.survived), m = Board.marker(S.run.board, S.run.me, 'pledge'); if (m && m.n > n) { Board.setLive(S.run.board, S.run.me, n); S.run.board.log = (S.run.board.log || []).filter(e => !(e.r === S.run.round && e.id === S.run.me && e.k === 'move' && e.n > n)); } }
+    S.fx = fxOf(st); S.confirmFace = false; S.confirmSkip = null; S.pick = null; S.zoom = null; S.gloss = null;
+    return true;
+  }
   function act(a, el) {
-    const st = S.st, f = st && st.fight, ds = el.dataset; 
+    const st = S.st, f = st && st.fight, ds = el.dataset;
+    const undoSnap = S.panel === 'dig' && st && !st.over && UNDOABLE.includes(a) ? JSON.parse(JSON.stringify(Dig.save(st))) : null, undoLog = st ? st.log.length : 0; 
     if (a !== 'startrun' && a !== 'practice') S.confirmNew = null;
     if (a !== 'face') S.confirmFace = false;
     if (a !== 'dig' && a !== 'bank') S.confirmSkip = null;
@@ -4529,7 +4570,7 @@ const AI = (() => {
         const c = findCard(ds.uid), a = st ? Dig.actions(st).filter(x => x.card === c) : []; if (!a.length) { S.zoom = c; break; }
         S.pick = { kind: 'action', uid: c.uid, op: a[0].ab.op, sel: [] }; break;
       }
-      case 'picktoggle': if (S.pick) { const u = Number(ds.uid), i = S.pick.sel.indexOf(u); if (i >= 0) S.pick.sel.splice(i, 1); else S.pick.sel.push(u); } break;
+      case 'picktoggle': if (S.pick) { const u = Number(ds.uid), i = S.pick.sel.indexOf(u); if (i >= 0) S.pick.sel.splice(i, 1); else { S.pick.sel.push(u); if (S.pick.op === 'untapTwo') { const ab = Dig.actions(st).find(x => x.card.uid === S.pick.uid); if (ab && S.pick.sel.length > ab.ab.n) S.pick.sel.shift(); } } } break;
       case 'pickcancel': S.pick = null; break;
       case 'pickgo': {
         const pk = S.pick, c = pk && findCard(pk.uid); S.pick = null; if (!pk || !c || !st) break;
@@ -4545,6 +4586,7 @@ const AI = (() => {
       case 'grit': if (f && f.phase === 'before') { const left = Dig.gritLeft(st, f); Dig.planGrit(st, f.plan >= left ? 0 : f.plan + 1); } else if (f && f.phase === 'after') Dig.spendGrit(st, 1); break;
       case 'showlog': S.showLog = !S.showLog; break;
       case 'pilecount': S.pileInfo = !S.pileInfo; break;
+      case 'undo': undoNow(); S.gmenu = false; break;
       case 'lbtip': if (S.run) { S.lbTip = lbExplain(S.run, curAnim(S.run), ds.t, ds.pid, Number(ds.n)); } break;
       case 'lbtipclose': S.lbTip = null; break;
       case 'lbhelp': S.lbHelp = true; break;
@@ -4558,6 +4600,7 @@ const AI = (() => {
       case 'hold': Dig.hold(st); if (S.run) Run.checkOver(S.run); return act('prep', el);          // you won: no little message first, straight to the Leaderboard and then the full-screen result
       case 'heart': break;
     }
+    if (undoSnap && S.st === st && st.log.length !== undoLog) S.undo = { snap: undoSnap, owner: S.run || null, round: S.run ? S.run.round : 0, tok: st.tok || (st.tok = ++undoTok) };
     if (S.run) { Run.checkOver(S.run); if (S.run.phase === 'dig') Run.refresh(S.run); if (S.match) Match.finalCheck(S.match); else Run.finalCheck([S.run]); }
     if (S.st && S.st.over && !S.st.best && !S.run) recordBest(S.st);
     persist(); render();

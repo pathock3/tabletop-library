@@ -18,7 +18,7 @@ const beat = st => { st.fight.phase = 'after'; st.fight.defeat = true; Dig.face(
 const say = st => st.log.map(l => l.text).join(' | ');
 
 test('the cards: the whole v2.7.1 list is in the game, every one is understood, and none needs the network', () => {
-  assert.equal(ALL.length, 152);
+  assert.equal(ALL.length, 154);
   assert.deepEqual([...new Set(ALL.map(c => c.type))].sort(), ['Consumable', 'Immediate', 'Monster', 'Ongoing', 'Treasure']);
   for (const c of ALL) assert.ok(Dig.supported(c), `${c.id} ${c.name}: ${c.text}`);
   assert.deepEqual(ALL.filter(c => c.cantStart).map(c => c.name).sort(), ['All In', 'Four-Leaf Clover', 'Hot Spring', 'Iron Vein', 'Lucky Dice', 'Lunchbox', 'Sneak Attack'], 'the cards that cannot go in a Starter Kit');
@@ -115,8 +115,8 @@ test('using: each card can be used at most once per battle, even if an Extra Rol
   assert.equal(Dig.eligible(st).length, 0); assert.equal(st.reroll, 1);
 });
 
-test('Extra Rolls: each one is a new roll and its result replaces the last (no "best of"); cards already used stay down; each costs 1 of 0–3', () => {
-  assert.equal(DDB.rules.caps.reroll, 3);
+test('Extra Rolls: each one is a new roll and its result replaces the last (no "best of"); cards already used stay down; each costs 1 of 0–5', () => {
+  assert.equal(DDB.rules.caps.reroll, 5); assert.equal(DDB.rules.caps.grit, 6);
   const st = play(mk({ dice: [3, 1, 8], start: { reroll: 2 } }), 'ON-04', 'ON-17', 'ON-22');          // 2, 7, 8 (Falcon rolls again)
   fight(st, 'MO-01'); Dig.roll(st); assert.equal(st.fight.result, 3);
   assert.deepEqual(Dig.eligible(st).map(e => e.card.id), ['ON-04']); Dig.triggerAll(st);
@@ -127,10 +127,10 @@ test('Extra Rolls: each one is a new roll and its result replaces the last (no "
   assert.equal(st.reroll, 0); assert.ok(!Dig.can(st).reroll, 'no Extra Roll left');
 });
 
-test('Extra Rolls: cap 3 on the track', () => {
+test('Extra Rolls: cap 5 on the track', () => {
   const st = mk(); Dig.start(ALL, []);
   for (let i = 0; i < 8; i++) play(st, 'IM-10');          // Lucky Dice: +2 each
-  assert.equal(st.reroll, 3);
+  assert.equal(st.reroll, 5);
 });
 
 test('Grit before the roll: each Grit you plan is +1 to that roll, and is spent when you roll', () => {
@@ -177,20 +177,20 @@ test('untapping: Encore Parrot (once per battle) and Refresh Elixir stand every 
   Dig.triggerAll(st); assert.equal(st.grit, 3);
 });
 
-test('Grit: you can spend at most 3 in a battle (the rule that stops Grit refilling Grit), and the track holds 3', () => {
-  assert.equal(DDB.rules.caps.grit, 3); assert.equal(DDB.rules.grit.battleLimit, 3);
+test('Grit: you can spend at most 3 in a battle (the rule that stops Grit refilling Grit), and the track holds 6', () => {
+  assert.equal(DDB.rules.caps.grit, 6); assert.equal(DDB.rules.grit.battleLimit, 3);
   const st = play(mk({ dice: [2], start: { grit: 3 } }), 'ON-29');          // Hype Squirrel: +3 Grit at 10
   fight(st, 'MO-01'); Dig.planGrit(st, 3); go(st);          // 2 + 3 = 5: nothing reaches 10 yet; 3 Grit spent
   assert.equal(st.grit, 0); assert.equal(st.fight.spent, 3);
   assert.ok(!Dig.can(st).gritAfter, 'no Grit left to spend after the roll');
-  st.grit = 3;
+  st.grit = 6;
   assert.equal(Dig.gritLeft(st, st.fight), 0, 'the battle limit is used up even though the track is full again');
   assert.ok(!Dig.spendGrit(st, 1));
 });
 
 test('Grit: gaining it past the end of the track is lost', () => {
-  const st = play(mk({ start: { grit: 3 } }), 'IM-09');          // Iron Vein +4 Grit
-  assert.equal(st.grit, 3);
+  const st = play(mk({ start: { grit: 4 } }), 'IM-09');          // Iron Vein +4 Grit
+  assert.equal(st.grit, 6);
 });
 
 test('Grit: the Drone Booster makes the first Grit you spend before a roll give +2', () => {
@@ -266,7 +266,7 @@ test('Burnout: Snowball Beetle (2) moves up 2 after it fires, to 10 at most; a n
 test('each card and its effect: lose / gain Health, Grit and Extra Rolls', () => {
   const st = play(mk({ dice: [10], start: { heart: 5 } }), 'ON-02', 'ON-06', 'ON-10', 'ON-11');          // Prickly (1): lose 1 then +2 Grit; Newt (2) +1 H; Raccoon (3) +3 H; Gopher (4) +2 Grit
   fight(st, 'MO-03'); go(st);
-  assert.equal(st.heart, 5 - 1 + 1 + 3); assert.equal(st.grit, 3, '+2 +2, the track holds 3');
+  assert.equal(st.heart, 5 - 1 + 1 + 3); assert.equal(st.grit, 4, '+2 +2');
 });
 
 test('conditions: Nervous Mouse (5 Health or less), Jolt Eel (3 or less)', () => {
@@ -319,7 +319,7 @@ test('"whenever" cards: Adrenaline Pump (heart → Grit), Nurse Bot, Dice Bag, P
 
 test('Dice Bag: gaining an Extra Roll gives 1 more; its own +1 when dug counts too', () => {
   const st = play(mk(), 'ON-44'); assert.equal(st.reroll, 2, 'it is in play when it is dug, so its own Extra Roll counts');
-  play(st, 'IM-10'); assert.equal(st.reroll, 3, '+2 and 1 more, up to the 3 of the track');
+  play(st, 'IM-10'); assert.equal(st.reroll, 5, '+2 and 1 more');
 });
 
 test('digging a Monster: Danger Siren (6+ damage → +2 Grit), Bumper (1 damage marker on it)', () => {
@@ -443,7 +443,7 @@ test('Ongoing cards you may use any time: Workbench, Scrap Dealer, Trash Compact
   const st = play(mk({ start: { grit: 3 } }), 'ON-68'); assert.deepEqual(Dig.actions(st).map(a => a.dir), ['g2e']);
   Dig.useAction(st, st.ongoing[0], { dir: 'g2e' }); assert.equal(st.grit, 0); assert.equal(st.reroll, 1);
   const s2 = play(mk(), 'ON-04', 'ON-71'); const gecko = s2.line.find(e => e.card.id === 'ON-04').card, scrap = s2.ongoing[0];
-  Dig.useAction(s2, scrap, { pick: [gecko.uid, scrap.uid] }); assert.equal(s2.grit, 3); assert.ok(!s2.line.some(e => e.card === gecko)); assert.ok(s2.discard.includes(gecko));
+  Dig.useAction(s2, scrap, { pick: [gecko.uid, scrap.uid] }); assert.equal(s2.grit, 4); assert.ok(!s2.line.some(e => e.card === gecko)); assert.ok(s2.discard.includes(gecko));
   const s3 = play(mk(), 'ON-71'); Dig.useAction(s3, s3.ongoing[0], { pick: [s3.pet.uid] }); assert.ok(!s3.line.some(e => e.pet), 'the Pet is just another Ongoing card'); assert.equal(s3.grit, 2);
   const s4 = play(mk(), 'ON-74', 'CO-19', 'CO-19'); Dig.useAction(s4, s4.ongoing[0], { pick: s4.cons.map(c => c.uid) }); assert.equal(s4.cons.length, 0); assert.equal(s4.heart, 10);
   const s5 = play(mk(), 'ON-73'); top(s5, 'IM-09'); Dig.dig(s5); assert.equal(s5.pending.kind, 'dug'); Dig.chooseDug(s5, s5.pending.options[0].card.uid);
@@ -539,4 +539,32 @@ test('"When you take damage" Single-Use cards (Rage Potion 6, Fletching Tools 7)
   assert.ok(!Dig.usable(s2).length, 'a 5 is not the 6 it needs');
   const s3 = play(mk({ dice: [7], start: { heart: 6 } }), 'CO-27'); fight(s3, 'MO-02'); Dig.roll(s3); Dig.face(s3); top(s3, 'TR-01'); Dig.dig(s3);
   assert.ok(!Dig.usable(s3).length, 'once you dig on, the chance has gone');
+});
+
+test('Battery Beetle: in a battle, tap numbered Ongoing cards you choose for +1 Grit each (they lie down); only while there is room on the Grit track', () => {
+  const st = play(mk({ dice: [1] }), 'ON-78', 'ON-13', 'ON-04'); fight(st, 'MO-01');
+  assert.ok(Dig.actions(st).some(x => x.card.id === 'ON-78'));
+  const beetle = st.ongoing.find(c => c.id === 'ON-78'), frog = st.line.find(e => e.card.id === 'ON-13'), pet = st.line.find(e => e.pet);
+  assert.ok(Dig.useAction(st, beetle, { pick: [frog.card.uid, pet.card.uid] })); assert.equal(st.grit, 2); assert.ok(frog.tapped && pet.tapped, 'they lie down');
+  Dig.roll(st); assert.ok(!Dig.eligible(st).some(e => e.tapped), 'a tapped card cannot be used');
+  const s2 = play(mk({ start: { grit: 5 } }), 'ON-78', 'ON-13', 'ON-04'); fight(s2, 'MO-01');
+  Dig.useAction(s2, s2.ongoing[0], { pick: s2.line.map(e => e.card.uid) }); assert.equal(s2.grit, 6, 'only as many as there is room for');
+  assert.equal(s2.line.filter(e => e.tapped).length, 1, 'the others stay up');
+  assert.ok(!Dig.actions(s2).some(x => x.card.id === 'ON-78'), 'a full Grit track: nothing to offer');
+});
+
+test('Wake-Up Rooster: tap it to untap 2 of your Ongoing cards, once per battle', () => {
+  const st = play(mk({ dice: [10] }), 'ON-79', 'ON-13', 'ON-04'); fight(st, 'MO-02'); Dig.roll(st);
+  assert.ok(!Dig.actions(st).length, 'nothing is tapped yet');
+  Dig.trigger(st, Dig.eligible(st).find(e => e.card.id === 'ON-04')); Dig.trigger(st, Dig.eligible(st).find(e => e.card.id === 'ON-13'));
+  const rooster = st.ongoing[0], tapped = st.line.filter(e => e.tapped); assert.equal(tapped.length, 2);
+  assert.ok(Dig.useAction(st, rooster, { pick: tapped.map(e => e.card.uid) })); assert.ok(st.line.every(e => !e.tapped), 'both stand up');
+  assert.ok(!Dig.actions(st).some(x => x.card === rooster), 'the Rooster itself lies down for the battle');
+});
+
+test('Unlucky Duck is not offered when it cannot do anything: after another card has fired, or with no room for its Extra Roll', () => {
+  const st = play(mk({ dice: [6] }), 'ON-03', 'ON-04'); fight(st, 'MO-01'); Dig.roll(st);
+  assert.ok(Dig.eligible(st).some(e => e.card.id === 'ON-03'), 'offered while nothing else has fired');
+  Dig.trigger(st, Dig.eligible(st).find(e => e.card.id === 'ON-04')); assert.ok(!Dig.eligible(st).some(e => e.card.id === 'ON-03'), 'not once Gritty Gecko has fired');
+  const s2 = play(mk({ dice: [6], start: { reroll: 5 } }), 'ON-03'); fight(s2, 'MO-01'); Dig.roll(s2); assert.ok(!Dig.eligible(s2).some(e => e.card.id === 'ON-03'), 'a full Extra Roll track');
 });
