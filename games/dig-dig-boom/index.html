@@ -98,7 +98,7 @@ body[data-mode=play] { padding: 0; height: 100vh; height: 100dvh; overflow: hidd
 #play .drill { display: flex; gap: 10px; flex: none; background: var(--panel); border: 2px solid var(--line); border-radius: 14px; padding: 8px 10px; }
 #play .tracks { flex: 1; display: flex; flex-direction: column; gap: 6px; min-width: 0; }
 #play .trow { display: flex; align-items: center; gap: 8px; }
-#play .tlab { width: 34px; height: 34px; flex: none; display: flex; align-items: center; justify-content: center; }
+#play .tlab { width: 44px; height: 44px; margin: -5px; flex: none; display: flex; align-items: center; justify-content: center; background: none; border: 0; padding: 0; }
 #play .tlab svg { width: 30px; height: 30px; }
 #play .tbody { flex: 1; min-width: 0; display: flex; align-items: center; gap: 8px; --col: calc((100% - 40px) / 11); }       /* Health has 11 spaces; Rerolls use the same column width, so 0, 3, 6 line up in all three rows */
 #play .track { flex: none; display: grid; grid-template-columns: repeat(var(--n), minmax(0, 1fr)); width: calc(var(--col) * var(--n) + 3px * (var(--n) - 1) + 10px); gap: 3px; border-radius: 10px; padding: 2px; border: 3px solid transparent; min-width: 0; }
@@ -801,7 +801,7 @@ body[data-mode=play] { background: radial-gradient(130% 75% at 50% -10%, #74401e
 #play .mnote h3 { margin: 0 0 12px; font-size: 28px; font-weight: 900; color: #ffd45e; }
 #play .mnote p { margin: 0 0 20px; font-size: 21px; line-height: 1.35; color: var(--text); }
 #play .mnote p b { color: #fff; }
-#play .mnote .btn.bigok { min-width: 210px; min-height: 92px; padding: 0 36px; font-size: 34px; border-radius: 16px; }          /* the Careful! button is as big as the Bank: easy to hit without looking */
+#play .mnote .btn.bigok { min-width: 170px; min-height: 76px; padding: 0 30px; font-size: 28px; border-radius: 16px; }          /* the Careful! button is as big as the Bank: easy to hit without looking */
 /* the Leaderboard: columns of stacked spots; the top spot goes to whoever got there first; the foot button sits bottom right like the others */
 #play .bigboard .foot { display: flex; justify-content: flex-end; gap: 14px; }
 #play .bstack .bgrid { display: grid; gap: 5px; }
@@ -856,8 +856,8 @@ body[data-mode=play] { background: radial-gradient(130% 75% at 50% -10%, #74401e
 #play .fnote .fsub { margin: 10px 0 4px; font-size: 24px; font-weight: 800; color: var(--text); }
 #play .fnote .fwhere { margin: 10px 0 0; font-size: 24px; font-weight: 800; color: #fff; }
 #play .fnote .frules { max-height: 0; overflow: hidden; transition: max-height .3s ease; text-align: left; }
-#play .fnote .frules.open { max-height: 340px; margin-top: 14px; }
-#play .fnote .frules ul { margin: 0; padding: 0 0 0 26px; font-size: 20px; line-height: 1.35; color: var(--text); }
+#play .fnote .frules.open { max-height: 520px; margin-top: 14px; }
+#play .fnote .frules ul { margin: 8px 0 0; padding: 0 0 0 26px; font-size: 19px; line-height: 1.35; color: var(--text); }
 #play .fnote .frules li { margin: 6px 0; }
 #play .fnote .fbtns { display: flex; gap: 14px; justify-content: center; margin-top: 22px; }
 #play .piles { display: flex; flex-direction: column; align-items: flex-end; gap: 14px; }
@@ -1010,7 +1010,7 @@ body[data-mode=play] { background: radial-gradient(130% 75% at 50% -10%, #74401e
   #play .mat .stack { margin-bottom: 36px; }
 }
 #play .aprompt, #play .skipnote, #play .gnote, #play .bcap, #play .calc .calcparts { text-wrap: balance; }
-#play .bcap { max-width: 640px; margin-left: auto; margin-right: auto; }
+#play .bcap, #play .bigboard .bcap { max-width: 640px; margin-left: auto; margin-right: auto; }
 #play .pilestrip { position: absolute; left: 0; top: calc(350px * var(--ca) + 16px); width: calc(250px * var(--ca)); height: 30px; border-radius: 10px; background: #2a1e15; border: 2px solid #6a4e34; color: var(--text); font-size: 15px; font-weight: 800; display: flex; align-items: center; justify-content: center; }
 #play .pilestrip:active { background: #3d2c1f; }
 #play .mnote-back.top { z-index: 60; }
@@ -1021,7 +1021,8 @@ body[data-mode=play] { background: radial-gradient(130% 75% at 50% -10%, #74401e
 #play .lbhelp ul { margin: 6px 0 12px; padding-left: 20px; font-size: 18px; line-height: 1.35; }
 #play .lbhelp li { margin: 6px 0; }
 #play .bigboard { position: relative; }
-#play .lbhelpbtn { position: absolute; right: 16px; top: 12px; z-index: 3; min-height: 52px; min-width: 0; padding: 8px 20px; font-size: 18px; }
+#play .lbhelpbtn { position: absolute; left: 16px; bottom: 12px; z-index: 3; min-height: 60px; min-width: 0; padding: 8px 20px; font-size: 18px; }
+#play .whatbtn { display: inline-flex; align-items: center; min-height: 44px; margin-left: 8px; padding: 4px 16px; border-radius: 14px; font: inherit; font-size: 18px; font-weight: 800; color: var(--text); background: rgba(255,255,255,.1); border: 2px solid var(--accent); vertical-align: middle; }
 #play .bgrid .bcol[data-p], #play .bgrid .bdisc[data-p], #play .bgrid .pchip[data-p], #play .bpl[data-p] { cursor: pointer; }
 #play .pilebox { min-width: 300px; }
 #play .pilebox .prow { display: flex; justify-content: space-between; align-items: center; gap: 24px; font-size: 24px; font-weight: 800; padding: 6px 4px; border-bottom: 1px solid var(--line); }
@@ -1178,6 +1179,40 @@ body[data-mode=play] { background: radial-gradient(130% 75% at 50% -10%, #74401e
 .duel #play .panel.prep .foot { position: absolute; top: 8px; right: 12px; padding: 0; border: 0; z-index: 5; }          /* Keep / Ready sit beside the title: the cards get the room */
 .duel #play .panel.prep .foot .btn { min-width: 0; min-height: 56px; padding: 8px 22px; font-size: 20px; }
 .duel #play .panel.prep .foot .ownedbtn { display: none; }
+#play .dicez:has(.monpanel) { position: relative; }
+#play .monpanel { position: absolute; inset: 0 0 0 6px; z-index: 1; min-width: 0; display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 8px; padding: 10px 12px; border-radius: 18px; background: rgba(0,0,0,.22); border: 4px solid var(--bd, #b9402e); color: #fff3d6; text-align: center; }
+#play .monpanel .mpname { display: flex; align-items: center; gap: 10px; font-size: 30px; font-weight: 900; line-height: 1.1; }
+#play .monpanel .mpb { width: 40px; height: 40px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; background: var(--hot, #e8344e); color: #fff; font-size: 24px; }
+#play .monpanel .mphead { display: flex; align-items: center; gap: 8px; font-size: 18px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; opacity: .85; }
+#play .monpanel .mphead svg { width: 26px; height: 26px; }
+#play .monpanel .mlad { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; }
+#play .monpanel .mlad i { font-style: normal; font-size: 48px; font-weight: 900; min-width: 66px; padding: 4px 8px; border-radius: 14px; background: #d9c9a6; color: #4a3520; }
+#play .monpanel .mlad i.met { opacity: .4; }
+#play .monpanel .mlad i.now { background: #e8344e; color: #fff; box-shadow: 0 0 0 4px #fff3d6; }
+#play .monpanel .mploot { display: flex; align-items: center; gap: 8px; font-size: 26px; font-weight: 800; }
+#play .monpanel .mploot svg { width: 30px; height: 30px; }
+#play .pcard .pinfo { position: absolute; right: -8px; top: -8px; z-index: 6; width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; background: #fff3d6; color: #1c1410; border: 3px solid #1c1410; font: italic 900 24px/1 Georgia, serif; box-shadow: 0 2px 6px rgba(0,0,0,.5); }
+#play .foot .whatprep { margin-right: auto; min-width: 0; padding-left: 22px; padding-right: 22px; }
+#play .grow { cursor: pointer; }
+#play .grow .gname { padding: 8px 10px; margin-left: -10px; }
+#play .wordtap { font: inherit; font-weight: 800; color: var(--accent); text-decoration: underline dotted; background: none; border: 0; padding: 6px 4px; min-height: 44px; }
+#play .three { display: flex; gap: 10px; align-items: stretch; margin: 6px 0 10px; }
+#play .t3 { flex: 1; min-width: 0; display: flex; flex-direction: column; align-items: center; gap: 6px; padding: 8px 6px; border-radius: 14px; background: rgba(255,255,255,.07); text-align: center; }
+#play .t3 .n { width: 30px; height: 30px; border-radius: 50%; display: flex; align-items: center; justify-content: center; background: var(--accent); color: #1c1410; font-weight: 900; font-size: 18px; }
+#play .t3 .pic { min-height: 74px; display: flex; align-items: center; justify-content: center; gap: 8px; flex-wrap: wrap; }
+#play .t3 p { margin: 0; font-size: 17px; line-height: 1.25; font-weight: 700; }
+#play .t3 .pic svg { width: 34px; height: 34px; }
+#play .vcells { display: flex; gap: 3px; }
+#play .vcells i { width: 28px; height: 40px; border-radius: 6px; background: #ead9b7; color: #4a3520; border: 2px solid #8a6c3c; font: 800 14px/1 system-ui, sans-serif; display: flex; align-items: center; justify-content: center; font-style: normal; }
+#play .vcells i.on { background: #cdb58a; }
+#play .vpiece { width: 26px; height: 26px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; font-style: normal; font-size: 14px; font-weight: 900; color: #fff; background: radial-gradient(circle at 34% 28%, color-mix(in srgb, var(--pc) 55%, #fff), var(--pc) 58%, color-mix(in srgb, var(--pc) 55%, #000)); border: 2px solid color-mix(in srgb, var(--pc) 60%, #000); }
+#play .vsay { font-size: 15px; font-weight: 800; opacity: .8; }
+#play .varrow { font-size: 26px; font-weight: 900; }
+#play .vboom svg { width: 38px; height: 38px; }
+#play .vcrown { font-size: 38px; color: #ffd45e; }
+#play .vbank { position: relative; padding: 8px 16px; border-radius: 14px; font-size: 20px; font-weight: 900; background: #f2c21b; color: #1c1410; }
+#play .vx { position: absolute; width: 96px; height: 5px; border-radius: 3px; background: #e8344e; transform: rotate(-20deg); }
+#play .t3 .pic { position: relative; }
 </style>
 </head>
 <body>
@@ -3766,6 +3801,7 @@ function DDBSeat(root, cfg) {
   }
   function findCard(uid) {
     const owned = S.run && S.run.owned.find(c => String(c.uid) === String(uid)); if (owned) return owned;          // (the cards you own, from the "Your cards" list)
+    const pr = S.run && S.run.prep; if (pr) { const o = [...(pr.offer || []), ...(pr.extra || [])].find(c => String(c.uid) === String(uid)); if (o) return o; }          // (the cards of the pack you are choosing from)
     const st = S.st; if (!st) return null;
     const pool = [...st.line.map(e => e.card), ...st.ongoing, ...st.cons, ...st.discard, ...st.monsterPile, ...st.mine, st.last, st.fight && st.fight.monster, ...st.kit].filter(Boolean);
     return pool.find(c => String(c.uid) === String(uid)) || null;
@@ -3986,7 +4022,7 @@ function DDBSeat(root, cfg) {
     for (let rows = 1; rows <= 3 && rows <= n; rows++) { const per = Math.ceil(n / rows); best = Math.max(best, Math.min(hi, (w - (per - 1) * 14) / (per * 250), (h - (rows - 1) * 14) / (rows * 350))); }
     return Math.max(.4, best);
   };
-  const pcard = (c, scale, o = {}) => `<button class="pcard ${o.sel ? 'sel' : ''} ${o.deal ? 'deal' : ''} ${o.kept ? 'kept' : ''}" data-p="${o.act}" data-uid="${c.uid}" style="width:${250 * scale}px;height:${350 * scale}px;--i:${o.i || 0};--dx:${Math.round(o.dx || 0)}px;--tc:${(D.types[c.type] || {}).color || '#fff'}" aria-label="${A.esc(c.name)}">${o.badge ? `<span class="badge">${o.badge}</span>` : ''}${o.tag ? `<span class="ctag ${o.tagCls || ''}">${o.tag}</span>` : ''}${o.deal ? `<span class="dback"><span class="cardback"></span></span><span class="pface">${A.playCard(c, scale)}</span>` : A.playCard(c, scale)}</button>`;
+  const pcard = (c, scale, o = {}) => `<button class="pcard ${o.sel ? 'sel' : ''} ${o.deal ? 'deal' : ''} ${o.kept ? 'kept' : ''}" data-p="${o.act}" data-uid="${c.uid}" style="width:${250 * scale}px;height:${350 * scale}px;--i:${o.i || 0};--dx:${Math.round(o.dx || 0)}px;--tc:${(D.types[c.type] || {}).color || '#fff'}" aria-label="${A.esc(c.name)}">${o.act === 'pick' || o.act === 'kitpick' ? `<span class="pinfo" data-p="zoom" data-uid="${c.uid}" role="button" aria-label="What does ${A.esc(c.name)} do?">i</span>` : ''}${o.badge ? `<span class="badge">${o.badge}</span>` : ''}${o.tag ? `<span class="ctag ${o.tagCls || ''}">${o.tag}</span>` : ''}${o.deal ? `<span class="dback"><span class="cardback"></span></span><span class="pface">${A.playCard(c, scale)}</span>` : A.playCard(c, scale)}</button>`;
   const dots = (n, on) => `<span class="pips2" role="img" aria-label="${on} of ${n}">${Array.from({ length: n }, (_, i) => `<i class="${i < on ? 'on' : ''}"></i>`).join('')}</span>`;
   // The Booster Pack's face: a foil wrapper with crimped ends, the gem medallion its name and what it holds.
   const packName = name => name.replace(/\+$/, ' Plus');          // the ladder says "Silver+"; the pack says "Silver Plus"
@@ -4080,15 +4116,34 @@ function DDBSeat(root, cfg) {
     for (const q of here) { const e = ended[q.id]; bits.push(e ? (e.k === 'boom' ? `${nm(q)} went BOOM here.` : `${nm(q)} banked here.`) : `${nm(q)} ${is(q)} on this Monster in this round's Dig.`); }
     return `<b>${n === 0 ? 'The start' : mons(n)}</b><br>${bits.length ? bits.map(A.esc).join('<br>') : 'Nobody is here.'}<br><span class="dim">Each column is a number of Monsters survived.</span>`;
   }
-  const lbHelpHTML = () => `<div class="mnote-back top" data-p="lbhelpclose"><div class="mnote lbhelp" role="dialog" aria-label="How the Leaderboard works"><h3>How the Leaderboard works</h3><ul>
-    <li><b>Each column</b> is a number of Monsters survived. Higher is better.</li>
-    <li><b>The poker chips on top</b> are everyone's best banked Dig, kept between rounds. If two players bank the same number, the one who got there first holds the better spot.</li>
-    <li><b>The pieces below</b> are this round's Digs. A piece moves up each time its player meets a Monster, so speed matters: the quicker you reach a number, the better your spot. They have not banked yet, so nothing is locked in.</li>
-    <li>A <b>gem</b> over a piece means that player banked, and shows the gems the Dig earned. A <b>starburst</b> means they went BOOM: that Dig earned nothing, and their chip stays where it was.</li>
-    <li>When a round ends the board <b>plays back what happened</b>, in order. Fast forward runs it four times quicker.</li>
-    <li>The <b>Crown</b> goes to the best chip. It waits on ${D.run.crownStart + 1} until someone banks that many. In the last round nobody banks: your piece is your score.</li>
+  // Three little pictures, one line each: the way every explanation here starts. `pics` are [picture, line] pairs; anything more goes in text underneath.
+  const threePics = pics => `<div class="three">${pics.map(([pic, line], i) => `<div class="t3"><span class="n">${i + 1}</span><span class="pic">${pic}</span><p>${line}</p></div>`).join('')}</div>`;
+  const vPiece = (c = '#2b86d1', t = '') => `<b class="vpiece" style="--pc:${c}">${t}</b>`;
+  const vCells = (n, at, mark) => `<span class="vcells">${Array.from({ length: n }, (_, i) => `<i class="${i === at ? 'on' : ''}">${i === at && mark ? mark : i}</i>`).join('')}</span>`;
+  const lbHelpHTML = () => `<div class="mnote-back top" data-p="lbhelpclose"><div class="mnote lbhelp" role="dialog" aria-label="How the Leaderboard works"><h3>The Leaderboard</h3>
+    ${threePics([
+      [vCells(5, 3, vPiece()), 'Each column is a number of <b>Monsters survived</b>. Further right is better.'],
+      [`${vPiece('#2b86d1', '★')}<span class="vsay">best</span>`, 'Your <b>chip</b> is your best banked Dig. It stays between rounds.'],
+      [`${vPiece()}<span class="varrow">→</span>${ic('gem')}<span class="vsay">or</span><span class="vboom">${ic('damage')}</span>`, 'Bank: a <b>gem</b>. Go <b>BOOM</b>: a starburst, and that Dig earns nothing.']])}
+    <ul>
+    <li>A piece moves up each time its player meets a Monster, so the quicker you reach a number, the better your spot. If two players bank the same number, whoever got there first holds the better spot.</li>
+    <li>The <b>Crown</b> ♛ goes to the best chip. It waits on ${D.run.crownStart + 1} until someone banks that many. In the last round nobody banks: your piece is your score.</li>
+    <li>When a round ends the board <b>plays back what happened</b>. Fast forward runs it four times quicker.</li>
     <li><b>Tap</b> any piece, chip or column to see what it means.</li></ul><button class="btn" data-p="lbhelpclose">Got it</button></div></div>`;
   const lbTipHTML = () => S.lbTip ? `<div class="mnote-back top" data-p="lbtipclose"><div class="mnote lbtip" role="dialog" aria-label="On the Leaderboard"><p>${S.lbTip}</p><small class="dim">Tap anywhere to close.</small></div></div>` : '';
+  // Tap-to-explain: any word, symbol or number on a screen can say what it is. The text of a game term is in the glossary (D.glossary); the rest is here.
+  const fillG = t => t.replace(/\[\[([\w.]+)\]\]/g, (_, k) => k.split('.').reduce((o, x) => (o || {})[x], R));
+  const tipOf = (name, text, icon, now) => `<b>${icon ? ic(icon) + ' ' : ''}${A.esc(name)}</b><br>${text}${now !== undefined ? `<br><span class="dim">You have <b>${now}</b> right now.</span>` : ''}`;
+  function termTip(key, arg) {
+    const g = D.glossary.find(x => x.key === key), st = S.st, inDig = S.panel === 'dig' && st;
+    if (g) return tipOf(g.name, A.esc(fillG(g.text)), g.icon, inDig ? { heart: st.heart, grit: st.grit, extraroll: st.reroll }[key] : undefined);
+    if (key === 'monsters') return tipOf('Monsters', 'Monsters come in three sets, A, B and C. Each time you meet one from a set it hits harder: the numbers are what it deals, in order. The red one is the Monster you are facing, the dim ones you have already met.', 'damage');
+    if (key === 'geode') return tipOf('Geode', `A Geode is a card that gives you a gem. Dig one and the gem goes in your Bank. Any place you leave empty in your Starter Kit is filled with a Geode.`, 'gem');
+    if (key === 'pack') { const t = D.run.ladder[Number(arg)]; if (!t) return ''; return tipOf(`${t.name} Pack`, `Draw <b>${t.draw}</b> Booster cards and keep <b>${t.keep}</b> of them. You open it by banking <b>${t.at}</b> gems or more.<br>${t.draw}:${t.keep} is just that: cards drawn : cards kept.`, 'gem'); }
+    if (key === 'whatprep') return tipOf('Your Booster Pack', `Your goal is to <b>bank gems</b>. You swap them for a better Booster Pack, and the cards you keep mostly get shuffled into your Mine, to help you survive deeper next time.`);
+    if (key === 'boomthis') return tipOf('BOOM!', `Your Health ran out, so that Dig earned nothing: you lose the gems you were carrying. Your best banked score (the chip on top) stays where it was, so you only lose this round's progress.`, 'damage');
+    return '';
+  }
   // The round, played back: every move of every marker in the order it happened, quickly, until someone's Dig ends (a bank or a BOOM); then it waits for a tap and says what happened.
   const boardEvents = run => (run.board.log || []).filter(e => e.r === (run.phase === 'done' ? run.round : run.round - 1));
   function replayState(run, an) {
@@ -4153,13 +4208,13 @@ function DDBSeat(root, cfg) {
   function lbFullHTML() {
     if (!S.lbFull || S.panel !== 'dig' || !S.run) return '';
     const run = S.run, names = run.board.players.map(p => `<span class="bpl ${p.id === run.me ? 'me' : ''}" data-pid="${p.id}" style="--pc:${p.color}"><i class="pchip mini"></i><b>${A.esc(p.name)}${p.id === Board.holder(run.board) ? '<span class="cjewel" aria-label="holds the Crown">♛</span>' : ''}</b></span>`).join('');
-    return `<div class="lbfull bigboard" data-p="lbclose" style="--bv:${boardScale()}"><h2 class="steptitle">Leaderboard</h2>${boardGrid(run, null).replace(/<div class="bplayers">[\s\S]*$/, `<div class="bplayers">${names}</div>`)}<p class="bcap"><small>Tap a piece or a column to see what it means. Tap the background to go back.</small></p><button class="btn alt lbhelpbtn" data-p="lbhelp">How it works</button></div>`;
+    return `<div class="lbfull bigboard" data-p="lbclose" style="--bv:${boardScale()}"><h2 class="steptitle">Leaderboard</h2>${boardGrid(run, null).replace(/<div class="bplayers">[\s\S]*$/, `<div class="bplayers">${names}</div>`)}<p class="bcap"><small>Tap a piece or a column to see what it means. Tap the background to go back.</small></p><button class="btn alt lbhelpbtn" data-p="lbhelp">What is this?</button></div>`;
   }
   function boardHTML() {
     const run = S.run, final = run.phase === 'done', an = S.boardAnim, more = !!an && an.k < an.events.length;          // (a tap goes on after each result; Fast forward runs through them all; the button to go on is there all the time)
-    const cap = !an ? '' : `<p class="bcap" role="status">${an.k === 0 ? `Round ${run.round - 1} is over.` : A.esc(boardText(run, an.events[an.k - 1], an.from)).replace('New Best!', '<em class="newbest">New Best!</em>')}</p>`;
+    const cap = !an ? '' : `<p class="bcap" role="status">${an.k === 0 ? `Round ${run.round - 1} is over.` : A.esc(boardText(run, an.events[an.k - 1], an.from)).replace('New Best!', '<em class="newbest">New Best!</em>')}${an.k > 0 && an.events[an.k - 1].k === 'boom' ? ' <button class="whatbtn" data-p="term" data-k="boomthis">What is this?</button>' : ''}</p>`;
     const bv = boardScale();          // everything on this screen is drawn at this size, so it always fits: nothing here scrolls
-    return `<div class="panel setup bigboard" style="--bv:${bv}"><button class="btn alt lbhelpbtn" data-p="lbhelp">How it works</button><div class="scroll"><h2 class="steptitle">Leaderboard</h2>${boardGrid(run, an)}${cap}</div><div class="foot">${more ? (an.fast ? '<button class="btn alt" data-p="boardskip">Skip ⏭</button>' : '<button class="btn alt" data-p="boardfast">Fast forward ⏩</button>') : ''}<button class="btn" data-p="boardgo">${final ? 'See the result' : 'Booster Pack'}</button></div></div>`;
+    return `<div class="panel setup bigboard" style="--bv:${bv}"><button class="btn alt lbhelpbtn" data-p="lbhelp">What is this?</button><div class="scroll"><h2 class="steptitle">Leaderboard</h2>${boardGrid(run, an)}${cap}</div><div class="foot">${more ? (an.fast ? '<button class="btn alt" data-p="boardskip">Skip ⏭</button>' : '<button class="btn alt" data-p="boardfast">Fast forward ⏩</button>') : ''}<button class="btn" data-p="boardgo">${final ? 'See the result' : 'Booster Pack'}</button></div></div>`;
   }
   // The tally after a bank, shown one piece at a time while a thermometer fills up beside it: Treasure, a pause, Monsters, a pause, then you tap the die; and only when the die has landed does the pack appear.
   const TP = () => window.DDB_TALLY_PACE || 1;                         // tests speed this up
@@ -4183,7 +4238,7 @@ function DDBSeat(root, cfg) {
   function gemChart(lvl, final, countFrom) {
     const L = D.run.ladder, max = L[L.length - 1].at + 5, pct = v => Math.min(100, Math.max(0, v / max * 100)), from = S.tally ? S.tally.shown : 0, got = [...L].reverse().find(t => t.at <= lvl) || L[0];
     if (S.tally) S.tally.shown = pct(lvl);
-    const rows = L.map(t => `<div class="grow ${t.at <= lvl ? 'reached' : ''} ${final && t === got ? 'got' : ''}" style="bottom:${pct(t.at)}%;--pc:${t.color}"><span class="gat">${t.at}</span><i class="gtick"></i><span class="gname"><b>${t.draw}:${t.keep}</b> ${A.esc(t.name)}</span></div>`).join('');
+    const rows = L.map(t => `<div class="grow ${t.at <= lvl ? 'reached' : ''} ${final && t === got ? 'got' : ''}" data-p="term" data-k="pack" data-i="${L.indexOf(t)}" style="bottom:${pct(t.at)}%;--pc:${t.color}"><span class="gat">${t.at}</span><i class="gtick"></i><span class="gname"><b>${t.draw}:${t.keep}</b> ${A.esc(t.name)}</span></div>`).join('');
     const next = L.find(t => t.at > lvl);
     return `<aside class="gchart" style="--lv:${from}%" data-to="${pct(lvl)}%" aria-label="${lvl} gems"><div class="gtube"><div class="gfill"></div></div><div class="gbubble"><b class="cnt" ${countFrom !== null && countFrom !== undefined ? `data-cf="${countFrom}" data-ct="${lvl}"` : ''}>${lvl}</b>${ic('gem')}</div>${rows}</aside>`;
   }
@@ -4205,6 +4260,7 @@ function DDBSeat(root, cfg) {
       const eq = `<div class="eq">${part('geo', cl(1), 'Geode cards', ico('Treasure') + pr.geodes)}<span class="op ${cl(2)}">+</span>${part('mon', cl(2), 'Monster cards', ico('Monster') + pr.monsters)}<span class="op ${cl(3)}">+</span>${part('die', 'die ' + cl(3), 'Escape Bonus', rolled ? d10(tumble ? '' : pr.escape, tumble ? 'fx-tumble' : '', pr.escape) : d10('', 'idle'))}<span class="op ${cl(5)}">=</span>${part('sum', 'sum ' + cl(5), 'Gems', `<b class="cnt" ${stage === 5 ? `data-cf="${pr.geodes + pr.monsters}" data-ct="${pr.gems}"` : ''}>${stage >= 5 ? pr.gems : pr.geodes + pr.monsters}</b>${ic('gem')}`)}</div>`;
       const tnote = `<p class="tnote" role="status">${S.tallyInfo ? tallySays(pr)[S.tallyInfo] || '' : ''}</p>`;
       const info = rolled ? Run.packInfo(run) : null, col = info ? (D.run.ladder.find(l => l.name === info.name) || {}).color || '#b8743a' : '', plus = info && /\+$/.test(info.name);
+      foot = `<button class="btn alt whatprep" data-p="term" data-k="whatprep">What is this?</button>`;
       const packBtn = stage >= 6 ? `<button class="pack pop" data-p="openpack" style="--pc:${col}" aria-label="Open the ${A.esc(packName(info.name))} Pack">${packArt(info.name, info.draw, info.keep)}</button>` : '';
       const packRoom = stage >= 6 ? packBtn : `<span class="pack ghostpack" aria-hidden="true"></span>`;          // the pack's place is kept from the start, so nothing moves when it appears
       body = `<div class="tallyrow" ${stage < 6 ? 'data-p="skiptally"' : ''}><h2 class="steptitle tallytop">Booster Pack</h2><div class="tallymain">${eq}${tnote}${packRoom}</div>${gemChart(lvl, stage >= 6, stage === 5 ? pr.geodes + pr.monsters : null)}</div>`;
@@ -4216,7 +4272,7 @@ function DDBSeat(root, cfg) {
       const ss = Math.min(room.ss, fitCards(need, room.ss, W, avail * .46)), sh = 350 * ss, ps = Math.min(room.ps, fitCards(info.draw, room.ps, W, avail - sh - 14, 12));
       const slots = Array.from({ length: need }, (_, i) => `<div class="kslot empty" data-i="${i}" style="width:${250 * ss}px;height:${sh}px"><span class="kplus">keep</span></div>`).join('');
       body = `<div class="kitbar"><b>${A.esc(packName(info.name))} Pack</b></div><div class="kslots">${slots}</div><div class="poolhead">Your cards</div><div class="cards pool closedpack" style="height:${350 * ps}px;--pks:${Math.min(1, Math.max(.45, 350 * ps / 270)).toFixed(3)}"><button class="pack" data-p="openpack" style="--pc:${col}" aria-label="Open the ${A.esc(packName(info.name))} Pack">${packArt(info.name, info.draw, info.keep)}</button></div>`;
-      foot = `<button class="btn" data-p="keepgo" disabled>Keep</button>`;          // (already there, so nothing moves when the cards are dealt)
+      foot = `<button class="btn alt whatprep" data-p="term" data-k="whatprep">What is this?</button><button class="btn" data-p="keepgo" disabled>Keep</button>`;          // (already there, so nothing moves when the cards are dealt)
     } else if (step === 'keep') {
       const need = Run.keepCount(run);
       const fxKey = `${run.round}:${pr.offer.map(c => c.uid).join()}`, first = S.fxPack !== fxKey; S.fxPack = fxKey;       // the pack tears open once, the first time these cards are drawn
@@ -4227,7 +4283,7 @@ function DDBSeat(root, cfg) {
       const ps = Math.min(room.ps, fitCards(hand.length, room.ps, W, avail - sh - 14, 12));
       const slots = Array.from({ length: need }, (_, i) => { const c = chosen[i]; return `<div class="kslot ${c ? '' : 'empty'}" data-i="${i}" style="width:${250 * ss}px;height:${sh}px">${c ? pcard(c, ss, { act: 'pick', sel: true, badge: i + 1, kslot: true }) : '<span class="kplus">keep</span>'}</div>`; }).join('');
       body = `<div class="kitbar"><b>${A.esc(packName(pr.pack.name))} Pack</b></div><div class="kslots">${slots}</div><div class="poolhead">Your cards</div><div class="cards pool ${first && S.packFrom ? 'fly' : ''}" style="--pks:${Math.min(1, Math.max(.45, 350 * ps / 270)).toFixed(3)}">${first ? tearHTML(pr.pack) : ''}${first && S.packFrom ? flyPackHTML(pr.pack) : ''}${hand.map((c, i) => pcard(c, ps, { act: 'pick', i: pr.offer.indexOf(c), deal: first, dx: ((pr.offer.length - 1) / 2 - pr.offer.indexOf(c)) * (250 * ps + 14) })).join('')}</div>`;
-      foot = `${run.owned.length ? `<button class="btn alt ownedbtn" data-p="owned">Your cards (${run.owned.length})</button>` : ''}<button class="btn" data-p="keepgo" ${pr.picked.length === need ? '' : 'disabled'}>Keep</button>`;
+      foot = `<button class="btn alt whatprep" data-p="term" data-k="whatprep">What is this?</button>${run.owned.length ? `<button class="btn alt ownedbtn" data-p="owned">Your cards (${run.owned.length})</button>` : ''}<button class="btn" data-p="keepgo" ${pr.picked.length === need ? '' : 'disabled'}>Keep</button>`;
     } else if (step === 'reveal') {            // a Mystery Box: the same screen as the pack. The cards you did not keep fly away, then the next card of the deck is dealt face down in the row and turns over; nothing moves on until you say so
       const key = `${run.round}:reveal`, first = S.fxReveal !== key; S.fxReveal = key;
       const kept = pr.offer.filter(c => pr.picked.includes(c.uid)), rest = pr.offer.filter(c => !pr.picked.includes(c.uid)), need = kept.length;
@@ -4260,9 +4316,9 @@ function DDBSeat(root, cfg) {
         const r = from && from[c.uid] ? from[c.uid] : { x: VW() / 2 - 63 + (i - (rest.length - 1) / 2) * 130, y: VH() * .34, w: 125, h: 175 };
         return `<span class="sweepcard" style="--i:${i};left:${Math.round(r.x)}px;top:${Math.round(r.y)}px;width:${Math.round(r.w)}px;height:${Math.round(r.h)}px;--tx:${-Math.round(r.x + r.w + 120)}px;--ty:${-Math.round(r.y + r.h + 100)}px">${A.playCard(c, r.w / 250)}</span>`;
       }).join('')}</div>` : '';
-      body = `${sweep}<div class="kitbar"><b>Starter Kit</b></div><div class="krow"><div class="kslots ${first ? 'kfirst' : ''}">${slots}</div><p class="kdef">${say}<small>Empty spots will be filled with Geodes.</small></p></div><div class="poolhead">Your cards</div><div class="cards pool ${first ? 'kfirst' : ''}" style="min-height:${Math.round(350 * ps) + 24}px">${hand.map((c, i) => pcard(c, ps, { act: 'kitpick', i, ...tagOf2(c) })).join('')}</div>`;
+      body = `${sweep}<div class="kitbar"><b>Starter Kit</b></div><div class="krow"><div class="kslots ${first ? 'kfirst' : ''}">${slots}</div><p class="kdef">${say}<small>Empty spots will be filled with <button class="wordtap" data-p="term" data-k="geode">Geodes</button>.</small></p></div><div class="poolhead">Your cards</div><div class="cards pool ${first ? 'kfirst' : ''}" style="min-height:${Math.round(350 * ps) + 24}px">${hand.map((c, i) => pcard(c, ps, { act: 'kitpick', i, ...tagOf2(c) })).join('')}</div>`;
       const dd = cfg.duel && S.match, rdy = dd && dd.ready[run.me];
-      foot = `<button class="btn ${rdy ? 'waiting' : ''}" data-p="startround" ${rdy ? 'disabled' : ''}>${dd ? (rdy ? 'Waiting for the other player…' : run.round === run.rounds ? 'Ready · final round' : 'Ready') : `Start round ${run.round}${run.round === run.rounds ? ' · final' : ''}`}</button>`;
+      foot = `<button class="btn ${rdy ? 'waiting' : ''}" data-p="startround" ${rdy ? 'disabled' : ''}>${dd ? (rdy ? 'Waiting for the other player…' : `Ready · round ${run.round}/${run.rounds}`) : `Start round ${run.round}/${run.rounds}`}</button>`;
     }
     const stage = step === 'kit' || step === 'keep' || step === 'reveal' || (step === 'pack' && !pr.banked) ? body : `<div class="prepstage">${body}</div>`;
     return `<div class="panel setup prep"><div class="scroll" id="setupScroll">${stage}</div>${foot ? `<div class="foot">${foot}</div>` : ''}</div>`;
@@ -4280,8 +4336,8 @@ function DDBSeat(root, cfg) {
     const title = tab ? `Round ${tab}` : m ? (mr.winner === run.me ? 'You win!' : mr.winner ? `${(run.board.players.find(p => p.id === mr.winner) || { name: 'The AI' }).name} wins` : 'Nobody took the Crown') : (r.crown ? 'You hold the Crown!' : 'The Crown stays on the table');
     const tabs = `<div class="dtabs" role="tablist">${Array.from({ length: run.rounds }, (_, i) => `<button class="dtab ${sel === i + 1 ? 'on' : ''}" data-p="donetab" data-k="${i + 1}" role="tab" aria-label="${i + 1 === run.rounds ? 'Round ' + (i + 1) + ', the end of the game' : 'Round ' + (i + 1)}">${i + 1}</button>`).join('')}</div>`;
     const an = tab ? (S.boardAnim && S.boardAnim.round === tab ? S.boardAnim : histAnim(run, tab)) : null, playing = !!an && an.k < an.events.length;
-    const cap = tab && an && an.k > 0 ? `<p class="bcap" role="status">${A.esc(boardText(run, an.events[an.k - 1], an.from))}</p>` : '';
-    return `<div class="panel setup bigboard enddone" style="--bv:${boardScale()}">${tabs}<button class="btn alt lbhelpbtn" data-p="lbhelp">How it works</button><div class="scroll"><h2 class="endtitle ${won && !tab ? 'won' : ''}">${A.esc(title)}</h2>${boardGrid(run, an)}${cap}</div><div class="foot"><span class="endbtns">${tab ? (playing ? (an.fast ? '<button class="btn alt" data-p="boardskip">Skip ⏭</button>' : '<button class="btn alt" data-p="boardfast">Fast forward ⏩</button>') : '<button class="btn alt" data-p="donereplay">Watch again</button>') : ''}${run.owned.length ? `<button class="btn alt" data-p="owned">Your cards (${run.owned.length})</button>` : ''}</span>${S.viewBest ? '<button class="btn" data-p="closebest">‹ Back</button>' : '<button class="btn alt" data-p="mainmenu">Main menu</button><button class="btn" data-p="startrun">New game</button>'}</div></div>`;
+    const cap = tab && an && an.k > 0 ? `<p class="bcap" role="status">${A.esc(boardText(run, an.events[an.k - 1], an.from))}${an.events[an.k - 1].k === 'boom' ? ' <button class="whatbtn" data-p="term" data-k="boomthis">What is this?</button>' : ''}</p>` : '';
+    return `<div class="panel setup bigboard enddone" style="--bv:${boardScale()}">${tabs}<button class="btn alt lbhelpbtn" data-p="lbhelp">What is this?</button><div class="scroll"><h2 class="endtitle ${won && !tab ? 'won' : ''}">${A.esc(title)}</h2>${boardGrid(run, an)}${cap}</div><div class="foot"><span class="endbtns">${tab ? (playing ? (an.fast ? '<button class="btn alt" data-p="boardskip">Skip ⏭</button>' : '<button class="btn alt" data-p="boardfast">Fast forward ⏩</button>') : '<button class="btn alt" data-p="donereplay">Watch again</button>') : ''}${run.owned.length ? `<button class="btn alt" data-p="owned">Your cards (${run.owned.length})</button>` : ''}</span>${S.viewBest ? '<button class="btn" data-p="closebest">‹ Back</button>' : '<button class="btn alt" data-p="mainmenu">Main menu</button><button class="btn" data-p="startrun">New game</button>'}</div></div>`;
   }
   // ----- the table -----
   function track(res, max, cur, live, color, plan = 0) {
@@ -4292,17 +4348,24 @@ function DDBSeat(root, cfg) {
   // The Monster pile: every Monster you are done with, by set, against each set's ladder, so you can see how many you have met and what is coming.
   function monsterPileHTML(st) {
     const sets = cards().filter(c => c.type === 'Monster' && c.deck === R.startingDeck);
-    return `<div class="mpile"><h4>Monster damage</h4>${sets.map((c, si) => {
+    return `<div class="mpile" data-p="term" data-k="monsters"><h4>Monster damage</h4>${sets.map((c, si) => {
       const k = A.monsterLook(c), steps = Engine.damageSteps(c.text) || [], met = st.monsterPile.filter(x => x.id === c.id).length + (st.fight && st.fight.monster.id === c.id ? 1 : 0), letter = 'ABCD'[si] || '';
       return `<div class="mset" title="${A.esc(c.name)}"><span class="mb" style="--bd:${k.border};--hot:${k.hot};--c1:${k.c1};--ink:${k.ink}">${letter}</span><span class="lad">${steps.map((v, i) => `<i class="${i < met ? 'met' : i === met ? 'next' : ''}">${v}</i>`).join('')}</span></div>`;
     }).join('')}</div>`;
   }
+  // The Monster you are facing, big, in the room beside the Mine while you have not rolled yet: its name, what each Monster of its set deals (this one lit), and its Loot. Tap it for the card.
+  function monsterPanelHTML(st) {
+    const m = st.fight.monster, k = A.monsterLook(m), steps = Engine.damageSteps(m.text) || [], sets = cards().filter(c => c.type === 'Monster' && c.deck === R.startingDeck);
+    const letter = 'ABCD'[sets.findIndex(c => c.id === m.id)] || '', at = st.monsterPile.filter(x => x.id === m.id).length, loot = m.bonus ? R.beyond.gems : Engine.lootOf(m.text);
+    const lad = m.bonus || !steps.length ? `<i class="now">${Dig.previewDamage(st)}</i>` : steps.map((v, i) => `<i class="${i < at ? 'met' : i === at ? 'now' : ''}">${v}</i>`).join('');
+    return `<button class="monpanel" data-p="zoom" data-uid="${m.uid}" style="--bd:${k.border};--hot:${k.hot}" aria-label="${A.esc(m.name)}: tap for details"><span class="mpname">${letter ? `<b class="mpb">${letter}</b>` : ''}${A.esc(m.name)}</span><span class="mphead">${ic('damage')} Damage</span><span class="mlad">${lad}</span>${loot ? `<span class="mploot">Loot ${loot} ${ic('gem')}</span>` : ''}</button>`;
+  }
   function drillHTML(st, can) {
     const f = st.fight, plan = f && f.phase === 'before' ? f.plan : 0;
     return `<section class="drill"><div class="tracks">
-      <div class="trow"><span class="tlab">${ic('heart')}</span><div class="tbody">${track('heart', R.caps.heart, st.heart, false, '#e8344e')}</div></div>
-      <div class="trow"><span class="tlab">${ic('extraroll')}</span><div class="tbody">${track('reroll', R.caps.reroll, st.reroll, can.reroll, '#2eaf68')}</div></div>
-      <div class="trow"><span class="tlab">${ic('grit')}</span><div class="tbody">${track('grit', R.caps.grit, st.grit, can.gritBefore || can.gritAfter, '#e8731a', plan)}</div></div>
+      <div class="trow"><button class="tlab" data-p="term" data-k="heart" aria-label="Health: what is this?">${ic('heart')}</button><div class="tbody">${track('heart', R.caps.heart, st.heart, false, '#e8344e')}</div></div>
+      <div class="trow"><button class="tlab" data-p="term" data-k="extraroll" aria-label="Extra Rolls: what are these?">${ic('extraroll')}</button><div class="tbody">${track('reroll', R.caps.reroll, st.reroll, can.reroll, '#2eaf68')}</div></div>
+      <div class="trow"><button class="tlab" data-p="term" data-k="grit" aria-label="Grit: what is this?">${ic('grit')}</button><div class="tbody">${track('grit', R.caps.grit, st.grit, can.gritBefore || can.gritAfter, '#e8731a', plan)}</div></div>
     </div>${monsterPileHTML(st)}</section>`;
   }
   // Cards are laid out at full size, like on a real table. A card is drawn at 250 x 350 and scaled by --ca (the dig row) or --cb (the Power / Ongoing row); fitTable() sets both after layout.
@@ -4425,7 +4488,7 @@ function DDBSeat(root, cfg) {
     const finalRound = !!(S.run && st.board && st.board.final);          // the last round: nobody banks, so there is no Bank and no gem count
     const rollCol = finalRound ? '' : piles;
     const dug = `<div class="dugz"><div class="slot ${st.discard.length ? 'stacked' : ''}">${dugHTML(st)}</div></div>`;
-    const action = `<div class="dicez">${dz.html}</div>`;          // (the Take button is in it, beside the die and never on the Mine, so a quick tap on the Mine cannot take the damage)
+    const action = `<div class="dicez">${dz.html}${preRollNow ? monsterPanelHTML(st) : ''}</div>`;          // (the Take button is in it, beside the die and never on the Mine, so a quick tap on the Mine cannot take the damage)
     const s = st.over ? Dig.score(st) : null;
     let over = '';
     const ovFx = st.over && st.over !== fx.over ? 'fx' : '';
@@ -4446,7 +4509,7 @@ function DDBSeat(root, cfg) {
   }
   // The in-game menu: quiet, small. Your game is saved after every tap, so "Main menu" leaves nothing to lose; there you can Continue it or start a new one.
   function gmenuHTML() {
-    return `<div class="gmenu-back" data-p="gmenuclose"></div><div class="gmenu" role="menu"><button data-p="gmenuclose">Back to the game</button><button data-p="undo" ${undoReady() ? '' : 'disabled'}>Undo</button><button data-p="help">How to play</button><button data-p="mainmenu">Main menu</button></div>`;
+    return `<div class="gmenu-back" data-p="gmenuclose"></div><div class="gmenu" role="menu"><button data-p="gmenuclose">Back to the game</button>${S.panel === 'dig' ? `<button data-p="undo" ${undoReady() ? '' : 'disabled'}>Undo</button>` : ''}<button data-p="help">How to play</button><button data-p="mainmenu">Main menu</button></div>`;
   }
   // How to play: three little pictures and a line each. The game walks you through the rest; the judgment calls are folded away underneath.
   function helpHTML() {
@@ -4556,7 +4619,10 @@ function DDBSeat(root, cfg) {
     if (finalNote() && !S.help) {
       const stt = S.st, need = stt.board ? stt.board.leadN : null, who = leaderLine();
       const where = who ? `<b>${who.name}</b> ${who.is} in the lead with <b>${who.n}</b>. ${who.me ? 'Try to beat your own score.' : 'Try to beat that score.'}` : need ? `Nobody leads yet. To take the lead, survive ${need} Monster${need === 1 ? '' : 's'}.` : '';
-      fin = `<div class="fnote-back"><div class="fnote" role="dialog" aria-label="The final round"><div class="fbig">FINAL ROUND</div>${where ? `<p class="fwhere">${where}</p>` : ''}<div class="frules ${S.finalHow ? 'open' : ''}"><ul><li><b>Nobody banks.</b> You keep digging until you are in the lead, or you go BOOM.</li><li>The <b>leader</b> is whoever has survived the most Monsters (your best from earlier rounds counts). Level, the one who got there first leads.</li><li>Once you are in the lead you may <b>keep going</b> to push your score higher, or <b>wait</b> and see if everyone else goes BOOM. If someone passes you, dig again.</li><li>The round ends when everyone else has gone BOOM: whoever is still in the lead holds the Crown.</li></ul></div><div class="fbtns"><button class="btn alt" data-p="finalhow">${S.finalHow ? 'Hide the rules' : 'How the final round works'}</button><button class="btn" data-p="finalok">Start digging</button></div></div></div>`;
+      fin = `<div class="fnote-back"><div class="fnote" role="dialog" aria-label="The final round"><div class="fbig">FINAL ROUND</div>${where ? `<p class="fwhere">${where}</p>` : ''}<div class="frules ${S.finalHow ? 'open' : ''}">${threePics([
+        [`<span class="vbank">Bank</span><span class="vx" aria-hidden="true"></span>`, '<b>Nobody banks.</b> You dig until you are in the lead, or you go BOOM.'],
+        [vCells(5, 3, vPiece()), 'The <b>leader</b> has survived the most Monsters. Level: the first there leads.'],
+        [`<span class="vboom">${ic('damage')}</span><span class="varrow">→</span><span class="vcrown">♛</span>`, 'The round ends when everyone else is BOOM. The one left in the lead gets the <b>Crown</b>.']])}<ul><li>Your best score from earlier rounds counts.</li><li>Once you lead you may <b>keep going</b> to push your score higher, or <b>wait</b> and see if everyone else goes BOOM. If someone passes you, dig again.</li></ul></div><div class="fbtns"><button class="btn alt" data-p="finalhow">${S.finalHow ? 'Hide the rules' : 'How the final round works'}</button><button class="btn" data-p="finalok">Start digging</button></div></div></div>`;
     }
     let ownedP = '';
     if (S.showOwned && S.run && (S.panel === 'prep' || S.panel === 'done')) {          // a look at the cards you already own, while you choose (tap anywhere to close)
@@ -4761,10 +4827,11 @@ function DDBSeat(root, cfg) {
       case 'gritplus': if (f && f.phase === 'before') { const left = Dig.gritLeft(st, f); Dig.planGrit(st, f.plan >= left ? 0 : f.plan + 1); } break;
       case 'gritminus': if (f && f.phase === 'before') Dig.planGrit(st, f.plan - 1); break;
       case 'gritspend': if (f) Dig.spendGrit(st, 1); break;
-      case 'grit': if (f && f.phase === 'before') { const left = Dig.gritLeft(st, f); Dig.planGrit(st, f.plan >= left ? 0 : f.plan + 1); } else if (f && f.phase === 'after') Dig.spendGrit(st, 1); break;
+      case 'grit': if (f && f.phase === 'before' && Dig.gritLeft(st, f) > 0) { const left = Dig.gritLeft(st, f); Dig.planGrit(st, f.plan >= left ? 0 : f.plan + 1); } else if (f && f.phase === 'after' && Dig.can(st).gritAfter) Dig.spendGrit(st, 1); else S.lbTip = termTip('grit'); break;
       case 'showlog': S.showLog = !S.showLog; break;
       case 'pilecount': S.pileInfo = !S.pileInfo; break;
       case 'undo': undoNow(); S.gmenu = false; break;
+      case 'term': S.lbTip = termTip(ds.k, ds.i); break;
       case 'lbtip': if (S.run) { S.lbTip = lbExplain(S.run, curAnim(S.run), ds.t, ds.pid, Number(ds.n)); } break;
       case 'lbtipclose': S.lbTip = null; break;
       case 'lbhelp': S.lbHelp = true; break;
@@ -4772,11 +4839,11 @@ function DDBSeat(root, cfg) {
       case 'log': S.showLog = true; S.gmenu = false; break;
       case 'dig': if (st) { if (st.fight && st.fight.defeat && Dig.defeatReady(st).length && S.confirmSkip !== st.fight) { S.confirmSkip = st.fight; break; } S.confirmSkip = null; if (st.fight && st.fight.defeat) { S.confirmFace = false; Dig.face(st); } Dig.dig(st); } break;
       case 'roll': Dig.roll(st); break;
-      case 'reroll': if (f && f.phase === 'after') Dig.reroll(st); break;          // (you then put Grit into the roll if you like, and tap the die)
+      case 'reroll': if (f && f.phase === 'after' && Dig.can(st).reroll) Dig.reroll(st); else S.lbTip = termTip('extraroll'); break;          // (you then put Grit into the roll if you like, and tap the die)
       case 'face': { const dmg = Dig.previewDamage(st), cn = Dig.can(st), lethal = dmg > 0 && dmg >= st.heart; if (st && (Dig.eligible(st).length || Dig.mayUse(st).length || (lethal && (cn.reroll || cn.gritAfter || Dig.usable(st).length))) && !S.confirmFace) { S.confirmFace = true; break; } S.confirmFace = false; Dig.face(st); break; }
       case 'bank': if (st && st.fight && st.fight.defeat && Dig.defeatReady(st).length && S.confirmSkip !== st.fight) { S.confirmSkip = st.fight; break; } S.confirmSkip = null; if (st && st.fight && st.fight.defeat) { S.confirmFace = false; Dig.face(st); } if (S.run) Run.bank(S.run); else Dig.bank(st); break;
       case 'hold': Dig.hold(st); if (S.run) Run.checkOver(S.run); return act('prep', el);          // you won: no little message first, straight to the Leaderboard and then the full-screen result
-      case 'heart': break;
+      case 'heart': S.lbTip = termTip('heart'); break;
     }
     if (undoSnap && S.st === st && st.log.length !== undoLog) S.undo = { snap: undoSnap, owner: S.run || null, round: S.run ? S.run.round : 0, tok: st.tok || (st.tok = ++undoTok) };
     if (S.run) { Run.checkOver(S.run); if (S.run.phase === 'dig') Run.refresh(S.run); if (cfg.duel) Duel.finalCheck(S.match); else if (S.match) Match.finalCheck(S.match); else Run.finalCheck([S.run]); }
