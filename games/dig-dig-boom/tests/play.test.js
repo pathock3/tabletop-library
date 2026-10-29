@@ -1491,7 +1491,7 @@ test('the Leaderboard: How it works, tap a piece / chip / column to be told what
     await page.waitForSelector('#play .enddone');
     assert.equal(await page.locator('#play [data-p=gmenu]').count(), 0, 'no Pause at the end of a game');
     assert.equal(await page.locator('#play [data-p=mainmenu]').count(), 1, 'a Main menu button'); assert.equal(await page.locator('#play [data-p=startrun]').count(), 1, 'beside New game');
-    await page.click('#play [data-p=lbhelp]'); const h = await page.locator('#play .lbhelp').innerText(); assert.match(h, /How the Leaderboard works[\s\S]*poker chips[\s\S]*speed matters[\s\S]*starburst[\s\S]*plays back[\s\S]*Crown/i); await page.click('#play [data-p=lbhelpclose] >> nth=-1');
+    await page.click('#play [data-p=lbhelp]'); const h = await page.locator('#play .lbhelp').innerText(); assert.match(h, /The Leaderboard[\s\S]*Monsters survived[\s\S]*chip[\s\S]*starburst[\s\S]*Crown[\s\S]*plays back/i); assert.equal(await page.locator('#play .lbhelp .t3').count(), 3, 'three pictures'); await page.click('#play [data-p=lbhelpclose] >> nth=-1');
     await page.click('#play .bgrid .pchip[data-pid] >> nth=0'); assert.match(await page.locator('#play .lbtip').innerText(), /best Dig[\s\S]*(place|not banked)/); await page.click('#play .lbtip');
     await page.click('#play .bgrid .bcol[data-n="2"]'); assert.match(await page.locator('#play .lbtip').innerText(), /2 Monsters|Nobody is here/); await page.click('#play .lbtip'); assert.equal(await page.locator('#play .lbtip').count(), 0);
     await page.click('#play [data-p=donetab][data-k="1"]');

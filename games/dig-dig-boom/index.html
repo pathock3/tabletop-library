@@ -4488,7 +4488,7 @@ function DDBSeat(root, cfg) {
     const finalRound = !!(S.run && st.board && st.board.final);          // the last round: nobody banks, so there is no Bank and no gem count
     const rollCol = finalRound ? '' : piles;
     const dug = `<div class="dugz"><div class="slot ${st.discard.length ? 'stacked' : ''}">${dugHTML(st)}</div></div>`;
-    const action = `<div class="dicez">${dz.html}${preRollNow ? monsterPanelHTML(st) : ''}</div>`;          // (the Take button is in it, beside the die and never on the Mine, so a quick tap on the Mine cannot take the damage)
+    const action = `<div class="dicez">${dz.html}${preRollNow && !/data-p=/.test(dz.html) ? monsterPanelHTML(st) : ''}</div>`;          // (the Take button is in it, beside the die and never on the Mine, so a quick tap on the Mine cannot take the damage)
     const s = st.over ? Dig.score(st) : null;
     let over = '';
     const ovFx = st.over && st.over !== fx.over ? 'fx' : '';
