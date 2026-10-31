@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- **Dig Dig BOOM!:** the Number line on a card's info now says "When you roll 5 or more against a Monster (any bonuses count too)…" instead of "When your result is 5 or more".
+
 - **Library:** the boxes now stand on the shelves of a **wooden bookcase**, one shelf for each row of games (3 across in landscape, 2 on an upright iPad, 1 on a phone; the shelves re-form when the screen turns).
 
 - **Library:** the boxes are a little less thick, and **tapping a box opens it**: the lid swings up, you zoom into the dark inside, and arrive at the game's main menu (about a second; skipped if the device asks for reduced motion).

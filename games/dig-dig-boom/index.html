@@ -4804,7 +4804,7 @@ function DDBSeat(root, cfg) {
       if (c.type === 'Monster' || c.type === 'Treasure') return [];
       const fill = t => t.replace(/\[\[([\w.]+)\]\]/g, (_, k) => k.split('.').reduce((o, x) => (o || {})[x], R));
       const out = [{ key: 't:' + c.type, name: A.typeName(c.type), text: D.types[c.type].role }];
-      if (c.number !== null) out.push({ key: 'number', name: 'Number ' + c.number, text: c.type === 'Ongoing' ? `When your result is ${c.number} or more, this card is powered up and glows. Tap it to use it; it lies down until the battle ends.` : `You can only use this card when your result is ${c.number} or more.` });
+      if (c.number !== null) out.push({ key: 'number', name: 'Number ' + c.number, text: c.type === 'Ongoing' ? `When you roll ${c.number} or more against a Monster (any bonuses count too), this card is powered up and glows. Tap it to use it; it lies down until the battle ends.` : `You can only use this card when you roll ${c.number} or more (any bonuses count too).` });
       for (const g of D.glossary) if (g.re.test(c.text)) out.push({ key: g.key, name: g.name, icon: g.icon, text: fill(g.text) });
       return out;
     };
