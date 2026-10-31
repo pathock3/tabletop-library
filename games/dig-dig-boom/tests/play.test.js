@@ -156,8 +156,10 @@ test('table: dig a Geode, then a Monster — tap the die, take an Extra Roll, ta
     assert.ok(await page.evaluate(() => { const m = document.querySelector('#play .mat').getBoundingClientRect(), t = document.querySelector('#play .tableau').getBoundingClientRect(); return t.bottom <= m.top + 1; }), 'the cards you are drawing are in front of you (below); the cards in play are above them');
     assert.equal(await page.locator('#play [data-p=face]').count(), 0, 'the Monster is not a button');
     assert.ok(await page.locator('#play .ptable.await-roll').count() === 1, 'before the roll the rest of the table dims and waits: only the Mine (with the die on it) can be tapped');
-    assert.ok(await page.locator('#play .deck[data-p=roll]').isEnabled(), 'the Mine is where you tap to roll');
-    assert.match(await page.locator('#play .deckdie').innerText(), /Tap/i, 'the die on the Mine says Tap, nothing more');
+    assert.ok(await page.locator('#play .rollgo[data-p=roll]').isEnabled(), 'the roll button is in the Grit area');
+    assert.ok(await page.locator('#play .deck[data-p=dig]').isDisabled(), 'the Mine cannot be dug while a Monster waits');
+    assert.match(await page.locator('#play .rollgo').innerText(), /Tap to roll/i, 'the die to tap is beside where you choose your Grit, not on the Mine');
+    assert.equal(await page.locator('#play .deck .deckdie').count(), 0, 'nothing to roll on the Mine');
     assert.equal(await page.locator('#play .piles [data-p=roll], #play .piles .dieb').count(), 0, 'no die or roll button in the Bank column');
     assert.equal(await page.locator('#play .mset:has(.mb:text-is("A")) .lad i.met').count(), 1, 'Monster A is in front of you and counts');
     await page.click('#play [data-p=roll]'); await dieShows(page, '#play .dieb', 2);
@@ -234,7 +236,7 @@ test('table: after the roll the cards at or below the result glow; you tap the o
     assert.equal(await page.locator('#play .tcard.done').count(), 0, 'nothing happened by itself'); assert.doesNotMatch(await page.locator('#play .action').innerText(), /glowing/i, 'no instruction text');
     await page.click('#play .tcard.elig:has-text("Pill Bug")');                      // 1 damage marker
     assert.equal(await page.locator('#play .tcard.elig').count(), 1); assert.equal(await page.locator('#play .tcard.done').count(), 1, 'the one you used lies down');
-    assert.deepEqual(await page.locator('#play .fired i').allInnerTexts(), ['Pill Bug']);
+    assert.equal(await page.locator('#play .fired').count(), 0, 'no list of the cards you used between the result and the damage');
     await page.click('#play [data-p=face]');                                        // Newt is still glowing: the first tap only asks
     assert.match(await page.locator('#play .takedmg').innerText(), /still use cards[\s\S]*again/i, 'you can still use cards: are you sure?'); assert.equal(await stOf(page, () => window.DigDigBoomPlay.S.st.survived), 0, 'nothing happened yet');
     await page.click('#play [data-p=face]');                                        // the second tap: you took the damage, Newt was not used
@@ -549,7 +551,7 @@ test('run: bank, tap the die for the Escape Bonus (a d10 that rolls and shows th
     assert.equal(await page.locator('#play .lbc.here').innerText().then(t => t.split('\n')[0].trim()), '4');
     assert.equal(await page.locator('#play .lbc[data-p], #play button.lbc').count(), 0, 'no pledging: nothing to tap on the Leaderboard');
     await page.click('#play [data-p=bank]');
-    assert.match(await page.locator('#play .over').innerText(), /banked![\s\S]*4 Monsters survived · ♛/i);
+    assert.match(await page.locator('#play .over').innerText(), /banked![\s\S]*4 Monsters survived/i);
     await page.click('#play [data-p=prep]');
     assert.ok(await page.locator('#play .bigboard .bgrid .bcol').count() >= 9, 'first the Leaderboard, full screen: a column for each number, with spots stacked in it'); assert.ok(await page.locator('#play .bigboard .bspot').count() >= 9, 'one row for each player'); assert.equal(await page.locator('#play .bdisc').count(), 0, 'your Dig is over, so its piece is gone: your chip (best) is in the top row'); assert.equal(await page.locator('#play .bigboard .pchip.me').count(), 1); assert.match(await page.locator('#play .bigboard .blabels').innerText(), /best[\s\S]*this round/i, 'the rows are labelled');
     await page.evaluate(() => { window.DigDigBoomPlay.S.run.dice = [8]; });
@@ -1493,7 +1495,7 @@ test('the Leaderboard: How it works, tap a piece / chip / column to be told what
     assert.equal(await page.locator('#play [data-p=mainmenu]').count(), 1, 'a Main menu button'); assert.equal(await page.locator('#play [data-p=startrun]').count(), 1, 'beside New game');
     await page.click('#play [data-p=lbhelp]'); const h = await page.locator('#play .lbhelp').innerText(); assert.match(h, /The Leaderboard[\s\S]*Monsters survived[\s\S]*chip[\s\S]*starburst[\s\S]*Crown[\s\S]*plays back/i); assert.equal(await page.locator('#play .lbhelp .t3').count(), 3, 'three pictures'); await page.click('#play [data-p=lbhelpclose] >> nth=-1');
     await page.click('#play .bgrid .pchip[data-pid] >> nth=0'); assert.match(await page.locator('#play .lbtip').innerText(), /best Dig[\s\S]*(place|not banked)/); await page.click('#play .lbtip');
-    await page.click('#play .bgrid .bcol[data-n="2"]'); assert.match(await page.locator('#play .lbtip').innerText(), /2 Monsters|Nobody is here/); await page.click('#play .lbtip'); assert.equal(await page.locator('#play .lbtip').count(), 0);
+    await page.click('#play .bgrid .bcol[data-n="2"]'); assert.match(await page.locator('#play .lbtip').innerText(), /2 Monsters|Nobody here/); await page.click('#play .lbtip'); assert.equal(await page.locator('#play .lbtip').count(), 0);
     await page.click('#play [data-p=donetab][data-k="1"]');
     await page.click('#play [data-p=donereplay]'); await page.click('#play [data-p=boardfast]');
     assert.equal((await page.locator('#play [data-p=boardskip]').innerText()).replace(/\W/g, ''), 'Skip', 'after Fast forward the button says Skip');
