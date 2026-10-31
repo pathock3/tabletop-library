@@ -1260,12 +1260,36 @@ body[data-mode=play] { background: radial-gradient(130% 75% at 50% -10%, #74401e
 #play .teachbox { margin: 18px auto 0; display: flex; align-items: center; gap: 14px; min-height: 56px; padding: 8px 20px 8px 12px; border-radius: 16px; background: rgba(255,255,255,.06); border: 2px solid var(--line); font-size: 20px; font-weight: 800; color: var(--text); }
 #play .teachbox i { width: 36px; height: 36px; border-radius: 9px; border: 3px solid #e7b866; display: flex; align-items: center; justify-content: center; font-style: normal; font-size: 26px; color: #1c1410; background: transparent; }
 #play .teachbox.on i { background: #ffd45e; }
+#play .tipcatch { position: fixed; inset: 0; z-index: 30; background: rgba(0,0,0,.12); }
+#play .tipfloat { position: fixed; z-index: 31; width: min(440px, calc(calc(var(--vw, 1vw) * 100) - 24px)); padding: 16px 20px 16px; border-radius: 20px; background: linear-gradient(180deg, #3a2a1d, #2a1f18); border: 3px solid #e7b866; box-shadow: 0 14px 34px rgba(0,0,0,.6); color: var(--text); visibility: hidden; }
+#play .tipfloat.above, #play .tipfloat.below, #play .tipfloat.mid { visibility: visible; }
+#play .tipfloat.mid { left: 50%; top: 50%; transform: translate(-50%, -50%); }
+#play .tipfloat .tipt { display: block; color: #ffd45e; font-size: 22px; margin-bottom: 4px; }
+#play .tipfloat p { font-size: 19px; line-height: 1.35; margin: 0 0 12px; }
+#play .tipfloat .btn { min-height: 52px; }
+#play .tipfloat .tiparrow { position: absolute; left: var(--ax, 50%); width: 26px; height: 26px; margin-left: -13px; background: #2e2218; border: 3px solid #e7b866; transform: rotate(45deg); }
+#play .tipfloat.below .tiparrow { top: -15px; border-right: 0; border-bottom: 0; }
+#play .tipfloat.above .tiparrow { bottom: -15px; border-left: 0; border-top: 0; }
+#play .tipfloat.mid .tiparrow { display: none; }
+#play .tipglow { outline: 4px solid #ffd45e; outline-offset: 4px; border-radius: 12px; z-index: 32; position: relative; animation: pulse 1.2s ease-in-out infinite; }
 #play .tipnote { max-width: 460px; }
+#play .peekrow .peekc { position: relative; display: inline-block; } #play .peekrow .peekc b { position: absolute; left: 50%; bottom: -14px; transform: translateX(-50%); min-width: 34px; height: 34px; border-radius: 99px; background: #ffd45e; color: #1c1410; font-size: 22px; line-height: 34px; text-align: center; border: 3px solid #1c1410; z-index: 2; }
+#play .nextup { position: absolute; left: 6px; right: 6px; bottom: 8px; z-index: 3; display: flex; flex-direction: column; gap: 3px; pointer-events: none; }
+#play .nextup i { font-style: normal; font-size: 13px; font-weight: 800; color: #fff; background: rgba(20,12,6,.88); border-radius: 8px; padding: 2px 8px; border-left: 6px solid var(--c); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 #play .tipnote h3 { margin: 0 0 8px; } #play .tipnote p { font-size: 20px; line-height: 1.4; margin: 0 0 14px; }
 #play .peeknote { width: min(820px, calc(calc(var(--vw, 1vw) * 100) - 32px)); text-align: center; }
-#play .peekrow { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; margin: 6px 0 12px; }
+#play .peekrow { display: flex; flex-wrap: wrap; gap: 8px 10px; padding-bottom: 14px; justify-content: center; margin: 6px 0 12px; }
 #play .peekrow .peekmon { filter: drop-shadow(0 0 8px #ff5a4a); }
 #play .peeknote p { font-size: 22px; font-weight: 800; margin: 0 0 14px; }
+/* Grit goes directly above the roll button; on an upright iPad the Bank sits at the right (under the roll controls), clear of the flip spot and the Monster card in it */
+#play .action.prea { flex-direction: column; justify-content: flex-end; align-items: center; gap: 10px; }
+#play .action.prea .gwrap { justify-content: center; }
+#play .action.prea .gritplan { flex-direction: row; gap: 14px; }
+@media (min-width: 521px) and (max-width: 940px) {
+  #play .mat .piles { left: auto; right: 6px; transform: none; }
+  #play .mat .pile.bankp, #play .mat .pile.bankp.live { width: 220px; }
+  #play .mat .dicez { height: calc(350px * var(--ca) - 78px); }
+}
 </style>
 </head>
 <body>
@@ -1606,7 +1630,7 @@ const DDB = {
   // ---- First-time tips (v2.8): one short pop-up the first time each thing comes up, only for a player who chose "Teach me how to play". [[a.b]] is filled in from this block; {kit} {draw} {keep} from the game. ----
   tips: [
     { id: 'welcome',  title: 'Welcome to Dig Dig BOOM!', body: 'You and three rivals dig through your Mines at the same time, over [[run.rounds]] rounds. Find gems, fight Monsters, and get out before you go BOOM. Whoever survives the most Monsters in a single dig wins. Gems buy Booster Packs that make your next dig stronger.' },
-    { id: 'pack',     title: 'Booster Pack!', body: 'You see {draw} new cards and keep {keep} of them. Not sure which is best? That\'s okay, this is your first game and you\'re still learning. Just pick one that sounds fun.' },
+    { id: 'pack',     title: 'Booster Pack!', body: 'You see {draw} new cards and keep {keep} of them. Not sure which is best? That\'s okay, just pick one that sounds fun.' },
     { id: 'imm-pack', title: 'Immediate cards', body: 'These do their thing the moment you dig them up, then they\'re discarded.' },
     { id: 'imm-dug',  title: 'Immediate card!', body: 'It took effect right away. Nothing to do: it\'s already been used and discarded.' },
     { id: 'pow-pack', title: 'Numbered Ongoing cards', body: 'These stay in play once you dig them up. After you roll against a Monster, every one whose number your result reaches lights up. Tap it to use it.' },
@@ -1615,17 +1639,16 @@ const DDB = {
     { id: 'ong-dug',  title: 'Ongoing card in play!', body: 'It\'s on your row now. You don\'t have to do anything: it works by itself whenever the thing written on it happens. Tap it any time to read it larger.' },
     { id: 'one-pack', title: 'Single-Use cards', body: 'These wait in play until you need them. Use one at the right moment, and then it\'s gone.' },
     { id: 'one-dug',  title: 'Single-Use card ready!', body: 'Tap it when you want to use it. Once it\'s used, it\'s gone for good, so save it for the right moment.' },
-    { id: 'kit',      title: 'Your Starter Kit', body: 'Pick up to {kit} of your cards to start this dig with. They go on top of your Mine, in the order you tap them. Each empty place becomes [[run.startGems]] gem at the start of the dig, so nothing goes to waste.' },
     { id: 'dig',      title: 'Time to dig!', body: 'Tap your Mine to dig up the next card. Your Pet is already with you, and it lights up whenever your result reaches [[rules.pet.at]]. You can Bank between any two cards (not in the middle of a fight) to keep your gems and end your dig.' },
-    { id: 'monster',  title: 'A Monster!', body: 'Surviving Monsters is how you win: the most in a single dig wins the game. Roll the die. Your roll plus bonuses is your result, and every numbered card your result reaches lights up for you to use. Each Damage token you put on the Monster cuts the damage it deals you. Match its Damage and it\'s defeated.' },
-    { id: 'lit',      title: 'A card lit up!', body: 'Your result reached its number. Tap it to use it. The more numbered cards you have, the more happens on every roll.' },
+    { id: 'monster',  title: 'A Monster!', body: 'Whichever player survives the most Monsters in a single dig wins. Roll the die. Your roll plus bonuses is your result, and every numbered card your result reaches lights up for you to use. Each Damage token you put on the Monster cuts the damage it deals you. Defeat it to take no damage.' },
+    { id: 'lit',      title: 'A card lit up!', body: 'Your result reached its number. Tap it to use it. The more numbered cards you have, the more can happen on every roll.' },
     { id: 'grit',     title: 'You have Grit', body: 'Grit is saved-up effort (up to [[rules.caps.grit]]). Spend it before you roll: each Grit is +1 to the roll. Already rolled and just short? Spend [[rules.grit.after]] Grit for +1 to your result.' },
     { id: 'extra',    title: 'You have an Extra Roll', body: 'Don\'t like your result? Spend an Extra Roll to roll again. The new roll replaces the old one, even if it\'s worse.' },
     { id: 'danger',   title: 'Careful!', body: 'The next Monster could make you go BOOM. If you go BOOM, you lose the gems you\'re carrying, and the Monsters you survived this dig don\'t count. Banking now keeps your gems safe.' },
-    { id: 'bank',     title: 'Banked!', body: 'Your gems are safe. Next comes the Escape Bonus: one roll for the whole table, and everyone who banked adds that many gems before opening a Booster Pack.' },
+    { id: 'bank',     title: 'Banked!', body: 'Your gems are safe. Next you will see the Leaderboard.' },
     { id: 'boom',     title: 'BOOM!', body: 'Your Health ran out, so this dig earned you nothing: you lost the gems you were carrying, and the Monsters you survived this dig don\'t count. Your best score from earlier rounds stays. You still open a Bronze Booster Pack. Dust yourself off.' },
-    { id: 'board',    title: 'The Leaderboard', body: 'This is a replay of the round. Each marker moves up for every Monster that player survives. Your best dig stays on the board, and the best single dig wins the game.' },
-    { id: 'packgems', title: 'Gems → better packs', body: 'The more gems you bank, the better your Booster Pack: you see more cards and keep more of them.' },
+    { id: 'board',    title: 'The Leaderboard', body: 'This is a replay of the round. Each marker moves up for every Monster that player digs, even if that Monster makes them go BOOM. Your best dig is tracked on top, and the best single dig wins the game.' },
+    { id: 'packgems', title: 'Gems → better packs', body: 'The more gems you bank, the better your Booster Pack: you see more cards and keep more of them. Before you open it, everyone who banked adds the same Escape Bonus roll to their gems. That way you never know exactly which pack you will get until after you bank.' },
     { id: 'kitgrew',  title: 'Your Kit grew!', body: 'You can bring another card into this dig.' },
   ],
   // ---- The phrase book: card text -> effect. [op, regular expression]. Unmatched text is shown as "not implemented yet" ----
@@ -2120,7 +2143,7 @@ const Dig = (() => {
         const at = Math.floor(st.mine.length / 2); st.mine.splice(at, 0, ctx.src); ctx.moved = true; st.known = Math.min(st.known, at);
         log(st, 'effect', `${src} slides into the middle of your Mine`); break;
       }
-      case 'look': { st.known = Math.max(st.known, Math.min(e.n, st.mine.length)); peek(st, src, st.mine.slice(0, e.n), 'They stay on top of your Mine, in this order.'); log(st, 'effect', `${src}: look at the top ${e.n}: ${peekNames(st, e.n)}`); break; }
+      case 'look': { st.known = Math.max(st.known, Math.min(e.n, st.mine.length)); peek(st, src, st.mine.slice(0, e.n), 'They stay on top of your Mine, face up. 1 is dug next.'); log(st, 'effect', `${src}: look at the top ${e.n}: ${peekNames(st, e.n)}`); break; }
       case 'setHeart': st.heart = clamp(e.n, 0, R.caps.heart); log(st, 'effect', `${src}: {heart} set to ${st.heart}`); break;
       case 'fill': st.reroll = R.caps.reroll; log(st, 'effect', `${src}: {extraroll} filled to ${st.reroll}`); break;
       case 'rewind': {
@@ -2140,26 +2163,26 @@ const Dig = (() => {
       case 'oldmap': {
         const top = st.mine[0];
         if (!top) break;
-        peek(st, src, [top], top.type === 'Monster' ? 'A Monster: it goes to the bottom of your Mine.' : 'It is not a Monster, so it stays on top.');
+        peek(st, src, [top], top.type === 'Monster' ? 'A Monster: it goes to the bottom of your Mine.' : 'Not a Monster: it stays on top of your Mine, face up.');
         if (top.type === 'Monster') { st.mine.push(st.mine.shift()); st.known = 0; log(st, 'effect', `${src}: top card is ${top.name} — moved to the bottom`); } else { st.known = Math.max(st.known, 1); log(st, 'effect', `${src}: top card is ${top.name} — it stays`); }
         break;
       }
       case 'stink': {
         const n = Math.min(e.a, st.mine.length), top = st.mine.splice(0, n), keep = top.filter(c => c.type !== 'Monster'), gone = top.filter(c => c.type === 'Monster');
-        peek(st, src, top, gone.length ? `${gone.length} Monster${gone.length === 1 ? '' : 's'} moved to the bottom of your Mine.` : 'No Monsters here.');
+        peek(st, src, top, (gone.length ? `${gone.length} Monster${gone.length === 1 ? '' : 's'} moved to the bottom of your Mine.` : 'No Monsters here.') + (keep.length ? ' The rest stay on top, face up.' : ''), top.map(c => (c.type === 'Monster' ? 'bottom' : String(keep.indexOf(c) + 1))));
         st.mine = [...keep, ...st.mine, ...gone]; st.known = keep.length; log(st, 'effect', `${src}: top ${n}: ${top.map(c => c.name).join(', ')} — ${gone.length} Monster(s) to the bottom`); break;
       }
       case 'radar': {
         const n = Math.min(e.a, st.mine.length), top = st.mine.splice(0, n), mons = top.filter(c => c.type === 'Monster').length;
-        peek(st, src, top, mons ? `${mons} Monster${mons === 1 ? '' : 's'}: +${e.b * mons} {heart}. Then they are shuffled back on top.` : 'No Monsters, so no {heart}. They are shuffled back on top.');
-        shuffle(st, top); st.mine.unshift(...top); st.known = 0;
+        shuffle(st, top); st.mine.unshift(...top); st.known = top.length;          // they go back on top, shuffled, and face up: nobody has to remember them
+        peek(st, src, top, (mons ? `${mons} Monster${mons === 1 ? '' : 's'}: +${e.b * mons} {heart}.` : 'No Monsters, so no {heart}.') + ' They go back on top, shuffled and face up. 1 is dug next.');
         log(st, 'effect', `${src}: top ${n} had ${mons} Monster(s); shuffled back on top`); gain(st, 'heart', e.b * mons, src, depth); break;
       }
       case 'crystal': {
         const n = Math.min(e.a, st.mine.length), top = st.mine.splice(0, n);
         const play = top.filter(c => c.type === 'Ongoing'), back = top.filter(c => c.type !== 'Ongoing');
         st.mine.unshift(...back); st.known = back.length; log(st, 'effect', `${src}: top ${n}: ${top.map(c => c.name).join(', ')}`);
-        peek(st, src, top, play.length ? `${play.length} Ongoing card${play.length === 1 ? '' : 's'} put into play. The rest go back on top.` : 'No Ongoing cards. They go back on top.');
+        peek(st, src, top, (play.length ? `${play.length} Ongoing card${play.length === 1 ? '' : 's'} put into play.` : 'No Ongoing cards.') + ' The rest go back on top, face up. 1 is dug next.', top.map(c => (c.type === 'Ongoing' ? 'played' : String(back.indexOf(c) + 1))));
         for (const c of play) { if (over(st)) break; place(st, c, depth + 1); }
         break;
       }
@@ -2176,7 +2199,7 @@ const Dig = (() => {
         let n = 0, guard = st.mine.length + R.maxChain;           // cards that slide back into the Mine (Boomerang) must not make this loop forever
         while (st.mine.length && !over(st) && guard-- > 0) {
           const c = st.mine.shift(); st.known = Math.max(0, st.known - 1);
-          if (c.type === 'Monster') { st.mine.unshift(c); st.known = 1; peek(st, src, [c], `A Monster, after ${n} card${n === 1 ? '' : 's'} dug. It goes back on top, face up.`); log(st, 'effect', `${src}: found ${c.name} — it goes back on top, face up`); return; }
+          if (c.type === 'Monster') { st.mine.unshift(c); st.known = 1; peek(st, src, [c], `A Monster, after ${n} card${n === 1 ? '' : 's'} dug. It goes back on top of your Mine, face up.`); log(st, 'effect', `${src}: found ${c.name} — it goes back on top, face up`); return; }
           n++; log(st, 'dig', `${src}: digs ${c.name}`); resolveDug(st, c, depth + 1);
         }
         log(st, 'effect', `${src}: dug ${n} cards and found no Monster`); break;
@@ -2195,7 +2218,7 @@ const Dig = (() => {
   }
   const lastIndex = (arr, fn) => { for (let i = arr.length - 1; i >= 0; i--) if (fn(arr[i])) return i; return -1; };
   // A card that looks at your Mine shows you what it saw: a pop-up with those cards and what came of it (the Mine itself may be shuffled again straight after).
-  const peek = (st, src, cards, note, extra) => { st.peekN = (st.peekN || 0) + 1; st.peek = { n: st.peekN, src: String(src), cards: cards.map(c => ({ id: c.id, uid: c.uid })), note, ...(extra || {}) }; };
+  const peek = (st, src, cards, note, tags) => { st.peekN = (st.peekN || 0) + 1; st.peek = { n: st.peekN, src: String(src), cards: cards.map((c, i) => ({ id: c.id, uid: c.uid, tag: tags ? tags[i] : (cards.length > 1 ? String(i + 1) : '') })), note }; };
   const peekNames = (st, n) => st.mine.slice(0, n).map(c => c.name).join(', ') || 'nothing';
 
   // ---------------- digging ----------------
@@ -4576,10 +4599,11 @@ function DDBSeat(root, cfg) {
     const won = !!f && f.defeat && f.phase === 'after' && !st.over && !st.pending, finalR = !!(st.board && st.board.final);          // a Monster you have defeated needs no "continue": tapping the Mine to dig on, or the Bank, is how you go on
     const gems = st.geodeGems + st.monsterGems, live = can.dig || won, bankLive = can.bank || (won && !finalR);
     const kn = st.mine.slice(0, st.known), up = kn[0];
+    const nextUp = kn.length > 1 ? `<span class="nextup" aria-label="Face up in your Mine">${kn.slice(1, 6).map((c, i) => `<i style="--c:${D.types[c.type].color}">${i + 2} · ${A.esc(c.name)}</i>`).join('')}</span>` : '';
     // the Mine: a deck of cards, the same size as the cards you dig. Cards you can see coming are on top, face up.
     const preRollNow = !!f && f.phase === 'before' && !st.over;          // a Monster is in front of you: the Mine is where you tap to roll (the die sits on it)
     const dz = diceHTML(st, can), deckDie = won ? '' : dz.die;          // the die sits on the Mine: you tap the Mine to roll, and the result lands in the same place
-    const deck = `<div class="stack"><button class="deck ${live ? 'live' : ''} ${preRollNow ? 'rolling' : ''}" data-p="dig" ${live ? '' : 'disabled'} aria-label="${`Mine, ${st.mine.length} cards`}">${st.mine.length ? `<span class="cw" style="--s:var(--ca)"><span class="cs">${up ? A.playCard(up, 1) : '<span class="cardback"></span>'}</span></span>` : `<span class="cw" style="--s:var(--ca)"><span class="cs">${A.playCard(Dig.peekBonus(st), 1)}</span></span>`}</button><button class="pilestrip" data-p="pilecount" aria-label="${st.mine.length} cards left in the Mine. Tap to see what is left">${st.mine.length} left</button>${deckDie}</div>`;
+    const deck = `<div class="stack"><button class="deck ${live ? 'live' : ''} ${preRollNow ? 'rolling' : ''}" data-p="dig" ${live ? '' : 'disabled'} aria-label="${`Mine, ${st.mine.length} cards`}">${st.mine.length ? `<span class="cw" style="--s:var(--ca)"><span class="cs">${up ? A.playCard(up, 1) : '<span class="cardback"></span>'}</span></span>` : `<span class="cw" style="--s:var(--ca)"><span class="cs">${A.playCard(Dig.peekBonus(st), 1)}</span></span>`}${nextUp}</button><button class="pilestrip" data-p="pilecount" aria-label="${st.mine.length} cards left in the Mine. Tap to see what is left">${st.mine.length} left</button>${deckDie}</div>`;
     // There is no separate discard pile: the cards you flip land in one spot beside the Mine, and the ones before it are stacked underneath. (Monsters move on to the Monster pile above.)
     const piles = `<div class="piles"><button class="pile bankp ${bankLive ? 'live' : ''}" data-p="bank" ${bankLive ? '' : 'disabled'}><span class="bword">Bank</span><span class="gemline ${gems > fx.gems ? 'fx-bump' : ''}">${gems}${ic('gem')}</span></button></div>`;
     const finalRound = !!(S.run && st.board && st.board.final);          // the last round: nobody banks, so there is no Bank and no gem count
@@ -4645,18 +4669,18 @@ function DDBSeat(root, cfg) {
     if (S.tip || !tipsOn() || S.dangerNote || S.ffNote || S.help || S.gmenu || S.zoom) { if (!S.tip && S.tipQ.length && !tipsOn()) S.tipQ = []; return; }
     const P = S.panel, st = S.st, run = S.run, pr = run && run.prep, seen = tipsSeen(), want = [];
     const add = id => { if (!seen[id] && !want.includes(id) && !S.tipQ.includes(id)) want.push(id); };
-    if (P === 'menu') add('welcome');
     if (P === 'prep' && pr) {
+      if (pr.first && pr.step === 'pack') add('welcome');          // the first thing a new game with the box ticked says
       if ((pr.step === 'pack' || pr.step === 'keep') && pr.banked && !pr.first && run.round > 1) add('packgems');
       if (pr.step === 'keep') {
         if (pr.first) add('pack');
         const ty = new Set(pr.offer.map(c => c.type === 'Ongoing' ? (c.number === null ? 'ong' : 'pow') : c.type === 'Consumable' ? 'one' : c.type === 'Immediate' ? 'imm' : ''));
         for (const k of ['imm', 'pow', 'ong', 'one']) if (ty.has(k)) add(k + '-pack');
       }
-      if (pr.step === 'kit') { add('kit'); if (run.round > 1 && (R.kitSizes[run.round - 1] || 0) > (R.kitSizes[run.round - 2] || 0)) add('kitgrew'); }
+      if (pr.step === 'kit') { if (run.round > 1 && (R.kitSizes[run.round - 1] || 0) > (R.kitSizes[run.round - 2] || 0)) add('kitgrew'); }
     }
     if (P === 'dig' && st) {
-      if (!st.over && st.digs === 0 && !st.fight && !st.pending) add('dig');
+      if (!st.over && !st.fight && !st.pending && !st.last) add('dig');          // the start of the dig, before the first card you flip
       const l = st.last;
       if (l && !st.over) {
         if (l.type === 'Immediate') add('imm-dug'); else if (l.type === 'Consumable') add('one-dug');
@@ -4676,13 +4700,36 @@ function DDBSeat(root, cfg) {
   // What a card that looked at your Mine saw (tap to carry on; a Dig you are resuming does not show the old one again).
   function peekHTML() {
     const st = S.st, pk = st && st.peek; if (!pk || S.panel !== 'dig' || S.peekSeen === pk.n || S.tip || st.over && !pk) return '';
-    const all = cards(), list = pk.cards.map(r => { const c = all.find(x => x.id === r.id); return c ? { ...c, uid: r.uid } : null; }).filter(Boolean);
+    const all = cards(), list = pk.cards.map(r => { const c = all.find(x => x.id === r.id); return c ? { ...c, uid: r.uid, tag: r.tag } : null; }).filter(Boolean);
     const sc = Math.min(.5, 760 / Math.max(1, list.length) / 250, 330 / 350);
-    return `<div class="mnote-back peekback" data-p="peekok"><div class="mnote peeknote" role="alertdialog" aria-label="${A.esc(pk.src)}"><h3>${A.esc(pk.src)}</h3><div class="peekrow">${list.map(c => `<span class="cw ${c.type === 'Monster' ? 'peekmon' : ''}" style="--s:${sc}"><span class="cs">${A.playCard(c, 1)}</span></span>`).join('')}</div><p>${T(pk.note)}</p><button class="btn bigok" data-p="peekok">Got it</button></div></div>`;
+    return `<div class="mnote-back peekback" data-p="peekok"><div class="mnote peeknote" role="alertdialog" aria-label="${A.esc(pk.src)}"><h3>${A.esc(pk.src)}</h3><div class="peekrow">${list.map(c => `<span class="peekc"><span class="cw ${c.type === 'Monster' ? 'peekmon' : ''}" style="--s:${sc}"><span class="cs">${A.playCard(c, 1)}</span></span>${c.tag ? `<b>${A.esc(c.tag)}</b>` : ''}</span>`).join('')}</div><p>${T(pk.note)}</p><button class="btn bigok" data-p="peekok">Got it</button></div></div>`;
+  }
+  // Card-type tips point at a card of that type instead of covering the screen.
+  function tipTarget(id) {
+    const st = S.st, pr = S.run && S.run.prep;
+    const typeOf = k => c => k === 'imm' ? c.type === 'Immediate' : k === 'pow' ? c.type === 'Ongoing' && c.number !== null : k === 'ong' ? c.type === 'Ongoing' && c.number === null : c.type === 'Consumable';
+    const m = /^(imm|pow|ong|one)-(pack|dug)$/.exec(id);
+    if (m && m[2] === 'pack' && pr) { const c = pr.offer.find(typeOf(m[1])); return c ? `.pcard[data-uid="${c.uid}"]` : null; }
+    if (m && m[2] === 'dug') return st && st.last && typeOf(m[1])(st.last) ? '.dugz .slot' : (m[1] === 'one' ? '.tcard.cons, .dugz .slot' : '.dugz .slot');
+    if (id === 'dig') return '.deck';
+    if (id === 'pack' && pr) { const c = pr.offer[0]; return c ? `.pcard[data-uid="${c.uid}"]` : null; }
+    if (id === 'monster') return '.dugz .mcard';
+    return null;
+  }
+  function placeTip() {
+    const el = $.querySelector('.tipfloat'); if (!el) return;
+    const tg = $.querySelector(el.dataset.target); if (!tg) { el.classList.add('mid'); return; }
+    const r = rr(tg), w = rr(el), vw = VW(), vh = VH(), gap = 22;
+    const below = r.top + r.height / 2 < vh / 2 && r.top + r.height + gap + w.height < vh - 6, top = below ? r.top + r.height + gap : Math.max(6, r.top - gap - w.height);
+    const left = Math.max(8, Math.min(vw - w.width - 8, r.left + r.width / 2 - w.width / 2)), ax = Math.max(24, Math.min(w.width - 24, r.left + r.width / 2 - left));
+    el.style.left = left + 'px'; el.style.top = top + 'px'; el.style.setProperty('--ax', ax + 'px'); el.classList.add(below ? 'below' : 'above');
+    tg.classList.add('tipglow');
   }
   function tipHTML() {
     const tp = S.tip && D.tips.find(x => x.id === S.tip); if (!tp) return '';
     const pr = S.run && S.run.prep, ex = { kit: pr ? pr.kitMax : '', draw: pr && pr.pack ? pr.pack.draw : '', keep: pr && pr.pack ? pr.pack.keep : '' };
+    const tg = tipTarget(tp.id);
+    if (tg) return `<div class="tipcatch"></div><div class="tipfloat" data-target="${A.esc(tg)}" role="alertdialog" aria-label="${A.esc(tp.title)}"><b class="tipt">${A.esc(tp.title)}</b><p>${A.esc(tipText(tp, ex))}</p><button class="btn bigok" data-p="tipok">Got it</button><i class="tiparrow"></i></div>`;
     return `<div class="mnote-back tipback"><div class="mnote tipnote" role="alertdialog" aria-label="${A.esc(tp.title)}"><h3>${A.esc(tp.title)}</h3><p>${A.esc(tipText(tp, ex))}</p><button class="btn bigok" data-p="tipok">Got it</button></div></div>`;
   }
   function dangerCheck() {
@@ -4783,7 +4830,7 @@ function DDBSeat(root, cfg) {
     }
     $.innerHTML = (S.panel === 'menu' || S.panel === 'more' || S.panel === 'mode' || S.panel === 'duelnames' || S.viewBest || S.panel === 'done' || (S.panel === 'setup' && !S.run) ? '' : bar) + body + (S.gmenu ? gmenuHTML() : '') + (S.help ? helpHTML() : '') + z + note + pileDlg + (S.lbHelp ? lbHelpHTML() : '') + lbTipHTML() + fin + dangerHTML() + tipHTML() + peekHTML() + ffNoteHTML() + lbFullHTML() + ownedP + pickHTML() + logHTML() + duelTag();
     const sc = $.querySelector('#setupScroll'); if (sc) sc.scrollTop = ks;
-    fitHero(); heroPlay(); fitTable(); playDice(); boardAnimate();
+    fitHero(); heroPlay(); fitTable(); placeTip(); playDice(); boardAnimate();
     if (S.packFrom) { const fp = $.querySelector('.flypack'); if (fp) { const r = rr(fp); fp.style.setProperty('--fx', Math.round(S.packFrom.x - (r.left + r.width / 2)) + 'px'); fp.style.setProperty('--fy', Math.round(S.packFrom.y - (r.top + r.height / 2)) + 'px'); } S.packFrom = null; }
     if (S.keepFrom && $.querySelector('.pcard.kept')) {          // the cards you kept slide from where they were to their places; the others are dealt in after them
       $.querySelectorAll('.pcard.kept').forEach(el => {

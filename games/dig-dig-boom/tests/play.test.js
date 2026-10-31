@@ -1566,24 +1566,25 @@ test('after a BOOM the button says To Leaderboard; the cards you own fit on one 
 });
 
 // ---------------------------------------------------------------- first-time tips
-test('tips: a first-time player is taught: welcome on the menu, once; "Teach me how to play" is on for a first game and off after it', SKIP, async () => {
+test('tips: nothing pops up before a game starts; with "Teach me how to play" on, the Welcome comes first, once; the box is on for a first game and off after it', SKIP, async () => {
   const browser = await chromium.launch(exe ? { executablePath: exe } : {});
   const page = await (await browser.newContext({ viewport: { width: 1180, height: 820 }, hasTouch: true })).newPage();
   await page.addInitScript(() => { window.DDB_AI_PACE = 3600000; window.DDB_TALLY_PACE = 0.01; });
   try {
     await page.goto(FILE);
-    await page.waitForSelector('#play .tipnote');
-    assert.match(await page.locator('#play .tipnote').innerText(), /Welcome to Dig Dig BOOM!/);
-    await page.click('#play [data-p=tipok]');
-    await page.reload(); await page.waitForSelector('#play [data-p=startrun]');
-    assert.equal(await page.locator('#play .tipnote').count(), 0, 'seen once, never again');
+    await page.waitForSelector('#play [data-p=startrun]');
+    assert.equal(await page.locator('#play .tipnote, #play .tipfloat').count(), 0, 'no pop-up on the main menu');
     await page.click('#play [data-p=startrun]');
     await page.waitForSelector('#play .teachbox');
     assert.equal(await page.getAttribute('#play .teachbox', 'aria-checked'), 'true', 'on by default in the very first game');
-    await page.click('#play [data-p=startai]'); await page.click('#play [data-p=openpack]');
+    await page.click('#play [data-p=startai]');
     await page.waitForSelector('#play .tipnote');
-    assert.match(await page.locator('#play .tipnote').innerText(), /Booster Pack!/);
-    for (let i = 0; i < 6 && await page.locator('#play .tipnote').count(); i++) await page.click('#play [data-p=tipok]');
+    assert.match(await page.locator('#play .tipnote').innerText(), /Welcome to Dig Dig BOOM!/);
+    await page.click('#play [data-p=tipok]');
+    await page.click('#play [data-p=openpack]');
+    await page.waitForSelector('#play .tipfloat');
+    assert.match(await page.locator('#play .tipfloat').innerText(), /Booster Pack![\s\S]*just pick one that sounds fun\./);
+    for (let i = 0; i < 6 && await page.locator('#play [data-p=tipok]').count(); i++) await page.click('#play [data-p=tipok]');
     // a later game: the box is off unless you turn it on
     await page.click('#play [data-p=gmenu]'); await page.click('#play [data-p=mainmenu]');
     await page.click('#play [data-p=startrun]'); await page.click('#play [data-p=startrun]'); await page.waitForSelector('#play .teachbox');
@@ -1610,7 +1611,8 @@ test('looking cards show what they saw: Fuzzy Radar pops up the five cards and t
     await page.click('#play [data-p=dig]');
     await page.waitForSelector('#play .peeknote');
     assert.equal(await page.locator('#play .peeknote .cw').count(), 5, 'the five cards it looked at');
-    assert.match(await page.locator('#play .peeknote').innerText(), /Fuzzy Radar[\s\S]*1 Monster: \+2/);
+    assert.deepEqual(await page.locator('#play .peeknote .peekc b').allInnerTexts(), ['1', '2', '3', '4', '5'], 'numbered, so you can see which is next');
+    assert.match(await page.locator('#play .peeknote').innerText(), /Fuzzy Radar[\s\S]*1 Monster: \+2[\s\S]*face up/);
     await page.click('#play .peeknote [data-p=peekok]');
     assert.equal(await page.locator('#play .peeknote').count(), 0);
     assert.deepEqual(errors, []);
