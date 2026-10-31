@@ -130,6 +130,17 @@ const LIBRARY = {
       listed: true,
     },
     {
+      id: 'loaded-blackjack',
+      title: 'Loaded Blackjack',
+      tagline: 'Get as close to 21 as you can. Cheat your way there.',
+      players: '2–6 players',
+      icon: '🃏',
+      art: 'loaded-blackjack',
+      accent: '#1f7a4f',
+      path: 'games/loaded-blackjack/index.html',
+      listed: true,
+    },
+    {
       id: 'this-means-war',
       title: 'This Means WAR!',
       tagline: 'Capture the hidden flag before they capture yours!',
@@ -241,6 +252,24 @@ const LIBRARY = {
         ${sword(66, 112, -35)}${sword(234, 112, 35)}
         <text x="150" y="332" text-anchor="middle" font-size="42" font-weight="900" fill="url(#twT)" stroke="#1c0a06" stroke-width="9" stroke-linejoin="round" paint-order="stroke">WAR!</text>
         <text x="150" y="76" text-anchor="middle" font-size="26" font-weight="900" fill="url(#twT)" stroke="#1c0a06" stroke-width="7" stroke-linejoin="round" paint-order="stroke">THIS MEANS</text>
+        </svg>`;
+    },
+    // Loaded Blackjack: a green felt table, a fan of cards (an Ace, a king-size ten, a card face down) and a loaded die
+    'loaded-blackjack': () => {
+      const card = (x, y, r, face) => `<g transform="translate(${x} ${y}) rotate(${r})"><rect x="-44" y="-62" width="88" height="124" rx="9" fill="${face ? '#fffaf0' : '#8a1d1d'}" stroke="#101010" stroke-width="3"/>${face ? face : '<rect x="-34" y="-52" width="68" height="104" rx="5" fill="none" stroke="#e8d49a" stroke-width="3"/><path d="M-34-52L34 52M34-52L-34 52" stroke="#e8d49a" stroke-width="2" opacity=".6"/>'}</g>`;
+      const spade = (s, c) => `<path transform="scale(${s})" d="M0-20C14-6 22 2 22 12 22 22 12 26 5 20 6 28 8 32 12 36H-12C-8 32-6 28-5 20-12 26-22 22-22 12-22 2-14-6 0-20Z" fill="${c}"/>`;
+      return `<svg viewBox="0 0 300 380" role="img" aria-label="Loaded Blackjack"><defs>
+        <radialGradient id="lbB" cx="50%" cy="42%" r="80%"><stop offset="0" stop-color="#2f9a68"/><stop offset=".6" stop-color="#16573a"/><stop offset="1" stop-color="#082116"/></radialGradient>
+        <linearGradient id="lbT" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff2a8"/><stop offset="1" stop-color="#e8962a"/></linearGradient></defs>
+        <rect width="300" height="380" fill="url(#lbB)"/>
+        <ellipse cx="150" cy="250" rx="150" ry="96" fill="none" stroke="#f2c14e" stroke-width="3" opacity=".45"/>
+        ${[[28, 40], [264, 60], [40, 330], [262, 318], [150, 172]].map(([x, y]) => `<g transform="translate(${x} ${y})"><circle r="9" fill="#f2c14e" opacity=".7"/><circle r="5" fill="none" stroke="#173e2a" stroke-width="2"/></g>`).join('')}
+        ${card(98, 210, -22, `<text x="-32" y="-30" font-size="26" font-weight="900" fill="#101010" font-family="Georgia,serif">A</text><g transform="translate(0 6)">${spade(1.1, '#101010')}</g>`)}
+        ${card(150, 196, 0, `<text x="-32" y="-30" font-size="26" font-weight="900" fill="#c0262e" font-family="Georgia,serif">K</text><text x="0" y="22" text-anchor="middle" font-size="62" fill="#c0262e">♥</text>`)}
+        ${card(204, 212, 21, null)}
+        <g transform="translate(236 292) rotate(14)"><rect x="-24" y="-24" width="48" height="48" rx="9" fill="#fff" stroke="#101010" stroke-width="3"/>${[[-11, -11], [11, -11], [-11, 11], [11, 11], [0, 0]].map(([x, y]) => `<circle cx="${x}" cy="${y}" r="4.6" fill="#101010"/>`).join('')}<path d="M-24 14L-14 24" stroke="#d6402a" stroke-width="3"/></g>
+        <text x="150" y="78" text-anchor="middle" font-size="46" font-weight="900" letter-spacing="6" fill="url(#lbT)" stroke="#07140d" stroke-width="9" stroke-linejoin="round" paint-order="stroke">LOADED</text>
+        <text x="150" y="346" text-anchor="middle" font-size="40" font-weight="900" font-style="italic" fill="#fff7d6" stroke="#07140d" stroke-width="9" stroke-linejoin="round" paint-order="stroke">BLACKJACK</text>
         </svg>`;
     },
     // Dig Dig BOOM!: the front of the box, taken from the game's main menu — two Monster cards looming over a fan of Geodes, each a different gem.
