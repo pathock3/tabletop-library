@@ -16,51 +16,84 @@
 <meta name="description" content="Capture the hidden flag before they capture yours!">
 <link rel="icon" type="image/png" href="../../assets/favicon.png">
 <link rel="apple-touch-icon" href="../../assets/apple-touch-icon.png">
-<style>
-:root { --bg:#1a120c; --panel:#2b1d12; --gold:#f0c35a; --text:#f6ead2; --dim:#b9a687; }
+<style>:root { --bg:#14100c; --panel:#2b1d12; --gold:#f2c14e; --text:#f6ead2; --dim:#c9b690; --wood:#5b3a1e; }
 * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; -webkit-touch-callout: none; user-select: none; -webkit-user-select: none; }
 html, body { margin: 0; height: 100%; width: 100%; position: fixed; inset: 0; overflow: hidden; overscroll-behavior: none; background: var(--bg); color: var(--text);
   font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", system-ui, Segoe UI, Roboto, sans-serif; touch-action: manipulation; }
-#app { position: absolute; inset: 0; background: radial-gradient(ellipse at 50% 0, #3a2616, #140d08 75%); }
+#app { position: absolute; inset: 0; background: radial-gradient(ellipse 90% 70% at 50% 40%, #24483a 0%, #14281f 60%, #0a1510 100%); }
 button { font: inherit; color: inherit; border: 0; background: none; padding: 0; cursor: pointer; touch-action: manipulation; }
-.screen { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; padding: calc(env(safe-area-inset-top) + 14px) 16px calc(env(safe-area-inset-bottom) + 12px); }
-.home, .cover { justify-content: center; gap: 14px; }
-.crest { font-size: 64px; } h1 { margin: 0; font-size: 44px; text-align: center; color: var(--gold); text-shadow: 0 3px 0 #000; letter-spacing: 1px; }
-.tag { margin: 0 0 8px; color: var(--dim); text-align: center; font-size: 18px; max-width: 520px; }
-.big { min-width: 280px; max-width: 90%; padding: 16px 28px; min-height: 56px; border-radius: 16px; background: #4a3220; border: 2px solid #7c5a38; font-size: 20px; font-weight: 800; box-shadow: 0 4px 0 #000; }
-.big small { display: block; font-weight: 500; font-size: 14px; color: var(--dim); margin-top: 2px; }
-.big.go { background: #b8321f; border-color: #ff8a6a; font-size: 24px; min-height: 64px; } .big.go.off { opacity: .35; } .big.ghost { background: transparent; }
-.ver { color: #7d6c52; font-size: 12px; margin-top: 10px; }
+.screen { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; padding: calc(env(safe-area-inset-top) + 8px) 12px calc(env(safe-area-inset-bottom) + 10px); }
+/* ---- main menu: two kingdoms facing each other across a hex map ---- */
+.home, .cover { justify-content: center; gap: 22px; background:
+  url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='104' height='180'><g fill='none' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2'><path d='M52 2 100 30V86L52 114 4 86V30Z'/><path d='M52 114V150M4 86 -44 114M100 86 148 114'/></g></svg>"),
+  linear-gradient(172deg, #a8271c 0%, #5e1712 36%, #141b33 56%, #1f4d9e 100%); }
+.hero { display: flex; flex-direction: column; align-items: center; gap: 4px; }
+.herosvg { width: min(86vw, 420px); height: auto; filter: drop-shadow(0 6px 10px rgba(0,0,0,.6)); }
+.kicker { font-size: 26px; font-weight: 900; letter-spacing: 10px; color: var(--gold); text-shadow: 0 3px 0 #000; margin-top: 6px; padding-left: 10px; }
+h1 { margin: -6px 0 0; font-size: 104px; line-height: .95; font-weight: 1000; font-style: italic; color: #fff3c9; letter-spacing: 3px; -webkit-text-stroke: 3px #3b0d08; paint-order: stroke fill; text-shadow: 0 6px 0 #7a1d12, 0 14px 22px rgba(0,0,0,.6); text-align: center; }
+.cover h1 { font-size: 64px; }
+.tag { margin: 6px 0 0; color: #f1dcc0; text-align: center; font-size: 19px; max-width: 460px; text-shadow: 0 2px 0 rgba(0,0,0,.6); }
+.menu { display: flex; flex-direction: column; align-items: center; gap: 12px; width: 100%; }
+.big { min-width: 300px; max-width: 92%; padding: 14px 28px; min-height: 58px; border-radius: 16px; background: linear-gradient(#7a4e28, #4d2f16); border: 3px solid #e0b052; font-size: 21px; font-weight: 800; color: #fbefd0; box-shadow: 0 5px 0 #20110a, inset 0 2px 0 rgba(255,255,255,.2); text-shadow: 0 2px 0 rgba(0,0,0,.45); }
+.big:active { transform: translateY(2px); box-shadow: 0 3px 0 #20110a; }
+.big b { display: block; } .big small { display: block; font-weight: 600; font-size: 14px; color: #e9d2a6; margin-top: 2px; }
+.big.gold { background: linear-gradient(#ffe08a, #e0a82e); color: #3b230a; text-shadow: none; border-color: #fff1bd; }
+.big.go { background: linear-gradient(#e2503a, #a82114); border-color: #ffb09c; font-size: 24px; min-height: 64px; } .big.go.off { opacity: .35; }
+.big.ghost { background: rgba(0,0,0,.28); box-shadow: none; }
+.ver { color: rgba(255,255,255,.55); font-size: 12px; margin: 0; }
 .libback { position: absolute; z-index: 3; left: calc(env(safe-area-inset-left) + 12px); top: calc(env(safe-area-inset-top) + 8px); display: inline-flex; align-items: center; gap: 8px; padding: 10px 16px 10px 12px; min-height: 44px; border-radius: 99px; background: rgba(20,12,6,.8); border: 2px solid var(--gold); color: var(--text); font-size: 16px; font-weight: 800; text-decoration: none; }
 .libback span { font-size: 22px; line-height: 1; color: var(--gold); }
-.topbar { width: 100%; min-height: 46px; display: flex; align-items: center; justify-content: flex-end; gap: 10px; position: relative; }
-.topbar .who { position: absolute; left: 50%; transform: translateX(-50%); font-weight: 900; font-size: 18px; text-shadow: 0 2px 0 #000; }
-.chip { width: 46px; height: 46px; border-radius: 50%; background: var(--panel); border: 2px solid #7c5a38; font-size: 20px; font-weight: 800; }
-.status { font-size: 19px; font-weight: 700; text-align: center; min-height: 26px; margin-top: 2px; }
+/* ---- the table ---- */
+.topbar { width: 100%; min-height: 46px; display: flex; align-items: center; justify-content: flex-end; position: relative; flex: none; }
+.chip { min-width: 46px; height: 46px; padding: 0 16px; border-radius: 23px; background: linear-gradient(#7a4e28, #4d2f16); border: 2px solid #e0b052; font-size: 17px; font-weight: 800; box-shadow: 0 3px 0 #20110a; }
+.main { flex: 1; min-height: 0; width: 100%; display: flex; flex-direction: column; gap: 6px; }
+.boardwrap { flex: 1 1 0; min-height: 0; display: flex; align-items: center; justify-content: center; }
+.board { width: 100%; height: 100%; filter: drop-shadow(0 10px 14px rgba(0,0,0,.6)); }
+.side { flex: none; display: flex; flex-direction: column; align-items: center; gap: 8px; width: 100%; }
+@media (orientation: landscape) and (min-width: 700px) {
+  .main { flex-direction: row; gap: 14px; }
+  .side { width: 340px; justify-content: center; }
+}
+.phases { display: flex; flex-wrap: wrap; justify-content: center; gap: 6px; }
+.phases .who { padding: 4px 12px; border-radius: 99px; font-weight: 900; font-size: 15px; text-shadow: 0 1px 0 rgba(0,0,0,.5); border: 2px solid rgba(255,255,255,.55); }
+.ph { padding: 4px 12px; border-radius: 99px; font-weight: 800; font-size: 15px; background: rgba(0,0,0,.35); color: var(--dim); border: 2px solid transparent; }
+.ph.on { background: #f2c14e; color: #3b230a; border-color: #fff1bd; }
+.status { font-size: 19px; font-weight: 800; text-align: center; min-height: 26px; max-width: 520px; text-shadow: 0 2px 0 rgba(0,0,0,.6); }
 .notice { font-size: 14px; color: var(--gold); text-align: center; }
-.board { flex: 1; min-height: 0; width: 100%; max-width: 900px; }
-.hx { stroke: #6b4a2a; stroke-width: .06; } .hx.cas { stroke: #2a1a0e; stroke-width: .1; }
-.hx.reach { fill: #f5e08a; stroke: #ffd24a; stroke-width: .16; } .hx.dep { stroke: #ffd24a; stroke-width: .2; }
-.castle { font-size: 1.1px; text-anchor: middle; dominant-baseline: central; pointer-events: none; } .flagmark { font-size: .6px; text-anchor: middle; pointer-events: none; }
-.tok { cursor: pointer; } .tok circle:first-child { stroke: #fff; stroke-width: .07; } .tok.selu circle:first-child { stroke: var(--gold); stroke-width: .16; } .tok.done { opacity: .6; }
+.hx { stroke: #4f6a2c; stroke-width: .05; } .hx.cas { stroke: #2a1a0e; stroke-width: .12; }
+.hx.reach { fill: #fff0a0; stroke: #ffc928; stroke-width: .18; animation: glow 1.1s ease-in-out infinite alternate; } .hx.dep { stroke: #ffd24a; stroke-width: .22; animation: glow 1.1s ease-in-out infinite alternate; }
+@keyframes glow { to { stroke-opacity: .35; } }
+.flagmark { font-size: .6px; text-anchor: middle; pointer-events: none; }
+.tok { cursor: pointer; } .tok .body { stroke: #fff; stroke-width: .08; filter: drop-shadow(0 .06px .05px rgba(0,0,0,.7)); } .tok.selu .body { stroke: var(--gold); stroke-width: .18; } .tok.done { opacity: .6; }
+.tok.movable .body { stroke: #ffe36e; stroke-width: .14; animation: ring 1s ease-in-out infinite alternate; }
+@keyframes ring { to { stroke-width: .03; } }
 .tm { font-size: .55px; fill: #fff; text-anchor: middle; dominant-baseline: central; pointer-events: none; } .bd { fill: #111; stroke: #fff; stroke-width: .04; }
 .bn { font-size: .32px; fill: #fff; font-weight: 800; text-anchor: middle; dominant-baseline: central; pointer-events: none; }
-.low { width: 100%; max-width: 900px; display: flex; flex-direction: column; align-items: center; gap: 8px; }
 .hand { display: flex; flex-wrap: wrap; justify-content: center; gap: 6px; min-height: 40px; align-items: center; }
-.hint { color: var(--dim); }
-.deckline { font-size: 12px; color: var(--dim); }
-.card { width: 66px; height: 92px; border-radius: 10px; background: linear-gradient(#f6ead2, #dcc79b); color: #2b1d12; border: 4px solid var(--cc, #7c5a38); display: grid; grid-template-rows: auto 1fr auto auto; justify-items: center; align-items: center; padding: 2px; font-size: 11px; font-weight: 800; box-shadow: 0 3px 0 #000; }
-.card b { font-size: 18px; line-height: 1; } .card i { font-style: normal; font-size: 28px; line-height: 1; } .card em { font-style: normal; font-size: 11px; color: #8a2a1a; }
-.card.small { width: 50px; height: 70px; } .card.small i { font-size: 20px; } .card.small b { font-size: 14px; } .card.small span, .card.small em { font-size: 9px; }
+.hint { color: var(--dim); } .deckline { font-size: 12px; color: var(--dim); }
+.card { width: 98px; height: 140px; border-radius: 12px; background: linear-gradient(#f9eed4, #e0cb9c); color: #2b1d12; border: 5px solid var(--cc, #7c5a38); display: grid; grid-template-rows: auto 1fr auto auto auto; justify-items: center; align-items: center; padding: 3px 2px; font-size: 14px; font-weight: 800; box-shadow: 0 3px 0 #000; }
+.card b { font-size: 26px; line-height: 1; } .card i { font-style: normal; font-size: 40px; line-height: 1; } .card em { font-style: normal; font-size: 12px; line-height: 1.15; white-space: nowrap; } .card em.weak { color: #9a2a1a; } .card em.strong { color: #1d6a34; }
+.card.small { width: 76px; height: 108px; border-width: 4px; font-size: 12px; } .card.small i { font-size: 30px; } .card.small b { font-size: 20px; } .card.small em { font-size: 10px; }
+@media (max-width: 520px) { .card { width: 74px; height: 108px; font-size: 12px; } .card i { font-size: 30px; } .card b { font-size: 20px; } .card em { font-size: 10px; } .card.small { width: 60px; height: 88px; } .card.small em { font-size: 8px; } }
 .card.sel { transform: translateY(-10px); outline: 4px solid var(--gold); } .card.dim { opacity: .5; } .card.back { background: repeating-linear-gradient(45deg, #5a3a22, #5a3a22 6px, #3a2414 6px, #3a2414 12px); } .card.empty { background: transparent; border-style: dashed; box-shadow: none; }
-.battle { position: absolute; inset: 0; background: rgba(20,12,6,.96); display: flex; flex-direction: column; align-items: center; gap: 10px; padding: calc(env(safe-area-inset-top) + 16px) 16px 16px; z-index: 10; overflow: hidden; }
+.battle { position: absolute; inset: 0; background: radial-gradient(ellipse at 50% 30%, #3a2616, #140d08 80%); display: flex; flex-direction: column; align-items: center; gap: 10px; padding: calc(env(safe-area-inset-top) + 16px) 16px 16px; z-index: 10; overflow: hidden; }
 .battle h2 { margin: 6px 0 0; color: var(--gold); }
-.slots { display: flex; gap: 28px; } .slot { display: flex; flex-direction: column; align-items: center; gap: 6px; } .slot .card { width: 84px; height: 118px; } .slot .card b { font-size: 22px; } .slot .card i { font-size: 36px; }
+.slots { display: flex; gap: 28px; } .slot { display: flex; flex-direction: column; align-items: center; gap: 6px; } .slot .card { width: 112px; height: 160px; } .slot .card b { font-size: 28px; } .slot .card i { font-size: 46px; } .slot .card em { font-size: 13px; }
 .msg { min-height: 44px; margin: 0; text-align: center; font-size: 18px; font-weight: 700; max-width: 520px; } .foe { font-weight: 800; }
-.sheet { position: absolute; inset: 0; background: rgba(0,0,0,.7); display: grid; place-items: center; z-index: 30; padding: 16px; }
-.sheetin { background: var(--panel); border: 2px solid #7c5a38; border-radius: 20px; padding: 22px; max-width: 560px; max-height: 88%; overflow-y: auto; display: flex; flex-direction: column; align-items: center; gap: 12px; text-align: left; }
+.sheet { position: absolute; inset: 0; background: rgba(0,0,0,.72); display: grid; place-items: center; z-index: 30; padding: 16px; }
+.sheetin { background: linear-gradient(#35230f, #22160b); border: 3px solid #e0b052; border-radius: 22px; padding: 22px; max-width: 560px; max-height: 88%; overflow-y: auto; display: flex; flex-direction: column; align-items: center; gap: 12px; text-align: left; }
 .sheetin h2 { margin: 0; color: var(--gold); } .sheetin p { margin: 0; font-size: 16px; line-height: 1.4; }
-@media (max-height: 560px) { .card { width: 52px; height: 72px; } .status { font-size: 15px; } }
+/* ---- turning over a castle: is the flag here? ---- */
+.reveal { position: absolute; inset: 0; z-index: 50; background: rgba(8,5,3,.88); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 22px; padding: 20px; }
+.revtxt.top { font-size: 22px; font-weight: 800; text-align: center; max-width: 480px; }
+.revtxt.bot { text-align: center; opacity: 0; animation: fadein .5s 2.1s forwards; } .revtxt .res { font-size: 34px; font-weight: 900; color: var(--gold); } .revtxt small { color: var(--dim); font-size: 15px; }
+.flipper { position: relative; width: 230px; height: 290px; perspective: 900px; transform-style: preserve-3d; animation: shake .5s .5s 2, flip 1.1s 1.2s forwards cubic-bezier(.3,1.4,.5,1); }
+.face { position: absolute; inset: 0; border-radius: 22px; backface-visibility: hidden; -webkit-backface-visibility: hidden; display: flex; flex-direction: column; align-items: center; justify-content: center; border: 6px solid #e0b052; box-shadow: 0 14px 30px rgba(0,0,0,.7); }
+.face.front { background: linear-gradient(#cdbf99, #8d8061); } .face.front svg { width: 80%; } .face.front .q { position: absolute; bottom: 14px; font-size: 56px; font-weight: 900; color: #2f2418; opacity: .8; }
+.face.back { transform: rotateY(180deg); background: radial-gradient(circle at 50% 40%, #fff6cf, #e9c35c); color: #3b230a; gap: 6px; } .no .face.back { background: linear-gradient(#cfd3d8, #8f969e); } .face.back b { font-size: 32px; } .flagbig { font-size: 110px; line-height: 1; }
+.yes .face.back { box-shadow: 0 0 40px 10px rgba(255,214,90,.85); }
+@keyframes flip { to { transform: rotateY(180deg); } } @keyframes shake { 25% { transform: rotate(-4deg); } 75% { transform: rotate(4deg); } } @keyframes fadein { to { opacity: 1; } }
+@media (max-height: 560px) { .card { width: 70px; height: 100px; } .card em { font-size: 10px; } .status { font-size: 15px; } .herosvg, .kicker { display: none; } h1 { font-size: 64px; margin: 0; } .home { gap: 10px; } .big { min-height: 48px; padding: 8px 24px; } }
 </style>
 </head>
 <body>
@@ -111,12 +144,12 @@ const GAME_DATA = {
     help: [
       'Capture the other side\'s hidden flag. Each side secretly hides a flag in one of its two starting castles. Take the castle that hides the enemy flag and you win.',
       'Each side has its own deck of 17 cards. Cards are stronger the bigger their number. A card can still lose to its weakness: Leader to Assassin, General to Spy, Warrior to Sorcerer. Equal cards are both defeated.',
-      'Your turn: first place every card in your hand onto one of your castles. Cards on a castle form a unit (up to 7 cards, one of each type). Then move units: each unit moves once, up to 2 spaces, through its own units but not through enemy units.',
-      'Then tap Battle! Your units on the same space merge, and any undefended castle you stand on is captured. If your unit is on an enemy unit, you fight: the defender plays a card, then the attacker. Survivors wait aside and become the new hand when the hand is empty. Whoever runs out of cards loses the battle; the winner keeps the survivors and, on an enemy castle, captures it.',
+      'Your turn has two parts. Part 1, Deploy & Move: place every card in your hand onto one of your castles.  Cards on a castle form a unit (up to 7 cards, one of each type). Then move: tap a unit that has not moved yet, then tap where it goes. Each unit moves once, up to 2 spaces, through its own units but not through enemy units.',
+      'Part 2, Resolve: tap Resolve! Your units on the same space merge, and any undefended castle you stand on is captured. If your unit is on an enemy unit, you fight: the defender plays a card, then the attacker. Survivors wait aside and become the new hand when the hand is empty. The players take turns playing first: the defender plays first in the first round, the attacker in the second, and so on. Whoever runs out of cards loses the battle; the winner keeps the survivors and, on an enemy castle, captures it.',
       'Every turn ends by drawing 2 cards. When your deck is empty, your discard pile is shuffled to make a new one.',
       'Not in this version yet: tunnels and the hero cards.',
     ],
-    modes: [['ai', 'Play the Computer', 'You are Blue, they are Red'], ['pass', 'Pass and Play', 'Two players, one device']],
+    modes: [['ai', 'Play the Computer', ''], ['pass', 'Pass and Play', 'Two players, one device']],
   },
 };
 </script>
@@ -160,7 +193,7 @@ const Engine = (() => {
   function createGame(opts) {
     opts = opts || {};
     const first = opts.first === 1 ? 1 : 0;
-    const s = { v: 1, rng: (opts.seed == null ? Date.now() : opts.seed) | 0, first, cur: first, step: 'flag', flagQueue: [first, other(first)], castles: {}, decks: [[], []], discard: [[], []], hands: [[], []], units: [], uid: 1, winner: null, battle: null, pending: [], notice: '', turns: 1 };
+    const s = { v: 1, rng: (opts.seed == null ? Date.now() : opts.seed) | 0, first, cur: first, step: 'flag', flagQueue: [first, other(first)], castles: {}, decks: [[], []], discard: [[], []], hands: [[], []], units: [], uid: 1, reveals: [], revealN: 0, winner: null, battle: null, pending: [], notice: '', turns: 1 };
     B.castles.forEach(c => { s.castles[c.id] = { owner: null, flagOf: null, revealed: false }; });
     B.start.forEach((ids, p) => ids.forEach(id => { s.castles[id].owner = p; }));
     for (let p = 0; p < 2; p++) {
@@ -174,7 +207,7 @@ const Engine = (() => {
   function actor(s) {
     if (s.step === 'flag') return s.flagQueue[0];
     if (s.step === 'play') return s.cur;
-    if (s.step === 'battle') return s.battle.stage === 'def' ? s.battle.def : s.battle.att;
+    if (s.step === 'battle') return s.battle.stage === 'first' ? s.battle.first : s.battle.stage === 'second' ? other(s.battle.first) : s.battle.att;
     return null;
   }
 
@@ -219,7 +252,9 @@ const Engine = (() => {
   function capture(s, k, p) {
     const id = hexCastle[k]; if (!id) return;
     const c = s.castles[id]; if (c.owner === p) return;
+    const flip = !c.revealed && B.start[other(p)].indexOf(id) >= 0;          // one of their two first castles, not yet turned over: it may hide the flag
     c.owner = p; c.revealed = true;
+    if (flip) s.reveals.push({ n: ++s.revealN, castle: id, by: p, flag: c.flagOf === other(p) });
     s.notice += sideName(p) + ' captured ' + castleName(id) + '. ';
     if (c.flagOf === other(p)) { s.step = 'over'; s.winner = p; s.notice += sideName(p) + ' found the flag! '; }
   }
@@ -240,7 +275,7 @@ const Engine = (() => {
       const side = [[], []];
       s.units.filter(u => u.at === k).forEach(u => side[u.owner].push.apply(side[u.owner], u.cards));
       s.units = s.units.filter(u => u.at !== k);
-      s.battle = { hex: k, att: s.cur, def: other(s.cur), stage: 'def', defCard: null, attCard: null, result: null, rounds: 0, side: [{ hand: side[0], aside: [] }, { hand: side[1], aside: [] }] };
+      s.battle = { hex: k, att: s.cur, def: other(s.cur), stage: 'first', first: other(s.cur), played: [null, null], result: null, rounds: 0, side: [{ hand: side[0], aside: [] }, { hand: side[1], aside: [] }] };
       s.step = 'battle';
       return;
     }
@@ -248,7 +283,7 @@ const Engine = (() => {
   }
 
   function battlePhase(s) {
-    s.notice = '';
+    s.notice = ''; s.reveals = [];
     mergeAll(s);
     s.units.filter(u => u.owner === s.cur).forEach(u => { if (s.step !== 'over' && hexCastle[u.at] && !enemyAt(s, u.at, s.cur)) capture(s, u.at, s.cur); });
     if (s.step === 'over') return;
@@ -313,25 +348,24 @@ const Engine = (() => {
     if (s.step === 'battle') {
       const b = s.battle;
       if (a.type === 'play') {
-        if (b.stage !== 'def' && b.stage !== 'att') return bad('not now');
+        if (b.stage !== 'first' && b.stage !== 'second') return bad('not now');
         const hand = b.side[p].hand, i = hand.findIndex(c => c.id === a.card);
         if (i < 0) return bad('no such card');
-        const c = hand.splice(i, 1)[0];
-        if (b.stage === 'def') { b.defCard = c; b.stage = 'att'; return { ok: true }; }
-        b.attCard = c;
-        const out = duel(c, b.defCard);
+        b.played[p] = hand.splice(i, 1)[0];
+        if (b.stage === 'first') { b.stage = 'second'; return { ok: true }; }
+        const out = duel(b.played[b.att], b.played[b.def]);          // the players take turns playing first; who is attacking only decides who captures
         b.result = out; b.rounds++;
         const fate = (card, dies) => { if (dies) s.discard[card.owner].push(card); else b.side[card.owner].aside.push(card); };
-        fate(c, out !== 'a'); fate(b.defCard, out !== 'b');
+        fate(b.played[b.att], out !== 'a'); fate(b.played[b.def], out !== 'b');
         b.stage = 'result';
         return { ok: true };
       }
       if (a.type === 'continue') {
         if (b.stage !== 'result') return bad('not now');
-        b.defCard = null; b.attCard = null; b.result = null;
+        b.played = [null, null]; b.result = null; b.first = other(b.first);
         b.side.forEach(sd => { if (!sd.hand.length) { sd.hand = sd.aside; sd.aside = []; } });
         const left = b.side.map(sd => sd.hand.length > 0);
-        if (left[0] && left[1]) b.stage = 'def'; else finishBattle(s, left[0] ? 0 : left[1] ? 1 : null);
+        if (left[0] && left[1]) b.stage = 'first'; else finishBattle(s, left[0] ? 0 : left[1] ? 1 : null);
         return { ok: true };
       }
     }
@@ -343,12 +377,13 @@ const Engine = (() => {
     const o = other(p), copy = c => ({ id: c.id, type: c.type, owner: c.owner });
     const v = { me: p, opp: o, step: s.step, cur: s.cur, first: s.first, winner: s.winner, notice: s.notice, turns: s.turns, actor: actor(s),
       hand: s.hands[p].map(copy), oppHand: s.hands[o].length, deck: [s.decks[0].length, s.decks[1].length], discard: [s.discard[0].length, s.discard[1].length],
-      castles: {}, units: s.units.map(u => ({ id: u.id, owner: u.owner, at: u.at, acted: u.acted, n: u.cards.length, cards: u.owner === p ? u.cards.map(copy) : null })), battle: null };
+      castles: {}, units: s.units.map(u => ({ id: u.id, owner: u.owner, at: u.at, acted: u.acted, n: u.cards.length, cards: u.owner === p ? u.cards.map(copy) : null })), battle: null, reveals: s.reveals.map(r => ({ n: r.n, castle: r.castle, by: r.by, flag: r.flag })) };
     Object.keys(s.castles).forEach(id => { const c = s.castles[id]; v.castles[id] = { owner: c.owner, mine: c.flagOf === p, flag: c.revealed ? c.flagOf != null : c.flagOf === p, revealed: c.revealed }; });
     if (s.battle) {
       const b = s.battle;
-      v.battle = { hex: b.hex, att: b.att, def: b.def, stage: b.stage, result: b.result, rounds: b.rounds,
-        defCard: b.defCard ? copy(b.defCard) : null, attCard: b.stage === 'result' && b.attCard ? copy(b.attCard) : null,
+      const hide = !(b.stage === 'result' || (b.stage === 'second' && b.first === o));          // the card played first is face up for the second player; both show once the round is played
+      v.battle = { hex: b.hex, att: b.att, def: b.def, stage: b.stage, first: b.first, result: b.result, rounds: b.rounds,
+        played: { mine: b.played[p] ? copy(b.played[p]) : null, theirs: b.played[o] && !hide ? copy(b.played[o]) : null, theirsHidden: !!b.played[o] && hide },
         mine: { hand: b.side[p].hand.map(copy), aside: b.side[p].aside.map(copy) }, oppReady: b.side[o].hand.length, oppAside: b.side[o].aside.length };
     }
     return v;
@@ -419,8 +454,8 @@ const Bots = (() => {
     if (v.step === 'play') return v.hand.length ? deploy(v) : movement(v);
     const b = v.battle, hand = b.mine.hand.slice().sort((x, y) => CT[x.type].power - CT[y.type].power);
     if (b.stage === 'result') return { type: 'continue' };
-    if (b.stage === 'att') {
-      const win = hand.filter(c => E.duel({ type: c.type }, { type: b.defCard.type }) === 'a');
+    if (b.stage === 'second') {
+      const win = hand.filter(c => E.duel({ type: c.type }, { type: b.played.theirs.type }) === 'a');
       return { type: 'play', card: (win[0] || hand[0]).id };
     }
     return { type: 'play', card: pick(hand, rng).id };
@@ -439,23 +474,24 @@ const Bots = (() => {
   const buildStamp = () => { const m = document.querySelector('meta[name=build]'); const t = m ? m.content : ''; return /^__/.test(t) ? 'local file' : t; };
   const col = p => D.sides[p].color, nm = p => D.sides[p].name;
 
-  const ui = { screen: 'home', mode: 'ai', human: 1, s: null, sel: null, seen: null, help: false, timer: null, flip: false };
-  const tryStore = (fn) => { try { return fn(); } catch (e) { return null; } };
+  const ui = { screen: 'home', mode: 'ai', human: 1, s: null, sel: null, seen: null, help: false, menu: false, timer: null, revN: 0 };
+  const tryStore = fn => { try { return fn(); } catch (e) { return null; } };
   const hasSave = () => !!tryStore(() => localStorage.getItem(SAVE));
   const save = () => tryStore(() => { if (ui.s && ui.s.step !== 'over') localStorage.setItem(SAVE, JSON.stringify({ mode: ui.mode, human: ui.human, s: ui.s })); else localStorage.removeItem(SAVE); });
 
   function newGame(mode) {
-    ui.mode = mode; ui.human = 1; ui.sel = null; ui.help = false;
+    ui.mode = mode; ui.human = 1; ui.sel = null; ui.help = false; ui.menu = false; ui.revN = 0;
     ui.s = E.createGame({ first: mode === 'ai' ? 1 : 0 });
     ui.seen = null; ui.screen = 'game'; save(); render();
   }
   function cont() {
     const d = tryStore(() => JSON.parse(localStorage.getItem(SAVE))); if (!d) return;
-    ui.mode = d.mode; ui.human = d.human; ui.s = d.s; ui.sel = null; ui.seen = null; ui.screen = 'game'; render();
+    ui.mode = d.mode; ui.human = d.human; ui.s = d.s; ui.sel = null; ui.seen = null; ui.screen = 'game'; ui.menu = false; ui.revN = d.s.revealN || 0; render();
   }
 
   const actorNow = () => E.actor(ui.s);
-  const isBotTurn = () => { const s = ui.s; if (ui.mode !== 'ai' || s.step === 'over') return false; if (s.step === 'battle' && s.battle.stage === 'result') return false; return actorNow() === 1 - ui.human; };
+  const pendingReveal = () => (ui.s && ui.screen === 'game' ? (ui.s.reveals || []).find(r => r.n > ui.revN) || null : null);
+  const isBotTurn = () => { const s = ui.s; if (ui.mode !== 'ai' || s.step === 'over' || pendingReveal()) return false; if (s.step === 'battle' && s.battle.stage === 'result') return false; return actorNow() === 1 - ui.human; };
   const viewer = () => (ui.mode === 'ai' ? ui.human : (ui.seen != null ? ui.seen : (actorNow() == null ? 0 : actorNow())));
   const needsCover = () => { const s = ui.s, a = actorNow(); return ui.mode === 'pass' && a != null && ui.seen !== a && !(s.step === 'battle' && s.battle.stage === 'result' && ui.seen != null); };
 
@@ -468,77 +504,100 @@ const Bots = (() => {
   // ---------- drawing ----------
   const SQ = Math.sqrt(3);
   function pos(k, flip) { const [q, r] = E.parse(k); let x = SQ * (q + r / 2), y = 1.5 * r; if (flip) { x = -x; y = -y; } return [x, y]; }
-  function hexPts(cx, cy, rad) { let o = []; for (let i = 0; i < 6; i++) { const a = Math.PI / 180 * (60 * i - 30); o.push((cx + rad * Math.cos(a)).toFixed(2) + ',' + (cy + rad * Math.sin(a)).toFixed(2)); } return o.join(' '); }
+  function hexPts(cx, cy, rad) { const o = []; for (let i = 0; i < 6; i++) { const a = Math.PI / 180 * (60 * i - 30); o.push((cx + rad * Math.cos(a)).toFixed(2) + ',' + (cy + rad * Math.sin(a)).toFixed(2)); } return o.join(' '); }
+  const GRASS = ['#a9c26d', '#9bb85f', '#b6cc7c', '#8fae58'];
+  // a little stone castle with a banner in its owner's colour
+  function castleSVG(x, y, c, big) {
+    const k = c === null ? '#8b8574' : c;
+    return `<g transform="translate(${x.toFixed(2)} ${(y - 0.12).toFixed(2)}) scale(${big || 1})" pointer-events="none"><rect x="-.52" y="-.12" width="1.04" height=".62" fill="#d8cfb8" stroke="#2f2418" stroke-width=".07"/><path d="M-.52-.12v-.24h.2v.12h.15v-.12h.34v.12h.15v-.12h.2v.24z" fill="#d8cfb8" stroke="#2f2418" stroke-width=".07" stroke-linejoin="round"/><path d="M-.52.18H.52" stroke="#2f2418" stroke-width=".03" opacity=".5"/><path d="M-.13.5v-.26a.13.13 0 0 1 .26 0v.26z" fill="#2f2418"/><path d="M0-.36V-.86" stroke="#2f2418" stroke-width=".06"/><path d="M0-.86l.42.14-.42.14z" fill="${k}" stroke="#2f2418" stroke-width=".04"/></g>`;
+  }
 
   function cardHTML(c, o) {
-    o = o || {}; const t = CT[c.type], w = t.weakness ? CT[t.weakness].mark : '';
-    return `<button class="card ${o.sel ? 'sel' : ''} ${o.dim ? 'dim' : ''} ${o.small ? 'small' : ''}" ${o.attr || ''} style="--cc:${col(c.owner)}"><b>${t.power}</b><i>${t.mark}</i><span>${t.name}</span>${w ? `<em title="weak to">☠ ${w}</em>` : '<em>&nbsp;</em>'}</button>`;
+    o = o || {}; const t = CT[c.type], w = t.weakness ? CT[t.weakness] : null, st = D.cards.find(x => x.weakness === t.id);
+    return `<button class="card ${o.sel ? 'sel' : ''} ${o.dim ? 'dim' : ''} ${o.small ? 'small' : ''}" ${o.attr || ''} style="--cc:${col(c.owner)}"><b>${t.power}</b><i>${t.mark}</i><span>${t.name}</span><em class="weak">${w ? '☠ ' + w.name : '&nbsp;'}</em><em class="strong">${st ? '⚔ ' + st.name : '&nbsp;'}</em></button>`;
   }
   const backCard = () => '<div class="card back"></div>';
 
-  function boardHTML(v, selUnit, reach, deployMode) {
+  function boardHTML(v, selUnit, reach, deployMode, canMove) {
     const flip = viewer() === 0;
-    let hexes = '', toks = '';
+    let rim = '', tiles = '', toks = '';
     E.allHexes.forEach(k => {
-      const [x, y] = pos(k, flip), cn = E.hexCastle[k], c = cn && v.castles[cn];
+      const [x, y] = pos(k, flip), [q, r] = E.parse(k), cn = E.hexCastle[k], c = cn && v.castles[cn];
       const isReach = reach.indexOf(k) >= 0, isDep = deployMode && c && c.owner === v.me;
-      let fill = '#d9c08e';
-      if (c) fill = c.owner == null ? '#9c8f7a' : (c.owner === 0 ? '#c9604a' : '#5a8fd6');
-      hexes += `<g data-hex="${k}"><polygon points="${hexPts(x, y, 0.96)}" fill="${fill}" class="hx ${isReach ? 'reach' : ''} ${isDep ? 'dep' : ''} ${c ? 'cas' : ''}"/>`;
-      if (c) hexes += `<text x="${x}" y="${y - 0.05}" class="castle">🏰</text>${c.flag ? `<text x="${x + 0.52}" y="${y - 0.46}" class="flagmark">🚩</text>` : ''}`;
-      hexes += '</g>';
+      rim += `<polygon points="${hexPts(x, y, 1.0)}" fill="#6a431f" stroke="#6a431f" stroke-width=".5" stroke-linejoin="round"/>`;
+      let fill = GRASS[(((q * 7 + r * 13) % 4) + 4) % 4];
+      if (c) fill = c.owner == null ? '#b7ad94' : (c.owner === 0 ? '#e58a74' : '#7fa9e6');
+      tiles += `<g data-hex="${k}"><polygon points="${hexPts(x, y, 0.95)}" fill="${fill}" class="hx ${isReach ? 'reach' : ''} ${isDep ? 'dep' : ''} ${c ? 'cas' : ''}"/><polygon points="${hexPts(x, y - 0.04, 0.78)}" fill="#fff" opacity=".1" pointer-events="none"/>`;
+      if (c) tiles += castleSVG(x, y, c.owner == null ? null : col(c.owner), 1) + (c.flag ? `<text x="${(x + 0.55).toFixed(2)}" y="${(y - 0.5).toFixed(2)}" class="flagmark">🚩</text>` : '');
+      tiles += '</g>';
     });
     const byHex = {};
     v.units.forEach(u => { (byHex[u.at] = byHex[u.at] || []).push(u); });
     Object.keys(byHex).forEach(k => {
       const [x, y] = pos(k, flip), list = byHex[k];
       list.forEach((u, i) => {
-        const ux = x + (i - (list.length - 1) / 2) * 0.82, uy = y + 0.42;
+        const ux = x + (i - (list.length - 1) / 2) * 0.82, uy = y + 0.46;
         let top = '?'; if (u.cards && u.cards.length) top = CT[u.cards.slice().sort((a, b) => CT[b.type].power - CT[a.type].power)[0].type].mark;
-        toks += `<g data-unit="${u.id}" data-hex="${k}" class="tok ${selUnit === u.id ? 'selu' : ''} ${u.acted && u.owner === v.me ? 'done' : ''}"><circle cx="${ux}" cy="${uy}" r="0.46" fill="${col(u.owner)}"/><text x="${ux}" y="${uy + 0.06}" class="tm">${top}</text><circle cx="${ux + 0.34}" cy="${uy - 0.34}" r="0.24" class="bd"/><text x="${ux + 0.34}" y="${uy - 0.33}" class="bn">${u.n}</text></g>`;
+        const mv = canMove && u.owner === v.me && !u.acted;
+        toks += `<g data-unit="${u.id}" data-hex="${k}" class="tok ${selUnit === u.id ? 'selu' : ''} ${u.acted && u.owner === v.me ? 'done' : ''} ${mv ? 'movable' : ''}"><circle cx="${ux}" cy="${uy}" r="0.5" fill="transparent"/><circle cx="${ux}" cy="${uy}" r="0.44" fill="${col(u.owner)}" class="body"/><text x="${ux}" y="${uy + 0.05}" class="tm">${top}</text><circle cx="${ux + 0.34}" cy="${uy - 0.34}" r="0.24" class="bd"/><text x="${ux + 0.34}" y="${uy - 0.33}" class="bn">${u.n}</text></g>`;
       });
     });
-    return `<svg class="board" viewBox="-6.2 -5.4 12.4 10.8" preserveAspectRatio="xMidYMid meet">${hexes}${toks}</svg>`;
+    return `<svg class="board" viewBox="-6.15 -5.55 12.3 11.1" preserveAspectRatio="xMidYMid meet">${rim}${tiles}${toks}</svg>`;
+  }
+
+  function heroSVG() {
+    return `<svg class="herosvg" viewBox="0 0 320 120" aria-hidden="true"><g transform="translate(60 62)"><path d="M0-48 40-24V16Q40 40 0 54-40 40-40 16V-24Z" fill="#c4372a" stroke="#f2c14e" stroke-width="5"/><path d="M-18 10v-22h8v8h8v-8h8v8h8v-8h8v22z" fill="#f4e6c3"/></g>
+      <g transform="translate(260 62)"><path d="M0-48 40-24V16Q40 40 0 54-40 40-40 16V-24Z" fill="#2f6fd6" stroke="#f2c14e" stroke-width="5"/><path d="M-18 10v-22h8v8h8v-8h8v8h8v-8h8v22z" fill="#f4e6c3"/></g>
+      <g transform="translate(160 60)"><g transform="rotate(40)"><path d="M0-56 7-44V14H-7V-44Z" fill="#eef2f6" stroke="#1c120a" stroke-width="3" stroke-linejoin="round"/><rect x="-22" y="14" width="44" height="9" rx="3" fill="#f2c14e" stroke="#1c120a" stroke-width="3"/><rect x="-5" y="23" width="10" height="24" rx="2" fill="#6b3a1b" stroke="#1c120a" stroke-width="3"/></g><g transform="rotate(-40)"><path d="M0-56 7-44V14H-7V-44Z" fill="#eef2f6" stroke="#1c120a" stroke-width="3" stroke-linejoin="round"/><rect x="-22" y="14" width="44" height="9" rx="3" fill="#f2c14e" stroke="#1c120a" stroke-width="3"/><rect x="-5" y="23" width="10" height="24" rx="2" fill="#6b3a1b" stroke="#1c120a" stroke-width="3"/></g></g></svg>`;
   }
 
   function homeHTML() {
     return `<div class="screen home">${libraryLink()}
-      <div class="crest">⚔</div><h1>${esc(D.title)}</h1><p class="tag">${esc(D.texts.tagline)}</p>
-      ${hasSave() ? '<button class="big" data-act="continue">Continue</button>' : ''}
-      ${D.texts.modes.map(m => `<button class="big mode" data-act="mode-${m[0]}"><b>${esc(m[1])}</b><small>${esc(m[2])}</small></button>`).join('')}
-      <button class="big ghost" data-act="help">How to Play</button>
+      <div class="hero">${heroSVG()}<div class="kicker">THIS MEANS</div><h1>WAR!</h1><p class="tag">${esc(D.texts.tagline)}</p></div>
+      <div class="menu">
+      ${hasSave() ? '<button class="big gold" data-act="continue">Continue</button>' : ''}
+      ${D.texts.modes.map((m, i) => `<button class="big ${i === 0 && !hasSave() ? 'gold' : ''}" data-act="mode-${m[0]}"><b>${esc(m[1])}</b>${m[2] ? `<small>${esc(m[2])}</small>` : ''}</button>`).join('')}
+      <button class="big ghost" data-act="help">How to Play</button></div>
       <p class="ver">By Patrick Blim-Hockberger · Version ${esc(buildStamp())}</p></div>`;
   }
 
-  function helpHTML() {
-    return `<div class="sheet" data-act="none"><div class="sheetin"><h2>How to Play</h2>${D.texts.help.map(t => `<p>${esc(t)}</p>`).join('')}<button class="big" data-act="closehelp">Got it</button></div></div>`;
-  }
+  const sheet = inner => `<div class="sheet" data-act="none"><div class="sheetin">${inner}</div></div>`;
+  const helpHTML = () => sheet(`<h2>How to Play</h2>${D.texts.help.map(t => `<p>${esc(t)}</p>`).join('')}<button class="big gold" data-act="closehelp">Got it</button>`);
+  const menuHTML = () => sheet(`<h2>Menu</h2><button class="big gold" data-act="closemenu">Back to the game</button><button class="big" data-act="help">How to Play</button><button class="big" data-act="again">New Game</button><button class="big ghost" data-act="home">Main Menu</button>`);
 
   function coverHTML() {
     const a = actorNow();
-    return `<div class="screen cover" style="--cc:${col(a)}">${libraryLink()}<h1>${nm(a)}'s turn</h1><p class="tag">Pass the device to ${nm(a)}.</p><button class="big" data-act="uncover" style="background:${col(a)}">I'm ${nm(a)}. Tap to start</button></div>`;
+    return `<div class="screen cover">${libraryLink()}<div class="hero"><h1 style="color:${col(a)}">${nm(a)}'s turn</h1><p class="tag">Pass the device to ${nm(a)}.</p></div><button class="big gold" data-act="uncover">I'm ${nm(a)}. Tap to start</button></div>`;
+  }
+
+  function revealHTML(r) {
+    const flag = r.flag, who = nm(r.by), cname = E.castleName(r.castle);
+    return `<div class="reveal" data-act="revack"><div class="revtxt top">${esc(who)} took ${esc(cname)}. Is the flag here?</div>
+      <div class="flipper ${flag ? 'yes' : 'no'}"><div class="face front"><svg viewBox="-1 -1.3 2 2.2">${castleSVG(0, 0.1, col(1 - r.by), 1.5)}</svg><div class="q">?</div></div>
+      <div class="face back"><div class="flagbig">${flag ? '🚩' : '🏳️'}</div><b>${flag ? 'THE FLAG!' : 'No flag'}</b></div></div>
+      <div class="revtxt bot"><div class="res">${flag ? esc(who) + ' wins!' : 'Nothing here. The hunt goes on.'}</div><small>Tap to continue</small></div></div>`;
   }
 
   function battleHTML(v) {
     const b = v.battle, me = v.me, opp = v.opp, mineTurn = v.actor === me, stage = b.stage;
     const cn = E.hexCastle[b.hex], where = cn ? E.castleName(cn) : 'the field';
-    const slot = (p, card, label) => `<div class="slot"><small style="color:${col(p)}">${label}</small>${card ? cardHTML(card) : (card === null && ((p === b.def && stage !== 'def') || (p === b.att && stage === 'result')) ? backCard() : '<div class="card empty"></div>')}</div>`;
-    const defShow = b.defCard, attShow = b.attCard;
+    const pl = b.played, can = mineTurn && (stage === 'first' || stage === 'second');
+    const slot = (p, card, hidden) => `<div class="slot"><small style="color:${col(p)}">${p === me ? 'You' : nm(p)}${(p === b.first && stage !== 'result') || (stage === 'result' && p === b.first) ? ' · played first' : ''}</small>${card ? cardHTML(card) : hidden ? backCard() : '<div class="card empty"></div>'}</div>`;
+    const nmc = c => CT[c.type].name + ' (' + CT[c.type].power + ')';
     let msg;
     if (stage === 'result') {
-      const A = b.attCard, Dd = b.defCard;
-      const nmc = c => CT[c.type].name + ' (' + CT[c.type].power + ')';
-      msg = b.result === 'both' ? `${nmc(A)} and ${nmc(Dd)} are both defeated.` : (b.result === 'a' ? `${nm(b.att)}'s ${nmc(A)} defeats ${nm(b.def)}'s ${nmc(Dd)}` : `${nm(b.def)}'s ${nmc(Dd)} defeats ${nm(b.att)}'s ${nmc(A)}`);
-      const w = b.result === 'a' ? A : b.result === 'b' ? Dd : null;
-      if (w) { const L = w === A ? Dd : A; if (CT[w.type].power < CT[L.type].power) msg += ' (its weakness!)'; }
-    } else if (mineTurn) msg = stage === 'def' ? 'You are defending. Play a card.' : 'You are attacking. Play a card.';
+      const mine = pl.mine, theirs = pl.theirs;
+      const w = b.result === 'both' ? null : (b.result === 'a' ? (b.att === me ? mine : theirs) : (b.def === me ? mine : theirs));
+      const L = w === mine ? theirs : mine;
+      msg = b.result === 'both' ? `Your ${nmc(mine)} and their ${nmc(theirs)} are both defeated.` : `${w === mine ? 'Your' : nm(opp) + "'s"} ${nmc(w)} defeats ${w === mine ? nm(opp) + "'s" : 'your'} ${nmc(L)}${CT[w.type].power < CT[L.type].power ? ' (its weakness!)' : ''}`;
+    } else if (can) msg = stage === 'first' ? 'You play first this round. Choose a card.' : `${nm(opp)} played ${nmc(pl.theirs)}. Choose your card.`;
     else msg = `${nm(v.actor)} is choosing a card…`;
     return `<div class="battle"><h2>Battle at ${esc(where)}</h2>
       <div class="foe" style="color:${col(opp)}">${nm(opp)}: ${b.oppReady} ready · ${b.oppAside} aside</div>
-      <div class="slots">${slot(b.def, defShow, 'Defender · ' + nm(b.def))}${slot(b.att, attShow, 'Attacker · ' + nm(b.att))}</div>
+      <div class="slots">${slot(me, pl.mine, false)}${slot(opp, pl.theirs, pl.theirsHidden)}</div>
       <p class="msg">${esc(msg)}</p>
       <div class="foe" style="color:${col(me)}">Your cards (${b.mine.aside.length} aside)</div>
-      <div class="hand">${b.mine.hand.slice().sort((x, y) => CT[y.type].power - CT[x.type].power).map(c => cardHTML(c, { attr: mineTurn && (stage === 'def' || stage === 'att') ? `data-pick="${c.id}"` : 'disabled', dim: !(mineTurn && (stage === 'def' || stage === 'att')) })).join('')}</div>
+      <div class="hand">${b.mine.hand.slice().sort((x, y) => CT[y.type].power - CT[x.type].power).map(c => cardHTML(c, { attr: can ? `data-pick="${c.id}"` : 'disabled', dim: !can })).join('')}</div>
       ${b.mine.aside.length ? `<div class="hand asidehand">${b.mine.aside.map(c => cardHTML(c, { small: true, dim: true, attr: 'disabled' })).join('')}</div>` : ''}
       ${stage === 'result' ? '<button class="big go" data-act="bc">Continue</button>' : ''}</div>`;
   }
@@ -549,13 +608,18 @@ const Bots = (() => {
     if (ui.sel && ui.sel.t === 'unit') { const u = v.units.find(x => x.id === ui.sel.id); if (u && u.owner === me) { selUnit = u.id; if (!u.acted && v.step === 'play' && a === me) reach = E.reachable(v, u); } else ui.sel = null; }
     if (ui.sel && ui.sel.t === 'card') selCard = ui.sel.id;
     const myTurn = v.step === 'play' && a === me;
+    const handEmpty = !v.hand.length;
+    const movable = myTurn && handEmpty && v.units.some(u => u.owner === me && !u.acted);
     let status;
     if (v.step === 'over') status = v.winner === -1 ? 'Nobody wins. Draw.' : `${nm(v.winner)} wins!`;
-    else if (v.step === 'flag') status = a === me ? 'Hide your flag: tap one of your castles' : `${nm(a)} is hiding their flag…`;
-    else if (v.step === 'battle') status = 'Battle!';
+    else if (v.step === 'flag') status = a === me ? 'Hide your flag: tap one of your two castles. Your opponent can\'t see which.' : `${nm(a)} is hiding their flag…`;
+    else if (v.step === 'battle') status = 'Resolving the battles';
     else if (!myTurn) status = `${nm(a)} is moving…`;
-    else if (v.hand.length) status = selCard ? 'Tap one of your castles to place it' : 'Tap a card, then one of your castles';
-    else status = 'Tap a unit, then where it goes. Then Battle!';
+    else if (!handEmpty) status = selCard ? 'Now tap one of your castles' : 'Place your cards: tap a card, then one of your castles';
+    else if (selUnit) status = 'Tap a glowing space to move there';
+    else if (movable) status = 'Tap a ringed unit, then where it goes. Then tap Resolve!';
+    else status = 'All moved. Tap Resolve!';
+    const phase = v.step === 'battle' ? 2 : 1;
     const mySel = selUnit && v.units.find(u => u.id === selUnit);
     let low = '';
     if (v.step !== 'battle') {
@@ -563,17 +627,22 @@ const Bots = (() => {
       else if (v.hand.length) low = `<div class="hand">${v.hand.slice().sort((x, y) => CT[y.type].power - CT[x.type].power).map(c => cardHTML(c, { sel: c.id === selCard, attr: myTurn ? `data-card="${c.id}"` : 'disabled' })).join('')}</div>`;
       else low = '<div class="hand"><small class="hint">No cards in hand</small></div>';
     }
-    const deployMode = myTurn && v.hand.length && selCard;
+    const deployMode = (myTurn && v.hand.length && selCard) || (v.step === 'flag' && a === me);
     return `<div class="screen game" style="--me:${col(me)}">
-      <div class="topbar">${libraryLink()}<span class="who" style="color:${col(v.cur)}">${nm(v.cur)}'s turn</span><button class="chip" data-act="help" aria-label="How to play">?</button><button class="chip" data-act="home" aria-label="Menu">☰</button></div>
-      <div class="status">${esc(status)}</div>
-      ${v.notice ? `<div class="notice">${esc(v.notice)}</div>` : ''}
-      ${boardHTML(v, selUnit, reach, deployMode)}
-      <div class="low">${low}
-        <div class="actions">${myTurn ? `<button class="big go ${v.hand.length ? 'off' : ''}" data-act="endmove">Battle!</button>` : ''}</div>
-        <div class="deckline">Your deck ${v.deck[me]} · discard ${v.discard[me]} · ${nm(v.opp)}'s hand ${v.oppHand}</div></div>
+      <div class="topbar">${libraryLink()}<button class="chip menuchip" data-act="menu" aria-label="Menu">☰ Menu</button></div>
+      <div class="main">
+        <div class="boardwrap">${boardHTML(v, selUnit, reach, deployMode, movable)}</div>
+        <div class="side">
+          <div class="phases"><span class="who" style="background:${col(v.cur)}">${nm(v.cur)}'s turn</span><span class="ph ${phase === 1 ? 'on' : ''}">1 · Deploy &amp; Move</span><span class="ph ${phase === 2 ? 'on' : ''}">2 · Resolve</span></div>
+          <div class="status">${esc(status)}</div>
+          ${v.notice ? `<div class="notice">${esc(v.notice)}</div>` : ''}
+          ${low}
+          ${myTurn ? `<button class="big go ${v.hand.length ? 'off' : ''}" data-act="endmove">Resolve!</button>` : ''}
+          <div class="deckline">Your deck ${v.deck[me]} · discard ${v.discard[me]} · ${nm(v.opp)}'s hand ${v.oppHand}</div>
+        </div>
+      </div>
       ${v.step === 'battle' ? battleHTML(v) : ''}
-      ${v.step === 'over' ? `<div class="sheet"><div class="sheetin"><h2 style="color:${v.winner >= 0 ? col(v.winner) : 'inherit'}">${v.winner === -1 ? 'Draw' : nm(v.winner) + ' wins!'}</h2><button class="big go" data-act="again">Play again</button><button class="big ghost" data-act="home">Menu</button></div></div>` : ''}
+      ${v.step === 'over' ? sheet(`<h2 style="color:${v.winner >= 0 ? col(v.winner) : 'inherit'}">${v.winner === -1 ? 'Draw' : nm(v.winner) + ' wins!'}</h2><button class="big gold" data-act="again">Play again</button><button class="big ghost" data-act="home">Main Menu</button>`) : ''}
     </div>`;
   }
 
@@ -583,7 +652,8 @@ const Bots = (() => {
     if (ui.screen === 'home' || !ui.s) h = homeHTML();
     else if (needsCover()) h = coverHTML();
     else h = gameHTML();
-    app.innerHTML = h + (ui.help ? helpHTML() : '');
+    const rv = pendingReveal();
+    app.innerHTML = h + (ui.menu && ui.screen === 'game' ? menuHTML() : '') + (ui.help ? helpHTML() : '') + (rv ? revealHTML(rv) : '');
     if (ui.screen === 'game' && ui.s && isBotTurn() && !needsCover()) {
       const s = ui.s, bot = 1 - ui.human;
       ui.timer = setTimeout(() => {
@@ -615,14 +685,16 @@ const Bots = (() => {
       if (a === 'mode-ai') newGame('ai'); else if (a === 'mode-pass') newGame('pass');
       else if (a === 'continue') cont();
       else if (a === 'help') { ui.help = true; render(); } else if (a === 'closehelp') { ui.help = false; render(); }
-      else if (a === 'home') { ui.screen = 'home'; render(); }
+      else if (a === 'menu') { ui.menu = true; render(); } else if (a === 'closemenu') { ui.menu = false; render(); }
+      else if (a === 'home') { ui.screen = 'home'; ui.menu = false; ui.help = false; render(); }
       else if (a === 'again') newGame(ui.mode);
       else if (a === 'uncover') { ui.seen = actorNow(); render(); }
       else if (a === 'endmove') { if (!actEl.classList.contains('off')) act({ type: 'endMove' }); }
       else if (a === 'bc') act({ type: 'continue' });
+      else if (a === 'revack') { const r = pendingReveal(); if (r) ui.revN = r.n; render(); }
       return;
     }
-    if (ui.help) return;
+    if (ui.help || ui.menu) return;
     if (pick) { act({ type: 'play', card: pick.dataset.pick }); return; }
     if (card) { ui.sel = ui.sel && ui.sel.id === card.dataset.card ? null : { t: 'card', id: card.dataset.card }; render(); return; }
     const s = ui.s;

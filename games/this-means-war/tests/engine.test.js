@@ -78,6 +78,30 @@ test('a battle: defender first, survivors become the new hand, loser is out', ()
   const u = s.units.find(x => x.at === '0,0'); assert.equal(u.owner, 0); assert.equal(u.cards.length, 2);
 });
 
+test('battle rounds alternate who plays first: the defender, then the attacker', () => {
+  const s = E.createGame({ seed: 8, first: 0 });
+  s.castles.sw.flagOf = 1; s.step = 'play'; s.hands[0] = [];
+  s.units.push({ id: 90, owner: 0, at: '0,0', cards: [card('warrior'), card('ranger')], acted: false });
+  s.units.push({ id: 91, owner: 1, at: '0,0', cards: [card('spy', 1), card('assassin', 1)], acted: false });
+  E.apply(s, { type: 'endMove' });
+  assert.equal(E.actor(s), 1, 'round 1: the defender plays first');
+  E.apply(s, { type: 'play', card: '1-spy-t' }); E.apply(s, { type: 'play', card: '0-ranger-t' }); E.apply(s, { type: 'continue' });
+  assert.equal(E.actor(s), 0, 'round 2: the attacker plays first');
+});
+
+test('turning over an original castle is announced (flag or no flag)', () => {
+  const s = E.createGame({ seed: 10, first: 0 });
+  s.castles.sw.flagOf = 1; s.step = 'play'; s.hands[0] = [];
+  s.units.push({ id: 90, owner: 0, at: '0,0', cards: [card('ranger')], acted: false });
+  E.apply(s, { type: 'endMove' });
+  assert.equal(s.reveals.length, 0, 'a neutral castle is not turned over');
+  s.cur = 0; s.step = 'play'; s.hands[0] = [];
+  s.units.push({ id: 91, owner: 0, at: '0,2', cards: [card('spy')], acted: false });
+  E.apply(s, { type: 'endMove' });
+  assert.deepEqual(s.reveals.map(r => [r.castle, r.flag]), [['se', false]]);
+  assert.equal(s.step, 'play');
+});
+
 test('merging discards duplicate types', () => {
   const s = E.createGame({ seed: 6, first: 0 });
   s.step = 'play'; s.hands[0] = [];

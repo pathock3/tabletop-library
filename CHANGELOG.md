@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- **This Means WAR! — second pass:** turning over one of the other side's first castles **flips it** to show the flag (that wins) or no flag. In a battle the **players take turns playing first** (the defender in round 1, the attacker in round 2, and so on). The turn is now **1 · Deploy & Move**, then **2 · Resolve**, units that can still move are **ringed**. The board fills the screen (cards, instructions and buttons sit beside it in landscape). **Menu** has Back to the game / How to Play / New Game / Main Menu. New look for the main menu and the table. Cards are bigger and show what they lose to (☠) and what they beat (⚔). "You are Blue" is gone from the menu.
+
 - **Dig Dig BOOM! — bigger Ongoing and Single-Use cards, tighter table:** when the cards would be small in one row and there is height to spare, they now **wrap onto two rows and grow**. Less empty space above the player board; its top border is roomier and the bottom one trimmed, with a slightly smaller Monster tracker. **"N left"** sits above the Mine, the Mine is at the very bottom of the mat, and the **Bank** button is level with it. Tapping the Monster tracker now starts with "There are always 9 Monster cards in your deck."
 
 - **New game: This Means WAR!** Two armies, one hex map of seven castles, a hidden flag. Place your cards on your castles to form units, march, and fight card by card: the defender plays first, the higher card wins unless the other is its weakness. Capture the castle that hides the enemy flag. Play the Computer or Pass and Play. First version: the basic cards only (no tunnels, no hero cards yet), from the newest rulebook.
