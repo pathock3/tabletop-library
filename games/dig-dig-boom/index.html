@@ -1228,6 +1228,22 @@ body[data-mode=play] { background: radial-gradient(130% 75% at 50% -10%, #74401e
 /* the dig table uses the whole screen: the wood frame is thinner and reaches the bottom edge (the home bar sits over it) */
 #play:has(.pmain) { padding-bottom: 0; }
 #play .pmain { margin: 0 4px 3px; padding: 8px; border-width: 9px; }
+/* the dig table, tighter: less empty space above the Drill, the Drill's border balanced, the "left" count above the Mine, the Mine at the bottom of the mat with the Bank level with it */
+#play .pbar { padding-top: calc(var(--top) - 8px); padding-bottom: 2px; }
+#play .pbar .chip[data-p=gmenu] { min-height: 48px; padding: 6px 22px; }
+#play .drill { padding: 16px 16px 6px; gap: 14px; }
+#play .mpile { width: 176px; gap: 2px; }
+#play .mset .mb { width: 26px; height: 26px; font-size: 14px; }
+#play .mset .lad i { min-width: 24px; height: 26px; font-size: 14px; }
+@media (min-width: 521px) {
+  #play .mat { height: calc(350px * var(--ca) + 48px); }
+  #play .mat .stack { margin-top: 36px; }
+  #play .mat .pilestrip { top: -36px; height: 30px; font-size: 14px; border-radius: 8px; }
+  #play .mat .piles { bottom: 0; }
+}
+#play .tableau[data-rows="2"] { flex-wrap: wrap; align-content: center; row-gap: 10px; }
+#play .tableau[data-rows="2"] > .tsep { display: none; }
+#play .tableau[data-rows="2"] > * + .tcard { margin-left: 0; }
 </style>
 </head>
 <body>
@@ -3942,9 +3958,13 @@ function DDBSeat(root, cfg) {
     const ca = Math.max(.4, Math.min(1, rest * .47 / 350, (W - dice - gap * 4) / 750));
     const n = Math.max(1, Number(tab && tab.dataset.n) || 1), sepW = tab && tab.querySelector('.tsep') ? 22 : 0, items = n + (sepW ? 1 : 0), Wa = W - 8;
     const lying = tab ? tab.querySelectorAll('.tcard.done').length : 0;          // a card that has fired lies on its side: it takes 30 / 250 more room
-    let cb = Math.min(2, (rest - 350 * ca - 74) / 350, (Wa - gap * (items - 1) - sepW) / (n * 250 + lying * 30));
+    const free = rest - 350 * ca - (W < 520 ? 74 : 48), fit = r => { const per = Math.ceil(n / r), lay = Math.ceil(lying / r); return Math.min(2, (free - gap * (r - 1)) / (350 * r), (Wa - gap * (per - 1) - (r === 1 ? sepW : 0)) / (per * 250 + lay * 30)); };
+    // one row if the cards fit it well; when the row would make them small and there is height to spare, two rows of bigger cards
+    const rows = n > 3 && fit(2) > fit(1) * 1.2 ? 2 : 1;
+    let cb = fit(rows);
     let ov = 0;
-    if (cb < .4) { cb = .4; ov = Math.ceil((n * 250 * cb + lying * 30 * cb + gap * (items - 1) + sepW - Wa) / Math.max(1, n - 1)); }       // too many cards even at the smallest size: they overlap, left edge (name, number) stays visible
+    if (rows === 1 && cb < .4) { cb = .4; ov = Math.ceil((n * 250 * cb + lying * 30 * cb + gap * (items - 1) + sepW - Wa) / Math.max(1, n - 1)); }       // too many cards even at the smallest size: they overlap, left edge (name, number) stays visible
+    if (tab) tab.dataset.rows = rows;
     t.style.setProperty('--ca', ca.toFixed(3)); t.style.setProperty('--cb', cb.toFixed(3)); t.style.setProperty('--ov', ov > 0 ? `-${ov}px` : '0px');
   }
   function homeHTML() {
@@ -4153,7 +4173,7 @@ function DDBSeat(root, cfg) {
   function termTip(key, arg) {
     const g = D.glossary.find(x => x.key === key), st = S.st, inDig = S.panel === 'dig' && st;
     if (g) return tipOf(g.name, A.esc(fillG(g.text)), g.icon, inDig ? { heart: st.heart, grit: st.grit, extraroll: st.reroll }[key] : undefined);
-    if (key === 'monsters') return tipOf('Monsters', 'Monsters come in three sets, A, B and C. Each time you meet one from a set it hits harder: the numbers are what it deals, in order. The red one is the Monster you are facing, the dim ones you have already met.', 'damage');
+    if (key === 'monsters') return tipOf('Monsters', `There are always ${cards().filter(c => c.type === 'Monster' && c.deck === R.startingDeck).reduce((n, c) => n + ((Engine.damageSteps(c.text) || []).length), 0)} Monster cards in your deck. They come in three sets, A, B and C. Each time you meet one from a set it hits harder: the numbers are what it deals, in order. The red one is the Monster you are facing, the dim ones you have already met.`, 'damage');
     if (key === 'geode') return tipOf('Geode', `A Geode is a card that gives you a gem. Dig one and the gem goes in your Bank.`, 'gem');
     if (key === 'pack') { const t = D.run.ladder[Number(arg)]; if (!t) return ''; return tipOf(`${t.name} Pack`, `Draw <b>${t.draw}</b> Booster cards and keep <b>${t.keep}</b> of them. You open it by banking <b>${t.at}</b> gems or more.<br>${t.draw}:${t.keep} is just that: cards drawn : cards kept.`, 'gem'); }
     if (key === 'whatprep' && S.run && S.run.prep && S.run.prep.first) return tipOf('Your first pack', `First time playing? Just pick one and see how the game works.`);

@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- **Dig Dig BOOM! — bigger Ongoing and Single-Use cards, tighter table:** when the cards would be small in one row and there is height to spare, they now **wrap onto two rows and grow**. Less empty space above the player board; its top border is roomier and the bottom one trimmed, with a slightly smaller Monster tracker. **"N left"** sits above the Mine, the Mine is at the very bottom of the mat, and the **Bank** button is level with it. Tapping the Monster tracker now starts with "There are always 9 Monster cards in your deck."
+
 - **New game: This Means WAR!** Two armies, one hex map of seven castles, a hidden flag. Place your cards on your castles to form units, march, and fight card by card: the defender plays first, the higher card wins unless the other is its weakness. Capture the castle that hides the enemy flag. Play the Computer or Pass and Play. First version: the basic cards only (no tunnels, no hero cards yet), from the newest rulebook.
 
 - **Dig Dig BOOM! — the whole screen for the table:** the wood frame is thinner and now reaches the bottom of the screen (the unused strip under it is gone), and the extra room goes to **bigger Ongoing and Single-Use cards**. The big Monster panel beside the Monster card is **gone**: the card has everything you need.
