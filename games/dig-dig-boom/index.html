@@ -1179,18 +1179,6 @@ body[data-mode=play] { background: radial-gradient(130% 75% at 50% -10%, #74401e
 .duel #play .panel.prep .foot { position: absolute; top: 8px; right: 12px; padding: 0; border: 0; z-index: 5; }          /* Keep / Ready sit beside the title: the cards get the room */
 .duel #play .panel.prep .foot .btn { min-width: 0; min-height: 56px; padding: 8px 22px; font-size: 20px; }
 .duel #play .panel.prep .foot .ownedbtn { display: none; }
-#play .dicez:has(.monpanel) { position: relative; }
-#play .monpanel { position: absolute; inset: 0 0 0 6px; z-index: 1; min-width: 0; display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 8px; padding: 10px 12px; border-radius: 18px; background: rgba(0,0,0,.22); border: 4px solid var(--bd, #b9402e); color: #fff3d6; text-align: center; }
-#play .monpanel .mpname { display: flex; align-items: center; gap: 10px; font-size: 30px; font-weight: 900; line-height: 1.1; }
-#play .monpanel .mpb { width: 40px; height: 40px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; background: var(--hot, #e8344e); color: #fff; font-size: 24px; }
-#play .monpanel .mphead { display: flex; align-items: center; gap: 8px; font-size: 18px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; opacity: .85; }
-#play .monpanel .mphead svg { width: 26px; height: 26px; }
-#play .monpanel .mlad { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; }
-#play .monpanel .mlad i { font-style: normal; font-size: 48px; font-weight: 900; min-width: 66px; padding: 4px 8px; border-radius: 14px; background: #d9c9a6; color: #4a3520; }
-#play .monpanel .mlad i.met { opacity: .4; }
-#play .monpanel .mlad i.now { background: #e8344e; color: #fff; box-shadow: 0 0 0 4px #fff3d6; }
-#play .monpanel .mploot { display: flex; align-items: center; gap: 8px; font-size: 26px; font-weight: 800; }
-#play .monpanel .mploot svg { width: 30px; height: 30px; }
 #play .pcard .pinfo { position: absolute; right: -8px; top: -8px; z-index: 6; width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; background: #fff3d6; color: #1c1410; border: 3px solid #1c1410; font: italic 900 24px/1 Georgia, serif; box-shadow: 0 2px 6px rgba(0,0,0,.5); }
 #play .foot .whatprep { margin-right: auto; min-width: 0; padding-left: 22px; padding-right: 22px; }
 #play .grow { cursor: pointer; }
@@ -1226,13 +1214,6 @@ body[data-mode=play] { background: radial-gradient(130% 75% at 50% -10%, #74401e
 #play .panel.setup { padding-bottom: 0; }
 #play .panel.setup .foot { padding: 12px 0; margin-bottom: calc(-1 * env(safe-area-inset-bottom, 0px) / var(--k, 1)); }          /* the buttons sit exactly halfway between the line above and the bottom of the screen */
 #play .lbhelpbtn { bottom: calc(12px - env(safe-area-inset-bottom, 0px) / var(--k, 1)); }
-#play .dicez:has(.monpanel) { flex-direction: column; align-items: stretch; justify-content: flex-start; gap: 8px; position: static; }
-#play .dicez .monpanel { position: static; inset: auto; flex: 1 1 0; min-height: 0; margin: 0; padding: 6px 10px; gap: 4px; }
-#play .dicez .monpanel .mphead { display: none; }
-#play .dicez .monpanel .mpname { font-size: 24px; }
-#play .dicez .monpanel .mpb { width: 32px; height: 32px; font-size: 19px; }
-#play .dicez .monpanel .mlad i { font-size: 34px; min-width: 52px; }
-#play .dicez .monpanel .mploot { font-size: 20px; }
 #play .action.prea { flex: none; display: flex; flex-direction: row; align-items: center; justify-content: space-between; gap: 12px; }
 #play .action.prea .gwrap { display: flex; align-items: center; gap: 10px; min-width: 0; }
 #play .rollgo { display: flex; align-items: center; gap: 12px; padding: 8px 18px 8px 10px; border-radius: 20px; background: linear-gradient(180deg, #ffd45e, #f0a21b); color: #1c1410; border: 3px solid #fff3d6; box-shadow: 0 5px 0 #6a4a05; font-size: 22px; font-weight: 900; letter-spacing: .03em; text-transform: uppercase; }
@@ -1244,6 +1225,9 @@ body[data-mode=play] { background: radial-gradient(130% 75% at 50% -10%, #74401e
 #play .over.boom .boomwhat { margin: 0 auto 12px; display: flex; min-height: 52px; font-size: 20px; }
 /* the buttons along the bottom of every screen are one family: the same height and the same writing */
 #play .panel .foot .btn[data-p], #play .panel .lbhelpbtn[data-p], #play .lbfull .lbhelpbtn[data-p] { min-height: 60px; height: 60px; padding: 0 26px; min-width: 0; font-size: 22px; font-weight: 800; border-radius: 16px; letter-spacing: 0; }
+/* the dig table uses the whole screen: the wood frame is thinner and reaches the bottom edge (the home bar sits over it) */
+#play:has(.pmain) { padding-bottom: 0; }
+#play .pmain { margin: 0 4px 3px; padding: 8px; border-width: 9px; }
 </style>
 </head>
 <body>
@@ -3955,10 +3939,10 @@ function DDBSeat(root, cfg) {
     const gap = 10, W = t.clientWidth, H = t.clientHeight, fixed = kids.filter(k => k !== mat && k !== tab).reduce((a, k) => a + k.offsetHeight + gap, 0);
     const rest = Math.max(200, H - fixed - gap * 2 - 18 - (W < 520 ? 130 : 0));
     const dice = 170;                                                // room for the action zone beside the Mine, the flip spot and the Bank
-    const ca = Math.max(.4, Math.min(1, rest * .52 / 350, (W - dice - gap * 4) / 750));
+    const ca = Math.max(.4, Math.min(1, rest * .47 / 350, (W - dice - gap * 4) / 750));
     const n = Math.max(1, Number(tab && tab.dataset.n) || 1), sepW = tab && tab.querySelector('.tsep') ? 22 : 0, items = n + (sepW ? 1 : 0), Wa = W - 8;
     const lying = tab ? tab.querySelectorAll('.tcard.done').length : 0;          // a card that has fired lies on its side: it takes 30 / 250 more room
-    let cb = Math.min(1.35, (rest - 350 * ca - 74) / 350, (Wa - gap * (items - 1) - sepW) / (n * 250 + lying * 30));
+    let cb = Math.min(2, (rest - 350 * ca - 74) / 350, (Wa - gap * (items - 1) - sepW) / (n * 250 + lying * 30));
     let ov = 0;
     if (cb < .4) { cb = .4; ov = Math.ceil((n * 250 * cb + lying * 30 * cb + gap * (items - 1) + sepW - Wa) / Math.max(1, n - 1)); }       // too many cards even at the smallest size: they overlap, left edge (name, number) stays visible
     t.style.setProperty('--ca', ca.toFixed(3)); t.style.setProperty('--cb', cb.toFixed(3)); t.style.setProperty('--ov', ov > 0 ? `-${ov}px` : '0px');
@@ -4387,13 +4371,6 @@ function DDBSeat(root, cfg) {
       return `<div class="mset" title="${A.esc(c.name)}"><span class="mb" style="--bd:${k.border};--hot:${k.hot};--c1:${k.c1};--ink:${k.ink}">${letter}</span><span class="lad">${steps.map((v, i) => `<i class="${i < met ? 'met' : i === met ? 'next' : ''}">${v}</i>`).join('')}</span></div>`;
     }).join('')}</div>`;
   }
-  // The Monster you are facing, big, in the room beside the Mine while you have not rolled yet: its name, what each Monster of its set deals (this one lit), and its Loot. Tap it for the card.
-  function monsterPanelHTML(st) {
-    const m = st.fight.monster, k = A.monsterLook(m), steps = Engine.damageSteps(m.text) || [], sets = cards().filter(c => c.type === 'Monster' && c.deck === R.startingDeck);
-    const letter = 'ABCD'[sets.findIndex(c => c.id === m.id)] || '', at = st.monsterPile.filter(x => x.id === m.id).length, loot = m.bonus ? R.beyond.gems : Engine.lootOf(m.text);
-    const lad = m.bonus || !steps.length ? `<i class="now">${Dig.previewDamage(st)}</i>` : steps.map((v, i) => `<i class="${i < at ? 'met' : i === at ? 'now' : ''}">${v}</i>`).join('');
-    return `<button class="monpanel" data-p="zoom" data-uid="${m.uid}" style="--bd:${k.border};--hot:${k.hot}" aria-label="${A.esc(m.name)}: tap for details"><span class="mpname">${letter ? `<b class="mpb">${letter}</b>` : ''}${A.esc(m.name)}</span><span class="mphead">${ic('damage')} Damage</span><span class="mlad">${lad}</span>${loot ? `<span class="mploot">Loot ${loot} ${ic('gem')}</span>` : ''}</button>`;
-  }
   function drillHTML(st, can) {
     const f = st.fight, plan = f && f.phase === 'before' ? f.plan : 0;
     return `<section class="drill"><div class="tracks">
@@ -4522,7 +4499,7 @@ function DDBSeat(root, cfg) {
     const finalRound = !!(S.run && st.board && st.board.final);          // the last round: nobody banks, so there is no Bank and no gem count
     const rollCol = finalRound ? '' : piles;
     const dug = `<div class="dugz"><div class="slot ${st.discard.length ? 'stacked' : ''}">${dugHTML(st)}</div></div>`;
-    const action = `<div class="dicez">${preRollNow ? monsterPanelHTML(st) : ''}${dz.html}</div>`;          // (the Take button is in it, beside the die and never on the Mine, so a quick tap on the Mine cannot take the damage)
+    const action = `<div class="dicez">${dz.html}</div>`;          // (the Take button is in it, beside the die and never on the Mine, so a quick tap on the Mine cannot take the damage)
     const s = st.over ? Dig.score(st) : null;
     let over = '';
     const ovFx = st.over && st.over !== fx.over ? 'fx' : '';
