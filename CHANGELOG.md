@@ -2,7 +2,7 @@
 
 ## Unreleased
 
-- **This Means WAR! — factions:** 13 complete factions from the cards sheet (plus Basic): The Fellowship, Mordor, Rebel Alliance, Galactic Empire, Order of the Phoenix, The Benders, Game of Thrones, Survivor, Pokémon, Pixar Heroes and Villains, Disney Heroes and Villains. Each role becomes a character (same role, power and weakness; "+1 P" / "-1 P" changes the power). Pick a side from a universe pair and the computer plays the other, or pick any faction and it gets a random one. **Special abilities are not played yet.** Two factions are not finished in the sheet and are not offered: Death Eaters and Studio Ghibli.
+- **This Means WAR! — factions:** a faction is offered only when **all seven** of its roles have a special ability or a changed power on the cards sheet. That is 6 so far (plus Basic): The Fellowship, Mordor, The Benders, Game of Thrones, Survivor, Pokémon. Each role becomes a character (same role, power and weakness; "+1 P" / "-1 P" changes the power). Pick a side from a pair (only Fellowship vs Mordor is complete) and the computer plays the other, or pick any faction and it gets a random one. **Special abilities are not played yet.** The others show up automatically once the sheet gives all seven roles something.
 
 - **Dig Dig BOOM!:** the Number line on a card's info now says "When you roll 5 or more against a Monster (any bonuses count too)…" instead of "When your result is 5 or more".
 

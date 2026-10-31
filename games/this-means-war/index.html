@@ -157,7 +157,7 @@ const GAME_DATA = {
   // ---- Factions (from the owner's "This Means WAR!" cards sheet). A faction gives each of the seven roles a character: the same role, power and weakness, and a power change where the sheet says "+1 P" or "-1 P".
   // `abilities` are the sheet's special abilities, kept here for later: nothing in the game plays them yet. A faction is "complete" when all seven roles have a character, and only complete ones are offered.
   factions: [
-    { id: "basic", name: "Basic", universe: "The standard roles", color: "#c9a96a",
+    { id: "basic", basic: true, name: "Basic", universe: "The standard roles", color: "#c9a96a",
       names: {"leader": "Leader", "general": "General", "warrior": "Warrior", "ranger": "Ranger", "sorcerer": "Sorcerer", "spy": "Spy", "assassin": "Assassin"},
       power: {}, },
     { id: "fellowship", name: "The Fellowship", universe: "Lord of the Rings", color: "#4f9d5a",
@@ -179,6 +179,10 @@ const GAME_DATA = {
       names: {"leader": "Dumbledore", "general": "Professor McGonagall", "warrior": "Sirius Black", "ranger": "Ron Weasley", "sorcerer": "Hermione Granger", "spy": "Molly Weasley", "assassin": "Harry Potter"},
       power: {},
       abilities: {"leader": ["Part of the Plan", "When defeated by an Assassin, draw 2 cards"], "ranger": ["The Power of Friendship", "Reveal at the start of battle to gain +1 P for each Warrior and Sorcerer revealed"], "sorcerer": ["The Power of Friendship", "Reveal at the start of battle to gain +1 P for each Warrior and Ranger revealed"], "assassin": ["Invisibility Cloak", "Once per battle, when Harry would be defeated, he survives"]}, },
+    { id: "death", name: "Death Eaters", universe: "Harry Potter", color: "#4b5d3a",
+      names: {"leader": "Lord Voldemort", "general": "Bellatrix Lestrange", "warrior": "Troll?", "ranger": "", "sorcerer": "Dementor", "spy": "Peter Pettigrew", "assassin": "Severus Snape"},
+      power: {},
+      abilities: {"leader": ["Horcrux", "In each battle, the first time Voldemort would be defeated, he survives but his Power is reduced to 7"]} },
     { id: "benders", name: "The Benders", universe: "Summoner Wars", color: "#7b4fc4",
       names: {"leader": "Tacullu", "general": "Gulldune", "warrior": "Breaker", "ranger": "Controller", "sorcerer": "Deceiver", "spy": "Kalal", "assassin": "Sorgwen"},
       power: {},
@@ -190,7 +194,7 @@ const GAME_DATA = {
     { id: "survivor", name: "Survivor", universe: "Survivor", color: "#d98a1f",
       names: {"leader": "Boston Rob", "general": "Cirie Fields", "warrior": "Tony Vlachos", "ranger": "Yul Kwon", "sorcerer": "Parvati Shallow", "spy": "Sandra Diaz-Twine", "assassin": "Russell Hantz"},
       power: {"assassin": 1},
-      abilities: {"leader": ["Blindsided", "At the start of a battle, reveal Rob from an allied unit to move him to your battle hand"], "general": ["Flip Allegiances", "When attacked, reveal Cirie to steal a card from your opponent's hand. If it is a duplicate role, discard one"], "ranger": ["Outwit", "When attacking, reveal at the start of battle to have your opponent play their first card face down. Guess the role, and if correct, the card is defeated and they must play another"], "spy": ["Anyone But Me", "In battle, when Sandra is exposed, after the other player plays a card, you may swap Sandra for a card in your hand"]}, },
+      abilities: {"warrior": ["Spy Shack", "To build this structure, discard other cards in this unit, flip this card face up, and it can no longer move. At the start of your turn, you may look at any opposing unit within one space of this structure"], "sorcerer": ["Idol Play", "Setup: Grab the two idol cards. One says Idol, the other No Idol. In battle, each time you must play a card first, first play either idol card. After the other player plays their card, reveal your idol card. If you played the Idol, your card is safe, but you may not play another idol this battle"], "assassin": ["Cause Chaos", "Reveal from your hand to roll a d6. 6: Bury it (look at an opposing unit and bury one card at the bottom of their deck). 5: Division (halve an opposing unit and move the cards to any other space). 4: Hidden advantage (draw a card). 3: Confusion (swap two opposing units). 2: Sabotage (?). 1: Betrayal (send Russell to your opponent's hand)"], "leader": ["Blindsided", "At the start of a battle, reveal Rob from an allied unit to move him to your battle hand"], "general": ["Flip Allegiances", "When attacked, reveal Cirie to steal a card from your opponent's hand. If it is a duplicate role, discard one"], "ranger": ["Outwit", "When attacking, reveal at the start of battle to have your opponent play their first card face down. Guess the role, and if correct, the card is defeated and they must play another"], "spy": ["Anyone But Me", "In battle, when Sandra is exposed, after the other player plays a card, you may swap Sandra for a card in your hand"]}, },
     { id: "pokemon", name: "Pokémon", universe: "Pokémon", color: "#e0b800",
       names: {"leader": "Charizard", "general": "Dragonite", "warrior": "Snorlax", "ranger": "Pidgeot", "sorcerer": "Mewtwo", "spy": "Ditto", "assassin": "Gengar"},
       power: {},
@@ -215,11 +219,8 @@ const GAME_DATA = {
     { id: 'pixar', name: 'Pixar', sides: ['pixar-heroes', 'pixar-villains'] },
     { id: 'disney', name: 'Disney', sides: ['disney-heroes', 'disney-villains'] },
   ],
-  // Not offered yet: the sheet has no full cast for them.
-  incompleteFactions: [
-    { name: 'Death Eaters (Harry Potter)', why: 'the Ranger has no name yet and the Warrior is "Troll?"' },
-    { name: 'Studio Ghibli', why: 'no characters have been chosen' },
-  ],
+  // A faction is offered when every one of its seven roles has a special ability or a changed power ("+1 P"). The rest wait until the sheet gives them one. (The Basic roles are always offered.)
+  notStarted: ['Studio Ghibli'],          // on the sheet, but no characters yet
 
   texts: {
     tagline: 'Capture the hidden flag before they capture yours!',
@@ -258,6 +259,10 @@ const Engine = (() => {
 
   // 'a' when card a wins, 'b' when card b wins, 'both' when both are defeated. The stronger card wins unless the weaker one is its weakness.
   const FAC = {}; D.factions.forEach(f => { FAC[f.id] = f; });
+  const ROLES = D.cards.map(c => c.id);
+  const missingRoles = f => ROLES.filter(r => !((f.abilities || {})[r] || (f.power || {})[r]));
+  const isComplete = f => !!f.basic || (missingRoles(f).length === 0 && ROLES.every(r => (f.names[r] || '').trim()));
+  const offered = D.factions.filter(isComplete);
   // a card's power: its role's, plus the faction's "+1 P" / "-1 P" for that character
   const powerOf = (c, fac) => CT[c.type].power + (((FAC[(fac || [])[c.owner]] || FAC.basic).power || {})[c.type] || 0);
   const nameOf = (c, fac) => ((FAC[(fac || [])[c.owner]] || FAC.basic).names || {})[c.type] || CT[c.type].name;
@@ -478,7 +483,7 @@ const Engine = (() => {
   const serialize = s => JSON.stringify(s);
   const restore = t => JSON.parse(t);
 
-  return { CT, FAC, powerOf, nameOf, hk, parse, onBoard, allHexes, castleHex, hexCastle, dist, duel, createGame, actor, reachable, apply, viewFor, serialize, restore, castleName, sideName };
+  return { CT, FAC, ROLES, missingRoles, isComplete, offered, powerOf, nameOf, hk, parse, onBoard, allHexes, castleHex, hexCastle, dist, duel, createGame, actor, reachable, apply, viewFor, serialize, restore, castleName, sideName };
 })();
 </script>
 <script id="bots">
@@ -646,9 +651,9 @@ const Bots = (() => {
     const p = ui.pick; if (!p) return;
     if (p.mode === 'ai') {
       const f = [null, id];          // you are Blue
-      const set = D.sets.find(x => x.sides.includes(id));
+      const set = D.sets.find(x => x.sides.includes(id) && x.sides.every(s => E.isComplete(E.FAC[s])));
       if (paired && set) f[0] = set.sides.find(x => x !== id);
-      else { const all = D.factions.map(x => x.id).filter(x => x !== id); f[0] = all[Math.floor(Math.random() * all.length)]; }
+      else { const all = E.offered.map(x => x.id).filter(x => x !== id); f[0] = all[Math.floor(Math.random() * all.length)]; }
       ui.pick = null; newGame('ai', f); return;
     }
     if (p.chosen[0] === null) { p.chosen[0] = id; render(); return; }
@@ -657,10 +662,10 @@ const Bots = (() => {
   function pickHTML() {
     const p = ui.pick, ai = p.mode === 'ai', who = ai ? '' : (p.chosen[0] === null ? nm(0) + ', ' : nm(1) + ', ');
     const tile = (f, paired) => `<button class="ftile" data-act="pickfac" data-f="${f.id}" data-paired="${paired ? 1 : 0}" style="--fc:${f.color}"><b>${esc(f.name)}</b><small>${esc(f.universe)}</small><i>${['leader', 'general', 'warrior'].map(r => esc(short(f.names[r]))).join(' · ')}…</i></button>`;
-    const sets = ai ? `<h3>Pick a side. The computer plays the other.</h3>${D.sets.map(s => { const [a, b] = s.sides.map(id => E.FAC[id]); return `<div class="fset"><div class="fsetname">${esc(s.name)}</div><div class="fpair">${tile(a, true)}<span class="vs">vs</span>${tile(b, true)}</div></div>`; }).join('')}<h3>Or pick any faction. The computer gets a random one.</h3>` : '<h3>Pick a faction</h3>';
+    const sets = ai ? `<h3>Pick a side. The computer plays the other.</h3>${D.sets.filter(s => s.sides.every(id => E.isComplete(E.FAC[id]))).map(s => { const [a, b] = s.sides.map(id => E.FAC[id]); return `<div class="fset"><div class="fsetname">${esc(s.name)}</div><div class="fpair">${tile(a, true)}<span class="vs">vs</span>${tile(b, true)}</div></div>`; }).join('')}<h3>Or pick any faction. The computer gets a random one.</h3>` : '<h3>Pick a faction</h3>';
     return `<div class="screen pick">${libraryLink()}<div class="topbar"><button class="chip" data-act="pickback">‹ Back</button></div><h2 class="picktitle" style="color:${p.chosen[0] === null && !ai ? col(0) : col(1)}">${who ? who + 'choose' : 'Choose'} your side</h2>
-      <div class="pickscroll">${sets}<div class="fgrid">${D.factions.map(f => tile(f, false)).join('')}</div>
-      <p class="fnote">${D.incompleteFactions.length} more factions are not finished yet (${D.incompleteFactions.map(x => esc(x.name)).join(', ')}).</p></div></div>`;
+      <div class="pickscroll">${sets}<div class="fgrid">${E.offered.map(f => tile(f, false)).join('')}</div>
+      <p class="fnote">${D.factions.length - E.offered.length + D.notStarted.length} more factions are not finished yet.</p></div></div>`;
   }
 
   function homeHTML() {

@@ -141,12 +141,13 @@ test('save and restore round-trips', () => {
   assert.deepEqual(E.restore(E.serialize(s)), s);
 });
 
-test('factions: every offered faction has a character for all seven roles; sets pair real factions; two are not offered yet', () => {
-  const roles = D.cards.map(c => c.id);
-  for (const f of D.factions) { for (const r of roles) assert.ok(f.names[r] && f.names[r].trim(), f.id + ' needs a ' + r); }
-  assert.equal(D.factions.length, 14, 'Basic and 13 complete factions');
-  assert.equal(D.incompleteFactions.length, 2);
-  for (const s of D.sets) { assert.equal(s.sides.length, 2); s.sides.forEach(id => assert.ok(E.FAC[id], id)); }
+test('factions: only a faction whose seven roles all have an ability or a changed power is offered; the rest wait', () => {
+  assert.deepEqual(E.offered.map(f => f.id), ['basic', 'fellowship', 'mordor', 'benders', 'got', 'survivor', 'pokemon']);
+  for (const f of E.offered) for (const r of E.ROLES) assert.ok(f.basic || f.abilities[r] || f.power[r], f.id + ' needs something for ' + r);
+  assert.deepEqual(E.missingRoles(E.FAC.order), ['general', 'warrior', 'spy'], 'Order of the Phoenix: three still to do');
+  assert.equal(D.factions.length - E.offered.length + D.notStarted.length, 9, 'nine factions are not finished');
+  for (const f of E.offered) for (const r of E.ROLES) assert.ok(f.names[r].trim(), f.id + ' names ' + r);
+  for (const s of D.sets) s.sides.forEach(id => assert.ok(E.FAC[id], id));
 });
 
 test('factions: a "+1 P" / "-1 P" changes the power, so a tie can become a win', () => {
@@ -159,7 +160,7 @@ test('factions: a "+1 P" / "-1 P" changes the power, so a tie can become a win',
 });
 
 test('factions: computer vs computer finishes with different factions', () => {
-  const ids = D.factions.map(f => f.id);
+  const ids = E.offered.map(f => f.id);
   for (let seed = 1; seed <= 10; seed++) {
     const s = E.createGame({ seed, first: seed % 2, factions: [ids[seed % ids.length], ids[(seed * 3 + 1) % ids.length]] });
     let n = 0;
