@@ -25,14 +25,14 @@ h1 { margin: 0; font-size: clamp(34px, 7vw, 54px); letter-spacing: .5px; }
 .tag { margin: 6px 0 0; color: var(--dim); font-size: clamp(15px, 2.4vw, 18px); }
 /* the shelf: each game is a board-game box — just its cover art, with a thick edge */
 .shelf { display: flex; flex-wrap: wrap; justify-content: center; gap: 18px 14px; list-style: none; margin: 0; padding: 0 0 20px 0; }          /* up to 3 across in landscape, 2 on an upright iPad, 1 on a phone; the last row is centred */
-.shelf li { flex: 0 0 min(358px, 100%); padding: 50px 56px 0 0; filter: drop-shadow(0 22px 16px rgba(0,0,0,.55)); }          /* (room on the right and above for the box's depth) */
+.shelf li { flex: 0 0 min(350px, 100%); padding: 42px 46px 0 0; filter: drop-shadow(0 22px 16px rgba(0,0,0,.55)); }          /* (room on the right and above for the box's depth) */
 .box { display: block; position: relative; border-radius: 3px; text-decoration: none; color: inherit; background: #120b07; border: 0;
   transition: transform .14s ease; touch-action: manipulation; -webkit-user-select: none; user-select: none; --lid: color-mix(in srgb, var(--accent-c) 55%, #1a1008); --base: color-mix(in srgb, var(--accent-c) 30%, #0c0705); }
 /* the box is as deep as a real game box (about a seventh of its width): its right side and its top show, the lid over the base, with the seam between them */
 .box .side { position: absolute; pointer-events: none; }
-.box .side.r { left: 100%; top: 0; width: 56px; height: 100%; transform-origin: 0 0; transform: skewY(-40deg);
+.box .side.r { left: 100%; top: 0; width: 46px; height: 100%; transform-origin: 0 0; transform: skewY(-39.6deg);
   background: linear-gradient(to bottom, var(--lid) 0, var(--lid) 80%, #000 80%, #000 calc(80% + 2px), var(--base) calc(80% + 2px), var(--base) 100%); box-shadow: inset 0 0 0 2px rgba(255,255,255,.1), inset 7px 0 12px rgba(0,0,0,.45); filter: brightness(.82); }
-.box .side.t { left: 0; bottom: 100%; width: 100%; height: 47px; transform-origin: 0 100%; transform: skewX(-50deg);
+.box .side.t { left: 0; bottom: 100%; width: 100%; height: 38px; transform-origin: 0 100%; transform: skewX(-50.4deg);
   background: linear-gradient(to top, color-mix(in srgb, var(--lid) 78%, #fff) 0, var(--lid) 100%); box-shadow: inset 0 0 0 2px rgba(255,255,255,.14), inset 0 -8px 14px rgba(0,0,0,.25); }
 .box .side.t::after { content: ""; position: absolute; inset: 7px 9px; border: 2px solid rgba(255,255,255,.14); }
 .box:active { transform: translate(4px, 5px); }
@@ -49,6 +49,12 @@ h1 { margin: 0; font-size: clamp(34px, 7vw, 54px); letter-spacing: .5px; }
 .about p { margin: 8px 0; font-size: 17px; line-height: 1.45; color: var(--text); }
 .about a { color: var(--accent); font-weight: 700; display: inline-block; }
 footer { margin-top: 34px; text-align: center; color: var(--dim); font-size: 12px; }
+/* opening a box: the lid swings up, then we zoom into the dark inside and arrive in the game */
+.openfx { position: fixed; inset: 0; z-index: 50; pointer-events: all; background: rgba(8,5,3,0); }
+.openfx .stage { position: fixed; perspective: 1000px; }
+.openfx .inside { position: absolute; inset: 0; border-radius: 3px; background: radial-gradient(ellipse at 50% 40%, color-mix(in srgb, var(--accent-c) 35%, #1a1008), #070403 75%); box-shadow: inset 0 0 40px rgba(0,0,0,.9); }
+.openfx .lid { position: absolute; inset: 0; transform-origin: 50% 0; backface-visibility: hidden; -webkit-backface-visibility: hidden; border-radius: 3px; overflow: hidden; box-shadow: 0 10px 24px rgba(0,0,0,.5); }
+.openfx .lid svg { display: block; width: 100%; height: 100%; }
 </style>
 </head>
 <body>
@@ -269,6 +275,25 @@ const LIBRARY = {
       </a></li>`).join('')}</ul>
     <section class="about" aria-label="${esc(L.about.heading)}"><h2>${esc(L.about.heading)}</h2>${L.about.lines.map(t => `<p>${esc(t)}</p>`).join('')}<p>${esc(L.about.contact.lead)}<br><a href="mailto:${esc(L.about.contact.email)}">${esc(L.about.contact.email)}</a></p></section>
     <footer>Version ${esc(BUILD)}</footer>`;
+
+  // Tapping a box opens it: the lid swings up, we zoom into the dark inside, and arrive in the game.
+  document.getElementById('app').addEventListener('click', e => {
+    const box = e.target.closest('a.box'); if (!box || e.defaultPrevented || e.button || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+    if (matchMedia('(prefers-reduced-motion: reduce)').matches || !box.animate) return;
+    e.preventDefault();
+    const go = () => { location.href = box.href; }, r = box.getBoundingClientRect(), fx = document.createElement('div');
+    fx.className = 'openfx'; fx.style.setProperty('--accent-c', getComputedStyle(box).getPropertyValue('--accent-c'));
+    fx.innerHTML = '<div class="stage"><div class="inside"></div><div class="lid">' + box.querySelector('.art').innerHTML + '</div></div>';
+    const st = fx.firstChild; st.style.cssText = `left:${r.left}px;top:${r.top}px;width:${r.width}px;height:${r.height}px`;
+    document.body.appendChild(fx);
+    const lid = st.querySelector('.lid'), S = Math.max(innerWidth / r.width, innerHeight / r.height) * 1.2, dx = innerWidth / 2 - (r.left + r.width / 2), dy = innerHeight / 2 - (r.top + r.height * .45);
+    fx.animate([{ background: 'rgba(8,5,3,0)' }, { background: 'rgba(8,5,3,.82)' }], { duration: 450, fill: 'forwards' });
+    lid.animate([{ transform: 'rotateX(0deg)' }, { transform: 'rotateX(-118deg)' }], { duration: 560, easing: 'cubic-bezier(.3,.7,.3,1)', fill: 'forwards' });
+    st.animate([{ transform: 'translate(0,0) scale(1)' }, { transform: `translate(${dx}px,${dy}px) scale(${S})` }], { duration: 720, delay: 480, easing: 'cubic-bezier(.65,0,.85,.4)', fill: 'forwards' });
+    fx.animate([{ background: 'rgba(8,5,3,.82)' }, { background: 'rgb(7,4,3)' }], { duration: 260, delay: 940, fill: 'forwards' });
+    setTimeout(go, 1230);
+  });
+  window.addEventListener('pageshow', () => { document.querySelectorAll('.openfx').forEach(n => n.remove()); });          // coming back with the Back button: the box is closed again
 
 })();
 </script>

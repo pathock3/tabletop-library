@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- **Library:** the boxes are a little less thick, and **tapping a box opens it**: the lid swings up, you zoom into the dark inside, and arrive at the game's main menu (about a second; skipped if the device asks for reduced motion).
+
 - **Library:** each cover is now a **box with real depth** (about a seventh of its width, like a standard game box): you see its top and right side, with the lid over the base and the seam between them. The boxes sit square and cast one shadow.
 
 - **Dig Dig BOOM! — tips, second pass:** nothing pops up before a game starts; the first tip (Welcome) comes right after you start a new game with **Teach me how to play** ticked. The Starter Kit tip is gone (the screen explains it). Tips about a type of card **point at a card of that type** with an arrow instead of covering the screen; the "Time to dig!" tip points at the Mine and now always shows at the start of a dig. Copy changes: Booster Pack ("That's okay, just pick one that sounds fun."), Monster (starts "Whichever player survives the most Monsters in a single dig wins", ends "Defeat it to take no damage."), "the more can happen on every roll", Banked no longer mentions the Escape Bonus, the Leaderboard tip ("for every Monster that player digs, even if that Monster makes them go BOOM. Your best dig is tracked on top…"), and the better-packs tip explains the Escape Bonus (you don't know your pack until after you bank).
