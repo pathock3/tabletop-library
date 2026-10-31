@@ -357,7 +357,7 @@ test('table: after the roll a button takes the damage — then you see your new 
     assert.deepEqual(await stOf(page, () => { const s = window.DigDigBoomPlay.S.st; return [s.heart, s.survived, !!s.fight]; }), [2, 1, false], 'your Health is updated first');
     assert.match(await page.locator('#play .stamp').innerText(), /survived/i, 'the Monster card says how it ended');
     assert.ok(await page.locator('#play .deck').isEnabled() && await page.locator('#play [data-p=bank]').isEnabled(), 'now you choose: dig on or bank');
-    assert.match(await page.locator('#play .aprompt').innerText(), /Mine to dig, or the Bank/);
+    assert.match(await page.locator('#play .aprompt').innerText(), /Mine deck to dig, or Bank/);
     await page.click('#play [data-p=dig]'); assert.equal(await page.locator('#play .stamp').count(), 0, 'the stamp goes with the next card');
     await page.click('#play [data-p=dig]'); await page.click('#play [data-p=roll]');
     assert.equal(await page.locator('#play .takedmg.lethal').count(), 1, 'a lethal hit is flagged on the button');
@@ -536,7 +536,7 @@ test('run: round 1 opens a Bronze Pack (draw 3, keep 1), then you choose your St
     assert.equal(await page.locator('#play .deck .card').count() > 0, true, 'the gem shows face up on the Mine');
     await page.click('#play [data-p=dig]'); await page.waitForTimeout(300);
     assert.match(await page.locator('#play [data-p=bank]').innerText(), /^BANK\s*1/i, 'dig a gem and it is in the Bank');
-    assert.equal(await page.locator('#play .lb').count(), 1); assert.match(await page.locator('#play .lbhead').innerText(), /round 1 of 5/i);
+    assert.equal(await page.locator('#play .lb').count(), 1); assert.match(await page.locator('#play .lbhead').innerText(), /round 1 of 4/i);
     assert.deepEqual(errors, []);
   } finally { await browser.close(); }
 });
@@ -1495,7 +1495,7 @@ test('the Leaderboard: How it works, tap a piece / chip / column to be told what
     assert.equal(await page.locator('#play [data-p=mainmenu]').count(), 1, 'a Main menu button'); assert.equal(await page.locator('#play [data-p=startrun]').count(), 1, 'beside New game');
     await page.click('#play [data-p=lbhelp]'); const h = await page.locator('#play .lbhelp').innerText(); assert.match(h, /The Leaderboard[\s\S]*Monsters survived[\s\S]*chip[\s\S]*starburst[\s\S]*Crown[\s\S]*plays back/i); assert.equal(await page.locator('#play .lbhelp .t3').count(), 3, 'three pictures'); await page.click('#play [data-p=lbhelpclose] >> nth=-1');
     await page.click('#play .bgrid .pchip[data-pid] >> nth=0'); assert.match(await page.locator('#play .lbtip').innerText(), /best Dig[\s\S]*(place|not banked)/); await page.click('#play .lbtip');
-    await page.click('#play .bgrid .bcol[data-n="2"]'); assert.match(await page.locator('#play .lbtip').innerText(), /2 Monsters|Nobody here/); await page.click('#play .lbtip'); assert.equal(await page.locator('#play .lbtip').count(), 0);
+    await page.click('#play .bgrid .bcol[data-n="2"]'); assert.equal(await page.locator('#play .lbtip').count(), 0, 'an empty space says nothing');
     await page.click('#play [data-p=donetab][data-k="1"]');
     await page.click('#play [data-p=donereplay]'); await page.click('#play [data-p=boardfast]');
     assert.equal((await page.locator('#play [data-p=boardskip]').innerText()).replace(/\W/g, ''), 'Skip', 'after Fast forward the button says Skip');
@@ -1516,9 +1516,9 @@ test('the Leaderboard tip opens above the full-size Leaderboard, and a card\'s n
   try {
     await startRun(page, { opp: true });
     await page.click('#play .lb'); await page.waitForSelector('#play .lbfull');
-    await page.click('#play .lbfull .bgrid .bcol[data-n="0"]'); await page.waitForSelector('#play .lbtip');
-    assert.ok(await page.evaluate(() => { const t = document.querySelector('#play .lbtip').getBoundingClientRect(); const e = document.elementFromPoint(t.left + t.width / 2, t.top + t.height / 2); return !!e.closest('.lbtip'); }), 'the tip can be seen: nothing covers it');
-    await page.click('#play .lbtip'); await page.click('#play .lbfull', { position: { x: 6, y: 6 } });
+    assert.ok(await page.evaluate(() => { const r = document.querySelector('#play .lbfull').getBoundingClientRect(); return r.left <= 0 && r.top <= 0 && r.right >= innerWidth - 1 && r.bottom >= innerHeight - 1; }), 'it covers the whole screen');
+    const hb = await page.locator('#play .lbfull .lbhelpbtn').boundingBox(); assert.ok(hb.width < 260 && hb.x < 40 && hb.y > 1000, 'What is this? is a small button in the bottom left corner');
+    await page.click('#play .lbfull', { position: { x: 400, y: 300 } }); assert.equal(await page.locator('#play .lbfull').count(), 0, 'a tap anywhere on it just closes it');
     await page.evaluate(() => window.DigDigBoomPlay.act('pilecount'));
     const nums = await page.evaluate(() => [...document.querySelectorAll('#play .tcard .num, #play .pcard .num')].map(n => ({ svg: !!n.querySelector('svg path'), t: n.textContent.trim() })));
     assert.ok(nums.every(n => n.svg && /^\d+$/.test(n.t)), 'every number is in a die: ' + JSON.stringify(nums));

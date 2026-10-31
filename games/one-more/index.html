@@ -234,8 +234,14 @@ p.lead { color: var(--dim); margin: 0 0 12px; }
 .mode.confirm { background: linear-gradient(135deg, #ff7a1c, #e0261c); border-color: transparent; }
 .mode.two { flex-direction: column; gap: 4px; max-width: none; padding: 24px 20px; }
 .mode.two b { font-size: 26px; } .mode.two span { font-size: 16px; font-weight: 600; opacity: .85; }
-.lastnote { position: absolute; left: 12px; right: 12px; bottom: calc(env(safe-area-inset-bottom) + 22px); text-align: center; font-size: 16px; font-weight: 700; color: var(--spark2); pointer-events: none; text-shadow: 0 2px 8px #000; }
+.lastnote_unused { position: absolute; left: 12px; right: 12px; bottom: calc(env(safe-area-inset-bottom) + 22px); text-align: center; font-size: 16px; font-weight: 700; color: var(--spark2); pointer-events: none; text-shadow: 0 2px 8px #000; }
 .menu { width: 52px !important; height: 52px !important; font-size: 26px !important; }
+.bankbar { position: absolute; left: 50%; bottom: calc(env(safe-area-inset-bottom) + 14px); transform: translateX(-50%); width: min(60vw, 520px); display: flex; flex-direction: column; align-items: center; gap: 10px; z-index: 5; pointer-events: none; }
+.bankbtn { pointer-events: auto; min-width: 170px; min-height: 60px; padding: 8px 28px; border-radius: 18px; font-size: 26px; font-weight: 900; color: #1c1410; background: linear-gradient(180deg, #7affe6, #2fd6b8); border: 3px solid #e9fff9; box-shadow: 0 5px 0 #0e6b5c, 0 0 24px -4px rgba(61,242,208,.7); display: flex; align-items: center; justify-content: center; gap: 10px; }
+.bankbtn b { font-size: 30px; }
+.bankbtn:disabled { opacity: .35; box-shadow: none; filter: saturate(.4); }
+.bankbtn:not(:disabled):active { transform: translateY(3px); box-shadow: 0 2px 0 #0e6b5c; }
+.narr { min-height: 48px; max-width: 100%; text-align: center; font-size: 20px; font-weight: 700; line-height: 1.25; color: var(--text); text-shadow: 0 2px 8px #000; text-wrap: balance; }
 /* overlays */
 .scrim { position: absolute; inset: 0; background: rgba(4,3,18,.74); display: grid; place-items: center; padding: 16px; }
 .scrim.clear { background: transparent; place-items: start start; }
@@ -302,6 +308,7 @@ const GAME_DATA = {
   // the last boom is drawn (every boom is out), or when only booms are left in the draw pile. Each refresh also takes boom cards out of the game for good.
   rules: {
     race: { players: 2, target: 20 },
+    minBooms: 1,                            // ...but there are never fewer than this many boom cards: the game needs one
     boomsRemovedPerRefresh: 1,              // each time the draw pile is used up and everything unsaved is shuffled back in, this many boom cards are taken out of the game for good
   },
 
@@ -335,6 +342,8 @@ const GAME_DATA = {
     botDraw: 480,         // between a computer's draws
     botSave: 450,         // from its last draw to saving
     afterSave: 450,       // after a person saves, before a computer next to them starts
+    botTension: 2.5,      // a computer slows down as it nears the moment it stops or goes boom: each draw waits up to this many times longer (1 + this) ...
+    botTensionBy: 3,      // ... by (cards at risk x the chance the next card is a boom x this), at most 1
     boomAutoMs: 1100,     // after a boom shows (yours or a computer's), the table clears itself this long afterwards: nobody has to tap
     boomGuardMs: 450,     // taps this soon after a boom are ignored, so a fast digger does not skip the boom by accident
     overDelay: 1100,      // from the last save to the game-over screen
@@ -344,7 +353,7 @@ const GAME_DATA = {
   // ---- TEXT -------------------------------------------------------------
   texts: {
     hintDig: 'Tap the pile to dig.',
-    hintMore: 'Dig again — or tap your gems to save.',
+    hintMore: 'Dig again, or tap Bank to save.',
     judgments: [
       'Who starts: the seat order is shuffled at random when a game begins (the rulebook says "randomly determine a turn order"). A rematch uses the rulebook’s order instead: fewest gems first, then second fewest, and so on; in a two-player game the loser goes first (after a tie, the one who went second).',
       'Refresh when only booms remain: the rulebook lets you refresh when you notice every card left is a boom. Here it happens by itself at that moment, because declining is never better. The gems you have at risk stay on the table and are not shuffled in; it only happens if the shuffle brings at least one gem back.',
@@ -468,7 +477,7 @@ const Engine = (() => {
   function refresh(s) {
     s.draw = shuffle(s.boomPile.concat(s.draw), s.rng);
     s.boomPile = [];
-    for (let k = 0; k < (s.rules.boomsRemovedPerRefresh || 0); k++) { const i = s.draw.findIndex(c => isBoom(s, c)); if (i < 0) break; s.gone.push(s.draw.splice(i, 1)[0]); }          // a boom leaves the game each time through the deck
+    for (let k = 0; k < (s.rules.boomsRemovedPerRefresh || 0); k++) { if (boomTotal(s) <= s.rules.minBooms) break; const i = s.draw.findIndex(c => isBoom(s, c)); if (i < 0) break; s.gone.push(s.draw.splice(i, 1)[0]); }          // a boom leaves the game each time through the deck, but the game always keeps at least `minBooms`
     s.refreshes++;
   }
   // The draw pile holds nothing but booms (or nothing): refresh at once, provided that brings at least one gem back.
@@ -904,13 +913,13 @@ const Sound = (() => {
         <div class="sinfo"><div class="nm">${esc(s.name)}</div><div class="score"></div><div class="sub">${s.kind === 'computer' ? 'computer' : '&nbsp;'}</div></div></div>`).join('');
     const pips = Array.from({ length: D.deck.booms }, () => '<i></i>').join('');
     return `<div class="stage">
-      <div class="topbar"><button class="menu" data-act="menu" aria-label="Menu">☰</button><div class="hint"></div></div>
+      <div class="topbar"><button class="menu" data-act="menu" aria-label="Menu">☰</button></div>
       <div class="seats n${n}">${seats}</div>
       <div class="felt${ui.hand === 'left' ? ' lefty' : ''}">
         <div class="zone zdraw" data-act="draw" role="button" aria-label="Draw pile"><div class="well"><div class="stackedge"></div></div><div class="zcount"><b></b> <span class="cw">cards</span></div></div>
-        <div class="zone ztable" data-act="save"><div class="risk"></div></div>
+        <div class="zone ztable"></div>
         <div class="zone zboom"><div class="well"></div><div class="zcount"><b></b> / <span class="bt">${D.deck.booms}</span> booms</div><div class="pips">${pips}</div></div>
-      </div><div class="lastnote" role="status"></div></div>`;
+      </div><div class="bankbar"><button class="bankbtn" data-act="save" disabled>Bank <b>0</b></button><div class="narr" role="status"></div></div></div>`;
   }
 
   // ---------------- overlays: menu, how to play, settings, game over ----------------
@@ -945,16 +954,15 @@ const Sound = (() => {
 
   function menuHTML() {
     const inGame = ui.st && !ui.st.over;
-    if (ui.menu === 'restart' || ui.menu === 'leave') {
-      const word = ui.menu === 'restart' ? 'Start this game over?' : 'Back to the main menu?';
-      return `<div class="scrim clear" data-act="scrimmenu"><div class="menupanel"><p>${word} ${ui.menu === 'restart' ? 'The one in progress will be lost.' : 'Your game is kept: Continue brings you back to it.'}</p>
-        <div class="row"><button class="hot" data-act="${ui.menu === 'restart' ? 'restart-yes' : 'leave-yes'}">${ui.menu === 'restart' ? 'Restart' : 'Main menu'}</button><button data-act="menu-back">Keep playing</button></div></div></div>`;
+    if (ui.menu === 'restart') {
+      return `<div class="scrim clear" data-act="scrimmenu"><div class="menupanel"><p>Start this game over? The one in progress will be lost.</p>
+        <div class="row"><button class="hot" data-act="restart-yes">Restart</button><button data-act="menu-back">Keep playing</button></div></div></div>`;
     }
     return `<div class="scrim clear" data-act="scrimmenu"><div class="menupanel">
       <button data-act="menu-help">How to play</button>
       <button data-act="menu-settings">Settings</button>
       <button data-act="${inGame ? 'menu-restart' : 'restart-yes'}">Restart</button>
-      <button data-act="${inGame ? 'menu-leave' : 'leave-yes'}">Main menu</button></div></div>`;
+      <button data-act="leave-yes">Main menu</button></div></div>`;
   }
 
   const youName = n => (/^you$/i.test(n) ? 'You' : n);
@@ -1171,20 +1179,17 @@ const Sound = (() => {
     const st = ui.st;
     if (!st || st.over) return '';
     if (st.phase === 'boomed' && st.lastBoom) {
-      const who = ui.seats[st.current], lost = st.lastBoom.lost.length, you = !isBot(st.current) && (/^you$/i.test(who.name) || ui.seats.filter((x, i) => !isBot(i)).length === 1);          // "You lose" only for the seat called You, or the one human
-      const line = lost ? `${you ? 'You lose' : esc(who.name) + ' loses'} ${lost} ${lost === 1 ? 'gem' : 'gems'}` : (you ? 'Nothing lost' : esc(who.name) + ' loses nothing');
-      return `<div class="big">BOOM!</div><div class="lostn">${line}</div>`;
-    }
-    if (ui.hold) {
-      const s = ui.seats[ui.hold.seat];
-      return `<div class="saved" style="--c:${s.colour}">${esc(s.name)} saved ${ui.hold.n}</div><div class="go">Tap to go on</div>`;
+      return `<div class="big">BOOM!</div>`;          // (what it cost is in the line at the bottom, which is where everything that happens is said)
     }
     return '';
   }
+  // The one line that says what is happening: the latest thing that happened (a boom, a bank, a shuffle), else the hint for a first game. A new thing replaces the old.
+  const narration = () => (ui.note ? ui.note + (ui.hold ? ' Tap to go on.' : '') : (hintHTML() || ''));
+  const whoLine = (i, you, them) => { const w = ui.seats[i], me = !isBot(i) && (/^you$/i.test(w.name) || ui.seats.filter((x, k) => !isBot(k)).length === 1); return me ? you : `${w.name} ${them}`; };          // "You" only for the seat called You, or the one human
   function hintHTML() {
     const st = ui.st;
     if (!hintsVisible() || !st || st.over || !humanTurn() || st.phase !== 'turn') return '';
-    return esc(st.table.length ? T.hintMore : T.hintDig);
+    return st.table.length ? T.hintMore : T.hintDig;
   }
   function seatScoreHTML(i) {
     const st = ui.st;
@@ -1204,7 +1209,6 @@ const Sound = (() => {
       el.classList.toggle('cur', cur);
       el.classList.toggle('can', cur && can && st.table.length > 0);
       const pz = el.querySelector('.pilezone');
-      if (cur && !isBot(i)) pz.setAttribute('data-act', 'save'); else pz.removeAttribute('data-act');
     });
     view.querySelector('.seats').classList.toggle('tight', !!ui.tight);
     patchScores();
@@ -1217,9 +1221,8 @@ const Sound = (() => {
     view.querySelectorAll('.zboom .pips i').forEach((p, i) => { p.classList.toggle('on', i < out); p.classList.toggle('gone', i >= bt); });
     const zt = view.querySelector('.ztable');
     zt.classList.toggle('has', st.table.length > 0);
-    view.querySelector('.risk').innerHTML = st.table.length ? `<b>${st.table.length}</b>at risk` : '';
-    view.querySelector('.hint').innerHTML = hintHTML();
-    view.querySelector('.lastnote').textContent = ui.note || '';
+    const bb = view.querySelector('.bankbtn'); bb.querySelector('b').textContent = st.table.length; bb.disabled = !(can && Engine.canSave(st));
+    view.querySelector('.narr').textContent = narration();
     const bh = bannerHTML();
     if (bh !== ui.bannerKey) { bannerEl.innerHTML = bh; ui.bannerKey = bh; }
   }
@@ -1287,11 +1290,12 @@ const Sound = (() => {
     const st = ui.st, k = st.table.length;
     const r = Engine.draw(st);
     if (r.type === 'gem') {
+      if (!isBot(st.current)) ui.note = '';          // (your own digging clears what was said before)
       sfx('draw'); sfx('glint', { rate: runRate(k) }, 140);
       if (r.refreshed) riffle();
     } else {
       sfx('draw');
-      ui.boomAt = nowMs(); ui.fxBoom = r.card; ui.boomPending = true;
+      ui.boomAt = nowMs(); ui.fxBoom = r.card; ui.boomPending = true; ui.note = boomNote(st);
       scheduleBoomClear();
     }
     render();
@@ -1301,8 +1305,9 @@ const Sound = (() => {
     const st = ui.st, seat = st.current, n = st.table.length;
     settleScores();
     ui.lastSaved = n;
-    const before = Engine.scores(st)[seat];
+    const before = Engine.scores(st)[seat], goneBefore = st.gone.length;
     const r = Engine.save(st);
+    ui.note = whoLine(seat, `You banked ${n}.`, `banked ${n}.`) + (st.gone.length > goneBefore ? SHUFFLED : '');
     const after = Engine.scores(st)[seat];
     const step = ui.pace.countStep, land = reduced() ? 40 : 560;
     ui.shown[seat] = reduced() ? after : before;
@@ -1327,14 +1332,16 @@ const Sound = (() => {
     }, ui.pace.boomAutoMs);
   }
   function boomNote(st) {
-    const who = ui.seats[st.current], lost = st.lastBoom.lost.length, you = !isBot(st.current) && (/^you$/i.test(who.name) || ui.seats.filter((x, i) => !isBot(i)).length === 1);
-    return `${you ? 'You drew' : who.name + ' drew'} a BOOM and ${lost ? `lost ${lost} ${lost === 1 ? 'gem' : 'gems'}` : 'lost nothing'}.`;
+    const lost = st.lastBoom.lost.length;
+    return `${whoLine(st.current, 'You drew', 'drew')} a BOOM and ${lost ? `lost ${lost} ${lost === 1 ? 'gem' : 'gems'}` : 'lost nothing'}.`;
   }
+  const SHUFFLED = ' The deck was shuffled back in and a BOOM was taken out.';
   function passAfterBoom() {
     const st = ui.st;
     clearTimeout(ui.boomTimer); ui.boomTimer = null;
-    ui.note = boomNote(st);
+    const goneBefore = st.gone.length;
     const r = Engine.endTurn(st);
+    if (st.gone.length > goneBefore) ui.note = (ui.note || '') + SHUFFLED;
     ui.fxBoom = -1; ui.boomPending = false;
     if (r.refreshed) riffle();
     render();
@@ -1364,6 +1371,12 @@ const Sound = (() => {
     ui.hold = st.over ? null : { seat, n };
     return false;
   }
+  // The computer slows down as it gets closer to stopping or going boom: the more it has at risk and the likelier the next card is a boom, the longer it waits to draw.
+  function botDelay() {
+    const st = ui.st; if (nextDecision() === 'save') return ui.pace.botSave;
+    const c = Engine.counts(st), pBoom = c.drawCount ? c.boomsInDraw / c.drawCount : 0, tension = Math.min(1, st.table.length * pBoom * ui.pace.botTensionBy);
+    return Math.round(ui.pace.botDraw * (1 + ui.pace.botTension * tension));
+  }
   function botLoop(instant) {
     ui.botTimer = null;
     const st = ui.st;
@@ -1373,7 +1386,7 @@ const Sound = (() => {
     let more = true, guard = 0;
     do { more = botAct(); } while (instant && more && ++guard < 500);
     if (more) {
-      ui.botTimer = setTimeout(() => botLoop(false), nextDecision() === 'save' ? ui.pace.botSave : ui.pace.botDraw);
+      ui.botTimer = setTimeout(() => botLoop(false), botDelay());
     } else { ui.botBusy = false; render(); }
   }
   function skipBot() {
@@ -1449,7 +1462,7 @@ const Sound = (() => {
     if (el.classList.contains('scrim') && e.target !== el) return;            // a tap inside a panel is not a tap outside it
     switch (d.act) {
       case 'draw': if (ui.screen === 'play' && !overlayOpen()) tableTap('draw'); return;
-      case 'save': if (ui.screen === 'play' && !overlayOpen()) tableTap(el.classList.contains('ztable') && !onGems(e) ? 'bg' : 'save'); return;
+      case 'save': if (ui.screen === 'play' && !overlayOpen()) tableTap('save'); return;
       case 'play': if (hasSave() && !ui.confirmNew) { ui.confirmNew = true; break; } ui.confirmNew = false; ui.screen = 'mode'; break;          // (a game in progress is replaced only after a second tap)
       case 'home': ui.screen = 'home'; ui.confirmNew = false; break;
       case 'continue': ui.confirmNew = false; if (resumeGame()) { render(); startTurnFlow(ui.pace.botStart); return; } break;

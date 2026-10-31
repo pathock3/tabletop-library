@@ -273,25 +273,19 @@ test('play: no attempt switch — turn every card down by hand and count: a luck
   } finally { await t.close(); }
 });
 
-test('results: always seen first — a fast extra tap right after the last card cannot skip them (Next level ignores taps for a moment), and the sheet stays until Next level', SKIP, async () => {
+test('results: the sheet stays until Next level, and Next level answers at once', SKIP, async () => {
   const t = await open({ viewport: PHONE, animated: true });
   const { page } = t;
   try {
-    await page.evaluate(() => { window.AdvancedCountingUI.ui.lockMs = window.AdvancedCountingUI.ui.lockMs || 900; });
-    await page.evaluate(() => { window.AdvancedCountingUI.ui.lockMs = 900; });
     await page.tap('[data-act=start]');
     const lay = (await S(page)).round.layout;
     await page.tap('[data-act=flip]');
     await tapAll(page, lay, 1, 4);
     assert.ok((await S(page)).results, 'the results exist the moment the last card is right');
-    await page.evaluate(() => window.AdvancedCountingUI.okTap());               // an immediate extra tap on Next level
-    assert.equal((await S(page)).round.level, 'A', 'ignored: the level did not skip ahead');
-    assert.ok((await S(page)).results);
-    await page.waitForTimeout(1600);                                           // the sheet has faded in and the button is ready
-    assert.equal(await page.locator('.results .ok').evaluate(e => e.classList.contains('wait')), false);
-    assert.match(await page.locator('.results').innerText(), /LEVEL[\s\S]*MISTAKES[\s\S]*TIME/);
+    assert.equal(await page.locator('.results .ok').evaluate(e => e.classList.contains('wait')), false, 'the button is not held back');
+    await page.waitForSelector('.results .ok', { state: 'visible' });
     await page.tap('[data-act=ok]');
-    assert.equal((await S(page)).round.level, 'B');
+    assert.equal((await S(page)).round.level, 'B', 'one tap on Next level goes on');
     assert.deepEqual(t.errors, []);
   } finally { await t.close(); }
 });

@@ -1,5 +1,5 @@
 // Browser tests, part 1: the screens and the moves of a turn. Touch taps on the real page.
-const { test, assert, SKIP, SIZES, open, state, setup, start, errorsOf, rig, place, range, settled, H } = require('./browser');
+const { tapTable, test, assert, SKIP, SIZES, open, state, setup, start, errorsOf, rig, place, range, settled, H } = require('./browser');
 
 test('home: the title, the new tagline, Play, How to play and Settings (as tall as Play, together as wide as Play), no sound icon, who made it', SKIP, async () => {
   const { page, errors, close } = await open();
@@ -105,7 +105,7 @@ test('dig: tapping the draw pile turns a card onto the table; the pile shrinks a
     assert.deepEqual([s.table, s.draw], [3, 41]);
     assert.equal(await page.locator('.card.up.atrisk').count(), 3, 'three gems face up on the table');
     assert.ok(await edge() <= e0);
-    assert.match(await page.locator('.ztable .risk').innerText(), /3\s*at risk/);
+    assert.match(await page.locator('.bankbtn').innerText(), /Bank\s*3/);
     await settled(page);
     const inside = await page.evaluate(() => { const r = document.querySelector('.ztable').getBoundingClientRect(); return [...document.querySelectorAll('.card.atrisk')].every(c => { const b = c.getBoundingClientRect(); return b.left >= r.left - 2 && b.right <= r.right + 2 && b.top >= r.top - 2 && b.bottom <= r.bottom + 2; }); });
     assert.ok(inside, 'gems stay inside the table');
@@ -129,23 +129,23 @@ test('dig: a long run of gems stays on the table (the row overlaps or wraps), on
   }
 });
 
-test('save: tap your gems on the table — they join your pile for good, your score goes up, the turn passes', SKIP, async () => {
+test('save: tap Bank — the gems join your pile for good, your score goes up, the turn passes', SKIP, async () => {
   const { page, errors, close } = await open();
   try {
     await setup(page, { n: 2, kinds: ['human', 'human'] });
     await rig(page, ['g', 'g', 'g', 'g', 'g']);
     for (let i = 0; i < 3; i++) await page.tap('[data-act=draw]');
     const first = (await state(page)).cur;
-    await page.tap('.ztable');                                   // the gems on the table
+    await tapTable(page);                                   // the gems on the table
     let s = await state(page);
     assert.deepEqual(s.scores[first], 3);
     assert.notEqual(s.cur, first, 'the turn passed');
     assert.equal(s.table, 0);
     assert.equal(await page.locator(`.seat[data-seat="${first}"] .score`).innerText().then(t => t.replace(/\D.*$/, '')), '3');
     assert.equal(await page.locator('.seat.cur').getAttribute('data-seat'), String(s.cur), 'the lit seat follows the turn');
-    // the second player saves with a tap on their own pile instead
+    // the second player banks too
     await page.tap('[data-act=draw]'); await page.tap('[data-act=draw]');
-    await page.tap('.seat.cur .pilezone');
+    await page.tap('.bankbtn');
     s = await state(page);
     assert.equal(s.scores[1 - first], 2);
     assert.equal(s.cur, first);
@@ -153,7 +153,7 @@ test('save: tap your gems on the table — they join your pile for good, your sc
   } finally { await close(); }
 });
 
-test('save: only a tap on the gems (or just beside them) saves — a stray tap on the empty felt does not bank the turn', SKIP, async () => {
+test('save: only the Bank button saves — a tap on the gems or on the empty felt does not bank the turn', SKIP, async () => {
   const { page, close } = await open();
   try {
     await setup(page, { n: 2, kinds: ['human', 'human'] });
@@ -165,7 +165,10 @@ test('save: only a tap on the gems (or just beside them) saves — a stray tap o
     await page.tap('.ztable', { position: { x: 580, y: 520 } });
     assert.deepEqual([(await state(page)).table, (await state(page)).cur], [2, before.cur], 'nothing happened');
     const c = await page.evaluate(() => { const b = document.querySelector('.card.atrisk').getBoundingClientRect(); return [b.left + b.width / 2, b.top + b.height / 2]; });
-    await page.touchscreen.tap(c[0], c[1]);                                      // on a gem
+    await page.touchscreen.tap(c[0], c[1]);                                      // on a gem: nothing
+    assert.equal((await state(page)).table, 2, 'tapping the gems does not bank them');
+    assert.match(await page.locator('.bankbtn').innerText(), /Bank\s*2/);
+    await page.tap('.bankbtn');
     const s = await state(page);
     assert.deepEqual([s.scores[before.cur], s.table], [2, 0]);
   } finally { await close(); }
@@ -176,7 +179,7 @@ test('save: nothing to save, nothing happens (a tap on the empty table or on the
   try {
     await setup(page, { n: 2, kinds: ['human', 'human'] });
     const before = JSON.stringify(await state(page));
-    await page.tap('.ztable');
+    await tapTable(page);
     await page.tap('.seat:not(.cur) .pilezone');
     assert.equal(JSON.stringify(await state(page)), before);
   } finally { await close(); }
@@ -194,17 +197,17 @@ test('boom: the boom stays on the table until a tap passes the turn; the lost ge
     let s = await state(page);
     assert.equal(s.phase, 'boomed');
     assert.match(await page.locator('#banner').innerText(), /BOOM/);
-    assert.match(await page.locator('#banner').innerText(), /loses? 2 gems/);
+    assert.match(await page.locator('.narr').innerText(), /lost 2 gems/);
     assert.ok(await page.locator('.card.boom.up').count() >= 1);
     assert.equal(await page.locator('.card.lost').count(), 2, 'the two lost gems are greyed beside the boom');
     assert.equal(s.cur, first, 'still the same player');
-    await page.tap('.ztable');                                   // an eager tap (inside the guard) does not skip the boom
+    await tapTable(page);                                   // an eager tap (inside the guard) does not skip the boom
     assert.equal((await state(page)).phase, 'boomed');
     await page.waitForTimeout(900);                              // it stays as long as it likes: nothing advances on a timer
     s = await state(page);
     assert.equal(s.phase, 'boomed');
     assert.equal(await page.locator('#banner .big').count(), 1);
-    await page.tap('.ztable');                                   // now a tap passes the turn
+    await tapTable(page);                                   // now a tap passes the turn
     s = await state(page);
     assert.equal(s.phase, 'turn');
     assert.notEqual(s.cur, first);
@@ -236,13 +239,13 @@ test('refresh: the 6th boom shows until tapped, then everything not saved is shu
   try {
     await setup(page, { n: 3, kinds: ['human', 'human', 'human'] });
     await rig(page, ['g', 'g']);
-    await page.tap('[data-act=draw]'); await page.tap('[data-act=draw]'); await page.tap('.ztable');     // 2 gems saved
+    await page.tap('[data-act=draw]'); await page.tap('[data-act=draw]'); await tapTable(page);     // 2 gems saved
     for (let i = 0; i < 6; i++) {
       await rig(page, ['b']);
       await page.tap('[data-act=draw]');
       assert.equal((await state(page)).phase, 'boomed');
       if (i === 5) assert.equal(await page.locator('.zboom .pips i.on').count(), 6, 'six booms out, all six pips lit');
-      await page.tap('.ztable');
+      await tapTable(page);
     }
     const s = await state(page);
     assert.equal(s.boomsOut, 0);
@@ -282,7 +285,7 @@ test('New game: only two ways to play, Pass and Play and the AI, nothing to set 
     await page.tap('[data-act=start-pass]');
     let st = await state(page); assert.equal(st.screen, 'play');
     assert.deepEqual(await page.evaluate(() => window.OneMoreUI.ui.seats.map(s => s.kind + ':' + s.name).sort()), ['human:Player 1', 'human:Player 2']);
-    await page.tap('[data-act=menu]'); await page.tap('[data-act=menu-leave]'); await page.tap('[data-act=leave-yes]');
+    await page.tap('[data-act=menu]'); await page.tap('[data-act=leave-yes]');
     await page.tap('[data-act=play]'); await page.tap('[data-act=play]');          // a game is waiting: replacing it takes a second tap
     await page.tap('[data-act=start-ai]');
     assert.deepEqual(await page.evaluate(() => window.OneMoreUI.ui.seats.map(s => s.kind + ':' + s.name).sort()), ['computer:Computer', 'human:You']);
@@ -312,7 +315,7 @@ test('Continue: leaving to the main menu keeps the game; Continue brings it back
     await setup(page, { n: 2, kinds: ['human', 'human'] });
     await rig(page, ['g', 'g']); await page.tap('[data-act=draw]'); await page.tap('[data-act=draw]');
     const before = await state(page);
-    await page.tap('[data-act=menu]'); await page.tap('[data-act=menu-leave]'); await page.tap('[data-act=leave-yes]');
+    await page.tap('[data-act=menu]'); await page.tap('[data-act=leave-yes]');
     assert.equal(await page.locator('[data-act=continue]').count(), 1);
     await page.tap('[data-act=continue]');
     const after = await state(page);
@@ -329,7 +332,7 @@ test('boom: nobody has to tap: the table clears itself, a line at the bottom say
     await rig(page, ['g', 'g', 'b']);
     for (let i = 0; i < 3; i++) await page.tap('[data-act=draw]');
     await page.waitForFunction(() => window.OneMoreUI.ui.st.phase === 'turn' && window.OneMoreUI.ui.st.current === 1);
-    assert.match(await page.locator('.lastnote').innerText(), /drew a BOOM and lost 2 gems/);
+    assert.match(await page.locator('.narr').innerText(), /drew a BOOM and lost 2 gems/);
     assert.deepEqual(errorsOf(errors), []);
   } finally { await close(); }
 });

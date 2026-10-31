@@ -1,5 +1,5 @@
 // Browser tests, part 2: whole games, the computers, the menu, saving, prompts, sound and layout.
-const { test, assert, SKIP, SIZES, open, state, setup, start, errorsOf, rig, place, range, settled, sounds, nextTap, playToEnd, H, C } = require('./browser');
+const { tapTable, test, assert, SKIP, SIZES, open, state, setup, start, errorsOf, rig, place, range, settled, sounds, nextTap, playToEnd, H, C } = require('./browser');
 
 const SAVE = 'tabletop-library-one-more-save', SOUND = 'tabletop-library-one-more-sound', DONE = 'tabletop-library-one-more-games-finished', HINTS = 'tabletop-library-one-more-hints';
 const ls = (page, k) => page.evaluate(key => localStorage.getItem(key), k);
@@ -69,7 +69,7 @@ test('play again: the rematch seats the player with the fewest gems first, every
   try {
     await start(page, [{ ...H, name: 'Ann' }, { ...H, name: 'Bob' }, { ...H, name: 'Cy' }]);
     await place(page, { current: 2, draw: range(38, 44), table: [37], safe: [range(0, 20), range(20, 29), range(29, 37)] });     // Ann 20, Bob 9, Cy 8 (+1 on the table)
-    await page.tap('.ztable');                                  // Cy saves the last gem: game over
+    await tapTable(page);                                  // Cy saves the last gem: game over
     await page.waitForSelector('.over');
     const res = await page.evaluate(() => window.OneMoreUI.ui.st.result);
     assert.deepEqual(res.scores, [20, 9, 9]);
@@ -91,7 +91,7 @@ test('play again, two players: the loser goes first; after a 19–19 tie, the on
   try {
     await start(page, [{ ...H, name: 'Ann' }, { ...H, name: 'Bob' }]);
     await place(page, { current: 1, draw: range(38, 44), table: [37], safe: [range(0, 19), range(19, 37)] });
-    await page.tap('.ztable');
+    await tapTable(page);
     await page.waitForSelector('.over');
     assert.match(await page.locator('.over h1').innerText(), /tie/i);
     assert.equal(await page.locator('.over .place.win').count(), 2, 'both marked');
@@ -100,7 +100,7 @@ test('play again, two players: the loser goes first; after a 19–19 tie, the on
     await page.tap('[data-act=again]');
     assert.deepEqual((await state(page)).seats, ['Bob', 'Ann']);
     await place(page, { current: 0, draw: range(38, 44), table: [37], safe: [range(0, 19), range(19, 37)] });
-    await page.tap('.ztable');                                  // Bob (now first) saves: 20 wins at once
+    await tapTable(page);                                  // Bob (now first) saves: 20 wins at once
     await page.waitForSelector('.over');
     assert.match(await page.locator('.over h1').innerText(), /Bob wins/);
     assert.match(await page.locator('.over .next').innerText(), /Ann goes first/, 'the loser');
@@ -112,7 +112,7 @@ test('game over: a tie with more players is a shared win', SKIP, async () => {
   try {
     await start(page, [H, H, H, H]);
     await place(page, { current: 3, draw: range(38, 44), table: [37], safe: [range(0, 12), range(12, 24), range(24, 31), range(31, 37)] });
-    await page.tap('.ztable');
+    await tapTable(page);
     await page.waitForSelector('.over');
     assert.match(await page.locator('.over h1').innerText(), /shared/i);
     assert.equal(await page.locator('.over .place.win').count(), 2);
@@ -128,7 +128,7 @@ test('a computer’s turn is shown one draw at a time, then it waits for a tap; 
     await rig(page, ['g', 'g']);
     await page.tap('[data-act=draw]'); await page.tap('[data-act=draw]');
     await rig(page, ['g', 'g', 'g', 'g', 'g', 'g', 'g', 'g', 'g']);
-    await page.tap('.ztable');                                        // I save; the computer starts
+    await tapTable(page);                                        // I save; the computer starts
     const seen = await page.evaluate(() => new Promise(resolve => {
       const { ui } = window.OneMoreUI, out = [];
       const t = setInterval(() => {
@@ -142,7 +142,7 @@ test('a computer’s turn is shown one draw at a time, then it waits for a tap; 
     const s = await state(page);
     assert.equal(s.hold, true, 'after saving it waits for a tap');
     assert.equal(s.busy, false);
-    assert.match(await page.locator('#banner').innerText(), /saved \d+/);
+    assert.match(await page.locator('.narr').innerText(), /banked \d+/);
     assert.ok(s.scores[1] >= 5);
     assert.equal(s.cur, 0, 'the lit seat is already mine');
     await page.tap('[data-act=draw]');                                // ...but a tap only releases the hold; it does not draw
@@ -163,10 +163,10 @@ test('a tap while a computer is digging skips to the end of its turn (and does n
     await rig(page, ['g']);
     await page.tap('[data-act=draw]');
     await rig(page, ['g', 'g', 'g', 'g', 'g', 'g', 'g', 'g', 'g']);
-    await page.tap('.ztable');
+    await tapTable(page);
     await page.waitForFunction(() => window.OneMoreUI.ui.st.current === 1 && window.OneMoreUI.ui.st.table.length >= 1);
     assert.equal((await state(page)).busy, true);
-    await page.tap('.ztable');
+    await tapTable(page);
     const s = await state(page);
     assert.equal(s.busy, false, 'its whole turn was played at once');
     assert.ok(s.hold || s.phase === 'boomed', 'and it waits');
@@ -181,13 +181,13 @@ test('a computer that goes boom leaves the boom on the table until I tap, then t
     await rig(page, ['g']);
     await page.tap('[data-act=draw]');
     await rig(page, ['b']);                                           // the computer's first card will be a boom
-    await page.tap('.ztable');                                        // I save one; the computer plays at once (reduced motion)
+    await tapTable(page);                                        // I save one; the computer plays at once (reduced motion)
     const s = await state(page);
     assert.equal(s.phase, 'boomed');
     assert.equal(s.cur, 1);
     assert.match(await page.locator('#banner').innerText(), /BOOM/);
-    assert.match(await page.locator('#banner').innerText(), /Bot 2 loses nothing/);
-    await page.tap('.ztable');
+    assert.match(await page.locator('.narr').innerText(), /Bot 2 drew a BOOM and lost nothing/);
+    await tapTable(page);
     const s2 = await state(page);
     assert.equal(s2.phase, 'turn');
     assert.equal(s2.cur, 2);
@@ -202,7 +202,7 @@ test('reduced motion: a computer’s whole turn appears at once, then waits for 
     const s = await state(page);
     assert.equal(s.busy, false);
     assert.ok(s.hold || s.phase === 'boomed', JSON.stringify(s));
-    assert.match(await page.locator('#banner').innerText(), /saved|BOOM/);
+    assert.match(await page.locator('.narr').innerText(), /banked|BOOM/);
     assert.equal(await page.evaluate(() => document.documentElement.classList.contains('rm')), true);
   } finally { await close(); }
 });
@@ -211,7 +211,7 @@ test('a new game starts on a clean table: no banner, no leftover cards, no booms
   const { page, close } = await open({ query: '?seed=6' });
   try {
     await start(page, [C, H]);
-    assert.match(await page.locator('#banner').innerText(), /saved|BOOM/);
+    assert.match(await page.locator('.narr').innerText(), /banked|BOOM/);
     await start(page, [H, H]);
     assert.equal(await page.locator('#banner').innerText(), '');
     assert.equal(await page.locator('.card.lost, .card.atrisk, .card.bang').count(), 0);
@@ -278,7 +278,7 @@ test('menu: How to play shows three little pictures, the rules in a line, and th
   } finally { await close(); }
 });
 
-test('menu: Restart and Main menu ask first; Restart deals a new game at once, Main menu leaves and keeps the game for Continue', SKIP, async () => {
+test('menu: Restart asks first and deals a new game at once, Main menu leaves and keeps the game for Continue', SKIP, async () => {
   const { page, close } = await open();
   try {
     await start(page, [H, H]);
@@ -293,9 +293,7 @@ test('menu: Restart and Main menu ask first; Restart deals a new game at once, M
     assert.deepEqual([s.table, s.draw, s.turnNo], [0, 44, 0]);
     assert.equal(s.screen, 'play');
     assert.ok(await ls(page, SAVE), 'the new game is saved');
-    await page.tap('[data-act=menu]'); await page.tap('[data-act=menu-leave]');
-    assert.match(await page.locator('.menupanel').innerText(), /Back to the main menu\?/);
-    await page.tap('[data-act=leave-yes]');
+    await page.tap('[data-act=menu]'); await page.tap('[data-act=leave-yes]');          // Main menu goes straight there: nothing to confirm, the game is kept
     assert.equal((await state(page)).screen, 'home');
     assert.ok(await ls(page, SAVE), 'the game is kept: Continue brings it back');
   } finally { await close(); }
@@ -326,20 +324,20 @@ test('prompts: a one-line hint above the table until this device has finished on
   const { page, close } = await open();
   try {
     await start(page, [H, H]);
-    assert.equal(await page.locator('.hint').innerText(), 'Tap the pile to dig.');
+    assert.equal(await page.locator('.narr').innerText(), 'Tap the pile to dig.');
     await rig(page, ['g']);
     await page.tap('[data-act=draw]');
-    assert.match(await page.locator('.hint').innerText(), /tap your gems to save/);
+    assert.match(await page.locator('.narr').innerText(), /tap Bank/);
     await place(page, { current: 0, draw: range(38, 44), table: [37], safe: [range(0, 19), range(19, 37)] });
-    await page.tap('.ztable');                                  // game over: 20 for seat 0
+    await tapTable(page);                                  // game over: 20 for seat 0
     await page.waitForSelector('.over');
     assert.equal(await ls(page, DONE), '1');
     await page.tap('[data-act=again]');
-    assert.equal(await page.locator('.hint').innerText(), '', 'quiet after the first finished game');
+    assert.equal(await page.locator('.narr').innerText(), '', 'quiet after the first finished game');
     await page.tap('[data-act=menu]'); await page.tap('[data-act=menu-settings]'); await page.tap('[data-act=hints][data-v=on]'); await page.tap('[data-act=closesettings]');
-    assert.equal(await page.locator('.hint').innerText(), 'Tap the pile to dig.');
+    assert.equal(await page.locator('.narr').innerText(), 'Tap the pile to dig.');
     await page.tap('[data-act=menu]'); await page.tap('[data-act=menu-settings]'); await page.tap('[data-act=hints][data-v=off]'); await page.tap('[data-act=closesettings]');
-    assert.equal(await page.locator('.hint').innerText(), '');
+    assert.equal(await page.locator('.narr').innerText(), '');
   } finally { await close(); }
 });
 
@@ -349,7 +347,7 @@ test('save: reloading the page mid-turn resumes the same game — the table, the
   try {
     await start(page, [{ ...H, name: 'Ann' }, { ...H, name: 'Bob' }]);
     await rig(page, ['g', 'g', 'g', 'g']);
-    await page.tap('[data-act=draw]'); await page.tap('[data-act=draw]'); await page.tap('.ztable');          // Ann saves 2
+    await page.tap('[data-act=draw]'); await page.tap('[data-act=draw]'); await tapTable(page);          // Ann saves 2
     await page.tap('[data-act=draw]');                                                                           // Bob has 1 at risk
     const before = await page.evaluate(() => JSON.stringify(Engine.serialize(window.OneMoreUI.ui.st)));
     await page.reload();
@@ -360,7 +358,7 @@ test('save: reloading the page mid-turn resumes the same game — the table, the
     assert.deepEqual(s.seats, ['Ann', 'Bob']);
     assert.equal(await page.locator('.card.atrisk').count(), 1);
     assert.equal(await page.locator('.zdraw .zcount').innerText(), '41 cards');
-    await page.tap('[data-act=draw]'); await page.tap('.ztable');
+    await page.tap('[data-act=draw]'); await tapTable(page);
     assert.equal((await state(page)).scores[1], 2);
     assert.deepEqual(errorsOf(errors), []);
   } finally { await close(); }
@@ -376,10 +374,10 @@ test('save: a boom showing survives a reload and still waits for a tap; so does 
     let s = await state(page);
     assert.equal(s.phase, 'boomed');
     assert.match(await page.locator('#banner').innerText(), /BOOM/);
-    assert.match(await page.locator('#banner').innerText(), /loses? 1 gem\b/);
+    assert.match(await page.locator('.narr').innerText(), /lost 1 gem\b/);
     assert.equal(await page.locator('.card.lost').count(), 1);
     await page.waitForTimeout(500);
-    await page.tap('.ztable');
+    await tapTable(page);
     assert.equal((await state(page)).phase, 'turn');
     // a computer's finished turn
     await start(page, [C, H]);
@@ -388,7 +386,7 @@ test('save: a boom showing survives a reload and still waits for a tap; so does 
     await page.reload();
     const t = await state(page);
     assert.deepEqual([t.hold, t.phase], [s.hold, s.phase]);
-    assert.match(await page.locator('#banner').innerText(), /saved|BOOM/);
+    assert.match(await page.locator('.narr').innerText(), /banked|BOOM/);
   } finally { await close(); }
 });
 
@@ -398,7 +396,7 @@ test('save: starting over, leaving, or finishing a game clears the save', SKIP, 
     await start(page, [H, H]);
     assert.ok(await ls(page, SAVE));
     await place(page, { current: 0, draw: range(38, 44), table: [37], safe: [range(0, 19), range(19, 37)] });
-    await page.tap('.ztable');
+    await tapTable(page);
     await page.waitForSelector('.over');
     assert.equal(await ls(page, SAVE), null, 'a finished game is not resumed');
     await page.reload();
@@ -437,7 +435,7 @@ test('sound: a card draw ticks and glints (higher with each gem of a run), a sav
     await page.waitForFunction(() => window.OneMoreUI.audio.played.includes('glint'));
     assert.ok((await sounds(page)).includes('draw'));
     await page.tap('[data-act=draw]'); await page.tap('[data-act=draw]');
-    await page.tap('.ztable');
+    await tapTable(page);
     await page.waitForFunction(() => window.OneMoreUI.audio.played.includes('save'));
     const played = await sounds(page);
     assert.equal(played.filter(n => n === 'clink').length, 3, 'one clink for each gem landing in the pile');
@@ -453,10 +451,10 @@ test('sound: the shuffle after the 6th boom and the fanfare at the end each have
   const { page, close } = await open({ fakeAudio: true });
   try {
     await start(page, [H, H, H]);
-    for (let i = 0; i < 6; i++) { await rig(page, ['b']); await page.tap('[data-act=draw]'); await page.tap('.ztable'); }
+    for (let i = 0; i < 6; i++) { await rig(page, ['b']); await page.tap('[data-act=draw]'); await tapTable(page); }
     await page.waitForFunction(() => window.OneMoreUI.audio.played.includes('refresh'));
     await place(page, { current: 0, draw: range(38, 44), table: [37], safe: [range(0, 20), range(20, 28), range(28, 37)] });
-    await page.tap('.ztable');
+    await tapTable(page);
     await page.waitForSelector('.over');
     assert.ok((await page.evaluate(() => window.OneMoreUI.audio.played)).includes('win'));
   } finally { await close(); }
@@ -495,7 +493,7 @@ test('motion: saving sends the gems to the pile one after another and the score 
     await rig(page, ['g', 'g', 'g', 'g']);
     for (let i = 0; i < 4; i++) await page.tap('[data-act=draw]');
     const seat = (await state(page)).cur;
-    await page.tap('.ztable');
+    await tapTable(page);
     const shown = await page.evaluate(s => new Promise(resolve => {
       const { ui } = window.OneMoreUI, out = [];
       const t = setInterval(() => { const v = ui.shown[s]; if (!out.length || out[out.length - 1] !== v) out.push(v); if (v === 4) { clearInterval(t); resolve(out); } }, 10);
@@ -512,7 +510,7 @@ test('motion: the next player can dig straight away while the saved gems are sti
     await rig(page, ['g', 'g', 'g', 'g', 'g']);
     for (let i = 0; i < 4; i++) await page.tap('[data-act=draw]');
     const seat = (await state(page)).cur;
-    await page.tap('.ztable');
+    await tapTable(page);
     await page.tap('[data-act=draw]');                           // the next player digs straight away: not held up
     const s = await state(page);
     assert.equal(s.table, 1);

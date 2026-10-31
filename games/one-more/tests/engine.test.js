@@ -502,8 +502,9 @@ test('each time through the deck a boom card is taken out of the game for good, 
     s.phase = 'boomed'; s.lastBoom = { card: s.boomPile[s.boomPile.length - 1], lost: [] };
     const r = Engine.endTurn(s);
     assert.equal(r.refreshed, 'final');
-    assert.equal(s.gone.length, round); assert.equal(Engine.boomTotal(s), B - round);
+    assert.equal(s.gone.length, Math.min(round, B - 1)); assert.equal(Engine.boomTotal(s), Math.max(1, B - round));
     assertPartition(s, assert);
   }
-  assert.equal(s.draw.filter(c => Engine.isBoom(s, c)).length, 0, 'no booms left at all after the last refresh');
+  assert.equal(s.draw.filter(c => Engine.isBoom(s, c)).length, 1, 'the last boom never leaves: the game needs one');
+  assert.equal(Engine.boomTotal(s), 1);
 });

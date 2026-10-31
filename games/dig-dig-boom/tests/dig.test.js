@@ -173,7 +173,7 @@ test('untapping: Encore Parrot (once per battle) and Refresh Elixir stand every 
   Dig.useAction(st, st.ongoing[0]); assert.ok(st.line.every(e => !e.tapped), 'they all stand up');
   assert.ok(!Dig.actions(st).some(a => a.card.id === 'ON-77'), 'the Parrot works once a battle');
   Dig.triggerAll(st); assert.equal(st.grit, 2, 'Gritty Gecko works again');
-  assert.ok(Dig.usable(st).some(x => x.card.id === 'CO-36')); Dig.useConsumable(st, st.cons[0]); assert.ok(st.line.every(e => !e.tapped)); assert.equal(st.cons.length, 0);
+  assert.ok(Dig.usable(st).some(x => x.card.id === 'CO-36')); const h0 = st.heart; Dig.useConsumable(st, st.cons[0]); assert.ok(st.line.every(e => !e.tapped)); assert.equal(st.cons.length, 0); assert.equal(st.heart, h0 + 1, 'and one Health');
   Dig.triggerAll(st); assert.equal(st.grit, 3);
 });
 
@@ -551,12 +551,12 @@ test('Battery Beetle: in a battle, tap numbered Ongoing cards you choose for +1 
   assert.ok(!Dig.actions(s2).some(x => x.card.id === 'ON-78'), 'a full Grit track: nothing to offer');
 });
 
-test('Wake-Up Rooster: tap it to untap 2 of your Ongoing cards, once per battle', () => {
+test('Wake-Up Rooster: tap it to untap 1 of your Ongoing cards, once per battle', () => {
   const st = play(mk({ dice: [10] }), 'ON-79', 'ON-13', 'ON-04'); fight(st, 'MO-02'); Dig.roll(st);
   assert.ok(!Dig.actions(st).length, 'nothing is tapped yet');
   Dig.trigger(st, Dig.eligible(st).find(e => e.card.id === 'ON-04')); Dig.trigger(st, Dig.eligible(st).find(e => e.card.id === 'ON-13'));
   const rooster = st.ongoing[0], tapped = st.line.filter(e => e.tapped); assert.equal(tapped.length, 2);
-  assert.ok(Dig.useAction(st, rooster, { pick: tapped.map(e => e.card.uid) })); assert.ok(st.line.every(e => !e.tapped), 'both stand up');
+  assert.ok(Dig.useAction(st, rooster, { pick: [tapped[0].card.uid] })); assert.equal(st.line.filter(e => e.tapped).length, 1, 'only one stands up');
   assert.ok(!Dig.actions(st).some(x => x.card === rooster), 'the Rooster itself lies down for the battle');
 });
 

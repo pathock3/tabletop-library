@@ -1238,6 +1238,12 @@ body[data-mode=play] { background: radial-gradient(130% 75% at 50% -10%, #74401e
 #play .rollgo { display: flex; align-items: center; gap: 12px; padding: 8px 18px 8px 10px; border-radius: 20px; background: linear-gradient(180deg, #ffd45e, #f0a21b); color: #1c1410; border: 3px solid #fff3d6; box-shadow: 0 5px 0 #6a4a05; font-size: 22px; font-weight: 900; letter-spacing: .03em; text-transform: uppercase; }
 #play .rollgo .d10 { width: 74px; height: 74px; }
 #play .rollgo:active { transform: translateY(3px); box-shadow: 0 2px 0 #6a4a05; }
+#play .lbfull > .lbhelpbtn { width: auto; max-width: none; position: absolute; left: 16px; bottom: max(12px, env(safe-area-inset-bottom)); align-self: auto; }
+#play .lbfull.bigboard { position: fixed; inset: 0; }          /* the full-size Leaderboard covers the whole screen (an earlier rule had made it part of the page) */
+#play .enddone .lbhelpbtn { left: auto; right: 16px; top: 12px; bottom: auto; min-height: 52px; }          /* the end screen has no Pause to dodge, and its bottom row is full */
+#play .over.boom .boomwhat { margin: 0 auto 12px; display: flex; min-height: 52px; font-size: 20px; }
+/* the buttons along the bottom of every screen are one family: the same height and the same writing */
+#play .panel .foot .btn[data-p], #play .panel .lbhelpbtn[data-p], #play .lbfull .lbhelpbtn[data-p] { min-height: 60px; height: 60px; padding: 0 26px; min-width: 0; font-size: 22px; font-weight: 800; border-radius: 16px; letter-spacing: 0; }
 </style>
 </head>
 <body>
@@ -1444,9 +1450,9 @@ const DDB = {
     { id: "CO-35", name: "Comeback Kit", type: "Consumable", number: null, deck: "Booster", count: 1, text: "Discard for +2 {heart}, then put this card on the bottom of your Mine" },
     { id: "ON-76", name: "Bargain Badger", type: "Ongoing", number: null, deck: "Booster", count: 1, text: "When dug, +1 {grit}. After you roll, 2 {grit} gives +1 to your result instead of 3" },
     { id: "ON-77", name: "Encore Parrot", type: "Ongoing", number: null, deck: "Booster", count: 1, text: "Once per battle, untap all your Ongoing cards" },
-    { id: "CO-36", name: "Refresh Elixir", type: "Consumable", number: null, deck: "Booster", count: 1, text: "Discard to untap all your Ongoing cards" },
+    { id: "CO-36", name: "Refresh Elixir", type: "Consumable", number: null, deck: "Booster", count: 1, text: "Discard to untap all your Ongoing cards and gain 1 {heart}" },
     { id: "ON-78", name: "Battery Beetle", type: "Ongoing", number: null, deck: "Booster", count: 1, text: "In a battle, tap any of your numbered Ongoing cards for +1 {grit} each" },
-    { id: "ON-79", name: "Wake-Up Rooster", type: "Ongoing", number: null, deck: "Booster", count: 1, text: "Tap this card to untap 2 of your Ongoing cards" },
+    { id: "ON-79", name: "Wake-Up Rooster", type: "Ongoing", number: null, deck: "Booster", count: 1, text: "Tap this card to untap 1 of your Ongoing cards" },
   ],
   // Card types (v2.7 Rules, "Card types"): colour, icon, and a second cue (pattern) so no type depends on colour alone.
   // (v2.7.1: Ongoing silver, Single-Use (Consumable) purple, Immediate yellow, Treasure (Geode) blue, Monster red. There is no Power type: an Ongoing card with a number fires when the roll reaches it.)
@@ -1557,7 +1563,7 @@ const DDB = {
   table: { playerColors: ['#2b86d1', '#e8344e', '#2b86d1', '#2eaf68', '#7a3fb8', '#1d1712'] },   // each player's Drill trim = their Leaderboard marker
   // ---- A run: rounds of Dig + Prep, the Leaderboard and the Crown (v2.7 Rules tab), for one player ----
   run: {
-    rounds: 5,                                               // the length of a run (owner: 5 rounds, for now) (not a setting). Everything about the final round keys on round === rounds, so this is the only number to change
+    rounds: 4,                                               // the length of a run (owner: 4 rounds; 5 felt too long) (not a setting). Everything about the final round keys on round === rounds, so this is the only number to change
     crownStart: 2,                                       // the Crown tracker starts at 2 (owner): reaching 3 Monsters is enough to claim the Crown
     boosterDeck: 'Booster',                              // the Deck column value of the Booster Deck
     boosterBan: ['\\{gem\\}'],                            // (owner) no Booster cards that boost gems: a card whose text matches one of these stays out of the Booster Deck
@@ -1716,6 +1722,7 @@ const DDB = {
       ['unstable',     /^If your roll is 1-2, discard to make it a (\d+)$/],
       ['petDefeatGain', /^When your Pet defeats a Monster, discard for ((?:\+\d+ \{(?:heart|grit|extraroll)\})(?:(?:, | and )(?:\+\d+ \{(?:heart|grit|extraroll)\}))*)$/],
       ['untapAll',     /^Discard to untap all your Ongoing cards$/],
+      ['refresh',      /^Discard to untap all your Ongoing cards and gain (\d+) \{heart\}$/],
       ['defeatGain',   /^When you defeat a Monster, discard for ((?:\+\d+ \{(?:heart|grit|extraroll)\})(?:(?:, | and )(?:\+\d+ \{(?:heart|grit|extraroll)\}))*)$/],
     ],
   },
@@ -2425,7 +2432,7 @@ const Dig = (() => {
     if (over(st) || st.pending) return false;
     switch (ab.op) {
       case 'shoo': return false;                                  // it works when you dig a card (see chooseDug)
-      case 'gain': case 'gainBottom': case 'gainPerCard': case 'scanner': return true;
+      case 'gain': case 'gainBottom': case 'gainPerCard': case 'scanner': case 'refresh': return true;
       case 'ifHeartIs': return st.heart === ab.a;
       case 'gainHalfRoll': return after(st);
       case 'preSet': return before(st) && !f.pre.set && !f.pre.twice;
@@ -2453,6 +2460,7 @@ const Dig = (() => {
       case 'petDefeatGain': return inFight(st) && st.fight.defeat && st.fight.byPet;
       case 'defeatGain': return inFight(st) && st.fight.defeat;
       case 'untapAll': return inFight(st) && st.line.some(e => e.tapped);
+      case 'refresh': return inFight(st) && (st.line.some(e => e.tapped) || st.heart < R.caps.heart);
     }
     return false;
   }
@@ -2504,6 +2512,7 @@ const Dig = (() => {
       case 'scanner': gain(st, 'grit', ab.a, src); apply(st, { op: 'look', n: ab.b }, ctx); break;
       case 'timeTurner': { const i = opt.pick !== undefined ? st.discard.findIndex(x => x.uid === opt.pick && x.type === 'Immediate') : lastIndex(st.discard, x => x.type === 'Immediate'); if (i >= 0) { const [x] = st.discard.splice(i, 1); st.mine.unshift(x); st.known = Math.min(st.mine.length, st.known + 1); log(st, 'effect', `${src}: ${x.name} goes on top of your Mine`); } break; }
       case 'untapAll': untapAll(st, src); break;
+      case 'refresh': untapAll(st, src); gain(st, 'heart', ab.a, src); break;
       case 'unstable': f.result = ab.a; f.parts = [...f.parts, { label: 'Made a', v: ab.a, set: true }]; log(st, 'effect', `${src}: your roll becomes a ${ab.a}`); break;
     }
     if (discard && st.cons.includes(c)) discardCons(st, c);
@@ -4096,7 +4105,7 @@ function DDBSeat(root, cfg) {
     const cols = Array.from({ length: max + 1 }, (_, n) => {
       const chips = stackOrder.filter(p => bestN(p) === n).map((p, k) => `<i class="pchip ${p.id === run.me ? 'me' : ''}" data-p="lbtip" data-t="chip" data-pid="${p.id}" style="--pc:${p.color};--k:${k}" title="${A.esc(p.name)}: best ${n}">${p.id === run.me ? '<b>You</b>' : ''}</i>`).join('');
       const here = live.filter(x => x.m.n === n).sort((x, y) => x.m.rank - y.m.rank);
-      return `<div class="bcol ${n <= tr ? 'free' : ''}" data-p="lbtip" data-t="col" data-n="${n}"><div class="bhead"><span class="bn">${n}${!holder && n === crownCol ? '<span class="bcrown" aria-label="Crown">♛</span>' : ''}</span><span class="bchips">${chips}</span></div><div class="bband"></div>${Array.from({ length: rows }, (_, i) => {
+      return `<div class="bcol ${n <= tr ? 'free' : ''}" data-n="${n}"><div class="bhead"><span class="bn">${n}${!holder && n === crownCol ? '<span class="bcrown" aria-label="Crown">♛</span>' : ''}</span><span class="bchips">${chips}</span></div><div class="bband"></div>${Array.from({ length: rows }, (_, i) => {
         const x = here[i];
         return `<div class="bspot ${i === 0 ? 'top' : ''}">${x ? `<i class="bdisc ${x.p.id === run.me ? 'me' : ''} ${ended[x.p.id] && ended[x.p.id].k === 'boom' ? 'blown' : ''}" data-p="lbtip" data-t="piece" data-pid="${x.p.id}" style="--pc:${x.p.color}" title="${A.esc(x.p.name)}${(rs ? x.going : Board.marker(bd, x.p.id, 'pledge')) ? ': this Dig' : ''}">${x.p.id === run.me ? '<b>You</b>' : ''}</i>${ended[x.p.id] ? (ended[x.p.id].k === 'bank' ? (ended[x.p.id].final ? `<span class="bgem bwin" role="img" aria-label="wins">♛</span>` : `<span class="bgem" aria-label="${ended[x.p.id].gems || 0} gems"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#i-gem"/></svg><b>${ended[x.p.id].gems || 0}</b></span>`) : `<span class="bboom" aria-label="BOOM"></span>`) : ''}` : ''}</div>`;
       }).join('')}</div>`;
@@ -4152,7 +4161,7 @@ function DDBSeat(root, cfg) {
     <li>A piece moves up each time its player meets a Monster, so the quicker you reach a number, the better your spot. If two players bank the same number, whoever got there first holds the better spot.</li>
     <li>The <b>Crown</b> ♛ goes to the best chip. It waits on ${D.run.crownStart + 1} until someone banks that many. In the last round nobody banks: your piece is your score.</li>
     <li>When a round ends the board <b>plays back what happened</b>. Fast forward runs it four times quicker.</li>
-    <li><b>Tap</b> any piece, chip or column to see what it means.</li></ul><button class="btn" data-p="lbhelpclose">Got it</button></div></div>`;
+    <li><b>Tap</b> any piece or chip to see what it means.</li></ul><button class="btn" data-p="lbhelpclose">Got it</button></div></div>`;
   const lbTipHTML = () => S.lbTip ? `<div class="mnote-back top" data-p="lbtipclose"><div class="mnote lbtip" role="dialog" aria-label="On the Leaderboard"><p>${S.lbTip}</p></div></div>` : '';
   // Tap-to-explain: any word, symbol or number on a screen can say what it is. The text of a game term is in the glossary (D.glossary); the rest is here.
   const fillG = t => t.replace(/\[\[([\w.]+)\]\]/g, (_, k) => k.split('.').reduce((o, x) => (o || {})[x], R));
@@ -4163,9 +4172,9 @@ function DDBSeat(root, cfg) {
     if (key === 'monsters') return tipOf('Monsters', 'Monsters come in three sets, A, B and C. Each time you meet one from a set it hits harder: the numbers are what it deals, in order. The red one is the Monster you are facing, the dim ones you have already met.', 'damage');
     if (key === 'geode') return tipOf('Geode', `A Geode is a card that gives you a gem. Dig one and the gem goes in your Bank.`, 'gem');
     if (key === 'pack') { const t = D.run.ladder[Number(arg)]; if (!t) return ''; return tipOf(`${t.name} Pack`, `Draw <b>${t.draw}</b> Booster cards and keep <b>${t.keep}</b> of them. You open it by banking <b>${t.at}</b> gems or more.<br>${t.draw}:${t.keep} is just that: cards drawn : cards kept.`, 'gem'); }
-    if (key === 'whatprep' && S.run && S.run.prep && S.run.prep.first) return tipOf('Your first pack', `Pick one of these cards to keep for the rest of the game. Not sure which? Just pick one at random.`);
+    if (key === 'whatprep' && S.run && S.run.prep && S.run.prep.first) return tipOf('Your first pack', `First time playing? Just pick one and see how the game works.`);
     if (key === 'whatprep') return tipOf('Your Booster Pack', `Your goal is to <b>bank gems</b>. You swap them for a better Booster Pack, and the cards you keep mostly get shuffled into your Mine, to help you survive deeper next time.`);
-    if (key === 'boomthis') return tipOf('BOOM!', `Your Health ran out, so that Dig earned nothing: you lose the gems you were carrying. Your best banked score (the chip on top) stays where it was, so you only lose this round's progress.`, 'damage');
+    if (key === 'boomthis') return tipOf('BOOM!', `Your Health ran out, so that Dig earned nothing: you lose the gems you were carrying. Your best banked score (the chip on top) stays where it was, so you only lose this round's progress. Next you see the Leaderboard, then you open a smaller Booster Pack.`, 'damage');
     return '';
   }
   // The round, played back: every move of every marker in the order it happened, quickly, until someone's Dig ends (a bank or a BOOM); then it waits for a tap and says what happened.
@@ -4232,11 +4241,11 @@ function DDBSeat(root, cfg) {
   function lbFullHTML() {
     if (!S.lbFull || S.panel !== 'dig' || !S.run) return '';
     const run = S.run, names = run.board.players.map(p => `<span class="bpl ${p.id === run.me ? 'me' : ''}" data-pid="${p.id}" style="--pc:${p.color}"><i class="pchip mini"></i><b>${A.esc(p.name)}${p.id === Board.holder(run.board) ? '<span class="cjewel" aria-label="holds the Crown">♛</span>' : ''}</b></span>`).join('');
-    return `<div class="lbfull bigboard" data-p="lbclose" style="--bv:${boardScale()}"><h2 class="steptitle">Leaderboard</h2>${boardGrid(run, null).replace(/<div class="bplayers">[\s\S]*$/, `<div class="bplayers">${names}</div>`)}<p class="bcap"><small>Tap a piece or a column to see what it means.</small></p><button class="btn alt lbhelpbtn" data-p="lbhelp">What is this?</button></div>`;
+    return `<div class="lbfull bigboard" data-p="lbclose" style="--bv:${boardScale()}"><h2 class="steptitle">Leaderboard</h2>${boardGrid(run, null).replace(/<div class="bplayers">[\s\S]*$/, `<div class="bplayers">${names}</div>`).replace(/ data-p="lbtip"/g, '')}<button class="btn alt lbhelpbtn" data-p="lbhelp">What is this?</button></div>`;
   }
   function boardHTML() {
     const run = S.run, final = run.phase === 'done', an = S.boardAnim, more = !!an && an.k < an.events.length;          // (a tap goes on after each result; Fast forward runs through them all; the button to go on is there all the time)
-    const cap = !an ? '' : `<p class="bcap" role="status">${an.k === 0 ? `Round ${run.round - 1} is over.` : A.esc(boardText(run, an.events[an.k - 1], an.from)).replace('New Best!', '<em class="newbest">New Best!</em>')}${an.k > 0 && an.events[an.k - 1].k === 'boom' ? ' <button class="whatbtn" data-p="term" data-k="boomthis">What is this?</button>' : ''}</p>`;
+    const cap = !an ? '' : `<p class="bcap" role="status">${an.k === 0 ? `Round ${run.round - 1} is over.` : A.esc(boardText(run, an.events[an.k - 1], an.from)).replace('New Best!', '<em class="newbest">New Best!</em>')}</p>`;
     const bv = boardScale();          // everything on this screen is drawn at this size, so it always fits: nothing here scrolls
     return `<div class="panel setup bigboard" style="--bv:${bv}"><button class="btn alt lbhelpbtn" data-p="lbhelp">What is this?</button><div class="scroll"><h2 class="steptitle">Leaderboard</h2>${boardGrid(run, an)}${cap}</div><div class="foot">${more ? (an.fast ? '<button class="btn alt" data-p="boardskip">Skip ⏭</button>' : '<button class="btn alt" data-p="boardfast">Fast forward ⏩</button>') : ''}<button class="btn" data-p="boardgo">${final ? 'See the result' : 'Booster Pack'}</button></div></div>`;
   }
@@ -4361,7 +4370,7 @@ function DDBSeat(root, cfg) {
     const title = tab ? `Round ${tab}` : m ? (mr.winner === run.me ? 'You win!' : mr.winner ? `${(run.board.players.find(p => p.id === mr.winner) || { name: 'The AI' }).name} wins` : 'Nobody took the Crown') : (r.crown ? 'You hold the Crown!' : 'The Crown stays on the table');
     const tabs = `<div class="dtabs" role="tablist">${Array.from({ length: run.rounds }, (_, i) => `<button class="dtab ${sel === i + 1 ? 'on' : ''}" data-p="donetab" data-k="${i + 1}" role="tab" aria-label="${i + 1 === run.rounds ? 'Round ' + (i + 1) + ', the end of the game' : 'Round ' + (i + 1)}">${i + 1}</button>`).join('')}</div>`;
     const an = tab ? (S.boardAnim && S.boardAnim.round === tab ? S.boardAnim : histAnim(run, tab)) : null, playing = !!an && an.k < an.events.length;
-    const cap = tab && an && an.k > 0 ? `<p class="bcap" role="status">${A.esc(boardText(run, an.events[an.k - 1], an.from))}${an.events[an.k - 1].k === 'boom' ? ' <button class="whatbtn" data-p="term" data-k="boomthis">What is this?</button>' : ''}</p>` : '';
+    const cap = tab && an && an.k > 0 ? `<p class="bcap" role="status">${A.esc(boardText(run, an.events[an.k - 1], an.from))}</p>` : '';
     return `<div class="panel setup bigboard enddone" style="--bv:${boardScale()}">${tabs}<button class="btn alt lbhelpbtn" data-p="lbhelp">What is this?</button><div class="scroll"><h2 class="endtitle ${won && !tab ? 'won' : ''}">${A.esc(title)}</h2>${boardGrid(run, an)}${cap}</div><div class="foot"><span class="endbtns">${tab ? (playing ? (an.fast ? '<button class="btn alt" data-p="boardskip">Skip ⏭</button>' : '<button class="btn alt" data-p="boardfast">Fast forward ⏩</button>') : '<button class="btn alt" data-p="donereplay">Watch again</button>') : ''}${run.owned.length ? `<button class="btn alt" data-p="owned">Your cards (${run.owned.length})</button>` : ''}</span>${S.viewBest ? '<button class="btn" data-p="closebest">‹ Back</button>' : '<button class="btn alt" data-p="mainmenu">Main menu</button><button class="btn" data-p="startrun">New game</button>'}</div></div>`;
   }
   // ----- the table -----
@@ -4480,7 +4489,7 @@ function DDBSeat(root, cfg) {
     // The last round is a race: nobody banks. Say so, and say what to do: keep digging until you lead; once you lead, wait (digging on only risks the lead).
     const lastRound = !!(S.run && st.board && st.board.final);
     const myBest = S.run ? (Board.marker(S.run.board, S.run.me, 'best') || { n: 0 }).n : 0, past = lastRound && st.board.lead && Math.max(st.monstersDug, st.survived) > myBest;          // in the last round your job is to get one past your best; only then may you wait and speed the others up
-    const say = lastRound ? (st.board.allOut ? 'You are winning. Keep digging to push your score higher, but a BOOM now costs you this score: only your best from earlier rounds would count. Or see the result.' : st.board.lead ? (past ? `You are in the lead with ${(leaderLine() || {}).n}. Keep digging to push it higher, or wait to see if everyone else goes BOOM.` : `You are in the lead with ${(leaderLine() || {}).n}. Try to get one past it.`) : leaderLine() ? `${leaderLine().name} ${leaderLine().is} in the lead with ${leaderLine().n}. Try to beat that score.` : 'The last round: nobody banks. Dig until you are in the lead.') : can.bank ? 'Tap the Mine to dig, or the Bank to keep your gems' : 'Tap the Mine to dig';
+    const say = lastRound ? (st.board.allOut ? 'You are winning. Keep digging to push your score higher, but a BOOM now costs you this score: only your best from earlier rounds would count. Or see the result.' : st.board.lead ? (past ? `You are in the lead with ${(leaderLine() || {}).n}. Keep digging to push it higher, or wait to see if everyone else goes BOOM.` : `You are in the lead with ${(leaderLine() || {}).n}. Try to get one past it.`) : leaderLine() ? `${leaderLine().name} ${leaderLine().is} in the lead with ${leaderLine().n}. Try to beat that score.` : 'The last round: nobody banks. Dig until you are in the lead.') : can.bank ? 'Tap your Mine deck to dig, or Bank to keep your gems' : 'Tap the Mine to dig';
     const holdBtn = lastRound && st.board.allOut ? `<button class="btn" data-p="hold">See the result</button>` : '';
     const ffBtn = past && aiDigging() ? `<button class="btn alt ffbtn" data-p="ff" ${S.ff ? 'disabled' : ''}>${S.ff ? 'Fast-forwarding…' : 'Fast-forward your opponents'}</button>` : '';          // you wait; this speeds the opponent up until they pass you or go BOOM
     return { html: `<div class="action"><div class="aprompt">${say}</div>${ffBtn}${holdBtn}</div>`, die: '' };
@@ -4522,11 +4531,11 @@ function DDBSeat(root, cfg) {
       const dd = cfg.duel && S.match, both = dd && Duel.bothOver(dd), mv = dd && dd.moved[S.run.me], wait = dd && (mv || !both);
       const next = `<div class="row2"><button class="btn ${wait ? 'waiting' : ''}" data-p="prep" ${wait ? 'disabled' : ''}>${dd ? (mv ? 'Waiting for the other player…' : !both ? 'Waiting for the other player to finish…' : fin ? 'See the result' : 'Continue') : fin ? 'See the result' : 'To Leaderboard'}</button></div>`;          // (the opponents finish their Digs behind the scenes when you tap)
       over = st.over.kind === 'boom'
-        ? `<div class="over boom ${ovFx}">${boomFxHTML()}<h2>BOOM!</h2><div class="obody">${next}</div></div>`
+        ? `<div class="over boom ${ovFx}">${boomFxHTML()}<h2>BOOM!</h2><div class="obody"><button class="whatbtn boomwhat" data-p="term" data-k="boomthis">What is this?</button>${next}</div></div>`
         : `<div class="over ${ovFx}">${ovFx ? confettiHTML(16) : ''}<h2>${fin ? 'In the lead!' : 'Banked!'}</h2><div class="obody"><div class="big">${fin ? '' : `<b>${s.total}</b> ${ic('gem', ' style="width:54px;height:54px;vertical-align:-12px"')}<br>`}<b>${st.survived}</b> Monster${st.survived === 1 ? '' : 's'} survived${fin ? '<br>Everyone else is out' : ''}</div>${next}</div></div>`;
     } else if (st.over) {
       over = (st.over.kind === 'boom'
-      ? `<div class="over boom ${ovFx}">${boomFxHTML()}<h2>BOOM!</h2><div class="obody">`
+      ? `<div class="over boom ${ovFx}">${boomFxHTML()}<h2>BOOM!</h2><div class="obody"><button class="whatbtn boomwhat" data-p="term" data-k="boomthis">What is this?</button>`
       : `<div class="over ${ovFx}">${ovFx ? confettiHTML(16) : ''}<h2>Banked!</h2><div class="obody"><div class="big"><b>${s.total}</b> ${ic('gem', ' style="width:30px;height:30px;vertical-align:-6px"')} (${s.geodes} from Geodes, ${s.monsters} from Monsters)<br><b>${s.survived}</b> Monster${s.survived === 1 ? '' : 's'} survived</div>`) + (st.best && st.over.kind === 'bank' ? `<div class="note">Best so far: ${st.best.now.survived} Monsters survived${st.best.newSurvived ? ' (new!)' : ''} · ${st.best.now.gems} gems banked${st.best.newGems ? ' (new!)' : ''}</div>` : '') + `<div class="row2"><button class="btn" data-p="again">New Dig, same kit</button><button class="btn alt" data-p="setup">Choose a kit</button></div></div></div>`;
     }
     S.fx = fxOf(st);

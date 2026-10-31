@@ -100,7 +100,7 @@ const plan = page => page.evaluate(() => {
   const { ui } = window.OneMoreUI, st = ui.st;
   const fp = JSON.stringify([Engine.scores(st), st.draw.length, st.phase, st.table.length, st.current, !!ui.hold, st.over]);
   if (st.over) return { sel: null, fp };
-  const sel = (ui.botBusy || ui.hold || st.phase === 'boomed') ? '.ztable' : (Bots.decide(Engine.publicView(st, st.current), 'steady') === 'draw' ? '[data-act=draw]' : '.ztable');
+  const sel = (ui.botBusy || ui.hold || st.phase === 'boomed') ? '.ztable' : (Bots.decide(Engine.publicView(st, st.current), 'steady') === 'draw' ? '[data-act=draw]' : '.bankbtn');
   const r = document.querySelector(sel).getBoundingClientRect();
   return { sel, fp, hold: !!ui.hold, x: r.left + r.width / 2, y: r.top + r.height / 2 };
 });
@@ -120,4 +120,9 @@ async function playToEnd(page, maxTaps = 3000, onTap) {
   throw new Error('the game did not finish');
 }
 
-module.exports = { test, assert, chromium, SKIP, SIZES, open, state, noGuard, setup, start, H, C, errorsOf, rig, place, range, settled, sounds, plan, nextTap, playToEnd, fingerprint };
+// What a person taps on the table to go on: the Bank button when there is something to bank, otherwise the table itself (that passes a boom or releases a computer's turn).
+const tapTable = async page => {
+  const bank = await page.evaluate(() => { const { ui } = window.OneMoreUI, st = ui.st; return !!st && !st.over && st.phase === 'turn' && !ui.hold && !ui.botBusy && Engine.canSave(st); });
+  await page.tap(bank ? '.bankbtn' : '.ztable');
+};
+module.exports = { tapTable, test, assert, chromium, SKIP, SIZES, open, state, noGuard, setup, start, H, C, errorsOf, rig, place, range, settled, sounds, plan, nextTap, playToEnd, fingerprint };
