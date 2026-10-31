@@ -71,14 +71,10 @@ h1 { margin: -6px 0 0; font-size: 104px; line-height: .95; font-weight: 1000; fo
 .bn { font-size: .32px; fill: #fff; font-weight: 800; text-anchor: middle; dominant-baseline: central; pointer-events: none; }
 .hand { display: flex; flex-wrap: wrap; justify-content: center; gap: 6px; min-height: 40px; align-items: center; }
 .hint { color: var(--dim); } .deckline { font-size: 12px; color: var(--dim); }
-.card { width: 98px; height: 140px; border-radius: 12px; background: linear-gradient(#f9eed4, #e0cb9c); color: #2b1d12; border: 5px solid var(--cc, #7c5a38); display: grid; grid-template-rows: auto 1fr auto auto auto; justify-items: center; align-items: center; padding: 3px 2px; font-size: 14px; font-weight: 800; box-shadow: 0 3px 0 #000; }
-.card b { font-size: 26px; line-height: 1; } .card i { font-style: normal; font-size: 40px; line-height: 1; } .card em { font-style: normal; font-size: 12px; line-height: 1.15; white-space: nowrap; } .card em.weak { color: #9a2a1a; } .card em.strong { color: #1d6a34; }
-.card.small { width: 76px; height: 108px; border-width: 4px; font-size: 12px; } .card.small i { font-size: 30px; } .card.small b { font-size: 20px; } .card.small em { font-size: 10px; }
-@media (max-width: 520px) { .card { width: 74px; height: 108px; font-size: 12px; } .card i { font-size: 30px; } .card b { font-size: 20px; } .card em { font-size: 10px; } .card.small { width: 60px; height: 88px; } .card.small em { font-size: 8px; } }
 .card.sel { transform: translateY(-10px); outline: 4px solid var(--gold); } .card.dim { opacity: .5; } .card.back { background: repeating-linear-gradient(45deg, #5a3a22, #5a3a22 6px, #3a2414 6px, #3a2414 12px); } .card.empty { background: transparent; border-style: dashed; box-shadow: none; }
 .battle { position: absolute; inset: 0; background: radial-gradient(ellipse at 50% 30%, #3a2616, #140d08 80%); display: flex; flex-direction: column; align-items: center; gap: 10px; padding: calc(env(safe-area-inset-top) + 16px) 16px 16px; z-index: 10; overflow: hidden; }
 .battle h2 { margin: 6px 0 0; color: var(--gold); }
-.slots { display: flex; gap: 28px; } .slot { display: flex; flex-direction: column; align-items: center; gap: 6px; } .slot .card { width: 112px; height: 160px; } .slot .card b { font-size: 28px; } .slot .card i { font-size: 46px; } .slot .card em { font-size: 13px; }
+.slots { display: flex; gap: 28px; } .slot { display: flex; flex-direction: column; align-items: center; gap: 6px; } .slot .card { --w: min(46vw, 190px); }
 .msg { min-height: 44px; margin: 0; text-align: center; font-size: 18px; font-weight: 700; max-width: 520px; } .foe { font-weight: 800; }
 .sheet { position: absolute; inset: 0; background: rgba(0,0,0,.72); display: grid; place-items: center; z-index: 30; padding: 16px; }
 .sheetin { background: linear-gradient(#35230f, #22160b); border: 3px solid #e0b052; border-radius: 22px; padding: 22px; max-width: 560px; max-height: 88%; overflow-y: auto; display: flex; flex-direction: column; align-items: center; gap: 12px; text-align: left; }
@@ -94,8 +90,6 @@ h1 { margin: -6px 0 0; font-size: 104px; line-height: .95; font-weight: 1000; fo
 .yes .face.back { box-shadow: 0 0 40px 10px rgba(255,214,90,.85); }
 @keyframes flip { to { transform: rotateY(180deg); } } @keyframes shake { 25% { transform: rotate(-4deg); } 75% { transform: rotate(4deg); } } @keyframes fadein { to { opacity: 1; } }
 
-.card span.x1 { font-size: 11px; } .card span.x2 { font-size: 9.5px; } .card em.role { font-size: 10px; color: #6b5a3a; font-weight: 700; }
-.card span { max-width: 100%; text-align: center; line-height: 1.05; }
 .pick { background: radial-gradient(ellipse at 50% 0, #3a2616, #140d08 80%); justify-content: flex-start; }
 .pick .topbar { margin-bottom: 0; }
 .picktitle { margin: 0 0 6px; font-size: 30px; text-shadow: 0 2px 0 #000; text-align: center; }
@@ -108,7 +102,23 @@ h1 { margin: -6px 0 0; font-size: 104px; line-height: .95; font-weight: 1000; fo
 .ftile b { font-size: 19px; } .ftile small { color: var(--dim); font-size: 13px; } .ftile i { font-style: normal; font-size: 12px; color: #d8c49a; }
 .ftile:active { transform: translateY(2px); }
 .fnote { text-align: center; color: var(--dim); font-size: 13px; }
-@media (max-height: 560px) { .card { width: 70px; height: 100px; } .card em { font-size: 10px; } .status { font-size: 15px; } .herosvg, .kicker { display: none; } h1 { font-size: 64px; margin: 0; } .home { gap: 10px; } .big { min-height: 48px; padding: 8px 24px; } }
+/* ---- a card ---- */
+.hand { container-type: inline-size; width: 100%; --cw: 148px; }
+.card { --w: var(--cw, 148px); width: var(--w); aspect-ratio: 5 / 7; flex: none; border-radius: 10px; background: linear-gradient(#fbf1d8, #e8d4a6); color: #2b1d12; border: 4px solid var(--cc, #7c5a38); display: flex; flex-direction: column; align-items: stretch; padding: calc(var(--w) * 0.035) calc(var(--w) * 0.04) calc(var(--w) * 0.04); box-shadow: 0 3px 0 #000; text-align: center; overflow: hidden; }
+.hand .card { --w: clamp(92px, calc(100cqw / var(--n, 4) - 8px), 150px); }
+.card.small { --w: 104px; } .asidehand .card { --w: 80px; }
+.ctop { display: flex; align-items: flex-start; justify-content: space-between; gap: calc(var(--w) * 0.01); }
+.cside { flex: 0 0 calc(var(--w) * 0.29); min-height: calc(var(--w) * 0.17); border: .calc(var(--w) * 0.06) solid #8a6c3c; border-radius: calc(var(--w) * 0.018); padding: .calc(var(--w) * 0.08) 0 .calc(var(--w) * 0.06); background: rgba(255,255,255,.35); display: flex; flex-direction: column; align-items: center; justify-content: center; }
+.cside small { font-size: calc(var(--w) * 0.046); font-weight: 800; letter-spacing: .04em; text-transform: uppercase; opacity: .7; line-height: 1.1; } .cside b { font-size: calc(var(--w) * 0.058); line-height: 1.1; }
+.cside.weak { border-color: #9a2a1a; color: #7a1d12; } .cside.strong { border-color: #1d6a34; color: #14502a; }
+.cpow { font-size: calc(var(--w) * 0.25); font-weight: 900; line-height: 1; padding-top: calc(var(--w) * 0.01); position: relative; } .cpow sup { position: absolute; top: calc(var(--w) * 0.015); right: calc(var(--w) * -0.09); font-size: calc(var(--w) * 0.07); color: #9a6a00; }
+.cname { font-size: calc(var(--w) * 0.105); font-weight: 900; line-height: 1.05; margin-top: calc(var(--w) * 0.02); } .cname.x1 { font-size: calc(var(--w) * 0.086); } .cname.x2 { font-size: calc(var(--w) * 0.072); }
+.crole { font-size: calc(var(--w) * 0.056); font-weight: 800; color: #6b5a3a; text-transform: uppercase; letter-spacing: .06em; }
+.cab { flex: 1; min-height: 0; margin-top: calc(var(--w) * 0.024); padding-top: calc(var(--w) * 0.02); border-top: .calc(var(--w) * 0.05) solid rgba(107,90,58,.45); font-size: calc(var(--w) * 0.074); line-height: 1.17; font-weight: 600; display: flex; flex-direction: column; justify-content: flex-start; gap: calc(var(--w) * 0.01); text-align: left; }
+.cab b { font-weight: 900; } .cab.a1 { font-size: calc(var(--w) * 0.064); } .cab.a2 { font-size: calc(var(--w) * 0.054); line-height: 1.12; }
+.card.sel { transform: translateY(-10px); outline: 4px solid var(--gold); } .card.dim { opacity: .55; } .card.back { background: repeating-linear-gradient(45deg, #5a3a22, #5a3a22 6px, #3a2414 6px, #3a2414 12px); } .card.empty { background: transparent; border-style: dashed; box-shadow: none; }
+
+@media (max-height: 560px) { .status { font-size: 15px; } .herosvg, .kicker { display: none; } h1 { font-size: 64px; margin: 0; } .home { gap: 10px; } .big { min-height: 48px; padding: 8px 24px; } }
 </style>
 </head>
 <body>
@@ -600,15 +610,17 @@ const Bots = (() => {
   function pos(k, flip) { const [q, r] = E.parse(k); let x = SQ * (q + r / 2), y = 1.5 * r; if (flip) { x = -x; y = -y; } return [x, y]; }
   function hexPts(cx, cy, rad) { const o = []; for (let i = 0; i < 6; i++) { const a = Math.PI / 180 * (60 * i - 30); o.push((cx + rad * Math.cos(a)).toFixed(2) + ',' + (cy + rad * Math.sin(a)).toFixed(2)); } return o.join(' '); }
   const GRASS = ['#a9c26d', '#9bb85f', '#b6cc7c', '#8fae58'];
-  // a little stone castle with a banner in its owner's colour
-  function castleSVG(x, y, c, big) {
-    const k = c === null ? '#8b8574' : c;
-    return `<g transform="translate(${x.toFixed(2)} ${(y - 0.12).toFixed(2)}) scale(${big || 1})" pointer-events="none"><rect x="-.52" y="-.12" width="1.04" height=".62" fill="#d8cfb8" stroke="#2f2418" stroke-width=".07"/><path d="M-.52-.12v-.24h.2v.12h.15v-.12h.34v.12h.15v-.12h.2v.24z" fill="#d8cfb8" stroke="#2f2418" stroke-width=".07" stroke-linejoin="round"/><path d="M-.52.18H.52" stroke="#2f2418" stroke-width=".03" opacity=".5"/><path d="M-.13.5v-.26a.13.13 0 0 1 .26 0v.26z" fill="#2f2418"/><path d="M0-.36V-.86" stroke="#2f2418" stroke-width=".06"/><path d="M0-.86l.42.14-.42.14z" fill="${k}" stroke="#2f2418" stroke-width=".04"/></g>`;
+  // a little stone castle. Castles are only castles: a flag is drawn on one only when it hides a flag you may see (yours, or one that has been found)
+  function castleSVG(x, y, c, big, flag) {
+    return `<g transform="translate(${x.toFixed(2)} ${(y - 0.1).toFixed(2)}) scale(${big || 1})" pointer-events="none"><rect x="-.52" y="-.12" width="1.04" height=".62" fill="#d8cfb8" stroke="#2f2418" stroke-width=".07"/><path d="M-.52-.12v-.24h.2v.12h.15v-.12h.34v.12h.15v-.12h.2v.24z" fill="#d8cfb8" stroke="#2f2418" stroke-width=".07" stroke-linejoin="round"/><path d="M-.52.18H.52" stroke="#2f2418" stroke-width=".03" opacity=".5"/><path d="M-.13.5v-.26a.13.13 0 0 1 .26 0v.26z" fill="#2f2418"/>${flag ? '<path d="M0-.36V-.88" stroke="#2f2418" stroke-width=".07"/><path d="M0-.88l.5.17-.5.17z" fill="#e0301e" stroke="#2f2418" stroke-width=".05" stroke-linejoin="round"/>' : ''}</g>`;
   }
 
+  // A card: Weak (top left) and Strong (top right) are always there, blank when the card has none; the Power big in the middle, then the name, then the special ability written out.
   function cardHTML(c, o) {
-    o = o || {}; const t = CT[c.type], w = t.weakness ? CT[t.weakness] : null, st = D.cards.find(x => x.weakness === t.id), nmx = short(cname(c)), role = nmx === t.name ? '' : t.name;
-    return `<button class="card ${o.sel ? 'sel' : ''} ${o.dim ? 'dim' : ''} ${o.small ? 'small' : ''}" ${o.attr || ''} style="--cc:${col(c.owner)}"><b>${pw(c)}</b><i>${t.mark}</i><span class="${nmx.length > 18 ? 'x2' : nmx.length > 12 ? 'x1' : ''}">${esc(nmx)}</span><em class="role">${esc(role) || '&nbsp;'}</em><em class="weak">${w ? '☠ ' + w.name : '&nbsp;'}</em><em class="strong">${st ? '⚔ ' + st.name : '&nbsp;'}</em></button>`;
+    o = o || {}; const t = CT[c.type], f = E.FAC[facs()[c.owner]] || E.FAC.basic, w = t.weakness ? CT[t.weakness].name : '', sb = D.cards.find(x => x.weakness === t.id), s = sb ? sb.name : '';
+    const nmx = short(cname(c)), role = nmx === t.name ? '' : t.name, ab = (f.abilities || {})[c.type], mod = (f.power || {})[c.type] || 0;
+    const abName = ab && ab[0] ? `<b>${esc(ab[0])}</b>` : '', abText = ab ? ab[1] : (mod ? (mod > 0 ? '+' : '−') + Math.abs(mod) + ' Power' : ''), len = abText.length + (ab && ab[0] ? ab[0].length : 0);
+    return `<button class="card ${o.sel ? 'sel' : ''} ${o.dim ? 'dim' : ''} ${o.small ? 'small' : ''}" ${o.attr || ''} style="--cc:${col(c.owner)}"><div class="ctop"><div class="cside weak"><small>Weak</small><b>${esc(w)}</b></div><div class="cpow">${pw(c)}${mod ? `<sup>${mod > 0 ? '+' : '−'}${Math.abs(mod)}</sup>` : ''}</div><div class="cside strong"><small>Strong</small><b>${esc(s)}</b></div></div><div class="cname ${nmx.length > 16 ? 'x2' : nmx.length > 11 ? 'x1' : ''}">${esc(nmx)}</div><div class="crole">${esc(role) || '&nbsp;'}</div><div class="cab ${len > 200 ? 'a2' : len > 110 ? 'a1' : ''}">${abName}${abText ? `<span>${esc(abText)}</span>` : ''}</div></button>`;
   }
   const backCard = () => '<div class="card back"></div>';
 
@@ -622,7 +634,7 @@ const Bots = (() => {
       let fill = GRASS[(((q * 7 + r * 13) % 4) + 4) % 4];
       if (c) fill = c.owner == null ? '#b7ad94' : (c.owner === 0 ? '#e58a74' : '#7fa9e6');
       tiles += `<g data-hex="${k}"><polygon points="${hexPts(x, y, 0.95)}" fill="${fill}" class="hx ${isReach ? 'reach' : ''} ${isDep ? 'dep' : ''} ${c ? 'cas' : ''}"/><polygon points="${hexPts(x, y - 0.04, 0.78)}" fill="#fff" opacity=".1" pointer-events="none"/>`;
-      if (c) tiles += castleSVG(x, y, c.owner == null ? null : col(c.owner), 1) + (c.flag ? `<text x="${(x + 0.55).toFixed(2)}" y="${(y - 0.5).toFixed(2)}" class="flagmark">🚩</text>` : '');
+      if (c) tiles += castleSVG(x, y, null, 1, c.flag);
       tiles += '</g>';
     });
     const byHex = {};
@@ -690,7 +702,7 @@ const Bots = (() => {
   function revealHTML(r) {
     const flag = r.flag, who = nm(r.by), cname = E.castleName(r.castle);
     return `<div class="reveal" data-act="revack"><div class="revtxt top">${esc(who)} took ${esc(cname)}. Is the flag here?</div>
-      <div class="flipper ${flag ? 'yes' : 'no'}"><div class="face front"><svg viewBox="-1 -1.3 2 2.2">${castleSVG(0, 0.1, col(1 - r.by), 1.5)}</svg><div class="q">?</div></div>
+      <div class="flipper ${flag ? 'yes' : 'no'}"><div class="face front"><svg viewBox="-1 -1.3 2 2.2">${castleSVG(0, 0.1, null, 1.5, false)}</svg><div class="q">?</div></div>
       <div class="face back"><div class="flagbig">${flag ? '🚩' : '🏳️'}</div><b>${flag ? 'THE FLAG!' : 'No flag'}</b></div></div>
       <div class="revtxt bot"><div class="res">${flag ? esc(who) + ' wins!' : 'Nothing here. The hunt goes on.'}</div><small>Tap to continue</small></div></div>`;
   }
@@ -714,7 +726,7 @@ const Bots = (() => {
       <div class="slots">${slot(me, pl.mine, false)}${slot(opp, pl.theirs, pl.theirsHidden)}</div>
       <p class="msg">${esc(msg)}</p>
       <div class="foe" style="color:${col(me)}">Your cards (${b.mine.aside.length} aside)</div>
-      <div class="hand">${b.mine.hand.slice().sort((x, y) => pw(y) - pw(x)).map(c => cardHTML(c, { attr: can ? `data-pick="${c.id}"` : 'disabled', dim: !can })).join('')}</div>
+      <div class="hand" style="--n:${b.mine.hand.length}">${b.mine.hand.slice().sort((x, y) => pw(y) - pw(x)).map(c => cardHTML(c, { attr: can ? `data-pick="${c.id}"` : 'disabled', dim: !can })).join('')}</div>
       ${b.mine.aside.length ? `<div class="hand asidehand">${b.mine.aside.map(c => cardHTML(c, { small: true, dim: true, attr: 'disabled' })).join('')}</div>` : ''}
       ${stage === 'result' ? '<button class="big go" data-act="bc">Continue</button>' : ''}</div>`;
   }
@@ -741,7 +753,7 @@ const Bots = (() => {
     let low = '';
     if (v.step !== 'battle') {
       if (mySel) low = `<div class="hand">${mySel.cards.slice().sort((x, y) => pw(y) - pw(x)).map(c => cardHTML(c, { small: true, attr: 'disabled' })).join('')}</div>`;
-      else if (v.hand.length) low = `<div class="hand">${v.hand.slice().sort((x, y) => pw(y) - pw(x)).map(c => cardHTML(c, { sel: c.id === selCard, attr: myTurn ? `data-card="${c.id}"` : 'disabled' })).join('')}</div>`;
+      else if (v.hand.length) low = `<div class="hand" style="--n:${v.hand.length}">${v.hand.slice().sort((x, y) => pw(y) - pw(x)).map(c => cardHTML(c, { sel: c.id === selCard, attr: myTurn ? `data-card="${c.id}"` : 'disabled' })).join('')}</div>`;
       else low = '<div class="hand"><small class="hint">No cards in hand</small></div>';
     }
     const deployMode = (myTurn && v.hand.length && selCard) || (v.step === 'flag' && a === me);
