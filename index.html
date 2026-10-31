@@ -24,8 +24,16 @@ header { text-align: center; margin: 14px 0 26px; }
 h1 { margin: 0; font-size: clamp(34px, 7vw, 54px); letter-spacing: .5px; }
 .tag { margin: 6px 0 0; color: var(--dim); font-size: clamp(15px, 2.4vw, 18px); }
 /* the shelf: each game is a board-game box — just its cover art, with a thick edge */
-.shelf { display: flex; flex-wrap: wrap; justify-content: center; gap: 18px 14px; list-style: none; margin: 0; padding: 0 0 20px 0; }          /* up to 3 across in landscape, 2 on an upright iPad, 1 on a phone; the last row is centred */
-.shelf li { flex: 0 0 min(350px, 100%); padding: 42px 46px 0 0; filter: drop-shadow(0 22px 16px rgba(0,0,0,.55)); }          /* (room on the right and above for the box's depth) */
+.shelf { display: flex; justify-content: center; gap: 0 14px; list-style: none; margin: 0; padding: 0; }
+/* a wooden bookcase: side panels and a dark back, one plank for each row of boxes */
+.case { margin: 0 auto; max-width: 1120px; padding: 6px 14px 0; border: 12px solid #5a3519; border-bottom-width: 0; border-radius: 12px 12px 0 0;
+  background: repeating-linear-gradient(90deg, rgba(0,0,0,.18) 0 3px, rgba(255,255,255,0) 3px 34px), linear-gradient(#2b1a0d, #1e1209);
+  box-shadow: inset 0 14px 30px rgba(0,0,0,.6), inset 8px 0 18px rgba(0,0,0,.45), inset -8px 0 18px rgba(0,0,0,.45), 0 0 0 2px #2c1a0b, 0 24px 40px rgba(0,0,0,.5); }
+.plank { height: 30px; margin: 0 -14px; border-radius: 3px; background: linear-gradient(#b27b43 0, #9a652f 28%, #7b4c22 29%, #5e3816 100%); box-shadow: 0 6px 12px rgba(0,0,0,.55), inset 0 2px 0 rgba(255,225,170,.45), inset 0 -3px 0 rgba(0,0,0,.35); position: relative; }
+.plank::after { content: ""; position: absolute; inset: 0; background: repeating-linear-gradient(90deg, rgba(0,0,0,.07) 0 2px, rgba(255,255,255,0) 2px 70px); }
+.case > .shelf + .plank + .shelf { margin-top: 0; }
+.case::after { content: ""; display: block; height: 14px; margin: 0 -14px -0px; background: linear-gradient(#5a3519, #3d2310); border-radius: 0 0 6px 6px; }
+.shelf li { flex: 0 0 min(340px, 100%); padding: 44px 46px 0 0; filter: drop-shadow(8px 6px 7px rgba(0,0,0,.55)); }          /* (room on the right and above for the box's depth) */
 .box { display: block; position: relative; border-radius: 3px; text-decoration: none; color: inherit; background: #120b07; border: 0;
   transition: transform .14s ease; touch-action: manipulation; -webkit-user-select: none; user-select: none; --lid: color-mix(in srgb, var(--accent-c) 55%, #1a1008); --base: color-mix(in srgb, var(--accent-c) 30%, #0c0705); }
 /* the box is as deep as a real game box (about a seventh of its width): its right side and its top show, the lid over the base, with the seam between them */
@@ -265,16 +273,20 @@ const LIBRARY = {
 
   const shown = L.games.filter(g => (g.listed || showUnlisted) && href(g)).sort((a, b) => a.title.localeCompare(b.title, 'en', { sensitivity: 'base', ignorePunctuation: true }));          // alphabetical
   const tilt = i => ['-.7deg', '.6deg', '-.4deg', '.8deg'][i % 4];            // boxes sit a little askew on the shelf
-  document.getElementById('app').innerHTML = `
-    <header><h1>🎲 ${esc(L.name)}</h1><p class="tag">${esc(L.tagline)}</p></header>
-    <ul class="shelf">${shown.map((g, i) => `
+  const app = document.getElementById('app'), perRow = () => Math.max(1, Math.floor((Math.min(app.clientWidth, 1120) - 52 + 14) / (340 + 14)));          // boxes that fit on one shelf
+  const boxHTML = g => `
       <li><a class="box" data-id="${esc(g.id)}" href="${esc(href(g))}" style="--accent-c:${esc(g.accent || '#d9953a')};--tilt:0deg" aria-label="${esc(g.title)}${g.players ? ", " + esc(g.players) : ""}">
         <span class="side t"></span><span class="side r"></span>
         <div class="art">${art(g)}</div>
         <h2 class="sr">${esc(g.title)}</h2>
-      </a></li>`).join('')}</ul>
+      </a></li>`;
+  const draw = () => { const per = perRow(), rows = []; for (let i = 0; i < shown.length; i += per) rows.push(shown.slice(i, i + per));
+  app.innerHTML = `
+    <header><h1>🎲 ${esc(L.name)}</h1><p class="tag">${esc(L.tagline)}</p></header>
+    <div class="case">${rows.map(r => `<ul class="shelf">${r.map(boxHTML).join('')}</ul><div class="plank"></div>`).join('')}</div>
     <section class="about" aria-label="${esc(L.about.heading)}"><h2>${esc(L.about.heading)}</h2>${L.about.lines.map(t => `<p>${esc(t)}</p>`).join('')}<p>${esc(L.about.contact.lead)}<br><a href="mailto:${esc(L.about.contact.email)}">${esc(L.about.contact.email)}</a></p></section>
-    <footer>Version ${esc(BUILD)}</footer>`;
+    <footer>Version ${esc(BUILD)}</footer>`; };
+  draw(); let lastPer = perRow(); addEventListener('resize', () => { if (perRow() !== lastPer) { lastPer = perRow(); draw(); } });
 
   // Tapping a box opens it: the lid swings up, we zoom into the dark inside, and arrive in the game.
   document.getElementById('app').addEventListener('click', e => {

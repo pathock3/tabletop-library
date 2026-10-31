@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- **Library:** the boxes now stand on the shelves of a **wooden bookcase**, one shelf for each row of games (3 across in landscape, 2 on an upright iPad, 1 on a phone; the shelves re-form when the screen turns).
+
 - **Library:** the boxes are a little less thick, and **tapping a box opens it**: the lid swings up, you zoom into the dark inside, and arrive at the game's main menu (about a second; skipped if the device asks for reduced motion).
 
 - **Library:** each cover is now a **box with real depth** (about a seventh of its width, like a standard game box): you see its top and right side, with the lid over the base and the seam between them. The boxes sit square and cast one shadow.
