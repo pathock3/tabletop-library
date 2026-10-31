@@ -1237,7 +1237,7 @@ body[data-mode=play] { background: radial-gradient(130% 75% at 50% -10%, #74401e
 #play .mset .lad i { min-width: 24px; height: 26px; font-size: 14px; }
 @media (min-width: 521px) {
   #play .mat { height: calc(350px * var(--ca) + 48px); }
-  #play .mat .stack { margin-top: 36px; }
+  #play .mat .stack, #play .mat .dugz { margin-top: 36px; }
   #play .mat .pilestrip { top: -36px; height: 30px; font-size: 14px; border-radius: 8px; }
   #play .mat .piles { bottom: 0; }
 }
@@ -3953,14 +3953,14 @@ function DDBSeat(root, cfg) {
     const t = $.querySelector('.ptable'); if (!t) return;
     const kids = [...t.children], mat = t.querySelector('.mat'), tab = t.querySelector('.tableau');
     const gap = 10, W = t.clientWidth, H = t.clientHeight, fixed = kids.filter(k => k !== mat && k !== tab).reduce((a, k) => a + k.offsetHeight + gap, 0);
-    const rest = Math.max(200, H - fixed - gap * 2 - 18 - (W < 520 ? 130 : 0));
+    const rest = Math.max(200, H - fixed - gap * 2 - 4 - (W < 520 ? 130 : 0));
     const dice = 170;                                                // room for the action zone beside the Mine, the flip spot and the Bank
     const ca = Math.max(.4, Math.min(1, rest * .47 / 350, (W - dice - gap * 4) / 750));
     const n = Math.max(1, Number(tab && tab.dataset.n) || 1), sepW = tab && tab.querySelector('.tsep') ? 22 : 0, items = n + (sepW ? 1 : 0), Wa = W - 8;
     const lying = tab ? tab.querySelectorAll('.tcard.done').length : 0;          // a card that has fired lies on its side: it takes 30 / 250 more room
     const free = rest - 350 * ca - (W < 520 ? 74 : 48), fit = r => { const per = Math.ceil(n / r), lay = Math.ceil(lying / r); return Math.min(2, (free - gap * (r - 1)) / (350 * r), (Wa - gap * (per - 1) - (r === 1 ? sepW : 0)) / (per * 250 + lay * 30)); };
     // one row if the cards fit it well; when the row would make them small and there is height to spare, two rows of bigger cards
-    const rows = n > 3 && fit(2) > fit(1) * 1.2 ? 2 : 1;
+    const rows = n > 3 && fit(2) > fit(1) * 1.05 ? 2 : 1;
     let cb = fit(rows);
     let ov = 0;
     if (rows === 1 && cb < .4) { cb = .4; ov = Math.ceil((n * 250 * cb + lying * 30 * cb + gap * (items - 1) + sepW - Wa) / Math.max(1, n - 1)); }       // too many cards even at the smallest size: they overlap, left edge (name, number) stays visible
