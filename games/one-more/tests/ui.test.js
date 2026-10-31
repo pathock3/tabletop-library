@@ -1,7 +1,7 @@
 // Browser tests, part 1: the screens and the moves of a turn. Touch taps on the real page.
 const { test, assert, SKIP, SIZES, open, state, setup, start, errorsOf, rig, place, range, settled, H } = require('./browser');
 
-test('home: the title, Play, How to play and Settings; a sound switch', SKIP, async () => {
+test('home: the title, the new tagline, Play, How to play and Settings (as tall as Play, together as wide as Play), no sound icon, who made it', SKIP, async () => {
   const { page, errors, close } = await open();
   try {
     assert.equal((await state(page)).screen, 'home');
@@ -10,7 +10,13 @@ test('home: the title, Play, How to play and Settings; a sound switch', SKIP, as
     assert.equal(await page.locator('[data-act=play]').count(), 1);
     assert.equal(await page.locator('[data-act=help]').count(), 1);
     assert.equal(await page.locator('[data-act=settings]').count(), 1);
-    assert.equal(await page.locator('[data-act=soundtog]').count(), 1);
+    assert.equal(await page.locator('[data-act=soundtog]').count(), 0, 'no little sound icon in the corner: sound is in Settings');
+    assert.equal(await page.locator('.home .tag').innerText(), 'Push your luck to be the first to collect 20 gems!');
+    assert.doesNotMatch(text, /just one more/i);
+    assert.match(await page.locator('.home .ver').innerText(), /By Patrick Blim-Hockberger and Robert Warmka · Version/);
+    const b = sel => page.locator(sel).first().boundingBox(), [pl, hp, se] = [await b('[data-act=play]'), await b('[data-act=help]'), await b('[data-act=settings]')];
+    assert.ok(Math.abs(hp.height - pl.height) <= 1 && Math.abs(se.height - pl.height) <= 1, 'How to play and Settings are as tall as Play');
+    assert.ok(Math.abs((se.x + se.width - hp.x) - pl.width) <= 1, 'together they are as wide as Play');
     assert.deepEqual(errorsOf(errors), []);
   } finally { await close(); }
 });
@@ -22,7 +28,7 @@ test('the page is locked: no scrolling, no zoom; the table never overflows, on i
       assert.equal(await page.evaluate(() => getComputedStyle(document.body).overflow), 'hidden');
       assert.equal(await page.evaluate(() => getComputedStyle(document.body).position), 'fixed');
       assert.match(await page.evaluate(() => document.querySelector('meta[name=viewport]').content), /user-scalable=no/);
-      await setup(page, { n: 6, kinds: ['human', 'computer', 'human', 'human', 'human', 'human'] });
+      await setup(page, { n: 6, kinds: ['human', 'computer', 'human', 'human', 'human', 'human'] });          // (a bigger table than the app offers: the layout still has to hold)
       const m = await page.evaluate(() => ({ sh: document.documentElement.scrollHeight, sw: document.documentElement.scrollWidth, ih: innerHeight, iw: innerWidth }));
       assert.ok(m.sh <= m.ih + 1 && m.sw <= m.iw + 1, `${name}: nothing to scroll ${JSON.stringify(m)}`);
       await page.evaluate(() => window.scrollTo(0, 500));
@@ -33,58 +39,6 @@ test('the page is locked: no scrolling, no zoom; the table never overflows, on i
 });
 
 // ---------- setup ----------
-test('setup: 2 to 6 seats, each a human or a computer with one of three styles; remembered on this device', SKIP, async () => {
-  const { page, errors, close } = await open();
-  try {
-    await page.tap('[data-act=play]');
-    assert.deepEqual(await page.locator('[data-act=n]').allInnerTexts(), ['2', '3', '4', '5', '6']);
-    assert.equal(await page.locator('input[data-act=name]').count(), 2, 'two seats to begin with');
-    assert.equal(await page.inputValue('input[data-act=name][data-i="0"]'), 'You');
-    assert.equal(await page.locator('[data-act=kind][data-i="0"].on').innerText(), 'Human');
-    assert.equal(await page.locator('[data-act=kind][data-i="1"].on').innerText(), 'Computer', 'the default is you against a computer');
-    assert.deepEqual(await page.locator('[data-act=style][data-i="1"]').allInnerTexts(), ['Careful', 'Steady', 'Daring']);
-    assert.equal(await page.locator('[data-act=style][data-i="0"]').count(), 0, 'humans have no style');
-    for (const n of [2, 3, 4, 5, 6]) { await page.tap(`[data-act=n][data-v="${n}"]`); assert.equal(await page.locator('input[data-act=name]').count(), n); }
-    await page.tap('[data-act=kind][data-i="2"][data-v="computer"]');
-    await page.tap('[data-act=style][data-i="2"][data-v="daring"]');
-    assert.equal(await page.inputValue('input[data-act=name][data-i="2"]'), 'Daring');
-    await page.fill('input[data-act=name][data-i="0"]', 'Ada');
-    await page.reload();
-    await page.tap('[data-act=play]');
-    assert.equal(await page.locator('input[data-act=name]').count(), 6, 'the seat count is remembered');
-    assert.equal(await page.inputValue('input[data-act=name][data-i="0"]'), 'Ada');
-    assert.equal(await page.locator('[data-act=style][data-i="2"].on').innerText(), 'Daring');
-    assert.equal(await page.locator('[data-act=kind][data-i="2"].on').innerText(), 'Computer');
-    assert.deepEqual(errorsOf(errors), []);
-  } finally { await close(); }
-});
-
-test('setup: two computers of the same style get different names; a way back to the home screen', SKIP, async () => {
-  const { page, close } = await open();
-  try {
-    await page.tap('[data-act=play]');
-    await page.tap('[data-act=n][data-v="3"]');
-    await page.tap('[data-act=kind][data-i="2"][data-v="computer"]');
-    assert.deepEqual([await page.inputValue('input[data-act=name][data-i="1"]'), await page.inputValue('input[data-act=name][data-i="2"]')], ['Steady', 'Steady 2']);
-    await page.tap('[data-act=home]');
-    assert.equal((await state(page)).screen, 'home');
-  } finally { await close(); }
-});
-
-test('setup: the game starts with the seats the setup describes (computers marked), in a shuffled turn order', SKIP, async () => {
-  const { page, close } = await open();
-  try {
-    await setup(page, { n: 4, kinds: ['human', 'computer', 'human', 'computer'], styles: [null, 'careful', null, 'daring'] });
-    const seats = await page.evaluate(() => window.OneMoreUI.ui.seats.map(s => [s.name, s.kind, s.style]));
-    assert.equal(seats.length, 4);
-    assert.deepEqual(seats.map(s => s[0]).sort(), ['Careful', 'Daring', 'Player 3', 'You']);
-    assert.equal(seats.filter(s => s[1] === 'computer').length, 2);
-    assert.equal(await page.locator('.seat').count(), 4);
-    assert.equal(await page.locator('.seat .sub:has-text("computer")').count(), 2);
-  } finally { await close(); }
-});
-
-// ---------- the table ----------
 test('the table: draw pile with its count, boom pile with booms out (0 of 6), a score for every seat', SKIP, async () => {
   const { page, errors, close } = await open();
   try {
@@ -113,7 +67,7 @@ test('the table: a two-player game shows the target next to each score; a bigger
   } finally { await close(); }
 });
 
-test('thumb zone: the draw pile (the most-tapped thing) sits in the bottom-right corner at every size; Settings can mirror it to the left', SKIP, async () => {
+test('thumb zone: the draw pile (the most-tapped thing) sits in the bottom-right corner at every size; there is no left-hand option', SKIP, async () => {
   for (const [name, viewport] of Object.entries(SIZES)) {
     const { page, errors, close } = await open({ viewport });
     try {
@@ -130,28 +84,9 @@ test('thumb zone: the draw pile (the most-tapped thing) sits in the bottom-right
       const nearTap = d.y + d.height - 4 < viewport.height ? [d.x + d.width / 2, Math.min(viewport.height - 2, d.y + d.height + 4)] : [d.x + d.width / 2, d.y + d.height - 2];
       await page.touchscreen.tap(...nearTap);
       assert.equal(await page.locator('.zdraw .zcount').innerText(), '43 cards', name + ': a tap just beside the pile still digs');
-      // left-handed: mirrored
-      await page.evaluate(() => { window.OneMoreUI.ui.hand = 'left'; window.OneMoreUI.render(); });
-      const l = await rect('.zdraw');
-      assert.ok(l.x + l.width / 2 < viewport.width * 0.4 && l.y + l.height / 2 > viewport.height * 0.6, `${name}: left-handed puts it bottom-left`);
       assert.deepEqual(errorsOf(errors), [], name);
     } finally { await close(); }
   }
-});
-
-test('settings: "Draw pile" Right hand / Left hand is remembered on the device', SKIP, async () => {
-  const { page, errors, close } = await open();
-  try {
-    await page.tap('[data-act=settings]');
-    assert.equal(await page.locator('[data-act=hand].on').innerText(), 'Right hand');
-    await page.tap('[data-act=hand][data-v=left]');
-    assert.equal(await page.locator('[data-act=hand].on').innerText(), 'Left hand');
-    assert.equal(await page.evaluate(() => localStorage.getItem('tabletop-library-one-more-hand')), 'left');
-    await page.reload();
-    await page.tap('[data-act=settings]');
-    assert.equal(await page.locator('[data-act=hand].on').innerText(), 'Left hand');
-    assert.deepEqual(errorsOf(errors), []);
-  } finally { await close(); }
 });
 
 test('dig: tapping the draw pile turns a card onto the table; the pile shrinks and its edge gets thinner', SKIP, async () => {
@@ -311,10 +246,12 @@ test('refresh: the 6th boom shows until tapped, then everything not saved is shu
     }
     const s = await state(page);
     assert.equal(s.boomsOut, 0);
-    assert.equal(s.draw, 42, 'all 42 unsaved cards are back in the draw pile');
-    assert.equal(await page.locator('.zdraw .zcount').innerText(), '42 cards');
+    assert.equal(s.draw, 41, 'the 42 unsaved cards are back in the draw pile, less the boom that leaves the game');
+    assert.equal(await page.locator('.zdraw .zcount').innerText(), '41 cards');
     assert.equal(s.scores.reduce((a, b) => a + b, 0), 2);
     assert.equal(await page.locator('.zboom .pips i.on').count(), 0);
+    assert.equal(await page.locator('.zboom .bt').innerText(), '5', 'only five booms are left in the game');
+    assert.equal(await page.locator('.zboom .pips i:not(.gone)').count(), 5);
     assert.deepEqual(errorsOf(errors), []);
   } finally { await close(); }
 });
@@ -327,11 +264,72 @@ test('the only-booms refresh happens by itself and the gems at risk stay on the 
     await page.tap('[data-act=draw]');
     const s = await state(page);
     assert.equal(s.table, 1, 'the gem stays on the table');
-    assert.equal(s.draw, 11, 'the 5 booms plus the boom pile (5 gems and a boom)');
+    assert.equal(s.draw, 10, 'the 5 booms plus the boom pile (5 gems and a boom), less the boom that leaves the game');
     assert.equal(s.boomsOut, 0);
     assert.equal(s.phase, 'turn');
-    assert.equal(await page.locator('.zdraw .zcount').innerText(), '11 cards');
+    assert.equal(await page.locator('.zdraw .zcount').innerText(), '10 cards');
     await page.waitForFunction(() => window.OneMoreUI.audio.played.includes('refresh'));
+    assert.deepEqual(errorsOf(errors), []);
+  } finally { await close(); }
+});
+
+test('New game: only two ways to play, Pass and Play and the AI, nothing to set up', SKIP, async () => {
+  const { page, errors, close } = await open();
+  try {
+    await page.tap('[data-act=play]');
+    assert.deepEqual(await page.locator('.mode.two b').allInnerTexts(), ['Pass and Play', 'Play the AI']);
+    assert.equal(await page.locator('input').count(), 0, 'no names to type, no settings for the AI');
+    await page.tap('[data-act=start-pass]');
+    let st = await state(page); assert.equal(st.screen, 'play');
+    assert.deepEqual(await page.evaluate(() => window.OneMoreUI.ui.seats.map(s => s.kind + ':' + s.name).sort()), ['human:Player 1', 'human:Player 2']);
+    await page.tap('[data-act=menu]'); await page.tap('[data-act=menu-leave]'); await page.tap('[data-act=leave-yes]');
+    await page.tap('[data-act=play]'); await page.tap('[data-act=play]');          // a game is waiting: replacing it takes a second tap
+    await page.tap('[data-act=start-ai]');
+    assert.deepEqual(await page.evaluate(() => window.OneMoreUI.ui.seats.map(s => s.kind + ':' + s.name).sort()), ['computer:Computer', 'human:You']);
+    assert.deepEqual(errorsOf(errors), []);
+  } finally { await close(); }
+});
+
+test('settings: sound is here (and not in the in-game menu); there is no left-hand option', SKIP, async () => {
+  const { page, errors, close } = await open();
+  try {
+    await page.tap('[data-act=settings]');
+    assert.equal(await page.locator('[data-act=sound]').count(), 2);
+    assert.equal(await page.locator('[data-act=hand]').count(), 0);
+    await page.tap('[data-act=closesettings]');
+    await setup(page, { n: 2, kinds: ['human', 'human'] });
+    await page.tap('[data-act=menu]');
+    assert.equal(await page.locator('[data-act=menu-sound]').count(), 0);
+    assert.ok((await page.locator('.menu').first().boundingBox()).width >= 48, 'the menu button is big');
+    assert.deepEqual(errorsOf(errors), []);
+  } finally { await close(); }
+});
+
+test('Continue: leaving to the main menu keeps the game; Continue brings it back exactly; a finished game is not kept', SKIP, async () => {
+  const { page, errors, close } = await open();
+  try {
+    assert.equal(await page.locator('[data-act=continue]').count(), 0, 'nothing to continue yet');
+    await setup(page, { n: 2, kinds: ['human', 'human'] });
+    await rig(page, ['g', 'g']); await page.tap('[data-act=draw]'); await page.tap('[data-act=draw]');
+    const before = await state(page);
+    await page.tap('[data-act=menu]'); await page.tap('[data-act=menu-leave]'); await page.tap('[data-act=leave-yes]');
+    assert.equal(await page.locator('[data-act=continue]').count(), 1);
+    await page.tap('[data-act=continue]');
+    const after = await state(page);
+    assert.equal(after.screen, 'play'); assert.equal(after.table, before.table); assert.equal(after.draw, before.draw);
+    assert.deepEqual(errorsOf(errors), []);
+  } finally { await close(); }
+});
+
+test('boom: nobody has to tap: the table clears itself, a line at the bottom says what happened; a boom also takes a boom out of the game when the deck is used up', SKIP, async () => {
+  const { page, errors, close } = await open();
+  try {
+    await setup(page, { n: 2, kinds: ['human', 'human'] });
+    await page.evaluate(() => { window.OneMoreUI.ui.pace.boomAutoMs = 200; });
+    await rig(page, ['g', 'g', 'b']);
+    for (let i = 0; i < 3; i++) await page.tap('[data-act=draw]');
+    await page.waitForFunction(() => window.OneMoreUI.ui.st.phase === 'turn' && window.OneMoreUI.ui.st.current === 1);
+    assert.match(await page.locator('.lastnote').innerText(), /drew a BOOM and lost 2 gems/);
     assert.deepEqual(errorsOf(errors), []);
   } finally { await close(); }
 });

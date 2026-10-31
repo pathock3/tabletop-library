@@ -249,6 +249,8 @@ h2 { margin: 18px 0 8px; font-size: 14px; text-transform: uppercase; letter-spac
 .mode.resume b { color: var(--good); }
 .tipback { position: absolute; inset: 0; z-index: 8; display: flex; align-items: flex-end; justify-content: center; padding: 0 16px calc(env(safe-area-inset-bottom) + 18px); background: rgba(10,6,3,.4); }
 .tipback.top { align-items: flex-start; }
+.tiparrow { position: absolute; transform: translateX(-50%); font-size: 40px; line-height: 1; color: var(--accent); text-shadow: 0 2px 6px rgba(0,0,0,.6); animation: tipbob 1s ease-in-out infinite; pointer-events: none; }
+@keyframes tipbob { 50% { transform: translateX(-50%) translateY(-7px); } }
 .tipback.mid { align-items: center; z-index: 9; position: absolute; }
 .whatbtn { position: absolute; left: 50%; bottom: 10px; transform: translateX(-50%); z-index: 4; padding: 14px 26px; min-height: 52px; border-radius: 99px; background: linear-gradient(180deg, #f6e8be, #dcc48c); border: 2px solid var(--parch-line); color: var(--inkb); font-family: var(--serif); font-weight: 800; font-size: 19px; box-shadow: 0 4px 0 rgba(0,0,0,.4), 0 8px 18px rgba(0,0,0,.4); animation: bankin2 .3s ease-out; white-space: nowrap; }
 .whatbtn.top { bottom: auto; top: 10px; }
@@ -501,7 +503,7 @@ const GAME_DATA = {
   // ---- CAMPAIGN --------------------------------------------------------
   // You against one opponent per level. Beat a level (win outright) to unlock the next; only the first starts open.
   // Each level's opponent is an `ai` profile (abilities scored 0-10; see THE OPPONENTS' BRAINS below). To make a level easier or
-  // harder, change its numbers: memory first, then the skills.
+  // harder, change its numbers: memory first, then the skills. The ladder has three steps: level 1 is easy, levels 2-4 are all the same normal opponent (only the board gets bigger), level 5 is the master.
   campaign: {
     // Each level has its own board (`shape`, see `shapes` above) and its own fossils (value x copies; a `gem` is matched as a set of three and is worth its value).
     // The number of fossils must equal the number of spaces. Level 2 is the first with gems: the first gem a player sees is explained by a reminder (`coach.gem`), not by a note at the start of the level.
@@ -509,11 +511,11 @@ const GAME_DATA = {
       { id: 'beginner',    name: 'Beginner',    shape: 'donut',    tokens: [{ value: 2, count: 4 }, { value: 3, count: 4 }, { value: 5, count: 4 }, { value: 6, count: 4 }, { value: 9, count: 2 }],
         ai: { memory: 5.2, selfAwareness: 0, valueSense: 0, leadSense: 0, endSense: 0, setsSense: 0, gemSense: 0 } },
       { id: 'novice',      name: 'Novice',      shape: 'triangle', tokens: [{ value: 2, count: 4 }, { value: 3, count: 4 }, { value: 5, count: 4 }, { value: 6, count: 4 }, { value: 9, count: 2 }, { value: 10, count: 3, gem: true }],
-        ai: { memory: 7.0, selfAwareness: 3, valueSense: 3, leadSense: 3, endSense: 3, setsSense: 3, gemSense: 3 } },
+        ai: { memory: 8.5, selfAwareness: 5, valueSense: 5, leadSense: 5, endSense: 5, setsSense: 5, gemSense: 5 } },
       { id: 'normal',      name: 'Normal',      shape: 'sun',      tokens: [{ value: 2, count: 6 }, { value: 3, count: 4 }, { value: 5, count: 4 }, { value: 6, count: 4 }, { value: 9, count: 2 }, { value: 10, count: 2 }, { value: 11, count: 3, gem: true }],
         ai: { memory: 8.5, selfAwareness: 5, valueSense: 5, leadSense: 5, endSense: 5, setsSense: 5, gemSense: 5 } },
       { id: 'challenging', name: 'Challenging', shape: 'flower',   tokens: [{ value: 2, count: 6 }, { value: 3, count: 6 }, { value: 5, count: 4 }, { value: 6, count: 4 }, { value: 7, count: 4 }, { value: 9, count: 2 }, { value: 10, count: 2 }, { value: 12, count: 3, gem: true }],
-        ai: { memory: 9.3, selfAwareness: 7, valueSense: 8, leadSense: 8, endSense: 8, setsSense: 8, gemSense: 8 } },
+        ai: { memory: 8.5, selfAwareness: 5, valueSense: 5, leadSense: 5, endSense: 5, setsSense: 5, gemSense: 5 } },
       { id: 'master',      name: 'Master',      shape: 'giant',    tokens: [{ value: 2, count: 8 }, { value: 3, count: 8 }, { value: 5, count: 4 }, { value: 6, count: 4 }, { value: 7, count: 4 }, { value: 9, count: 2 }, { value: 10, count: 2 }, { value: 11, count: 2 }, { value: 15, count: 3, gem: true }],
         ai: { memory: 9.85, selfAwareness: 9, valueSense: 10, leadSense: 10, endSense: 10, setsSense: 10, gemSense: 10 } },
     ],
@@ -523,7 +525,7 @@ const GAME_DATA = {
   // Short notes shown the first time something comes up. In the campaign each appears once on a device (`levels` limits where: the match note is for the easiest level only);
   // in Pass & Play they appear once per game, unless the players switch "Rules reminders" off on the setup screen.
   coach: {
-    match: { levels: ['beginner'], title: 'Map found!', body: 'It isn\'t scored yet. On a later turn, tap it up here instead of peeking to dig it and score its number.' },
+    match: { levels: ['beginner'], title: 'Map found!', body: 'It isn\'t scored yet. On a later turn, tap it up here instead of peeking to dig it. Each turn, choose: hunt for more matches, or dig what you\'ve found.' },
     gem: { title: 'Gem maps', ask: 'What\'s that?', short: 'Peek one, flip one, tap a third. Three gems make a gem map worth {value}; otherwise they flip back.', body: 'Peek one, flip one, tap a third. Three gems make a gem map worth {value}; otherwise they flip back.' },
   },
 
@@ -2121,13 +2123,15 @@ const Campaign = (() => {
   // Who acts next: whoever's turn it is — or, while an opponent's finished turn is still on the board, the player after it.
   const actor = () => (ui.botWaiting ? (ui.st.current + 1) % ui.st.n : ui.st.current);
 
+  // Left to right: in the Campaign you are always on the left (the end screen keeps the same sides); in Pass & Play, the order of the seats.
+  const seatOrder = () => { const idx = ui.st.players.map(p => p.idx); const h = ui.mode === 'campaign' ? idx.find(i => !isBot(i)) : undefined; return h === undefined ? idx : [h, ...idx.filter(i => i !== h)]; };
   // The scoreboard: everyone's points, big, and everyone's found maps under them (a map found by a match is worth nothing until it is dug). The maps of the
   // player about to act are the ones you tap to dig — the only place maps are shown.
   function chipsHTML() {
     const st = ui.st, was = ui.prevPts, now = {}, fx = ui.fx;
     const who = actor();
     const tappable = !fx && !ui.tip && !animating() && !ui.turnCard && !st.over && !isBot(who) && (ui.botWaiting || Engine.canBank(st));
-    const html = st.players.map(p => {
+    const html = seatOrder().map(i => st.players[i]).map(p => {
       const v = shownOf(p), points = fx && fx.kind === 'dig' && fx.player === p.idx ? fx.shown : v.points;
       now[p.idx] = points;
       const bump = was && was[p.idx] !== undefined && was[p.idx] !== points && !fx;
@@ -2284,7 +2288,7 @@ const Campaign = (() => {
         <button class="mode primary row" data-act="mode" data-v="campaign"><b>Campaign</b><span class="pips" role="img" aria-label="${beaten} of ${LV.length} opponents beaten">${pips}</span></button>
         <button class="mode" data-act="mode" data-v="pass"><b>Pass &amp; Play</b></button>
         <div class="ghostrow"><button class="ghost" data-act="help">How to play</button><button class="ghost" data-act="settings">Settings</button></div>
-        ${ui.notice ? `<p class="dim" style="margin:8px 0 0">${esc(ui.notice)}</p>` : ''}<p class="dim ver">Version ${esc(BUILD)}</p>
+        ${ui.notice ? `<p class="dim" style="margin:8px 0 0">${esc(ui.notice)}</p>` : ''}<p class="dim ver">By Patrick Blim-Hockberger · Version ${esc(BUILD)}</p>
       </div>
     </div></div>`;
   }
@@ -2341,7 +2345,7 @@ const Campaign = (() => {
     if (campaign && o) title = o.won ? (o.completed ? 'Campaign complete!' : `You beat ${esc(LV[ui.levelIdx].name)}!`) : r.winners.length > 1 ? 'A draw — not a win.' : `${esc(LV[ui.levelIdx].name)} wins`;
     const extra = campaign && o && !o.won ? 'Win outright to unlock the next level.' : '';
     const tileHTML = (x, cls = '') => `<span class="mini ${cls}">${setLabel(x)}</span>`;
-    const places = r.ranking.map(x => {
+    const places = seatOrder().map(i => r.ranking.find(x => x.idx === i)).filter(Boolean).map(x => {          // (the sides they had in the game: you on the left in the Campaign, not the winner first)
       const p = st.players[x.idx], win = r.winners.includes(x.idx);
       return `<div class="place${win ? ' win' : ''}" style="--c:${COLORS[x.idx]}">
         <div class="pn"><span class="dot"></span>${win ? '🏆 ' : ''}${esc(seatName(x.idx))}</div>
@@ -2456,6 +2460,15 @@ const Campaign = (() => {
     if (wb && ui.what) { const cell = root.querySelector(`.cell[data-id="${ui.st.tokens[ui.what.tid].cell}"]`), main = root.querySelector('.main'); if (cell && main) { const g = rectOf(cell), m = main.getBoundingClientRect(); if (g.y > m.top + m.height * 0.55) wb.classList.add('top'); } }
     const L = fxLayer();
     if (L) L.querySelectorAll('.spotclone').forEach(e => e.remove());
+    if (ui.tip && ui.tip.id === 'match') {          // the reminder about a found map sits just under it, with an arrow pointing up at it (the map itself is drawn again above the dimmed page)
+      const sb = root.querySelector('.chip.cur .setbtn') || root.querySelector('.setbtn'), back0 = root.querySelector('.tipback');
+      if (sb && back0) {
+        const r = sb.getBoundingClientRect();
+        back0.classList.add('top', 'pointing'); back0.style.paddingTop = Math.round(r.bottom + 34) + 'px';
+        const a = document.createElement('div'); a.className = 'tiparrow'; a.setAttribute('aria-hidden', 'true'); a.textContent = '▲'; a.style.left = Math.round(r.left + r.width / 2) + 'px'; a.style.top = Math.round(r.bottom + 2) + 'px'; back0.appendChild(a);
+        if (L) fxEl('spotclone', rectOf(sb), r.width, r.height, sb.innerHTML.replace(/ data-act="[^"]*"/g, '')).className = 'spotclone ' + sb.className.replace(/\bact\b/, '');
+      }
+    }
     if (!ui.tip || !ui.tip.focus || !ui.tip.focus.length || !L || !ui.st) return;
     const back = root.querySelector('.tipback'), main = root.querySelector('.main');
     if (!back) return;

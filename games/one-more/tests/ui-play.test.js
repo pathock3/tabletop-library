@@ -222,12 +222,12 @@ test('a new game starts on a clean table: no banner, no leftover cards, no booms
 });
 
 // ---------- the menu, help, settings ----------
-test('menu: a small ☰ opens How to play, Sound, Settings, Restart and Main menu; tapping outside closes it; the table underneath is not touched', SKIP, async () => {
+test('menu: a bigger ☰ opens How to play, Settings, Restart and Main menu (no Sound: it is in Settings); tapping outside closes it; the table underneath is not touched', SKIP, async () => {
   const { page, errors, close } = await open();
   try {
     await start(page, [H, H]);
     await page.tap('[data-act=menu]');
-    assert.deepEqual(await page.locator('.menupanel button').allInnerTexts().then(a => a.map(t => t.replace(/\s+/g, ' ').trim())), ['How to play', 'Sound On', 'Settings', 'Restart', 'Main menu']);
+    assert.deepEqual(await page.locator('.menupanel button').allInnerTexts().then(a => a.map(t => t.replace(/\s+/g, ' ').trim())), ['How to play', 'Settings', 'Restart', 'Main menu']);
     const before = JSON.stringify(await state(page));
     await page.tap('[data-act=draw]', { force: true, position: { x: 4, y: 4 } }).catch(() => {});
     assert.equal(JSON.stringify(await state(page)), before, 'a tap behind the menu does nothing');
@@ -237,7 +237,7 @@ test('menu: a small ☰ opens How to play, Sound, Settings, Restart and Main men
   } finally { await close(); }
 });
 
-test('menu: sound on/off is remembered on this device', SKIP, async () => {
+test('settings: sound on/off is remembered on this device', SKIP, async () => {
   const { page, close } = await open({ fakeAudio: true });
   try {
     await start(page, [H, H]);
@@ -245,17 +245,17 @@ test('menu: sound on/off is remembered on this device', SKIP, async () => {
     await page.tap('[data-act=draw]');
     await page.waitForFunction(() => window.__voices > 0);
     await page.tap('[data-act=menu]');
-    await page.tap('[data-act=menu-sound]');
+    await page.tap('[data-act=menu-settings]');
+    await page.tap('[data-act=sound][data-v=off]');
     assert.equal(await ls(page, SOUND), 'off');
-    assert.match(await page.locator('.menupanel').innerText(), /Sound\s*Off/);
-    await page.mouse.click(900, 600);
+    await page.tap('[data-act=closesettings]');
     const v = await page.evaluate(() => window.__voices);
     await page.tap('[data-act=draw]'); await page.tap('[data-act=draw]');
     await page.waitForTimeout(300);
     assert.equal(await page.evaluate(() => window.__voices), v, 'nothing plays while sound is off');
     await page.reload();
     assert.equal(await page.evaluate(() => window.OneMoreUI.audio.isEnabled()), false, 'still off after a reload');
-    await page.tap('[data-act=menu]'); await page.tap('[data-act=menu-sound]');
+    await page.tap('[data-act=menu]'); await page.tap('[data-act=menu-settings]'); await page.tap('[data-act=sound][data-v=on]');
     assert.equal(await ls(page, SOUND), 'on');
   } finally { await close(); }
 });
@@ -278,14 +278,14 @@ test('menu: How to play shows three little pictures, the rules in a line, and th
   } finally { await close(); }
 });
 
-test('menu: Restart and Main menu ask first; Restart deals a new game at once, Main menu leaves and forgets the game', SKIP, async () => {
+test('menu: Restart and Main menu ask first; Restart deals a new game at once, Main menu leaves and keeps the game for Continue', SKIP, async () => {
   const { page, close } = await open();
   try {
     await start(page, [H, H]);
     await rig(page, ['g', 'g']);
     await page.tap('[data-act=draw]'); await page.tap('[data-act=draw]');
     await page.tap('[data-act=menu]'); await page.tap('[data-act=menu-restart]');
-    assert.match(await page.locator('.menupanel').innerText(), /Start a new game\?/);
+    assert.match(await page.locator('.menupanel').innerText(), /Start this game over\?/);
     await page.tap('[data-act=menu-back]');
     assert.equal((await state(page)).table, 2, 'keep playing: nothing lost');
     await page.tap('[data-act=menu]'); await page.tap('[data-act=menu-restart]'); await page.tap('[data-act=restart-yes]');
@@ -294,10 +294,10 @@ test('menu: Restart and Main menu ask first; Restart deals a new game at once, M
     assert.equal(s.screen, 'play');
     assert.ok(await ls(page, SAVE), 'the new game is saved');
     await page.tap('[data-act=menu]'); await page.tap('[data-act=menu-leave]');
-    assert.match(await page.locator('.menupanel').innerText(), /Leave this game\?/);
+    assert.match(await page.locator('.menupanel').innerText(), /Back to the main menu\?/);
     await page.tap('[data-act=leave-yes]');
     assert.equal((await state(page)).screen, 'home');
-    assert.equal(await ls(page, SAVE), null);
+    assert.ok(await ls(page, SAVE), 'the game is kept: Continue brings it back');
   } finally { await close(); }
 });
 

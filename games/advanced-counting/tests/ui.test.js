@@ -62,9 +62,8 @@ test('menu: tagline, 58px buttons (High scores then How to play), no credit line
   assert.deepEqual(await texts(t.page, '.buttons .btn'), ['High scores ▸', 'How to play']);
   const [a, b] = [await box(t.page, '.buttons .btn:nth-child(1)'), await box(t.page, '.buttons .btn:nth-child(2)')];
   assert.equal(Math.round(a.height), 58); assert.equal(Math.round(b.height), 58); assert.ok(a.y < b.y, 'High scores is above How to play');
-  assert.ok(Math.abs(a.width - (PHONE.width - 36)) <= 1, 'full width (inside the screen margin)'); assert.equal(Math.round(a.width), Math.round(b.width));
-  assert.equal(await t.page.locator('.credit').count(), 0, 'no name and year on the main menu: the library page credits the designer');
-  assert.doesNotMatch(await t.page.locator('.menu').innerText(), /Blim|2019/);
+  assert.ok(Math.abs(a.width - Math.min(PHONE.width - 36, 420)) <= 1, 'full width inside the screen margin, but never stretched past 420px'); assert.equal(Math.round(a.width), Math.round(b.width));
+  assert.match(await t.page.locator('.menu .credit.by').innerText(), /By Patrick Blim-Hockberger · Version/, 'who made it, with the version and date, at the bottom');
   assert.equal(await t.page.locator('.snd, [aria-label^=Sound]').count(), 0, 'no mute icon in the corner');
   assert.equal(await t.page.locator('h1').innerText(), 'Advanced Counting');
   assert.equal(await t.page.title(), 'Advanced Counting');
@@ -77,7 +76,7 @@ test('menu: Start is 124px tall (112px on a small phone), 72% wide, centred, pin
     const t = await open({ viewport: vp, clock: false });
     const st = await box(t.page, '.start'), pr = await box(t.page, '.pbtn');
     assert.equal(Math.round(st.height), h, `${vp.width}x${vp.height}`); assert.equal(D.ui.startHeight, 124); assert.equal(D.ui.startHeightSmall, 112);
-    assert.ok(Math.abs(st.width - vp.width * 0.72) <= 1, 'width ' + st.width);
+    assert.ok(Math.abs(st.width - Math.min(vp.width * 0.72, 420)) <= 1, 'width ' + st.width);
     assert.ok(Math.abs(st.x + st.width / 2 - vp.width / 2) <= 1, 'centred');
     assert.ok(vp.height - (st.y + st.height) < 60 && vp.height - (st.y + st.height) >= 0, 'pinned to the bottom');
     assert.ok(st.y - (pr.y + pr.height) >= 0 && st.y - (pr.y + pr.height) < 30, 'selector sits just above Start');

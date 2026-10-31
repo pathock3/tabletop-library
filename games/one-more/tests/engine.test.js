@@ -187,8 +187,9 @@ test('refresh: when the 6th boom is drawn it stays on the table; passing the tur
   assert.equal(r.refreshed, 'final');
   assert.equal(s.refreshes, 1);
   assert.deepEqual(s.boomPile, [], 'no booms out any more');
-  assert.equal(s.draw.length, 42, 'all 42 cards nobody saved are the new draw pile');
-  assert.equal(s.draw.filter(c => Engine.isBoom(s, c)).length, 6);
+  assert.equal(s.draw.length, 41, 'the 42 cards nobody saved are the new draw pile, less the one boom that leaves the game');
+  assert.equal(s.draw.filter(c => Engine.isBoom(s, c)).length, 5);
+  assert.equal(s.gone.length, 1); assert.ok(Engine.isBoom(s, s.gone[0])); assert.equal(Engine.boomTotal(s), 5);
   assert.deepEqual(s.safe, savedBefore, 'saved gems are untouched');
   assertPartition(s, assert);
   assert.equal(s.phase, 'turn');
@@ -203,7 +204,7 @@ test('refresh: lost gems come back too \u2014 the new draw pile is every unsaved
   for (let i = 0; i < 4; i++) { Engine.draw(s); if (i < 3) Engine.endTurn(s); }
   const r = Engine.endTurn(s);
   assert.equal(r.refreshed, 'final');
-  assert.equal(s.draw.length, 44);
+  assert.equal(s.draw.length, 43, 'every unsaved card, less the boom taken out');
   assertPartition(s, assert);
 });
 
@@ -211,7 +212,7 @@ test('refresh: it is a real shuffle, not just a reuse of the old order', () => {
   const a = rigged(['b', 'b', 'b', 'b', 'b', 'b']);
   for (let i = 0; i < 6; i++) { Engine.draw(a); Engine.endTurn(a); }
   assert.equal(a.refreshes, 1);
-  assert.equal(a.draw.length, 44);
+  assert.equal(a.draw.length, 43);
   assert.notDeepEqual(a.draw.slice().sort((x, y) => x - y), a.draw, 'shuffled');
 });
 
@@ -227,7 +228,7 @@ test('auto-refresh: when only booms are left in the draw pile it refreshes at on
   assert.equal(r.type, 'gem');
   assert.equal(r.refreshed, 'auto');
   assert.deepEqual(s.table, gems.slice(16, 20).concat([15]), 'the gems at risk are not shuffled back in');
-  assert.equal(s.draw.length, 5 + 1 + 5, 'the 5 booms from the pile plus the boom pile (5 gems and a boom) are the new draw pile');
+  assert.equal(s.draw.length, 5 + 1 + 5 - 1, 'the 5 booms from the pile plus the boom pile (5 gems and a boom) are the new draw pile, less the boom that leaves the game');
   assert.deepEqual(s.boomPile, []);
   assert.ok(s.draw.some(c => !Engine.isBoom(s, c)), 'there are gems to dig for again');
   assertPartition(s, assert);
@@ -260,7 +261,7 @@ test('auto-refresh at the start of a turn: saving leaves a draw pile of only boo
   assert.equal(s.current, 1);
   assert.ok(s.draw.some(c => !Engine.isBoom(s, c)));
   assert.deepEqual(s.boomPile, []);
-  assert.equal(s.draw.length, 19 + 6);
+  assert.equal(s.draw.length, 19 + 6 - 1, 'the lost gems and the booms, less the boom that leaves the game');
   assertPartition(s, assert);
 });
 
@@ -388,7 +389,7 @@ test('rematch (2 players): the loser goes first; after a tie, the one who went s
 const play = (s, rng, steps) => {
   for (let i = 0; i < steps && !s.over; i++) {
     if (s.phase === 'boomed') { Engine.endTurn(s); continue; }
-    if (Engine.canSave(s) && rng() < 0.35) Engine.save(s); else Engine.draw(s);
+    if (Engine.canSave(s) && (rng() < 0.35 || !Engine.canDraw(s))) Engine.save(s); else Engine.draw(s);
   }
 };
 test('determinism: the same seed and the same choices give the same game', () => {
@@ -491,4 +492,18 @@ test('random play: every card is always in exactly one place, booms out never ex
       if (s.result.reason === 'all-saved') assert.equal(Engine.savedTotal(s), 38);
     }
   }
+});
+
+test('each time through the deck a boom card is taken out of the game for good, so the deck gets safer', () => {
+  const s = Engine.createGame({ players: 2, seed: 9 });
+  assert.equal(Engine.boomTotal(s), B);
+  for (let round = 1; round <= B; round++) {
+    s.draw = []; s.boomPile = gems.concat(booms).filter(c => !s.gone.includes(c)); s.table = []; s.safe = [[], []];        // everything used up
+    s.phase = 'boomed'; s.lastBoom = { card: s.boomPile[s.boomPile.length - 1], lost: [] };
+    const r = Engine.endTurn(s);
+    assert.equal(r.refreshed, 'final');
+    assert.equal(s.gone.length, round); assert.equal(Engine.boomTotal(s), B - round);
+    assertPartition(s, assert);
+  }
+  assert.equal(s.draw.filter(c => Engine.isBoom(s, c)).length, 0, 'no booms left at all after the last refresh');
 });

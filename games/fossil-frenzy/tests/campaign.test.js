@@ -10,11 +10,12 @@ test('campaign: five difficulty levels, in order — Beginner, Novice, Normal, C
   assert.equal(new Set(GAME_DATA.campaign.levels.map(l => l.id)).size, 5);
 });
 
-test('campaign: every skill rises (or stays) from one level to the next — a smooth climb — and nobody is perfect', () => {
+test('campaign: three steps of skill: easy, then the same normal opponent for the three middle levels, then Master; nobody is perfect', () => {
   const ai = GAME_DATA.campaign.levels.map(l => l.ai);
-  for (let i = 1; i < ai.length; i++) {
-    assert.ok(ai[i].memory > ai[i - 1].memory, `${NAMES[i]} should remember more than ${NAMES[i - 1]}`);
-    for (const { id } of GAME_DATA.skills) assert.ok(ai[i][id] >= ai[i - 1][id], `${NAMES[i]}: ${id}`);
+  assert.deepEqual(ai[1], ai[2]); assert.deepEqual(ai[2], ai[3]);
+  for (const i of [1, 4]) {
+    assert.ok(ai[i].memory > ai[i === 1 ? 0 : 3].memory, `${NAMES[i]} should remember more than the step before`);
+    for (const { id } of GAME_DATA.skills) assert.ok(ai[i][id] >= ai[i === 1 ? 0 : 3][id], `${NAMES[i]}: ${id}`);
   }
   assert.ok(ai.every(a => a.memory < 10), 'the opponents forget now and then');
 });

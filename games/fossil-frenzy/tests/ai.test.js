@@ -130,8 +130,10 @@ test('strength: the perfect AI beats the same AI with worse memory, and beats on
   assert.ok(share(EXPERT, { ...EXPERT, endSense: 0, bankAt: 3 }) > 0.5, 'knowing when the game is ending is worth something');
 });
 
-test('strength: each campaign level beats the one before it, and Master beats Beginner every time', () => {
-  for (let i = 1; i < LEVELS.length; i++) assert.ok(share(LEVELS[i], LEVELS[i - 1]) > 0.55, `${GAME_DATA.campaign.levels[i].name} should beat ${GAME_DATA.campaign.levels[i - 1].name}`);
+test('strength: the campaign has three steps: Beginner (easy), the three middle levels (one normal opponent), Master; each step beats the one before', () => {
+  assert.deepEqual(GAME_DATA.campaign.levels[1].ai, GAME_DATA.campaign.levels[2].ai); assert.deepEqual(GAME_DATA.campaign.levels[2].ai, GAME_DATA.campaign.levels[3].ai);
+  assert.ok(share(LEVELS[1], LEVELS[0]) > 0.55, 'normal should beat easy');
+  assert.ok(share(LEVELS[4], LEVELS[3]) > 0.55, 'Master should beat normal');
   assert.ok(share(LEVELS[4], LEVELS[0]) > 0.9);
 });
 

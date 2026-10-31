@@ -1,23 +1,19 @@
 #!/usr/bin/env node
-// Draws the Tabletop Library icon (a fossil tile with an ammonite spiral) and writes assets/icon.svg plus the PNGs
+// Draws the Tabletop Library icon (a shelf with three game boxes) and writes assets/icon.svg plus the PNGs
 // that iPad Safari uses for Favorites and the Home Screen.   node tools/make-icons.js   (needs Playwright; only run when the design changes)
 const fs = require('fs');
 const path = require('path');
 const { execSync } = require('child_process');
 
-const hex = (cx, cy, r) => Array.from({ length: 6 }, (_, i) => { const a = Math.PI / 180 * (60 * i - 30); return (cx + r * Math.cos(a)).toFixed(1) + ',' + (cy + r * Math.sin(a)).toFixed(1); }).join(' ');
-// spiral: a growing curve around the centre, drawn as one thick rounded line
-const spiral = (cx, cy, turns, rMax) => {
-  const pts = []; const steps = 120;
-  for (let i = 0; i <= steps; i++) { const t = i / steps, a = t * turns * 2 * Math.PI - Math.PI / 2, r = 4 + t * (rMax - 4); pts.push((cx + r * Math.cos(a)).toFixed(1) + ' ' + (cy + r * Math.sin(a)).toFixed(1)); }
-  return 'M' + pts.join(' L');
-};
+// A shelf with three game boxes standing on it (and a die leaning on the end): the library, not any one game.
+const box = (x, y, w, h, c1, c2, mark) => `<rect x="${x}" y="${y}" width="${w}" height="${h}" rx="5" fill="${c1}" stroke="#1b130e" stroke-width="3"/><rect x="${x + 5}" y="${y + 6}" width="${w - 10}" height="${(h * .36).toFixed(1)}" rx="3" fill="${c2}"/>${mark}`;
 const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 180 180">
-<defs><radialGradient id="g" cx="50%" cy="0%" r="110%"><stop offset="0" stop-color="#4a2e1a"/><stop offset="1" stop-color="#1b130e"/></radialGradient></defs>
+<defs><radialGradient id="g" cx="50%" cy="0%" r="110%"><stop offset="0" stop-color="#5b3a22"/><stop offset="1" stop-color="#1b130e"/></radialGradient></defs>
 <rect width="180" height="180" fill="url(#g)"/>
-<polygon points="${hex(90, 90, 74)}" fill="#d9953a" stroke="#f1c27a" stroke-width="3"/>
-<polygon points="${hex(90, 90, 62)}" fill="#f6e7b8" stroke="#c9ae6a" stroke-width="3"/>
-<path d="${spiral(90, 90, 2.6, 43)}" fill="none" stroke="#4a2e1c" stroke-width="9" stroke-linecap="round" stroke-linejoin="round"/>
+${box(22, 52, 44, 92, '#e0772a', '#ffd45e', '<circle cx="44" cy="106" r="11" fill="#fff3d6" stroke="#1b130e" stroke-width="3"/>')}
+${box(70, 36, 46, 108, '#2b86d1', '#9ed3ff', '<polygon points="93,86 105,106 93,126 81,106" fill="#fff3d6" stroke="#1b130e" stroke-width="3"/>')}
+${box(120, 62, 40, 82, '#e8344e', '#ffb3be', '<rect x="130" y="98" width="20" height="20" rx="4" fill="#fff3d6" stroke="#1b130e" stroke-width="3"/>')}
+<rect x="10" y="144" width="160" height="16" rx="5" fill="#c98a43" stroke="#1b130e" stroke-width="3"/>
 </svg>`;
 const root = path.join(__dirname, '..', 'assets');
 fs.mkdirSync(root, { recursive: true });

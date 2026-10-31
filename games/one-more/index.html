@@ -12,8 +12,8 @@
 <title>One More…</title>
 <meta property="og:type" content="website">
 <meta property="og:title" content="One More…">
-<meta property="og:description" content="A quick push-your-luck game: dig for gems, save them before you go boom — or risk just one more.">
-<meta name="description" content="A quick push-your-luck game: dig for gems, save them before you go boom — or risk just one more.">
+<meta property="og:description" content="Push your luck to be the first to collect 20 gems!">
+<meta name="description" content="Push your luck to be the first to collect 20 gems!">
 <link rel="icon" type="image/png" href="../../assets/favicon.png">
 <link rel="apple-touch-icon" href="../../assets/apple-touch-icon.png">
 <style>
@@ -59,12 +59,12 @@ input { font: inherit; }
 /* ---------- the table ---------- */
 .stage { position: absolute; inset: 0; display: grid; grid-template-rows: auto auto minmax(0,1fr); gap: 8px;
   padding: calc(env(safe-area-inset-top) + 8px) calc(env(safe-area-inset-right) + 10px) calc(env(safe-area-inset-bottom) + 10px) calc(env(safe-area-inset-left) + 10px); }
-.topbar { position: relative; display: flex; align-items: center; min-height: 34px; }
+.topbar { position: relative; display: flex; align-items: center; min-height: 52px; }
 .menu { width: 36px; height: 36px; border-radius: 50%; background: rgba(30,22,80,.7); border: 1px solid var(--line); color: var(--dim); font-size: 18px; line-height: 1; display: grid; place-items: center; z-index: 2; }
 .seats.tight .seat { padding: 6px 7px; gap: 6px; }
 .seats.tight .nm { font-size: 11px; }
 .seats.tight .sub { display: none; }
-.hint { position: absolute; left: 50px; right: 50px; text-align: center; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-size: 14px; color: var(--dim); letter-spacing: .2px; pointer-events: none; }
+.hint { position: absolute; left: 68px; right: 68px; text-align: center; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-size: 14px; color: var(--dim); letter-spacing: .2px; pointer-events: none; }
 .hint b { color: var(--spark2); font-weight: 600; }
 
 .seats { display: grid; gap: 8px; grid-template-columns: repeat(var(--cols), minmax(0,1fr)); }
@@ -122,6 +122,7 @@ input { font: inherit; }
 .zboom .zcount b { color: var(--spark2); }
 .pips { display: flex; gap: 5px; }
 .pips i { width: 9px; height: 9px; border-radius: 50%; background: rgba(150,128,255,.18); transition: background .3s, box-shadow .3s; }
+.pips i.gone { display: none; }
 .pips i.on { background: var(--spark); box-shadow: 0 0 9px 1px var(--spark); }
 .riffle .well { animation: riffle .6s ease-in-out; }
 @keyframes riffle { 25% { transform: rotate(-3deg) scale(1.04); } 60% { transform: rotate(3deg) scale(1.04); } }
@@ -228,6 +229,13 @@ p.lead { color: var(--dim); margin: 0 0 12px; }
 .soundtog { position: absolute; right: calc(env(safe-area-inset-right) + 14px); top: calc(env(safe-area-inset-top) + 10px); width: 40px; height: 40px; border-radius: 50%; background: rgba(30,22,80,.7); border: 1px solid var(--line); color: var(--dim); font-size: 18px; display: grid; place-items: center; }
 @media (max-height: 560px) { .fan { transform: scale(.7); margin: -24px 0; } .tag { margin: 4px 0 8px; } .mode { padding: 11px 16px; font-size: 19px; } .ver { display: none; } }
 
+.modes2 { display: flex; gap: 10px; width: 100%; max-width: 360px; margin-top: 12px; }
+.modes2 .mode { margin-top: 0; flex: 1 1 0; min-width: 0; max-width: none; padding-left: 8px; padding-right: 8px; }
+.mode.confirm { background: linear-gradient(135deg, #ff7a1c, #e0261c); border-color: transparent; }
+.mode.two { flex-direction: column; gap: 4px; max-width: none; padding: 24px 20px; }
+.mode.two b { font-size: 26px; } .mode.two span { font-size: 16px; font-weight: 600; opacity: .85; }
+.lastnote { position: absolute; left: 12px; right: 12px; bottom: calc(env(safe-area-inset-bottom) + 22px); text-align: center; font-size: 16px; font-weight: 700; color: var(--spark2); pointer-events: none; text-shadow: 0 2px 8px #000; }
+.menu { width: 52px !important; height: 52px !important; font-size: 26px !important; }
 /* overlays */
 .scrim { position: absolute; inset: 0; background: rgba(4,3,18,.74); display: grid; place-items: center; padding: 16px; }
 .scrim.clear { background: transparent; place-items: start start; }
@@ -291,9 +299,10 @@ const GAME_DATA = {
   // ---- RULES ------------------------------------------------------------
   // With exactly 'race.players' players the first to SAVE 'race.target' gems wins (all gems saved with neither there = a tie).
   // With more players the game ends when every gem is saved; most gems wins. The refresh needs no number: it happens when
-  // the last boom is drawn (every boom is out), or when only booms are left in the draw pile.
+  // the last boom is drawn (every boom is out), or when only booms are left in the draw pile. Each refresh also takes boom cards out of the game for good.
   rules: {
     race: { players: 2, target: 20 },
+    boomsRemovedPerRefresh: 1,              // each time the draw pile is used up and everything unsaved is shuffled back in, this many boom cards are taken out of the game for good
   },
 
   // The "Booby Prizes" expansion (16 prize cards) is not built: the rulebook does not say what the cards do.
@@ -322,10 +331,11 @@ const GAME_DATA = {
 
   // Milliseconds. Only animations and a computer's moves use these; nothing else moves on its own.
   pace: {
-    botStart: 500,        // a computer starts its turn this long after the turn reaches it
-    botDraw: 820,         // between a computer's draws
-    botSave: 760,         // from its last draw to saving
-    afterSave: 650,       // after a person saves, before a computer next to them starts
+    botStart: 350,        // a computer starts its turn this long after the turn reaches it
+    botDraw: 480,         // between a computer's draws
+    botSave: 450,         // from its last draw to saving
+    afterSave: 450,       // after a person saves, before a computer next to them starts
+    boomAutoMs: 1100,     // after a boom shows (yours or a computer's), the table clears itself this long afterwards: nobody has to tap
     boomGuardMs: 450,     // taps this soon after a boom are ignored, so a fast digger does not skip the boom by accident
     overDelay: 1100,      // from the last save to the game-over screen
     countStep: 85,        // between gems landing in a pile (the score counts up with them)
@@ -333,7 +343,6 @@ const GAME_DATA = {
 
   // ---- TEXT -------------------------------------------------------------
   texts: {
-    tagline: 'Push your luck. Dig for just one more…',
     hintDig: 'Tap the pile to dig.',
     hintMore: 'Dig again — or tap your gems to save.',
     judgments: [
@@ -412,9 +421,9 @@ const Engine = (() => {
   // Card ids 0 .. gems-1 are gems, gems .. gems+booms-1 are booms. The draw pile is an array whose LAST card is the top.
   const isBoom = (s, id) => id >= s.data.deck.gems;
   const gemTotal = s => s.data.deck.gems;
-  const boomTotal = s => s.data.deck.booms;
+  const boomTotal = s => s.data.deck.booms - s.gone.length;          // booms still in the game (some are taken out at each refresh)
   const colourOf = (s, id) => id % s.data.deck.colours;           // how a gem is drawn; no effect on play
-  const cardCount = s => s.data.deck.gems + s.data.deck.booms;
+  const cardCount = s => s.data.deck.gems + s.data.deck.booms - s.gone.length;
 
   // ---------------- creation ----------------
   function createGame(opts = {}) {
@@ -426,6 +435,7 @@ const Engine = (() => {
     const s = {
       data, rules: data.rules, rng, n,
       draw: shuffle(Array.from({ length: total }, (_, i) => i), rng),   // face-down draw pile
+      gone: [],                              // boom cards taken out of the game at refreshes
       boomPile: [],                          // cards from busted turns; the booms are face up, so how many are out is public
       table: [],                             // the gems the current player has drawn this turn (at risk)
       safe: Array.from({ length: n }, () => []),   // each player's saved gems
@@ -458,6 +468,7 @@ const Engine = (() => {
   function refresh(s) {
     s.draw = shuffle(s.boomPile.concat(s.draw), s.rng);
     s.boomPile = [];
+    for (let k = 0; k < (s.rules.boomsRemovedPerRefresh || 0); k++) { const i = s.draw.findIndex(c => isBoom(s, c)); if (i < 0) break; s.gone.push(s.draw.splice(i, 1)[0]); }          // a boom leaves the game each time through the deck
     s.refreshes++;
   }
   // The draw pile holds nothing but booms (or nothing): refresh at once, provided that brings at least one gem back.
@@ -583,7 +594,7 @@ const Engine = (() => {
     return JSON.parse(JSON.stringify({
       schema: SAVE_SCHEMA, fingerprint: fingerprint(s), n: s.n,
       draw: s.draw, boomPile: s.boomPile, table: s.table, safe: s.safe,
-      current: s.current, turnNo: s.turnNo, phase: s.phase, lastBoom: s.lastBoom, refreshes: s.refreshes,
+      current: s.current, turnNo: s.turnNo, phase: s.phase, lastBoom: s.lastBoom, refreshes: s.refreshes, gone: s.gone,
       rngState: s.rng.getState(),
     }));
   }
@@ -594,16 +605,17 @@ const Engine = (() => {
     const s = createGame({ data: opts.data, players: saved.n, seed: 1 });
     if (fingerprint(s) !== saved.fingerprint) throw new Error('the rules changed since this game was saved');
     for (const k of ['draw', 'boomPile', 'table', 'safe', 'current', 'turnNo', 'phase', 'lastBoom', 'refreshes']) s[k] = saved[k];
+    s.gone = saved.gone || [];
     s.rng.setState(saved.rngState);
-    const all = s.draw.concat(s.boomPile, s.table, ...s.safe).sort((a, b) => a - b);
-    if (all.length !== cardCount(s) || all.some((c, i) => c !== i)) throw new Error('save does not match the game');
+    const all = s.draw.concat(s.boomPile, s.table, s.gone, ...s.safe).sort((a, b) => a - b);
+    if (all.length !== s.data.deck.gems + s.data.deck.booms || all.some((c, i) => c !== i)) throw new Error('save does not match the game');
     if (s.safe.length !== s.n || !(s.current >= 0 && s.current < s.n) || !['turn', 'boomed'].includes(s.phase)) throw new Error('save does not match the game');
     return s;
   }
 
   return { createGame, randomOrder, draw, save, endTurn, refresh, autoRefresh, canDraw, canSave, canPass,
            scores, savedTotal, boomsOut, counts, isBoom, colourOf, computeResult, rematchOrder, publicView,
-           serialize, restore, mulberry32, shuffle };
+           serialize, restore, mulberry32, shuffle, boomTotal };
 })();
 </script>
 
@@ -808,9 +820,9 @@ const Sound = (() => {
 
   const ui = { screen: 'home', setup: loadSetup(), seats: [], st: null, hold: null, botBusy: false, botTimer: null,
                menu: null, help: false, settings: false, showOver: false, overHandled: false, shown: [], countTimers: [], fxTimers: [], zc: 0,
-               boomAt: -1e9, fxBoom: -1, built: null, bannerKey: '', ovSig: null, pace: Object.assign({}, D.pace), cw: 100, ch: 140, notice: '', gameNo: 0 };
+               boomAt: -1e9, fxBoom: -1, built: null, bannerKey: '', ovSig: null, pace: Object.assign({}, D.pace), cw: 100, ch: 140, notice: '', note: '', confirmNew: false, boomTimer: null, gameNo: 0 };
   ui.sound = pref.get(SOUND_KEY) !== 'off';
-  ui.hand = pref.get(HAND_KEY) === 'left' ? 'left' : 'right';           // which side the draw pile sits on (right-handed by default)
+  ui.hand = 'right';          // (there is no left-hand option: the draw pile is always on the right)
   ui.hints = ['auto', 'on', 'off'].includes(pref.get(HINTS_KEY)) ? pref.get(HINTS_KEY) : 'auto';
   const hintsVisible = () => ui.hints === 'on' || (ui.hints === 'auto' && !(+pref.get(DONE_KEY) > 0));
   const reducedQuery = typeof matchMedia === 'function' ? matchMedia('(prefers-reduced-motion: reduce)') : null;
@@ -856,40 +868,31 @@ const Sound = (() => {
   const libraryLink = () => (D.library && fromLibrary() ? `<a class="back libback" href="${esc(D.library.href)}"><span aria-hidden="true">‹</span> ${esc(D.library.name)}</a>` : '');
   const soundIcon = () => (ui.sound ? '🔊' : '🔇');
 
+  const hasSave = () => pref.get(SAVE_KEY) !== null;
   function homeHTML() {
     const hc = (cls, inner, r, x, d) => `<div class="hc ${cls}" style="--r:${r}deg;--x:${x}px;--d:${d}s">${inner}</div>`;
     const fan = hc('c0', `<div class="face front">${gemSVG(0)}<i class="sparkle"></i></div>`, -17, -62, 0) +
                 hc('c1', `<div class="face front">${gemSVG(1)}<i class="sparkle"></i></div>`, -3, -4, -1.2) +
                 hc('boom', `<div class="face front">${bombSVG}<div class="lbl">BOOM</div></div>`, 13, 56, -2.4);
-    return `<div class="screen home">${libraryLink()}<button class="soundtog" data-act="soundtog" aria-label="Sound">${soundIcon()}</button>
+    const saved = hasSave();
+    return `<div class="screen home">${libraryLink()}
       <div class="hero"><div class="fan">${fan}</div>
         <h1 class="logo"><span class="w">One More</span><span class="dots">…</span></h1>
-        <p class="tag">${esc(T.tagline)}</p>
-        <button class="mode primary" data-act="play">Play</button>
-        <div class="ghostrow"><button class="ghost" data-act="help">How to play</button><button class="ghost" data-act="settings">Settings</button></div>
-        ${ui.notice ? `<p class="dim" style="margin:12px 0 0">${esc(ui.notice)}</p>` : ''}<p class="ver">Version ${esc(BUILD)}</p>
+        <p class="tag">${esc(`Push your luck to be the first to collect ${D.rules.race.target} gems!`)}</p>
+        ${saved ? '<button class="mode primary" data-act="continue">Continue</button>' : ''}
+        <button class="mode ${saved ? '' : 'primary'}${ui.confirmNew ? ' confirm' : ''}" data-act="play">${ui.confirmNew ? 'Tap again to replace your game' : saved ? 'New game' : 'Play'}</button>
+        <div class="modes2"><button class="mode" data-act="help">How to play</button><button class="mode" data-act="settings">Settings</button></div>
+        ${ui.notice ? `<p class="dim" style="margin:12px 0 0">${esc(ui.notice)}</p>` : ''}<p class="ver">By Patrick Blim-Hockberger and Robert Warmka · Version ${esc(BUILD)}</p>
       </div></div>`;
   }
 
-  function setupHTML() {
-    const cfg = ui.setup;
-    const counts = Array.from({ length: D.players.max - D.players.min + 1 }, (_, k) => k + D.players.min)
-      .map(n => `<button class="${cfg.n === n ? 'on' : ''}" data-act="n" data-v="${n}">${n}</button>`).join('');
-    const rows = Array.from({ length: cfg.n }, (_, i) => {
-      const s = cfg.seats[i];
-      const styles = s.kind === 'computer'
-        ? `<span class="seg small" aria-label="Computer style">${D.styles.map(st => `<button class="${s.style === st.id ? 'on' : ''}" data-act="style" data-i="${i}" data-v="${st.id}">${esc(st.name)}</button>`).join('')}</span>` : '';
-      return `<div class="seatrow" style="--c:${D.seatColours[i]}"><i class="dot"></i>
-        <input value="${esc(s.name)}" maxlength="${D.setup.maxName}" data-act="name" data-i="${i}" aria-label="Name of seat ${i + 1}" autocomplete="off" autocapitalize="words" spellcheck="false">
-        <span class="seg small"><button class="${s.kind === 'human' ? 'on' : ''}" data-act="kind" data-i="${i}" data-v="human">Human</button><button class="${s.kind === 'computer' ? 'on' : ''}" data-act="kind" data-i="${i}" data-v="computer">Computer</button></span>${styles}</div>`;
-    }).join('');
+  // New game: only two ways to play, nothing to set up.
+  function modeHTML() {
     return `<div class="screen"><div class="sheet">
       <button class="back" data-act="home">‹ One More…</button>
-      <h1>Who’s digging?</h1>
-      <p class="lead">${D.players.min}–${D.players.max} seats. Each is a person or a computer.</p>
-      <span class="seg" aria-label="Number of seats">${counts}</span>
-      ${rows}
-      <button class="bigbtn" data-act="deal">Start digging</button>
+      <h1>New game</h1>
+      <button class="mode primary two" data-act="start-pass"><b>Pass and Play</b><span>Two players, one device</span></button>
+      <button class="mode two" data-act="start-ai"><b>Play the AI</b><span>You against the computer</span></button>
     </div></div>`;
   }
 
@@ -906,8 +909,8 @@ const Sound = (() => {
       <div class="felt${ui.hand === 'left' ? ' lefty' : ''}">
         <div class="zone zdraw" data-act="draw" role="button" aria-label="Draw pile"><div class="well"><div class="stackedge"></div></div><div class="zcount"><b></b> <span class="cw">cards</span></div></div>
         <div class="zone ztable" data-act="save"><div class="risk"></div></div>
-        <div class="zone zboom"><div class="well"></div><div class="zcount"><b></b> / ${D.deck.booms} booms</div><div class="pips">${pips}</div></div>
-      </div></div>`;
+        <div class="zone zboom"><div class="well"></div><div class="zcount"><b></b> / <span class="bt">${D.deck.booms}</span> booms</div><div class="pips">${pips}</div></div>
+      </div><div class="lastnote" role="status"></div></div>`;
   }
 
   // ---------------- overlays: menu, how to play, settings, game over ----------------
@@ -925,7 +928,7 @@ const Sound = (() => {
       </div>
       <p><b>${D.players.min} players:</b> first to save ${D.rules.race.target} gems wins (${D.rules.race.target - 1}–${D.rules.race.target - 1} is a tie).<br>
          <b>${D.players.min + 1}–${D.players.max} players:</b> when all ${D.deck.gems} gems are saved, the most gems wins.</p>
-      <p class="dim">There are ${D.deck.gems} gems and ${D.deck.booms} booms. When the last boom is drawn, everything nobody has saved is shuffled back in.</p>
+      <p class="dim">There are ${D.deck.gems} gems and ${D.deck.booms} booms. When the last boom is drawn, everything nobody has saved is shuffled back in, <b>and one boom is taken out of the game</b>: the deck gets safer each time through.</p>
       <details class="fine"><summary>The fine print</summary><ul>${T.judgments.map(j => `<li>${esc(j)}</li>`).join('')}</ul>
         <p class="dim">The full list is in DECISIONS.md. Version ${esc(BUILD)}.</p></details>
       <button class="bigbtn" data-act="closehelp">Close</button></div></div>`;
@@ -935,7 +938,6 @@ const Sound = (() => {
     const seg = (key, cur, opts) => `<span class="seg">${opts.map(([v, t]) => `<button class="${cur === v ? 'on' : ''}" data-act="${key}" data-v="${v}">${t}</button>`).join('')}</span>`;
     return `<div class="scrim"><div class="panel"><h1>Settings</h1>
       <h3>Sound</h3><p>${seg('sound', ui.sound ? 'on' : 'off', [['on', 'On'], ['off', 'Off']])}</p>
-      <h3>Draw pile</h3><p>${seg('hand', ui.hand, [['right', 'Right hand'], ['left', 'Left hand']])}</p>
       <h3>Prompts above the table</h3><p>${seg('hints', ui.hints, [['auto', 'Auto'], ['on', 'On'], ['off', 'Off']])}</p>
       <p class="dim">Auto shows them until you have finished one game on this device.</p>
       <button class="bigbtn" data-act="closesettings">Done</button></div></div>`;
@@ -944,13 +946,12 @@ const Sound = (() => {
   function menuHTML() {
     const inGame = ui.st && !ui.st.over;
     if (ui.menu === 'restart' || ui.menu === 'leave') {
-      const word = ui.menu === 'restart' ? 'Start a new game?' : 'Leave this game?';
-      return `<div class="scrim clear" data-act="scrimmenu"><div class="menupanel"><p>${word} The one in progress will be lost.</p>
-        <div class="row"><button class="hot" data-act="${ui.menu === 'restart' ? 'restart-yes' : 'leave-yes'}">${ui.menu === 'restart' ? 'Restart' : 'Leave'}</button><button data-act="menu-back">Keep playing</button></div></div></div>`;
+      const word = ui.menu === 'restart' ? 'Start this game over?' : 'Back to the main menu?';
+      return `<div class="scrim clear" data-act="scrimmenu"><div class="menupanel"><p>${word} ${ui.menu === 'restart' ? 'The one in progress will be lost.' : 'Your game is kept: Continue brings you back to it.'}</p>
+        <div class="row"><button class="hot" data-act="${ui.menu === 'restart' ? 'restart-yes' : 'leave-yes'}">${ui.menu === 'restart' ? 'Restart' : 'Main menu'}</button><button data-act="menu-back">Keep playing</button></div></div></div>`;
     }
     return `<div class="scrim clear" data-act="scrimmenu"><div class="menupanel">
       <button data-act="menu-help">How to play</button>
-      <button data-act="menu-sound">Sound <span>${ui.sound ? 'On' : 'Off'}</span></button>
       <button data-act="menu-settings">Settings</button>
       <button data-act="${inGame ? 'menu-restart' : 'restart-yes'}">Restart</button>
       <button data-act="${inGame ? 'menu-leave' : 'leave-yes'}">Main menu</button></div></div>`;
@@ -1082,6 +1083,7 @@ const Sound = (() => {
     const pileBooms = st.boomPile.filter(id => isBoomId(id) && !onTable.has(id)), pileGems = st.boomPile.filter(id => !isBoomId(id) && !onTable.has(id));
     pileBooms.forEach((id, b) => { T[id] = { zone: 'boom', x: zb.cx + b * 0.1 * cw - 0.22 * cw, y: zb.cy + b * 0.055 * ch - 0.14 * ch, r: (b - 2) * 3.2, z: 60 + b, up: true, op: 1 }; });
     pileGems.forEach((id, j) => { T[id] = { zone: 'boom', x: zb.cx + (hash(id, 1) - 0.5) * 6, y: zb.cy + (hash(id, 2) - 0.5) * 6, r: (hash(id, 3) - 0.5) * 14, z: 20 + j, up: false, op: j >= pileGems.length - 3 ? 1 : 0 }; });
+    st.gone.forEach(id => { T[id] = { zone: 'gone', x: zb.cx, y: zb.cy, r: 0, z: 1, up: true, op: 0 }; });          // a boom taken out of the game fades away over the boom pile
     // this turn's gems
     // while a boom is showing, its banner takes the top of the table area and the cards sit below it
     const bandH = st.phase === 'boomed' ? Math.min(zt.h * 0.45, innerHeight < 520 ? 56 : clamp(40, 0.1 * Math.min(innerWidth, innerHeight), 104) + 72) : 0;
@@ -1171,7 +1173,7 @@ const Sound = (() => {
     if (st.phase === 'boomed' && st.lastBoom) {
       const who = ui.seats[st.current], lost = st.lastBoom.lost.length, you = !isBot(st.current) && (/^you$/i.test(who.name) || ui.seats.filter((x, i) => !isBot(i)).length === 1);          // "You lose" only for the seat called You, or the one human
       const line = lost ? `${you ? 'You lose' : esc(who.name) + ' loses'} ${lost} ${lost === 1 ? 'gem' : 'gems'}` : (you ? 'Nothing lost' : esc(who.name) + ' loses nothing');
-      return `<div class="big">BOOM!</div><div class="lostn">${line}</div><div class="go">Tap to go on</div>`;
+      return `<div class="big">BOOM!</div><div class="lostn">${line}</div>`;
     }
     if (ui.hold) {
       const s = ui.seats[ui.hold.seat];
@@ -1211,11 +1213,13 @@ const Sound = (() => {
     zd.querySelector('.zcount b').textContent = st.draw.length; zd.querySelector('.cw').textContent = st.draw.length === 1 ? 'card' : 'cards';
     const out = Engine.boomsOut(st);
     view.querySelector('.zboom .zcount b').textContent = out;
-    view.querySelectorAll('.zboom .pips i').forEach((p, i) => p.classList.toggle('on', i < out));
+    const bt = Engine.boomTotal(st); view.querySelector('.zboom .bt').textContent = bt;
+    view.querySelectorAll('.zboom .pips i').forEach((p, i) => { p.classList.toggle('on', i < out); p.classList.toggle('gone', i >= bt); });
     const zt = view.querySelector('.ztable');
     zt.classList.toggle('has', st.table.length > 0);
     view.querySelector('.risk').innerHTML = st.table.length ? `<b>${st.table.length}</b>at risk` : '';
     view.querySelector('.hint').innerHTML = hintHTML();
+    view.querySelector('.lastnote').textContent = ui.note || '';
     const bh = bannerHTML();
     if (bh !== ui.bannerKey) { bannerEl.innerHTML = bh; ui.bannerKey = bh; }
   }
@@ -1230,6 +1234,7 @@ const Sound = (() => {
   // ---------------- game flow ----------------
   function clearTimers() {
     clearTimeout(ui.botTimer); ui.botTimer = null; ui.botBusy = false;
+    clearTimeout(ui.boomTimer); ui.boomTimer = null;
     clearTimeout(ui.overTimer); ui.overTimer = null;
     ui.countTimers.forEach(clearTimeout); ui.countTimers = [];
     ui.fxTimers.forEach(clearTimeout); ui.fxTimers = [];          // a boom's sound and flash, a save's clink: none may land on the next game
@@ -1256,15 +1261,16 @@ const Sound = (() => {
     ui.seats = seats || makeSeats(Engine.randomOrder(ui.setup.n, rng));
     ui.st = Engine.createGame({ players: ui.seats.length, seed: seedBase });
     Object.assign(ui, { screen: 'play', hold: null, menu: null, help: false, settings: false, showOver: false, overHandled: false, fxBoom: -1, boomPending: false,
-                        shown: Engine.scores(ui.st), gameNo: ui.gameNo + 1, boomAt: -1e9, bannerKey: '' });
+                        shown: Engine.scores(ui.st), gameNo: ui.gameNo + 1, boomAt: -1e9, bannerKey: '', note: '' });
     fit();
     render();
     startTurnFlow(ui.pace.botStart);
   }
+  // Two ways to play, both for two players: the seats are just these (the order is dealt at random).
+  function startMode(seats) { ui.setup = { n: 2, seats }; pref.del(SAVE_KEY); newGame(); }
   function toHome() {
     clearTimers();
-    Object.assign(ui, { screen: 'home', st: null, hold: null, menu: null, help: false, settings: false, showOver: false, built: null });
-    pref.del(SAVE_KEY);
+    Object.assign(ui, { screen: 'home', st: null, hold: null, menu: null, help: false, settings: false, showOver: false, built: null, note: '' });          // (the game on the table stays saved: Continue brings it back)
     render();
   }
   function gameFinished() {
@@ -1286,6 +1292,7 @@ const Sound = (() => {
     } else {
       sfx('draw');
       ui.boomAt = nowMs(); ui.fxBoom = r.card; ui.boomPending = true;
+      scheduleBoomClear();
     }
     render();
     return r;
@@ -1309,8 +1316,24 @@ const Sound = (() => {
     render();
     return r;
   }
+  // After a boom nobody has to tap: the table clears itself a moment later and a line at the bottom says what happened.
+  function scheduleBoomClear() {
+    clearTimeout(ui.boomTimer);
+    ui.boomTimer = setTimeout(function again() {
+      const st = ui.st; ui.boomTimer = null;
+      if (!st || st.over || st.phase !== 'boomed') return;
+      if (overlayOpen()) { ui.boomTimer = setTimeout(again, 250); return; }          // (the menu is open: it waits)
+      settleScores(); passAfterBoom();
+    }, ui.pace.boomAutoMs);
+  }
+  function boomNote(st) {
+    const who = ui.seats[st.current], lost = st.lastBoom.lost.length, you = !isBot(st.current) && (/^you$/i.test(who.name) || ui.seats.filter((x, i) => !isBot(i)).length === 1);
+    return `${you ? 'You drew' : who.name + ' drew'} a BOOM and ${lost ? `lost ${lost} ${lost === 1 ? 'gem' : 'gems'}` : 'lost nothing'}.`;
+  }
   function passAfterBoom() {
     const st = ui.st;
+    clearTimeout(ui.boomTimer); ui.boomTimer = null;
+    ui.note = boomNote(st);
     const r = Engine.endTurn(st);
     ui.fxBoom = -1; ui.boomPending = false;
     if (r.refreshed) riffle();
@@ -1380,13 +1403,14 @@ const Sound = (() => {
   // ---------------- save / resume: a game in progress survives a reload (or iPad Safari discarding the tab) ----------------
   function saveGame() {
     try {
-      if (!ui.st || ui.screen !== 'play' || ui.st.over) { pref.del(SAVE_KEY); return; }
-      localStorage.setItem(SAVE_KEY, JSON.stringify({ schema: 1, build: BUILD, seats: ui.seats, hold: ui.hold, game: Engine.serialize(ui.st) }));
+      if (ui.st && ui.st.over) { pref.del(SAVE_KEY); return; }          // a finished game is not kept
+      if (!ui.st || ui.screen !== 'play') return;                           // (on the menus the game you left stays saved)
+      localStorage.setItem(SAVE_KEY, JSON.stringify({ schema: 1, build: BUILD, seats: ui.seats, hold: ui.hold, note: ui.note || '', game: Engine.serialize(ui.st) }));
     } catch (e) { /* storage unavailable or full: the game still plays, it just cannot be resumed */ }
   }
   function resumeGame() {
     const sv = pref.json(SAVE_KEY);
-    if (!sv) { if (pref.get(SAVE_KEY) !== null) { pref.del(SAVE_KEY); ui.notice = 'Your saved game could not be resumed, so it was cleared.'; } return; }
+    if (!sv) { if (pref.get(SAVE_KEY) !== null) { pref.del(SAVE_KEY); ui.notice = 'Your saved game could not be resumed, so it was cleared.'; } return false; }
     try {
       const st = Engine.restore(sv.game);
       if (!Array.isArray(sv.seats) || sv.seats.length !== st.n) throw new Error('seats');
@@ -1394,12 +1418,15 @@ const Sound = (() => {
         if (!s || (s.kind !== 'human' && s.kind !== 'computer') || !D.seatColours.includes(s.colour) || typeof s.name !== 'string') throw new Error('seats');
         return { id: s.id | 0, name: s.name.slice(0, D.setup.maxName + 2), kind: s.kind, style: D.styles.some(x => x.id === s.style) ? s.style : D.bots.defaultStyle, colour: s.colour };
       });
-      ui.st = st; ui.seats = seats; ui.screen = 'play'; ui.gameNo++;
+      ui.st = st; ui.seats = seats; ui.screen = 'play'; ui.gameNo++; ui.note = sv.note || '';
       ui.hold = sv.hold && sv.hold.seat >= 0 && sv.hold.seat < st.n && st.phase === 'turn' ? { seat: sv.hold.seat | 0, n: sv.hold.n | 0 } : null;
       ui.shown = Engine.scores(st); ui.overHandled = false; ui.showOver = false; ui.fxBoom = st.phase === 'boomed' && st.lastBoom ? st.lastBoom.card : -1;
+      if (st.phase === 'boomed') { ui.boomAt = nowMs(); scheduleBoomClear(); }
+      return true;
     } catch (e) {
       pref.del(SAVE_KEY);
       ui.notice = /rules changed/.test(e.message) ? 'A new version changed the rules, so your saved game was cleared.' : 'Your saved game could not be resumed, so it was cleared.';
+      return false;
     }
   }
 
@@ -1423,17 +1450,15 @@ const Sound = (() => {
     switch (d.act) {
       case 'draw': if (ui.screen === 'play' && !overlayOpen()) tableTap('draw'); return;
       case 'save': if (ui.screen === 'play' && !overlayOpen()) tableTap(el.classList.contains('ztable') && !onGems(e) ? 'bg' : 'save'); return;
-      case 'play': ui.screen = 'setup'; break;
-      case 'home': ui.screen = 'home'; break;
-      case 'n': ui.setup.n = +d.v; autoNames(ui.setup); saveSetup(); break;
-      case 'kind': { const s = ui.setup.seats[+d.i]; s.kind = d.v; autoNames(ui.setup); saveSetup(); break; }
-      case 'style': { const s = ui.setup.seats[+d.i]; s.style = d.v; autoNames(ui.setup); saveSetup(); break; }
-      case 'deal': newGame(); return;
+      case 'play': if (hasSave() && !ui.confirmNew) { ui.confirmNew = true; break; } ui.confirmNew = false; ui.screen = 'mode'; break;          // (a game in progress is replaced only after a second tap)
+      case 'home': ui.screen = 'home'; ui.confirmNew = false; break;
+      case 'continue': ui.confirmNew = false; if (resumeGame()) { render(); startTurnFlow(ui.pace.botStart); return; } break;
+      case 'start-pass': startMode([{ kind: 'human', name: 'Player 1' }, { kind: 'human', name: 'Player 2' }]); return;
+      case 'start-ai': startMode([{ kind: 'human', name: 'You' }, { kind: 'computer', name: 'Computer', style: D.bots.defaultStyle }]); return;
       case 'menu': ui.menu = 'main'; break;
       case 'scrimmenu': case 'menu-back': ui.menu = null; break;
       case 'menu-help': ui.menu = null; ui.help = true; break;
       case 'menu-settings': ui.menu = null; ui.settings = true; break;
-      case 'menu-sound': setSound(!ui.sound); break;
       case 'menu-restart': ui.menu = 'restart'; break;
       case 'menu-leave': ui.menu = 'leave'; break;
       case 'restart-yes': ui.menu = null; newGame(Engine.randomOrder(ui.seats.length, SEED !== null ? Engine.mulberry32(SEED + ui.gameNo) : Math.random).map(i => ui.seats[i])); return;   // the same people, dealt in again
@@ -1442,10 +1467,8 @@ const Sound = (() => {
       case 'closehelp': case 'scrimhelp': ui.help = false; break;
       case 'settings': ui.settings = true; break;
       case 'closesettings': ui.settings = false; break;
-      case 'soundtog': setSound(!ui.sound); break;
       case 'sound': setSound(d.v === 'on'); break;
       case 'hints': ui.hints = d.v; pref.set(HINTS_KEY, d.v); break;
-      case 'hand': ui.hand = d.v === 'left' ? 'left' : 'right'; pref.set(HAND_KEY, ui.hand); break;
       case 'again': newGame(Engine.rematchOrder(ui.st.result).map(i => ui.seats[i])); return;
       case 'tohome': toHome(); return;
       default: return;
@@ -1453,14 +1476,6 @@ const Sound = (() => {
     render();
   }
   root.addEventListener('click', onClick);
-  root.addEventListener('input', e => {
-    const t = e.target;
-    if (!t || t.dataset.act !== 'name') return;
-    const s = ui.setup.seats[+t.dataset.i], v = t.value.slice(0, D.setup.maxName);
-    s.custom = v.trim() !== ''; s.name = v;
-    if (!s.custom) { autoNames(ui.setup); }
-    saveSetup();
-  });
   // the page never scrolls or zooms; only the panels and the setup list may scroll
   document.addEventListener('touchmove', e => { if (!(e.target.closest && e.target.closest('.screen, .panel'))) e.preventDefault(); }, { passive: false });
   ['gesturestart', 'gesturechange', 'gestureend'].forEach(ev => document.addEventListener(ev, e => e.preventDefault()));
@@ -1489,7 +1504,7 @@ const Sound = (() => {
       if (fresh) { void cardsEl.offsetWidth; cardsEl.classList.remove('notrans'); }
     } else {
       ui.built = null;
-      view.innerHTML = ui.screen === 'setup' ? setupHTML() : homeHTML();
+      view.innerHTML = ui.screen === 'mode' ? modeHTML() : homeHTML();
       cardsEl.style.display = 'none'; fxEl.style.display = 'none'; bannerEl.innerHTML = ''; ui.bannerKey = '';
     }
     patchOverlay();
@@ -1498,7 +1513,7 @@ const Sound = (() => {
 
   window.OneMoreUI = { ui, render, onClick, audio, newGame };
   fit();
-  resumeGame();
+  { const nav = (performance.getEntriesByType && performance.getEntriesByType('navigation')[0]) || {}; if (nav.type !== 'navigate') resumeGame(); }          // a reload (iPad Safari does that to a backgrounded tab) puts you straight back; opening the game fresh shows the menu, where Continue waits
   render();
   startTurnFlow(ui.pace.botStart);
 })();

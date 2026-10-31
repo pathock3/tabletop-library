@@ -52,17 +52,14 @@ const state = page => page.evaluate(() => {
   const { ui } = window.OneMoreUI, st = ui.st;
   return st ? { screen: ui.screen, cur: st.current, phase: st.phase, table: st.table.length, draw: st.draw.length, scores: Engine.scores(st), over: st.over, hold: !!ui.hold, busy: ui.botBusy, boomsOut: Engine.boomsOut(st), turnNo: st.turnNo, seats: ui.seats.map(s => s.name) } : { screen: ui.screen };
 });
-const noGuard = page => page.evaluate(() => { window.OneMoreUI.ui.pace.boomGuardMs = 0; });
+// (a boom normally clears itself a moment later: most tests want it to stay until they tap, so the wait is made very long; the test of the automatic clean-up sets it short)
+const noGuard = page => page.evaluate(() => { window.OneMoreUI.ui.pace.boomGuardMs = 0; window.OneMoreUI.ui.pace.boomAutoMs = 1e9; });
 
-// Through the real setup screen.
+// Through the real New game screen (Pass and Play, or against the AI). The app only offers two players; a bigger table is started directly (the layout and the rules still have to hold for it).
 const setup = async (page, { n = 2, kinds = ['human', 'human'], styles = [] } = {}) => {
-  await page.tap('[data-act=play]');
-  await page.tap(`[data-act=n][data-v="${n}"]`);
-  for (let i = 0; i < n; i++) {
-    await page.tap(`[data-act=kind][data-i="${i}"][data-v="${kinds[i] || 'human'}"]`);
-    if (styles[i]) await page.tap(`[data-act=style][data-i="${i}"][data-v="${styles[i]}"]`);
-  }
-  await page.tap('[data-act=deal]');
+  if (n === 2 && kinds[0] === 'human' && kinds[1] === 'human') { await page.tap('[data-act=play]'); await page.tap('[data-act=start-pass]'); }
+  else if (n === 2 && kinds[0] === 'human' && kinds[1] === 'computer') { await page.tap('[data-act=play]'); await page.tap('[data-act=start-ai]'); }
+  else await start(page, Array.from({ length: n }, (_, i) => ({ kind: kinds[i] || 'human', style: styles[i] || undefined })));
   await noGuard(page);
 };
 // Starts a game with the seats exactly as given (turn order = the order listed), bypassing the shuffle of seats.

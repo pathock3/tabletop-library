@@ -3946,6 +3946,7 @@ function DDBSeat(root, cfg) {
         ${inProgress ? `<button class="mode primary row" data-p="resume"><b>Continue</b>${duelSaved() ? '<span class="cmode">Two players</span>' : run ? pips : ''}</button>` : ''}
         ${newRun}
         <div class="ghostrow"><button class="ghost" data-p="help">How to play</button><button class="ghost" data-p="more">More</button></div>
+        <p class="vers homeby">By Patrick Blim-Hockberger · Version ${A.esc(UI.build)}</p>
         ${note ? `<p class="homenote warn">${note}</p>` : ''}
       </div></div></div>`;
   }

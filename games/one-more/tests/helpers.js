@@ -15,7 +15,7 @@ function rigged(seq, players = 2, data) {
 }
 // Every card is in exactly one place.
 function assertPartition(s, assert) {
-  const all = s.draw.concat(s.boomPile, s.table, ...s.safe).sort((a, b) => a - b);
+  const all = s.draw.concat(s.boomPile, s.table, s.gone || [], ...s.safe).sort((a, b) => a - b);
   assert.equal(all.length, G + B, 'card count');
   all.forEach((c, i) => assert.equal(c, i, 'card ' + i + ' is in exactly one place'));
 }
