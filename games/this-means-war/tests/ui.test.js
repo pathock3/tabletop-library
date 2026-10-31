@@ -9,7 +9,7 @@ test('ui: hide a flag, place a card, play a staged battle through the screen', {
   const errs = []; p.on('pageerror', e => errs.push(e.message));
   try {
     await p.goto(URL);
-    await p.click('[data-act=mode-ai]');
+    await p.click('[data-act=mode-ai]'); await p.click('[data-act=pickfac][data-f=basic]:not([data-paired="1"])');
     await p.click('[data-hex="0,2"]');
     await p.waitForSelector('[data-card]');
     await p.click('[data-card]'); await p.click('[data-hex="0,2"]');
@@ -37,9 +37,26 @@ test('ui: pass and play shows a cover screen before each turn', { skip: !chromiu
   try {
     await p.goto(URL);
     await p.click('[data-act=mode-pass]');
+    await p.click('[data-act=pickfac][data-f=basic]'); await p.click('[data-act=pickfac][data-f=basic]');
     assert.match(await p.innerText('.cover'), /Red's turn/);
     await p.click('[data-act=uncover]');
     await p.click('[data-hex="0,-2"]');
     assert.match(await p.innerText('.cover'), /Blue's turn/);
+  } finally { await b.close(); }
+});
+
+test('ui: choosing a side: a set gives the computer the other side; a single faction gives it a random one', { skip: !chromium }, async () => {
+  const b = await chromium.launch(), p = await b.newPage({ viewport: { width: 820, height: 1180 } });
+  try {
+    await p.goto(URL);
+    await p.click('[data-act=mode-ai]');
+    await p.click('[data-act=pickfac][data-f=mordor][data-paired="1"]');
+    assert.deepEqual(await p.evaluate(() => WAR.ui.s.fac), ['fellowship', 'mordor'], 'you are Blue (second); the computer is the other side of the set');
+    await p.click('[data-act=menu]'); await p.click('[data-act=again]');
+    await p.click('[data-act=pickfac][data-f=pokemon][data-paired="0"]');
+    const f = await p.evaluate(() => WAR.ui.s.fac);
+    assert.equal(f[1], 'pokemon'); assert.notEqual(f[0], 'pokemon');
+    await p.waitForSelector('[data-hex="0,2"]');
+    assert.match(await p.innerText('.phases'), /Pokémon/);
   } finally { await b.close(); }
 });

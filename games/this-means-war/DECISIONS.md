@@ -12,3 +12,7 @@ The newest rulebook ("Quickfire Kingdoms" inside) is the source. Not built yet: 
 - Capturing the castle holding the enemy flag wins, including by walking onto it undefended.
 - Pass and Play uses a cover screen between turns and between battle choices.
 - A game that nobody can finish ends as a draw after 300 turns.
+- Factions (from the owner's cards sheet): a faction gives each of the seven roles a character, with the same role, power and weakness; "+1 P" / "-1 P" on the sheet changes that card's power (Sauron 15, Gollum 3, Aragorn 11, Legolas 9, Gandalf the Grey 7, Tyrion 11, Jon Snow 9, Varys 5, Russell Hantz 3). A faction is offered only when all seven roles have a character.
+- Special abilities are stored in the data block but **not played yet**. Allies (the dragons, Nagini) and Gandalf the White's flip are not built.
+- Offered: Basic and 13 factions. Not offered: Death Eaters (the Ranger has no name, the Warrior is "Troll?") and Studio Ghibli (no characters).
+- Choosing: a universe pair (Fellowship/Mordor, Rebels/Empire, Pixar Heroes/Villains, Disney Heroes/Villains) gives the computer the other side; any single faction gives it a random different one. You are Blue against the computer; in Pass and Play Red picks, then Blue.

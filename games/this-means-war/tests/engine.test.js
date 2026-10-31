@@ -140,3 +140,30 @@ test('save and restore round-trips', () => {
   const s = E.createGame({ seed: 9 });
   assert.deepEqual(E.restore(E.serialize(s)), s);
 });
+
+test('factions: every offered faction has a character for all seven roles; sets pair real factions; two are not offered yet', () => {
+  const roles = D.cards.map(c => c.id);
+  for (const f of D.factions) { for (const r of roles) assert.ok(f.names[r] && f.names[r].trim(), f.id + ' needs a ' + r); }
+  assert.equal(D.factions.length, 14, 'Basic and 13 complete factions');
+  assert.equal(D.incompleteFactions.length, 2);
+  for (const s of D.sets) { assert.equal(s.sides.length, 2); s.sides.forEach(id => assert.ok(E.FAC[id], id)); }
+});
+
+test('factions: a "+1 P" / "-1 P" changes the power, so a tie can become a win', () => {
+  const fac = ['mordor', 'basic'];
+  const sauron = { id: 'a', type: 'leader', owner: 0 }, leader = { id: 'b', type: 'leader', owner: 1 };
+  assert.equal(E.powerOf(sauron, fac), 15);
+  assert.equal(E.duel(sauron, leader, fac), 'a', 'Sauron (+1) beats an ordinary Leader');
+  assert.equal(E.duel(leader, { ...sauron, owner: 1 }, ['basic', 'basic']), 'both', 'with no faction they tie');
+  assert.equal(E.nameOf(sauron, fac), 'Sauron');
+});
+
+test('factions: computer vs computer finishes with different factions', () => {
+  const ids = D.factions.map(f => f.id);
+  for (let seed = 1; seed <= 10; seed++) {
+    const s = E.createGame({ seed, first: seed % 2, factions: [ids[seed % ids.length], ids[(seed * 3 + 1) % ids.length]] });
+    let n = 0;
+    while (s.step !== 'over' && n++ < 20000) { const p = E.actor(s), r = E.apply(s, Bots.nextAction(E.viewFor(s, p))); assert.ok(r.ok, r.error); }
+    assert.equal(s.step, 'over');
+  }
+});

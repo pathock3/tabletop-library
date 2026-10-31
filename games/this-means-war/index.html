@@ -93,6 +93,21 @@ h1 { margin: -6px 0 0; font-size: 104px; line-height: .95; font-weight: 1000; fo
 .face.back { transform: rotateY(180deg); background: radial-gradient(circle at 50% 40%, #fff6cf, #e9c35c); color: #3b230a; gap: 6px; } .no .face.back { background: linear-gradient(#cfd3d8, #8f969e); } .face.back b { font-size: 32px; } .flagbig { font-size: 110px; line-height: 1; }
 .yes .face.back { box-shadow: 0 0 40px 10px rgba(255,214,90,.85); }
 @keyframes flip { to { transform: rotateY(180deg); } } @keyframes shake { 25% { transform: rotate(-4deg); } 75% { transform: rotate(4deg); } } @keyframes fadein { to { opacity: 1; } }
+
+.card span.x1 { font-size: 11px; } .card span.x2 { font-size: 9.5px; } .card em.role { font-size: 10px; color: #6b5a3a; font-weight: 700; }
+.card span { max-width: 100%; text-align: center; line-height: 1.05; }
+.pick { background: radial-gradient(ellipse at 50% 0, #3a2616, #140d08 80%); justify-content: flex-start; }
+.pick .topbar { margin-bottom: 0; }
+.picktitle { margin: 0 0 6px; font-size: 30px; text-shadow: 0 2px 0 #000; text-align: center; }
+.pickscroll { flex: 1; min-height: 0; width: 100%; max-width: 820px; overflow-y: auto; -webkit-overflow-scrolling: touch; overscroll-behavior: contain; padding: 0 4px 24px; }
+.pickscroll h3 { margin: 18px 0 8px; font-size: 17px; color: var(--gold); text-align: center; }
+.fset { margin-bottom: 10px; } .fsetname { font-weight: 800; color: var(--dim); font-size: 14px; margin: 0 0 4px 6px; }
+.fpair { display: flex; align-items: stretch; gap: 8px; } .fpair .ftile { flex: 1; } .vs { align-self: center; font-weight: 900; color: var(--dim); }
+.fgrid { display: grid; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: 10px; }
+.ftile { text-align: left; padding: 12px 14px; min-height: 84px; border-radius: 14px; background: linear-gradient(#3a2814, #26180b); border: 3px solid var(--fc); box-shadow: 0 4px 0 #000; display: flex; flex-direction: column; gap: 2px; }
+.ftile b { font-size: 19px; } .ftile small { color: var(--dim); font-size: 13px; } .ftile i { font-style: normal; font-size: 12px; color: #d8c49a; }
+.ftile:active { transform: translateY(2px); }
+.fnote { text-align: center; color: var(--dim); font-size: 13px; }
 @media (max-height: 560px) { .card { width: 70px; height: 100px; } .card em { font-size: 10px; } .status { font-size: 15px; } .herosvg, .kicker { display: none; } h1 { font-size: 64px; margin: 0; } .home { gap: 10px; } .big { min-height: 48px; padding: 8px 24px; } }
 </style>
 </head>
@@ -139,6 +154,73 @@ const GAME_DATA = {
 
   bot: { names: ['Computer'], thinkMs: 650, quickMs: 300 },
 
+  // ---- Factions (from the owner's "This Means WAR!" cards sheet). A faction gives each of the seven roles a character: the same role, power and weakness, and a power change where the sheet says "+1 P" or "-1 P".
+  // `abilities` are the sheet's special abilities, kept here for later: nothing in the game plays them yet. A faction is "complete" when all seven roles have a character, and only complete ones are offered.
+  factions: [
+    { id: "basic", name: "Basic", universe: "The standard roles", color: "#c9a96a",
+      names: {"leader": "Leader", "general": "General", "warrior": "Warrior", "ranger": "Ranger", "sorcerer": "Sorcerer", "spy": "Spy", "assassin": "Assassin"},
+      power: {}, },
+    { id: "fellowship", name: "The Fellowship", universe: "Lord of the Rings", color: "#4f9d5a",
+      names: {"leader": "Galadriel", "general": "Aragorn", "warrior": "Gimli", "ranger": "Legolas", "sorcerer": "Gandalf the Grey", "spy": "Éowyn", "assassin": "Frodo"},
+      power: {"general": -1, "ranger": 1, "sorcerer": 1},
+      abilities: {"leader": ["Foresight", "Reveal at the start of a battle to peek at one card in your opponent's battle hand"], "general": ["Last Stand", "In each battle, if Aragorn is the only surviving card in his unit, +4 P for the next round only"], "warrior": ["Friendly Competition", "If played after a Ranger, +2 P"], "ranger": ["Friendly Competition", "If played after a Warrior, +3 P"], "sorcerer": ["The Turn of the Tide", "Start on this side. When defeated, flip Gandalf's role card over (Gandalf the White, +6 P)"], "spy": ["Rallying Cry", "Reveal from your hand to, if you control fewer castles than your opponent, draw a card"], "assassin": ["Slips Through Your Fingers", "When Frodo would be defeated, if his role card is face up, you may flip it face down to instead return him to your hand"]}, },
+    { id: "mordor", name: "Mordor", universe: "Lord of the Rings", color: "#b3261e",
+      names: {"leader": "Sauron", "general": "Witch-king of Angmar", "warrior": "Cave Troll", "ranger": "Orc Horde", "sorcerer": "Gríma Wormtongue", "spy": "Gollum", "assassin": "The One Ring"},
+      power: {"leader": 1, "spy": -1},
+      abilities: {"leader": ["The Dark Lord Rises", "Reveal from your hand to shuffle any cards from your discard pile into your deck"], "general": ["All-Seeing Eye", "When deployed, reveal to look at any opposing unit"], "warrior": ["It Takes Two", "In each battle, the first time the Cave Troll would be defeated, it survives"], "ranger": ["There are too many!", "When played in battle, draw a card"], "sorcerer": ["Poisonous Whisper", "Reveal at the start of a battle to choose a card in your opponent's battle hand to move to the survivor pile"], "spy": ["My Precious", "Reveal from your hand to move an Assassin from your discard pile to your hand"], "assassin": ["Corrupted", "If The One Ring defeats a Leader, you may search your deck for a Leader and place it on top of your deck"]}, },
+    { id: "rebels", name: "Rebel Alliance", universe: "Star Wars", color: "#e8742c",
+      names: {"leader": "Princess Leia", "general": "Lando Calrissian", "warrior": "Chewbacca", "ranger": "Han Solo", "sorcerer": "Yoda", "spy": "Luke Skywalker", "assassin": "Anakin Skywalker"},
+      power: {},
+      abilities: {"spy": ["", "When Luke defeats a General, search your deck for an Assassin and add it to your hand"]}, },
+    { id: "empire", name: "Galactic Empire", universe: "Star Wars", color: "#6b7280",
+      names: {"leader": "Emperor Palpatine", "general": "Darth Vader", "warrior": "Stormtrooper", "ranger": "Probe Droid", "sorcerer": "Grand Moff Tarkin", "spy": "Boba Fett", "assassin": "TIE Fighter Pilot"},
+      power: {}, },
+    { id: "order", name: "Order of the Phoenix", universe: "Harry Potter", color: "#8a5a2b",
+      names: {"leader": "Dumbledore", "general": "Professor McGonagall", "warrior": "Sirius Black", "ranger": "Ron Weasley", "sorcerer": "Hermione Granger", "spy": "Molly Weasley", "assassin": "Harry Potter"},
+      power: {},
+      abilities: {"leader": ["Part of the Plan", "When defeated by an Assassin, draw 2 cards"], "ranger": ["The Power of Friendship", "Reveal at the start of battle to gain +1 P for each Warrior and Sorcerer revealed"], "sorcerer": ["The Power of Friendship", "Reveal at the start of battle to gain +1 P for each Warrior and Ranger revealed"], "assassin": ["Invisibility Cloak", "Once per battle, when Harry would be defeated, he survives"]}, },
+    { id: "benders", name: "The Benders", universe: "Summoner Wars", color: "#7b4fc4",
+      names: {"leader": "Tacullu", "general": "Gulldune", "warrior": "Breaker", "ranger": "Controller", "sorcerer": "Deceiver", "spy": "Kalal", "assassin": "Sorgwen"},
+      power: {},
+      abilities: {"leader": ["Counter Summon", "Reveal to choose any unit within 3 spaces. Choose a card to send to the discard pile"], "general": ["Mind Capture", "In each battle, the first time Gulldune would defeat a card, add it to your hand instead"], "warrior": ["Memory Break", "Each time this card is played in battle, you may peek at the top card of your opponent's draw pile. You may discard it or put it back"], "ranger": ["Telekinetic Blast", "Reveal during the Ability Phase to push an adjacent opposing unit 1 space directly away (may result in a battle or merge)"], "sorcerer": ["Stun", "Reveal to place a stun token on any card within two spaces"], "spy": ["Glimpse the Future", "Reveal from your hand to look at the top 2 cards of either player's deck. Place one on top of their deck and one in their discard pile"], "assassin": ["Telepathic Command", "During the movement phase, reveal this card along with another card in its unit. That card may safely attack any card within 2 spaces"]}, },
+    { id: "got", name: "Game of Thrones", universe: "Game of Thrones", color: "#3b6ea5",
+      names: {"leader": "Daenerys Targaryen", "general": "Tyrion Lannister", "warrior": "Brienne of Tarth", "ranger": "Jon Snow", "sorcerer": "Melisandre", "spy": "Varys", "assassin": "Arya Stark"},
+      power: {"general": -1, "ranger": 1, "spy": 1},
+      abilities: {"leader": ["Mother of Dragons", "Reveal from your hand to draw a dragon card (Drogon 12 P, Rhaegal 11 P, Viserion 11 P)"], "general": ["Outsmart", "In battles taking place on a castle, once per battle, reveal to have your opponent play their next card face down. Guess the role, and if correct, the card is defeated and they must play another"], "warrior": ["Protector", "In battle, when a card would be defeated, you may swap it for this one"], "ranger": ["Guardian of the Wall", "When attacked, reveal to choose one card from their hand to safely attack with Jon Snow, then escape to an adjacent space"], "sorcerer": ["Resurrection", "Reveal from your hand to move a card from your discard pile to the top of your deck"], "spy": ["Spy Network", "When attacked, reveal at the start of a battle to ask your opponent if they have a certain role card in their hand. Keep asking until the answer is no"], "assassin": ["Unstoppable Assassin", "In battle, when you play a card and your opponent plays a Leader, you may swap your card for Arya"]}, },
+    { id: "survivor", name: "Survivor", universe: "Survivor", color: "#d98a1f",
+      names: {"leader": "Boston Rob", "general": "Cirie Fields", "warrior": "Tony Vlachos", "ranger": "Yul Kwon", "sorcerer": "Parvati Shallow", "spy": "Sandra Diaz-Twine", "assassin": "Russell Hantz"},
+      power: {"assassin": 1},
+      abilities: {"leader": ["Blindsided", "At the start of a battle, reveal Rob from an allied unit to move him to your battle hand"], "general": ["Flip Allegiances", "When attacked, reveal Cirie to steal a card from your opponent's hand. If it is a duplicate role, discard one"], "ranger": ["Outwit", "When attacking, reveal at the start of battle to have your opponent play their first card face down. Guess the role, and if correct, the card is defeated and they must play another"], "spy": ["Anyone But Me", "In battle, when Sandra is exposed, after the other player plays a card, you may swap Sandra for a card in your hand"]}, },
+    { id: "pokemon", name: "Pokémon", universe: "Pokémon", color: "#e0b800",
+      names: {"leader": "Charizard", "general": "Dragonite", "warrior": "Snorlax", "ranger": "Pidgeot", "sorcerer": "Mewtwo", "spy": "Ditto", "assassin": "Gengar"},
+      power: {},
+      abilities: {"leader": ["Relentless Fury", "If Charizard wins a battle, you may keep it out for a second turn. After that, your opponent plays a card first"], "general": ["Hyper Beam", "Once per battle, when played, declare you are using Hyper Beam for +4 P. The next time it is played, -4 P"], "warrior": ["Rest", "Once per battle, when playing this card exposed, you may use Rest to ensure this card survives"], "ranger": ["Fly", "For one action, this unit may fly to any empty space on the board (no unit or castle)"], "sorcerer": ["Psychic", "Once per battle, reveal from your battle hand to skip your turn to go first"], "spy": ["Transform", "Reveal from your hand to move the Ditto role card adjacent to an opposing role card. Ditto gains that card's ability"], "assassin": ["Mega Evolve", "Once per battle, when played, declare you are using Mega Evolve for +8 P"]}, },
+    { id: "pixar-heroes", name: "Pixar Heroes", universe: "Pixar", color: "#2fa4d9",
+      names: {"leader": "Sheriff Woody", "general": "Sulley", "warrior": "Merida", "ranger": "Dory", "sorcerer": "Joy", "spy": "WALL-E", "assassin": "Violet Parr"},
+      power: {}, },
+    { id: "pixar-villains", name: "Pixar Villains", universe: "Pixar", color: "#7a2fb0",
+      names: {"leader": "AUTO", "general": "Emperor Zurg", "warrior": "Omnidroid v.10", "ranger": "Mor'du", "sorcerer": "Syndrome", "spy": "Randall Boggs", "assassin": "Hopper"},
+      power: {}, },
+    { id: "disney-heroes", name: "Disney Heroes", universe: "Disney", color: "#d4a017",
+      names: {"leader": "Simba", "general": "Mulan", "warrior": "Hercules", "ranger": "Robin Hood", "sorcerer": "The Genie", "spy": "Pascal", "assassin": "Stitch"},
+      power: {}, },
+    { id: "disney-villains", name: "Disney Villains", universe: "Disney", color: "#2e8b57",
+      names: {"leader": "Maleficent", "general": "Captain Hook", "warrior": "The Beast", "ranger": "Shere Khan", "sorcerer": "Ursula", "spy": "The Magic Mirror", "assassin": "Scar"},
+      power: {}, },
+  ],
+  // Pick a side from the same universe and the computer plays the other.
+  sets: [
+    { id: 'lotr', name: 'Lord of the Rings', sides: ['fellowship', 'mordor'] },
+    { id: 'starwars', name: 'Star Wars', sides: ['rebels', 'empire'] },
+    { id: 'pixar', name: 'Pixar', sides: ['pixar-heroes', 'pixar-villains'] },
+    { id: 'disney', name: 'Disney', sides: ['disney-heroes', 'disney-villains'] },
+  ],
+  // Not offered yet: the sheet has no full cast for them.
+  incompleteFactions: [
+    { name: 'Death Eaters (Harry Potter)', why: 'the Ranger has no name yet and the Warrior is "Troll?"' },
+    { name: 'Studio Ghibli', why: 'no characters have been chosen' },
+  ],
+
   texts: {
     tagline: 'Capture the hidden flag before they capture yours!',
     help: [
@@ -175,10 +257,14 @@ const Engine = (() => {
   const castleName = id => (B.castles.find(c => c.id === id) || {}).name || id;
 
   // 'a' when card a wins, 'b' when card b wins, 'both' when both are defeated. The stronger card wins unless the weaker one is its weakness.
-  function duel(a, b) {
-    const ca = CT[a.type], cb = CT[b.type];
-    if (ca.power === cb.power) return 'both';
-    const hi = ca.power > cb.power ? ca : cb, lo = hi === ca ? cb : ca;
+  const FAC = {}; D.factions.forEach(f => { FAC[f.id] = f; });
+  // a card's power: its role's, plus the faction's "+1 P" / "-1 P" for that character
+  const powerOf = (c, fac) => CT[c.type].power + (((FAC[(fac || [])[c.owner]] || FAC.basic).power || {})[c.type] || 0);
+  const nameOf = (c, fac) => ((FAC[(fac || [])[c.owner]] || FAC.basic).names || {})[c.type] || CT[c.type].name;
+  function duel(a, b, fac) {
+    const ca = CT[a.type], cb = CT[b.type], pa = powerOf(a, fac), pb = powerOf(b, fac);
+    if (pa === pb) return 'both';
+    const hi = pa > pb ? ca : cb, lo = hi === ca ? cb : ca;
     const hiWins = hi.weakness !== lo.id;
     return (hi === ca) === hiWins ? 'a' : 'b';
   }
@@ -193,7 +279,7 @@ const Engine = (() => {
   function createGame(opts) {
     opts = opts || {};
     const first = opts.first === 1 ? 1 : 0;
-    const s = { v: 1, rng: (opts.seed == null ? Date.now() : opts.seed) | 0, first, cur: first, step: 'flag', flagQueue: [first, other(first)], castles: {}, decks: [[], []], discard: [[], []], hands: [[], []], units: [], uid: 1, reveals: [], revealN: 0, winner: null, battle: null, pending: [], notice: '', turns: 1 };
+    const s = { v: 1, fac: (opts.factions || ['basic', 'basic']).slice(), rng: (opts.seed == null ? Date.now() : opts.seed) | 0, first, cur: first, step: 'flag', flagQueue: [first, other(first)], castles: {}, decks: [[], []], discard: [[], []], hands: [[], []], units: [], uid: 1, reveals: [], revealN: 0, winner: null, battle: null, pending: [], notice: '', turns: 1 };
     B.castles.forEach(c => { s.castles[c.id] = { owner: null, flagOf: null, revealed: false }; });
     B.start.forEach((ids, p) => ids.forEach(id => { s.castles[id].owner = p; }));
     for (let p = 0; p < 2; p++) {
@@ -353,7 +439,7 @@ const Engine = (() => {
         if (i < 0) return bad('no such card');
         b.played[p] = hand.splice(i, 1)[0];
         if (b.stage === 'first') { b.stage = 'second'; return { ok: true }; }
-        const out = duel(b.played[b.att], b.played[b.def]);          // the players take turns playing first; who is attacking only decides who captures
+        const out = duel(b.played[b.att], b.played[b.def], s.fac);          // the players take turns playing first; who is attacking only decides who captures
         b.result = out; b.rounds++;
         const fate = (card, dies) => { if (dies) s.discard[card.owner].push(card); else b.side[card.owner].aside.push(card); };
         fate(b.played[b.att], out !== 'a'); fate(b.played[b.def], out !== 'b');
@@ -375,7 +461,7 @@ const Engine = (() => {
   // what player p may see: own cards, counts for everything else, the flag only where it is theirs or has been found
   function viewFor(s, p) {
     const o = other(p), copy = c => ({ id: c.id, type: c.type, owner: c.owner });
-    const v = { me: p, opp: o, step: s.step, cur: s.cur, first: s.first, winner: s.winner, notice: s.notice, turns: s.turns, actor: actor(s),
+    const v = { me: p, opp: o, fac: (s.fac || ['basic', 'basic']).slice(), step: s.step, cur: s.cur, first: s.first, winner: s.winner, notice: s.notice, turns: s.turns, actor: actor(s),
       hand: s.hands[p].map(copy), oppHand: s.hands[o].length, deck: [s.decks[0].length, s.decks[1].length], discard: [s.discard[0].length, s.discard[1].length],
       castles: {}, units: s.units.map(u => ({ id: u.id, owner: u.owner, at: u.at, acted: u.acted, n: u.cards.length, cards: u.owner === p ? u.cards.map(copy) : null })), battle: null, reveals: s.reveals.map(r => ({ n: r.n, castle: r.castle, by: r.by, flag: r.flag })) };
     Object.keys(s.castles).forEach(id => { const c = s.castles[id]; v.castles[id] = { owner: c.owner, mine: c.flagOf === p, flag: c.revealed ? c.flagOf != null : c.flagOf === p, revealed: c.revealed }; });
@@ -392,7 +478,7 @@ const Engine = (() => {
   const serialize = s => JSON.stringify(s);
   const restore = t => JSON.parse(t);
 
-  return { CT, hk, parse, onBoard, allHexes, castleHex, hexCastle, dist, duel, createGame, actor, reachable, apply, viewFor, serialize, restore, castleName, sideName };
+  return { CT, FAC, powerOf, nameOf, hk, parse, onBoard, allHexes, castleHex, hexCastle, dist, duel, createGame, actor, reachable, apply, viewFor, serialize, restore, castleName, sideName };
 })();
 </script>
 <script id="bots">
@@ -415,7 +501,7 @@ const Bots = (() => {
   }
 
   function deploy(v) {
-    const card = v.hand.slice().sort((a, b) => CT[b.type].power - CT[a.type].power)[0];
+    const card = v.hand.slice().sort((a, b) => E.powerOf(b, v.fac) - E.powerOf(a, v.fac))[0];
     const fc = flagCastle(v);
     const score = id => {
       const k = E.castleHex[id], here = v.units.filter(u => u.owner === v.me && u.at === k);
@@ -447,20 +533,20 @@ const Bots = (() => {
   }
 
   // does card c beat card d (a card put forward by the other side)?
-  const beats = (c, d) => E.duel(c, d) === 'a';
+  
 
   function nextAction(v, rng) {
     if (v.step === 'flag') return { type: 'flag', castle: pick(mineCastles(v), rng) };
     if (v.step === 'play') return v.hand.length ? deploy(v) : movement(v);
-    const b = v.battle, hand = b.mine.hand.slice().sort((x, y) => CT[x.type].power - CT[y.type].power);
+    const b = v.battle, hand = b.mine.hand.slice().sort((x, y) => E.powerOf(x, v.fac) - E.powerOf(y, v.fac));
     if (b.stage === 'result') return { type: 'continue' };
     if (b.stage === 'second') {
-      const win = hand.filter(c => E.duel({ type: c.type }, { type: b.played.theirs.type }) === 'a');
+      const win = hand.filter(c => E.duel(c, b.played.theirs, v.fac) === 'a');
       return { type: 'play', card: (win[0] || hand[0]).id };
     }
     return { type: 'play', card: pick(hand, rng).id };
   }
-  return { nextAction, beats };
+  return { nextAction };
 })();
 </script>
 <script id="ui">
@@ -473,15 +559,18 @@ const Bots = (() => {
   const libraryLink = () => (D.library && fromLibrary() ? `<a class="libback" href="${esc(D.library.href)}"><span aria-hidden="true">‹</span> ${esc(D.library.name)}</a>` : '');
   const buildStamp = () => { const m = document.querySelector('meta[name=build]'); const t = m ? m.content : ''; return /^__/.test(t) ? 'local file' : t; };
   const col = p => D.sides[p].color, nm = p => D.sides[p].name;
+  const facs = () => (ui.s && ui.s.fac) || ['basic', 'basic'];
+  const pw = c => E.powerOf(c, facs()), cname = c => E.nameOf(c, facs()), short = n => n.replace(/ \(.*\)$/, '');
+  const facName = p => E.FAC[facs()[p]].name;
 
-  const ui = { screen: 'home', mode: 'ai', human: 1, s: null, sel: null, seen: null, help: false, menu: false, timer: null, revN: 0 };
+  const ui = { screen: 'home', mode: 'ai', human: 1, pick: null, s: null, sel: null, seen: null, help: false, menu: false, timer: null, revN: 0 };
   const tryStore = fn => { try { return fn(); } catch (e) { return null; } };
   const hasSave = () => !!tryStore(() => localStorage.getItem(SAVE));
   const save = () => tryStore(() => { if (ui.s && ui.s.step !== 'over') localStorage.setItem(SAVE, JSON.stringify({ mode: ui.mode, human: ui.human, s: ui.s })); else localStorage.removeItem(SAVE); });
 
-  function newGame(mode) {
+  function newGame(mode, factions) {
     ui.mode = mode; ui.human = 1; ui.sel = null; ui.help = false; ui.menu = false; ui.revN = 0;
-    ui.s = E.createGame({ first: mode === 'ai' ? 1 : 0 });
+    ui.s = E.createGame({ first: mode === 'ai' ? 1 : 0, factions });
     ui.seen = null; ui.screen = 'game'; save(); render();
   }
   function cont() {
@@ -513,8 +602,8 @@ const Bots = (() => {
   }
 
   function cardHTML(c, o) {
-    o = o || {}; const t = CT[c.type], w = t.weakness ? CT[t.weakness] : null, st = D.cards.find(x => x.weakness === t.id);
-    return `<button class="card ${o.sel ? 'sel' : ''} ${o.dim ? 'dim' : ''} ${o.small ? 'small' : ''}" ${o.attr || ''} style="--cc:${col(c.owner)}"><b>${t.power}</b><i>${t.mark}</i><span>${t.name}</span><em class="weak">${w ? '☠ ' + w.name : '&nbsp;'}</em><em class="strong">${st ? '⚔ ' + st.name : '&nbsp;'}</em></button>`;
+    o = o || {}; const t = CT[c.type], w = t.weakness ? CT[t.weakness] : null, st = D.cards.find(x => x.weakness === t.id), nmx = short(cname(c)), role = nmx === t.name ? '' : t.name;
+    return `<button class="card ${o.sel ? 'sel' : ''} ${o.dim ? 'dim' : ''} ${o.small ? 'small' : ''}" ${o.attr || ''} style="--cc:${col(c.owner)}"><b>${pw(c)}</b><i>${t.mark}</i><span class="${nmx.length > 18 ? 'x2' : nmx.length > 12 ? 'x1' : ''}">${esc(nmx)}</span><em class="role">${esc(role) || '&nbsp;'}</em><em class="weak">${w ? '☠ ' + w.name : '&nbsp;'}</em><em class="strong">${st ? '⚔ ' + st.name : '&nbsp;'}</em></button>`;
   }
   const backCard = () => '<div class="card back"></div>';
 
@@ -537,7 +626,7 @@ const Bots = (() => {
       const [x, y] = pos(k, flip), list = byHex[k];
       list.forEach((u, i) => {
         const ux = x + (i - (list.length - 1) / 2) * 0.82, uy = y + 0.46;
-        let top = '?'; if (u.cards && u.cards.length) top = CT[u.cards.slice().sort((a, b) => CT[b.type].power - CT[a.type].power)[0].type].mark;
+        let top = '?'; if (u.cards && u.cards.length) top = CT[u.cards.slice().sort((a, b) => pw(b) - pw(a))[0].type].mark;
         const mv = canMove && u.owner === v.me && !u.acted;
         toks += `<g data-unit="${u.id}" data-hex="${k}" class="tok ${selUnit === u.id ? 'selu' : ''} ${u.acted && u.owner === v.me ? 'done' : ''} ${mv ? 'movable' : ''}"><circle cx="${ux}" cy="${uy}" r="0.5" fill="transparent"/><circle cx="${ux}" cy="${uy}" r="0.44" fill="${col(u.owner)}" class="body"/><text x="${ux}" y="${uy + 0.05}" class="tm">${top}</text><circle cx="${ux + 0.34}" cy="${uy - 0.34}" r="0.24" class="bd"/><text x="${ux + 0.34}" y="${uy - 0.33}" class="bn">${u.n}</text></g>`;
       });
@@ -549,6 +638,29 @@ const Bots = (() => {
     return `<svg class="herosvg" viewBox="0 0 320 120" aria-hidden="true"><g transform="translate(60 62)"><path d="M0-48 40-24V16Q40 40 0 54-40 40-40 16V-24Z" fill="#c4372a" stroke="#f2c14e" stroke-width="5"/><path d="M-18 10v-22h8v8h8v-8h8v8h8v-8h8v22z" fill="#f4e6c3"/></g>
       <g transform="translate(260 62)"><path d="M0-48 40-24V16Q40 40 0 54-40 40-40 16V-24Z" fill="#2f6fd6" stroke="#f2c14e" stroke-width="5"/><path d="M-18 10v-22h8v8h8v-8h8v8h8v-8h8v22z" fill="#f4e6c3"/></g>
       <g transform="translate(160 60)"><g transform="rotate(40)"><path d="M0-56 7-44V14H-7V-44Z" fill="#eef2f6" stroke="#1c120a" stroke-width="3" stroke-linejoin="round"/><rect x="-22" y="14" width="44" height="9" rx="3" fill="#f2c14e" stroke="#1c120a" stroke-width="3"/><rect x="-5" y="23" width="10" height="24" rx="2" fill="#6b3a1b" stroke="#1c120a" stroke-width="3"/></g><g transform="rotate(-40)"><path d="M0-56 7-44V14H-7V-44Z" fill="#eef2f6" stroke="#1c120a" stroke-width="3" stroke-linejoin="round"/><rect x="-22" y="14" width="44" height="9" rx="3" fill="#f2c14e" stroke="#1c120a" stroke-width="3"/><rect x="-5" y="23" width="10" height="24" rx="2" fill="#6b3a1b" stroke="#1c120a" stroke-width="3"/></g></g></svg>`;
+  }
+
+  // ---------- choosing a side ----------
+  const startPick = mode => { ui.pick = { mode, chosen: [null, null] }; ui.screen = 'pick'; render(); };
+  function pickFaction(id, paired) {
+    const p = ui.pick; if (!p) return;
+    if (p.mode === 'ai') {
+      const f = [null, id];          // you are Blue
+      const set = D.sets.find(x => x.sides.includes(id));
+      if (paired && set) f[0] = set.sides.find(x => x !== id);
+      else { const all = D.factions.map(x => x.id).filter(x => x !== id); f[0] = all[Math.floor(Math.random() * all.length)]; }
+      ui.pick = null; newGame('ai', f); return;
+    }
+    if (p.chosen[0] === null) { p.chosen[0] = id; render(); return; }
+    const f = [p.chosen[0], id]; ui.pick = null; newGame('pass', f);
+  }
+  function pickHTML() {
+    const p = ui.pick, ai = p.mode === 'ai', who = ai ? '' : (p.chosen[0] === null ? nm(0) + ', ' : nm(1) + ', ');
+    const tile = (f, paired) => `<button class="ftile" data-act="pickfac" data-f="${f.id}" data-paired="${paired ? 1 : 0}" style="--fc:${f.color}"><b>${esc(f.name)}</b><small>${esc(f.universe)}</small><i>${['leader', 'general', 'warrior'].map(r => esc(short(f.names[r]))).join(' · ')}…</i></button>`;
+    const sets = ai ? `<h3>Pick a side. The computer plays the other.</h3>${D.sets.map(s => { const [a, b] = s.sides.map(id => E.FAC[id]); return `<div class="fset"><div class="fsetname">${esc(s.name)}</div><div class="fpair">${tile(a, true)}<span class="vs">vs</span>${tile(b, true)}</div></div>`; }).join('')}<h3>Or pick any faction. The computer gets a random one.</h3>` : '<h3>Pick a faction</h3>';
+    return `<div class="screen pick">${libraryLink()}<div class="topbar"><button class="chip" data-act="pickback">‹ Back</button></div><h2 class="picktitle" style="color:${p.chosen[0] === null && !ai ? col(0) : col(1)}">${who ? who + 'choose' : 'Choose'} your side</h2>
+      <div class="pickscroll">${sets}<div class="fgrid">${D.factions.map(f => tile(f, false)).join('')}</div>
+      <p class="fnote">${D.incompleteFactions.length} more factions are not finished yet (${D.incompleteFactions.map(x => esc(x.name)).join(', ')}).</p></div></div>`;
   }
 
   function homeHTML() {
@@ -583,13 +695,13 @@ const Bots = (() => {
     const cn = E.hexCastle[b.hex], where = cn ? E.castleName(cn) : 'the field';
     const pl = b.played, can = mineTurn && (stage === 'first' || stage === 'second');
     const slot = (p, card, hidden) => `<div class="slot"><small style="color:${col(p)}">${p === me ? 'You' : nm(p)}${(p === b.first && stage !== 'result') || (stage === 'result' && p === b.first) ? ' · played first' : ''}</small>${card ? cardHTML(card) : hidden ? backCard() : '<div class="card empty"></div>'}</div>`;
-    const nmc = c => CT[c.type].name + ' (' + CT[c.type].power + ')';
+    const nmc = c => short(cname(c)) + ' (' + pw(c) + ')';
     let msg;
     if (stage === 'result') {
       const mine = pl.mine, theirs = pl.theirs;
       const w = b.result === 'both' ? null : (b.result === 'a' ? (b.att === me ? mine : theirs) : (b.def === me ? mine : theirs));
       const L = w === mine ? theirs : mine;
-      msg = b.result === 'both' ? `Your ${nmc(mine)} and their ${nmc(theirs)} are both defeated.` : `${w === mine ? 'Your' : nm(opp) + "'s"} ${nmc(w)} defeats ${w === mine ? nm(opp) + "'s" : 'your'} ${nmc(L)}${CT[w.type].power < CT[L.type].power ? ' (its weakness!)' : ''}`;
+      msg = b.result === 'both' ? `Your ${nmc(mine)} and their ${nmc(theirs)} are both defeated.` : `${w === mine ? 'Your' : nm(opp) + "'s"} ${nmc(w)} defeats ${w === mine ? nm(opp) + "'s" : 'your'} ${nmc(L)}${pw(w) < pw(L) ? ' (its weakness!)' : ''}`;
     } else if (can) msg = stage === 'first' ? 'You play first this round. Choose a card.' : `${nm(opp)} played ${nmc(pl.theirs)}. Choose your card.`;
     else msg = `${nm(v.actor)} is choosing a card…`;
     return `<div class="battle"><h2>Battle at ${esc(where)}</h2>
@@ -597,7 +709,7 @@ const Bots = (() => {
       <div class="slots">${slot(me, pl.mine, false)}${slot(opp, pl.theirs, pl.theirsHidden)}</div>
       <p class="msg">${esc(msg)}</p>
       <div class="foe" style="color:${col(me)}">Your cards (${b.mine.aside.length} aside)</div>
-      <div class="hand">${b.mine.hand.slice().sort((x, y) => CT[y.type].power - CT[x.type].power).map(c => cardHTML(c, { attr: can ? `data-pick="${c.id}"` : 'disabled', dim: !can })).join('')}</div>
+      <div class="hand">${b.mine.hand.slice().sort((x, y) => pw(y) - pw(x)).map(c => cardHTML(c, { attr: can ? `data-pick="${c.id}"` : 'disabled', dim: !can })).join('')}</div>
       ${b.mine.aside.length ? `<div class="hand asidehand">${b.mine.aside.map(c => cardHTML(c, { small: true, dim: true, attr: 'disabled' })).join('')}</div>` : ''}
       ${stage === 'result' ? '<button class="big go" data-act="bc">Continue</button>' : ''}</div>`;
   }
@@ -623,8 +735,8 @@ const Bots = (() => {
     const mySel = selUnit && v.units.find(u => u.id === selUnit);
     let low = '';
     if (v.step !== 'battle') {
-      if (mySel) low = `<div class="hand">${mySel.cards.slice().sort((x, y) => CT[y.type].power - CT[x.type].power).map(c => cardHTML(c, { small: true, attr: 'disabled' })).join('')}</div>`;
-      else if (v.hand.length) low = `<div class="hand">${v.hand.slice().sort((x, y) => CT[y.type].power - CT[x.type].power).map(c => cardHTML(c, { sel: c.id === selCard, attr: myTurn ? `data-card="${c.id}"` : 'disabled' })).join('')}</div>`;
+      if (mySel) low = `<div class="hand">${mySel.cards.slice().sort((x, y) => pw(y) - pw(x)).map(c => cardHTML(c, { small: true, attr: 'disabled' })).join('')}</div>`;
+      else if (v.hand.length) low = `<div class="hand">${v.hand.slice().sort((x, y) => pw(y) - pw(x)).map(c => cardHTML(c, { sel: c.id === selCard, attr: myTurn ? `data-card="${c.id}"` : 'disabled' })).join('')}</div>`;
       else low = '<div class="hand"><small class="hint">No cards in hand</small></div>';
     }
     const deployMode = (myTurn && v.hand.length && selCard) || (v.step === 'flag' && a === me);
@@ -633,7 +745,7 @@ const Bots = (() => {
       <div class="main">
         <div class="boardwrap">${boardHTML(v, selUnit, reach, deployMode, movable)}</div>
         <div class="side">
-          <div class="phases"><span class="who" style="background:${col(v.cur)}">${nm(v.cur)}'s turn</span><span class="ph ${phase === 1 ? 'on' : ''}">1 · Deploy &amp; Move</span><span class="ph ${phase === 2 ? 'on' : ''}">2 · Resolve</span></div>
+          <div class="phases"><span class="who" style="background:${col(v.cur)}">${nm(v.cur)}'s turn · ${esc(facName(v.cur))}</span><span class="ph ${phase === 1 ? 'on' : ''}">1 · Deploy &amp; Move</span><span class="ph ${phase === 2 ? 'on' : ''}">2 · Resolve</span></div>
           <div class="status">${esc(status)}</div>
           ${v.notice ? `<div class="notice">${esc(v.notice)}</div>` : ''}
           ${low}
@@ -649,7 +761,8 @@ const Bots = (() => {
   function render() {
     clearTimeout(ui.timer);
     let h;
-    if (ui.screen === 'home' || !ui.s) h = homeHTML();
+    if (ui.screen === 'pick' && ui.pick) h = pickHTML();
+    else if (ui.screen === 'home' || !ui.s) h = homeHTML();
     else if (needsCover()) h = coverHTML();
     else h = gameHTML();
     const rv = pendingReveal();
@@ -682,12 +795,14 @@ const Bots = (() => {
     const actEl = t.closest('[data-act]'), card = t.closest('[data-card]'), pick = t.closest('[data-pick]'), unit = t.closest('[data-unit]'), hex = t.closest('[data-hex]');
     if (actEl && actEl.dataset.act !== 'none') {
       const a = actEl.dataset.act;
-      if (a === 'mode-ai') newGame('ai'); else if (a === 'mode-pass') newGame('pass');
+      if (a === 'mode-ai') startPick('ai'); else if (a === 'mode-pass') startPick('pass');
+      else if (a === 'pickfac') pickFaction(actEl.dataset.f, actEl.dataset.paired === '1');
+      else if (a === 'pickback') { ui.pick = null; ui.screen = ui.s ? 'game' : 'home'; render(); }
       else if (a === 'continue') cont();
       else if (a === 'help') { ui.help = true; render(); } else if (a === 'closehelp') { ui.help = false; render(); }
       else if (a === 'menu') { ui.menu = true; render(); } else if (a === 'closemenu') { ui.menu = false; render(); }
       else if (a === 'home') { ui.screen = 'home'; ui.menu = false; ui.help = false; render(); }
-      else if (a === 'again') newGame(ui.mode);
+      else if (a === 'again') { ui.menu = false; startPick(ui.mode); }
       else if (a === 'uncover') { ui.seen = actorNow(); render(); }
       else if (a === 'endmove') { if (!actEl.classList.contains('off')) act({ type: 'endMove' }); }
       else if (a === 'bc') act({ type: 'continue' });
