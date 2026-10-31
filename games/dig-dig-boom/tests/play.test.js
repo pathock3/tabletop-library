@@ -1438,9 +1438,9 @@ test('the table: Bank is in the middle of the bottom row, the buttons you press 
     await begin(page, { mine: ['MO-01', 'TR-01', 'TR-01', 'ON-18'], dice: [3] });
     await page.click('#play [data-p=dig]'); await page.click('#play [data-p=roll]'); await page.waitForSelector('#play [data-p=face]:not(.waitroll)');
     const box = async sel => page.locator(sel).first().boundingBox(), mine = await box('#play .deck'), bank = await box('#play [data-p=bank]'), take = await box('#play [data-p=face]');
-    assert.ok(bank.x > mine.x + mine.width, 'Bank is right of the Mine'); assert.ok(Math.abs(bank.x + bank.width / 2 - 410) <= 4, 'centred left to right: ' + JSON.stringify(bank));
+    const flip = await box('#play .dugz .slot'); assert.ok(bank.x > mine.x + mine.width, 'Bank is right of the Mine'); assert.ok(bank.x >= flip.x + flip.width, 'and clear of the flip spot (an upright iPad: at the right, under the roll controls): ' + JSON.stringify(bank));
     const use = await page.locator('#play .chip.useall').count(); if (use) { const ub = await box('#play .chip.useall'); assert.ok(Math.abs(ub.width - take.width) < 2 && Math.abs(ub.height - take.height) < 2, 'Use all is the size of Take damage'); }
-    assert.ok(take.x > bank.x + bank.width - 10, 'Take damage is to the right of Bank'); assert.ok(take.x + take.width > 820 * 0.8, 'and under the right thumb: ' + JSON.stringify(take));
+    assert.ok(take.y + take.height <= bank.y + 4, 'Take damage is above Bank'); assert.ok(take.x + take.width > 820 * 0.8, 'and under the right thumb: ' + JSON.stringify(take));
     assert.equal(await page.locator('#play .deck .cnt').count(), 0, 'no number badge on the Mine any more');
     assert.match(await page.locator('#play .pilestrip').innerText(), /^\d+ left$/);
     const left = await stOf(page, () => { const m = window.DigDigBoomPlay.S.st.mine; return [m.filter(c => c.type === 'Monster').length, m.filter(c => c.type === 'Treasure').length, m.filter(c => !['Monster', 'Treasure'].includes(c.type)).length]; });
