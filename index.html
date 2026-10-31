@@ -19,19 +19,22 @@
 html, body { margin: 0; min-height: 100%; overscroll-behavior: none; background: var(--bg); color: var(--text);   /* no pull-to-refresh or rubber-banding on the shelf */
   font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", system-ui, Segoe UI, Roboto, sans-serif; }
 body { background: repeating-linear-gradient(90deg, rgba(0,0,0,.05) 0 2px, rgba(255,255,255,.012) 2px 46px), radial-gradient(ellipse at 50% -10%, #3a2616, var(--bg) 65%) fixed; padding: max(22px, env(safe-area-inset-top)) max(16px, env(safe-area-inset-right)) max(28px, env(safe-area-inset-bottom)) max(16px, env(safe-area-inset-left)); }
-main { max-width: 980px; margin: 0 auto; }
+main { max-width: 1120px; margin: 0 auto; }
 header { text-align: center; margin: 14px 0 26px; }
 h1 { margin: 0; font-size: clamp(34px, 7vw, 54px); letter-spacing: .5px; }
 .tag { margin: 6px 0 0; color: var(--dim); font-size: clamp(15px, 2.4vw, 18px); }
 /* the shelf: each game is a board-game box — just its cover art, with a thick edge */
-.shelf { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 330px)); justify-content: center; gap: 34px 28px; list-style: none; margin: 0; padding: 0 0 12px; }
-.box { display: block; position: relative; border-radius: 14px; text-decoration: none; color: inherit; overflow: hidden; background: #120b07;
-  border: 3px solid rgba(255,255,255,.2); box-shadow: 0 9px 0 #0a0604, 0 9px 0 3px rgba(255,255,255,.07), 0 20px 30px rgba(0,0,0,.55);
+.shelf { display: flex; flex-wrap: wrap; justify-content: center; gap: 44px 40px; list-style: none; margin: 0; padding: 0 12px 20px 0; }          /* up to 3 across in landscape, 2 on an upright iPad, 1 on a phone; the last row is centred */
+.shelf li { flex: 0 0 min(330px, 100%); }
+.box { display: block; position: relative; border-radius: 6px; text-decoration: none; color: inherit; background: #120b07;
+  border: 2px solid rgba(255,255,255,.28);
+  /* a real box: its thick cardboard side shows below and to the right, then it throws a shadow on the shelf */
+  box-shadow: 1px 1px 0 #3a2a1c, 2px 2px 0 #e8dcc0, 3px 3px 0 #d7c8a4, 4px 4px 0 #e8dcc0, 5px 5px 0 #cdbd96, 6px 6px 0 #e3d6b8, 7px 7px 0 #bfae86, 8px 8px 0 #9d8c66, 9px 9px 0 #2a1b10, 12px 22px 26px rgba(0,0,0,.6);
   transform: rotate(var(--tilt, 0deg)); transition: transform .14s ease, box-shadow .14s ease; touch-action: manipulation; -webkit-user-select: none; user-select: none; }
-.box:active { transform: translateY(6px) rotate(var(--tilt, 0deg)); box-shadow: 0 3px 0 #0a0604, 0 8px 14px rgba(0,0,0,.5); }
-.art svg { display: block; width: 100%; height: auto; }
+.box:active { transform: translate(5px, 5px) rotate(var(--tilt, 0deg)); box-shadow: 1px 1px 0 #3a2a1c, 2px 2px 0 #e8dcc0, 3px 3px 0 #bfae86, 4px 4px 0 #2a1b10, 5px 10px 12px rgba(0,0,0,.5); }
+.art svg { display: block; width: 100%; height: auto; border-radius: 4px; }
 /* the box lid: a printed edge, a dark vignette at the rim, and a soft sheen across one corner, like a glossy cover */
-.box::before { content: ""; position: absolute; inset: 0; z-index: 2; pointer-events: none; border-radius: 11px;
+.box::before { content: ""; position: absolute; inset: 0; z-index: 2; pointer-events: none; border-radius: 4px;
   box-shadow: inset 0 0 0 5px rgba(0,0,0,.28), inset 0 0 0 6px rgba(255,255,255,.22), inset 0 0 46px rgba(0,0,0,.5), inset 0 4px 0 6px rgba(255,255,255,.07); }
 .box::after { content: ""; position: absolute; inset: 0; z-index: 3; pointer-events: none;
   background: linear-gradient(118deg, rgba(255,255,255,.26) 0, rgba(255,255,255,.09) 20%, rgba(255,255,255,0) 36%), linear-gradient(0deg, rgba(0,0,0,.18), rgba(0,0,0,0) 22%); }
@@ -250,7 +253,7 @@ const LIBRARY = {
   };
   const art = g => (ART[g.art] ? ART[g.art]() : `<svg viewBox="0 0 300 380" role="img" aria-label="${esc(g.title)}"><rect width="300" height="380" fill="${esc(g.accent || '#d9953a')}"/><text x="150" y="190" text-anchor="middle" font-size="64">${esc(g.icon || '🎲')}</text></svg>`);
 
-  const shown = L.games.filter(g => (g.listed || showUnlisted) && href(g));
+  const shown = L.games.filter(g => (g.listed || showUnlisted) && href(g)).sort((a, b) => a.title.localeCompare(b.title, 'en', { sensitivity: 'base', ignorePunctuation: true }));          // alphabetical
   const tilt = i => ['-.7deg', '.6deg', '-.4deg', '.8deg'][i % 4];            // boxes sit a little askew on the shelf
   document.getElementById('app').innerHTML = `
     <header><h1>🎲 ${esc(L.name)}</h1><p class="tag">${esc(L.tagline)}</p></header>

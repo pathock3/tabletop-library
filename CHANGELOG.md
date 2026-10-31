@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- **Library:** the shelf is up to **3 games wide** in landscape (2 on an upright iPad, 1 on a phone), the games are in **alphabetical order**, and each cover now looks like a **box** with a thick cardboard edge.
+
 - **Dig Dig BOOM! — piles and cards:** the flip (discard) pile now sits level with the Mine and is the same size as it (it had been left at the top while the Mine moved down). The waiting Ongoing / Single-Use cards use the spare room above them and are a little taller.
 
 - **This Means WAR! — second pass:** turning over one of the other side's first castles **flips it** to show the flag (that wins) or no flag. In a battle the **players take turns playing first** (the defender in round 1, the attacker in round 2, and so on). The turn is now **1 · Deploy & Move**, then **2 · Resolve**, units that can still move are **ringed**. The board fills the screen (cards, instructions and buttons sit beside it in landscape). **Menu** has Back to the game / How to Play / New Game / Main Menu. New look for the main menu and the table. Cards are bigger and show what they lose to (☠) and what they beat (⚔). "You are Blue" is gone from the menu.

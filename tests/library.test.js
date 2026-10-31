@@ -86,7 +86,7 @@ test('library (browser): the shelf shows the listed games; tapping a box opens t
     assert.equal(await page.evaluate(() => getComputedStyle(document.body).overscrollBehaviorY), 'none', 'no pull-to-refresh on the shelf');
     const listed = LIBRARY.games.filter(g => g.listed && (g.path || g.url));
     assert.equal(await page.locator('a.box').count(), listed.length, 'only listed games with an address are on the shelf');
-    assert.deepEqual(await page.locator('a.box').evaluateAll(els => els.map(e => e.dataset.id)), Array.from(listed, g => g.id), 'in catalogue order');
+    assert.deepEqual(await page.locator('a.box').evaluateAll(els => els.map(e => e.dataset.id)), Array.from(listed.slice().sort((a, b) => a.title.localeCompare(b.title, 'en', { sensitivity: 'base', ignorePunctuation: true })), g => g.id), 'alphabetical by title');
     for (const g of listed) {                                                 // every box is its own cover art, and the art is the game's
       const art = page.locator(`a.box[data-id="${g.id}"] .art svg`);
       assert.equal(await art.count(), 1, g.id + ' cover art');
