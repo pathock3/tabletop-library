@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- **Dig Dig BOOM! — no dead space on the dig table:** the gaps above the leaderboard bar, between the bar and the player board, between the board and your cards, between your cards and the Mine, and below the Mine are all trimmed. The frame is thinner, the "N left" label is a slim strip, and height that is left over goes to bigger waiting cards (they may overlap a little sideways when there are many) and to the Mine and flip spot.
+
 - **Library:** the shelf is up to **3 games wide** in landscape (2 on an upright iPad, 1 on a phone), the games are in **alphabetical order**, and each cover now looks like a **box** with a thick cardboard edge.
 
 - **Dig Dig BOOM! — piles and cards:** the flip (discard) pile now sits level with the Mine and is the same size as it (it had been left at the top while the Mine moved down). The waiting Ongoing / Single-Use cards use the spare room above them and are a little taller.

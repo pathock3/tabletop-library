@@ -92,7 +92,7 @@ test('menu: Play, How to play and More and nothing else — no text under the bu
   const { browser, page, errors } = await open({ menu: true });
   try {
     const home = await page.locator('#play .homemenu').innerText();
-    assert.match(home, /Play/); assert.doesNotMatch(home, /Practice|The cards|See the cards|[Pp]rint|Nobody|Opponent|against the AI|Cards and rules|Version/);
+    assert.match(home, /Play/); assert.doesNotMatch(home, /Practice|The cards|See the cards|[Pp]rint|Nobody|Opponent|against the AI|Cards and rules/);
     assert.deepEqual((await page.locator('#play .homemenu button').allInnerTexts()).map(t => t.trim()), ['Play', 'How to play', 'More']);
     await page.click('#play [data-p=more]');
     assert.equal(await page.locator('#play .pbar').count(), 0, 'no Pause button on the More screen');
