@@ -845,7 +845,7 @@ test('dice: every roll is played out on a ten-sided die and ends showing the num
   try {
     await begin(page, { mine: ['MO-01'], dice: [7] });
     await page.click('#play [data-p=dig]');
-    assert.equal(await page.locator('#play .dieb svg.d10').count(), 1, 'a die, drawn as a d10, waiting to be tapped');
+    assert.equal(await page.locator('#play .rollgo svg.d10').count(), 1, 'a die, drawn as a d10, waiting to be tapped');
     await page.click('#play [data-p=roll]');
     assert.ok(await page.locator('#play .dieb svg.d10.fx-tumble').count() === 1, 'it tumbles'); await dieShows(page, '#play .dieb', 7);
     assert.match(await page.locator('#play .calc').innerText(), /^Result\s*7$/, 'the die says the roll; one line says the result (nothing else to add)');
