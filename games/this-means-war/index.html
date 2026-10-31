@@ -618,9 +618,9 @@ const Bots = (() => {
   // A card: Weak (top left) and Strong (top right) are always there, blank when the card has none; the Power big in the middle, then the name, then the special ability written out.
   function cardHTML(c, o) {
     o = o || {}; const t = CT[c.type], f = E.FAC[facs()[c.owner]] || E.FAC.basic, w = t.weakness ? CT[t.weakness].name : '', sb = D.cards.find(x => x.weakness === t.id), s = sb ? sb.name : '';
-    const nmx = short(cname(c)), role = nmx === t.name ? '' : t.name, ab = (f.abilities || {})[c.type], mod = (f.power || {})[c.type] || 0;
-    const abName = ab && ab[0] ? `<b>${esc(ab[0])}</b>` : '', abText = ab ? ab[1] : (mod ? (mod > 0 ? '+' : '−') + Math.abs(mod) + ' Power' : ''), len = abText.length + (ab && ab[0] ? ab[0].length : 0);
-    return `<button class="card ${o.sel ? 'sel' : ''} ${o.dim ? 'dim' : ''} ${o.small ? 'small' : ''}" ${o.attr || ''} style="--cc:${col(c.owner)}"><div class="ctop"><div class="cside weak"><small>Weak</small><b>${esc(w)}</b></div><div class="cpow">${pw(c)}${mod ? `<sup>${mod > 0 ? '+' : '−'}${Math.abs(mod)}</sup>` : ''}</div><div class="cside strong"><small>Strong</small><b>${esc(s)}</b></div></div><div class="cname ${nmx.length > 16 ? 'x2' : nmx.length > 11 ? 'x1' : ''}">${esc(nmx)}</div><div class="crole">${esc(role) || '&nbsp;'}</div><div class="cab ${len > 200 ? 'a2' : len > 110 ? 'a1' : ''}">${abName}${abText ? `<span>${esc(abText)}</span>` : ''}</div></button>`;
+    const nmx = short(cname(c)), role = nmx === t.name ? '' : t.name, ab = (f.abilities || {})[c.type];
+    const abName = ab && ab[0] ? `<b>${esc(ab[0])}</b>` : '', abText = ab ? ab[1] : '', len = abText.length + (ab && ab[0] ? ab[0].length : 0);
+    return `<button class="card ${o.sel ? 'sel' : ''} ${o.dim ? 'dim' : ''} ${o.small ? 'small' : ''}" ${o.attr || ''} style="--cc:${col(c.owner)}"><div class="ctop"><div class="cside weak"><small>Weak</small><b>${esc(w)}</b></div><div class="cpow">${pw(c)}</div><div class="cside strong"><small>Strong</small><b>${esc(s)}</b></div></div><div class="cname ${nmx.length > 16 ? 'x2' : nmx.length > 11 ? 'x1' : ''}">${esc(nmx)}</div><div class="crole">${esc(role) || '&nbsp;'}</div><div class="cab ${len > 200 ? 'a2' : len > 110 ? 'a1' : ''}">${abName}${abText ? `<span>${esc(abText)}</span>` : ''}</div></button>`;
   }
   const backCard = () => '<div class="card back"></div>';
 
