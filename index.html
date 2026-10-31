@@ -108,6 +108,17 @@ const LIBRARY = {
       path: 'games/one-more/index.html',
       listed: true,
     },
+    {
+      id: 'this-means-war',
+      title: 'This Means WAR!',
+      tagline: 'Capture the hidden flag before they capture yours!',
+      players: '2 players',
+      icon: '⚔️',
+      art: 'this-means-war',
+      accent: '#c0392b',
+      path: 'games/this-means-war/index.html',
+      listed: true,
+    },
   ],
 };
 </script>
@@ -191,6 +202,24 @@ const LIBRARY = {
         ${[[40, 190, 8], [262, 214, 7], [84, 234, 6], [196, 160, 6], [20, 280, 7]].map(([x, y, r]) => `<path d="M${x} ${y - r}L${x + r * .3} ${y - r * .3} ${x + r} ${y} ${x + r * .3} ${y + r * .3} ${x} ${y + r} ${x - r * .3} ${y + r * .3} ${x - r} ${y} ${x - r * .3} ${y - r * .3}Z" fill="#e9fff9" opacity=".9"/>`).join('')}
         ${gem(88, 278, 32, violet)}${gem(214, 284, 28, blue)}${gem(150, 272, 38, teal)}${gem(112, 308, 27, amber)}${gem(188, 310, 28, pink)}${gem(60, 316, 21, teal)}${gem(244, 316, 21, amber)}
         ${title('ONE', 66, 62)}${title('MORE…', 128, 62)}
+        </svg>`;
+    },
+    // This Means WAR!: two armies' banners over a hex map of castles, a hidden flag in the middle
+    'this-means-war': () => {
+      const hexPts = (cx, cy, r) => Array.from({ length: 6 }, (_, i) => { const a = Math.PI / 180 * (60 * i - 30); return (cx + r * Math.cos(a)).toFixed(1) + ',' + (cy + r * Math.sin(a)).toFixed(1); }).join(' ');
+      const hexes = []; for (let q = -2; q <= 2; q++) for (let r = -2; r <= 2; r++) if (Math.abs(q + r) <= 2) hexes.push([150 + 38 * Math.sqrt(3) * (q + r / 2) * .62, 214 + 38 * 1.5 * r * .62]);
+      const castle = (x, y, c) => `<g transform="translate(${x} ${y})"><rect x="-14" y="-8" width="28" height="20" fill="${c}" stroke="#1c120a" stroke-width="2"/><path d="M-14-8v-8h6v4h4v-4h8v4h4v-4h6v8Z" fill="${c}" stroke="#1c120a" stroke-width="2"/><path d="M-4 12v-9a4 4 0 0 1 8 0v9Z" fill="#1c120a"/></g>`;
+      const sword = (x, y, r) => `<g transform="translate(${x} ${y}) rotate(${r})"><path d="M0-52L7-40V6H-7V-40Z" fill="#e8edf2" stroke="#1c120a" stroke-width="3" stroke-linejoin="round"/><rect x="-24" y="6" width="48" height="9" rx="3" fill="#d9a22a" stroke="#1c120a" stroke-width="3"/><rect x="-5" y="15" width="10" height="26" fill="#6b3a1b" stroke="#1c120a" stroke-width="3"/></g>`;
+      return `<svg viewBox="0 0 300 380" role="img" aria-label="This Means WAR!"><defs>
+        <linearGradient id="twB" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#7a1d14"/><stop offset=".5" stop-color="#2a1510"/><stop offset="1" stop-color="#12202f"/></linearGradient>
+        <linearGradient id="twT" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff0b0"/><stop offset="1" stop-color="#e8962a"/></linearGradient></defs>
+        <rect width="300" height="380" fill="url(#twB)"/>
+        ${hexes.map(([x, y]) => `<polygon points="${hexPts(x, y, 24)}" fill="#c9a96a" stroke="#6b4a2a" stroke-width="2" opacity=".85"/>`).join('')}
+        ${castle(150, 168, '#e0482c')}${castle(100, 168, '#e0482c')}${castle(150, 214, '#9c8f7a')}${castle(100, 260, '#2f7fe0')}${castle(200, 260, '#2f7fe0')}${castle(200, 168, '#e0482c')}
+        <path d="M150 226V206l16 6-16 6" fill="#ff3b30" stroke="#1c120a" stroke-width="2"/>
+        ${sword(66, 112, -35)}${sword(234, 112, 35)}
+        <text x="150" y="332" text-anchor="middle" font-size="42" font-weight="900" fill="url(#twT)" stroke="#1c0a06" stroke-width="9" stroke-linejoin="round" paint-order="stroke">WAR!</text>
+        <text x="150" y="76" text-anchor="middle" font-size="26" font-weight="900" fill="url(#twT)" stroke="#1c0a06" stroke-width="7" stroke-linejoin="round" paint-order="stroke">THIS MEANS</text>
         </svg>`;
     },
     // Dig Dig BOOM!: the front of the box, taken from the game's main menu — two Monster cards looming over a fan of Geodes, each a different gem.

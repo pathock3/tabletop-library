@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- **New game: This Means WAR!** Two armies, one hex map of seven castles, a hidden flag. Place your cards on your castles to form units, march, and fight card by card: the defender plays first, the higher card wins unless the other is its weakness. Capture the castle that hides the enemy flag. Play the Computer or Pass and Play. First version: the basic cards only (no tunnels, no hero cards yet), from the newest rulebook.
+
 - **Dig Dig BOOM! — the whole screen for the table:** the wood frame is thinner and now reaches the bottom of the screen (the unused strip under it is gone), and the extra room goes to **bigger Ongoing and Single-Use cards**. The big Monster panel beside the Monster card is **gone**: the card has everything you need.
 
 - **Dig Dig BOOM! — rounds are 4 again; Leaderboard and cards:** a run is **4 rounds** (5 felt too long). **Wake-Up Rooster** untaps **1** card; **Refresh Elixir** (Single-Use) now untaps all your Ongoing cards **and gives 1 Health**. The full-size Leaderboard you open while digging **covers the whole screen** (it had been sliding in under the table), its **What is this?** is a small button in the bottom-left corner, and **a tap anywhere closes it**; on every Leaderboard, tapping an empty space says nothing (only pieces and chips explain themselves, in a line or two). **BOOM!** on the Dig screen has the **What is this?** button (the Leaderboard doesn't). The buttons along the bottom of every screen share one height and one size of writing. First pack: "First time playing? Just pick one and see how the game works." The Dig screen says "Tap your Mine deck to dig, or Bank to keep your gems".

@@ -1,0 +1,638 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="This Means WAR!">
+<meta name="build" content="__BUILD__">
+<meta name="theme-color" content="#1a120c">
+<title>This Means WAR!</title>
+<meta property="og:type" content="website">
+<meta property="og:title" content="This Means WAR!">
+<meta property="og:description" content="Capture the hidden flag before they capture yours!">
+<meta name="description" content="Capture the hidden flag before they capture yours!">
+<link rel="icon" type="image/png" href="../../assets/favicon.png">
+<link rel="apple-touch-icon" href="../../assets/apple-touch-icon.png">
+<style>
+:root { --bg:#1a120c; --panel:#2b1d12; --gold:#f0c35a; --text:#f6ead2; --dim:#b9a687; }
+* { box-sizing: border-box; -webkit-tap-highlight-color: transparent; -webkit-touch-callout: none; user-select: none; -webkit-user-select: none; }
+html, body { margin: 0; height: 100%; width: 100%; position: fixed; inset: 0; overflow: hidden; overscroll-behavior: none; background: var(--bg); color: var(--text);
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", system-ui, Segoe UI, Roboto, sans-serif; touch-action: manipulation; }
+#app { position: absolute; inset: 0; background: radial-gradient(ellipse at 50% 0, #3a2616, #140d08 75%); }
+button { font: inherit; color: inherit; border: 0; background: none; padding: 0; cursor: pointer; touch-action: manipulation; }
+.screen { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; padding: calc(env(safe-area-inset-top) + 14px) 16px calc(env(safe-area-inset-bottom) + 12px); }
+.home, .cover { justify-content: center; gap: 14px; }
+.crest { font-size: 64px; } h1 { margin: 0; font-size: 44px; text-align: center; color: var(--gold); text-shadow: 0 3px 0 #000; letter-spacing: 1px; }
+.tag { margin: 0 0 8px; color: var(--dim); text-align: center; font-size: 18px; max-width: 520px; }
+.big { min-width: 280px; max-width: 90%; padding: 16px 28px; min-height: 56px; border-radius: 16px; background: #4a3220; border: 2px solid #7c5a38; font-size: 20px; font-weight: 800; box-shadow: 0 4px 0 #000; }
+.big small { display: block; font-weight: 500; font-size: 14px; color: var(--dim); margin-top: 2px; }
+.big.go { background: #b8321f; border-color: #ff8a6a; font-size: 24px; min-height: 64px; } .big.go.off { opacity: .35; } .big.ghost { background: transparent; }
+.ver { color: #7d6c52; font-size: 12px; margin-top: 10px; }
+.libback { position: absolute; z-index: 3; left: calc(env(safe-area-inset-left) + 12px); top: calc(env(safe-area-inset-top) + 8px); display: inline-flex; align-items: center; gap: 8px; padding: 10px 16px 10px 12px; min-height: 44px; border-radius: 99px; background: rgba(20,12,6,.8); border: 2px solid var(--gold); color: var(--text); font-size: 16px; font-weight: 800; text-decoration: none; }
+.libback span { font-size: 22px; line-height: 1; color: var(--gold); }
+.topbar { width: 100%; min-height: 46px; display: flex; align-items: center; justify-content: flex-end; gap: 10px; position: relative; }
+.topbar .who { position: absolute; left: 50%; transform: translateX(-50%); font-weight: 900; font-size: 18px; text-shadow: 0 2px 0 #000; }
+.chip { width: 46px; height: 46px; border-radius: 50%; background: var(--panel); border: 2px solid #7c5a38; font-size: 20px; font-weight: 800; }
+.status { font-size: 19px; font-weight: 700; text-align: center; min-height: 26px; margin-top: 2px; }
+.notice { font-size: 14px; color: var(--gold); text-align: center; }
+.board { flex: 1; min-height: 0; width: 100%; max-width: 900px; }
+.hx { stroke: #6b4a2a; stroke-width: .06; } .hx.cas { stroke: #2a1a0e; stroke-width: .1; }
+.hx.reach { fill: #f5e08a; stroke: #ffd24a; stroke-width: .16; } .hx.dep { stroke: #ffd24a; stroke-width: .2; }
+.castle { font-size: 1.1px; text-anchor: middle; dominant-baseline: central; pointer-events: none; } .flagmark { font-size: .6px; text-anchor: middle; pointer-events: none; }
+.tok { cursor: pointer; } .tok circle:first-child { stroke: #fff; stroke-width: .07; } .tok.selu circle:first-child { stroke: var(--gold); stroke-width: .16; } .tok.done { opacity: .6; }
+.tm { font-size: .55px; fill: #fff; text-anchor: middle; dominant-baseline: central; pointer-events: none; } .bd { fill: #111; stroke: #fff; stroke-width: .04; }
+.bn { font-size: .32px; fill: #fff; font-weight: 800; text-anchor: middle; dominant-baseline: central; pointer-events: none; }
+.low { width: 100%; max-width: 900px; display: flex; flex-direction: column; align-items: center; gap: 8px; }
+.hand { display: flex; flex-wrap: wrap; justify-content: center; gap: 6px; min-height: 40px; align-items: center; }
+.hint { color: var(--dim); }
+.deckline { font-size: 12px; color: var(--dim); }
+.card { width: 66px; height: 92px; border-radius: 10px; background: linear-gradient(#f6ead2, #dcc79b); color: #2b1d12; border: 4px solid var(--cc, #7c5a38); display: grid; grid-template-rows: auto 1fr auto auto; justify-items: center; align-items: center; padding: 2px; font-size: 11px; font-weight: 800; box-shadow: 0 3px 0 #000; }
+.card b { font-size: 18px; line-height: 1; } .card i { font-style: normal; font-size: 28px; line-height: 1; } .card em { font-style: normal; font-size: 11px; color: #8a2a1a; }
+.card.small { width: 50px; height: 70px; } .card.small i { font-size: 20px; } .card.small b { font-size: 14px; } .card.small span, .card.small em { font-size: 9px; }
+.card.sel { transform: translateY(-10px); outline: 4px solid var(--gold); } .card.dim { opacity: .5; } .card.back { background: repeating-linear-gradient(45deg, #5a3a22, #5a3a22 6px, #3a2414 6px, #3a2414 12px); } .card.empty { background: transparent; border-style: dashed; box-shadow: none; }
+.battle { position: absolute; inset: 0; background: rgba(20,12,6,.96); display: flex; flex-direction: column; align-items: center; gap: 10px; padding: calc(env(safe-area-inset-top) + 16px) 16px 16px; z-index: 10; overflow: hidden; }
+.battle h2 { margin: 6px 0 0; color: var(--gold); }
+.slots { display: flex; gap: 28px; } .slot { display: flex; flex-direction: column; align-items: center; gap: 6px; } .slot .card { width: 84px; height: 118px; } .slot .card b { font-size: 22px; } .slot .card i { font-size: 36px; }
+.msg { min-height: 44px; margin: 0; text-align: center; font-size: 18px; font-weight: 700; max-width: 520px; } .foe { font-weight: 800; }
+.sheet { position: absolute; inset: 0; background: rgba(0,0,0,.7); display: grid; place-items: center; z-index: 30; padding: 16px; }
+.sheetin { background: var(--panel); border: 2px solid #7c5a38; border-radius: 20px; padding: 22px; max-width: 560px; max-height: 88%; overflow-y: auto; display: flex; flex-direction: column; align-items: center; gap: 12px; text-align: left; }
+.sheetin h2 { margin: 0; color: var(--gold); } .sheetin p { margin: 0; font-size: 16px; line-height: 1.4; }
+@media (max-height: 560px) { .card { width: 52px; height: 72px; } .status { font-size: 15px; } }
+</style>
+</head>
+<body>
+<div id="app"></div>
+<script id="data">
+// ---- THE RULES, THE BOARD AND THE TEXTS: everything a rule is lives here; the engine below only does what this says ----
+const GAME_DATA = {
+  title: 'This Means WAR!',
+  library: { name: 'Tabletop Library', href: '../../index.html' },
+  players: 2,
+  sides: [{ id: 'red', name: 'Red', color: '#e0482c' }, { id: 'blue', name: 'Blue', color: '#2f7fe0' }],
+
+  // Each side has its own deck of these 17 cards. A stronger card (power) beats a weaker one, unless the weaker card is the stronger one's weakness.
+  cards: [
+    { id: 'leader',   name: 'Leader',   power: 14, weakness: 'assassin', copies: 2, mark: '♛' },
+    { id: 'general',  name: 'General',  power: 12, weakness: 'spy',      copies: 2, mark: '★' },
+    { id: 'warrior',  name: 'Warrior',  power: 10, weakness: 'sorcerer', copies: 3, mark: '⚔' },
+    { id: 'ranger',   name: 'Ranger',   power: 8,  weakness: null,       copies: 3, mark: '➶' },
+    { id: 'sorcerer', name: 'Sorcerer', power: 6,  weakness: null,       copies: 3, mark: '✦' },
+    { id: 'spy',      name: 'Spy',      power: 4,  weakness: null,       copies: 2, mark: '◉' },
+    { id: 'assassin', name: 'Assassin', power: 2,  weakness: null,       copies: 2, mark: '†' },
+  ],
+
+  rules: {
+    firstDraw: [1, 2],          // the first player starts with 1 card, the second with 2
+    drawPerTurn: 2,             // every turn ends by drawing this many
+    speed: 2,                   // spaces a unit may move with its one action each turn
+    unitMax: 7,                 // a unit holds at most one card of each type: up to 7 cards
+    maxTurns: 300,              // a game nobody can win ends as a draw after this many turns (never reached in real play)
+  },
+
+  // The basic map: a hexagonal board of spaces. Seven castles, each one space apart: one in the middle and six around it. Each side starts with two
+  // neighbouring castles (one of them hides its flag); the three castles in between are neutral.
+  board: {
+    radius: 3,
+    castles: [
+      { id: 'mid', name: 'the Central Castle', q: 0, r: 0 },
+      { id: 'e', name: 'the East Castle',   q: 2, r: 0 },  { id: 'ne', name: 'the Northeast Castle', q: 2, r: -2 }, { id: 'nw', name: 'the Northwest Castle', q: 0, r: -2 },
+      { id: 'w', name: 'the West Castle',   q: -2, r: 0 }, { id: 'sw', name: 'the Southwest Castle', q: -2, r: 2 }, { id: 'se', name: 'the Southeast Castle', q: 0, r: 2 },
+    ],
+    start: [['nw', 'ne'], ['sw', 'se']],          // red (top) and blue (bottom)
+  },
+
+  bot: { names: ['Computer'], thinkMs: 650, quickMs: 300 },
+
+  texts: {
+    tagline: 'Capture the hidden flag before they capture yours!',
+    help: [
+      'Capture the other side\'s hidden flag. Each side secretly hides a flag in one of its two starting castles. Take the castle that hides the enemy flag and you win.',
+      'Each side has its own deck of 17 cards. Cards are stronger the bigger their number. A card can still lose to its weakness: Leader to Assassin, General to Spy, Warrior to Sorcerer. Equal cards are both defeated.',
+      'Your turn: first place every card in your hand onto one of your castles. Cards on a castle form a unit (up to 7 cards, one of each type). Then move units: each unit moves once, up to 2 spaces, through its own units but not through enemy units.',
+      'Then tap Battle! Your units on the same space merge, and any undefended castle you stand on is captured. If your unit is on an enemy unit, you fight: the defender plays a card, then the attacker. Survivors wait aside and become the new hand when the hand is empty. Whoever runs out of cards loses the battle; the winner keeps the survivors and, on an enemy castle, captures it.',
+      'Every turn ends by drawing 2 cards. When your deck is empty, your discard pile is shuffled to make a new one.',
+      'Not in this version yet: tunnels and the hero cards.',
+    ],
+    modes: [['ai', 'Play the Computer', 'You are Blue, they are Red'], ['pass', 'Pass and Play', 'Two players, one device']],
+  },
+};
+</script>
+<script id="engine">
+// ---- THE RULES ENGINE: pure, no DOM. State is plain JSON (save/restore is JSON.stringify). Hidden information leaves only through viewFor. ----
+const Engine = (() => {
+  const D = GAME_DATA, R = D.rules, B = D.board;
+  const CT = {}; D.cards.forEach(c => { CT[c.id] = c; });
+  const hk = (q, r) => q + ',' + r;
+  const parse = k => k.split(',').map(Number);
+  const DIRS = [[1, 0], [1, -1], [0, -1], [-1, 0], [-1, 1], [0, 1]];
+  const onBoard = (q, r) => Math.max(Math.abs(q), Math.abs(r), Math.abs(q + r)) <= B.radius;
+  const castleHex = {}, hexCastle = {};
+  B.castles.forEach(c => { castleHex[c.id] = hk(c.q, c.r); hexCastle[hk(c.q, c.r)] = c.id; });
+  const allHexes = [];
+  for (let q = -B.radius; q <= B.radius; q++) for (let r = -B.radius; r <= B.radius; r++) if (onBoard(q, r)) allHexes.push(hk(q, r));
+  const dist = (a, b) => { const [aq, ar] = parse(a), [bq, br] = parse(b); return Math.max(Math.abs(aq - bq), Math.abs(ar - br), Math.abs(aq + ar - bq - br)); };
+
+  const rnd = s => { s.rng = (s.rng + 0x6D2B79F5) | 0; let t = s.rng; t = Math.imul(t ^ t >>> 15, t | 1); t ^= t + Math.imul(t ^ t >>> 7, t | 61); return ((t ^ t >>> 14) >>> 0) / 4294967296; };
+  const shuffle = (s, a) => { for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(rnd(s) * (i + 1)); const t = a[i]; a[i] = a[j]; a[j] = t; } return a; };
+  const other = p => 1 - p;
+  const sideName = p => D.sides[p].name;
+  const castleName = id => (B.castles.find(c => c.id === id) || {}).name || id;
+
+  // 'a' when card a wins, 'b' when card b wins, 'both' when both are defeated. The stronger card wins unless the weaker one is its weakness.
+  function duel(a, b) {
+    const ca = CT[a.type], cb = CT[b.type];
+    if (ca.power === cb.power) return 'both';
+    const hi = ca.power > cb.power ? ca : cb, lo = hi === ca ? cb : ca;
+    const hiWins = hi.weakness !== lo.id;
+    return (hi === ca) === hiWins ? 'a' : 'b';
+  }
+
+  function draw(s, p, n) {
+    for (; n > 0; n--) {
+      if (!s.decks[p].length) { if (!s.discard[p].length) return; s.decks[p] = shuffle(s, s.discard[p]); s.discard[p] = []; }
+      s.hands[p].push(s.decks[p].pop());
+    }
+  }
+
+  function createGame(opts) {
+    opts = opts || {};
+    const first = opts.first === 1 ? 1 : 0;
+    const s = { v: 1, rng: (opts.seed == null ? Date.now() : opts.seed) | 0, first, cur: first, step: 'flag', flagQueue: [first, other(first)], castles: {}, decks: [[], []], discard: [[], []], hands: [[], []], units: [], uid: 1, winner: null, battle: null, pending: [], notice: '', turns: 1 };
+    B.castles.forEach(c => { s.castles[c.id] = { owner: null, flagOf: null, revealed: false }; });
+    B.start.forEach((ids, p) => ids.forEach(id => { s.castles[id].owner = p; }));
+    for (let p = 0; p < 2; p++) {
+      D.cards.forEach(c => { for (let i = 0; i < c.copies; i++) s.decks[p].push({ id: p + '-' + c.id + '-' + i, type: c.id, owner: p }); });
+      shuffle(s, s.decks[p]);
+    }
+    draw(s, first, R.firstDraw[0]); draw(s, other(first), R.firstDraw[1]);
+    return s;
+  }
+
+  function actor(s) {
+    if (s.step === 'flag') return s.flagQueue[0];
+    if (s.step === 'play') return s.cur;
+    if (s.step === 'battle') return s.battle.stage === 'def' ? s.battle.def : s.battle.att;
+    return null;
+  }
+
+  const unitsAt = (s, k) => s.units.filter(u => u.at === k);
+  const enemyAt = (s, k, p) => s.units.some(u => u.at === k && u.owner !== p);
+
+  // every space the unit can reach with its action: up to `speed` spaces, through allied units but never past an enemy unit
+  function reachable(s, unit) {
+    const seen = {}, out = [];
+    seen[unit.at] = 0;
+    let frontier = [unit.at];
+    for (let step = 1; step <= R.speed; step++) {
+      const next = [];
+      frontier.forEach(k => {
+        const [q, r] = parse(k);
+        DIRS.forEach(d => {
+          const nq = q + d[0], nr = r + d[1], nk = hk(nq, nr);
+          if (!onBoard(nq, nr) || seen[nk] != null) return;
+          seen[nk] = step; out.push(nk);
+          if (!enemyAt(s, nk, unit.owner)) next.push(nk);
+        });
+      });
+      frontier = next;
+    }
+    return out;
+  }
+
+  function mergeAll(s) {
+    const groups = {};
+    s.units.forEach(u => { (groups[u.owner + '|' + u.at] = groups[u.owner + '|' + u.at] || []).push(u); });
+    Object.keys(groups).forEach(g => {
+      const list = groups[g]; if (list.length < 2) return;
+      const keep = list[0], have = {};
+      keep.cards.forEach(c => { have[c.type] = true; });
+      list.slice(1).forEach(u => {
+        u.cards.forEach(c => { if (have[c.type] || keep.cards.length >= R.unitMax) s.discard[u.owner].push(c); else { have[c.type] = true; keep.cards.push(c); } });
+        s.units.splice(s.units.indexOf(u), 1);
+      });
+    });
+  }
+
+  function capture(s, k, p) {
+    const id = hexCastle[k]; if (!id) return;
+    const c = s.castles[id]; if (c.owner === p) return;
+    c.owner = p; c.revealed = true;
+    s.notice += sideName(p) + ' captured ' + castleName(id) + '. ';
+    if (c.flagOf === other(p)) { s.step = 'over'; s.winner = p; s.notice += sideName(p) + ' found the flag! '; }
+  }
+
+  function endTurn(s) {
+    if (s.step === 'over') return;
+    draw(s, s.cur, R.drawPerTurn);
+    s.cur = other(s.cur); s.turns++; s.step = 'play'; s.battle = null;
+    s.units.forEach(u => { u.acted = false; });
+    if (s.turns > R.maxTurns) { s.step = 'over'; s.winner = -1; }
+  }
+
+  function nextBattle(s) {
+    if (s.step === 'over') return;
+    while (s.pending.length) {
+      const k = s.pending.shift(), mine = s.units.filter(u => u.at === k && u.owner === s.cur), theirs = s.units.filter(u => u.at === k && u.owner !== s.cur);
+      if (!mine.length || !theirs.length) continue;
+      const side = [[], []];
+      s.units.filter(u => u.at === k).forEach(u => side[u.owner].push.apply(side[u.owner], u.cards));
+      s.units = s.units.filter(u => u.at !== k);
+      s.battle = { hex: k, att: s.cur, def: other(s.cur), stage: 'def', defCard: null, attCard: null, result: null, rounds: 0, side: [{ hand: side[0], aside: [] }, { hand: side[1], aside: [] }] };
+      s.step = 'battle';
+      return;
+    }
+    endTurn(s);
+  }
+
+  function battlePhase(s) {
+    s.notice = '';
+    mergeAll(s);
+    s.units.filter(u => u.owner === s.cur).forEach(u => { if (s.step !== 'over' && hexCastle[u.at] && !enemyAt(s, u.at, s.cur)) capture(s, u.at, s.cur); });
+    if (s.step === 'over') return;
+    const spots = [];
+    s.units.forEach(u => { if (u.owner === s.cur && enemyAt(s, u.at, s.cur) && spots.indexOf(u.at) < 0) spots.push(u.at); });
+    s.pending = spots; s.battle = null;
+    nextBattle(s);
+  }
+
+  function finishBattle(s, winner) {
+    const b = s.battle;
+    if (winner != null) {
+      const cards = b.side[winner].hand.concat(b.side[winner].aside);
+      s.units.push({ id: s.uid++, owner: winner, at: b.hex, cards, acted: true });
+      s.notice += sideName(winner) + ' won the battle. ';
+      if (winner === b.att) capture(s, b.hex, winner);
+    } else s.notice += 'Both armies were wiped out. ';
+    b.side.forEach(sd => sd.hand.concat(sd.aside).forEach(c => { if (winner == null || c.owner !== winner) s.discard[c.owner].push(c); }));
+    s.battle = null;
+    if (s.step === 'over') return;
+    nextBattle(s);
+  }
+
+  const bad = msg => ({ ok: false, error: msg });
+  function apply(s, a) {
+    const p = actor(s);
+    if (p == null) return bad('game over');
+    if (a.type === 'flag') {
+      if (s.step !== 'flag') return bad('not now');
+      const c = s.castles[a.castle];
+      if (!c || c.owner !== p) return bad('hide the flag in one of your castles');
+      c.flagOf = p; s.flagQueue.shift();
+      if (!s.flagQueue.length) s.step = 'play';
+      return { ok: true };
+    }
+    if (s.step === 'play') {
+      if (a.type === 'deploy') {
+        const i = s.hands[p].findIndex(c => c.id === a.card), c = s.hands[p][i], cs = s.castles[a.castle];
+        if (!c) return bad('no such card');
+        if (!cs || cs.owner !== p) return bad('place cards on your own castles');
+        const k = castleHex[a.castle];
+        s.hands[p].splice(i, 1);
+        const u = s.units.find(x => x.owner === p && x.at === k && x.cards.length < R.unitMax && !x.cards.some(y => y.type === c.type));
+        if (u) u.cards.push(c); else s.units.push({ id: s.uid++, owner: p, at: k, cards: [c], acted: false });
+        return { ok: true };
+      }
+      if (a.type === 'move') {
+        const u = s.units.find(x => x.id === a.unit);
+        if (!u || u.owner !== p) return bad('no such unit');
+        if (u.acted) return bad('that unit has already acted');
+        if (reachable(s, u).indexOf(a.to) < 0) return bad('too far');
+        u.at = a.to; u.acted = true;
+        return { ok: true };
+      }
+      if (a.type === 'endMove') {
+        if (s.hands[p].length) return bad('place all your cards first');
+        battlePhase(s);
+        return { ok: true };
+      }
+      return bad('unknown action');
+    }
+    if (s.step === 'battle') {
+      const b = s.battle;
+      if (a.type === 'play') {
+        if (b.stage !== 'def' && b.stage !== 'att') return bad('not now');
+        const hand = b.side[p].hand, i = hand.findIndex(c => c.id === a.card);
+        if (i < 0) return bad('no such card');
+        const c = hand.splice(i, 1)[0];
+        if (b.stage === 'def') { b.defCard = c; b.stage = 'att'; return { ok: true }; }
+        b.attCard = c;
+        const out = duel(c, b.defCard);
+        b.result = out; b.rounds++;
+        const fate = (card, dies) => { if (dies) s.discard[card.owner].push(card); else b.side[card.owner].aside.push(card); };
+        fate(c, out !== 'a'); fate(b.defCard, out !== 'b');
+        b.stage = 'result';
+        return { ok: true };
+      }
+      if (a.type === 'continue') {
+        if (b.stage !== 'result') return bad('not now');
+        b.defCard = null; b.attCard = null; b.result = null;
+        b.side.forEach(sd => { if (!sd.hand.length) { sd.hand = sd.aside; sd.aside = []; } });
+        const left = b.side.map(sd => sd.hand.length > 0);
+        if (left[0] && left[1]) b.stage = 'def'; else finishBattle(s, left[0] ? 0 : left[1] ? 1 : null);
+        return { ok: true };
+      }
+    }
+    return bad('unknown action');
+  }
+
+  // what player p may see: own cards, counts for everything else, the flag only where it is theirs or has been found
+  function viewFor(s, p) {
+    const o = other(p), copy = c => ({ id: c.id, type: c.type, owner: c.owner });
+    const v = { me: p, opp: o, step: s.step, cur: s.cur, first: s.first, winner: s.winner, notice: s.notice, turns: s.turns, actor: actor(s),
+      hand: s.hands[p].map(copy), oppHand: s.hands[o].length, deck: [s.decks[0].length, s.decks[1].length], discard: [s.discard[0].length, s.discard[1].length],
+      castles: {}, units: s.units.map(u => ({ id: u.id, owner: u.owner, at: u.at, acted: u.acted, n: u.cards.length, cards: u.owner === p ? u.cards.map(copy) : null })), battle: null };
+    Object.keys(s.castles).forEach(id => { const c = s.castles[id]; v.castles[id] = { owner: c.owner, mine: c.flagOf === p, flag: c.revealed ? c.flagOf != null : c.flagOf === p, revealed: c.revealed }; });
+    if (s.battle) {
+      const b = s.battle;
+      v.battle = { hex: b.hex, att: b.att, def: b.def, stage: b.stage, result: b.result, rounds: b.rounds,
+        defCard: b.defCard ? copy(b.defCard) : null, attCard: b.stage === 'result' && b.attCard ? copy(b.attCard) : null,
+        mine: { hand: b.side[p].hand.map(copy), aside: b.side[p].aside.map(copy) }, oppReady: b.side[o].hand.length, oppAside: b.side[o].aside.length };
+    }
+    return v;
+  }
+
+  const serialize = s => JSON.stringify(s);
+  const restore = t => JSON.parse(t);
+
+  return { CT, hk, parse, onBoard, allHexes, castleHex, hexCastle, dist, duel, createGame, actor, reachable, apply, viewFor, serialize, restore, castleName, sideName };
+})();
+</script>
+<script id="bots">
+// ---- THE COMPUTER PLAYER: sees only Engine.viewFor (its own cards, counts of everything else) ----
+const Bots = (() => {
+  const E = Engine, CT = E.CT;
+  const pick = (a, rng) => a[Math.floor((rng || Math.random)() * a.length)];
+  const castles = v => Object.keys(v.castles);
+  const mineCastles = v => castles(v).filter(id => v.castles[id].owner === v.me);
+  const flagCastle = v => castles(v).find(id => v.castles[id].mine && v.castles[id].flag);
+
+  function targetFor(v, at) {
+    let best = null, bd = 99;
+    castles(v).forEach(id => {
+      const c = v.castles[id]; if (c.owner === v.me) return;
+      const d = E.dist(at, E.castleHex[id]) - (c.owner === v.opp ? 0.5 : 0);
+      if (d < bd) { bd = d; best = E.castleHex[id]; }
+    });
+    return best;
+  }
+
+  function deploy(v) {
+    const card = v.hand.slice().sort((a, b) => CT[b.type].power - CT[a.type].power)[0];
+    const fc = flagCastle(v);
+    const score = id => {
+      const k = E.castleHex[id], here = v.units.filter(u => u.owner === v.me && u.at === k);
+      const has = here.some(u => u.cards && u.cards.some(c => c.type === card.type));
+      let sc = has ? -10 : 0;
+      if (id === fc) { const n = here.reduce((t, u) => t + u.n, 0); sc += n < 3 ? 6 - n : -2; }
+      else { const t = targetFor(v, k); sc += t ? 4 - E.dist(k, t) : 0; }
+      return sc;
+    };
+    const dest = mineCastles(v).sort((a, b) => score(b) - score(a))[0];
+    return { type: 'deploy', card: card.id, castle: dest };
+  }
+
+  function movement(v) {
+    const fc = flagCastle(v), fk = fc && E.castleHex[fc];
+    const home = v.units.filter(u => u.owner === v.me && u.at === fk).sort((a, b) => b.n - a.n)[0];
+    for (const u of v.units.filter(x => x.owner === v.me && !x.acted && x !== home)) {
+      const target = targetFor(v, u.at); if (!target) continue;
+      let best = null, bd = E.dist(u.at, target);
+      E.reachable(v, u).forEach(k => {
+        const foe = v.units.filter(x => x.owner !== v.me && x.at === k).reduce((t, x) => t + x.n, 0);
+        if (foe && foe > u.n + 1) return;
+        const d = E.dist(k, target) - (foe ? 0.25 : 0);
+        if (d < bd) { bd = d; best = k; }
+      });
+      if (best) return { type: 'move', unit: u.id, to: best };
+    }
+    return { type: 'endMove' };
+  }
+
+  // does card c beat card d (a card put forward by the other side)?
+  const beats = (c, d) => E.duel(c, d) === 'a';
+
+  function nextAction(v, rng) {
+    if (v.step === 'flag') return { type: 'flag', castle: pick(mineCastles(v), rng) };
+    if (v.step === 'play') return v.hand.length ? deploy(v) : movement(v);
+    const b = v.battle, hand = b.mine.hand.slice().sort((x, y) => CT[x.type].power - CT[y.type].power);
+    if (b.stage === 'result') return { type: 'continue' };
+    if (b.stage === 'att') {
+      const win = hand.filter(c => E.duel({ type: c.type }, { type: b.defCard.type }) === 'a');
+      return { type: 'play', card: (win[0] || hand[0]).id };
+    }
+    return { type: 'play', card: pick(hand, rng).id };
+  }
+  return { nextAction, beats };
+})();
+</script>
+<script id="ui">
+// ---- THE SCREENS: tap a card, then tap one of your castles; tap a unit, then tap where it goes ----
+(() => {
+  const D = GAME_DATA, E = Engine, CT = E.CT, app = document.getElementById('app');
+  const SAVE = 'tabletop-library-this-means-war-save';
+  const esc = t => String(t).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+  const fromLibrary = () => { let came = /[?&]from=library\b/.test(location.search); try { if (came) sessionStorage.setItem('tabletop-library-from', '1'); else { const nav = (performance.getEntriesByType && performance.getEntriesByType('navigation')[0]) || {}; if (nav.type === 'navigate') sessionStorage.removeItem('tabletop-library-from'); else came = sessionStorage.getItem('tabletop-library-from') === '1'; } } catch (e) { /* no storage */ } return /^https?:$/.test(location.protocol) && came; };
+  const libraryLink = () => (D.library && fromLibrary() ? `<a class="libback" href="${esc(D.library.href)}"><span aria-hidden="true">‹</span> ${esc(D.library.name)}</a>` : '');
+  const buildStamp = () => { const m = document.querySelector('meta[name=build]'); const t = m ? m.content : ''; return /^__/.test(t) ? 'local file' : t; };
+  const col = p => D.sides[p].color, nm = p => D.sides[p].name;
+
+  const ui = { screen: 'home', mode: 'ai', human: 1, s: null, sel: null, seen: null, help: false, timer: null, flip: false };
+  const tryStore = (fn) => { try { return fn(); } catch (e) { return null; } };
+  const hasSave = () => !!tryStore(() => localStorage.getItem(SAVE));
+  const save = () => tryStore(() => { if (ui.s && ui.s.step !== 'over') localStorage.setItem(SAVE, JSON.stringify({ mode: ui.mode, human: ui.human, s: ui.s })); else localStorage.removeItem(SAVE); });
+
+  function newGame(mode) {
+    ui.mode = mode; ui.human = 1; ui.sel = null; ui.help = false;
+    ui.s = E.createGame({ first: mode === 'ai' ? 1 : 0 });
+    ui.seen = null; ui.screen = 'game'; save(); render();
+  }
+  function cont() {
+    const d = tryStore(() => JSON.parse(localStorage.getItem(SAVE))); if (!d) return;
+    ui.mode = d.mode; ui.human = d.human; ui.s = d.s; ui.sel = null; ui.seen = null; ui.screen = 'game'; render();
+  }
+
+  const actorNow = () => E.actor(ui.s);
+  const isBotTurn = () => { const s = ui.s; if (ui.mode !== 'ai' || s.step === 'over') return false; if (s.step === 'battle' && s.battle.stage === 'result') return false; return actorNow() === 1 - ui.human; };
+  const viewer = () => (ui.mode === 'ai' ? ui.human : (ui.seen != null ? ui.seen : (actorNow() == null ? 0 : actorNow())));
+  const needsCover = () => { const s = ui.s, a = actorNow(); return ui.mode === 'pass' && a != null && ui.seen !== a && !(s.step === 'battle' && s.battle.stage === 'result' && ui.seen != null); };
+
+  function act(a) {
+    const r = E.apply(ui.s, a);
+    if (!r.ok) return false;
+    ui.sel = null; save(); render(); return true;
+  }
+
+  // ---------- drawing ----------
+  const SQ = Math.sqrt(3);
+  function pos(k, flip) { const [q, r] = E.parse(k); let x = SQ * (q + r / 2), y = 1.5 * r; if (flip) { x = -x; y = -y; } return [x, y]; }
+  function hexPts(cx, cy, rad) { let o = []; for (let i = 0; i < 6; i++) { const a = Math.PI / 180 * (60 * i - 30); o.push((cx + rad * Math.cos(a)).toFixed(2) + ',' + (cy + rad * Math.sin(a)).toFixed(2)); } return o.join(' '); }
+
+  function cardHTML(c, o) {
+    o = o || {}; const t = CT[c.type], w = t.weakness ? CT[t.weakness].mark : '';
+    return `<button class="card ${o.sel ? 'sel' : ''} ${o.dim ? 'dim' : ''} ${o.small ? 'small' : ''}" ${o.attr || ''} style="--cc:${col(c.owner)}"><b>${t.power}</b><i>${t.mark}</i><span>${t.name}</span>${w ? `<em title="weak to">☠ ${w}</em>` : '<em>&nbsp;</em>'}</button>`;
+  }
+  const backCard = () => '<div class="card back"></div>';
+
+  function boardHTML(v, selUnit, reach, deployMode) {
+    const flip = viewer() === 0;
+    let hexes = '', toks = '';
+    E.allHexes.forEach(k => {
+      const [x, y] = pos(k, flip), cn = E.hexCastle[k], c = cn && v.castles[cn];
+      const isReach = reach.indexOf(k) >= 0, isDep = deployMode && c && c.owner === v.me;
+      let fill = '#d9c08e';
+      if (c) fill = c.owner == null ? '#9c8f7a' : (c.owner === 0 ? '#c9604a' : '#5a8fd6');
+      hexes += `<g data-hex="${k}"><polygon points="${hexPts(x, y, 0.96)}" fill="${fill}" class="hx ${isReach ? 'reach' : ''} ${isDep ? 'dep' : ''} ${c ? 'cas' : ''}"/>`;
+      if (c) hexes += `<text x="${x}" y="${y - 0.05}" class="castle">🏰</text>${c.flag ? `<text x="${x + 0.52}" y="${y - 0.46}" class="flagmark">🚩</text>` : ''}`;
+      hexes += '</g>';
+    });
+    const byHex = {};
+    v.units.forEach(u => { (byHex[u.at] = byHex[u.at] || []).push(u); });
+    Object.keys(byHex).forEach(k => {
+      const [x, y] = pos(k, flip), list = byHex[k];
+      list.forEach((u, i) => {
+        const ux = x + (i - (list.length - 1) / 2) * 0.82, uy = y + 0.42;
+        let top = '?'; if (u.cards && u.cards.length) top = CT[u.cards.slice().sort((a, b) => CT[b.type].power - CT[a.type].power)[0].type].mark;
+        toks += `<g data-unit="${u.id}" data-hex="${k}" class="tok ${selUnit === u.id ? 'selu' : ''} ${u.acted && u.owner === v.me ? 'done' : ''}"><circle cx="${ux}" cy="${uy}" r="0.46" fill="${col(u.owner)}"/><text x="${ux}" y="${uy + 0.06}" class="tm">${top}</text><circle cx="${ux + 0.34}" cy="${uy - 0.34}" r="0.24" class="bd"/><text x="${ux + 0.34}" y="${uy - 0.33}" class="bn">${u.n}</text></g>`;
+      });
+    });
+    return `<svg class="board" viewBox="-6.2 -5.4 12.4 10.8" preserveAspectRatio="xMidYMid meet">${hexes}${toks}</svg>`;
+  }
+
+  function homeHTML() {
+    return `<div class="screen home">${libraryLink()}
+      <div class="crest">⚔</div><h1>${esc(D.title)}</h1><p class="tag">${esc(D.texts.tagline)}</p>
+      ${hasSave() ? '<button class="big" data-act="continue">Continue</button>' : ''}
+      ${D.texts.modes.map(m => `<button class="big mode" data-act="mode-${m[0]}"><b>${esc(m[1])}</b><small>${esc(m[2])}</small></button>`).join('')}
+      <button class="big ghost" data-act="help">How to Play</button>
+      <p class="ver">By Patrick Blim-Hockberger · Version ${esc(buildStamp())}</p></div>`;
+  }
+
+  function helpHTML() {
+    return `<div class="sheet" data-act="none"><div class="sheetin"><h2>How to Play</h2>${D.texts.help.map(t => `<p>${esc(t)}</p>`).join('')}<button class="big" data-act="closehelp">Got it</button></div></div>`;
+  }
+
+  function coverHTML() {
+    const a = actorNow();
+    return `<div class="screen cover" style="--cc:${col(a)}">${libraryLink()}<h1>${nm(a)}'s turn</h1><p class="tag">Pass the device to ${nm(a)}.</p><button class="big" data-act="uncover" style="background:${col(a)}">I'm ${nm(a)}. Tap to start</button></div>`;
+  }
+
+  function battleHTML(v) {
+    const b = v.battle, me = v.me, opp = v.opp, mineTurn = v.actor === me, stage = b.stage;
+    const cn = E.hexCastle[b.hex], where = cn ? E.castleName(cn) : 'the field';
+    const slot = (p, card, label) => `<div class="slot"><small style="color:${col(p)}">${label}</small>${card ? cardHTML(card) : (card === null && ((p === b.def && stage !== 'def') || (p === b.att && stage === 'result')) ? backCard() : '<div class="card empty"></div>')}</div>`;
+    const defShow = b.defCard, attShow = b.attCard;
+    let msg;
+    if (stage === 'result') {
+      const A = b.attCard, Dd = b.defCard;
+      const nmc = c => CT[c.type].name + ' (' + CT[c.type].power + ')';
+      msg = b.result === 'both' ? `${nmc(A)} and ${nmc(Dd)} are both defeated.` : (b.result === 'a' ? `${nm(b.att)}'s ${nmc(A)} defeats ${nm(b.def)}'s ${nmc(Dd)}` : `${nm(b.def)}'s ${nmc(Dd)} defeats ${nm(b.att)}'s ${nmc(A)}`);
+      const w = b.result === 'a' ? A : b.result === 'b' ? Dd : null;
+      if (w) { const L = w === A ? Dd : A; if (CT[w.type].power < CT[L.type].power) msg += ' (its weakness!)'; }
+    } else if (mineTurn) msg = stage === 'def' ? 'You are defending. Play a card.' : 'You are attacking. Play a card.';
+    else msg = `${nm(v.actor)} is choosing a card…`;
+    return `<div class="battle"><h2>Battle at ${esc(where)}</h2>
+      <div class="foe" style="color:${col(opp)}">${nm(opp)}: ${b.oppReady} ready · ${b.oppAside} aside</div>
+      <div class="slots">${slot(b.def, defShow, 'Defender · ' + nm(b.def))}${slot(b.att, attShow, 'Attacker · ' + nm(b.att))}</div>
+      <p class="msg">${esc(msg)}</p>
+      <div class="foe" style="color:${col(me)}">Your cards (${b.mine.aside.length} aside)</div>
+      <div class="hand">${b.mine.hand.slice().sort((x, y) => CT[y.type].power - CT[x.type].power).map(c => cardHTML(c, { attr: mineTurn && (stage === 'def' || stage === 'att') ? `data-pick="${c.id}"` : 'disabled', dim: !(mineTurn && (stage === 'def' || stage === 'att')) })).join('')}</div>
+      ${b.mine.aside.length ? `<div class="hand asidehand">${b.mine.aside.map(c => cardHTML(c, { small: true, dim: true, attr: 'disabled' })).join('')}</div>` : ''}
+      ${stage === 'result' ? '<button class="big go" data-act="bc">Continue</button>' : ''}</div>`;
+  }
+
+  function gameHTML() {
+    const s = ui.s, me = viewer(), v = E.viewFor(s, me), a = v.actor;
+    let selUnit = null, reach = [], selCard = null;
+    if (ui.sel && ui.sel.t === 'unit') { const u = v.units.find(x => x.id === ui.sel.id); if (u && u.owner === me) { selUnit = u.id; if (!u.acted && v.step === 'play' && a === me) reach = E.reachable(v, u); } else ui.sel = null; }
+    if (ui.sel && ui.sel.t === 'card') selCard = ui.sel.id;
+    const myTurn = v.step === 'play' && a === me;
+    let status;
+    if (v.step === 'over') status = v.winner === -1 ? 'Nobody wins. Draw.' : `${nm(v.winner)} wins!`;
+    else if (v.step === 'flag') status = a === me ? 'Hide your flag: tap one of your castles' : `${nm(a)} is hiding their flag…`;
+    else if (v.step === 'battle') status = 'Battle!';
+    else if (!myTurn) status = `${nm(a)} is moving…`;
+    else if (v.hand.length) status = selCard ? 'Tap one of your castles to place it' : 'Tap a card, then one of your castles';
+    else status = 'Tap a unit, then where it goes. Then Battle!';
+    const mySel = selUnit && v.units.find(u => u.id === selUnit);
+    let low = '';
+    if (v.step !== 'battle') {
+      if (mySel) low = `<div class="hand">${mySel.cards.slice().sort((x, y) => CT[y.type].power - CT[x.type].power).map(c => cardHTML(c, { small: true, attr: 'disabled' })).join('')}</div>`;
+      else if (v.hand.length) low = `<div class="hand">${v.hand.slice().sort((x, y) => CT[y.type].power - CT[x.type].power).map(c => cardHTML(c, { sel: c.id === selCard, attr: myTurn ? `data-card="${c.id}"` : 'disabled' })).join('')}</div>`;
+      else low = '<div class="hand"><small class="hint">No cards in hand</small></div>';
+    }
+    const deployMode = myTurn && v.hand.length && selCard;
+    return `<div class="screen game" style="--me:${col(me)}">
+      <div class="topbar">${libraryLink()}<span class="who" style="color:${col(v.cur)}">${nm(v.cur)}'s turn</span><button class="chip" data-act="help" aria-label="How to play">?</button><button class="chip" data-act="home" aria-label="Menu">☰</button></div>
+      <div class="status">${esc(status)}</div>
+      ${v.notice ? `<div class="notice">${esc(v.notice)}</div>` : ''}
+      ${boardHTML(v, selUnit, reach, deployMode)}
+      <div class="low">${low}
+        <div class="actions">${myTurn ? `<button class="big go ${v.hand.length ? 'off' : ''}" data-act="endmove">Battle!</button>` : ''}</div>
+        <div class="deckline">Your deck ${v.deck[me]} · discard ${v.discard[me]} · ${nm(v.opp)}'s hand ${v.oppHand}</div></div>
+      ${v.step === 'battle' ? battleHTML(v) : ''}
+      ${v.step === 'over' ? `<div class="sheet"><div class="sheetin"><h2 style="color:${v.winner >= 0 ? col(v.winner) : 'inherit'}">${v.winner === -1 ? 'Draw' : nm(v.winner) + ' wins!'}</h2><button class="big go" data-act="again">Play again</button><button class="big ghost" data-act="home">Menu</button></div></div>` : ''}
+    </div>`;
+  }
+
+  function render() {
+    clearTimeout(ui.timer);
+    let h;
+    if (ui.screen === 'home' || !ui.s) h = homeHTML();
+    else if (needsCover()) h = coverHTML();
+    else h = gameHTML();
+    app.innerHTML = h + (ui.help ? helpHTML() : '');
+    if (ui.screen === 'game' && ui.s && isBotTurn() && !needsCover()) {
+      const s = ui.s, bot = 1 - ui.human;
+      ui.timer = setTimeout(() => {
+        const a = Bots.nextAction(E.viewFor(s, bot));
+        const r = E.apply(s, a);
+        if (!r.ok) console.error('bot move refused', a, r.error);
+        save(); render();
+      }, s.step === 'play' ? D.bot.quickMs : D.bot.thinkMs);
+    }
+  }
+
+  function tapHex(k, unitId) {
+    const s = ui.s, me = viewer(); if (s.step !== 'play' || actorNow() !== me) return;
+    const v = E.viewFor(s, me), sel = ui.sel;
+    if (sel && sel.t === 'card') { const cn = E.hexCastle[k]; if (cn && s.castles[cn].owner === me) act({ type: 'deploy', card: sel.id, castle: cn }); else { ui.sel = null; render(); } return; }
+    if (sel && sel.t === 'unit') {
+      const u = v.units.find(x => x.id === sel.id);
+      if (u && !u.acted && E.reachable(v, u).indexOf(k) >= 0) { act({ type: 'move', unit: u.id, to: k }); return; }
+    }
+    const tu = unitId && v.units.find(x => x.id === Number(unitId));
+    ui.sel = tu && tu.owner === me ? { t: 'unit', id: tu.id } : null; render();
+  }
+
+  app.addEventListener('click', e => {
+    const t = e.target;
+    const actEl = t.closest('[data-act]'), card = t.closest('[data-card]'), pick = t.closest('[data-pick]'), unit = t.closest('[data-unit]'), hex = t.closest('[data-hex]');
+    if (actEl && actEl.dataset.act !== 'none') {
+      const a = actEl.dataset.act;
+      if (a === 'mode-ai') newGame('ai'); else if (a === 'mode-pass') newGame('pass');
+      else if (a === 'continue') cont();
+      else if (a === 'help') { ui.help = true; render(); } else if (a === 'closehelp') { ui.help = false; render(); }
+      else if (a === 'home') { ui.screen = 'home'; render(); }
+      else if (a === 'again') newGame(ui.mode);
+      else if (a === 'uncover') { ui.seen = actorNow(); render(); }
+      else if (a === 'endmove') { if (!actEl.classList.contains('off')) act({ type: 'endMove' }); }
+      else if (a === 'bc') act({ type: 'continue' });
+      return;
+    }
+    if (ui.help) return;
+    if (pick) { act({ type: 'play', card: pick.dataset.pick }); return; }
+    if (card) { ui.sel = ui.sel && ui.sel.id === card.dataset.card ? null : { t: 'card', id: card.dataset.card }; render(); return; }
+    const s = ui.s;
+    if (s && s.step === 'flag' && actorNow() === viewer() && hex) { const cn = E.hexCastle[hex.dataset.hex]; if (cn) act({ type: 'flag', castle: cn }); return; }
+    if (hex || unit) { tapHex((unit || hex).dataset.hex, unit && unit.dataset.unit); }
+  });
+
+  render();
+  if (typeof window !== 'undefined') window.WAR = { ui, render, newGame };
+})();
+</script>
+</body>
+</html>
