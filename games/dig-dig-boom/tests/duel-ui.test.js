@@ -17,7 +17,7 @@ async function open() {
   const browser = await chromium.launch(exe ? { executablePath: exe } : {});
   const page = await (await browser.newContext({ viewport: { width: 820, height: 1180 }, hasTouch: true })).newPage();
   const errors = []; page.on('pageerror', e => errors.push(e.message));
-  await page.addInitScript(() => { window.DDB_TALLY_PACE = 0.01; window.DDB_DUEL_ROLL_MS = 400; });
+  await page.addInitScript(() => { window.DDB_NO_TIPS = true; window.DDB_TALLY_PACE = 0.01; window.DDB_DUEL_ROLL_MS = 400; });
   await page.goto(FILE);
   await page.waitForSelector('#play .home');
   return { browser, page, errors };

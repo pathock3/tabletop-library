@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+- **Dig Dig BOOM! — "Teach me how to play" and first-time tips:** the New game screen has a **Teach me how to play** box (on in your very first game on this device, off after that). With it on, a short pop-up appears the **first time** each thing comes up (welcome, Booster Pack, each card type in a pack and when first dug, Starter Kit, first dig, Monster, a card lighting up, Grit, Extra Roll, danger, Bank, BOOM, the Leaderboard, better packs, a bigger Kit). Each shows once ever (remembered on the device), the game waits while one is open, and several at once queue. **More** has a Teach switch and **Reset tips**. Not used in two-player games. The pack screen's **What is this?** now says the same thing in every round ("First time playing? Just pick one and see how the game works.", with the number of cards you keep).
+- **Dig Dig BOOM! — looking cards show what they saw:** Fuzzy Radar, Crystal Ball, Pocket Scanner / Portable Scanner, Old Map, Stink Bomb, Cave Scout, Salvage Yard and Wormhole pop up the cards they looked at, and what came of it (for example "1 Monster: +2 Health").
+- **Dig Dig BOOM! — fixed:** after the page reloaded mid-game (iPad Safari does this) the next Leaderboard had no tokens, no replay and no Fast forward; the game now remembers where everyone stood. A card you have used no longer carries a ✓ (lying down says it).
+
 - **Dig Dig BOOM! — one card size:** the Mine, the flip spot and the Ongoing / Single-Use cards are now **the same size** (they were sized separately). The "N left" button no longer takes a band of its own: it is **bigger** and sits above the Mine, over the row of cards if needed (tap a card to see it larger).
 
 - **Dig Dig BOOM! — no dead space on the dig table:** the gaps above the leaderboard bar, between the bar and the player board, between the board and your cards, between your cards and the Mine, and below the Mine are all trimmed. The frame is thinner, the "N left" label is a slim strip, and height that is left over goes to bigger waiting cards (they may overlap a little sideways when there are many) and to the Mine and flip spot.

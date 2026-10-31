@@ -26,7 +26,7 @@ async function open({ viewport = { width: 1180, height: 820 }, menu = false } = 
   const browser = await chromium.launch(exe ? { executablePath: exe } : {});
   const page = await (await browser.newContext({ viewport, hasTouch: true })).newPage();
   const errors = []; page.on('pageerror', e => errors.push(e.message));
-  await page.addInitScript(() => { window.DDB_NO_MODE_PICKER = true; window.DDB_AI_PACE = 3600000; window.DDB_TALLY_PACE = 0.01; window.DDB_NO_DANGER = true; window.DDB_NO_FIRE_FX = true; window.DDB_HERO_PACE = window.DDB_HERO_PACE || 1; });         // the AI's own clock never fires on its own in a test: tests call DigDigBoomPlay.tick()
+  await page.addInitScript(() => { window.DDB_NO_MODE_PICKER = true; window.DDB_NO_TIPS = true; window.DDB_AI_PACE = 3600000; window.DDB_TALLY_PACE = 0.01; window.DDB_NO_DANGER = true; window.DDB_NO_FIRE_FX = true; window.DDB_HERO_PACE = window.DDB_HERO_PACE || 1; });         // the AI's own clock never fires on its own in a test: tests call DigDigBoomPlay.tick()
   await page.goto(FILE);
   await page.waitForSelector('#play .home');
   if (!menu) { await page.waitForSelector('#play [data-p=more]'); await page.click('#play [data-p=more]'); await page.waitForSelector('#play [data-p=practice]:not([disabled])'); await page.click('#play [data-p=practice]'); await page.waitForSelector('#play .tabs'); }
@@ -875,7 +875,7 @@ test('menu: opening the game from the shelf shows the main menu with Continue (n
   try {
     await startRun(page); await page.click('#play [data-p=dig]');
     const ctx = page.context(), fresh = await ctx.newPage();
-    await fresh.addInitScript(() => { window.DDB_AI_PACE = 3600000; });
+    await fresh.addInitScript(() => { window.DDB_AI_PACE = 3600000; window.DDB_NO_TIPS = true; });
     await fresh.goto(FILE); await fresh.waitForSelector('#play .home');
     await fresh.waitForTimeout(400);
     assert.equal(await fresh.locator('#play .ptable').count(), 0, 'not straight into the game');
@@ -1561,6 +1561,71 @@ test('after a BOOM the button says To Leaderboard; the cards you own fit on one 
     await page.evaluate(j => { const P = window.DigDigBoomPlay, S = P.S, all = window.DigDigBoomUI.state.all, m = Match.load(all, JSON.parse(j)); S.match = m; S.run = Match.human(m); S.st = S.run.dig; S.run.owned = all.filter(c => ['Ongoing', 'Immediate'].includes(c.type)).slice(0, 24).map((c, i) => ({ ...c, uid: 5000 + i })); S.panel = 'done'; S.showOwned = true; P.render(); }, json);
     const m = await page.evaluate(() => { const e = document.querySelector('#play .ownedpanel'); return { sh: e.scrollHeight, ch: e.clientHeight, sw: e.scrollWidth, cw: e.clientWidth }; });
     assert.ok(m.sh <= m.ch + 1 && m.sw <= m.cw + 1, 'no scrolling inside the panel: ' + JSON.stringify(m));
+    assert.deepEqual(errors, []);
+  } finally { await browser.close(); }
+});
+
+// ---------------------------------------------------------------- first-time tips
+test('tips: a first-time player is taught: welcome on the menu, once; "Teach me how to play" is on for a first game and off after it', SKIP, async () => {
+  const browser = await chromium.launch(exe ? { executablePath: exe } : {});
+  const page = await (await browser.newContext({ viewport: { width: 1180, height: 820 }, hasTouch: true })).newPage();
+  await page.addInitScript(() => { window.DDB_AI_PACE = 3600000; window.DDB_TALLY_PACE = 0.01; });
+  try {
+    await page.goto(FILE);
+    await page.waitForSelector('#play .tipnote');
+    assert.match(await page.locator('#play .tipnote').innerText(), /Welcome to Dig Dig BOOM!/);
+    await page.click('#play [data-p=tipok]');
+    await page.reload(); await page.waitForSelector('#play [data-p=startrun]');
+    assert.equal(await page.locator('#play .tipnote').count(), 0, 'seen once, never again');
+    await page.click('#play [data-p=startrun]');
+    await page.waitForSelector('#play .teachbox');
+    assert.equal(await page.getAttribute('#play .teachbox', 'aria-checked'), 'true', 'on by default in the very first game');
+    await page.click('#play [data-p=startai]'); await page.click('#play [data-p=openpack]');
+    await page.waitForSelector('#play .tipnote');
+    assert.match(await page.locator('#play .tipnote').innerText(), /Booster Pack!/);
+    for (let i = 0; i < 6 && await page.locator('#play .tipnote').count(); i++) await page.click('#play [data-p=tipok]');
+    // a later game: the box is off unless you turn it on
+    await page.click('#play [data-p=gmenu]'); await page.click('#play [data-p=mainmenu]');
+    await page.click('#play [data-p=startrun]'); await page.click('#play [data-p=startrun]'); await page.waitForSelector('#play .teachbox');
+    assert.equal(await page.getAttribute('#play .teachbox', 'aria-checked'), 'false', 'off once a game has been played');
+  } finally { await browser.close(); }
+});
+
+test('tips: the pack screen "What is this?" says the same thing in every round', SKIP, async () => {
+  const { browser, page, errors } = await open({ menu: true });
+  try {
+    await page.click('#play [data-p=startrun]'); await page.click('#play [data-p=openpack]');
+    await page.waitForSelector('#play [data-k=whatprep]');
+    await page.evaluate(() => { const S = window.DigDigBoomPlay.S; S.run.prep.pack = { ...S.run.prep.pack, name: 'Silver', draw: 4, keep: 2 }; });
+    await page.click('#play [data-p=term][data-k=whatprep]');
+    assert.match(await page.locator('#play').innerText(), /First time playing\? Just pick two and see how the game works\./);
+    assert.deepEqual(errors, []);
+  } finally { await browser.close(); }
+});
+
+test('looking cards show what they saw: Fuzzy Radar pops up the five cards and the Health it gave', SKIP, async () => {
+  const { browser, page, errors } = await open();
+  try {
+    await begin(page, { mine: ['IM-07', 'MO-01', 'TR-01', 'TR-01', 'TR-01', 'TR-01'], start: { heart: 4 } });
+    await page.click('#play [data-p=dig]');
+    await page.waitForSelector('#play .peeknote');
+    assert.equal(await page.locator('#play .peeknote .cw').count(), 5, 'the five cards it looked at');
+    assert.match(await page.locator('#play .peeknote').innerText(), /Fuzzy Radar[\s\S]*1 Monster: \+2/);
+    await page.click('#play .peeknote [data-p=peekok]');
+    assert.equal(await page.locator('#play .peeknote').count(), 0);
+    assert.deepEqual(errors, []);
+  } finally { await browser.close(); }
+});
+
+test('leaderboard: a game picked up again after a reload still plays the round back (with Fast forward)', SKIP, async () => {
+  const { browser, page, errors } = await open({ menu: true });
+  try {
+    await startRun(page, { opp: true });
+    await page.reload(); await page.waitForTimeout(800);
+    if (await page.locator('#play [data-p=resume]').count()) await page.click('#play [data-p=resume]');
+    await page.waitForSelector('#play .ptable');
+    await page.evaluate(() => { const P = window.DigDigBoomPlay; P.act('bank'); P.act('prep'); });
+    await page.waitForSelector('#play [data-p=boardfast]');
     assert.deepEqual(errors, []);
   } finally { await browser.close(); }
 });
