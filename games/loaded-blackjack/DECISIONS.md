@@ -28,5 +28,11 @@ Source: the owner's "Loaded Blackjack Rulebook" doc (player-facing) and its "Cla
 - **First-time tips** are a small version of Dig Dig BOOM!'s: each once, saved on the device, the game waits while one is open, Reset tips is in the game menu. (No "Teach me how to play" checkbox here yet.)
 - **Layout**: portrait iPad first (the library's rule); landscape works too.
 
+## The deck and card update (v2)
+- No suits and no Ace anywhere. The starting deck is two each of 1 through 7 (14 cards), all fixed values; every card uses one neutral style, a starting card shows only its number. Hi-Lo is Flex 1/7, Hit Man is 7, Squeeze needs 5 cards, Hot Streak needs 6 (counting itself), Run needs four consecutive resolved values (any positions), Chain Gang counts only other fixed 1s.
+- `RULING:` Chain Gang counts every other card whose printed value is a fixed 1: the starting 1s and value-1 upgrade cards (Cold Deck, Card Counter, Holdout, Tell, Plant, Comp, Tightrope, Sleight, Sandbag). Chain Gang itself is a 2 and never counts.
+- `RULING:` The Run card is itself a 3, so 4-5-6 plus Run counts as four in a row (3-4-5-6).
+- `RULING:` Setup makes two copies of each starting card.
+
 ## Not built
 - The spec's "collapsible log" is a Log button that opens a sheet; there is no separate "deck order" view beyond what a peek shows you.

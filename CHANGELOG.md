@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- **Loaded Blackjack — no suits, a new starting deck, six card changes:** no suits or Ace anywhere and one neutral card style. Everyone starts with **two each of 1 through 7** (14 cards). **Hi-Lo** is 1/7, **Hit Man** is 7, **Squeeze** needs 5 cards, **Hot Streak** needs 6, **Run** needs four in a row, **Chain Gang** counts only other 1s. The library cover has no suits either.
+
 - **New game: Loaded Blackjack** (from your rulebook and its Claude Code Spec tab). 2–6 players, get as close to 21 as you can, draft cheating tricks between rounds. All 50 upgrade cards work; Human or AI seats (Easy, Medium, Hard) in any mix; Quick Game, Friendly Game, a seed, and "Show all hidden info"; a handoff screen for pass-and-play; the reveal and results with a Skip button; the draft; a Continue save; first-time tips. A headless simulation (`games/loaded-blackjack/tools/simulate.js`) plays seeded all-AI games and writes a balancing CSV (5,000 games ran clean). The rulings I added beyond the spec are in `games/loaded-blackjack/DECISIONS.md`.
 
 - **This Means WAR! — cards that say what they do:** every card is bigger and laid out like a Dig Dig BOOM! card, with no art or symbol: **Weak** in the top-left corner and **Strong** in the top-right (always there, blank when the card has none), the **Power** big in the middle, then the name and its role, then the **special ability written out**. A "+1 P" is simply a power one higher (a 12 +1 is written as 13), with no ability text. The hand uses one row of cards sized to fit. **Flags:** castles are just castles now; the only flag drawn is on your own flag castle (and on one that has been found).
