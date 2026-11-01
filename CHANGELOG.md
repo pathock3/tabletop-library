@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- **Dig Dig BOOM!:** "Teach me how to play" is now only on the New Game screen; it and "Reset tips" are gone from More.
+
 - **Library:** tapping a box now flies straight into its art (about a third of a second) instead of opening the lid. Scrolling over the shelf is smoother: the costly drop-shadow and brightness filters on every box are replaced with plain shadows on their own layers.
 
 - **Loaded Blackjack — 9-card starting deck:** everyone starts with **one each of 1 through 9** (9 cards), replacing the 1-7 twice deck. Still no suits or Ace. Upgrade values may run 0 to 10. Changed cards: **Hi-Lo** 1/10, **Hit Man** 8, **Squeeze** 4+ cards, **Hot Streak** 5+ cards, **Run** three in a row (like 4-5-6), **Chain Gang** counts other 1s and 2s, **Card Counter** is a 2 and lets you put any card from your deck on top. The simulation report now shows openings of 17+ and how often Run triggers.

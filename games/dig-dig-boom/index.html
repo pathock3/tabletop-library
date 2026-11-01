@@ -4096,8 +4096,6 @@ function DDBSeat(root, cfg) {
     const b = readBest(), inProgress = resumable();
     const row = (title, note, control) => `<div class="srow"><div class="stext"><b>${title}</b>${note ? `<span>${note}</span>` : ''}</div>${control}</div>`;
     return `<div class="panel setup settings"><div class="shead"><button class="chip back" data-p="menu">‹ Main menu</button><h2>More</h2></div><div class="scroll"><div class="slist">
-      ${row('Teach me how to play', 'Short tips the first time each thing comes up', `<button class="btn ${teachOn() ? '' : 'alt'}" data-p="teachsetting">${teachOn() ? 'On' : 'Off'}</button>`)}
-      ${row('Reset tips', S.tipsDone ? 'Done: every tip will show again' : 'Show every tip again, as if it were your first game', `<button class="btn alt" data-p="tipsreset">Reset tips</button>`)}
       ${row('The cards', 'Every card, as designed', `<button class="btn alt" data-p="cards">See the cards</button>`)}
       ${(g => g ? row('Your best game', `Final score ${g.score}${g.won ? ' · a win' : ''} · ${A.esc(new Date(g.at).toLocaleDateString())}`, `<button class="btn alt" data-p="viewbest">See it</button>`) : '')(readBestGame())}
       ${row('Playtest', `Pick any cards and try one Dig${inProgress ? '. Starting one replaces your game in progress' : ''}${b.survived || b.gems ? `. Best: ${b.survived} Monsters survived · ${b.gems} gems banked` : ''}`, `<button class="btn ${S.confirmNew === 'practice' ? 'confirm' : 'alt'}" data-p="practice" ${cards().length ? '' : 'disabled'}>${S.confirmNew === 'practice' ? 'Tap again to replace your game' : 'Playtest'}</button>`)}
@@ -4948,8 +4946,6 @@ function DDBSeat(root, cfg) {
       case 'peekok': if (S.st && S.st.peek) S.peekSeen = S.st.peek.n; break;
       case 'tipok': S.tip = S.tipQ.length ? S.tipQ.shift() : null; if (S.tip) { const sn = tipsSeen(); sn[S.tip] = 1; lsSet(TIPS_KEY, JSON.stringify(sn)); } break;
       case 'teachtoggle': S.teachChoice = !teachChoice(); break;
-      case 'teachsetting': lsSet(TEACH_KEY, teachOn() ? '0' : '1'); break;
-      case 'tipsreset': lsSet(TIPS_KEY, '{}'); S.tipQ = []; S.tip = null; S.tipsDone = true; break;
       case 'ffok': S.ffNote = null; break;
       case 'mainmenu': if (S.panel !== 'menu' && S.panel !== 'more') S.back = S.panel; S.panel = 'menu'; S.gmenu = false; S.help = false; break;
       case 'resume': if (duelSaved()) { if (!DuelHost.resume()) S.panel = 'menu'; break; } S.panel = S.back || 'menu'; break;
