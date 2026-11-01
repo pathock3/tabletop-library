@@ -60,6 +60,7 @@ h1 { margin: -4px 0 0; font-size: 84px; line-height: 1; font-weight: 1000; font-
 .opt { display: flex; align-items: center; gap: 12px; text-align: left; min-height: 56px; padding: 8px 12px; border-radius: 14px; background: rgba(0,0,0,.25); border: 2px solid #2e6a4b; }
 .opt i { width: 34px; height: 34px; border-radius: 8px; border: 3px solid #e0b052; display: flex; align-items: center; justify-content: center; font-style: normal; font-size: 24px; color: #1c1c24; flex: none; } .opt.on i { background: var(--gold); }
 .opt b { display: block; font-size: 17px; } .opt small { color: var(--dim); font-size: 13px; }
+.deckcap { margin: 6px 0 0; text-align: center; font-size: 14px; color: var(--dim); }
 .seedrow { display: flex; align-items: center; gap: 10px; padding: 6px 12px; color: var(--dim); } .seed { flex: 1; height: 44px; border-radius: 10px; border: 2px solid #3d7a5a; background: rgba(0,0,0,.35); padding: 0 12px; user-select: text; -webkit-user-select: text; }
 .start { margin-top: 6px; }
 /* ---- the table ---- */
@@ -83,7 +84,8 @@ h1 { margin: -4px 0 0; font-size: 84px; line-height: 1; font-weight: 1000; font-
 .act.hit { background: linear-gradient(#ff7a5a, #c8321a); } .act.pass { background: linear-gradient(#5ab0f0, #1f6fc0); } .act.dd { background: linear-gradient(#ffd45e, #e0a21b); color: #3b230a; font-size: 18px; } .act.flip { background: linear-gradient(#b48cf0, #6d45c0); font-size: 17px; }
 /* ---- cards ---- */
 .card { --w: 54px; position: relative; width: var(--w); height: calc(var(--w) * 1.42); flex: none; border-radius: 7px; background: linear-gradient(#fffaf0, #eadfc4); color: #1c1c24; border: 3px solid var(--cc, #444); display: flex; flex-direction: column; align-items: center; padding: 2px 1px; box-shadow: 0 2px 0 rgba(0,0,0,.5); overflow: hidden; text-align: center; }
-.card .cval { font-size: calc(var(--w) * .42); font-weight: 900; line-height: 1.05; } .card .cname { font-size: calc(var(--w) * .17); font-weight: 800; line-height: 1.05; margin-top: 1px; } .card .cname.x1 { font-size: calc(var(--w) * .145); }
+.card .cval { font-size: calc(var(--w) * .42); font-weight: 900; line-height: 1.05; } .card .cname { font-size: calc(var(--w) * .17); font-weight: 800; line-height: 1.05; margin-top: 1px; } .card .cval.wide { font-size: calc(var(--w) * .3); } .card.lg .cval.wide { font-size: calc(var(--w) * .24); }
+.card .cname.x1 { font-size: calc(var(--w) * .145); }
 .card .ccat { margin-top: auto; font-size: calc(var(--w) * .12); font-weight: 800; color: #fff; background: var(--cc); width: 100%; padding: 1px 0; text-transform: uppercase; letter-spacing: .03em; }
 .card .cab { font-size: calc(var(--w) * .1); line-height: 1.12; margin: 3px 3px 2px; text-align: left; font-weight: 600; flex: 1; } .card .cab.sm { font-size: calc(var(--w) * .092); } .card .cab.tiny { font-size: calc(var(--w) * .08); }
 .card.start .cval { margin: auto 0; font-size: calc(var(--w) * .62); } .card.lg { --w: 112px; border-width: 4px; border-radius: 10px; } .card.lg .ccat { margin-top: 0; order: -1; } .card.lg .cval { font-size: calc(var(--w) * .34); }
@@ -146,9 +148,9 @@ const GAME_DATA = {
     hardBustChanceBehind: .5, hardBustChanceAhead: .25,
     easyUsesOptional: .5,
   },
-  // The 14 cards every player starts with: two each of 1 to 7. All fixed; there is no Ace and there are no suits.
+  // The 9 cards every player starts with: one each of 1 to 9. All fixed; there is no Ace and there are no suits.
   starting: [
-    ...['one', 'two', 'three', 'four', 'five', 'six', 'seven'].map((id, k) => ({ id, name: String(k + 1), val: { kind: 'fixed', v: k + 1 }, cat: 'Starting', trig: 'none', text: '', copies: 2 })),
+    ...['one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine'].map((id, k) => ({ id, name: String(k + 1), val: { kind: 'fixed', v: k + 1 }, cat: 'Starting', trig: 'none', text: '' })),
   ],
   // The 50 upgrade cards. val: fixed, flex (counts as either number), range, ringer (1 or the card to its left), headcount.
   // trig: when drawn / once per round / passive / when you would bust / scoring / at reveal. ai: a rough strength, 1 to 5 (the drafting AI uses it).
@@ -157,7 +159,7 @@ const GAME_DATA = {
     { id: 'two-faced', name: 'Two-Faced', cat: 'Control', val: { kind: 'flex', opts: [2, 7] }, trig: 'none', text: '', ai: 3 },
     { id: 'sleeve-card', name: 'Sleeve Card', cat: 'Control', val: { kind: 'flex', opts: [1, 5] }, trig: 'none', text: '', ai: 3 },
     { id: 'feather', name: 'Feather', cat: 'Control', val: { kind: 'flex', opts: [0, 3] }, trig: 'none', text: '', ai: 2 },
-    { id: 'hi-lo', name: 'Hi-Lo', cat: 'Control', val: { kind: 'flex', opts: [1, 7] }, trig: 'none', text: '', ai: 4 },
+    { id: 'hi-lo', name: 'Hi-Lo', cat: 'Control', val: { kind: 'flex', opts: [1, 10] }, trig: 'none', text: '', ai: 4 },
     { id: 'dealers-choice', name: "Dealer's Choice", cat: 'Control', val: { kind: 'flex', opts: [2, 4, 6] }, trig: 'none', text: '', ai: 3 },
     { id: 'mechanic', name: 'Mechanic', cat: 'Control', val: { kind: 'range', min: 1, max: 5 }, trig: 'passive', text: 'Counts as any value from 1 to 5.', ai: 4 },
     { id: 'ringer', name: 'Ringer', cat: 'Control', val: { kind: 'ringer' }, trig: 'passive', text: 'Counts as 1, or as the value of the card to its left.', ai: 3 },
@@ -168,7 +170,7 @@ const GAME_DATA = {
     { id: 'marked-card', name: 'Marked Card', cat: 'Peek', val: { kind: 'fixed', v: 3 }, trig: 'drawn', text: 'When drawn: look at the top 2 cards of your deck and return them in any order.', ai: 3 },
     { id: 'cold-deck', name: 'Cold Deck', cat: 'Peek', val: { kind: 'fixed', v: 1 }, trig: 'drawn', text: 'When drawn: look at the top 3 cards of your deck. Put one on top and the rest on the bottom.', ai: 3 },
     { id: 'bottom-deal', name: 'Bottom Deal', cat: 'Peek', val: { kind: 'fixed', v: 2 }, trig: 'passive', text: 'You may look at the bottom card of your deck at any time. When you hit, you may draw from the bottom instead.', ai: 4 },
-    { id: 'card-counter', name: 'Card Counter', cat: 'Peek', val: { kind: 'fixed', v: 1 }, trig: 'drawn', text: 'When drawn: look through your deck without changing its order.', ai: 3 },
+    { id: 'card-counter', name: 'Card Counter', cat: 'Peek', val: { kind: 'fixed', v: 2 }, trig: 'drawn', text: 'When drawn: look through your deck and put any card on top.', ai: 3 },
     { id: 'stacker', name: 'Stacker', cat: 'Peek', val: { kind: 'fixed', v: 2 }, trig: 'once', text: 'Once per round: put a card from your line back on top of your deck.', ai: 4 },
     { id: 'crimp', name: 'Crimp', cat: 'Peek', val: { kind: 'fixed', v: 3 }, trig: 'drawn', text: "When drawn: look at the top card of your deck. If it's 6 or higher, put it on the bottom.", ai: 3 },
     // Protection
@@ -181,10 +183,10 @@ const GAME_DATA = {
     // Attack
     { id: 'shill', name: 'Shill', cat: 'Attack', val: { kind: 'fixed', v: 2 }, trig: 'drawn', text: 'When drawn: give 1 Load to another player.', ai: 3 },
     { id: 'heat', name: 'Heat', cat: 'Attack', val: { kind: 'fixed', v: 4 }, trig: 'once', text: 'Once per round: give 1 Load to a player who has passed.', ai: 3 },
-    { id: 'squeeze', name: 'Squeeze', cat: 'Attack', val: { kind: 'fixed', v: 3 }, trig: 'drawn', text: 'When drawn: a player with 5 or more cards in their line takes 2 Load.', ai: 3 },
+    { id: 'squeeze', name: 'Squeeze', cat: 'Attack', val: { kind: 'fixed', v: 3 }, trig: 'drawn', text: 'When drawn: a player with 4 or more cards in their line takes 2 Load.', ai: 3 },
     { id: 'pit-boss', name: 'Pit Boss', cat: 'Attack', val: { kind: 'fixed', v: 5 }, trig: 'drawn', text: 'When drawn: every other player takes 1 Load.', ai: 4 },
     { id: 'cooler', name: 'Cooler', cat: 'Attack', val: { kind: 'fixed', v: 6 }, trig: 'drawn', text: 'When drawn: choose another player. They must hit.', ai: 3, mean: true },
-    { id: 'hit-man', name: 'Hit Man', cat: 'Attack', val: { kind: 'fixed', v: 7 }, trig: 'drawn', text: 'When drawn: every player who has passed must hit.', ai: 3, mean: true },
+    { id: 'hit-man', name: 'Hit Man', cat: 'Attack', val: { kind: 'fixed', v: 8 }, trig: 'drawn', text: 'When drawn: every player who has passed must hit.', ai: 3, mean: true },
     { id: 'plant', name: 'Plant', cat: 'Attack', val: { kind: 'fixed', v: 1 }, trig: 'drawn', text: 'When drawn: put this card into another player\'s line. It counts for them this round.', ai: 3 },
     { id: 'last-call', name: 'Last Call', cat: 'Attack', val: { kind: 'fixed', v: 5 }, trig: 'reveal', text: 'At reveal: give 1 Load to another player.', ai: 3, mean: true },
     // Info
@@ -201,21 +203,21 @@ const GAME_DATA = {
     { id: 'high-roller', name: 'High Roller', cat: 'Push Your Luck', val: { kind: 'fixed', v: 3 }, trig: 'drawn', text: 'When drawn: if your total was already 15 or more, give 2 Load, split however you like among other players.', ai: 3 },
     { id: 'nerve', name: 'Nerve', cat: 'Push Your Luck', val: { kind: 'fixed', v: 3 }, trig: 'drawn', text: 'When drawn: if your total was already 17 or more, look at the top card of your deck. You may draw it or put it on the bottom.', ai: 3 },
     { id: 'double-down', name: 'Double Down', cat: 'Push Your Luck', val: { kind: 'fixed', v: 2 }, trig: 'once', text: "Once per round: hit twice in a row. If you don't bust, give 1 Load to another player.", ai: 3 },
-    { id: 'hot-streak', name: 'Hot Streak', cat: 'Push Your Luck', val: { kind: 'fixed', v: 2 }, trig: 'drawn', text: 'When drawn: if you have 6 or more cards in your line, every other player takes 1 Load.', ai: 3 },
+    { id: 'hot-streak', name: 'Hot Streak', cat: 'Push Your Luck', val: { kind: 'fixed', v: 2 }, trig: 'drawn', text: 'When drawn: if you have 5 or more cards in your line, every other player takes 1 Load.', ai: 3 },
     { id: 'tightrope', name: 'Tightrope', cat: 'Push Your Luck', val: { kind: 'fixed', v: 1 }, trig: 'scoring', text: 'At reveal: if your total is exactly 21, you rank above every other player with 21.', ai: 3 },
     // Line
     { id: 'headcount', name: 'Headcount', cat: 'Line', val: { kind: 'headcount' }, trig: 'passive', text: 'Counts as the number of cards in your line, including itself.', ai: 3 },
     { id: 'shave-job', name: 'Shave Job', cat: 'Line', val: { kind: 'fixed', v: 5 }, trig: 'passive', text: 'Each card to its right counts 1 less, to a minimum of 1.', ai: 3 },
     { id: 'sleight', name: 'Sleight', cat: 'Line', val: { kind: 'fixed', v: 1 }, trig: 'once', text: 'Once per round: move a card in your line to any position.', ai: 2 },
-    { id: 'chain-gang', name: 'Chain Gang', cat: 'Line', val: { kind: 'fixed', v: 2 }, trig: 'drawn', text: 'When drawn: give 1 Load to another player for each other 1 in your line.', ai: 3 },
-    { id: 'run', name: 'Run', cat: 'Line', val: { kind: 'fixed', v: 3 }, trig: 'scoring', text: 'At reveal: if four cards in your line have consecutive values (like 3-4-5-6), you pick first in the next draft.', ai: 3 },
+    { id: 'chain-gang', name: 'Chain Gang', cat: 'Line', val: { kind: 'fixed', v: 2 }, trig: 'drawn', text: 'When drawn: give 1 Load to another player for each other 1 or 2 in your line.', ai: 3 },
+    { id: 'run', name: 'Run', cat: 'Line', val: { kind: 'fixed', v: 3 }, trig: 'scoring', text: 'At reveal: if three cards in your line have consecutive values (like 4-5-6), you pick first in the next draft.', ai: 3 },
     // Catch-up
     { id: 'sandbag', name: 'Sandbag', cat: 'Catch-up', val: { kind: 'fixed', v: 1 }, trig: 'scoring', text: 'At reveal: if you finish last without busting, you pick first in the next draft.', ai: 2 },
     { id: 'long-shot', name: 'Long Shot', cat: 'Catch-up', val: { kind: 'fixed', v: 2 }, trig: 'drawn', text: "When drawn: if you're last in total points, give 2 Load to the leader.", ai: 2 },
   ],
   texts: {
     help: [
-      'You already know how to play: get as close to 21 as you can without going over. But everyone brings their own deck, two each of 1 through 7 (14 cards), and between rounds you draft cheating tricks to load it in your favor.',
+      'You already know how to play: get as close to 21 as you can without going over. But everyone brings their own deck, one each of 1 through 9 (9 cards), and between rounds you draft cheating tricks to load it in your favor.',
       'Each round, everyone draws a hidden card and a face-up card. On your turn, Hit to draw another card or Pass. Passing does not lock you in: you can hit again later. The round ends when everyone who has not busted passes in a row.',
       'Your total is every card in your line, including the hidden one, plus 1 for each Load token. Over 21 is a bust. Busted players score the points for last place.',
       'Highest total scores the most points. Between rounds you draft 2 upgrade cards into your deck; whoever has the fewest points picks first. Most points after 5 rounds wins.',
@@ -312,9 +314,9 @@ const Engine = (() => {
     return { total: best, picks: runBest || bp };
   }
   const bestTotal = (s, p) => { const b = bestChoice(s, p); return b ? b.total : null; };
-  function hasRun(vals) {                      // any four cards, in any positions, with consecutive resolved values (like 3-4-5-6)
+  function hasRun(vals) {                      // any three cards, in any positions, with consecutive resolved values (like 4-5-6)
     const set = new Set(vals);
-    for (const v of set) if (set.has(v + 1) && set.has(v + 2) && set.has(v + 3)) return true;
+    for (const v of set) if (set.has(v + 1) && set.has(v + 2)) return true;
     return false;
   }
   function lineValuesFor(s, p, picks) {         // the resolved values for a given choice
@@ -331,7 +333,7 @@ const Engine = (() => {
       phase: 'play', tiebreak: false, result: null, history: [], draft: null, winner: null, cause: {}, handoff: null };
     seats.forEach((st, i) => {
       const p = { name: st.name || 'Player ' + (i + 1), kind: st.kind || 'ai', level: st.level || 'medium', deck: [], line: [], load: 0, status: 'active', last: 'none', getaway: null, prio: false, known: { top: [], bottom: null, all: null, hidden: {}, tell: [] }, pts: 0, lastDrawn: null };
-      D.starting.forEach(c => { for (let k = 0; k < (c.copies || 1); k++) p.deck.push(inst(s, c.id, i)); }); /* RULING: setup makes two copies of each starting card, 14 in all */
+      D.starting.forEach(c => p.deck.push(inst(s, c.id, i))); /* RULING: setup makes exactly one of each starting card, 9 in all */
       shuffle(s, p.deck); s.pl.push(p); s.part.push(i);
     });
     D.upgrades.forEach(c => { if (!(s.friendly && c.mean)) s.upgrade.push(inst(s, c.id, -1)); });
@@ -347,7 +349,7 @@ const Engine = (() => {
     s.part.forEach(i => { const p = s.pl[i]; p.status = 'active'; p.line = []; p.hitRound = false; p.load = 0; p.last = 'none'; p.getaway = null; p.prio = false; p.lastDrawn = null; p.known = { top: [], bottom: null, all: null, hidden: {}, tell: [] }; });
     s.pl.forEach((p, i) => { if (!s.part.includes(i)) p.status = 'out'; });
     const order = seatOrder(s, s.first);
-    for (const i of s.part) { const p = s.pl[i]; const a = p.deck.shift(), b = p.deck.shift(); p.line.push({ c: a, down: true, unk: false }, { c: b, down: false, unk: false }); p.lastDrawn = b.u; touch(s, i, 'top'); }
+    for (const i of s.part) { const p = s.pl[i]; const a = p.deck.shift(), b = p.deck.shift(); p.line.push({ c: a, down: true, unk: false }, { c: b, down: false, unk: false }); p.lastDrawn = b.u; touch(s, i, 'top'); p.opening = bestTotal(s, i) || minTotal(s, i); p.runRound = false; }
     log(s, `Round ${s.round}${s.tiebreak ? ' (tiebreak)' : ''}: ${nameOf(s, s.first)} goes first.`);
     s.active = s.first;
     const tasks = [];
@@ -518,7 +520,16 @@ const Engine = (() => {
     done(s, t);
   };
   ABIL['card-counter'] = (s, t, a, e, p) => {
-    if (t.step === 0) { log(s, `${nameOf(s, p)} looks through their deck.`, p); s.pl[p].known.all = s.pl[p].deck.map(c => c.u); s.pl[p].known.top = s.pl[p].known.all.slice(); askAck(s, p, 'Card Counter: your deck, top to bottom', s.pl[p].known.all); t.step = 1; return; }
+    if (t.step === 0) {
+      const d = s.pl[p].deck; if (!d.length) { done(s, t); return; }
+      log(s, `${nameOf(s, p)} looks through their deck.`, p);
+      ask(s, p, 'choice', 'Card Counter: your deck, top to bottom. Put one card on top.', d.map(c => opt('c' + c.u, DEF[c.id].name + ' (' + val1(c, true) + ')', { u: c.u })), { show: d.map(c => c.u) });
+      t.step = 1; return;
+    }
+    /* RULING: the chosen card moves to the top and every other card keeps its order (no shuffle); choosing the card already on top changes nothing */
+    const d = s.pl[p].deck, k = d.findIndex(c => c.u === idx(a));
+    if (k > 0) { const pick = d.splice(k, 1)[0]; d.unshift(pick); touch(s, p, 'both'); }
+    s.pl[p].known.all = d.map(c => c.u); s.pl[p].known.top = [d[0].u]; s.pl[p].known.bottom = d[d.length - 1].u;
     done(s, t);
   };
   ABIL['crimp'] = (s, t, a, e, p) => {
@@ -539,12 +550,12 @@ const Engine = (() => {
     done(s, t);
   };
   ABIL['squeeze'] = (s, t, a, e, p, c) => {
-    if (t.step === 0) { const ids = nonBusted(s, p).filter(j => s.pl[j].line.length >= 5); pickTarget(s, t, p, ids, 'Squeeze: which player takes 2 Load?', 'to', () => { targeted(s, t, p, t.d.to, { k: 'load', n: 2 }, c.u); t.step = 'end'; }); return; }
+    if (t.step === 0) { const ids = nonBusted(s, p).filter(j => s.pl[j].line.length >= 4); pickTarget(s, t, p, ids, 'Squeeze: which player takes 2 Load?', 'to', () => { targeted(s, t, p, t.d.to, { k: 'load', n: 2 }, c.u); t.step = 'end'; }); return; }
     if (t.step === 'to') { t.d.to = idx(a); targeted(s, t, p, t.d.to, { k: 'load', n: 2 }, c.u); t.step = 'end'; return; }
     done(s, t);
   };
   ABIL['pit-boss'] = (s, t, a, e, p) => { for (const j of seatOrder(s, p).filter(x => x !== p && s.pl[x].status === 'active')) { giveLoad(s, j, 1, p); } s.stack.push({ t: 'bustcheck' }); done(s, t); };
-  ABIL['hot-streak'] = (s, t, a, e, p) => { if (s.pl[p].line.length >= 6) { for (const j of seatOrder(s, p).filter(x => x !== p && s.pl[x].status === 'active')) giveLoad(s, j, 1, p); s.stack.push({ t: 'bustcheck' }); } done(s, t); };
+  ABIL['hot-streak'] = (s, t, a, e, p) => { if (s.pl[p].line.length >= 5) { for (const j of seatOrder(s, p).filter(x => x !== p && s.pl[x].status === 'active')) giveLoad(s, j, 1, p); s.stack.push({ t: 'bustcheck' }); } done(s, t); };
   ABIL['cooler'] = (s, t, a, e, p, c) => {
     if (t.step === 0) { pickTarget(s, t, p, nonBusted(s, p), 'Cooler: which player must hit?', 'to', () => { targeted(s, t, p, t.d.to, { k: 'force' }, c.u); t.step = 'end'; }); return; }
     if (t.step === 'to') { t.d.to = idx(a); targeted(s, t, p, t.d.to, { k: 'force' }, c.u); t.step = 'end'; return; }
@@ -579,7 +590,7 @@ const Engine = (() => {
     askSplit(s, t, p, 2, 'give', nonBusted(s, p), 'High Roller: give 1 Load to which player?', c);
   };
   ABIL['chain-gang'] = (s, t, a, e, p, c) => {
-    if (t.step === 0) { let n = 0; for (const x of s.pl[p].line) { if (x.c.u === c.u) continue; const v = def(x.c).val; if (v.kind === 'fixed' && v.v === 1) n++; /* RULING: the other cards whose printed value is a fixed 1 (starting 1s and value-1 upgrades) count; Chain Gang itself (2) does not */ } t.d.n = n; if (!n) { done(s, t); return; } t.step = 'go'; }
+    if (t.step === 0) { let n = 0; for (const x of s.pl[p].line) { if (x.c.u === c.u) continue; const v = def(x.c).val; if (v.kind === 'fixed' && (v.v === 1 || v.v === 2)) n++; /* RULING: the other cards in your line whose printed value is a fixed 1 or 2 count (starting 1s and 2s, and fixed 1 or 2 upgrades); Chain Gang itself (a 2) does not, and flex or range cards do not */ } t.d.n = n; if (!n) { done(s, t); return; } t.step = 'go'; }
     if (t.step === 'give') { t.d.left--; targeted(s, t, p, idx(a), { k: 'load', n: 1 }, c.u); t.step = 'go'; return; }
     askSplit(s, t, p, t.d.n, 'give', nonBusted(s, p), 'Chain Gang: give 1 Load to which player?', c);
   };
@@ -823,13 +834,13 @@ const Engine = (() => {
     s.part.forEach(i => { s.pl[i].prio = false; });
     if (!s.tiebreak) {
       for (const i of ok) {
-        if (faceUp(s, i, 'run') && hasRun(info[i].vals)) { s.pl[i].prio = true; }
+        if (faceUp(s, i, 'run') && hasRun(info[i].vals)) { s.pl[i].prio = true; s.pl[i].runRound = true; }
         if (faceUp(s, i, 'sandbag') && ok.length >= 2 && place[i] === Math.max(...ok.map(j => place[j]))) s.pl[i].prio = true;
       }
     }
     s.part.forEach(i => { s.pl[i].pts += pts[i]; });
     s.result = { round: s.round, rows: s.part.map(i => ({ p: i, total: info[i] ? info[i].total : null, busted: s.pl[i].status === 'busted', place: s.pl[i].status === 'busted' ? null : place[i], pts: pts[i], line: s.pl[i].line.map(e => ({ id: e.c.id, u: e.c.u })), load: s.pl[i].load, prio: s.pl[i].prio })) };
-    s.history.push({ round: s.round, tiebreak: s.tiebreak, pts: Object.fromEntries(s.part.map(i => [i, pts[i]])), len: Object.fromEntries(s.part.map(i => [i, s.pl[i].line.length])), hit: Object.fromEntries(s.part.map(i => [i, !!s.pl[i].hitRound])) });
+    s.history.push({ round: s.round, tiebreak: s.tiebreak, pts: Object.fromEntries(s.part.map(i => [i, pts[i]])), len: Object.fromEntries(s.part.map(i => [i, s.pl[i].line.length])), hit: Object.fromEntries(s.part.map(i => [i, !!s.pl[i].hitRound])), open: Object.fromEntries(s.part.map(i => [i, s.pl[i].opening])), run: Object.fromEntries(s.part.map(i => [i, !!s.pl[i].runRound])) });
     log(s, `Round ${s.round} scores: ` + s.part.map(i => `${nameOf(s, i)} ${pts[i]}`).join(', ') + '.');
     s.phase = 'results';
     ask(s, null, 'results', 'Round results', [opt('continue', 'Continue')]);
@@ -992,6 +1003,7 @@ const AI = (() => {
     if (pd.prompt.startsWith('Nerve')) return sh[0] && fits(sh[0]) ? 'draw' : 'bottom';
     if (pd.prompt.startsWith('Bottom Deal')) { const b = pd.showIds && pd.showIds[0]; return b && fits(b) && bustChance(v) > .3 ? 'bottom' : 'top'; }
     if (pd.prompt.startsWith('Marked Card')) { const a = low(sh[0]), b = low(sh[1] || sh[0]); const bt = selfBest(v) || 0; return bt >= 14 ? (a <= b ? 'a' : 'b') : (a >= b ? 'a' : 'b'); }
+    if (pd.prompt.startsWith('Card Counter')) { const bt = selfBest(v) || 0; let pick = null, pv = -1; for (const o of pd.opts) { const lo = low(o.id2); if (bt + lo <= T && lo > pv) { pv = lo; pick = o.id; } } return pick || pd.opts.slice().sort((a, b) => low(a.id2) - low(b.id2))[0].id; }
     if (pd.prompt.startsWith('Cold Deck')) { const bt = selfBest(v) || 0; let pick = null, pv = -1; for (const o of pd.opts) { const id = o.id2, lo = low(id); if (bt + lo <= T && lo > pv) { pv = lo; pick = o.id; } } return pick || pd.opts.slice().sort((a, b) => low(a.id2) - low(b.id2))[0].id; }
     if (pd.prompt.startsWith('Fixer')) { const t = sh[0]; const u = Number(pd.opts[0].id); let up = -2, dn = -2; const cu = pd.fixU; return 'up'; }
     if (pd.prompt.startsWith('Sleight')) return pd.opts[0].id;
@@ -1048,7 +1060,7 @@ const AI = (() => {
   function faceHTML(c, o) {
     o = o || {}; const d = DEF[c.id], col = '#59616e', ab = d.text, start = d.cat === 'Starting';          // one neutral style for every card
     const long = ab.length > 70 ? ' tiny' : ab.length > 40 ? ' sm' : '';
-    return `<div class="card ${o.big ? 'lg' : ''} ${start ? 'start' : ''} ${o.cls || ''}" style="--cc:${col}" ${o.attr || ''}><div class="cval">${esc(o.val !== undefined ? o.val : valText(c))}</div>${start ? '' : `<div class="cname ${d.name.length > 11 ? 'x1' : ''}">${esc(d.name)}</div>`}${o.big && ab ? `<div class="cab${long}">${esc(ab)}</div>` : ''}${o.tag ? `<div class="ctag">${esc(o.tag)}</div>` : ''}</div>`;
+    return `<div class="card ${o.big ? 'lg' : ''} ${start ? 'start' : ''} ${o.cls || ''}" style="--cc:${col}" ${o.attr || ''}><div class="cval ${String(o.val !== undefined ? o.val : valText(c)).length > 3 ? 'wide' : ''}">${esc(o.val !== undefined ? o.val : valText(c))}</div>${start ? '' : `<div class="cname ${d.name.length > 11 ? 'x1' : ''}">${esc(d.name)}</div>`}${o.big && ab ? `<div class="cab${long}">${esc(ab)}</div>` : ''}${o.tag ? `<div class="ctag">${esc(o.tag)}</div>` : ''}</div>`;
   }
   const backHTML = (o) => `<div class="card back ${o && o.cls || ''}" ${o && o.attr || ''}><div class="cback">${o && o.tag ? `<span>${esc(o.tag)}</span>` : '21'}</div></div>`;
 
@@ -1105,7 +1117,7 @@ const AI = (() => {
       <div class="sscroll"><div class="seats">${st.seats.map(seat).join('')}</div>
       ${st.seats.length < D.rules.maxPlayers ? '<button class="big ghost add" data-act="addseat">+ Add a seat</button>' : ''}
       <div class="opts">${tog('quick', 'Quick Game', '3 rounds instead of 5')}${tog('friendly', 'Friendly Game', 'Remove the four meanest cards')}${tog('showAll', 'Show all hidden info', 'A playtest aid: everyone sees every hidden card')}
-      <label class="seedrow">Seed <input class="seed" value="${esc(st.seed)}" placeholder="random" inputmode="numeric" aria-label="Seed"></label></div></div>
+      <p class="deckcap">Everyone starts with one each of 1 through 9 (9 cards).</p><label class="seedrow">Seed <input class="seed" value="${esc(st.seed)}" placeholder="random" inputmode="numeric" aria-label="Seed"></label></div></div>
       <button class="big gold start" data-act="start">Deal</button></div>`;
   }
   function gameHTML() {

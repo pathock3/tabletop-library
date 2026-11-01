@@ -63,3 +63,21 @@ test('ui: the first-time tips come once and the game waits for them', { skip: !c
     await p.click('[data-act=tipok]');
   } finally { await b.close(); }
 });
+
+test('ui: values 0 and 10 and the two-digit "1/10" fit on the card faces', { skip: !chromium, timeout: 60000 }, async () => {
+  const { b, p, errs } = await open({ width: 820, height: 1180 });
+  try {
+    await p.click('[data-act=newgame]'); await p.fill('.seed', '5'); await p.click('[data-act=start]');
+    await p.waitForSelector('.card');
+    const r = await p.evaluate(() => {
+      const s = LB.ui.s, pl = s.pl[0]; pl.line[0].c.id = 'hi-lo'; pl.line[1].c.id = 'feather'; pl.line[0].down = false; pl.line[1].down = false; LB.render();
+      const vals = [...document.querySelectorAll('.card .cval')].map(e => ({ t: e.textContent.trim(), fits: e.scrollWidth <= e.parentElement.clientWidth + 1 }));
+      return { vals, range: Engine.range(s, 0), hi: Engine.lineValuesFor(s, 0, [10, 3]) };
+    });
+    assert.ok(r.vals.some(v => v.t === '1/10' && v.fits), 'Hi-Lo shows 1/10 inside the card: ' + JSON.stringify(r.vals));
+    assert.ok(r.vals.some(v => v.t === '0/3' && v.fits), 'Feather shows 0/3');
+    assert.deepEqual(r.hi, [10, 3], 'a 10 and a 3 resolve');
+    assert.deepEqual(r.range, { min: 1, max: 13 }, 'Hi-Lo and Feather: 1+0 up to 10+3');
+    assert.deepEqual(errs, []);
+  } finally { await b.close(); }
+});

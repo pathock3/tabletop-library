@@ -28,11 +28,13 @@ Source: the owner's "Loaded Blackjack Rulebook" doc (player-facing) and its "Cla
 - **First-time tips** are a small version of Dig Dig BOOM!'s: each once, saved on the device, the game waits while one is open, Reset tips is in the game menu. (No "Teach me how to play" checkbox here yet.)
 - **Layout**: portrait iPad first (the library's rule); landscape works too.
 
-## The deck and card update (v2)
-- No suits and no Ace anywhere. The starting deck is two each of 1 through 7 (14 cards), all fixed values; every card uses one neutral style, a starting card shows only its number. Hi-Lo is Flex 1/7, Hit Man is 7, Squeeze needs 5 cards, Hot Streak needs 6 (counting itself), Run needs four consecutive resolved values (any positions), Chain Gang counts only other fixed 1s.
-- `RULING:` Chain Gang counts every other card whose printed value is a fixed 1: the starting 1s and value-1 upgrade cards (Cold Deck, Card Counter, Holdout, Tell, Plant, Comp, Tightrope, Sleight, Sandbag). Chain Gang itself is a 2 and never counts.
-- `RULING:` The Run card is itself a 3, so 4-5-6 plus Run counts as four in a row (3-4-5-6).
-- `RULING:` Setup makes two copies of each starting card.
+## The 9-card deck update (v3)
+- No suits and no Ace anywhere. The starting deck is **one each of 1 through 9 (9 cards)**, all fixed values; a starting card shows only its number. Values on any card may run from 0 to 10; the card face shrinks the number for text like "1/10".
+- Card table: Hi-Lo Flex 1/10; Hit Man 8; Squeeze 4+ cards in line; Hot Streak 5+ cards counting itself; Run needs any three cards with consecutive resolved values (like 4-5-6); Chain Gang counts other 1s and 2s; Card Counter is a 2 that lets you see your deck and put one card on top.
+- `RULING:` Setup makes exactly one of each starting card, 9 in all (no `copies` field).
+- `RULING:` Chain Gang counts other cards in your line whose printed value is a fixed 1 or 2 (starting cards and fixed 1/2 upgrades such as Card Counter); Chain Gang itself does not count, and flex or range cards do not. You may split the Load among other players.
+- `RULING:` Card Counter moves the chosen card to the top and keeps every other card in its old order (no shuffle). Choosing the card already on top leaves the deck as it was. The holder's `known` record gets the new top card and the full order. The computer players put the highest card that will not bust them on top (the lowest card if every card would).
+- `RULING:` Run's three cards may be anywhere in the line, and the Run card itself counts as one of them.
 
 ## Not built
 - The spec's "collapsible log" is a Log button that opens a sheet; there is no separate "deck order" view beyond what a peek shows you.

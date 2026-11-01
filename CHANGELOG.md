@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- **Loaded Blackjack — 9-card starting deck:** everyone starts with **one each of 1 through 9** (9 cards), replacing the 1-7 twice deck. Still no suits or Ace. Upgrade values may run 0 to 10. Changed cards: **Hi-Lo** 1/10, **Hit Man** 8, **Squeeze** 4+ cards, **Hot Streak** 5+ cards, **Run** three in a row (like 4-5-6), **Chain Gang** counts other 1s and 2s, **Card Counter** is a 2 and lets you put any card from your deck on top. The simulation report now shows openings of 17+ and how often Run triggers.
+
 - **Loaded Blackjack — no suits, a new starting deck, six card changes:** no suits or Ace anywhere and one neutral card style. Everyone starts with **two each of 1 through 7** (14 cards). **Hi-Lo** is 1/7, **Hit Man** is 7, **Squeeze** needs 5 cards, **Hot Streak** needs 6, **Run** needs four in a row, **Chain Gang** counts only other 1s. The library cover has no suits either.
 
 - **New game: Loaded Blackjack** (from your rulebook and its Claude Code Spec tab). 2–6 players, get as close to 21 as you can, draft cheating tricks between rounds. All 50 upgrade cards work; Human or AI seats (Easy, Medium, Hard) in any mix; Quick Game, Friendly Game, a seed, and "Show all hidden info"; a handoff screen for pass-and-play; the reveal and results with a Skip button; the draft; a Continue save; first-time tips. A headless simulation (`games/loaded-blackjack/tools/simulate.js`) plays seeded all-AI games and writes a balancing CSV (5,000 games ran clean). The rulings I added beyond the spec are in `games/loaded-blackjack/DECISIONS.md`.

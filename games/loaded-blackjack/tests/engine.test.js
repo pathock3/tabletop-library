@@ -3,7 +3,7 @@ const assert = require('node:assert/strict');
 const { GAME_DATA: D, Engine: E, AI } = require('./load');
 
 // The starting deck stops at 7, so the tests that need bigger numbers use these test-only cards (they are never dealt).
-for (const [id, v] of [['eight', 8], ['nine', 9], ['ten', 10]]) E.DEF[id] = { id, name: String(v), val: { kind: 'fixed', v }, cat: 'Starting', trig: 'none', text: '' };
+for (const [id, v] of [['ten', 10]]) E.DEF[id] = { id, name: String(v), val: { kind: 'fixed', v }, cat: 'Starting', trig: 'none', text: '' };
 
 // ---------- helpers: build a table by hand ----------
 function game(n = 3, seed = 1) {
@@ -23,13 +23,13 @@ const opts = s => s.pending.opts.map(o => String(o.id));
 const total = (s, p) => E.bestTotal(s, p);
 const uOf = (s, p, id) => s.pl[p].line.find(e => e.c.id === id).c.u;
 
-test('the data: 14 starting cards (two each of 1 to 7), 50 upgrade cards, no suits and no Ace', () => {
-  assert.deepEqual(D.starting.map(c => c.id), ['one', 'two', 'three', 'four', 'five', 'six', 'seven']); assert.ok(D.starting.every((c, k) => c.copies === 2 && c.val.kind === 'fixed' && c.val.v === k + 1 && c.trig === 'none'));
-  const g = game(2); assert.equal(g.pl[0].deck.length + g.pl[0].line.length, 14, 'setup gives each player 14 cards'); assert.deepEqual(Object.values(g.cards).filter(c => c.o === 0 && D.starting.some(d => d.id === c.id)).map(c => c.id).sort(), ['five', 'five', 'four', 'four', 'one', 'one', 'seven', 'seven', 'six', 'six', 'three', 'three', 'two', 'two']);
+test('the data: 9 starting cards (one each of 1 to 9), 50 upgrade cards, no suits and no Ace', () => {
+  assert.deepEqual(D.starting.map(c => c.id), ['one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine']); assert.ok(D.starting.every((c, k) => !('copies' in c) && c.val.kind === 'fixed' && c.val.v === k + 1 && c.trig === 'none'));
+  const g = game(2); assert.equal(g.pl[0].deck.length + g.pl[0].line.length, 9, 'setup gives each player 9 cards'); assert.deepEqual(Object.values(g.cards).filter(c => c.o === 0 && D.starting.some(d => d.id === c.id)).map(c => c.id).sort(), ['eight', 'five', 'four', 'nine', 'one', 'seven', 'six', 'three', 'two']);
   const all = D.starting.concat(D.upgrades); assert.ok(!all.some(c => 'suit' in c || c.id === 'ace' || (c.name || '') === 'Ace'), 'no card has a suit, and there is no Ace');
   assert.ok(!/[♠♥♣♦]|\bAces?\b|\bsuits?\b/i.test(JSON.stringify(D)), 'no suit or Ace anywhere in the game data');
   const html = require('fs').readFileSync(require('./load').FILE, 'utf8'); assert.ok(!/[♠♥♣♦]/.test(html), 'no suit symbols in the game file'); assert.ok(!/\bAces?\b/.test(html.replace(/there is no Ace/g, '')), 'no Ace in the game file');
-  assert.equal(D.upgrades.length, 50); assert.deepEqual(D.upgrades.find(c => c.id === 'hi-lo').val, { kind: 'flex', opts: [1, 7] }); assert.equal(D.upgrades.find(c => c.id === 'hit-man').val.v, 7);
+  assert.equal(D.upgrades.length, 50); assert.deepEqual(D.upgrades.find(c => c.id === 'hi-lo').val, { kind: 'flex', opts: [1, 10] }); assert.equal(D.upgrades.find(c => c.id === 'hit-man').val.v, 8);
   assert.deepEqual(D.upgrades.filter(c => c.mean).map(c => c.id).sort(), ['cooler', 'hand-mucker', 'hit-man', 'last-call']);
   for (const c of D.upgrades) { assert.ok(c.ai >= 1 && c.ai <= 5, c.id); assert.ok(c.name && c.cat && c.trig, c.id); }
 });
@@ -46,8 +46,8 @@ test('values resolve in order: base, Fixer, Split, Shave Job, floor; Ringer chai
 });
 
 test('minimum and best totals with Aces and every flex type; bust detection', () => {
-  const s = game(); line(s, 0, ['hi-lo', 'ten']); assert.deepEqual(E.range(s, 0), { min: 11, max: 17 }); assert.equal(total(s, 0), 17, 'Hi-Lo counts as 1 or 7');
-  line(s, 0, ['hi-lo', 'hi-lo', 'ten', 'seven']); assert.equal(E.minTotal(s, 0), 19); assert.equal(total(s, 0), 19, '1+1+10+7; any 7 for a Hi-Lo is over 21');
+  const s = game(); line(s, 0, ['hi-lo', 'ten']); assert.deepEqual(E.range(s, 0), { min: 11, max: 20 }); assert.equal(total(s, 0), 20, 'Hi-Lo counts as 1 or 10');
+  line(s, 0, ['hi-lo', 'hi-lo', 'ten', 'seven']); assert.equal(E.minTotal(s, 0), 19); assert.equal(total(s, 0), 19, '1+1+10+7; a 10 for a Hi-Lo is over 21');
   line(s, 0, ['two-faced', 'sleeve-card', 'hi-lo', 'dealers-choice', 'feather']); assert.equal(E.minTotal(s, 0), 2 + 1 + 1 + 2 + 0, 'minimum total: every flex card at its lowest option');
   line(s, 0, ['mechanic', 'ten', 'ten']); assert.equal(E.minTotal(s, 0), 21); assert.equal(total(s, 0), 21);
   line(s, 0, ['ten', 'ten', 'two']); assert.equal(total(s, 0), null, 'over 21 even at the lowest');
@@ -99,8 +99,8 @@ test('scoring: every row of the examples table, plus Tightrope, Side Bet, Run an
   assert.deepEqual(s.result.rows.map(r => r.pts), [2, 1, 3], 'Side Bet: 2 instead of 1 when another player also busted');
   s = game(3); line(s, 0, ['ten', 'ten', 'five', 'side-bet']); line(s, 1, ['nine', 'nine']); line(s, 2, ['ten', 'nine']); s.stack = [{ t: 'reveal', step: 0 }]; E.run(s);
   assert.equal(s.result.rows[0].pts, 1, 'Side Bet needs another bust');
-  s = game(3); line(s, 0, ['three', 'four', 'five', 'six', 'run']); line(s, 1, ['ten', 'nine']); line(s, 2, ['ten', 'eight']); s.stack = [{ t: 'reveal', step: 0 }]; E.run(s); assert.ok(s.pl[0].prio, 'Run: four consecutive values');
-  s = game(3); line(s, 0, ['five', 'six', 'seven', 'run']); line(s, 1, ['ten', 'nine']); line(s, 2, ['ten', 'eight']); s.stack = [{ t: 'reveal', step: 0 }]; E.run(s); assert.ok(!s.pl[0].prio, 'Run: three consecutive (5-6-7, and the Run card itself is a 3) is not enough');
+  s = game(3); line(s, 0, ['four', 'five', 'six', 'run']); line(s, 1, ['ten', 'nine']); line(s, 2, ['ten', 'eight']); s.stack = [{ t: 'reveal', step: 0 }]; E.run(s); assert.ok(s.pl[0].prio, 'Run: three consecutive values');
+  s = game(3); line(s, 0, ['five', 'seven', 'eight', 'run']); line(s, 1, ['ten', 'nine']); line(s, 2, ['ten', 'eight']); s.stack = [{ t: 'reveal', step: 0 }]; E.run(s); assert.ok(!s.pl[0].prio, 'Run: 5, 7, 8 and 3 have no three consecutive values');
   s = game(3); line(s, 0, ['two', 'sandbag']); line(s, 1, ['ten', 'nine']); line(s, 2, ['ten', 'eight']); s.stack = [{ t: 'reveal', step: 0 }]; E.run(s); assert.ok(s.pl[0].prio, 'Sandbag: finished last without busting');
   s = game(3); s.tiebreak = true; line(s, 0, ['two', 'sandbag']); line(s, 1, ['ten', 'nine']); line(s, 2, ['ten', 'eight']); s.stack = [{ t: 'reveal', step: 0 }]; E.run(s); assert.ok(!s.pl[0].prio, 'no draft in a tiebreak round');
 });
@@ -138,7 +138,7 @@ test('the same seed and the same choices give the same game', () => {
 // ---------- one test per upgrade card ----------
 test('Control cards: Two-Faced, Sleeve Card, Feather, Hi-Lo, Dealer\'s Choice, Mechanic, Ringer', () => {
   const s = game(); const t = (ids, want) => { line(s, 0, ids); assert.equal(total(s, 0), want, ids.join()); };
-  t(['two-faced', 'nine', 'ten'], 21); t(['sleeve-card', 'ten', 'ten'], 21); t(['feather', 'ten', 'ten'], 20); t(['hi-lo', 'ten'], 17); t(['dealers-choice', 'ten', 'nine'], 21); t(['mechanic', 'nine', 'nine'], 21); t(['ten', 'ringer'], 20); t(['ringer', 'ten'], 11);
+  t(['two-faced', 'nine', 'ten'], 21); t(['sleeve-card', 'ten', 'ten'], 21); t(['feather', 'ten', 'ten'], 20); t(['hi-lo', 'ten'], 20); t(['dealers-choice', 'ten', 'nine'], 21); t(['mechanic', 'nine', 'nine'], 21); t(['ten', 'ringer'], 20); t(['ringer', 'ten'], 11);
 });
 test('Fixer and Split: once per round, on another card in your line', () => {
   const s = game(); line(s, 0, ['fixer', 'eight', 'nine']); fire(s, 0, 0); assert.equal(pend(s), 'card'); ok(s, 'c' + at(s, 0, 1).c.u); ok(s, 'up'); assert.equal(E.lineValuesFor(s, 0, null)[1], 9); assert.ok(E.mod(s, at(s, 0, 0).c.u).side, 'turned sideways');
@@ -149,7 +149,11 @@ test('Shiner, Marked Card, Cold Deck, Bottom Deal, Card Counter, Crimp: private 
   s = game(); line(s, 0, ['marked-card', 'two']); deck(s, 0, ['nine', 'three', 'four']); fire(s, 0, 0); ok(s, 'b'); assert.deepEqual(s.pl[0].deck.map(c => c.id), ['three', 'nine', 'four']);
   s = game(); line(s, 0, ['cold-deck', 'two']); deck(s, 0, ['nine', 'three', 'four', 'five']); fire(s, 0, 0); ok(s, 'c' + s.pl[0].deck[2].u); assert.deepEqual(s.pl[0].deck.map(c => c.id), ['four', 'five', 'nine', 'three']);
   s = game(); line(s, 0, ['bottom-deal', 'two', 'ten']); deck(s, 0, ['nine', 'three', 'four']); s.stack.push({ t: 'draw', p: 0, how: 'hit', step: 0 }); E.run(s); assert.equal(pend(s), 'choice'); ok(s, 'bottom'); assert.equal(ids(s, 0).pop(), 'four');
-  s = game(); line(s, 0, ['card-counter', 'two']); deck(s, 0, ['nine', 'three']); fire(s, 0, 0); assert.equal(s.pending.show.length, 2); ok(s, 'ok'); assert.deepEqual(s.pl[0].deck.map(c => c.id), ['nine', 'three']);
+  s = game(); line(s, 0, ['card-counter', 'two']); deck(s, 0, ['nine', 'three', 'five', 'one']); fire(s, 0, 0); assert.equal(pend(s), 'choice'); assert.equal(s.pending.who, 0); assert.equal(s.pending.show.length, 4, 'you see the whole deck');
+  const v0 = E.viewFor(s, 0); assert.equal(v0.pending.who, 0, 'the prompt belongs to the holder alone'); assert.equal(v0.pending.showIds.length, 4);
+  const five = s.pl[0].deck[2]; ok(s, 'c' + five.u); assert.equal(ids(s, 0).length, 2); assert.deepEqual(s.pl[0].deck.map(c => c.id), ['five', 'nine', 'three', 'one'], 'chosen card on top, the rest in their old order');
+  assert.deepEqual(s.pl[0].known.top, [five.u], 'the new top card is known to its holder'); assert.equal(s.pl[0].known.all.length, 4);
+  s = game(); line(s, 0, ['card-counter']); deck(s, 0, ['nine', 'three']); fire(s, 0, 0); ok(s, 'c' + s.pl[0].deck[0].u); assert.deepEqual(s.pl[0].deck.map(c => c.id), ['nine', 'three'], 'choosing the top card changes nothing');
   s = game(); line(s, 0, ['crimp', 'two']); deck(s, 0, ['nine', 'three']); fire(s, 0, 0); ok(s, 'ok'); assert.equal(s.pl[0].deck[1].id, 'nine', 'a 6 or higher goes to the bottom');
   s = game(); line(s, 0, ['crimp', 'two']); deck(s, 0, ['five', 'three']); fire(s, 0, 0); ok(s, 'ok'); assert.equal(s.pl[0].deck[0].id, 'five');
 });
@@ -161,7 +165,7 @@ test('Stacker, Palm, Holdout, Second Deal, Getaway Car, Fall Guy, Side Bet: prot
 test('Attack cards: Shill, Heat, Squeeze, Pit Boss, Cooler, Hit Man, Plant, Last Call', () => {
   let s = game(3); line(s, 0, ['shill']); line(s, 1, ['two']); line(s, 2, ['three']); fire(s, 0, 0); ok(s, 'p1'); assert.equal(s.pl[1].load, 1);
   s = game(3); line(s, 0, ['heat', 'two']); line(s, 1, ['two']); line(s, 2, ['three']); s.pl[1].last = 'pass'; fire(s, 0, 0); assert.equal(s.pl[1].load, 1, 'only a player who passed (one target: no question)'); assert.equal(s.pl[2].load, 0);
-  s = game(3); line(s, 0, ['squeeze']); line(s, 1, ['two', 'two', 'two', 'two', 'two']); line(s, 2, ['three', 'three', 'three', 'three']); fire(s, 0, 0); assert.equal(s.pl[1].load, 2, '5 or more cards'); assert.equal(s.pl[2].load, 0, '4 cards is not enough');
+  s = game(3); line(s, 0, ['squeeze']); line(s, 1, ['two', 'two', 'two', 'two']); line(s, 2, ['three', 'three', 'three']); fire(s, 0, 0); assert.equal(s.pl[1].load, 2, '4 or more cards'); assert.equal(s.pl[2].load, 0, '3 cards is not enough');
   s = game(3); line(s, 0, ['pit-boss']); line(s, 1, ['two']); line(s, 2, ['three']); fire(s, 0, 0); assert.deepEqual([s.pl[1].load, s.pl[2].load], [1, 1]);
   s = game(3); line(s, 0, ['cooler']); line(s, 1, ['two']); line(s, 2, ['three']); deck(s, 1, ['six']); fire(s, 0, 0); ok(s, 'p1'); assert.equal(ids(s, 1).pop(), 'six'); assert.equal(s.pl[1].last, 'hit');
   s = game(3); line(s, 0, ['hit-man']); line(s, 1, ['two']); line(s, 2, ['three']); deck(s, 1, ['six']); deck(s, 2, ['seven']); s.pl[1].last = 'pass'; s.pl[2].last = 'pass'; fire(s, 0, 0); assert.equal(ids(s, 1).pop(), 'six'); assert.equal(ids(s, 2).pop(), 'seven');
@@ -185,13 +189,13 @@ test('Push Your Luck cards: High Roller, Nerve, Double Down, Hot Streak, Tightro
   s = game(2); line(s, 0, ['four', 'high-roller']); line(s, 1, ['two']); fire(s, 0, 1); assert.equal(s.pl[1].load, 0, 'needs 15 or more before this card');
   s = game(2); line(s, 0, ['ten', 'seven', 'nerve']); deck(s, 0, ['two', 'three']); fire(s, 0, 2); assert.equal(pend(s), 'choice'); ok(s, 'draw'); assert.equal(ids(s, 0).pop(), 'two');
   s = game(2); line(s, 0, ['double-down', 'two']); line(s, 1, ['three']); deck(s, 0, ['four', 'five']); s.stack = [{ t: 'turn', step: 0 }]; E.run(s); ok(s, 'double'); assert.deepEqual(ids(s, 0).slice(-2), ['four', 'five']); assert.equal(s.pl[1].load, 1);
-  s = game(3); line(s, 0, ['two', 'two', 'two', 'two', 'two', 'hot-streak']); line(s, 1, ['two']); line(s, 2, ['three']); fire(s, 0, 5); assert.deepEqual([s.pl[1].load, s.pl[2].load], [1, 1], '6 cards counting Hot Streak itself');
-  s = game(3); line(s, 0, ['two', 'two', 'two', 'two', 'hot-streak']); line(s, 1, ['two']); fire(s, 0, 4); assert.equal(s.pl[1].load, 0, '5 cards is not enough');
+  s = game(3); line(s, 0, ['two', 'two', 'two', 'two', 'hot-streak']); line(s, 1, ['two']); line(s, 2, ['three']); fire(s, 0, 4); assert.deepEqual([s.pl[1].load, s.pl[2].load], [1, 1], '5 cards counting Hot Streak itself');
+  s = game(3); line(s, 0, ['two', 'two', 'two', 'hot-streak']); line(s, 1, ['two']); fire(s, 0, 3); assert.equal(s.pl[1].load, 0, '4 cards is not enough');
 });
 test('Line cards: Headcount, Shave Job, Sleight, Chain Gang, Run', () => {
   let s = game(3); line(s, 0, ['sleight', 'two', 'ten']); fire(s, 0, 0); ok(s, 'c' + at(s, 0, 2).c.u); ok(s, 'i0'); assert.equal(ids(s, 0)[0], 'ten');
-  s = game(3); line(s, 0, ['chain-gang', 'two', 'one', 'cold-deck', 'ten']); line(s, 1, ['two']); line(s, 2, ['three']); fire(s, 0, 0); ok(s, 'p1'); ok(s, 'p2'); assert.equal(s.pl[1].load + s.pl[2].load, 2, 'for each other 1: a starting 1 and a value-1 upgrade (Cold Deck), not the 2');
-  s = game(3); line(s, 0, ['chain-gang', 'two', 'ten']); line(s, 1, ['two']); fire(s, 0, 0); assert.equal(s.pl[1].load, 0, 'no other 1: nothing');
+  s = game(3); line(s, 0, ['chain-gang', 'two', 'one', 'ten', 'hi-lo']); line(s, 1, ['two']); line(s, 2, ['three']); fire(s, 0, 0); ok(s, 'p1'); ok(s, 'p2'); assert.equal(s.pl[1].load + s.pl[2].load, 2, 'each other fixed 1 or 2 counts (a 2 and a 1); the 10 and the flex Hi-Lo do not; Chain Gang itself does not');
+  s = game(3); line(s, 0, ['chain-gang', 'three', 'ten']); line(s, 1, ['two']); fire(s, 0, 0); assert.equal(s.pl[1].load, 0, 'no other 1 or 2: nothing');
 });
 test('Catch-up cards: Long Shot', () => {
   const s = game(3); s.pl[0].pts = 1; s.pl[1].pts = 5; s.pl[2].pts = 3; line(s, 0, ['long-shot']); line(s, 1, ['two']); line(s, 2, ['three']); fire(s, 0, 0); assert.equal(s.pl[1].load, 2, '2 Load to the leader');
@@ -209,4 +213,10 @@ test('the computer never sees hidden cards: a view hides other players\' hidden 
   const s = game(3); line(s, 1, ['nine', 'three'], 1); deck(s, 1, ['one', 'two']);
   const v = E.viewFor(s, 0, true); assert.equal(v.pl[1].line[0].c.id, '?'); assert.equal(v.pl[1].deck[0].id, '?'); assert.equal(v.pl[1].known, null);
   s.showAll = true; assert.equal(E.viewFor(s, 0, true).pl[1].line[0].c.id, '?', 'even with Show all hidden info on, an AI does not cheat'); assert.equal(E.viewFor(s, 0, false).pl[1].line[0].c.id, 'nine');
+});
+
+test('values from 0 to 10 are valid in the data and resolve in a line', () => {
+  const vals = c => c.val.kind === 'fixed' ? [c.val.v] : c.val.kind === 'flex' ? c.val.opts : c.val.kind === 'range' ? [c.val.min, c.val.max] : [];
+  for (const c of D.starting.concat(D.upgrades)) for (const v of vals(c)) assert.ok(Number.isInteger(v) && v >= 0 && v <= 10, c.id + ' has value ' + v);
+  const s = game(); line(s, 0, ['hi-lo', 'feather', 'ten']); assert.deepEqual(E.lineValuesFor(s, 0, [10, 0, 10]), [10, 0, 10]); assert.deepEqual(E.range(s, 0), { min: 11, max: 23 }); assert.equal(total(s, 0), 20, 'best total at 21 or less: Hi-Lo 10, Feather 0, ten 10');
 });
