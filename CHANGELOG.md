@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- **Loaded Blackjack is now Stackjack** ("Stack the deck. Hit 21."). The cards you draft between rounds are called **wildcards**; the nine you start with are **number cards**. No rules changed. The old address still works (it redirects) and a saved game carries over.
+
 - **Library:** a tapped box starts loading its game at once while it zooms (a little slower now, about half a second), and the games are fetched ahead of time while you look at the shelf, so the game is ready when the zoom ends.
 
 - **Loaded Blackjack — first to 21 points:** no fixed number of rounds: the game ends at the end of the round in which someone reaches 21 points (highest total wins; ties play tiebreak rounds). New points table by number of players (6 for first). Hit or Pass is now chosen by everyone at the same time, in secret. The upgrade deck has two copies of every card (100 cards). The Hard computer player now plays the endgame by points. New Game starts at once against Easy, Medium and Hard (all the options are gone) and asks you to tap twice to erase a game in progress. How to Play is three steps with pictures; Settings has Reset tips. The table fills the screen with bigger cards and buttons (best on iPad landscape), the draft shows big cards with the scoreboard and only your own deck, and there is no button back to the library during a game.

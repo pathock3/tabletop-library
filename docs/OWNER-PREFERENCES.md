@@ -1,6 +1,6 @@
 # What the owner likes — apply to every game from the start
 
-These come from feedback repeated across Dig Dig BOOM!, One More, Advanced Counting, Torn Treasure, This Means WAR!, Loaded Blackjack and the library page. Build every new game to this list, and check an old game against it when touching it, so the same edits are not asked for twice.
+These come from feedback repeated across Dig Dig BOOM!, One More, Advanced Counting, Torn Treasure, This Means WAR!, Stackjack and the library page. Build every new game to this list, and check an old game against it when touching it, so the same edits are not asked for twice.
 
 ## Screen and layout
 - **Use the whole screen.** No dead space between areas, no big empty margins. If there is a gap, grow the content into it. Check at iPad portrait 820×1180 first, then iPhone 402×874, then landscape.
@@ -33,7 +33,7 @@ These come from feedback repeated across Dig Dig BOOM!, One More, Advanced Count
 
 ## Feel and polish
 - Animation with meaning: open the box, flip the card, tear the pack, replay the round. Make it smooth on an iPad, with no pauses that make the player wait for nothing.
-- Visual theme per game (the Torn Treasure map and sand, the casino felt of Loaded Blackjack). Dark, rich, high-contrast; concealed things deep and dark, public things bright.
+- Visual theme per game (the Torn Treasure map and sand, the casino felt of Stackjack). Dark, rich, high-contrast; concealed things deep and dark, public things bright.
 - The library shows games as proper standard-sized boxes on wooden shelves, one shelf per row of games.
 - Computer players have Easy, Medium and Hard, and play at a human pace.
 

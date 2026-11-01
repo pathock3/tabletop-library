@@ -6,14 +6,14 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="Loaded Blackjack">
+<meta name="apple-mobile-web-app-title" content="Stackjack">
 <meta name="build" content="__BUILD__">
 <meta name="theme-color" content="#0c1a14">
-<title>Loaded Blackjack</title>
+<title>Stackjack</title>
 <meta property="og:type" content="website">
-<meta property="og:title" content="Loaded Blackjack">
-<meta property="og:description" content="Get as close to 21 as you can. Cheat your way there.">
-<meta name="description" content="Get as close to 21 as you can. Cheat your way there.">
+<meta property="og:title" content="Stackjack">
+<meta property="og:description" content="Stack the deck. Hit 21.">
+<meta name="description" content="Stack the deck. Hit 21.">
 <link rel="icon" type="image/png" href="../../assets/favicon.png">
 <link rel="apple-touch-icon" href="../../assets/apple-touch-icon.png">
 <style>
@@ -142,17 +142,17 @@ h1 { margin: -4px 0 0; font-size: 84px; line-height: 1; font-weight: 1000; font-
 <script id="data">
 // ---- THE RULES AND THE CARDS: everything a rule or a card is lives here; the engine below only does what this says ----
 const GAME_DATA = {
-  title: 'Loaded Blackjack',
+  title: 'Stackjack',
   library: { name: 'Tabletop Library', href: '../../index.html' },
-  tagline: 'Get as close to 21 as you can. Cheat your way there.',
+  tagline: 'Stack the deck. Hit 21.',
   rules: {
     target: 21,                    // the number you try to reach without going over
     WIN_POINTS: 21, QUICK_WIN_POINTS: 13,   // the game ends at the end of a round in which someone has this many points (or more)
-    UPGRADE_COPIES: 2,             // how many of each upgrade card are in the upgrade deck
+    WILDCARD_COPIES: 2,             // how many of each wildcard are in the wild deck
     /* points for each place in a round, by the number of players (a busted player scores the last place's entry) */
     POINTS_BY_PLACE: { 2: [6, 2], 3: [6, 4, 2], 4: [6, 4, 3, 1], 5: [6, 5, 3, 2, 1], 6: [6, 5, 4, 3, 2, 1] },
     minPlayers: 2, maxPlayers: 6,
-    marketPerPlayer: 2,            // upgrade cards dealt face up for each player
+    marketPerPlayer: 2,            // wildcards dealt face up for each player
     picksPerPlayer: 2,             // everyone drafts this many
     sideBetBonus: 1,               // Side Bet: a bust scores the last-place entry plus this (only when at least one other player also busted)
     getawayTotal: 17,              // Getaway Car: your total becomes this
@@ -166,13 +166,13 @@ const GAME_DATA = {
     easyUsesOptional: .5,
     closeToTarget: 6,              // 'close to the target' for the Hard computer: within one first-place round of the winning score
   },
-  // The 9 cards every player starts with: one each of 1 to 9. All fixed; there is no Ace and there are no suits.
-  starting: [
-    ...['one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine'].map((id, k) => ({ id, name: String(k + 1), val: { kind: 'fixed', v: k + 1 }, cat: 'Starting', trig: 'none', text: '' })),
+  // The 9 number cards every player starts with: one each of 1 to 9. All fixed; there is no Ace and there are no suits.
+  numbers: [
+    ...['one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine'].map((id, k) => ({ id, name: String(k + 1), val: { kind: 'fixed', v: k + 1 }, cat: 'Number card', trig: 'none', text: '' })),
   ],
-  // The 50 upgrade cards. val: fixed, flex (counts as either number), range, ringer (1 or the card to its left), headcount.
+  // The 50 wildcards (the cards drafted between rounds). val: fixed, flex (counts as either number), range, ringer (1 or the card to its left), headcount.
   // trig: when drawn / once per round / passive / when you would bust / scoring / at reveal. ai: a rough strength, 1 to 5 (the drafting AI uses it).
-  upgrades: [
+  wild: [
     // Control
     { id: 'two-faced', name: 'Two-Faced', cat: 'Control', val: { kind: 'flex', opts: [2, 7] }, trig: 'none', text: '', ai: 3 },
     { id: 'sleeve-card', name: 'Sleeve Card', cat: 'Control', val: { kind: 'flex', opts: [1, 5] }, trig: 'none', text: '', ai: 3 },
@@ -235,19 +235,19 @@ const GAME_DATA = {
   ],
   texts: {
     steps: [
-      { title: 'Get close to 21', text: 'Each round you build a line of cards from your own deck. Add them up: the highest total that is 21 or less wins the round. Go over 21 and you bust.' },
+      { title: 'Get close to 21', text: 'Everyone starts with the same nine number cards, 1 through 9, shuffled into their own deck. Each round you build a line of cards from it. Add them up: the highest total that is 21 or less wins the round. Go over 21 and you bust.' },
       { title: 'Hit or pass, all at once', text: 'Everyone chooses Hit or Pass at the same time, in secret, then the choices flip together. Passing is not final: you can hit next time. When everyone passes together, the round ends.' },
-      { title: 'Draft and race to 21 points', text: 'The best total scores the most points (6 for first). Then everyone drafts cheating tricks into their deck, fewest points first. The first player to reach 21 points wins.' },
+      { title: 'Draft and race to 21 points', text: 'The best total scores the most points (6 for first). Then everyone drafts wildcards to stack their deck, fewest points first. The first player to reach 21 points wins.' },
     ],
     tips: {
-      welcome: ['Welcome', 'Get closest to 21 without going over. Each round, the highest total scores the most points. Draft cheating tricks between rounds. First to 21 points wins.'],
+      welcome: ['Welcome', 'Get closest to 21 without going over. Each round, the highest total scores the most points. Between rounds, draft wildcards to stack your deck. First to 21 points wins.'],
       deal: ['Your hidden card', 'Your first card is hidden. Only you can see it, and it still counts toward your total.'],
       turn: ['Hit or Pass', "Everyone chooses Hit or Pass at the same time, in secret. Passing doesn't lock you in: you can hit again next time. The round ends when everyone passes together."],
       load: ['Load', 'Load adds 1 to your total. Watch out, it can push you over 21.'],
       window: ['A way out', "You're about to bust, but you have a trick that can save you."],
       bust: ['Bust!', 'Bust! You score the points for last place this round.'],
       reveal: ['The reveal', "Everyone flips their hidden card. Here's who really won the round."],
-      draft: ['The draft', 'Pick 2 cards for your deck. Whoever has the fewest points picks first.'],
+      draft: ['Draft wildcards', 'Pick 2 wildcards for your deck. Whoever has the fewest points picks first.'],
     },
   },
 };
@@ -256,7 +256,7 @@ const GAME_DATA = {
 // ---- THE RULES ENGINE: pure, no DOM. State is plain JSON. The engine never goes past a pending decision: it stops with `s.pending`, and `answer(s, optionId)` carries on. ----
 const Engine = (() => {
   const D = GAME_DATA, R = D.rules, T = R.target;
-  const DEF = {}; D.starting.concat(D.upgrades).forEach(c => { DEF[c.id] = c; });
+  const DEF = {}; D.numbers.concat(D.wild).forEach(c => { DEF[c.id] = c; });
   DEF['?'] = { id: '?', name: '?', val: { kind: 'fixed', v: 5 }, trig: 'none', text: '', cat: '' };          // a card you may not see (counted as an average card)
 
   // ---------- randomness and small helpers ----------
@@ -346,15 +346,15 @@ const Engine = (() => {
   function newGame(opts) {
     const seats = opts.seats, n = seats.length;
     const s = { v: 1, rng: (opts.seed == null ? Date.now() : opts.seed) | 0, seed: opts.seed, n, winAt: opts.target || (opts.quick ? R.QUICK_WIN_POINTS : R.WIN_POINTS), friendly: !!opts.friendly, showAll: !!opts.showAll,
-      round: 1, nextU: 1, cards: {}, mod: {}, pl: [], part: [], first: 0, active: 0, stack: [], pending: null, log: [], discard: [], removed: [], market: [], upgrade: [],
+      round: 1, nextU: 1, cards: {}, mod: {}, pl: [], part: [], first: 0, active: 0, stack: [], pending: null, log: [], discard: [], removed: [], market: [], wild: [],
       phase: 'play', tiebreak: false, result: null, history: [], draft: null, winner: null, cause: {}, handoff: null };
     seats.forEach((st, i) => {
       const p = { name: st.name || 'Player ' + (i + 1), kind: st.kind || 'ai', level: st.level || 'medium', deck: [], line: [], load: 0, status: 'active', last: 'none', getaway: null, prio: false, known: { top: [], bottom: null, all: null, hidden: {}, tell: [] }, pts: 0, lastDrawn: null };
-      D.starting.forEach(c => p.deck.push(inst(s, c.id, i))); /* RULING: setup makes exactly one of each starting card, 9 in all */
+      D.numbers.forEach(c => p.deck.push(inst(s, c.id, i))); /* RULING: setup makes exactly one of each number card, 9 in all */
       shuffle(s, p.deck); s.pl.push(p); s.part.push(i);
     });
-    D.upgrades.forEach(c => { if (!(s.friendly && c.mean)) for (let k = 0; k < R.UPGRADE_COPIES; k++) s.upgrade.push(inst(s, c.id, -1)); });
-    shuffle(s, s.upgrade);
+    D.wild.forEach(c => { if (!(s.friendly && c.mean)) for (let k = 0; k < R.WILDCARD_COPIES; k++) s.wild.push(inst(s, c.id, -1)); });
+    shuffle(s, s.wild);
     s.first = Math.floor(rnd(s) * n);
     startRound(s);
     return s;
@@ -607,7 +607,7 @@ const Engine = (() => {
     askSplit(s, t, p, 2, 'give', nonBusted(s, p), 'High Roller: give 1 Load to which player?', c);
   };
   ABIL['chain-gang'] = (s, t, a, e, p, c) => {
-    if (t.step === 0) { let n = 0; for (const x of s.pl[p].line) { if (x.c.u === c.u) continue; const v = def(x.c).val; if (v.kind === 'fixed' && (v.v === 1 || v.v === 2)) n++; /* RULING: the other cards in your line whose printed value is a fixed 1 or 2 count (starting 1s and 2s, and fixed 1 or 2 upgrades); Chain Gang itself (a 2) does not, and flex or range cards do not */ } t.d.n = n; if (!n) { done(s, t); return; } t.step = 'go'; }
+    if (t.step === 0) { let n = 0; for (const x of s.pl[p].line) { if (x.c.u === c.u) continue; const v = def(x.c).val; if (v.kind === 'fixed' && (v.v === 1 || v.v === 2)) n++; /* RULING: the other cards in your line whose printed value is a fixed 1 or 2 count (starting 1s and 2s, and fixed 1 or 2 wildcards); Chain Gang itself (a 2) does not, and flex or range cards do not */ } t.d.n = n; if (!n) { done(s, t); return; } t.step = 'go'; }
     if (t.step === 'give') { t.d.left--; targeted(s, t, p, idx(a), { k: 'load', n: 1 }, c.u); t.step = 'go'; return; }
     askSplit(s, t, p, t.d.n, 'give', nonBusted(s, p), 'Chain Gang: give 1 Load to which player?', c);
   };
@@ -903,8 +903,8 @@ const Engine = (() => {
 
   // ---------- the draft ----------
   function startDraft(s) {
-    const N = s.n, count = Math.min(s.upgrade.length, R.marketPerPlayer * N);
-    s.market = s.upgrade.splice(0, count);
+    const N = s.n, count = Math.min(s.wild.length, R.marketPerPlayer * N);
+    s.market = s.wild.splice(0, count);
     const byPts = (a, b) => a.pts - b.pts || a.r - b.r;
     const mk = i => ({ i, pts: s.pl[i].pts, r: rnd(s) });
     const pri = s.part.filter(i => s.pl[i].prio).map(mk).sort(byPts), rest = s.part.filter(i => !s.pl[i].prio).map(mk).sort(byPts);
@@ -919,7 +919,7 @@ const Engine = (() => {
     if (t.step === 1) { const u = idx(a), k = s.market.findIndex(c => c.u === u), c = s.market.splice(k, 1)[0], p = dr.order[dr.k]; c.o = p; s.pl[p].deck.push(c); dr.picks.push({ p, u: c.u }); log(s, `${nameOf(s, p)} drafts ${DEF[c.id].name}.`, p); dr.k++; t.step = 0; }
     if (dr.k >= dr.order.length || !s.market.length) { done(s, t); s.removed.push(...s.market.splice(0)); cleanup(s, false); s.round++; s.first = nextSeat(s, s.first); s.draft = null; startRound(s); return; }
     const p = dr.order[dr.k];
-    ask(s, p, 'pick', `${nameOf(s, p)}: pick an upgrade card`, s.market.map(c => opt('c' + c.u, DEF[c.id].name, { u: c.u }))); t.step = 1;
+    ask(s, p, 'pick', `${nameOf(s, p)}: pick a wildcard`, s.market.map(c => opt('c' + c.u, DEF[c.id].name, { u: c.u }))); t.step = 1;
   };
   function cleanup(s, tiebreak) {
     for (const i of s.part) { const p = s.pl[i]; for (const e of p.line) { const o = e.c.o; if (o >= 0) s.pl[o].deck.push(e.c); } p.line = []; }
@@ -935,7 +935,7 @@ const Engine = (() => {
   function viewFor(s, who, forAI) {          // what `who` may know: everything public, plus their own hidden card and private info
     const showAll = s.showAll && !forAI, pend = s.pending;
     const v = JSON.parse(JSON.stringify(Object.assign({}, s, { cards: null, stack: null })));
-    v.me = who; delete v.rng; v.cards = null; v.upgrade = s.upgrade.length;
+    v.me = who; delete v.rng; v.cards = null; v.wild = s.wild.length;
     const idOf = u => (s.cards[u] ? s.cards[u].id : '?');
     v.pl.forEach((p, i) => {
       p.deckCount = p.deck.length; if (i === who) p.deckIds = s.pl[i].deck.map(c => c.id).sort();
@@ -953,7 +953,7 @@ const Engine = (() => {
   function auditCards(s) {            // every card is in exactly one place
     const seen = new Map(); const put = (c, where) => { if (seen.has(c.u)) throw new Error('card ' + c.u + ' is in two places: ' + seen.get(c.u) + ' and ' + where); seen.set(c.u, where); };
     s.pl.forEach((p, i) => { p.deck.forEach(c => put(c, 'deck' + i)); p.line.forEach(e => put(e.c, 'line' + i)); });
-    s.discard.forEach(c => put(c, 'discard')); s.removed.forEach(c => put(c, 'removed')); s.market.forEach(c => put(c, 'market')); s.upgrade.forEach(c => put(c, 'upgrades'));
+    s.discard.forEach(c => put(c, 'discard')); s.removed.forEach(c => put(c, 'removed')); s.market.forEach(c => put(c, 'market')); s.wild.forEach(c => put(c, 'wild'));
     if (seen.size !== Object.keys(s.cards).length) throw new Error('a card is missing: ' + seen.size + ' of ' + Object.keys(s.cards).length);
     s.pl.forEach((p, i) => { if (p.load < 0) throw new Error('negative Load'); });
     return true;
@@ -1077,12 +1077,14 @@ const AI = (() => {
 // ---- THE SCREENS ----
 (() => {
   const D = GAME_DATA, E = Engine, DEF = E.DEF, app = document.getElementById('app');
-  const SAVE = 'tabletop-library-loaded-blackjack-save', TIPS = 'tabletop-library-loaded-blackjack-tips';
+  const SAVE = 'tabletop-library-stackjack-save', TIPS = 'tabletop-library-stackjack-tips';
   const esc = t => String(t).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
   const fromLibrary = () => { let came = /[?&]from=library\b/.test(location.search); try { if (came) sessionStorage.setItem('tabletop-library-from', '1'); else { const nav = (performance.getEntriesByType && performance.getEntriesByType('navigation')[0]) || {}; if (nav.type === 'navigate') sessionStorage.removeItem('tabletop-library-from'); else came = sessionStorage.getItem('tabletop-library-from') === '1'; } } catch (e) { /* no storage */ } return /^https?:$/.test(location.protocol) && came; };
   const libraryLink = () => (D.library && fromLibrary() ? `<a class="libback" href="${esc(D.library.href)}"><span aria-hidden="true">‹</span> ${esc(D.library.name)}</a>` : '');
   const buildStamp = () => { const m = document.querySelector('meta[name=build]'); const t = m ? m.content : ''; return /^__/.test(t) ? 'local file' : t; };
   const store = { get: k => { try { return localStorage.getItem(k); } catch (e) { return null; } }, set: (k, v) => { try { localStorage.setItem(k, v); } catch (e) { /* fine */ } }, del: k => { try { localStorage.removeItem(k); } catch (e) { /* fine */ } } };
+  /* the game's old name is in its old storage keys: bring a saved game and the seen tips over */
+  ['save', 'tips'].forEach(k => { const o = 'tabletop-library-loaded-blackjack-' + k, n = 'tabletop-library-stackjack-' + k; if (store.get(o) !== null && store.get(n) === null) { store.set(n, store.get(o)); } store.del(o); });
   const PTS = ['#e8c14a', '#58b6f0', '#e8744c', '#7ad08a', '#b48cf0', '#f08ab4'];
 
   const ui = { screen: 'home', setup: null, s: null, shown: null, sheet: null, deckOf: null, log: false, help: false, menu: false, settings: false, confirmNew: false, tipsReset: false, timer: null, tip: null, tipQ: [], skip: false, pick: null, lastLen: 0 };
@@ -1109,7 +1111,7 @@ const AI = (() => {
   // ---------- drawing cards ----------
   const valText = (c) => { const v = DEF[c.id].val; return v.kind === 'fixed' ? String(v.v) : v.kind === 'flex' ? v.opts.join('/') : v.kind === 'range' ? v.min + '–' + v.max : v.kind === 'ringer' ? '1/←' : '#'; };
   function faceHTML(c, o) {
-    o = o || {}; const d = DEF[c.id], col = '#59616e', ab = d.text, start = d.cat === 'Starting';          // one neutral style for every card
+    o = o || {}; const d = DEF[c.id], col = '#59616e', ab = d.text, start = d.cat === 'Number card';          // one neutral style for every card
     const long = ab.length > 70 ? ' tiny' : ab.length > 40 ? ' sm' : '';
     return `<div class="card ${o.big ? 'lg' : ''} ${start ? 'start' : ''} ${o.cls || ''}" style="--cc:${col}" ${o.attr || ''}><div class="cval ${String(o.val !== undefined ? o.val : valText(c)).length > 3 ? 'wide' : ''}">${esc(o.val !== undefined ? o.val : valText(c))}</div>${start ? '' : `<div class="cname ${d.name.length > 11 ? 'x1' : ''}">${esc(d.name)}</div>`}${o.big && ab ? `<div class="cab${long}">${esc(ab)}</div>` : ''}${o.tag ? `<div class="ctag">${esc(o.tag)}</div>` : ''}</div>`;
   }
@@ -1155,7 +1157,7 @@ const AI = (() => {
   // ---------- screens ----------
   const newBtn = (cls) => `<button class="big ${cls || ''} ${ui.confirmNew ? 'warn' : ''}" data-act="newgame">${ui.confirmNew ? 'Tap again to erase your current game' : 'New Game'}</button>`;
   function homeHTML() {
-    return `<div class="screen home">${libraryLink()}<div class="hero"><div class="suits">21</div><div class="kicker">LOADED</div><h1>Blackjack</h1><p class="tag">${esc(D.tagline)}</p></div>
+    return `<div class="screen home">${libraryLink()}<div class="hero"><div class="suits">21</div><h1>Stackjack</h1><p class="tag">${esc(D.tagline)}</p></div>
       <div class="menu">${hasSave() ? '<button class="big gold" data-act="continue">Continue</button>' : ''}${newBtn(hasSave() ? '' : 'gold')}<button class="big ghost" data-act="help">How to Play</button><button class="big ghost" data-act="settings">Settings</button></div>
       <p class="ver">By Patrick Blim-Hockberger · Version ${esc(buildStamp())}</p></div>`;
   }
@@ -1202,7 +1204,7 @@ const AI = (() => {
     let h = '';
     if (ui.deckOf !== null && (ui.deckOf === me || s.showAll)) {
       const counts = {}; E.deckList(s, ui.deckOf).forEach(id => { counts[id] = (counts[id] || 0) + 1; });
-      const ids = Object.keys(counts).sort((a, b) => (DEF[a].cat === 'Starting') - (DEF[b].cat === 'Starting') || DEF[a].name.localeCompare(DEF[b].name));
+      const ids = Object.keys(counts).sort((a, b) => (DEF[a].cat === 'Number card') - (DEF[b].cat === 'Number card') || DEF[a].name.localeCompare(DEF[b].name));
       return `<div class="sheet" data-act="closesheet"><div class="sheetin" data-act="none"><h3>${esc(s.pl[ui.deckOf].name)}'s deck (${E.deckList(s, ui.deckOf).length} cards)</h3><div class="decklist">${ids.map(id => `<div class="drow"><b>${esc(DEF[id].name)}</b>${counts[id] > 1 ? ' ×' + counts[id] : ''}<small>${esc(DEF[id].val.kind === 'fixed' ? DEF[id].val.v : valText({ id }))} · ${esc(DEF[id].text || DEF[id].cat)}</small></div>`).join('')}</div><button class="big" data-act="closesheet">Close</button></div></div>`;
     }
     if (ui.sheet !== null) {
@@ -1229,7 +1231,7 @@ const AI = (() => {
     const picks = dr ? dr.picks.map(x => `<span class="pk">${esc(s.pl[x.p].name)}: ${esc(DEF[s.cards[x.u].id].name)}</span>`).join('') : '';
     const d = dims(), n = Math.max(1, s.market.length), W = d.W - 36, Hh = d.H - Math.round(56 * d.u) - 8 - Math.round(64 * d.u) - Math.round(84 * d.u) - Math.round(58 * d.u) - 44;
     let cw = 40; for (let c = 1; c <= n; c++) { const rows = Math.ceil(n / c); cw = Math.max(cw, Math.floor(Math.min((W - (c - 1) * 14) / c - 8, (Hh - (rows - 1) * 14) / rows / 1.42 - 6, 320))); }
-    return `<div class="draft">${scoreHTML(s, who)}<h2>The Draft</h2><p class="dsub">${who != null ? (mine ? 'Your pick! Tap a card.' : esc(s.pl[who].name) + ' is picking…') : ''} Two picks each, fewest points first${dr && dr.tie ? ' (ties broken at random)' : ''}.</p>
+    return `<div class="draft">${scoreHTML(s, who)}<h2>Draft wildcards</h2><p class="dsub">${who != null ? (mine ? 'Pick a wildcard! Tap a card.' : esc(s.pl[who].name) + ' is picking…') : ''} Two picks each, fewest points first${dr && dr.tie ? ' (ties broken at random)' : ''}.</p>
       <div class="market" style="--cw:${cw}px">${s.market.map(c => `<button class="mk ${mine ? 'canpick' : ''}" data-act="${mine ? 'ans' : 'card'}" data-v="c${c.u}" data-u="${c.u}" data-p="-1">${faceHTML(c, { big: true })}</button>`).join('')}</div>
       <div class="dfoot"><button class="chip" data-act="deck" data-p="${me}">Your deck</button>${picks}</div></div>`;
   }

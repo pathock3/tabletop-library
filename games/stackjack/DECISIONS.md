@@ -1,6 +1,6 @@
-# Loaded Blackjack — rulings
+# Stackjack — rulings
 
-Source: the owner's "Loaded Blackjack Rulebook" doc (player-facing) and its "Claude Code Spec" tab, which wins where the two differ. Every card is a line in `GAME_DATA.upgrades` (index.html); the engine only does what the data says.
+Source: the owner's "Loaded Blackjack Rulebook" doc (player-facing) and its "Claude Code Spec" tab, which wins where the two differ. Every card is a line in `GAME_DATA.wild` (index.html); the engine only does what the data says.
 
 ## Rulings from the spec (section 15, built as written)
 1. Side Bet scores 2 points instead of 1 when at least one other player also busted (even if everyone busted).
@@ -49,3 +49,9 @@ Source: the owner's "Loaded Blackjack Rulebook" doc (player-facing) and its "Cla
 
 ## Not built
 - The spec's "collapsible log" is a Log button that opens a sheet; there is no separate "deck order" view beyond what a peek shows you.
+
+## The rename (v5)
+- The game is **Stackjack** ("Stack the deck. Hit 21."). The drafted cards are **wildcards**; the nine cards everyone starts with are **number cards**. Names only, no rule changes.
+- The folder is `games/stackjack/`; the data block now has `numbers` and `wild` (was `starting` and `upgrades`), the engine state `wild` (was `upgrade`), and the config `WILDCARD_COPIES`. The old address `games/loaded-blackjack/` redirects (a page plus a `_redirects` rule written by `tools/build.js`).
+- `RULING:` A saved game and the seen tips under the old storage names are carried over to the new names the first time Stackjack opens.
+- Not renamed: the CSS class `.market` and the engine task `draftpick` (they name the draft, not a card set), and old CHANGELOG entries, which keep the old name as history.

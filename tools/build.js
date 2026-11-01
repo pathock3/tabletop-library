@@ -32,6 +32,14 @@ for (const rel of pages) {
   fs.mkdirSync(path.dirname(path.join(out, rel)), { recursive: true });
   fs.writeFileSync(path.join(out, rel), html.replace('content="__BUILD__"', () => 'content="' + label + '"'));
 }
+// old addresses that still work: Loaded Blackjack was renamed Stackjack (a redirect page, plus a _redirects rule for the host)
+const MOVED = { 'games/loaded-blackjack': 'games/stackjack' };
+for (const [from, to] of Object.entries(MOVED)) {
+  fs.mkdirSync(path.join(out, from), { recursive: true });
+  const dest = '/' + to + '/';
+  fs.writeFileSync(path.join(out, from, 'index.html'), '<!doctype html><meta charset="utf-8"><title>Stackjack</title><meta http-equiv="refresh" content="0;url=../../' + to + '/index.html"><link rel="canonical" href="' + dest + '"><script>location.replace("../../' + to + '/index.html" + location.search + location.hash)</script><p><a href="../../' + to + '/index.html">Stackjack has moved here.</a></p>\n');
+}
+fs.writeFileSync(path.join(out, '_redirects'), Object.entries(MOVED).map(([from, to]) => '/' + from + '/* /' + to + '/:splat 301').join('\n') + '\n');
 // shared icons (Favorites / Home Screen) are published in assets/, the same place they sit in the repo; pages link to them, but still work without them
 const assets = path.join(root, 'assets');
 const icons = fs.existsSync(assets) ? fs.readdirSync(assets).filter(f => f.endsWith('.png')) : [];

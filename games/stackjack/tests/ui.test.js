@@ -7,7 +7,7 @@ const SEEN = JSON.stringify({ welcome: 1, deal: 1, turn: 1, load: 1, window: 1, 
 async function open(viewport) {
   const b = await chromium.launch(), p = await b.newPage({ viewport });
   const errs = []; p.on('pageerror', e => errs.push(e.message));
-  await p.addInitScript(seen => { try { if (!localStorage.getItem('tabletop-library-loaded-blackjack-tips')) localStorage.setItem('tabletop-library-loaded-blackjack-tips', seen); } catch (e) { /* fine */ } }, SEEN);
+  await p.addInitScript(seen => { try { if (!localStorage.getItem('tabletop-library-stackjack-tips')) localStorage.setItem('tabletop-library-stackjack-tips', seen); } catch (e) { /* fine */ } }, SEEN);
   await p.goto(URL); return { b, p, errs };
 }
 

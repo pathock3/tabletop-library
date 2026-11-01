@@ -32,7 +32,7 @@ test('build: only the pages and the icons are published (no tests, docs or tools
   const walk = d => fs.readdirSync(d, { withFileTypes: true }).forEach(e => (e.isDirectory() ? walk(path.join(d, e.name)) : files.push(path.relative(dir, path.join(d, e.name)))));
   walk(dir);
   const icons = fs.readdirSync(path.join(root, 'assets')).filter(f => f.endsWith('.png'));
-  assert.deepEqual(files.sort(), ['index.html', ...icons.map(f => path.join('assets', f)), ...games.map(g => path.join('games', g, 'index.html'))].sort());
+  assert.deepEqual(files.sort(), ['index.html', '_redirects', path.join('games', 'loaded-blackjack', 'index.html'), ...icons.map(f => path.join('assets', f)), ...games.map(g => path.join('games', g, 'index.html'))].sort(), '(the two extra files are the redirect from the old Loaded Blackjack address)');
 });
 
 test('icons: every page has a Home Screen / Favorites icon that exists, and the page title is the Home Screen name', () => {
@@ -60,4 +60,13 @@ test('build: the unbuilt files still open on their own and call themselves a loc
     assert.equal(stamp(src), '__BUILD__', rel);
     assert.match(src, /'local file'/, rel);
   }
+});
+
+test('build: the old Loaded Blackjack address redirects to Stackjack', () => {
+  const { execFileSync } = require('child_process'), os = require('os');
+  const out = fs.mkdtempSync(path.join(os.tmpdir(), 'site-'));
+  execFileSync('node', [path.join(__dirname, '..', 'tools', 'build.js'), out], { stdio: 'ignore' });
+  assert.match(fs.readFileSync(path.join(out, 'games', 'loaded-blackjack', 'index.html'), 'utf8'), /stackjack\/index\.html/);
+  assert.match(fs.readFileSync(path.join(out, '_redirects'), 'utf8'), /\/games\/loaded-blackjack\/\* \/games\/stackjack\/:splat 301/);
+  assert.ok(fs.existsSync(path.join(out, 'games', 'stackjack', 'index.html')));
 });

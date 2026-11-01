@@ -3,7 +3,7 @@ const assert = require('node:assert/strict');
 const { GAME_DATA: D, Engine: E, AI } = require('./load');
 
 // The starting deck stops at 7, so the tests that need bigger numbers use these test-only cards (they are never dealt).
-for (const [id, v] of [['ten', 10]]) E.DEF[id] = { id, name: String(v), val: { kind: 'fixed', v }, cat: 'Starting', trig: 'none', text: '' };
+for (const [id, v] of [['ten', 10]]) E.DEF[id] = { id, name: String(v), val: { kind: 'fixed', v }, cat: 'Number card', trig: 'none', text: '' };
 
 // ---------- helpers: build a table by hand ----------
 function game(n = 3, seed = 1) {
@@ -23,15 +23,15 @@ const opts = s => s.pending.opts.map(o => String(o.id));
 const total = (s, p) => E.bestTotal(s, p);
 const uOf = (s, p, id) => s.pl[p].line.find(e => e.c.id === id).c.u;
 
-test('the data: 9 starting cards (one each of 1 to 9), 50 upgrade cards, no suits and no Ace', () => {
-  assert.deepEqual(D.starting.map(c => c.id), ['one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine']); assert.ok(D.starting.every((c, k) => !('copies' in c) && c.val.kind === 'fixed' && c.val.v === k + 1 && c.trig === 'none'));
-  const g = game(2); assert.equal(g.pl[0].deck.length + g.pl[0].line.length, 9, 'setup gives each player 9 cards'); assert.deepEqual(Object.values(g.cards).filter(c => c.o === 0 && D.starting.some(d => d.id === c.id)).map(c => c.id).sort(), ['eight', 'five', 'four', 'nine', 'one', 'seven', 'six', 'three', 'two']);
-  const all = D.starting.concat(D.upgrades); assert.ok(!all.some(c => 'suit' in c || c.id === 'ace' || (c.name || '') === 'Ace'), 'no card has a suit, and there is no Ace');
+test('the data: 9 number cards (one each of 1 to 9), 50 wildcards, no suits and no Ace', () => {
+  assert.deepEqual(D.numbers.map(c => c.id), ['one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine']); assert.ok(D.numbers.every((c, k) => !('copies' in c) && c.val.kind === 'fixed' && c.val.v === k + 1 && c.trig === 'none'));
+  const g = game(2); assert.equal(g.pl[0].deck.length + g.pl[0].line.length, 9, 'setup gives each player 9 cards'); assert.deepEqual(Object.values(g.cards).filter(c => c.o === 0 && D.numbers.some(d => d.id === c.id)).map(c => c.id).sort(), ['eight', 'five', 'four', 'nine', 'one', 'seven', 'six', 'three', 'two']);
+  const all = D.numbers.concat(D.wild); assert.ok(!all.some(c => 'suit' in c || c.id === 'ace' || (c.name || '') === 'Ace'), 'no card has a suit, and there is no Ace');
   assert.ok(!/[♠♥♣♦]|\bAces?\b|\bsuits?\b/i.test(JSON.stringify(D)), 'no suit or Ace anywhere in the game data');
   const html = require('fs').readFileSync(require('./load').FILE, 'utf8'); assert.ok(!/[♠♥♣♦]/.test(html), 'no suit symbols in the game file'); assert.ok(!/\bAces?\b/.test(html.replace(/there is no Ace/g, '')), 'no Ace in the game file');
-  assert.equal(D.upgrades.length, 50); assert.deepEqual(D.upgrades.find(c => c.id === 'hi-lo').val, { kind: 'flex', opts: [1, 10] }); assert.equal(D.upgrades.find(c => c.id === 'hit-man').val.v, 8);
-  assert.deepEqual(D.upgrades.filter(c => c.mean).map(c => c.id).sort(), ['cooler', 'hand-mucker', 'hit-man', 'last-call']);
-  for (const c of D.upgrades) { assert.ok(c.ai >= 1 && c.ai <= 5, c.id); assert.ok(c.name && c.cat && c.trig, c.id); }
+  assert.equal(D.wild.length, 50); assert.deepEqual(D.wild.find(c => c.id === 'hi-lo').val, { kind: 'flex', opts: [1, 10] }); assert.equal(D.wild.find(c => c.id === 'hit-man').val.v, 8);
+  assert.deepEqual(D.wild.filter(c => c.mean).map(c => c.id).sort(), ['cooler', 'hand-mucker', 'hit-man', 'last-call']);
+  for (const c of D.wild) { assert.ok(c.ai >= 1 && c.ai <= 5, c.id); assert.ok(c.name && c.cat && c.trig, c.id); }
 });
 
 test('values resolve in order: base, Fixer, Split, Shave Job, floor; Ringer chains; Headcount', () => {
@@ -125,9 +125,9 @@ test('scoring: every row of the examples table, plus Tightrope, Side Bet, Run an
 test('the draft: priority first, then fewest points; ties are random but repeatable; cards join the owner; the rest leave the game', () => {
   const s = game(4, 5); s.pl.forEach((p, i) => { p.pts = [5, 2, 2, 7][i]; p.prio = false; }); s.pl[3].prio = true;
   s.stack = []; s.pending = null;
-  const before = s.upgrade.length;
+  const before = s.wild.length;
   s.phase = 'results'; E.answer; s.pending = { who: null, kind: 'results', opts: [{ id: 'continue' }], prompt: '' }; ok(s, 'continue');
-  assert.equal(s.phase, 'draft'); assert.equal(s.market.length, 8, '2 cards per player'); assert.equal(s.upgrade.length, before - 8);
+  assert.equal(s.phase, 'draft'); assert.equal(s.market.length, 8, '2 cards per player'); assert.equal(s.wild.length, before - 8);
   assert.deepEqual(s.draft.order.slice(0, 4).map(Number)[0], 3, 'a player with priority picks first');
   assert.equal(s.draft.order[3], 0, 'the leader picks last'); assert.deepEqual(s.draft.order.slice(0, 4), s.draft.order.slice(4), 'the same order twice');
   assert.ok(s.draft.tie, 'two players tied on points: broken at random');
@@ -234,7 +234,7 @@ test('the computer never sees hidden cards: a view hides other players\' hidden 
 
 test('values from 0 to 10 are valid in the data and resolve in a line', () => {
   const vals = c => c.val.kind === 'fixed' ? [c.val.v] : c.val.kind === 'flex' ? c.val.opts : c.val.kind === 'range' ? [c.val.min, c.val.max] : [];
-  for (const c of D.starting.concat(D.upgrades)) for (const v of vals(c)) assert.ok(Number.isInteger(v) && v >= 0 && v <= 10, c.id + ' has value ' + v);
+  for (const c of D.numbers.concat(D.wild)) for (const v of vals(c)) assert.ok(Number.isInteger(v) && v >= 0 && v <= 10, c.id + ' has value ' + v);
   const s = game(); line(s, 0, ['hi-lo', 'feather', 'ten']); assert.deepEqual(E.lineValuesFor(s, 0, [10, 0, 10]), [10, 0, 10]); assert.deepEqual(E.range(s, 0), { min: 11, max: 23 }); assert.equal(total(s, 0), 20, 'best total at 21 or less: Hi-Lo 10, Feather 0, ten 10');
 });
 
@@ -264,14 +264,27 @@ test('a tie for the most points runs tiebreak rounds: only the tied players, no 
 });
 
 test('the upgrade deck has two copies of every upgrade card (100, or 92 in a Friendly Game); two copies in a line work on their own', () => {
-  assert.equal(D.rules.UPGRADE_COPIES, 2);
+  assert.equal(D.rules.WILDCARD_COPIES, 2);
   const mk = fr => E.newGame({ seed: 4, friendly: fr, seats: [{ name: 'a' }, { name: 'b' }, { name: 'c' }] });
-  const all = s => s.upgrade.concat(...s.pl.map(p => p.deck.filter(c => DEF_UP.has(c.id))));
-  const DEF_UP = new Set(D.upgrades.map(c => c.id));
-  let s = mk(false); assert.equal(s.upgrade.length, 100); for (const c of D.upgrades) assert.equal(s.upgrade.filter(x => x.id === c.id).length, 2, c.id + ' x2');
-  s = mk(true); assert.equal(s.upgrade.length, 92); for (const id of ['cooler', 'hit-man', 'hand-mucker', 'last-call']) assert.equal(s.upgrade.filter(x => x.id === id).length, 0, 'Friendly removes both copies of ' + id);
+  const all = s => s.wild.concat(...s.pl.map(p => p.deck.filter(c => DEF_UP.has(c.id))));
+  const DEF_UP = new Set(D.wild.map(c => c.id));
+  let s = mk(false); assert.equal(s.wild.length, 100); for (const c of D.wild) assert.equal(s.wild.filter(x => x.id === c.id).length, 2, c.id + ' x2');
+  s = mk(true); assert.equal(s.wild.length, 92); for (const id of ['cooler', 'hit-man', 'hand-mucker', 'last-call']) assert.equal(s.wild.filter(x => x.id === id).length, 0, 'Friendly removes both copies of ' + id);
   s = game(); line(s, 0, ['ten', 'nine', 'getaway-car', 'getaway-car', 'five']); s.stack = [{ t: 'bustcheck' }]; E.run(s); ok(s, 'getaway-car');
   assert.equal(s.removed.filter(c => c.id === 'getaway-car').length, 1, 'only the copy that was used leaves the game'); assert.equal(s.pl[0].line.filter(e => e.c.id === 'getaway-car').length, 1);
   s = game(); line(s, 0, ['muscle', 'muscle', 'two']); assert.ok(E.hasMuscle(s, 0)); line(s, 0, ['palm', 'palm', 'two']); assert.equal(E.canUseFree(s, 0).length, 0, 'nothing drawn yet: Palm cannot be used');
   s = game(); line(s, 0, ['two', 'second-deal', 'second-deal']); const e1 = E.entry(s, 0, 'second-deal'); E.mod(s, e1.c.u).side = true; assert.notEqual(E.entry(s, 0, 'second-deal').c.u, e1.c.u, 'a used copy does not hide the unused one');
+});
+
+test('naming: Stackjack, wildcards and number cards; no "Loaded" or "upgrade" anywhere a player can read', () => {
+  const html = require('fs').readFileSync(require('path').join(__dirname, '..', 'index.html'), 'utf8');
+  assert.equal(D.title, 'Stackjack'); assert.equal(D.tagline, 'Stack the deck. Hit 21.');
+  const bad = x => /\bLoaded\b|\bLOADED\b/.test(x) || /upgrade/i.test(x);
+  assert.ok(!bad(JSON.stringify(D)), 'the data block'); assert.ok(!bad(html), 'the page: title, tips, help, prompts, screens');
+  assert.match(html, /<title>Stackjack<\/title>/); assert.ok(Array.isArray(D.wild) && D.wild.length === 50 && Array.isArray(D.numbers) && D.numbers.length === 9); assert.equal(D.rules.WILDCARD_COPIES, 2);
+  assert.ok(D.numbers.every(c => c.cat === 'Number card'));
+  assert.equal(D.texts.tips.welcome[1], 'Get closest to 21 without going over. Each round, the highest total scores the most points. Between rounds, draft wildcards to stack your deck. First to 21 points wins.');
+  assert.equal(D.texts.tips.draft[0], 'Draft wildcards');
+  const s = game(3); s.pl.forEach(p => { p.pts = 3; }); s.phase = 'results'; s.pending = { who: null, kind: 'results', opts: [{ id: 'continue' }], prompt: '' }; ok(s, 'continue');
+  assert.match(s.pending.prompt, /: pick a wildcard$/);
 });

@@ -130,14 +130,14 @@ const LIBRARY = {
       listed: true,
     },
     {
-      id: 'loaded-blackjack',
-      title: 'Loaded Blackjack',
-      tagline: 'Get as close to 21 as you can. Cheat your way there.',
+      id: 'stackjack',
+      title: 'Stackjack',
+      tagline: 'Stack the deck. Hit 21.',
       players: '2–6 players',
       icon: '🃏',
-      art: 'loaded-blackjack',
+      art: 'stackjack',
       accent: '#1f7a4f',
-      path: 'games/loaded-blackjack/index.html',
+      path: 'games/stackjack/index.html',
       listed: true,
     },
     {
@@ -254,11 +254,11 @@ const LIBRARY = {
         <text x="150" y="76" text-anchor="middle" font-size="26" font-weight="900" fill="url(#twT)" stroke="#1c0a06" stroke-width="7" stroke-linejoin="round" paint-order="stroke">THIS MEANS</text>
         </svg>`;
     },
-    // Loaded Blackjack: a green felt table, a fan of numbered cards (no suits) and a loaded die
-    'loaded-blackjack': () => {
+    // Stackjack: a green felt table, a fan of numbered cards (no suits) and a die
+    'stackjack': () => {
       const card = (x, y, r, face) => `<g transform="translate(${x} ${y}) rotate(${r})"><rect x="-44" y="-62" width="88" height="124" rx="9" fill="${face ? '#fffaf0' : '#8a1d1d'}" stroke="#101010" stroke-width="3"/>${face ? face : '<rect x="-34" y="-52" width="68" height="104" rx="5" fill="none" stroke="#e8d49a" stroke-width="3"/><text x="0" y="14" text-anchor="middle" font-size="40" font-weight="900" fill="#e8d49a" font-family="Georgia,serif">21</text>'}</g>`;
       const num = (n, c) => `<text x="0" y="22" text-anchor="middle" font-size="80" font-weight="900" fill="${c}" font-family="Georgia,serif">${n}</text>`;
-      return `<svg viewBox="0 0 300 380" role="img" aria-label="Loaded Blackjack"><defs>
+      return `<svg viewBox="0 0 300 380" role="img" aria-label="Stackjack"><defs>
         <radialGradient id="lbB" cx="50%" cy="42%" r="80%"><stop offset="0" stop-color="#2f9a68"/><stop offset=".6" stop-color="#16573a"/><stop offset="1" stop-color="#082116"/></radialGradient>
         <linearGradient id="lbT" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff2a8"/><stop offset="1" stop-color="#e8962a"/></linearGradient></defs>
         <rect width="300" height="380" fill="url(#lbB)"/>
@@ -268,8 +268,8 @@ const LIBRARY = {
         ${card(150, 196, 0, num(5, '#c0262e'))}
         ${card(204, 212, 21, null)}
         <g transform="translate(236 292) rotate(14)"><rect x="-24" y="-24" width="48" height="48" rx="9" fill="#fff" stroke="#101010" stroke-width="3"/>${[[-11, -11], [11, -11], [-11, 11], [11, 11], [0, 0]].map(([x, y]) => `<circle cx="${x}" cy="${y}" r="4.6" fill="#101010"/>`).join('')}<path d="M-24 14L-14 24" stroke="#d6402a" stroke-width="3"/></g>
-        <text x="150" y="78" text-anchor="middle" font-size="46" font-weight="900" letter-spacing="6" fill="url(#lbT)" stroke="#07140d" stroke-width="9" stroke-linejoin="round" paint-order="stroke">LOADED</text>
-        <text x="150" y="346" text-anchor="middle" font-size="40" font-weight="900" font-style="italic" fill="#fff7d6" stroke="#07140d" stroke-width="9" stroke-linejoin="round" paint-order="stroke">BLACKJACK</text>
+        <text x="150" y="78" text-anchor="middle" font-size="58" font-weight="900" letter-spacing="6" fill="url(#lbT)" stroke="#07140d" stroke-width="9" stroke-linejoin="round" paint-order="stroke">21</text>
+        <text x="150" y="346" text-anchor="middle" font-size="40" font-weight="900" font-style="italic" fill="#fff7d6" stroke="#07140d" stroke-width="9" stroke-linejoin="round" paint-order="stroke">STACKJACK</text>
         </svg>`;
     },
     // Dig Dig BOOM!: the front of the box, taken from the game's main menu — two Monster cards looming over a fan of Geodes, each a different gem.
