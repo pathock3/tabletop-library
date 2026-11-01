@@ -323,16 +323,16 @@ const LIBRARY = {
     if (matchMedia('(prefers-reduced-motion: reduce)').matches || !box.animate) return;
     e.preventDefault();
     /* start loading the game the moment the box is tapped (it is then in the cache when we arrive), and go when the animation has finished and the game has loaded, or after a short wait at most */
-    const loaded = fetch(box.href).then(x => x.text()).catch(() => 0), anim = new Promise(ok => setTimeout(ok, 560)), cap = new Promise(ok => setTimeout(ok, 1800));
+    const loaded = fetch(box.href).then(x => x.text()).catch(() => 0), anim = new Promise(ok => setTimeout(ok, 550)), cap = new Promise(ok => setTimeout(ok, 1600));          /* (the zoom keeps going the whole time we wait: it never stops and freezes) */
     const go = () => { location.href = box.href; }, r = box.getBoundingClientRect(), fx = document.createElement('div');
     fx.className = 'openfx'; fx.style.setProperty('--accent-c', getComputedStyle(box).getPropertyValue('--accent-c'));
     fx.innerHTML = '<div class="stage"><div class="lid">' + box.querySelector('.art').innerHTML + '</div></div>';
     const st = fx.firstChild; st.style.cssText = `left:${r.left}px;top:${r.top}px;width:${r.width}px;height:${r.height}px`;
     document.body.appendChild(fx);
-    const S = Math.max(innerWidth / r.width, innerHeight / r.height) * 1.15, dx = innerWidth / 2 - (r.left + r.width / 2), dy = innerHeight / 2 - (r.top + r.height / 2);
+    const S = Math.max(innerWidth / r.width, innerHeight / r.height) * 2.4, dx = innerWidth / 2 - (r.left + r.width / 2), dy = innerHeight / 2 - (r.top + r.height / 2);
     /* snappy: fly straight into the box art (no lid), fade to the game's dark, then go */
-    st.animate([{ transform: 'translate(0,0) scale(1)' }, { transform: `translate(${dx}px,${dy}px) scale(${S})` }], { duration: 560, easing: 'cubic-bezier(.5,0,.9,.4)', fill: 'forwards' });
-    fx.animate([{ background: 'rgba(8,5,3,0)' }, { background: 'rgba(8,5,3,.7)' }, { background: 'rgb(7,4,3)' }], { duration: 560, fill: 'forwards' });
+    st.animate([{ transform: 'translate(0,0) scale(1)' }, { transform: `translate(${dx}px,${dy}px) scale(${S})` }], { duration: 1600, easing: 'cubic-bezier(.3,0,.7,.6)', fill: 'forwards' });
+    fx.animate([{ background: 'rgba(8,5,3,0)', offset: 0 }, { background: 'rgba(8,5,3,.35)', offset: .35 }, { background: 'rgb(7,4,3)', offset: .75 }, { background: 'rgb(7,4,3)' }], { duration: 1600, fill: 'forwards' });
     Promise.race([Promise.all([anim, loaded]), cap]).then(go);
   });
   /* warm the cache for every game on the shelf, so a tap arrives almost at once */
