@@ -1,6 +1,6 @@
 # Tabletop Library — project rules
 
-A collection of Patrick Blim-Hockberger's tabletop game designs, adapted as browser games. The front page (`index.html`) is the library; each game lives in `games/<id>/`. Roadmap and design philosophy: **`docs/PLAN.md`** — read it before starting new work.
+A collection of Patrick Blim-Hockberger's tabletop game designs, adapted as browser games. The front page (`index.html`) is the library; each game lives in `games/<id>/`. Roadmap and design philosophy: **`docs/PLAN.md`** — read it before starting new work. The owner's repeated design preferences (screen use, big text cards, one in-game menu, attractive menus, tips): **`docs/OWNER-PREFERENCES.md`** — apply them to every game from the start.
 
 ## Hard rules
 1. **Every game is one self-contained `index.html`** (`games/<id>/index.html`), playable by touch on an iPad in Safari. It must work opened directly, with no runtime dependencies and no network (v2.7.1 of Dig Dig BOOM! has its cards built in: it no longer reads a sheet). Plain JavaScript. The build only copies files and stamps the version.
