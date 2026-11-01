@@ -317,22 +317,21 @@ const LIBRARY = {
     <footer>Version ${esc(BUILD)}</footer>`; };
   draw(); let lastPer = perRow(); addEventListener('resize', () => { if (perRow() !== lastPer) { lastPer = perRow(); draw(); } });
 
-  // Tapping a box opens it: the lid swings up, we zoom into the dark inside, and arrive in the game.
+  // Tapping a box flies into its art, quickly, and arrives in the game.
   document.getElementById('app').addEventListener('click', e => {
     const box = e.target.closest('a.box'); if (!box || e.defaultPrevented || e.button || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
     if (matchMedia('(prefers-reduced-motion: reduce)').matches || !box.animate) return;
     e.preventDefault();
     const go = () => { location.href = box.href; }, r = box.getBoundingClientRect(), fx = document.createElement('div');
     fx.className = 'openfx'; fx.style.setProperty('--accent-c', getComputedStyle(box).getPropertyValue('--accent-c'));
-    fx.innerHTML = '<div class="stage"><div class="inside"></div><div class="lid">' + box.querySelector('.art').innerHTML + '</div></div>';
+    fx.innerHTML = '<div class="stage"><div class="lid">' + box.querySelector('.art').innerHTML + '</div></div>';
     const st = fx.firstChild; st.style.cssText = `left:${r.left}px;top:${r.top}px;width:${r.width}px;height:${r.height}px`;
     document.body.appendChild(fx);
-    const lid = st.querySelector('.lid'), S = Math.max(innerWidth / r.width, innerHeight / r.height) * 1.2, dx = innerWidth / 2 - (r.left + r.width / 2), dy = innerHeight / 2 - (r.top + r.height * .45);
-    fx.animate([{ background: 'rgba(8,5,3,0)' }, { background: 'rgba(8,5,3,.82)' }], { duration: 450, fill: 'forwards' });
-    lid.animate([{ transform: 'rotateX(0deg)' }, { transform: 'rotateX(-118deg)' }], { duration: 560, easing: 'cubic-bezier(.3,.7,.3,1)', fill: 'forwards' });
-    st.animate([{ transform: 'translate(0,0) scale(1)' }, { transform: `translate(${dx}px,${dy}px) scale(${S})` }], { duration: 720, delay: 480, easing: 'cubic-bezier(.65,0,.85,.4)', fill: 'forwards' });
-    fx.animate([{ background: 'rgba(8,5,3,.82)' }, { background: 'rgb(7,4,3)' }], { duration: 260, delay: 940, fill: 'forwards' });
-    setTimeout(go, 1230);
+    const S = Math.max(innerWidth / r.width, innerHeight / r.height) * 1.15, dx = innerWidth / 2 - (r.left + r.width / 2), dy = innerHeight / 2 - (r.top + r.height / 2);
+    /* snappy: fly straight into the box art (no lid), fade to the game's dark, then go */
+    st.animate([{ transform: 'translate(0,0) scale(1)' }, { transform: `translate(${dx}px,${dy}px) scale(${S})` }], { duration: 340, easing: 'cubic-bezier(.5,0,.9,.4)', fill: 'forwards' });
+    fx.animate([{ background: 'rgba(8,5,3,0)' }, { background: 'rgba(8,5,3,.7)' }, { background: 'rgb(7,4,3)' }], { duration: 340, fill: 'forwards' });
+    setTimeout(go, 360);
   });
   window.addEventListener('pageshow', () => { document.querySelectorAll('.openfx').forEach(n => n.remove()); });          // coming back with the Back button: the box is closed again
 
