@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- **Loaded Blackjack — first to 21 points:** no fixed number of rounds: the game ends at the end of the round in which someone reaches 21 points (highest total wins; ties play tiebreak rounds). New points table by number of players (6 for first). Hit or Pass is now chosen by everyone at the same time, in secret. The upgrade deck has two copies of every card (100 cards). The Hard computer player now plays the endgame by points. New Game starts at once against Easy, Medium and Hard (all the options are gone) and asks you to tap twice to erase a game in progress. How to Play is three steps with pictures; Settings has Reset tips. The table fills the screen with bigger cards and buttons (best on iPad landscape), the draft shows big cards with the scoreboard and only your own deck, and there is no button back to the library during a game.
+
 - **Dig Dig BOOM!:** "Teach me how to play" is now only on the New Game screen; it and "Reset tips" are gone from More.
 
 - **Library:** tapping a box now flies straight into its art (about a third of a second) instead of opening the lid. Scrolling over the shelf is smoother: the costly drop-shadow and brightness filters on every box are replaced with plain shadows on their own layers.

@@ -14,7 +14,7 @@ async function open(viewport) {
 test('ui: play a round against the computer: hit, pass, results, the draft, the next round', { skip: !chromium, timeout: 120000 }, async () => {
   const { b, p, errs } = await open({ width: 820, height: 1180 });
   try {
-    await p.click('[data-act=newgame]'); await p.fill('.seed', '5'); await p.click('[data-act=start]');
+    await p.click('[data-act=newgame]'); await p.evaluate(() => LB.newGame({ seed: 5 }));
     let sawDraft = false;
     for (let i = 0; i < 600; i++) {
       await p.waitForTimeout(40);
@@ -35,10 +35,8 @@ test('ui: play a round against the computer: hit, pass, results, the draft, the 
 test('ui: pass and play hides each player\'s private cards behind a handoff screen', { skip: !chromium }, async () => {
   const { b, p, errs } = await open({ width: 820, height: 1180 });
   try {
-    await p.click('[data-act=newgame]');
-    await p.click('[data-act=kind][data-i="1"][data-v=human]');
-    await p.click('[data-act=start]');
-    await p.waitForSelector('.cover');
+    await p.evaluate(() => LB.newGame({ seed: 3, seats: [{ name: 'A', kind: 'human' }, { name: 'B', kind: 'human' }, { name: 'C', kind: 'ai', level: 'easy' }] }));
+    await p.waitForSelector('.cover', { timeout: 20000 });
     assert.equal(await p.locator('.card').count(), 0, 'nothing private on the handoff screen');
     const who = await p.evaluate(() => LB.ui.s.pending.who);
     await p.click('[data-act=handoff]');
@@ -55,7 +53,7 @@ test('ui: pass and play hides each player\'s private cards behind a handoff scre
 test('ui: the first-time tips come once and the game waits for them', { skip: !chromium }, async () => {
   const b = await chromium.launch(), p = await b.newPage({ viewport: { width: 820, height: 1180 } });
   try {
-    await p.goto(URL); await p.click('[data-act=newgame]'); await p.click('[data-act=start]');
+    await p.goto(URL); await p.click('[data-act=newgame]');
     await p.waitForSelector('.sheet [data-act=tipok]');
     assert.match(await p.innerText('.sheet'), /Welcome/);
     const before = await p.evaluate(() => LB.ui.s.log.length); await p.waitForTimeout(1200);
@@ -67,7 +65,7 @@ test('ui: the first-time tips come once and the game waits for them', { skip: !c
 test('ui: values 0 and 10 and the two-digit "1/10" fit on the card faces', { skip: !chromium, timeout: 60000 }, async () => {
   const { b, p, errs } = await open({ width: 820, height: 1180 });
   try {
-    await p.click('[data-act=newgame]'); await p.fill('.seed', '5'); await p.click('[data-act=start]');
+    await p.click('[data-act=newgame]'); await p.evaluate(() => LB.newGame({ seed: 5 }));
     await p.waitForSelector('.card');
     const r = await p.evaluate(() => {
       const s = LB.ui.s, pl = s.pl[0]; pl.line[0].c.id = 'hi-lo'; pl.line[1].c.id = 'feather'; pl.line[0].down = false; pl.line[1].down = false; LB.render();
@@ -81,3 +79,46 @@ test('ui: values 0 and 10 and the two-digit "1/10" fit on the card faces', { ski
     assert.deepEqual(errs, []);
   } finally { await b.close(); }
 });
+
+test('ui: New Game starts at once against Easy, Medium and Hard; a second game needs a second tap; no way back to the library mid-game', { skip: !chromium, timeout: 60000 }, async () => {
+  const { b, p, errs } = await open({ width: 1180, height: 820 });
+  try {
+    assert.equal(await p.locator('[data-act=start], .seat, .seed').count(), 0, 'no new-game options');
+    await p.click('[data-act=newgame]'); await p.waitForSelector('.pnl.me');
+    assert.deepEqual(await p.evaluate(() => LB.ui.s.pl.map(x => x.kind === 'ai' ? x.level : x.kind)), ['human', 'easy', 'medium', 'hard']);
+    assert.equal(await p.locator('.libback').count(), 0, 'no button back to the library in the middle of a game');
+    await p.click('[data-act=menu]'); const first = await p.evaluate(() => LB.ui.s.nextU);
+    await p.click('.sheet [data-act=newgame]'); assert.match(await p.innerText('.sheet'), /Tap again to erase your current game/); assert.equal(await p.evaluate(() => LB.ui.s.nextU), first, 'one tap only warns');
+    await p.click('.sheet [data-act=settings]'); assert.match(await p.locator('.sheet').last().innerText(), /Reset tips/); await p.click('[data-act=resettips]'); assert.match(await p.locator('.sheet').last().innerText(), /Tips reset/); await p.click('[data-act=closesettings]');
+    await p.click('.sheet [data-act=home]'); await p.waitForSelector('.home');
+    await p.click('[data-act=newgame]'); assert.match(await p.innerText('.home'), /Tap again to erase your current game/);
+    const before = await p.evaluate(() => LB.ui.s.seed); await p.click('[data-act=newgame]'); await p.waitForSelector('.pnl.me'); assert.notEqual(await p.evaluate(() => LB.ui.s.seed), before, 'the second tap starts a new game');
+    assert.deepEqual(errs, []);
+  } finally { await b.close(); }
+});
+
+test('ui: How to Play is three numbered steps with pictures', { skip: !chromium }, async () => {
+  const { b, p, errs } = await open({ width: 820, height: 1180 });
+  try {
+    await p.click('[data-act=help]'); assert.equal(await p.locator('.step').count(), 3); assert.ok(await p.locator('.step .vis .card').count() >= 6, 'real cards are drawn in the steps');
+    assert.match(await p.innerText('.sheet'), /First player to reach 21 points wins|first player to reach 21 points wins/i); assert.deepEqual(errs, []);
+  } finally { await b.close(); }
+});
+
+for (const [w, h] of [[1180, 820], [1440, 800], [820, 1180], [402, 874]]) {
+  test(`ui: the table fills the screen at ${w}x${h} and the draft shows big cards and the scoreboard`, { skip: !chromium, timeout: 60000 }, async () => {
+    const { b, p, errs } = await open({ width: w, height: h });
+    try {
+      await p.click('[data-act=newgame]'); await p.evaluate(() => LB.newGame({ seed: 5 })); await p.waitForSelector('.pnl.me .card');
+      const r = await p.evaluate(() => { const me = document.querySelector('.pnl.me').getBoundingClientRect(), card = document.querySelector('.pnl.me .card').getBoundingClientRect(), app = document.documentElement; return { bottom: me.bottom, right: me.right, cw: card.width, scrollW: app.scrollWidth, H: innerHeight, W: innerWidth, oppCard: document.querySelector('.opps .card').getBoundingClientRect().width }; });
+      assert.ok(r.bottom <= r.H + 1 && r.right <= r.W + 1 && r.scrollW <= r.W + 1, 'nothing runs off the screen: ' + JSON.stringify(r));
+      if (w >= 800) assert.ok(r.cw >= 80, 'your cards are big: ' + r.cw);
+      await p.evaluate(() => { const s = LB.ui.s; s.stack = []; s.pending = { who: null, kind: 'results', opts: [{ id: 'continue' }], prompt: '' }; s.phase = 'results'; s.result = { round: 1, rows: s.part.map(i => ({ p: i, total: 15, busted: false, place: 1, pts: 6, line: [], load: 0 })) }; Engine.answer(s, 'continue'); LB.render(); });
+      await p.waitForSelector('.market .card');
+      const d = await p.evaluate(() => ({ n: document.querySelectorAll('.market .card').length, w: document.querySelector('.market .card').getBoundingClientRect().width, score: document.querySelectorAll('.score .sc').length, decks: [...document.querySelectorAll('.dfoot .chip')].map(x => x.textContent), over: document.querySelector('.market').getBoundingClientRect().bottom <= innerHeight + 1 }));
+      assert.equal(d.n, 8); assert.equal(d.score, 4, 'the scoreboard is on the draft screen'); assert.deepEqual(d.decks, ['Your deck'], "only your own deck can be opened"); assert.ok(d.over);
+      if (w >= 800) assert.ok(d.w >= 120, 'draft cards are big: ' + d.w);
+      assert.deepEqual(errs, []);
+    } finally { await b.close(); }
+  });
+}

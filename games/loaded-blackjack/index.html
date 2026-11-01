@@ -40,13 +40,13 @@ h1 { margin: -4px 0 0; font-size: 84px; line-height: 1; font-weight: 1000; font-
 .big { min-width: 280px; max-width: 92%; padding: 14px 26px; min-height: 56px; border-radius: 16px; background: linear-gradient(#2f6b4b, #1b4430); border: 3px solid #e0b052; font-size: 20px; font-weight: 800; color: #fbf3d8; box-shadow: 0 5px 0 #06140d, inset 0 2px 0 rgba(255,255,255,.2); text-shadow: 0 2px 0 rgba(0,0,0,.45); }
 .big:active { transform: translateY(2px); }
 .big.gold { background: linear-gradient(#ffe08a, #e0a82e); color: #3b230a; text-shadow: none; border-color: #fff1bd; }
-.big.ghost { background: rgba(0,0,0,.28); box-shadow: none; }
+.big.ghost { background: rgba(0,0,0,.28); box-shadow: none; } .big.warn { background: linear-gradient(#e0583a, #a02612); border-color: #ffd0c0; }
 .ver { color: rgba(255,255,255,.55); font-size: 12px; margin: 0; }
 .libback { position: absolute; z-index: 3; left: calc(env(safe-area-inset-left) + 12px); top: calc(env(safe-area-inset-top) + 8px); display: inline-flex; align-items: center; gap: 8px; padding: 10px 16px 10px 12px; min-height: 44px; border-radius: 99px; background: rgba(8,20,14,.85); border: 2px solid var(--gold); color: var(--text); font-size: 16px; font-weight: 800; text-decoration: none; }
 .libback span { font-size: 22px; line-height: 1; color: var(--gold); }
-.topbar { width: 100%; min-height: 46px; display: flex; align-items: center; justify-content: flex-end; gap: 8px; position: relative; flex: none; }
-.topbar .rnd { position: absolute; left: 50%; transform: translateX(-50%); font-weight: 800; font-size: 15px; color: var(--dim); }
-.chip { min-width: 46px; height: 46px; padding: 0 16px; border-radius: 23px; background: linear-gradient(#2f6b4b, #1b4430); border: 2px solid #e0b052; font-size: 16px; font-weight: 800; box-shadow: 0 3px 0 #06140d; }
+.topbar { width: 100%; min-height: max(46px, calc(54px * var(--u, 1))); display: flex; align-items: center; justify-content: flex-end; gap: 8px; position: relative; flex: none; }
+.topbar .rnd { position: absolute; left: 50%; transform: translateX(-50%); font-weight: 800; font-size: calc(19px * var(--u, 1)); color: var(--dim); white-space: nowrap; }
+.chip { min-width: 46px; height: max(46px, calc(52px * var(--u, 1))); padding: 0 18px; border-radius: 26px; background: linear-gradient(#2f6b4b, #1b4430); border: 2px solid #e0b052; font-size: calc(18px * var(--u, 1)); font-weight: 800; box-shadow: 0 3px 0 #06140d; }
 /* ---- new game ---- */
 .stitle { margin: 0; color: var(--gold); font-size: 30px; }
 .sscroll { flex: 1; min-height: 0; width: 100%; max-width: 640px; overflow-y: auto; -webkit-overflow-scrolling: touch; overscroll-behavior: contain; padding: 8px 2px 14px; }
@@ -64,62 +64,77 @@ h1 { margin: -4px 0 0; font-size: 84px; line-height: 1; font-weight: 1000; font-
 .seedrow { display: flex; align-items: center; gap: 10px; padding: 6px 12px; color: var(--dim); } .seed { flex: 1; height: 44px; border-radius: 10px; border: 2px solid #3d7a5a; background: rgba(0,0,0,.35); padding: 0 12px; user-select: text; -webkit-user-select: text; }
 .start { margin-top: 6px; }
 /* ---- the table ---- */
-.game { gap: 6px; }
-.opps { width: 100%; max-width: 900px; display: grid; grid-template-columns: repeat(auto-fit, minmax(290px, 1fr)); gap: 6px; flex: 0 1 auto; overflow-y: auto; max-height: 46%; }
-.pnl { position: relative; background: rgba(0,0,0,.28); border: 3px solid var(--pc, #888); border-radius: 14px; padding: 6px 8px 8px; min-width: 0; }
-.pnl.me { width: 100%; max-width: 900px; border-width: 4px; background: rgba(0,0,0,.34); }
+.game { gap: calc(8px * var(--u, 1)); padding-left: calc(14px * var(--u, 1)); padding-right: calc(14px * var(--u, 1)); }
+.opps { width: 100%; display: grid; grid-template-columns: repeat(var(--cols, 3), minmax(0, 1fr)); gap: calc(8px * var(--u, 1)); flex: none; height: var(--oppH, auto); align-content: stretch; }
+.opps .pnl { display: flex; flex-direction: column; }
+.opps .pnl .line { flex: 1; align-content: center; justify-content: center; }
+.merow { display: flex; gap: calc(10px * var(--u, 1)); flex: 1; min-height: 0; width: 100%; }
+.merow .pnl.me { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+.merow .pnl.me .line { flex: 1; align-content: center; justify-content: center; }
+.score { width: 100%; display: flex; gap: calc(8px * var(--u, 1)); flex: none; }
+.score .sc { flex: 1; min-width: 0; border: 3px solid var(--pc); border-radius: 12px; padding: calc(4px * var(--u, 1)) calc(10px * var(--u, 1)); background: rgba(0,0,0,.3); font-weight: 800; font-size: calc(17px * var(--u, 1)); } .score .sc small { display: block; color: var(--dim); font-weight: 600; font-size: calc(13px * var(--u, 1)); } .score .sc.now { background: var(--gold); color: #3b230a; } .score .sc.now small { color: #5a3a10; }
+.score .bar { height: calc(6px * var(--u, 1)); border-radius: 4px; background: rgba(255,255,255,.18); margin-top: 3px; overflow: hidden; } .score .bar i { display: block; height: 100%; background: var(--pc); }
+.steps { display: flex; flex-direction: column; gap: calc(12px * var(--u, 1)); width: 100%; } .step { display: grid; grid-template-columns: 52px 1fr; gap: 6px 12px; text-align: left; align-items: start; background: rgba(0,0,0,.22); border-radius: 16px; padding: 12px; }
+.step .num { width: 46px; height: 46px; border-radius: 50%; background: var(--gold); color: #3b230a; font-weight: 1000; font-size: 28px; display: grid; place-items: center; } .step h3 { margin: 2px 0 4px; font-size: 21px; } .step p { margin: 0; font-size: 16px; line-height: 1.35; max-width: none; }
+.step .vis { grid-column: 1 / -1; display: flex; gap: 8px; justify-content: center; align-items: center; flex-wrap: wrap; --cw: 56px; }
+.vis .pillbtn { padding: 8px 16px; border-radius: 12px; font-weight: 900; font-size: 18px; border: 3px solid #fff3d6; } .vis .pillbtn.h { background: #c8321a; } .vis .pillbtn.p { background: #1f6fc0; } .vis .who { display: flex; flex-direction: column; align-items: center; gap: 4px; font-size: 13px; font-weight: 800; } .vis .eq { font-size: 26px; font-weight: 900; color: var(--gold); } .vis .tbl { font-size: 15px; background: rgba(0,0,0,.3); padding: 6px 12px; border-radius: 10px; }
+.wide-sheet { width: min(760px, 100%) !important; }
+.pnl { position: relative; background: rgba(0,0,0,.28); border: 3px solid var(--pc, #888); border-radius: 14px; padding: calc(6px * var(--u, 1)) calc(10px * var(--u, 1)) calc(8px * var(--u, 1)); min-width: 0; min-height: 0; }
+.pnl.me { border-width: 4px; background: rgba(0,0,0,.34); }
 .pnl.tgt { box-shadow: 0 0 0 4px var(--gold), 0 0 24px 6px rgba(242,193,78,.7); animation: pulse 1s ease-in-out infinite alternate; }
 @keyframes pulse { to { box-shadow: 0 0 0 4px var(--gold), 0 0 6px 1px rgba(242,193,78,.4); } }
-.phead { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; font-size: 15px; } .phead b { font-size: 17px; } .pts { color: var(--dim); font-size: 13px; }
-.bdg { font-style: normal; font-size: 11px; font-weight: 800; padding: 2px 7px; border-radius: 99px; background: rgba(255,255,255,.14); } .bdg.on { background: var(--gold); color: #3b230a; } .bdg.bad { background: #c0392b; }
-.tot { margin-left: auto; font-size: 20px; font-weight: 900; color: var(--gold); text-shadow: 0 2px 0 #000; }
-.line { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 4px; align-items: flex-start; min-height: 62px; }
+.phead { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; font-size: calc(16px * var(--u, 1)); } .phead b { font-size: calc(20px * var(--u, 1)); } .pts { color: var(--dim); font-size: calc(15px * var(--u, 1)); font-weight: 700; }
+.bdg { font-style: normal; font-size: calc(12px * var(--u, 1)); font-weight: 800; padding: 2px 8px; border-radius: 99px; background: rgba(255,255,255,.14); } .bdg.on { background: var(--gold); color: #3b230a; } .bdg.bad { background: #c0392b; }
+.tot { margin-left: auto; font-size: calc(30px * var(--u, 1)); font-weight: 900; color: var(--gold); text-shadow: 0 2px 0 #000; }
+.line { display: flex; flex-wrap: wrap; gap: calc(6px * var(--u, 1)); margin-top: 4px; align-items: flex-start; min-height: 40px; }
 .load { display: inline-flex; align-items: center; gap: 3px; font-size: 12px; font-weight: 800; align-self: center; margin-left: 4px; color: #ffd45e; } .load i { width: 14px; height: 14px; border-radius: 50%; background: #e8a61c; border: 2px solid #fff3c0; display: inline-block; margin-left: -6px; } .load i:first-child { margin-left: 0; }
 .stamp { position: absolute; right: 12px; top: 40%; transform: rotate(-12deg); border: 4px solid #ff5a4a; color: #ff5a4a; font-weight: 1000; font-size: 28px; padding: 2px 12px; border-radius: 8px; background: rgba(0,0,0,.4); letter-spacing: 3px; animation: stamp .45s cubic-bezier(.2,1.6,.4,1); pointer-events: none; }
 @keyframes stamp { from { transform: scale(2.6) rotate(-12deg); opacity: 0; } }
 .pnl.busted .card { opacity: .7; }
-.status { text-align: center; font-weight: 800; font-size: 18px; min-height: 40px; flex: none; } .status small { display: block; color: var(--dim); font-weight: 500; font-size: 13px; min-height: 16px; }
-.actions { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; margin-top: auto; min-height: 62px; }
-.act { min-width: 120px; min-height: 60px; padding: 0 22px; border-radius: 16px; font-size: 22px; font-weight: 900; border: 3px solid #fff3d6; box-shadow: 0 5px 0 #06140d; }
-.act.hit { background: linear-gradient(#ff7a5a, #c8321a); } .act.pass { background: linear-gradient(#5ab0f0, #1f6fc0); } .act.dd { background: linear-gradient(#ffd45e, #e0a21b); color: #3b230a; font-size: 18px; } .act.flip { background: linear-gradient(#b48cf0, #6d45c0); font-size: 17px; }
+.status { text-align: center; font-weight: 800; font-size: calc(22px * var(--u, 1)); min-height: calc(46px * var(--u, 1)); flex: none; } .status small { display: block; color: var(--dim); font-weight: 500; font-size: calc(15px * var(--u, 1)); min-height: 18px; }
+.actions { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; flex: none; min-height: calc(76px * var(--u, 1)); }
+.merow .actions { flex-direction: column; flex-wrap: nowrap; width: calc(210px * var(--u, 1)); min-height: 0; justify-content: stretch; }
+.merow .actions .act { flex: 1; }
+.act { min-width: calc(150px * var(--u, 1)); min-height: max(60px, calc(76px * var(--u, 1))); padding: 0 22px; border-radius: 18px; font-size: calc(30px * var(--u, 1)); font-weight: 900; border: 3px solid #fff3d6; box-shadow: 0 5px 0 #06140d; }
+.wait { color: var(--dim); font-weight: 700; font-size: calc(18px * var(--u, 1)); align-self: center; text-align: center; padding: 0 10px; }
+.act.hit { background: linear-gradient(#ff7a5a, #c8321a); } .act.pass { background: linear-gradient(#5ab0f0, #1f6fc0); } .act.dd { background: linear-gradient(#ffd45e, #e0a21b); color: #3b230a; font-size: calc(22px * var(--u, 1)); } .act.flip { background: linear-gradient(#b48cf0, #6d45c0); font-size: calc(20px * var(--u, 1)); }
 /* ---- cards ---- */
-.card { --w: 54px; position: relative; width: var(--w); height: calc(var(--w) * 1.42); flex: none; border-radius: 7px; background: linear-gradient(#fffaf0, #eadfc4); color: #1c1c24; border: 3px solid var(--cc, #444); display: flex; flex-direction: column; align-items: center; padding: 2px 1px; box-shadow: 0 2px 0 rgba(0,0,0,.5); overflow: hidden; text-align: center; }
+.card { --w: var(--cw, 54px); position: relative; width: var(--w); height: calc(var(--w) * 1.42); flex: none; border-radius: 7px; background: linear-gradient(#fffaf0, #eadfc4); color: #1c1c24; border: 3px solid var(--cc, #444); display: flex; flex-direction: column; align-items: center; padding: 2px 1px; box-shadow: 0 2px 0 rgba(0,0,0,.5); overflow: hidden; text-align: center; }
 .card .cval { font-size: calc(var(--w) * .42); font-weight: 900; line-height: 1.05; } .card .cname { font-size: calc(var(--w) * .17); font-weight: 800; line-height: 1.05; margin-top: 1px; } .card .cval.wide { font-size: calc(var(--w) * .3); } .card.lg .cval.wide { font-size: calc(var(--w) * .24); }
 .card .cname.x1 { font-size: calc(var(--w) * .145); }
 .card .ccat { margin-top: auto; font-size: calc(var(--w) * .12); font-weight: 800; color: #fff; background: var(--cc); width: 100%; padding: 1px 0; text-transform: uppercase; letter-spacing: .03em; }
 .card .cab { font-size: calc(var(--w) * .1); line-height: 1.12; margin: 3px 3px 2px; text-align: left; font-weight: 600; flex: 1; } .card .cab.sm { font-size: calc(var(--w) * .092); } .card .cab.tiny { font-size: calc(var(--w) * .08); }
-.card.start .cval { margin: auto 0; font-size: calc(var(--w) * .62); } .card.lg { --w: 112px; border-width: 4px; border-radius: 10px; } .card.lg .ccat { margin-top: 0; order: -1; } .card.lg .cval { font-size: calc(var(--w) * .34); }
-.card.zoom { --w: 190px; } .card .ctag { position: absolute; top: 0; left: 0; right: 0; font-size: 9px; font-weight: 900; background: #1c1c24; color: #ffd45e; text-transform: uppercase; letter-spacing: .06em; }
+.card.start .cval { margin: auto 0; font-size: calc(var(--w) * .62); } .card.lg { --w: var(--cw, 112px); border-width: 4px; border-radius: 10px; } .card.lg .ccat { margin-top: 0; order: -1; } .card.lg .cval { font-size: calc(var(--w) * .34); } .card.lg .cname { font-size: calc(var(--w) * .15); } .card.lg .cname.x1 { font-size: calc(var(--w) * .13); } .card.lg .cab { font-size: calc(var(--w) * .115); } .card.lg .cab.sm { font-size: calc(var(--w) * .105); } .card.lg .cab.tiny { font-size: calc(var(--w) * .092); }
+.card.zoom { --w: calc(240px * var(--u, 1)); } .card .ctag { position: absolute; top: 0; left: 0; right: 0; font-size: 9px; font-weight: 900; background: #1c1c24; color: #ffd45e; text-transform: uppercase; letter-spacing: .06em; }
 .card.lg .ctag { font-size: 11px; }
 .card.back { background: repeating-linear-gradient(45deg, #7a1d1d, #7a1d1d 5px, #5a1212 5px, #5a1212 10px); border-color: #e8d49a; } .card.back .cback { margin: auto; font-size: calc(var(--w) * .5); color: #e8d49a; } .card.back .cback span { font-size: calc(var(--w) * .3); font-weight: 900; }
 .card.side { transform: rotate(90deg) scale(.85); margin: 0 calc(var(--w) * .2); opacity: .8; } .card.glow { outline: 4px solid var(--gold); outline-offset: 2px; animation: pulse 1s ease-in-out infinite alternate; }
-.bigline .card { --w: 108px; } .bigline .card.lg { --w: 108px; }
 .sheet { position: absolute; inset: 0; z-index: 30; background: rgba(0,0,0,.66); display: grid; place-items: center; padding: 14px; overflow: auto; }
 .sheet.bottom { align-items: end; background: rgba(0,0,0,.25); }
-.sheetin { background: linear-gradient(#20523a, #12301f); border: 3px solid #e0b052; border-radius: 22px; padding: 18px; width: min(560px, 100%); max-height: 94%; overflow-y: auto; display: flex; flex-direction: column; align-items: center; gap: 10px; text-align: center; }
+.sheetin { background: linear-gradient(#20523a, #12301f); border: 3px solid #e0b052; border-radius: 22px; padding: 18px; width: min(calc(600px * var(--u, 1) + 80px), 100%); max-height: 94%; overflow-y: auto; display: flex; flex-direction: column; align-items: center; gap: 10px; text-align: center; }
 .sheetin h2, .sheetin h3 { margin: 0; color: var(--gold); } .sheetin p { margin: 0; font-size: 16px; line-height: 1.4; max-width: 460px; }
 .opts2 { display: flex; flex-direction: column; gap: 8px; width: 100%; align-items: center; } .opts2 .big { width: 100%; max-width: 420px; }
-.pickrow { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; } .pickrow small { width: 100%; color: var(--dim); } .pickc { padding: 2px; border-radius: 10px; } .pickc .card { --w: 76px; } .showrow .card { --w: 76px; }
+.pickrow { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; } .pickrow small { width: 100%; color: var(--dim); } .pickc { padding: 2px; border-radius: 10px; } .pickc .card { --w: calc(84px * var(--u, 1)); } .showrow .card { --w: calc(84px * var(--u, 1)); }
 .decklist { width: 100%; max-height: 52vh; overflow-y: auto; text-align: left; } .drow { display: flex; flex-wrap: wrap; align-items: baseline; gap: 6px; padding: 5px 2px; border-bottom: 1px solid rgba(255,255,255,.12); } .drow .dc { width: 10px; height: 10px; background: var(--cc); display: inline-block; border-radius: 2px; } .drow small { width: 100%; color: var(--dim); font-size: 12px; }
 .logsheet .logbody { width: 100%; max-height: 56vh; overflow-y: auto; text-align: left; } .ll { padding: 3px 0; font-size: 14px; border-bottom: 1px solid rgba(255,255,255,.08); }
 /* ---- draft ---- */
-.draft { flex: 1; min-height: 0; width: 100%; max-width: 900px; overflow-y: auto; text-align: center; padding-bottom: 8px; } .draft h2 { margin: 2px 0; color: var(--gold); } .dsub { margin: 0 0 6px; color: var(--dim); }
-.ordrow { display: flex; gap: 6px; flex-wrap: wrap; justify-content: center; margin-bottom: 8px; } .ord { padding: 4px 10px; border-radius: 99px; border: 2px solid var(--pc); font-weight: 800; font-size: 14px; } .ord.now { background: var(--gold); color: #3b230a; }
-.market { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; } .mk { padding: 2px; border-radius: 12px; } .mk.canpick { outline: 3px dashed var(--gold); outline-offset: 2px; } .mk .card { --w: 106px; }
-.picks { margin: 8px 0; display: flex; flex-wrap: wrap; gap: 6px; justify-content: center; } .pk { font-size: 13px; background: rgba(0,0,0,.3); padding: 3px 9px; border-radius: 99px; } .decks { display: flex; gap: 6px; flex-wrap: wrap; justify-content: center; } .decks .chip { height: 40px; font-size: 14px; }
+.draft { flex: 1; min-height: 0; width: 100%; display: flex; flex-direction: column; gap: calc(8px * var(--u, 1)); text-align: center; } .draft h2 { margin: 0; color: var(--gold); font-size: calc(30px * var(--u, 1)); } .dsub { margin: 0; color: var(--dim); font-size: calc(18px * var(--u, 1)); }
+.market { flex: 1; min-height: 0; display: flex; flex-wrap: wrap; gap: calc(12px * var(--u, 1)); justify-content: center; align-content: center; } .mk { padding: 3px; border-radius: 14px; } .mk.canpick { outline: 4px dashed var(--gold); outline-offset: 2px; }
+.dfoot { display: flex; gap: 10px; justify-content: center; align-items: center; flex-wrap: wrap; flex: none; } .pk { font-size: calc(14px * var(--u, 1)); background: rgba(0,0,0,.3); padding: 3px 10px; border-radius: 99px; } .dfoot .chip { height: 44px; font-size: 16px; }
 /* ---- results: the big moment ---- */
-.results { position: absolute; inset: 0; z-index: 20; background: rgba(8,20,14,.96); padding: calc(env(safe-area-inset-top) + 56px) 12px 12px; display: flex; flex-direction: column; align-items: center; gap: 8px; overflow-y: auto; }
-.results h2 { margin: 0; color: var(--gold); } .rrows { width: 100%; max-width: 760px; display: flex; flex-direction: column; gap: 8px; }
+.results { position: absolute; inset: 0; z-index: 20; background: rgba(8,20,14,.96); --cw: calc(66px * var(--u, 1)); padding: calc(env(safe-area-inset-top) + 8px) 14px 12px; display: flex; flex-direction: column; align-items: center; gap: 8px; overflow-y: auto; }
+.results h2 { margin: 0; color: var(--gold); font-size: calc(30px * var(--u, 1)); } .rrows { width: 100%; max-width: 1100px; display: flex; flex-direction: column; gap: 8px; }
 .rrow { border: 3px solid var(--pc); border-radius: 12px; padding: 6px 8px; background: rgba(255,255,255,.05); animation: slidein .5s var(--d, 0s) backwards; } .rrow.bad { border-style: dashed; }
-.rtop { display: flex; align-items: baseline; gap: 10px; } .rtop b { font-size: 18px; } .rt { font-size: 26px; font-weight: 900; color: var(--gold); animation: pop .5s calc(var(--d, 0s) + 1.4s) backwards; } .rp { margin-left: auto; font-weight: 800; color: var(--dim); animation: slidein .5s calc(var(--d, 0s) + 1.8s) backwards; }
+.rtop { display: flex; align-items: baseline; gap: 10px; } .rtop b { font-size: calc(22px * var(--u, 1)); } .rt { font-size: calc(32px * var(--u, 1)); font-weight: 900; color: var(--gold); animation: pop .5s calc(var(--d, 0s) + 1.4s) backwards; } .rp { margin-left: auto; font-weight: 800; color: var(--dim); animation: slidein .5s calc(var(--d, 0s) + 1.8s) backwards; }
 .rline { display: flex; gap: 4px; flex-wrap: wrap; margin-top: 4px; } .flipin { animation: flipc .7s calc(var(--d, 0s) + .5s) backwards; }
 @keyframes slidein { from { opacity: 0; transform: translateY(14px); } } @keyframes pop { from { opacity: 0; transform: scale(2); } } @keyframes flipc { from { transform: rotateY(90deg); opacity: .2; } }
 .results.skip *, .results.skip { animation: none !important; }
-.stand { font-size: 14px; color: var(--dim); text-align: center; } .ractions { display: flex; gap: 10px; align-items: center; margin-top: auto; padding-top: 8px; flex-wrap: wrap; justify-content: center; }
+.stand { width: 100%; max-width: 1100px; } .ractions { display: flex; gap: 10px; align-items: center; margin-top: auto; padding-top: 8px; flex-wrap: wrap; justify-content: center; }
 .final { width: 100%; max-width: 420px; } .frow { display: flex; justify-content: space-between; padding: 8px 14px; margin: 4px 0; background: rgba(0,0,0,.3); border-radius: 12px; font-size: 18px; }
 .hist { border-collapse: collapse; background: rgba(0,0,0,.28); border-radius: 12px; overflow: hidden; margin: 6px 0; } .hist td, .hist th { padding: 6px 12px; text-align: center; font-size: 15px; } .hist td:first-child { text-align: left; font-weight: 700; }
-@media (orientation: landscape) and (max-height: 700px) { h1 { font-size: 56px; } .opps { max-height: 52%; } .card.lg { --w: 84px; } .bigline .card { --w: 84px; } .act { min-height: 52px; } }
-@media (max-width: 520px) { .bigline .card { --w: 70px; } .card { --w: 44px; } h1 { font-size: 60px; } .opps { grid-template-columns: 1fr; } }
+@media (orientation: landscape) and (max-height: 700px) { h1 { font-size: 56px; } }
+@media (orientation: portrait) { .merow { flex-direction: column; } .merow .actions { flex-direction: row; width: 100%; } }
+@media (max-width: 520px) { h1 { font-size: 60px; } }
 </style>
 </head>
 <body>
@@ -132,12 +147,14 @@ const GAME_DATA = {
   tagline: 'Get as close to 21 as you can. Cheat your way there.',
   rules: {
     target: 21,                    // the number you try to reach without going over
-    rounds: 5, quickRounds: 3,     // a full game and a Quick Game
+    WIN_POINTS: 21, QUICK_WIN_POINTS: 13,   // the game ends at the end of a round in which someone has this many points (or more)
+    UPGRADE_COPIES: 2,             // how many of each upgrade card are in the upgrade deck
+    /* points for each place in a round, by the number of players (a busted player scores the last place's entry) */
+    POINTS_BY_PLACE: { 2: [6, 2], 3: [6, 4, 2], 4: [6, 4, 3, 1], 5: [6, 5, 3, 2, 1], 6: [6, 5, 4, 3, 2, 1] },
     minPlayers: 2, maxPlayers: 6,
     marketPerPlayer: 2,            // upgrade cards dealt face up for each player
     picksPerPlayer: 2,             // everyone drafts this many
-    busted: { points: 1 },         // a busted player scores the points for last place
-    sideBetPoints: 2,              // Side Bet: a bust that ranks above the other busts (when at least one other player busted)
+    sideBetBonus: 1,               // Side Bet: a bust scores the last-place entry plus this (only when at least one other player also busted)
     getawayTotal: 17,              // Getaway Car: your total becomes this
     passDelayMs: 800,              // an AI takes one action about this often
     dealAt: [0, 1],                // the first card dealt is hidden, the second face up
@@ -147,6 +164,7 @@ const GAME_DATA = {
     easyHitAtMost: 14, mediumBustChance: .35,
     hardBustChanceBehind: .5, hardBustChanceAhead: .25,
     easyUsesOptional: .5,
+    closeToTarget: 6,              // 'close to the target' for the Hard computer: within one first-place round of the winning score
   },
   // The 9 cards every player starts with: one each of 1 to 9. All fixed; there is no Ace and there are no suits.
   starting: [
@@ -216,16 +234,15 @@ const GAME_DATA = {
     { id: 'long-shot', name: 'Long Shot', cat: 'Catch-up', val: { kind: 'fixed', v: 2 }, trig: 'drawn', text: "When drawn: if you're last in total points, give 2 Load to the leader.", ai: 2 },
   ],
   texts: {
-    help: [
-      'You already know how to play: get as close to 21 as you can without going over. But everyone brings their own deck, one each of 1 through 9 (9 cards), and between rounds you draft cheating tricks to load it in your favor.',
-      'Each round, everyone draws a hidden card and a face-up card. On your turn, Hit to draw another card or Pass. Passing does not lock you in: you can hit again later. The round ends when everyone who has not busted passes in a row.',
-      'Your total is every card in your line, including the hidden one, plus 1 for each Load token. Over 21 is a bust. Busted players score the points for last place.',
-      'Highest total scores the most points. Between rounds you draft 2 upgrade cards into your deck; whoever has the fewest points picks first. Most points after 5 rounds wins.',
+    steps: [
+      { title: 'Get close to 21', text: 'Each round you build a line of cards from your own deck. Add them up: the highest total that is 21 or less wins the round. Go over 21 and you bust.' },
+      { title: 'Hit or pass, all at once', text: 'Everyone chooses Hit or Pass at the same time, in secret, then the choices flip together. Passing is not final: you can hit next time. When everyone passes together, the round ends.' },
+      { title: 'Draft and race to 21 points', text: 'The best total scores the most points (6 for first). Then everyone drafts cheating tricks into their deck, fewest points first. The first player to reach 21 points wins.' },
     ],
     tips: {
-      welcome: ['Welcome', 'Get closest to 21 without going over. Each round, the highest total scores the most points. Draft cheating tricks between rounds. Most points after 5 rounds wins.'],
+      welcome: ['Welcome', 'Get closest to 21 without going over. Each round, the highest total scores the most points. Draft cheating tricks between rounds. First to 21 points wins.'],
       deal: ['Your hidden card', 'Your first card is hidden. Only you can see it, and it still counts toward your total.'],
-      turn: ['Your turn', "Hit to draw a card or Pass to wait. Passing doesn't lock you in: you can hit again later. The round ends after everyone passes in a row."],
+      turn: ['Hit or Pass', "Everyone chooses Hit or Pass at the same time, in secret. Passing doesn't lock you in: you can hit again next time. The round ends when everyone passes together."],
       load: ['Load', 'Load adds 1 to your total. Watch out, it can push you over 21.'],
       window: ['A way out', "You're about to bust, but you have a trick that can save you."],
       bust: ['Bust!', 'Bust! You score the points for last place this round.'],
@@ -254,7 +271,7 @@ const Engine = (() => {
   const seatOrder = (s, from) => { const k = s.part.indexOf(from); return s.part.slice(k).concat(s.part.slice(0, k)); };
   const nextSeat = (s, i) => s.part[(s.part.indexOf(i) + 1) % s.part.length];
   const faceUp = (s, p, id) => s.pl[p].line.some(e => !e.down && e.c.id === id);
-  const entry = (s, p, id) => s.pl[p].line.find(e => !e.down && e.c.id === id);
+  const entry = (s, p, id) => { const L = s.pl[p].line.filter(e => !e.down && e.c.id === id); return L.find(e => usable(s, e)) || L[0]; };          /* (with two copies in a line, the one that can still be used comes first) */
   const mod = (s, u) => s.mod[u] || (s.mod[u] = { fd: 0, half: 0, side: false, chosen: null });
   const usable = (s, e) => !e.down && !mod(s, e.c.u).side;           // face up and not sideways
   const hasMuscle = (s, p) => faceUp(s, p, 'muscle');
@@ -328,15 +345,15 @@ const Engine = (() => {
   // ---------- starting a game ----------
   function newGame(opts) {
     const seats = opts.seats, n = seats.length;
-    const s = { v: 1, rng: (opts.seed == null ? Date.now() : opts.seed) | 0, seed: opts.seed, n, rounds: opts.quick ? R.quickRounds : (opts.rounds || R.rounds), friendly: !!opts.friendly, showAll: !!opts.showAll,
-      round: 1, nextU: 1, cards: {}, mod: {}, pl: [], part: [], first: 0, active: 0, consec: 0, stack: [], pending: null, log: [], discard: [], removed: [], market: [], upgrade: [],
+    const s = { v: 1, rng: (opts.seed == null ? Date.now() : opts.seed) | 0, seed: opts.seed, n, winAt: opts.target || (opts.quick ? R.QUICK_WIN_POINTS : R.WIN_POINTS), friendly: !!opts.friendly, showAll: !!opts.showAll,
+      round: 1, nextU: 1, cards: {}, mod: {}, pl: [], part: [], first: 0, active: 0, stack: [], pending: null, log: [], discard: [], removed: [], market: [], upgrade: [],
       phase: 'play', tiebreak: false, result: null, history: [], draft: null, winner: null, cause: {}, handoff: null };
     seats.forEach((st, i) => {
       const p = { name: st.name || 'Player ' + (i + 1), kind: st.kind || 'ai', level: st.level || 'medium', deck: [], line: [], load: 0, status: 'active', last: 'none', getaway: null, prio: false, known: { top: [], bottom: null, all: null, hidden: {}, tell: [] }, pts: 0, lastDrawn: null };
       D.starting.forEach(c => p.deck.push(inst(s, c.id, i))); /* RULING: setup makes exactly one of each starting card, 9 in all */
       shuffle(s, p.deck); s.pl.push(p); s.part.push(i);
     });
-    D.upgrades.forEach(c => { if (!(s.friendly && c.mean)) s.upgrade.push(inst(s, c.id, -1)); });
+    D.upgrades.forEach(c => { if (!(s.friendly && c.mean)) for (let k = 0; k < R.UPGRADE_COPIES; k++) s.upgrade.push(inst(s, c.id, -1)); });
     shuffle(s, s.upgrade);
     s.first = Math.floor(rnd(s) * n);
     startRound(s);
@@ -345,7 +362,7 @@ const Engine = (() => {
 
   // ---------- one round ----------
   function startRound(s) {
-    s.phase = 'play'; s.result = null; s.stack = []; s.pending = null; s.consec = 0; s.cause = {}; s.mod = {};
+    s.phase = 'play'; s.result = null; s.stack = []; s.pending = null; s.cause = {}; s.mod = {};
     s.part.forEach(i => { const p = s.pl[i]; p.status = 'active'; p.line = []; p.hitRound = false; p.load = 0; p.last = 'none'; p.getaway = null; p.prio = false; p.lastDrawn = null; p.known = { top: [], bottom: null, all: null, hidden: {}, tell: [] }; });
     s.pl.forEach((p, i) => { if (!s.part.includes(i)) p.status = 'out'; });
     const order = seatOrder(s, s.first);
@@ -719,7 +736,7 @@ const Engine = (() => {
     if (t.step === 2) {
       const d = pl.deck; t.card = t.from === 'bottom' ? d.pop() : d.shift();
       if (t.from === 'bottom') { pl.known.bottom = null; pl.known.all = null; } else { const k = pl.known; k.top = k.top.filter((u, i) => !(i === 0 && u === t.card.u)); if (k.all) k.all = k.all.filter(u => u !== t.card.u); }
-      if (t.how === 'hit' || t.how === 'forced') { pl.last = 'hit'; s.consec = 0; }
+      if (t.how === 'hit' || t.how === 'forced') { pl.last = 'hit'; }
       const sd = entry(s, p, 'second-deal');
       if (sd && usable(s, sd) && t.how !== 'deal') { ask(s, p, 'choice', 'Second Deal: discard this card and draw again?', [opt('use', 'Discard it and draw again'), opt('keep', 'Keep it')], { show: [t.card.u], showLabel: 'You drew' }); t.step = 3; return; }
       t.step = 4;
@@ -758,35 +775,58 @@ const Engine = (() => {
     }
     return out;
   };
+  /* Everyone chooses Hit or Pass at the same time. Each player in turn is asked in private (free actions like Fixer or Shiner happen as they are used); the choices are then revealed together and the draws happen in seat order from the first player. When everyone still in the round chose Pass, the round ends. */
   H.turn = (s, t, a) => {
     if (t.step === 0) {
       const live = alive(s);
-      if (!live.length || s.consec >= live.length) { done(s, t); s.stack.push({ t: 'reveal', step: 0 }); return; }
-      const p = s.active, pl = s.pl[p];
-      if (pl.status !== 'active') { s.active = nextSeat(s, p); return; }
-      if (pl.getaway !== null) { pl.last = 'pass'; s.consec++; log(s, `${nameOf(s, p)} passes (Getaway).`, p); s.active = nextSeat(s, p); return; }
-      const opts = [];
-      opts.push(opt('hit', 'Hit', { off: !pl.deck.length })); opts.push(opt('pass', 'Pass'));
-      const dd = entry(s, p, 'double-down'); if (dd && usable(s, dd) && pl.deck.length) opts.push(opt('double', 'Double Down', { u: dd.c.u }));
-      if (pl.line.some(x => x.down)) opts.push(opt('flip', 'Flip hidden card'));
-      for (const e of canUseFree(s, p)) opts.push(opt('use' + e.c.u, 'Use ' + DEF[e.c.id].name, { u: e.c.u }));
-      ask(s, p, 'turn', `${nameOf(s, p)}: your turn`, opts.filter(o => !o.off)); t.step = 1; return;
+      if (!live.length) { done(s, t); s.stack.push({ t: 'reveal', step: 0 }); return; }
+      t.q = seatOrder(s, s.first).filter(i => s.pl[i].status === 'active'); t.k = 0; t.choice = {}; t.step = 'ask';
     }
-    const p = s.active;
-    if (t.step === 1) {
-      if (a === 'hit') { s.pl[p].hitRound = true; t.step = 2; s.stack.push({ t: 'draw', p, how: 'hit', step: 0 }); return; }
-      if (a === 'pass') { s.pl[p].last = 'pass'; s.consec++; log(s, `${nameOf(s, p)} passes.`, p); s.active = nextSeat(s, p); t.step = 0; return; }
-      if (a === 'double') { s.pl[p].hitRound = true; t.step = 2; const e = entry(s, p, 'double-down'); s.stack.push({ t: 'abil', u: e.c.u, h: p, step: 0, d: {} }); return; }
+    if (t.step === 'ask') {
+      while (t.k < t.q.length && s.pl[t.q[t.k]].status !== 'active') t.k++;
+      if (t.k >= t.q.length) { t.step = 'reveal'; }
+      else {
+        const p = t.q[t.k], pl = s.pl[p]; s.active = p;
+        if (pl.getaway !== null) { t.choice[p] = 'getaway'; t.k++; return; }
+        const opts = [];
+        opts.push(opt('hit', 'Hit', { off: !pl.deck.length })); opts.push(opt('pass', 'Pass'));
+        const dd = entry(s, p, 'double-down'); if (dd && usable(s, dd) && pl.deck.length) opts.push(opt('double', 'Double Down', { u: dd.c.u }));
+        if (pl.line.some(x => x.down)) opts.push(opt('flip', 'Flip hidden card'));
+        for (const e of canUseFree(s, p)) opts.push(opt('use' + e.c.u, 'Use ' + DEF[e.c.id].name, { u: e.c.u }));
+        ask(s, p, 'turn', `${nameOf(s, p)}: hit or pass?`, opts.filter(o => !o.off), { simul: true }); t.step = 'got'; return;
+      }
+    }
+    if (t.step === 'got') {
+      const p = t.q[t.k];
+      if (a === 'hit' || a === 'pass' || a === 'double') { t.choice[p] = a; t.k++; t.step = 'ask'; return; }
       if (a === 'flip') {
-        const en = flipDown(s, p); log(s, `${nameOf(s, p)} flips their hidden card: ${DEF[en.c.id].name}.`, p); t.step = 0; t.again = true;
-        if (def(en.c).trig === 'drawn') { t.step = 3; s.stack.push({ t: 'bustcheck' }); s.stack.push({ t: 'abil', u: en.c.u, h: p, step: 0, d: {} }); }
+        const en = flipDown(s, p); log(s, `${nameOf(s, p)} flips their hidden card: ${DEF[en.c.id].name}.`, p); t.step = 'ask';
+        if (def(en.c).trig === 'drawn') { t.step = 'free'; s.stack.push({ t: 'bustcheck' }); s.stack.push({ t: 'abil', u: en.c.u, h: p, step: 0, d: {} }); }
         return;
       }
-      if (String(a).startsWith('use')) { const u = Number(String(a).slice(3)); t.step = 3; s.stack.push({ t: 'abil', u, h: p, step: 0, d: {} }); return; }
+      if (String(a).startsWith('use')) { const u = Number(String(a).slice(3)); t.step = 'free'; s.stack.push({ t: 'abil', u, h: p, step: 0, d: {} }); return; }
     }
-    if (t.step === 3) { t.step = 0; if (s.pl[p].status !== 'active') s.active = nextSeat(s, p); return; }          // a free action ended: ask again (a bust ends the turn)
-    if (t.step === 2) {          // a hit (or Double Down) is done: the turn ends
-      s.pl[p].last = 'hit'; s.consec = 0; s.active = nextSeat(s, p); t.step = 0; return;
+    if (t.step === 'free') { t.step = 'ask'; return; }          // a free action ended: ask the same player again (a bust takes them out of the round)
+    if (t.step === 'reveal') {
+      const who = t.q.filter(i => s.pl[i].status === 'active');
+      if (!who.length) { done(s, t); s.stack.push({ t: 'reveal', step: 0 }); return; }
+      if (who.every(i => t.choice[i] === 'pass' || t.choice[i] === 'getaway')) {
+        who.forEach(i => { s.pl[i].last = 'pass'; });
+        log(s, 'Everyone passes. The round ends.'); done(s, t); s.stack.push({ t: 'reveal', step: 0 }); return;
+      }
+      who.forEach(i => { s.pl[i].last = t.choice[i] === 'hit' || t.choice[i] === 'double' ? 'hit' : 'pass'; });
+      log(s, 'Choices revealed: ' + who.map(i => `${nameOf(s, i)} ${t.choice[i] === 'double' ? 'doubles down' : t.choice[i] === 'hit' ? 'hits' : 'passes'}`).join(', ') + '.');
+      t.who = who; t.j = 0; t.step = 'resolve';
+    }
+    if (t.step === 'resolve') {
+      while (t.j < t.who.length) {
+        const p = t.who[t.j++], c = t.choice[p];
+        if (s.pl[p].status !== 'active') continue;
+        s.active = p;
+        if (c === 'hit') { s.pl[p].hitRound = true; s.stack.push({ t: 'draw', p, how: 'hit', step: 0 }); return; }
+        if (c === 'double') { s.pl[p].hitRound = true; const e = entry(s, p, 'double-down'); if (e) { s.stack.push({ t: 'abil', u: e.c.u, h: p, step: 0, d: {} }); return; } }
+      }
+      t.step = 0;                // everyone has acted: a new simultaneous choice
     }
   };
   H.turn.__ = 1;
@@ -826,10 +866,11 @@ const Engine = (() => {
     const rank = (i, j) => { const a = s.pl[i], bb = s.pl[j]; const ta = info[i].total, tb = info[j].total; if (ta !== tb) return tb - ta; if (ta === T) { const ra = faceUp(s, i, 'tightrope'), rb = faceUp(s, j, 'tightrope'); if (ra !== rb) return ra ? -1 : 1; } return 0; };
     const sorted = ok.slice().sort(rank);
     const place = {}; sorted.forEach(i => { place[i] = 1 + sorted.filter(j => rank(j, i) < 0).length; });
-    const pts = {}; const lastPlace = Math.max(0, ...ok.map(i => place[i]));
-    ok.forEach(i => { pts[i] = N - place[i] + 1; });
+    const pts = {}, table = R.POINTS_BY_PLACE[N];
+    ok.forEach(i => { pts[i] = table[place[i] - 1]; });
     const bust = s.part.filter(i => s.pl[i].status === 'busted');
-    bust.forEach(i => { pts[i] = R.busted.points; if (faceUp(s, i, 'side-bet') && bust.some(j => j !== i)) pts[i] = R.sideBetPoints; });
+    bust.forEach(i => { pts[i] = table[N - 1]; if (faceUp(s, i, 'side-bet') && bust.some(j => j !== i)) pts[i] += R.sideBetBonus; });          /* RULING: a busted player scores the last-place entry; Side Bet adds 1 more, but only when another player also busted */
+    if (s.tiebreak) s.part.forEach(i => { pts[i] = 0; });          /* RULING: a tiebreak round only compares places, it scores nothing */
     // draft priority
     s.part.forEach(i => { s.pl[i].prio = false; });
     if (!s.tiebreak) {
@@ -846,11 +887,18 @@ const Engine = (() => {
     ask(s, null, 'results', 'Round results', [opt('continue', 'Continue')]);
   }
   function afterResults(s) {
-    const last = s.round >= s.rounds || s.tiebreak;
-    if (!last) { startDraft(s); return; }
-    const mx = Math.max(...s.pl.map(p => p.pts)), tied = s.pl.map((p, i) => i).filter(i => s.pl[i].pts === mx);
-    if (tied.length > 1) { s.tiebreak = true; s.part = tied; s.part.sort((a, b) => a - b); s.first = tied.includes(s.first) ? s.first : tied[0]; cleanup(s, true); startRound(s); return; }
-    s.winner = tied[0]; s.phase = 'over'; log(s, `${nameOf(s, tied[0])} wins the game!`);
+    if (s.tiebreak) {
+      const rows = s.result.rows;                                   // only the highest finisher(s) go on; none of them busted, unless everybody did
+      const live = rows.filter(r => !r.busted), top = live.length ? live.filter(r => r.place === 1).map(r => r.p) : rows.map(r => r.p);
+      if (top.length === 1) { s.winner = top[0]; s.phase = 'over'; log(s, `${nameOf(s, top[0])} wins the game!`); return; }
+      s.part = top.slice().sort((a, b) => a - b); s.first = s.part.includes(s.first) ? s.first : s.part[0]; cleanup(s, true); startRound(s); return;
+    }
+    if (Math.max(...s.pl.map(p => p.pts)) >= s.winAt) {          // someone reached the target: the game ends, with no draft
+      const mx = Math.max(...s.pl.map(p => p.pts)), tied = s.pl.map((p, i) => i).filter(i => s.pl[i].pts === mx);
+      if (tied.length === 1) { s.winner = tied[0]; s.phase = 'over'; log(s, `${nameOf(s, tied[0])} wins the game!`); return; }
+      s.tiebreak = true; s.part = tied.slice().sort((a, b) => a - b); s.first = tied.includes(s.first) ? s.first : tied[0]; cleanup(s, true); startRound(s); return;
+    }
+    startDraft(s);
   }
 
   // ---------- the draft ----------
@@ -963,7 +1011,7 @@ const AI = (() => {
     if (lv === 'easy') return best !== null && best <= A.easyHitAtMost ? 'hit' : 'pass';
     if (lv === 'medium') return bc < A.mediumBustChance ? 'hit' : 'pass';
     let lim = best !== null && best < topOthers ? A.hardBustChanceBehind : A.hardBustChanceAhead;
-    if (v.round >= v.rounds - 1) { const mx = Math.max(...v.part.map(j => v.pl[j].pts)); if (pl.pts < mx) lim += .1; else if (pl.pts > mx - 1 && v.part.length > 1) lim -= .08; }
+    { const close = v.winAt - A.closeToTarget, rivalTop = Math.max(...v.part.filter(j => j !== me).map(j => v.pl[j].pts), 0); if (rivalTop >= close && pl.pts < rivalTop) lim += .1; else if (pl.pts >= close && pl.pts >= rivalTop) lim -= .08; }          /* late in the game = near the winning score: take more risk when behind a rival who is close, less when you are the one close */
     return bc < lim ? 'hit' : 'pass';
   }
 
@@ -1037,9 +1085,12 @@ const AI = (() => {
   const store = { get: k => { try { return localStorage.getItem(k); } catch (e) { return null; } }, set: (k, v) => { try { localStorage.setItem(k, v); } catch (e) { /* fine */ } }, del: k => { try { localStorage.removeItem(k); } catch (e) { /* fine */ } } };
   const PTS = ['#e8c14a', '#58b6f0', '#e8744c', '#7ad08a', '#b48cf0', '#f08ab4'];
 
-  const ui = { screen: 'home', setup: null, s: null, shown: null, sheet: null, deckOf: null, log: false, help: false, menu: false, timer: null, tip: null, tipQ: [], skip: false, pick: null, lastLen: 0 };
-  const defaultSetup = () => ({ seats: [{ kind: 'human', level: 'medium', name: 'You' }, { kind: 'ai', level: 'medium', name: 'Ava' }, { kind: 'ai', level: 'medium', name: 'Ben' }, { kind: 'ai', level: 'medium', name: 'Cleo' }], quick: false, friendly: false, seed: '', showAll: false });
-  const AINAMES = ['Ava', 'Ben', 'Cleo', 'Dev', 'Eli', 'Fern'];
+  const ui = { screen: 'home', setup: null, s: null, shown: null, sheet: null, deckOf: null, log: false, help: false, menu: false, settings: false, confirmNew: false, tipsReset: false, timer: null, tip: null, tipQ: [], skip: false, pick: null, lastLen: 0 };
+  /* a new game is always you against one Easy, one Medium and one Hard computer player */
+  const QUICK_SEATS = () => [{ name: 'You', kind: 'human' }, { name: 'Easy', kind: 'ai', level: 'easy' }, { name: 'Medium', kind: 'ai', level: 'medium' }, { name: 'Hard', kind: 'ai', level: 'hard' }];
+  const dims = () => { const W = innerWidth, H = innerHeight, land = W > H * 1.05, u = land ? Math.min(W / 1180, H / 820) : Math.min(W / 820, H / 1180); return { W, H, land, u: Math.max(.55, Math.min(u, 1.7)) }; };
+  /* the widest a card can be so that n cards fit in a w x h box (a card is 1.42 times as tall as it is wide) */
+  const fitW = (n, w, h, max) => Math.max(34, Math.floor(Math.min(max, (w - 8) / Math.max(n, 1) - 8, (h - 6) / 1.42)));
   const seen = () => { try { return JSON.parse(store.get(TIPS)) || {}; } catch (e) { return {}; } };
   const hasSave = () => !!store.get(SAVE);
   const save = () => { if (ui.s && ui.s.phase !== 'over') store.set(SAVE, JSON.stringify({ s: ui.s })); else store.del(SAVE); };
@@ -1089,36 +1140,24 @@ const AI = (() => {
   }
   function badges(s, p) {
     const pl = s.pl[p], b = [];
-    if (s.first === p) b.push('1st player'); if (s.pending && s.pending.kind === 'turn' && s.active === p) b.push('turn');
+    if (s.first === p) b.push('1st player'); const tk = s.stack && s.stack.find(t => t.t === 'turn'); if (tk && tk.choice && s.pending && s.pending.kind === 'turn' && pl.status === 'active') b.push(tk.choice[p] ? 'Ready' : 'Choosing');
     if (pl.status === 'busted') b.push('Busted'); else if (pl.getaway !== null) b.push('Getaway 17'); else if (pl.last === 'pass') b.push('Passed');
-    return b.map(x => `<i class="bdg ${x === 'turn' ? 'on' : ''} ${x === 'Busted' ? 'bad' : ''}">${esc(x)}</i>`).join('');
+    return b.map(x => `<i class="bdg ${x === 'Ready' ? 'on' : ''} ${x === 'Busted' ? 'bad' : ''}">${esc(x)}</i>`).join('');
   }
-  function panelHTML(s, p, viewerIdx, big, targetOpt) {
+  function panelHTML(s, p, viewerIdx, big, targetOpt, cw) {
     const pl = s.pl[p], isT = targetOpt;
     const load = pl.load ? `<span class="load" aria-label="${pl.load} Load">${Array.from({ length: Math.min(pl.load, 5) }, () => '<i></i>').join('')}<b>${pl.load}</b> Load</span>` : '';
     return `<section class="pnl ${big ? 'me' : ''} ${pl.status === 'busted' ? 'busted' : ''} ${isT ? 'tgt' : ''}" data-act="${isT ? 'target' : 'deck'}" data-p="${p}" style="--pc:${PTS[p % 6]}">
-      <div class="phead"><b>${esc(pl.name)}</b><span class="pts">${pl.pts} pts</span>${badges(s, p)}<span class="tot">${esc(totalText(s, p, viewerIdx))}</span></div>
-      <div class="line ${big ? 'bigline' : ''}">${lineHTML(s, p, viewerIdx, big)}${load}</div>${pl.status === 'busted' ? '<div class="stamp">BUST</div>' : ''}</section>`;
+      <div class="phead"><b>${esc(pl.name)}</b><span class="pts">${pl.pts} / ${s.winAt}</span>${badges(s, p)}<span class="tot">${esc(totalText(s, p, viewerIdx))}</span></div>
+      <div class="line ${big ? 'bigline' : ''}" style="--cw:${cw || 54}px">${lineHTML(s, p, viewerIdx, big)}${load}</div>${pl.status === 'busted' ? '<div class="stamp">BUST</div>' : ''}</section>`;
   }
 
   // ---------- screens ----------
+  const newBtn = (cls) => `<button class="big ${cls || ''} ${ui.confirmNew ? 'warn' : ''}" data-act="newgame">${ui.confirmNew ? 'Tap again to erase your current game' : 'New Game'}</button>`;
   function homeHTML() {
     return `<div class="screen home">${libraryLink()}<div class="hero"><div class="suits">21</div><div class="kicker">LOADED</div><h1>Blackjack</h1><p class="tag">${esc(D.tagline)}</p></div>
-      <div class="menu">${hasSave() ? '<button class="big gold" data-act="continue">Continue</button>' : ''}<button class="big ${hasSave() ? '' : 'gold'}" data-act="newgame">New Game</button><button class="big ghost" data-act="help">How to Play</button></div>
+      <div class="menu">${hasSave() ? '<button class="big gold" data-act="continue">Continue</button>' : ''}${newBtn(hasSave() ? '' : 'gold')}<button class="big ghost" data-act="help">How to Play</button><button class="big ghost" data-act="settings">Settings</button></div>
       <p class="ver">By Patrick Blim-Hockberger · Version ${esc(buildStamp())}</p></div>`;
-  }
-  function setupHTML() {
-    const st = ui.setup;
-    const seat = (x, i) => `<div class="seat"><span class="sdot" style="background:${PTS[i % 6]}"></span><input class="sname" data-i="${i}" value="${esc(x.name)}" maxlength="12" aria-label="Seat ${i + 1} name">
-      <div class="seg" role="group"><button class="${x.kind === 'human' ? 'on' : ''}" data-act="kind" data-i="${i}" data-v="human">Human</button><button class="${x.kind === 'ai' ? 'on' : ''}" data-act="kind" data-i="${i}" data-v="ai">AI</button></div>
-      ${x.kind === 'ai' ? `<div class="seg" role="group">${D.ai.levels.map(l => `<button class="${x.level === l ? 'on' : ''}" data-act="level" data-i="${i}" data-v="${l}">${l[0].toUpperCase() + l.slice(1)}</button>`).join('')}</div>` : '<div class="seg ghostseg"></div>'}${st.seats.length > D.rules.minPlayers ? `<button class="x" data-act="rmseat" data-i="${i}" aria-label="Remove seat">✕</button>` : ''}</div>`;
-    const tog = (k, label, sub) => `<button class="opt ${st[k] ? 'on' : ''}" data-act="opt" data-k="${k}" role="checkbox" aria-checked="${!!st[k]}"><i>${st[k] ? '✓' : ''}</i><span><b>${label}</b><small>${sub}</small></span></button>`;
-    return `<div class="screen setup">${libraryLink()}<div class="topbar"><button class="chip" data-act="home">‹ Back</button></div><h2 class="stitle">New Game</h2>
-      <div class="sscroll"><div class="seats">${st.seats.map(seat).join('')}</div>
-      ${st.seats.length < D.rules.maxPlayers ? '<button class="big ghost add" data-act="addseat">+ Add a seat</button>' : ''}
-      <div class="opts">${tog('quick', 'Quick Game', '3 rounds instead of 5')}${tog('friendly', 'Friendly Game', 'Remove the four meanest cards')}${tog('showAll', 'Show all hidden info', 'A playtest aid: everyone sees every hidden card')}
-      <p class="deckcap">Everyone starts with one each of 1 through 9 (9 cards).</p><label class="seedrow">Seed <input class="seed" value="${esc(st.seed)}" placeholder="random" inputmode="numeric" aria-label="Seed"></label></div></div>
-      <button class="big gold start" data-act="start">Deal</button></div>`;
   }
   function gameHTML() {
     const s = ui.s, v = viewer(s), pd = s.pending;
@@ -1128,19 +1167,29 @@ const AI = (() => {
     const meIdx = me === undefined ? 0 : me, isMe = pd && pd.who === meIdx && s.pl[meIdx] && s.pl[meIdx].kind === 'human';
     const targetSet = pd && isMeFor(s, pd, v) && pd.kind === 'target' ? new Set(pd.opts.map(o => o.p)) : new Set();
     const order = s.pl.map((p, i) => i).filter(i => i !== meIdx).sort((a, b) => s.part.includes(b) - s.part.includes(a));
-    const body = s.phase === 'draft' ? draftHTML(s, v) : (s.phase === 'results' ? '' : tableHTML(s, v, meIdx, order, targetSet));
-    return `<div class="screen game">${libraryLink()}<div class="topbar"><span class="rnd">Round ${s.round} of ${s.rounds}${s.tiebreak ? ' · tiebreak' : ''}</span><button class="chip" data-act="log" aria-label="Log">Log</button><button class="chip" data-act="menu" aria-label="Menu">☰ Menu</button></div>${body}${s.phase === 'results' ? resultsHTML(s) : ''}${sheetHTML(s, v, meIdx)}${ui.log ? logHTML(s) : ''}</div>`;
+    const body = s.phase === 'draft' ? draftHTML(s, v, meIdx) : (s.phase === 'results' ? '' : tableHTML(s, v, meIdx, order, targetSet));
+    return `<div class="screen game"><div class="topbar"><span class="rnd">${s.tiebreak ? 'Tiebreak round' : 'Round ' + s.round} · First to ${s.winAt} points</span><button class="chip" data-act="log" aria-label="Log">Log</button><button class="chip" data-act="menu" aria-label="Menu">☰ Menu</button></div>${body}${s.phase === 'results' ? resultsHTML(s) : ''}${sheetHTML(s, v, meIdx)}${ui.log ? logHTML(s) : ''}</div>`;
   }
   const isMeFor = (s, pd, v) => pd.who != null && s.pl[pd.who].kind === 'human' && (v === pd.who || (humans(s).length === 1));
+  /* how big the cards are so that the table fills the screen: opponents on top, you below */
+  function tableSizes(s, nOpp, me) {
+    const d = dims(), top = Math.round(56 * d.u) + 8, status = Math.round(50 * d.u), pad = 28, body = d.H - top - status - pad;
+    const cols = Math.max(1, Math.min(nOpp, d.land ? 3 : 2)), rows = Math.max(1, Math.ceil(nOpp / cols)), oppH = Math.round(body * (d.land ? .4 : .36));
+    const head = Math.round(40 * d.u) + 14, colW = (d.W - 28 - (cols - 1) * 8) / cols - 24, nO = Math.max(4, ...s.pl.map((p, i) => i === me ? 0 : p.line.length));
+    const oppCw = fitW(nO, colW, oppH / rows - head - 8, Math.round(190 * d.u));
+    const actW = d.land ? Math.round(210 * d.u) + 12 : 0, meH = body - oppH - (d.land ? 0 : Math.round(90 * d.u)) - 8, meW = d.W - 28 - actW - 28;
+    const meCw = fitW(Math.max(4, s.pl[me] ? s.pl[me].line.length : 4), meW, meH - head - 12, Math.round(300 * d.u));
+    return { cols, oppH, oppCw, meCw };
+  }
   function tableHTML(s, v, me, order, targetSet) {
-    const pd = s.pending, mine = pd && isMeFor(s, pd, v) ? pd : null;
-    const opp = order.map(i => panelHTML(s, i, v, false, targetSet.has(i))).join('');
-    const msg = s.pending && s.pending.kind === 'turn' ? (mine ? 'Your turn' : esc(s.pl[s.pending.who].name) + ' is thinking…') : (s.pending && s.pending.who != null && !mine ? esc(s.pl[s.pending.who].name) + ' is deciding…' : '');
-    return `<div class="opps">${opp}</div><div class="status">${msg}<small>${esc(lastLog(s))}</small></div>${panelHTML(s, me, v, true, targetSet.has(me))}${actionBar(s, mine)}`;
+    const pd = s.pending, mine = pd && isMeFor(s, pd, v) ? pd : null, z = tableSizes(s, order.length, me);
+    const opp = order.map(i => panelHTML(s, i, v, false, targetSet.has(i), z.oppCw)).join('');
+    const msg = s.pending && s.pending.kind === 'turn' ? (mine ? 'Hit or pass? Everyone chooses at the same time.' : 'Waiting for everyone to choose…') : (s.pending && s.pending.who != null && !mine ? esc(s.pl[s.pending.who].name) + ' is deciding…' : '');
+    return `<div class="opps" style="--cols:${z.cols};--oppH:${z.oppH}px">${opp}</div><div class="status">${msg}<small>${esc(lastLog(s))}</small></div><div class="merow">${panelHTML(s, me, v, true, targetSet.has(me), z.meCw)}${actionBar(s, mine)}</div>`;
   }
   const lastLog = s => (s.log.length ? s.log[s.log.length - 1].t : '');
   function actionBar(s, mine) {
-    if (!mine || mine.kind !== 'turn') return '<div class="actions"></div>';
+    if (!mine || mine.kind !== 'turn') return '<div class="actions">' + (s.pending && s.pending.kind === 'turn' ? '<span class="wait">Waiting…</span>' : '') + '</div>';
     const o = id => mine.opts.find(x => x.id === id);
     return `<div class="actions">${o('hit') ? '<button class="act hit" data-act="ans" data-v="hit">Hit</button>' : ''}<button class="act pass" data-act="ans" data-v="pass">Pass</button>${o('double') ? '<button class="act dd" data-act="ans" data-v="double">Double Down</button>' : ''}${o('flip') ? '<button class="act flip" data-act="ans" data-v="flip">Flip hidden card</button>' : ''}</div>`;
   }
@@ -1151,7 +1200,7 @@ const AI = (() => {
   function sheetHTML(s, v, me) {
     const pd = s.pending;
     let h = '';
-    if (ui.deckOf !== null) {
+    if (ui.deckOf !== null && (ui.deckOf === me || s.showAll)) {
       const counts = {}; E.deckList(s, ui.deckOf).forEach(id => { counts[id] = (counts[id] || 0) + 1; });
       const ids = Object.keys(counts).sort((a, b) => (DEF[a].cat === 'Starting') - (DEF[b].cat === 'Starting') || DEF[a].name.localeCompare(DEF[b].name));
       return `<div class="sheet" data-act="closesheet"><div class="sheetin" data-act="none"><h3>${esc(s.pl[ui.deckOf].name)}'s deck (${E.deckList(s, ui.deckOf).length} cards)</h3><div class="decklist">${ids.map(id => `<div class="drow"><b>${esc(DEF[id].name)}</b>${counts[id] > 1 ? ' ×' + counts[id] : ''}<small>${esc(DEF[id].val.kind === 'fixed' ? DEF[id].val.v : valText({ id }))} · ${esc(DEF[id].text || DEF[id].cat)}</small></div>`).join('')}</div><button class="big" data-act="closesheet">Close</button></div></div>`;
@@ -1173,38 +1222,49 @@ const AI = (() => {
     if (pd.kind === 'card') return `<div class="sheet"><div class="sheetin"><h3>${esc(pd.prompt)}</h3><div class="pickrow">${pd.opts.map(o => { const c = s.cards[o.u]; const i = s.pl.findIndex(p => p.line.some(e => e.c.u === o.u)); const e = i >= 0 ? s.pl[i].line.find(x => x.c.u === o.u) : null; return `<button class="pickc" data-act="ans" data-v="${esc(o.id)}">${e && e.down ? faceHTML(c, { tag: 'hidden' }) : faceHTML(c, {})}</button>`; }).join('')}</div></div></div>`;
     return `<div class="sheet"><div class="sheetin"><h3>${esc(pd.prompt)}</h3>${show.length ? `<div class="pickrow showrow">${pd.showLabel ? `<small>${esc(pd.showLabel)}</small>` : ''}${show.map(c => mini(c)).join('')}</div>` : ''}<div class="opts2">${pd.opts.map(o => `<button class="big ${pd.kind === 'window' && o.id === 'decline' ? 'ghost' : ''}" data-act="ans" data-v="${esc(o.id)}">${esc(o.label)}</button>`).join('')}</div></div></div>`;
   }
-  function draftHTML(s, v) {
+  const scoreHTML = (s, who) => `<div class="score">${s.pl.map((p, i) => `<div class="sc ${who === i ? 'now' : ''}" style="--pc:${PTS[i % 6]}">${esc(p.name)}<small>${p.pts} / ${s.winAt} points</small><div class="bar"><i style="width:${Math.min(100, Math.round(p.pts / s.winAt * 100))}%"></i></div></div>`).join('')}</div>`;
+  function draftHTML(s, v, me) {
     const dr = s.draft, pd = s.pending, mine = pd && pd.kind === 'pick' && isMeFor(s, pd, v);
     const who = dr && dr.k < dr.order.length ? dr.order[dr.k] : null;
-    const orderRow = dr ? dr.order.slice(0, dr.order.length / 2).map((i, k) => `<span class="ord ${who === i ? 'now' : ''}" style="--pc:${PTS[i % 6]}">${k + 1}. ${esc(s.pl[i].name)}</span>`).join('') : '';
     const picks = dr ? dr.picks.map(x => `<span class="pk">${esc(s.pl[x.p].name)}: ${esc(DEF[s.cards[x.u].id].name)}</span>`).join('') : '';
-    return `<div class="draft"><h2>The Draft</h2><p class="dsub">${who != null ? (mine ? 'Your pick!' : esc(s.pl[who].name) + ' is picking…') : ''} Two picks each, fewest points first${dr && dr.tie ? ' (ties broken at random)' : ''}.</p><div class="ordrow">${orderRow}</div>
-      <div class="market">${s.market.map(c => `<button class="mk ${mine ? 'canpick' : ''}" data-act="${mine ? 'ans' : 'card'}" data-v="c${c.u}" data-u="${c.u}" data-p="-1">${faceHTML(c, { big: true })}</button>`).join('')}</div><div class="picks">${picks}</div><div class="decks">${s.part.map(i => `<button class="chip" data-act="deck" data-p="${i}">${esc(s.pl[i].name)}'s deck</button>`).join('')}</div></div>`;
+    const d = dims(), n = Math.max(1, s.market.length), W = d.W - 36, Hh = d.H - Math.round(56 * d.u) - 8 - Math.round(64 * d.u) - Math.round(84 * d.u) - Math.round(58 * d.u) - 44;
+    let cw = 40; for (let c = 1; c <= n; c++) { const rows = Math.ceil(n / c); cw = Math.max(cw, Math.floor(Math.min((W - (c - 1) * 14) / c - 8, (Hh - (rows - 1) * 14) / rows / 1.42 - 6, 320))); }
+    return `<div class="draft">${scoreHTML(s, who)}<h2>The Draft</h2><p class="dsub">${who != null ? (mine ? 'Your pick! Tap a card.' : esc(s.pl[who].name) + ' is picking…') : ''} Two picks each, fewest points first${dr && dr.tie ? ' (ties broken at random)' : ''}.</p>
+      <div class="market" style="--cw:${cw}px">${s.market.map(c => `<button class="mk ${mine ? 'canpick' : ''}" data-act="${mine ? 'ans' : 'card'}" data-v="c${c.u}" data-u="${c.u}" data-p="-1">${faceHTML(c, { big: true })}</button>`).join('')}</div>
+      <div class="dfoot"><button class="chip" data-act="deck" data-p="${me}">Your deck</button>${picks}</div></div>`;
   }
   function resultsHTML(s) {
     const r = s.result, sk = ui.skip ? ' skip' : ''; if (!r) return '';
     const rows = r.rows.slice().sort((a, b) => (b.pts - a.pts) || ((a.place || 99) - (b.place || 99)));
     return `<div class="results${sk}"><h2>${s.tiebreak ? 'Tiebreak round' : 'Round ' + r.round} results</h2><div class="rrows">${rows.map((x, k) => `<div class="rrow ${x.busted ? 'bad' : ''}" style="--d:${.5 + k * .6}s;--pc:${PTS[x.p % 6]}"><div class="rtop"><b>${esc(s.pl[x.p].name)}</b><span class="rt">${x.busted ? 'BUST' : x.total}</span><span class="rp">${x.busted ? 'last place' : 'place ' + x.place} · +${x.pts}</span></div><div class="rline">${x.line.map(l => { const c = s.cards[l.u]; return faceHTML(c, { cls: 'flipin', val: valText(c) }); }).join('')}${x.load ? `<span class="load"><b>${x.load}</b> Load</span>` : ''}</div></div>`).join('')}</div>
-      <div class="stand"><b>Standings</b> ${s.pl.map((p, i) => ({ n: p.name, t: p.pts })).sort((a, b) => b.t - a.t).map(x => `${esc(x.n)} ${x.t}`).join(' · ')}</div>
-      <div class="ractions"><button class="chip" data-act="skip">Skip</button><button class="big gold" data-act="ans" data-v="continue">${s.round >= s.rounds || s.tiebreak ? 'Finish' : 'Continue to the draft'}</button></div></div>`;
+      ${scoreHTML(s, null)}
+      <div class="ractions"><button class="chip" data-act="skip">Skip</button><button class="big gold" data-act="ans" data-v="continue">${s.tiebreak ? 'Continue' : Math.max(...s.pl.map(p => p.pts)) >= s.winAt ? 'Finish' : 'Continue to the draft'}</button></div></div>`;
   }
   function overHTML(s) {
     const order = s.pl.map((p, i) => i).sort((a, b) => s.pl[b].pts - s.pl[a].pts);
     const hist = s.history;
     return `<div class="screen over">${libraryLink()}<div class="hero"><div class="suits">21</div><h1>${esc(s.pl[s.winner].name)} wins!</h1></div>
-      <div class="final">${order.map((i, k) => `<div class="frow"><b>${k + 1}. ${esc(s.pl[i].name)}</b><span>${s.pl[i].pts} pts</span></div>`).join('')}</div>
+      <div class="final">${order.map((i, k) => `<div class="frow"><b>${k + 1}. ${esc(s.pl[i].name)}</b><span>${s.pl[i].pts} / ${s.winAt} pts</span></div>`).join('')}</div>
       <table class="hist"><tr><th></th>${hist.map(h => `<th>R${h.round}${h.tiebreak ? 'T' : ''}</th>`).join('')}</tr>${order.map(i => `<tr><td>${esc(s.pl[i].name)}</td>${hist.map(h => `<td>${h.pts[i] != null ? h.pts[i] : '–'}</td>`).join('')}</tr>`).join('')}</table>
       <button class="big gold" data-act="newgame">Play again</button><button class="big ghost" data-act="home">Main Menu</button></div>`;
   }
   const logHTML = s => `<div class="sheet" data-act="log"><div class="sheetin logsheet" data-act="none"><h3>Log</h3><div class="logbody">${s.log.slice(-60).reverse().map(l => `<div class="ll">${esc(l.t)}</div>`).join('')}</div><button class="big" data-act="log">Close</button></div></div>`;
   const sheetBox = inner => `<div class="sheet" data-act="none"><div class="sheetin">${inner}</div></div>`;
-  const helpHTML = () => sheetBox(`<h2>How to Play</h2>${D.texts.help.map(t => `<p>${esc(t)}</p>`).join('')}<button class="big gold" data-act="closehelp">Got it</button>`);
-  const menuHTML = () => sheetBox(`<h2>Menu</h2><button class="big gold" data-act="closemenu">Back to the game</button><button class="big" data-act="help">How to Play</button><button class="big" data-act="resettips">Reset tips</button><button class="big ghost" data-act="home">Main Menu</button>`);
+  const stepVis = i => {
+    const f = id => faceHTML({ id }, {});
+    if (i === 0) return `${f('nine')}<span class="eq">+</span>${f('five')}<span class="eq">+</span>${f('six')}<span class="eq">= 20</span>${f('seven')}<span class="eq">+</span>${f('eight')}<span class="eq">+</span>${f('nine')}<span class="eq" style="color:#ff7a5a">= 24 BUST</span>`;
+    if (i === 1) return `<div class="who">You<span class="pillbtn h">Hit</span></div><div class="who">Ava<span class="pillbtn p">Pass</span></div><div class="who">Ben<span class="pillbtn p">Pass</span></div><span class="eq">→ flip together</span>`;
+    const t = D.rules.POINTS_BY_PLACE[3];
+    return `<span class="tbl">3 players: 1st <b>${t[0]}</b> · 2nd <b>${t[1]}</b> · 3rd <b>${t[2]}</b></span>${f('hi-lo')}${f('squeeze')}<span class="tbl"><b>14 / ${D.rules.WIN_POINTS}</b> points</span>`;
+  };
+  const helpHTML = () => `<div class="sheet" data-act="none"><div class="sheetin wide-sheet"><h2>How to Play</h2><div class="steps">${D.texts.steps.map((st, i) => `<div class="step"><div class="num">${i + 1}</div><div><h3>${esc(st.title)}</h3><p>${esc(st.text)}</p></div><div class="vis">${stepVis(i)}</div></div>`).join('')}</div><button class="big gold" data-act="closehelp">Got it</button></div></div>`;
+  const menuHTML = () => sheetBox(`<h2>Menu</h2><button class="big gold" data-act="closemenu">Back to the game</button><button class="big" data-act="help">How to Play</button><button class="big" data-act="settings">Settings</button>${newBtn('')}<button class="big ghost" data-act="home">Main Menu</button>`);
+  const settingsHTML = () => sheetBox(`<h2>Settings</h2><button class="big" data-act="resettips">${ui.tipsReset ? 'Tips reset ✓ They will show again' : 'Reset tips'}</button><p>Show every first-time tip again, as if it were your first game.</p><button class="big gold" data-act="closesettings">Done</button>`);
   const tipHTML = () => { const t = D.texts.tips[ui.tip]; return t ? sheetBox(`<h2>${esc(t[0])}</h2><p>${esc(t[1])}</p><button class="big gold" data-act="tipok">Got it</button>`) : ''; };
 
   // ---------- first-time tips: each once, the first time it comes up (the game waits while one is open) ----------
   function tipCheck() {
-    const s = ui.s; if (!s || ui.tip || ui.screen !== 'game' || humans(s).length === 0) return;
+    const s = ui.s; if (!s || ui.tip || ui.menu || ui.settings || ui.help || ui.screen !== 'game' || humans(s).length === 0) return;
     const sn = seen(), pd = s.pending, v = viewer(s), want = [];
     const add = k => { if (!sn[k] && !ui.tipQ.includes(k)) want.push(k); };
     if (s.phase === 'play') { add('welcome'); }
@@ -1220,25 +1280,25 @@ const AI = (() => {
   }
 
   // ---------- running the game ----------
-  function newGame() {
-    const st = ui.setup, seats = st.seats.map(x => ({ name: x.name || 'Player', kind: x.kind, level: x.level }));
-    const seed = st.seed.trim() ? Number(st.seed) | 0 : (Math.random() * 2 ** 31) | 0;
-    ui.s = E.newGame({ seats, seed, quick: st.quick, friendly: st.friendly, showAll: st.showAll });
-    ui.shown = null; ui.sheet = null; ui.deckOf = null; ui.skip = false; ui.screen = 'game'; save(); render();
+  function newGame(opts) {
+    opts = opts || {};
+    const seed = opts.seed != null ? opts.seed : (Math.random() * 2 ** 31) | 0;
+    ui.s = E.newGame({ seats: opts.seats || QUICK_SEATS(), seed, quick: opts.quick, friendly: opts.friendly, showAll: opts.showAll });
+    ui.shown = null; ui.sheet = null; ui.deckOf = null; ui.skip = false; ui.screen = 'game'; ui.menu = false; ui.help = false; ui.settings = false; ui.confirmNew = false; ui.tip = null; ui.tipQ = []; save(); render();
   }
   function answerNow(id) { const r = E.answer(ui.s, id); if (r.ok) { ui.sheet = null; ui.skip = false; save(); } render(); }
 
   function render() {
     clearTimeout(ui.timer);
     let h;
-    if (ui.screen === 'setup') h = setupHTML();
-    else if (ui.screen === 'game' && ui.s) { tipCheck(); h = gameHTML(); }
+    if (ui.screen === 'game' && ui.s) { tipCheck(); h = gameHTML(); }
     else h = homeHTML();
-    app.innerHTML = h + (ui.menu && ui.screen === 'game' ? menuHTML() : '') + (ui.help ? helpHTML() : '') + (ui.tip ? tipHTML() : '');
+    app.style.setProperty('--u', dims().u.toFixed(3));
+    app.innerHTML = h + (ui.menu && ui.screen === 'game' ? menuHTML() : '') + (ui.settings ? settingsHTML() : '') + (ui.help ? helpHTML() : '') + (ui.tip ? tipHTML() : '');
     drive();
   }
   function drive() {
-    const s = ui.s; if (ui.screen !== 'game' || !s || s.phase === 'over' || ui.menu || ui.help || ui.tip) return;
+    const s = ui.s; if (ui.screen !== 'game' || !s || s.phase === 'over' || ui.menu || ui.help || ui.tip || ui.settings) return;
     const pd = s.pending; if (!pd) return;
     if (pd.kind === 'results') { if (humans(s).length === 0) ui.timer = setTimeout(() => answerNow('continue'), 3500); return; }
     if (pd.who == null) return;
@@ -1248,39 +1308,30 @@ const AI = (() => {
     ui.timer = setTimeout(() => { if (ui.s !== s || s.pending !== pd) return; const id = AI.answer(s, pd.who); const r = E.answer(s, id); if (!r.ok) console.error('AI answer refused', id, pd.prompt); save(); render(); }, delay);
   }
 
-  app.addEventListener('input', e => {
-    const t = e.target;
-    if (t.classList.contains('sname')) ui.setup.seats[Number(t.dataset.i)].name = t.value;
-    if (t.classList.contains('seed')) ui.setup.seed = t.value.replace(/[^0-9-]/g, '');
-  });
   app.addEventListener('click', e => {
     const el = e.target.closest('[data-act]'); if (!el) return;
     const a = el.dataset.act, s = ui.s; if (a === 'none') return;
-    const st = ui.setup;
-    if (a === 'newgame') { ui.setup = ui.setup || defaultSetup(); ui.screen = 'setup'; ui.menu = false; render(); }
+    if (a !== 'newgame') ui.confirmNew = false;
+    if (a === 'newgame') { if ((hasSave() || (ui.s && ui.s.phase !== 'over' && ui.screen === 'game')) && !ui.confirmNew) { ui.confirmNew = true; render(); } else newGame(); }
     else if (a === 'continue') { try { const d = JSON.parse(store.get(SAVE)); ui.s = d.s; ui.screen = 'game'; ui.shown = null; render(); } catch (err) { store.del(SAVE); render(); } }
     else if (a === 'home') { ui.screen = 'home'; ui.menu = false; ui.help = false; render(); }
     else if (a === 'help') { ui.help = true; render(); } else if (a === 'closehelp') { ui.help = false; render(); }
     else if (a === 'menu') { ui.menu = true; render(); } else if (a === 'closemenu') { ui.menu = false; render(); }
-    else if (a === 'resettips') { store.del(TIPS); ui.menu = false; render(); }
+    else if (a === 'settings') { ui.settings = true; render(); } else if (a === 'closesettings') { ui.settings = false; ui.tipsReset = false; render(); }
+    else if (a === 'resettips') { store.del(TIPS); ui.tipsReset = true; render(); }
     else if (a === 'tipok') { ui.tip = ui.tipQ.length ? ui.tipQ.shift() : null; if (ui.tip) { const x = seen(); x[ui.tip] = 1; store.set(TIPS, JSON.stringify(x)); } render(); }
-    else if (a === 'kind') { st.seats[Number(el.dataset.i)].kind = el.dataset.v; render(); }
-    else if (a === 'level') { st.seats[Number(el.dataset.i)].level = el.dataset.v; render(); }
-    else if (a === 'addseat') { const n = st.seats.length; st.seats.push({ kind: 'ai', level: 'medium', name: AINAMES[(n - 1) % 6] }); render(); }
-    else if (a === 'rmseat') { st.seats.splice(Number(el.dataset.i), 1); render(); }
-    else if (a === 'opt') { st[el.dataset.k] = !st[el.dataset.k]; render(); }
-    else if (a === 'start') newGame();
     else if (a === 'handoff') { ui.shown = Number(el.dataset.v); render(); }
     else if (a === 'closesheet') { ui.sheet = null; ui.deckOf = null; render(); }
     else if (a === 'log') { ui.log = !ui.log; render(); }
     else if (a === 'skip') { ui.skip = true; render(); }
     else if (a === 'card') { ui.sheet = Number(el.dataset.u); render(); }
-    else if (a === 'deck') { ui.deckOf = Number(el.dataset.p); render(); }
-    else if (a === 'target') { const pd = s && s.pending; if (pd && pd.kind === 'target' && isMeFor(s, pd, viewer(s))) { const o = pd.opts.find(x => x.p === Number(el.dataset.p)); if (o) { answerNow(o.id); return; } } ui.deckOf = Number(el.dataset.p); render(); }
+    else if (a === 'deck') { const p = Number(el.dataset.p); if (s && (p === viewer(s) || (viewer(s) === null && p === humans(s)[0]) || s.showAll)) { ui.deckOf = p; render(); } }
+    else if (a === 'target') { const pd = s && s.pending; if (pd && pd.kind === 'target' && isMeFor(s, pd, viewer(s))) { const o = pd.opts.find(x => x.p === Number(el.dataset.p)); if (o) { answerNow(o.id); return; } } }
     else if (a === 'ans') { if (s && s.pending) answerNow(el.dataset.v); }
   });
   render();
   if (typeof window !== 'undefined') window.LB = { ui, render, newGame };
+  let rz = 0; addEventListener('resize', () => { cancelAnimationFrame(rz); rz = requestAnimationFrame(render); });
 })();
 </script>
 </body>
