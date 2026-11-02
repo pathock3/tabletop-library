@@ -3848,6 +3848,7 @@ function DDBSeat(root, cfg) {
   }
   applyScale();
   // S.opp: always true in the app (owner: one AI opponent, no option to play without); the solo Run path stays in the engine and tests switch it off.
+  const PULSE0 = performance.now();          // the BOOM! pulse is one clock: a redraw (tapping New Game and its confirmation, say) carries on from where the pulse was instead of starting over
   const S = { tip: null, tipQ: [], duel: cfg.duel || null, tally: null, st: null, run: null, rounds: D.run.rounds, kit: [], kitSize: R.soloKit, start: { ...R.start }, tab: 'Ongoing', kitTab: 'Ongoing', fxEsc: null, gmenu: false, zoom: null, help: false, panel: 'menu', back: null, restored: false, confirmNew: null, match: null, opp: true };
   const cards = () => UI.state.all;
   // Personal bests live in this browser only (best Monsters survived, best gems banked). Never needed for play.
@@ -4066,7 +4067,7 @@ function DDBSeat(root, cfg) {
     const logoStyle = since > 900 ? 'animation:none' : `animation-delay:${Math.round(150 - since)}ms`;
     return `<div class="home">${libLink}<div class="homegrid">${heroHTML()}
       <div class="homemenu">
-        <h1 class="logo" style="${logoStyle}"><span class="l1">Dig Dig</span><span class="l2">BOOM!<i>✦</i></span></h1>
+        <h1 class="logo" style="${logoStyle}"><span class="l1">Dig Dig</span><span class="l2" style="animation-delay:-${Math.round((performance.now() - PULSE0) % 4500)}ms">BOOM!<i>✦</i></span></h1>
         <p class="tagline">Strap into a drill and launch yourself toward the center of the earth!</p>
         ${inProgress ? `<button class="mode primary row" data-p="resume"><b>Continue</b>${duelSaved() ? '<span class="cmode">Two players</span>' : run ? pips : ''}</button>` : ''}
         ${newRun}
