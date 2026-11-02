@@ -87,8 +87,7 @@ test('ui: New Game starts at once against Easy, Medium and Hard; a second game n
     await p.click('[data-act=newgame]'); await p.waitForSelector('.pnl.me');
     assert.deepEqual(await p.evaluate(() => LB.ui.s.pl.map(x => x.kind === 'ai' ? x.level : x.kind)), ['human', 'easy', 'medium', 'hard']);
     assert.equal(await p.locator('.libback').count(), 0, 'no button back to the library in the middle of a game');
-    await p.click('[data-act=menu]'); const first = await p.evaluate(() => LB.ui.s.nextU);
-    await p.click('.sheet [data-act=newgame]'); assert.match(await p.innerText('.sheet'), /Tap again to erase your current game/); assert.equal(await p.evaluate(() => LB.ui.s.nextU), first, 'one tap only warns');
+    await p.click('[data-act=menu]'); assert.equal(await p.locator('.sheet [data-act=newgame]').count(), 0, 'no New Game in the in-game menu'); assert.equal(await p.locator('.topbar [data-act=log]').count(), 0, 'Log is not on the table'); await p.click('.sheet [data-act=log]'); assert.match(await p.innerText('.sheet'), /Log/); await p.click('.sheet [data-act=log]'); await p.click('[data-act=menu]');
     await p.click('.sheet [data-act=settings]'); assert.match(await p.locator('.sheet').last().innerText(), /Reset tips/); await p.click('[data-act=resettips]'); assert.match(await p.locator('.sheet').last().innerText(), /Tips reset/); await p.click('[data-act=closesettings]');
     await p.click('.sheet [data-act=home]'); await p.waitForSelector('.home');
     await p.click('[data-act=newgame]'); assert.match(await p.innerText('.home'), /Tap again to erase your current game/);

@@ -264,11 +264,15 @@ const LIBRARY = {
         <rect width="300" height="380" fill="url(#lbB)"/>
         <ellipse cx="150" cy="250" rx="150" ry="96" fill="none" stroke="#f2c14e" stroke-width="3" opacity=".45"/>
         ${[[28, 40], [264, 60], [40, 330], [262, 318], [150, 172]].map(([x, y]) => `<g transform="translate(${x} ${y})"><circle r="9" fill="#f2c14e" opacity=".7"/><circle r="5" fill="none" stroke="#173e2a" stroke-width="2"/></g>`).join('')}
-        ${card(98, 210, -22, num(7, '#101010'))}
-        ${card(150, 196, 0, num(5, '#c0262e'))}
-        ${card(204, 212, 21, null)}
-        <g transform="translate(236 292) rotate(14)"><rect x="-24" y="-24" width="48" height="48" rx="9" fill="#fff" stroke="#101010" stroke-width="3"/>${[[-11, -11], [11, -11], [-11, 11], [11, 11], [0, 0]].map(([x, y]) => `<circle cx="${x}" cy="${y}" r="4.6" fill="#101010"/>`).join('')}<path d="M-24 14L-14 24" stroke="#d6402a" stroke-width="3"/></g>
-        <text x="150" y="78" text-anchor="middle" font-size="58" font-weight="900" letter-spacing="6" fill="url(#lbT)" stroke="#07140d" stroke-width="9" stroke-linejoin="round" paint-order="stroke">21</text>
+        ${card(66, 196, -30, num(9, '#101010'))}
+        ${card(108, 170, -15, num(4, '#c0262e'))}
+        ${card(150, 160, 0, num(7, '#101010'))}
+        ${card(192, 170, 15, num(2, '#c0262e'))}
+        ${card(234, 196, 30, num(8, '#101010'))}
+        ${[0,1,2,3,4].slice(0,5).map(k => `<g transform="translate(46 ${318-k*9})"><ellipse rx="27" ry="11" fill="#000" opacity=".4" cy="4"/><ellipse rx="27" ry="11" fill="#c8321a" stroke="#fff" stroke-width="2.5" stroke-dasharray="7 5"/></g>`).join('')}${[0,1,2,3,4].slice(0,2).map(k => `<g transform="translate(46 ${264-k*9})"><ellipse rx="27" ry="11" fill="#000" opacity=".4" cy="4"/><ellipse rx="27" ry="11" fill="#1f6fc0" stroke="#fff" stroke-width="2.5" stroke-dasharray="7 5"/></g>`).join('')}
+        ${[0,1,2,3,4].slice(0,4).map(k => `<g transform="translate(254 ${318-k*9})"><ellipse rx="27" ry="11" fill="#000" opacity=".4" cy="4"/><ellipse rx="27" ry="11" fill="#1c1c24" stroke="#fff" stroke-width="2.5" stroke-dasharray="7 5"/></g>`).join('')}${[0,1,2,3,4].slice(0,3).map(k => `<g transform="translate(254 ${282-k*9})"><ellipse rx="27" ry="11" fill="#000" opacity=".4" cy="4"/><ellipse rx="27" ry="11" fill="#e0a82e" stroke="#fff" stroke-width="2.5" stroke-dasharray="7 5"/></g>`).join('')}
+        <g transform="translate(150 292) rotate(-8) scale(.92)"><rect x="-24" y="-24" width="48" height="48" rx="9" fill="#fff" stroke="#101010" stroke-width="3"/>${[[-11, -11], [11, -11], [-11, 11], [11, 11], [0, 0]].map(([x, y]) => `<circle cx="${x}" cy="${y}" r="4.6" fill="#101010"/>`).join('')}<path d="M-24 14L-14 24" stroke="#d6402a" stroke-width="3"/></g>
+        
         <text x="150" y="346" text-anchor="middle" font-size="40" font-weight="900" font-style="italic" fill="#fff7d6" stroke="#07140d" stroke-width="9" stroke-linejoin="round" paint-order="stroke">STACKJACK</text>
         </svg>`;
     },

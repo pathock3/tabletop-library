@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- **Stackjack:** tied round totals are broken by who got there first (every place is different; Tightrope at exactly 21 still beats earlier 21s). The results show the totals as a track, with chips lined up in arrival order and a "1st" badge. Hitting is back to happening at once: no turns, you see your new card the moment you tap, and you are never made to wait for the computer players. The Log is in the menu, New Game is only on the main menu, and the "21" over the title is gone. The main menu, the table and the box art now look like a tabletop game: felt and a wooden rail, a fan of cards, stacks of chips, and a deck pile next to every player.
+
 - **Loaded Blackjack is now Stackjack** ("Stack the deck. Hit 21."). The cards you draft between rounds are called **wildcards**; the nine you start with are **number cards**. No rules changed. The old address still works (it redirects) and a saved game carries over.
 
 - **Library:** a tapped box starts loading its game at once while it zooms (a little slower now, about half a second), and the games are fetched ahead of time while you look at the shelf, so the game is ready when the zoom ends.

@@ -129,12 +129,62 @@ h1 { margin: -4px 0 0; font-size: 84px; line-height: 1; font-weight: 1000; font-
 .rline { display: flex; gap: 4px; flex-wrap: wrap; margin-top: 4px; } .flipin { animation: flipc .7s calc(var(--d, 0s) + .5s) backwards; }
 @keyframes slidein { from { opacity: 0; transform: translateY(14px); } } @keyframes pop { from { opacity: 0; transform: scale(2); } } @keyframes flipc { from { transform: rotateY(90deg); opacity: .2; } }
 .results.skip *, .results.skip { animation: none !important; }
-.stand { width: 100%; max-width: 1100px; } .ractions { display: flex; gap: 10px; align-items: center; margin-top: auto; padding-top: 8px; flex-wrap: wrap; justify-content: center; }
+.stand { width: 100%; max-width: 1100px; }
+.track { display: flex; gap: calc(14px * var(--u, 1)); justify-content: center; align-items: flex-end; flex-wrap: wrap; padding: 6px 12px 0; min-height: calc(110px * var(--u, 1)); } .space { display: flex; flex-direction: column; align-items: center; gap: 4px; min-width: calc(70px * var(--u, 1)); } .space .sn { font-weight: 900; font-size: calc(22px * var(--u, 1)); color: var(--gold); border-top: 4px solid rgba(255,255,255,.3); width: 100%; text-align: center; padding-top: 2px; }
+.stack { display: flex; flex-direction: column-reverse; align-items: center; } .chp { position: relative; width: calc(52px * var(--u, 1)); height: calc(52px * var(--u, 1)); border-radius: 50%; background: radial-gradient(circle at 35% 30%, #fff 0, var(--pc) 45%, #000 140%); border: 4px dashed rgba(255,255,255,.85); box-shadow: 0 4px 0 #000; display: grid; place-items: center; margin-top: calc(-30px * var(--u, 1)); } .chp:first-child { margin-top: 0; } .chp b { font-size: calc(17px * var(--u, 1)); color: #0b0b0b; } .chp .first { position: absolute; right: -10px; top: -10px; font-style: normal; font-weight: 900; font-size: calc(12px * var(--u, 1)); background: var(--gold); color: #3b230a; border-radius: 99px; padding: 1px 6px; box-shadow: 0 2px 0 #000; }
+.tiehint { margin: 0; font-size: calc(15px * var(--u, 1)); color: var(--dim); } .ractions { display: flex; gap: 10px; align-items: center; margin-top: auto; padding-top: 8px; flex-wrap: wrap; justify-content: center; }
 .final { width: 100%; max-width: 420px; } .frow { display: flex; justify-content: space-between; padding: 8px 14px; margin: 4px 0; background: rgba(0,0,0,.3); border-radius: 12px; font-size: 18px; }
 .hist { border-collapse: collapse; background: rgba(0,0,0,.28); border-radius: 12px; overflow: hidden; margin: 6px 0; } .hist td, .hist th { padding: 6px 12px; text-align: center; font-size: 15px; } .hist td:first-child { text-align: left; font-weight: 700; }
 @media (orientation: landscape) and (max-height: 700px) { h1 { font-size: 56px; } }
 @media (orientation: portrait) { .merow { flex-direction: column; } .merow .actions { flex-direction: row; width: 100%; } }
 @media (max-width: 520px) { h1 { font-size: 60px; } }
+
+/* ---- the tabletop look: felt, a wooden rail, cards and chips you could pick up ---- */
+#app { background: radial-gradient(ellipse 90% 70% at 50% 38%, #2f8a5f 0%, #1b5a3d 45%, #0b2418 100%); }
+#app::before { content: ""; position: absolute; inset: 0; pointer-events: none; opacity: .5; mix-blend-mode: overlay; background: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 1  0 0 0 0 1  0 0 0 0 1  0 0 0 .55 0'/></filter><rect width='160' height='160' filter='url(%23n)' opacity='.35'/></svg>"); }
+#app::after { content: ""; position: absolute; inset: 0; pointer-events: none; z-index: 40; border: calc(9px * var(--u, 1)) solid transparent; border-image: linear-gradient(135deg, #8a5a2b, #5a3519 40%, #7a4b25 60%, #3d2310) 1; box-shadow: inset 0 0 0 2px rgba(0,0,0,.55), inset 0 0 70px 14px rgba(0,0,0,.55); }
+.home, .cover, .over { background: none; }
+.spot { position: absolute; left: 50%; top: 4%; width: min(120vw, 1100px); height: 70%; transform: translateX(-50%); pointer-events: none; background: radial-gradient(ellipse at 50% 35%, rgba(255,240,180,.38), rgba(255,240,180,0) 62%); }
+.home { gap: calc(14px * var(--u, 1)); justify-content: center; }
+.home > *:not(.libback):not(.spot):not(.chipstack) { position: relative; z-index: 1; } .home > .spot { z-index: 0; position: absolute; }
+.fan { position: relative; width: min(94vw, calc(760px * var(--u, 1))); height: calc(310px * var(--u, 1)); flex: none; margin-bottom: calc(30px * var(--u, 1)); }
+.fc { position: absolute; left: 50%; bottom: 0; --cw: calc(150px * var(--u, 1)); transform-origin: 50% 135%; transform: translateX(-50%) rotate(var(--r)); animation: dealin .7s calc(var(--k) * 90ms + .15s) cubic-bezier(.2,.9,.3,1.1) backwards; filter: drop-shadow(0 12px 10px rgba(0,0,0,.55)); }
+.fc .card { transform: scale(1.0); }
+@keyframes dealin { from { transform: translateX(-50%) translateY(140%) rotate(0deg) scale(.7); opacity: 0; } }
+.chipstack { position: absolute; bottom: calc(26% * 1); display: flex; flex-direction: column-reverse; z-index: 2 !important; filter: drop-shadow(0 8px 6px rgba(0,0,0,.55)); }
+.chipstack.l { left: max(2%, calc(50% - 560px * var(--u, 1))); } .chipstack.r { right: max(2%, calc(50% - 560px * var(--u, 1))); }
+.chipstack .pchip + .pchip { margin-bottom: calc(-17px * var(--u, 1)); }
+.chipstack { bottom: 34%; }
+.pchip { display: block; width: calc(92px * var(--u, 1)); height: calc(34px * var(--u, 1)); border-radius: 50%; background: radial-gradient(ellipse at 50% 40%, var(--c) 0 52%, #fff 53% 60%, var(--c) 61% 100%); box-shadow: inset 0 -4px 0 rgba(0,0,0,.35), 0 4px 0 rgba(0,0,0,.5); border: 3px dashed rgba(255,255,255,.9); }
+.home h1 { font-size: calc(124px * var(--u, 1)); letter-spacing: 1px; background: linear-gradient(#fffbe0 10%, #f6cf5a 55%, #d58a1c 100%); -webkit-background-clip: text; background-clip: text; color: transparent; -webkit-text-stroke: 0; paint-order: normal; text-shadow: none; filter: drop-shadow(0 4px 0 #6b3d08) drop-shadow(0 12px 14px rgba(0,0,0,.65)); margin: calc(-6px * var(--u, 1)) 0 0; }
+.home .tag { font-size: calc(26px * var(--u, 1)); font-weight: 800; letter-spacing: 1px; color: #ffeebe; margin: 0; }
+.menu { gap: calc(12px * var(--u, 1)); margin-top: calc(6px * var(--u, 1)); }
+.menu .big { min-width: calc(360px * var(--u, 1)); min-height: max(60px, calc(68px * var(--u, 1))); font-size: calc(26px * var(--u, 1)); border-radius: 14px; letter-spacing: .5px; background: linear-gradient(#8a5a2b, #5a3519 55%, #46280f); border: 3px solid #e0b052; box-shadow: 0 6px 0 #1e1006, inset 0 2px 0 rgba(255,220,160,.45), inset 0 0 18px rgba(0,0,0,.35); text-shadow: 0 2px 0 rgba(0,0,0,.6); }
+.menu .big.gold { background: linear-gradient(#ffe48f, #e8a92c 60%, #c68416); color: #3b230a; border-color: #fff4c4; }
+.menu .big.warn { background: linear-gradient(#e0583a, #a02612); }
+/* the table */
+.game { }
+.topbar .rnd { background: linear-gradient(#8a5a2b, #5a3519); border: 2px solid #2c1a0b; border-radius: 10px; padding: 5px 18px; color: #ffe9b0; box-shadow: inset 0 2px 0 rgba(255,220,160,.35), 0 3px 0 #1a0f06; text-shadow: 0 1px 0 rgba(0,0,0,.6); }
+.chip { background: linear-gradient(#8a5a2b, #5a3519); border-color: #e0b052; box-shadow: 0 3px 0 #1a0f06, inset 0 2px 0 rgba(255,220,160,.35); }
+.pnl { background: radial-gradient(ellipse at 50% 40%, rgba(0,0,0,.16), rgba(0,0,0,.38)); box-shadow: inset 0 0 0 2px rgba(0,0,0,.25), inset 0 6px 14px rgba(0,0,0,.35); outline: 2px dashed rgba(255,255,255,.12); outline-offset: -9px; }
+.pnl.me { background: radial-gradient(ellipse at 50% 40%, rgba(255,255,255,.05), rgba(0,0,0,.42)); }
+.pbody { display: flex; align-items: center; gap: calc(12px * var(--u, 1)); flex: 1; min-height: 0; }
+.pbody .line { flex: 1; margin: 0; justify-content: center; align-content: center; align-self: stretch; }
+.pile { position: relative; flex: none; width: calc(46px * var(--u, 1)); height: calc(64px * var(--u, 1)); margin-right: calc(6px * var(--u, 1)); }
+.pnl.me .pile { width: calc(78px * var(--u, 1)); height: calc(110px * var(--u, 1)); }
+.pile i { position: absolute; inset: 0; border-radius: 6px; background: radial-gradient(circle at 50% 50%, #9a2a2a 0 22%, transparent 23%), repeating-linear-gradient(45deg, #7a1d1d 0 4px, #5a1212 4px 8px); border: 3px solid #e8d49a; box-shadow: 0 2px 0 rgba(0,0,0,.6); }
+.pile i:nth-child(1) { transform: translate(0, 0); } .pile i:nth-child(2) { transform: translate(3px, -3px); } .pile i:nth-child(3) { transform: translate(6px, -6px); }
+.pile b { position: absolute; right: -10px; bottom: -8px; z-index: 2; min-width: calc(26px * var(--u, 1)); text-align: center; font-size: calc(15px * var(--u, 1)); background: #0b0b0b; color: var(--gold); border: 2px solid var(--gold); border-radius: 99px; padding: 0 5px; }
+.card { box-shadow: 0 4px 0 rgba(0,0,0,.45), 0 8px 12px rgba(0,0,0,.35), inset 0 0 0 1px rgba(255,255,255,.7); background: linear-gradient(160deg, #fffdf6, #f0e4c6 70%, #e6d8b4); }
+.card .cn { position: absolute; font-weight: 900; font-size: calc(var(--w) * .17); line-height: 1; } .card .cn.tl { top: 5%; left: 8%; } .card .cn.br { bottom: 5%; right: 8%; transform: rotate(180deg); }
+.card.back { box-shadow: 0 4px 0 rgba(0,0,0,.5), 0 8px 12px rgba(0,0,0,.35), inset 0 0 0 3px #7a1d1d, inset 0 0 0 5px #e8d49a; background: radial-gradient(circle at 50% 50%, #8a2323 0 26%, transparent 27%), repeating-linear-gradient(45deg, #7a1d1d 0 5px, #5a1212 5px 10px); }
+.card.back .cback em { font-style: normal; font-weight: 900; font-size: calc(var(--w) * .46); color: #f6cf5a; text-shadow: 0 2px 0 #000; }
+.load i { width: calc(22px * var(--u, 1)); height: calc(22px * var(--u, 1)); background: radial-gradient(circle, #e0a82e 0 45%, #fff 46% 55%, #e0a82e 56%); border: 3px dashed #fff; box-shadow: 0 2px 0 rgba(0,0,0,.6); margin-left: calc(-9px * var(--u, 1)); }
+.load { font-size: calc(16px * var(--u, 1)); }
+.score .sc { background: linear-gradient(#5a3519, #3d2310); border-width: 3px; box-shadow: inset 0 2px 0 rgba(255,220,160,.25), 0 3px 0 #1a0f06; } .score .sc.now { background: linear-gradient(#ffe48f, #e0a82e); }
+.sheetin { background: linear-gradient(#2a6a49, #123223); box-shadow: 0 0 0 4px #5a3519, 0 20px 40px rgba(0,0,0,.6); }
+@media (orientation: portrait) { .chipstack { bottom: 8%; transform: scale(.85); transform-origin: 50% 100%; } }
+@media (prefers-reduced-motion: reduce) { .fc { animation: none; } }
 </style>
 </head>
 <body>
@@ -156,7 +206,7 @@ const GAME_DATA = {
     picksPerPlayer: 2,             // everyone drafts this many
     sideBetBonus: 1,               // Side Bet: a bust scores the last-place entry plus this (only when at least one other player also busted)
     getawayTotal: 17,              // Getaway Car: your total becomes this
-    passDelayMs: 800,              // an AI takes one action about this often
+    passDelayMs: 800, aiTurnMs: 450,              // an AI takes one action about this often
     dealAt: [0, 1],                // the first card dealt is hidden, the second face up
   },
   ai: {
@@ -235,14 +285,15 @@ const GAME_DATA = {
   ],
   texts: {
     steps: [
-      { title: 'Get close to 21', text: 'Everyone starts with the same nine number cards, 1 through 9, shuffled into their own deck. Each round you build a line of cards from it. Add them up: the highest total that is 21 or less wins the round. Go over 21 and you bust.' },
-      { title: 'Hit or pass, all at once', text: 'Everyone chooses Hit or Pass at the same time, in secret, then the choices flip together. Passing is not final: you can hit next time. When everyone passes together, the round ends.' },
+      { title: 'Get close to 21', text: 'Everyone starts with the same nine number cards, 1 through 9, shuffled into their own deck. Each round you build a line of cards from it. Add them up: the highest total that is 21 or less wins the round. Go over 21 and you bust. Tied totals? Whoever got there first wins the tie.' },
+      { title: 'Hit or pass, no waiting', text: 'There are no turns. Everyone hits or passes on their own, and the moment you hit you see your new card. Passing is not final: you can hit again later. When everyone passes, the round ends.' },
       { title: 'Draft and race to 21 points', text: 'The best total scores the most points (6 for first). Then everyone drafts wildcards to stack their deck, fewest points first. The first player to reach 21 points wins.' },
     ],
     tips: {
       welcome: ['Welcome', 'Get closest to 21 without going over. Each round, the highest total scores the most points. Between rounds, draft wildcards to stack your deck. First to 21 points wins.'],
       deal: ['Your hidden card', 'Your first card is hidden. Only you can see it, and it still counts toward your total.'],
-      turn: ['Hit or Pass', "Everyone chooses Hit or Pass at the same time, in secret. Passing doesn't lock you in: you can hit again next time. The round ends when everyone passes together."],
+      turn: ['Hit or Pass', "Hit to draw a card at once, or Pass. Passing doesn't lock you in: you can hit again later. The round ends when everyone passes."],
+      tied: ['Tied!', 'The chip that got here first wins the tie.'],
       load: ['Load', 'Load adds 1 to your total. Watch out, it can push you over 21.'],
       window: ['A way out', "You're about to bust, but you have a trick that can save you."],
       bust: ['Bust!', 'Bust! You score the points for last place this round.'],
@@ -347,7 +398,7 @@ const Engine = (() => {
     const seats = opts.seats, n = seats.length;
     const s = { v: 1, rng: (opts.seed == null ? Date.now() : opts.seed) | 0, seed: opts.seed, n, winAt: opts.target || (opts.quick ? R.QUICK_WIN_POINTS : R.WIN_POINTS), friendly: !!opts.friendly, showAll: !!opts.showAll,
       round: 1, nextU: 1, cards: {}, mod: {}, pl: [], part: [], first: 0, active: 0, stack: [], pending: null, log: [], discard: [], removed: [], market: [], wild: [],
-      phase: 'play', tiebreak: false, result: null, history: [], draft: null, winner: null, cause: {}, handoff: null };
+      tick: 1, phase: 'play', tiebreak: false, result: null, history: [], draft: null, winner: null, cause: {}, handoff: null };
     seats.forEach((st, i) => {
       const p = { name: st.name || 'Player ' + (i + 1), kind: st.kind || 'ai', level: st.level || 'medium', deck: [], line: [], load: 0, status: 'active', last: 'none', getaway: null, prio: false, known: { top: [], bottom: null, all: null, hidden: {}, tell: [] }, pts: 0, lastDrawn: null };
       D.numbers.forEach(c => p.deck.push(inst(s, c.id, i))); /* RULING: setup makes exactly one of each number card, 9 in all */
@@ -366,7 +417,8 @@ const Engine = (() => {
     s.part.forEach(i => { const p = s.pl[i]; p.status = 'active'; p.line = []; p.hitRound = false; p.load = 0; p.last = 'none'; p.getaway = null; p.prio = false; p.lastDrawn = null; p.known = { top: [], bottom: null, all: null, hidden: {}, tell: [] }; });
     s.pl.forEach((p, i) => { if (!s.part.includes(i)) p.status = 'out'; });
     const order = seatOrder(s, s.first);
-    for (const i of s.part) { const p = s.pl[i]; const a = p.deck.shift(), b = p.deck.shift(); p.line.push({ c: a, down: true, unk: false }, { c: b, down: false, unk: false }); p.lastDrawn = b.u; touch(s, i, 'top'); p.opening = bestTotal(s, i) || minTotal(s, i); p.runRound = false; }
+    for (const i of s.part) { const p = s.pl[i]; const a = p.deck.shift(), b = p.deck.shift(); p.line.push({ c: a, down: true, unk: false }, { c: b, down: false, unk: false }); p.lastDrawn = b.u; touch(s, i, 'top'); p.opening = bestTotal(s, i) || minTotal(s, i); p.runRound = false; p.chip = undefined; }
+    for (const i of seatOrder(s, s.first)) if (s.part.includes(i)) track(s, i);
     log(s, `Round ${s.round}${s.tiebreak ? ' (tiebreak)' : ''}: ${nameOf(s, s.first)} goes first.`);
     s.active = s.first;
     const tasks = [];
@@ -385,7 +437,7 @@ const Engine = (() => {
     let guard = 0;
     while (!s.pending && s.stack.length && s.phase !== 'over') {
       if (++guard > 5000) throw new Error('the engine looped');
-      const t = top(s); H[t.t](s, t, undefined);
+      const t = top(s); H[t.t](s, t, undefined); if (s.phase === 'play') trackAll(s);
     }
   }
   function answer(s, id) {
@@ -394,17 +446,24 @@ const Engine = (() => {
     s.pending = null;
     if (pd.kind === 'results') { afterResults(s); run(s); return { ok: true }; }
     if (pd.kind === 'pick') { const t = top(s); H[t.t](s, t, opt.id); run(s); return { ok: true }; }
-    const t = top(s); H[t.t](s, t, opt.id); run(s); return { ok: true };
+    const t = top(s); H[t.t](s, t, opt.id); if (s.phase === 'play') trackAll(s); run(s); return { ok: true };
   }
   const opt = (id, label, extra) => Object.assign({ id, label }, extra || {});
   const targetOpts = (s, ids) => ids.map(j => opt('p' + j, nameOf(s, j), { p: j }));
   const idx = a => Number(String(a).slice(1));          // 'p3' -> 3, 'c17' -> 17
 
+  /* Arrival: each player's chip sits on their best total plus Load. `arrivedAt` is an increasing action counter for the moment the chip last moved onto its current space; whoever arrived first wins a tie. The sweep after every step finds changes of any kind; Load is tracked the moment it is given, so one effect that moves several chips gives each its own number in the order the effect is applied. Choosing flex values at the end of the round does not move a chip. */
+  function track(s, p) {
+    const pl = s.pl[p]; if (pl.status !== 'active') { pl.chip = null; return; }
+    const b = bestTotal(s, p), now = b === null ? null : b;
+    if (pl.chip !== now) { pl.chip = now; if (now !== null) pl.arrivedAt = s.tick++; }
+  }
+  const trackAll = s => { for (const i of s.part) track(s, i); };
   // ---------- giving things ----------
   function giveLoad(s, to, n, from) {
     if (hasMuscle(s, to)) { log(s, `${nameOf(s, to)}'s Muscle blocks the Load.`, to); return 0; }
     s.pl[to].load += n; s.cause[to] = { k: 'load' };
-    s.pl[to].seenLoad = true;
+    s.pl[to].seenLoad = true; track(s, to);
     log(s, `${nameOf(s, to)} takes ${n} Load${from == null ? '' : ' from ' + nameOf(s, from)}.`, to);
     return n;
   }
@@ -775,30 +834,35 @@ const Engine = (() => {
     }
     return out;
   };
-  /* Everyone chooses Hit or Pass at the same time. Each player in turn is asked in private (free actions like Fixer or Shiner happen as they are used); the choices are then revealed together and the draws happen in seat order from the first player. When everyone still in the round chose Pass, the round ends. */
+  /* There are no turns. In each pass around the table every player still in the round hits or passes, and a hit happens at once (you see your new card the moment you tap). People are asked before the computer players, so you never wait for them to act first. When everyone in a pass around the table passed, the round ends. */
   H.turn = (s, t, a) => {
     if (t.step === 0) {
       const live = alive(s);
       if (!live.length) { done(s, t); s.stack.push({ t: 'reveal', step: 0 }); return; }
-      t.q = seatOrder(s, s.first).filter(i => s.pl[i].status === 'active'); t.k = 0; t.choice = {}; t.step = 'ask';
+      const seats = seatOrder(s, s.first).filter(i => s.pl[i].status === 'active');
+      t.q = seats.filter(i => s.pl[i].kind === 'human').concat(seats.filter(i => s.pl[i].kind !== 'human')); t.k = 0; t.choice = {}; t.step = 'ask';
     }
     if (t.step === 'ask') {
       while (t.k < t.q.length && s.pl[t.q[t.k]].status !== 'active') t.k++;
-      if (t.k >= t.q.length) { t.step = 'reveal'; }
-      else {
-        const p = t.q[t.k], pl = s.pl[p]; s.active = p;
-        if (pl.getaway !== null) { t.choice[p] = 'getaway'; t.k++; return; }
-        const opts = [];
-        opts.push(opt('hit', 'Hit', { off: !pl.deck.length })); opts.push(opt('pass', 'Pass'));
-        const dd = entry(s, p, 'double-down'); if (dd && usable(s, dd) && pl.deck.length) opts.push(opt('double', 'Double Down', { u: dd.c.u }));
-        if (pl.line.some(x => x.down)) opts.push(opt('flip', 'Flip hidden card'));
-        for (const e of canUseFree(s, p)) opts.push(opt('use' + e.c.u, 'Use ' + DEF[e.c.id].name, { u: e.c.u }));
-        ask(s, p, 'turn', `${nameOf(s, p)}: hit or pass?`, opts.filter(o => !o.off), { simul: true }); t.step = 'got'; return;
+      if (t.k >= t.q.length) {
+        const who = t.q.filter(i => s.pl[i].status === 'active');
+        if (!who.length || who.every(i => t.choice[i] === 'pass' || t.choice[i] === 'getaway')) { if (who.length) log(s, 'Everyone passes. The round ends.'); done(s, t); s.stack.push({ t: 'reveal', step: 0 }); return; }
+        t.step = 0; return;                 // someone hit: another pass around the table
       }
+      const p = t.q[t.k], pl = s.pl[p]; s.active = p;
+      if (pl.getaway !== null) { t.choice[p] = 'getaway'; pl.last = 'pass'; t.k++; return; }
+      const opts = [];
+      opts.push(opt('hit', 'Hit', { off: !pl.deck.length })); opts.push(opt('pass', 'Pass'));
+      const dd = entry(s, p, 'double-down'); if (dd && usable(s, dd) && pl.deck.length) opts.push(opt('double', 'Double Down', { u: dd.c.u }));
+      if (pl.line.some(x => x.down)) opts.push(opt('flip', 'Flip hidden card'));
+      for (const e of canUseFree(s, p)) opts.push(opt('use' + e.c.u, 'Use ' + DEF[e.c.id].name, { u: e.c.u }));
+      ask(s, p, 'turn', `${nameOf(s, p)}: hit or pass?`, opts.filter(o => !o.off)); t.step = 'got'; return;
     }
     if (t.step === 'got') {
       const p = t.q[t.k];
-      if (a === 'hit' || a === 'pass' || a === 'double') { t.choice[p] = a; t.k++; t.step = 'ask'; return; }
+      if (a === 'hit') { t.choice[p] = 'hit'; s.pl[p].hitRound = true; s.pl[p].last = 'hit'; t.k++; t.step = 'ask'; s.stack.push({ t: 'draw', p, how: 'hit', step: 0 }); return; }
+      if (a === 'pass') { t.choice[p] = 'pass'; s.pl[p].last = 'pass'; log(s, `${nameOf(s, p)} passes.`, p); t.k++; t.step = 'ask'; return; }
+      if (a === 'double') { t.choice[p] = 'hit'; s.pl[p].hitRound = true; s.pl[p].last = 'hit'; t.k++; t.step = 'ask'; const e = entry(s, p, 'double-down'); s.stack.push({ t: 'abil', u: e.c.u, h: p, step: 0, d: {} }); return; }
       if (a === 'flip') {
         const en = flipDown(s, p); log(s, `${nameOf(s, p)} flips their hidden card: ${DEF[en.c.id].name}.`, p); t.step = 'ask';
         if (def(en.c).trig === 'drawn') { t.step = 'free'; s.stack.push({ t: 'bustcheck' }); s.stack.push({ t: 'abil', u: en.c.u, h: p, step: 0, d: {} }); }
@@ -807,27 +871,6 @@ const Engine = (() => {
       if (String(a).startsWith('use')) { const u = Number(String(a).slice(3)); t.step = 'free'; s.stack.push({ t: 'abil', u, h: p, step: 0, d: {} }); return; }
     }
     if (t.step === 'free') { t.step = 'ask'; return; }          // a free action ended: ask the same player again (a bust takes them out of the round)
-    if (t.step === 'reveal') {
-      const who = t.q.filter(i => s.pl[i].status === 'active');
-      if (!who.length) { done(s, t); s.stack.push({ t: 'reveal', step: 0 }); return; }
-      if (who.every(i => t.choice[i] === 'pass' || t.choice[i] === 'getaway')) {
-        who.forEach(i => { s.pl[i].last = 'pass'; });
-        log(s, 'Everyone passes. The round ends.'); done(s, t); s.stack.push({ t: 'reveal', step: 0 }); return;
-      }
-      who.forEach(i => { s.pl[i].last = t.choice[i] === 'hit' || t.choice[i] === 'double' ? 'hit' : 'pass'; });
-      log(s, 'Choices revealed: ' + who.map(i => `${nameOf(s, i)} ${t.choice[i] === 'double' ? 'doubles down' : t.choice[i] === 'hit' ? 'hits' : 'passes'}`).join(', ') + '.');
-      t.who = who; t.j = 0; t.step = 'resolve';
-    }
-    if (t.step === 'resolve') {
-      while (t.j < t.who.length) {
-        const p = t.who[t.j++], c = t.choice[p];
-        if (s.pl[p].status !== 'active') continue;
-        s.active = p;
-        if (c === 'hit') { s.pl[p].hitRound = true; s.stack.push({ t: 'draw', p, how: 'hit', step: 0 }); return; }
-        if (c === 'double') { s.pl[p].hitRound = true; const e = entry(s, p, 'double-down'); if (e) { s.stack.push({ t: 'abil', u: e.c.u, h: p, step: 0, d: {} }); return; } }
-      }
-      t.step = 0;                // everyone has acted: a new simultaneous choice
-    }
   };
   H.turn.__ = 1;
 
@@ -863,7 +906,9 @@ const Engine = (() => {
       if (b === null) { s.pl[i].status = 'busted'; log(s, `${nameOf(s, i)} busts at the reveal.`, i); }
     }
     const ok = live.filter(i => s.pl[i].status === 'active');
-    const rank = (i, j) => { const a = s.pl[i], bb = s.pl[j]; const ta = info[i].total, tb = info[j].total; if (ta !== tb) return tb - ta; if (ta === T) { const ra = faceUp(s, i, 'tightrope'), rb = faceUp(s, j, 'tightrope'); if (ra !== rb) return ra ? -1 : 1; } return 0; };
+    const seatPos = i => seatOrder(s, s.first).indexOf(i), early = i => (s.pl[i].arrivedAt == null ? 1e9 : s.pl[i].arrivedAt);
+    /* RULING: tied totals are broken by arrival (the earlier chip ranks higher); Tightrope at exactly 21 beats every other 21, and two Tightropes are ordered by arrival; a last tie (no arrival recorded) goes to the seat nearest the first player, so every place is different */
+    const rank = (i, j) => { const ta = info[i].total, tb = info[j].total; if (ta !== tb) return tb - ta; if (ta === T) { const ra = faceUp(s, i, 'tightrope'), rb = faceUp(s, j, 'tightrope'); if (ra !== rb) return ra ? -1 : 1; } return (early(i) - early(j)) || (seatPos(i) - seatPos(j)); };
     const sorted = ok.slice().sort(rank);
     const place = {}; sorted.forEach(i => { place[i] = 1 + sorted.filter(j => rank(j, i) < 0).length; });
     const pts = {}, table = R.POINTS_BY_PLACE[N];
@@ -880,7 +925,7 @@ const Engine = (() => {
       }
     }
     s.part.forEach(i => { s.pl[i].pts += pts[i]; });
-    s.result = { round: s.round, rows: s.part.map(i => ({ p: i, total: info[i] ? info[i].total : null, busted: s.pl[i].status === 'busted', place: s.pl[i].status === 'busted' ? null : place[i], pts: pts[i], line: s.pl[i].line.map(e => ({ id: e.c.id, u: e.c.u })), load: s.pl[i].load, prio: s.pl[i].prio })) };
+    s.result = { round: s.round, rows: s.part.map(i => ({ p: i, total: info[i] ? info[i].total : null, busted: s.pl[i].status === 'busted', place: s.pl[i].status === 'busted' ? null : place[i], pts: pts[i], line: s.pl[i].line.map(e => ({ id: e.c.id, u: e.c.u })), load: s.pl[i].load, prio: s.pl[i].prio, arrived: s.pl[i].arrivedAt })) };
     s.history.push({ round: s.round, tiebreak: s.tiebreak, pts: Object.fromEntries(s.part.map(i => [i, pts[i]])), len: Object.fromEntries(s.part.map(i => [i, s.pl[i].line.length])), hit: Object.fromEntries(s.part.map(i => [i, !!s.pl[i].hitRound])), open: Object.fromEntries(s.part.map(i => [i, s.pl[i].opening])), run: Object.fromEntries(s.part.map(i => [i, !!s.pl[i].runRound])) });
     log(s, `Round ${s.round} scores: ` + s.part.map(i => `${nameOf(s, i)} ${pts[i]}`).join(', ') + '.');
     s.phase = 'results';
@@ -947,7 +992,7 @@ const Engine = (() => {
     if (pend) { v.pending = JSON.parse(JSON.stringify(pend)); if (pend.src) v.pending.srcId = idOf(pend.src); if (pend.show) v.pending.showIds = pend.show.map(idOf); if (pend.opts) v.pending.opts.forEach(o => { if (o.u) o.id2 = idOf(o.u); }); }
     return v;
   }
-  const info = { DEF, T, def, minTotal, bestTotal, bestChoice, range, lineValuesFor, optionsFor, hasRun, deckList, alive, others, faceUp, entry, usable, canUseFree, interrupts, hasMuscle, seatOrder, nextSeat, nameOf, mod };
+  const info = { track, trackAll, DEF, T, def, minTotal, bestTotal, bestChoice, range, lineValuesFor, optionsFor, hasRun, deckList, alive, others, faceUp, entry, usable, canUseFree, interrupts, hasMuscle, seatOrder, nextSeat, nameOf, mod };
 
   // ---------- checks used by the tests and the simulation ----------
   function auditCards(s) {            // every card is in exactly one place
@@ -1113,9 +1158,9 @@ const AI = (() => {
   function faceHTML(c, o) {
     o = o || {}; const d = DEF[c.id], col = '#59616e', ab = d.text, start = d.cat === 'Number card';          // one neutral style for every card
     const long = ab.length > 70 ? ' tiny' : ab.length > 40 ? ' sm' : '';
-    return `<div class="card ${o.big ? 'lg' : ''} ${start ? 'start' : ''} ${o.cls || ''}" style="--cc:${col}" ${o.attr || ''}><div class="cval ${String(o.val !== undefined ? o.val : valText(c)).length > 3 ? 'wide' : ''}">${esc(o.val !== undefined ? o.val : valText(c))}</div>${start ? '' : `<div class="cname ${d.name.length > 11 ? 'x1' : ''}">${esc(d.name)}</div>`}${o.big && ab ? `<div class="cab${long}">${esc(ab)}</div>` : ''}${o.tag ? `<div class="ctag">${esc(o.tag)}</div>` : ''}</div>`;
+    return `<div class="card ${o.big ? 'lg' : ''} ${start ? 'start' : ''} ${o.cls || ''}" style="--cc:${col}" ${o.attr || ''}>${start ? `<span class="cn tl">${esc(o.val !== undefined ? o.val : valText(c))}</span><span class="cn br">${esc(o.val !== undefined ? o.val : valText(c))}</span>` : ''}<div class="cval ${String(o.val !== undefined ? o.val : valText(c)).length > 3 ? 'wide' : ''}">${esc(o.val !== undefined ? o.val : valText(c))}</div>${start ? '' : `<div class="cname ${d.name.length > 11 ? 'x1' : ''}">${esc(d.name)}</div>`}${o.big && ab ? `<div class="cab${long}">${esc(ab)}</div>` : ''}${o.tag ? `<div class="ctag">${esc(o.tag)}</div>` : ''}</div>`;
   }
-  const backHTML = (o) => `<div class="card back ${o && o.cls || ''}" ${o && o.attr || ''}><div class="cback">${o && o.tag ? `<span>${esc(o.tag)}</span>` : '21'}</div></div>`;
+  const backHTML = (o) => `<div class="card back ${o && o.cls || ''}" ${o && o.attr || ''}><div class="cback">${o && o.tag ? `<span>${esc(o.tag)}</span>` : '<em>S</em>'}</div></div>`;
 
   // one player's line, as the viewer is allowed to see it
   function lineHTML(s, p, viewerIdx, big) {
@@ -1142,23 +1187,30 @@ const AI = (() => {
   }
   function badges(s, p) {
     const pl = s.pl[p], b = [];
-    if (s.first === p) b.push('1st player'); const tk = s.stack && s.stack.find(t => t.t === 'turn'); if (tk && tk.choice && s.pending && s.pending.kind === 'turn' && pl.status === 'active') b.push(tk.choice[p] ? 'Ready' : 'Choosing');
+    if (s.first === p) b.push('1st player'); if (s.pending && s.pending.kind === 'turn' && s.pending.who === p) b.push('turn');
     if (pl.status === 'busted') b.push('Busted'); else if (pl.getaway !== null) b.push('Getaway 17'); else if (pl.last === 'pass') b.push('Passed');
-    return b.map(x => `<i class="bdg ${x === 'Ready' ? 'on' : ''} ${x === 'Busted' ? 'bad' : ''}">${esc(x)}</i>`).join('');
+    return b.map(x => `<i class="bdg ${x === 'turn' ? 'on' : ''} ${x === 'Busted' ? 'bad' : ''}">${esc(x)}</i>`).join('');
   }
   function panelHTML(s, p, viewerIdx, big, targetOpt, cw) {
     const pl = s.pl[p], isT = targetOpt;
     const load = pl.load ? `<span class="load" aria-label="${pl.load} Load">${Array.from({ length: Math.min(pl.load, 5) }, () => '<i></i>').join('')}<b>${pl.load}</b> Load</span>` : '';
     return `<section class="pnl ${big ? 'me' : ''} ${pl.status === 'busted' ? 'busted' : ''} ${isT ? 'tgt' : ''}" data-act="${isT ? 'target' : 'deck'}" data-p="${p}" style="--pc:${PTS[p % 6]}">
       <div class="phead"><b>${esc(pl.name)}</b><span class="pts">${pl.pts} / ${s.winAt}</span>${badges(s, p)}<span class="tot">${esc(totalText(s, p, viewerIdx))}</span></div>
-      <div class="line ${big ? 'bigline' : ''}" style="--cw:${cw || 54}px">${lineHTML(s, p, viewerIdx, big)}${load}</div>${pl.status === 'busted' ? '<div class="stamp">BUST</div>' : ''}</section>`;
+      <div class="pbody" style="--cw:${cw || 54}px"><div class="pile" aria-label="${pl.deck.length} cards in the deck"><i></i><i></i><i></i><b>${pl.deck.length}</b></div><div class="line ${big ? 'bigline' : ''}">${lineHTML(s, p, viewerIdx, big)}${load}</div></div>${pl.status === 'busted' ? '<div class="stamp">BUST</div>' : ''}</section>`;
   }
 
   // ---------- screens ----------
   const newBtn = (cls) => `<button class="big ${cls || ''} ${ui.confirmNew ? 'warn' : ''}" data-act="newgame">${ui.confirmNew ? 'Tap again to erase your current game' : 'New Game'}</button>`;
+  /* the main menu: a table with a fan of cards, a stack of chips and a die under a spotlight */
+  const chipHTML = (c, cls) => `<span class="pchip ${cls || ''}" style="--c:${c}"></span>`;
   function homeHTML() {
-    return `<div class="screen home">${libraryLink()}<div class="hero"><div class="suits">21</div><h1>Stackjack</h1><p class="tag">${esc(D.tagline)}</p></div>
-      <div class="menu">${hasSave() ? '<button class="big gold" data-act="continue">Continue</button>' : ''}${newBtn(hasSave() ? '' : 'gold')}<button class="big ghost" data-act="help">How to Play</button><button class="big ghost" data-act="settings">Settings</button></div>
+    const fan = [['nine', -26], ['four', -13], ['seven', 0], ['two', 13], ['eight', 26]].map(([id, r], k) => `<div class="fc" style="--r:${r}deg;--k:${k}">${faceHTML({ id }, {})}</div>`).join('');
+    const stack = (n, c) => Array.from({ length: n }, () => chipHTML(c)).join('');
+    return `<div class="screen home">${libraryLink()}<div class="spot"></div>
+      <div class="fan">${fan}</div>
+      <div class="chipstack l">${stack(6, '#c8321a')}${stack(3, '#1f6fc0')}</div><div class="chipstack r">${stack(5, '#1c1c24')}${stack(4, '#e0a82e')}</div>
+      <div class="hero"><h1>Stackjack</h1><p class="tag">${esc(D.tagline)}</p></div>
+      <div class="menu">${hasSave() ? '<button class="big gold" data-act="continue">Continue</button>' : ''}${newBtn(hasSave() ? '' : 'gold')}<button class="big" data-act="help">How to Play</button><button class="big" data-act="settings">Settings</button></div>
       <p class="ver">By Patrick Blim-Hockberger · Version ${esc(buildStamp())}</p></div>`;
   }
   function gameHTML() {
@@ -1170,28 +1222,28 @@ const AI = (() => {
     const targetSet = pd && isMeFor(s, pd, v) && pd.kind === 'target' ? new Set(pd.opts.map(o => o.p)) : new Set();
     const order = s.pl.map((p, i) => i).filter(i => i !== meIdx).sort((a, b) => s.part.includes(b) - s.part.includes(a));
     const body = s.phase === 'draft' ? draftHTML(s, v, meIdx) : (s.phase === 'results' ? '' : tableHTML(s, v, meIdx, order, targetSet));
-    return `<div class="screen game"><div class="topbar"><span class="rnd">${s.tiebreak ? 'Tiebreak round' : 'Round ' + s.round} · First to ${s.winAt} points</span><button class="chip" data-act="log" aria-label="Log">Log</button><button class="chip" data-act="menu" aria-label="Menu">☰ Menu</button></div>${body}${s.phase === 'results' ? resultsHTML(s) : ''}${sheetHTML(s, v, meIdx)}${ui.log ? logHTML(s) : ''}</div>`;
+    return `<div class="screen game"><div class="topbar"><span class="rnd">${s.tiebreak ? 'Tiebreak round' : 'Round ' + s.round} · First to ${s.winAt} points</span><button class="chip" data-act="menu" aria-label="Menu">☰ Menu</button></div>${body}${s.phase === 'results' ? resultsHTML(s) : ''}${sheetHTML(s, v, meIdx)}${ui.log ? logHTML(s) : ''}</div>`;
   }
   const isMeFor = (s, pd, v) => pd.who != null && s.pl[pd.who].kind === 'human' && (v === pd.who || (humans(s).length === 1));
   /* how big the cards are so that the table fills the screen: opponents on top, you below */
   function tableSizes(s, nOpp, me) {
     const d = dims(), top = Math.round(56 * d.u) + 8, status = Math.round(50 * d.u), pad = 28, body = d.H - top - status - pad;
     const cols = Math.max(1, Math.min(nOpp, d.land ? 3 : 2)), rows = Math.max(1, Math.ceil(nOpp / cols)), oppH = Math.round(body * (d.land ? .4 : .36));
-    const head = Math.round(40 * d.u) + 14, colW = (d.W - 28 - (cols - 1) * 8) / cols - 24, nO = Math.max(4, ...s.pl.map((p, i) => i === me ? 0 : p.line.length));
+    const head = Math.round(40 * d.u) + 14, colW = (d.W - 28 - (cols - 1) * 8) / cols - 24 - Math.round(56 * d.u), nO = Math.max(4, ...s.pl.map((p, i) => i === me ? 0 : p.line.length));
     const oppCw = fitW(nO, colW, oppH / rows - head - 8, Math.round(190 * d.u));
-    const actW = d.land ? Math.round(210 * d.u) + 12 : 0, meH = body - oppH - (d.land ? 0 : Math.round(90 * d.u)) - 8, meW = d.W - 28 - actW - 28;
+    const actW = d.land ? Math.round(210 * d.u) + 12 : 0, meH = body - oppH - (d.land ? 0 : Math.round(90 * d.u)) - 8, meW = d.W - 28 - actW - 28 - Math.round(92 * d.u);
     const meCw = fitW(Math.max(4, s.pl[me] ? s.pl[me].line.length : 4), meW, meH - head - 12, Math.round(300 * d.u));
     return { cols, oppH, oppCw, meCw };
   }
   function tableHTML(s, v, me, order, targetSet) {
     const pd = s.pending, mine = pd && isMeFor(s, pd, v) ? pd : null, z = tableSizes(s, order.length, me);
     const opp = order.map(i => panelHTML(s, i, v, false, targetSet.has(i), z.oppCw)).join('');
-    const msg = s.pending && s.pending.kind === 'turn' ? (mine ? 'Hit or pass? Everyone chooses at the same time.' : 'Waiting for everyone to choose…') : (s.pending && s.pending.who != null && !mine ? esc(s.pl[s.pending.who].name) + ' is deciding…' : '');
+    const msg = s.pending && s.pending.kind === 'turn' ? (mine ? 'Hit or pass?' : esc(s.pl[s.pending.who].name) + ' is deciding…') : (s.pending && s.pending.who != null && !mine ? esc(s.pl[s.pending.who].name) + ' is deciding…' : '');
     return `<div class="opps" style="--cols:${z.cols};--oppH:${z.oppH}px">${opp}</div><div class="status">${msg}<small>${esc(lastLog(s))}</small></div><div class="merow">${panelHTML(s, me, v, true, targetSet.has(me), z.meCw)}${actionBar(s, mine)}</div>`;
   }
   const lastLog = s => (s.log.length ? s.log[s.log.length - 1].t : '');
   function actionBar(s, mine) {
-    if (!mine || mine.kind !== 'turn') return '<div class="actions">' + (s.pending && s.pending.kind === 'turn' ? '<span class="wait">Waiting…</span>' : '') + '</div>';
+    if (!mine || mine.kind !== 'turn') return '<div class="actions">' + (s.pending && s.pending.kind === 'turn' ? '<span class="wait">Waiting for ' + esc(s.pl[s.pending.who].name) + '…</span>' : '') + '</div>';
     const o = id => mine.opts.find(x => x.id === id);
     return `<div class="actions">${o('hit') ? '<button class="act hit" data-act="ans" data-v="hit">Hit</button>' : ''}<button class="act pass" data-act="ans" data-v="pass">Pass</button>${o('double') ? '<button class="act dd" data-act="ans" data-v="double">Double Down</button>' : ''}${o('flip') ? '<button class="act flip" data-act="ans" data-v="flip">Flip hidden card</button>' : ''}</div>`;
   }
@@ -1235,10 +1287,17 @@ const AI = (() => {
       <div class="market" style="--cw:${cw}px">${s.market.map(c => `<button class="mk ${mine ? 'canpick' : ''}" data-act="${mine ? 'ans' : 'card'}" data-v="c${c.u}" data-u="${c.u}" data-p="-1">${faceHTML(c, { big: true })}</button>`).join('')}</div>
       <div class="dfoot"><button class="chip" data-act="deck" data-p="${me}">Your deck</button>${picks}</div></div>`;
   }
+  /* the totals as spaces on a track: chips that share a space line up in the order they arrived, the first one in front with a "1st" badge */
+  function trackHTML(s, r) {
+    const live = r.rows.filter(x => !x.busted), spaces = [...new Set(live.map(x => x.total))].sort((a, b) => b - a);
+    if (!spaces.length) return '';
+    return `<div class="track">${spaces.map(t => { const here = live.filter(x => x.total === t).sort((a, b) => (a.arrived == null ? 1e9 : a.arrived) - (b.arrived == null ? 1e9 : b.arrived)); return `<div class="space"><div class="stack">${here.slice().reverse().map((x, k, arr) => `<span class="chp" style="--pc:${PTS[x.p % 6]};z-index:${k + 1}" title="${esc(s.pl[x.p].name)}"><b>${esc(s.pl[x.p].name.slice(0, 2))}</b>${here.length > 1 && k === arr.length - 1 ? '<i class="first">1st</i>' : ''}</span>`).join('')}</div><div class="sn">${t}</div></div>`; }).join('')}</div><p class="tiehint">Tied totals? Whoever got there first wins the tie.</p>`;
+  }
   function resultsHTML(s) {
     const r = s.result, sk = ui.skip ? ' skip' : ''; if (!r) return '';
     const rows = r.rows.slice().sort((a, b) => (b.pts - a.pts) || ((a.place || 99) - (b.place || 99)));
-    return `<div class="results${sk}"><h2>${s.tiebreak ? 'Tiebreak round' : 'Round ' + r.round} results</h2><div class="rrows">${rows.map((x, k) => `<div class="rrow ${x.busted ? 'bad' : ''}" style="--d:${.5 + k * .6}s;--pc:${PTS[x.p % 6]}"><div class="rtop"><b>${esc(s.pl[x.p].name)}</b><span class="rt">${x.busted ? 'BUST' : x.total}</span><span class="rp">${x.busted ? 'last place' : 'place ' + x.place} · +${x.pts}</span></div><div class="rline">${x.line.map(l => { const c = s.cards[l.u]; return faceHTML(c, { cls: 'flipin', val: valText(c) }); }).join('')}${x.load ? `<span class="load"><b>${x.load}</b> Load</span>` : ''}</div></div>`).join('')}</div>
+    const live = r.rows.filter(x => !x.busted), shared = live.some((x, k) => live.some((y, m) => m !== k && y.total === x.total));
+    return `<div class="results${sk}"><h2>${s.tiebreak ? 'Tiebreak round' : 'Round ' + r.round} results</h2>${trackHTML(s, r)}<div class="rrows">${rows.map((x, k) => `<div class="rrow ${x.busted ? 'bad' : ''}" style="--d:${.5 + k * .6}s;--pc:${PTS[x.p % 6]}"><div class="rtop"><b>${esc(s.pl[x.p].name)}</b><span class="rt">${x.busted ? 'BUST' : x.total}</span><span class="rp">${x.busted ? 'last place' : 'place ' + x.place} · +${x.pts}</span></div><div class="rline">${x.line.map(l => { const c = s.cards[l.u]; return faceHTML(c, { cls: 'flipin', val: valText(c) }); }).join('')}${x.load ? `<span class="load"><b>${x.load}</b> Load</span>` : ''}</div></div>`).join('')}</div>
       ${scoreHTML(s, null)}
       <div class="ractions"><button class="chip" data-act="skip">Skip</button><button class="big gold" data-act="ans" data-v="continue">${s.tiebreak ? 'Continue' : Math.max(...s.pl.map(p => p.pts)) >= s.winAt ? 'Finish' : 'Continue to the draft'}</button></div></div>`;
   }
@@ -1260,7 +1319,7 @@ const AI = (() => {
     return `<span class="tbl">3 players: 1st <b>${t[0]}</b> · 2nd <b>${t[1]}</b> · 3rd <b>${t[2]}</b></span>${f('hi-lo')}${f('squeeze')}<span class="tbl"><b>14 / ${D.rules.WIN_POINTS}</b> points</span>`;
   };
   const helpHTML = () => `<div class="sheet" data-act="none"><div class="sheetin wide-sheet"><h2>How to Play</h2><div class="steps">${D.texts.steps.map((st, i) => `<div class="step"><div class="num">${i + 1}</div><div><h3>${esc(st.title)}</h3><p>${esc(st.text)}</p></div><div class="vis">${stepVis(i)}</div></div>`).join('')}</div><button class="big gold" data-act="closehelp">Got it</button></div></div>`;
-  const menuHTML = () => sheetBox(`<h2>Menu</h2><button class="big gold" data-act="closemenu">Back to the game</button><button class="big" data-act="help">How to Play</button><button class="big" data-act="settings">Settings</button>${newBtn('')}<button class="big ghost" data-act="home">Main Menu</button>`);
+  const menuHTML = () => sheetBox(`<h2>Menu</h2><button class="big gold" data-act="closemenu">Back to the game</button><button class="big" data-act="help">How to Play</button><button class="big" data-act="log">Log</button><button class="big" data-act="settings">Settings</button><button class="big ghost" data-act="home">Main Menu</button>`);
   const settingsHTML = () => sheetBox(`<h2>Settings</h2><button class="big" data-act="resettips">${ui.tipsReset ? 'Tips reset ✓ They will show again' : 'Reset tips'}</button><p>Show every first-time tip again, as if it were your first game.</p><button class="big gold" data-act="closesettings">Done</button>`);
   const tipHTML = () => { const t = D.texts.tips[ui.tip]; return t ? sheetBox(`<h2>${esc(t[0])}</h2><p>${esc(t[1])}</p><button class="big gold" data-act="tipok">Got it</button>`) : ''; };
 
@@ -1275,7 +1334,7 @@ const AI = (() => {
     if (v !== null && s.pl[v] && s.pl[v].load > 0) add('load');
     if (pd && pd.kind === 'window' && isMeFor(s, pd, v)) add('window');
     if (v !== null && s.pl[v] && s.pl[v].status === 'busted') add('bust');
-    if (s.phase === 'results') add('reveal');
+    if (s.phase === 'results') { add('reveal'); if (s.result && s.result.rows.some((x, k, a) => !x.busted && a.some((y, m) => m !== k && !y.busted && y.total === x.total))) add('tied'); }
     if (s.phase === 'draft') add('draft');
     ui.tipQ.push(...want);
     if (ui.tipQ.length) { ui.tip = ui.tipQ.shift(); const x = seen(); x[ui.tip] = 1; store.set(TIPS, JSON.stringify(x)); }
@@ -1306,7 +1365,7 @@ const AI = (() => {
     if (pd.who == null) return;
     const pl = s.pl[pd.who];
     if (pl.kind === 'human') { if (multi(s) && ui.shown !== pd.who) return; return; }
-    const delay = pd.kind === 'ack' ? 250 : D.rules.passDelayMs * (humans(s).length ? 1 : .35);
+    const delay = pd.kind === 'ack' ? 250 : pd.kind === 'turn' ? D.rules.aiTurnMs * (humans(s).length ? 1 : .5) : D.rules.passDelayMs * (humans(s).length ? 1 : .35);
     ui.timer = setTimeout(() => { if (ui.s !== s || s.pending !== pd) return; const id = AI.answer(s, pd.who); const r = E.answer(s, id); if (!r.ok) console.error('AI answer refused', id, pd.prompt); save(); render(); }, delay);
   }
 
@@ -1324,7 +1383,7 @@ const AI = (() => {
     else if (a === 'tipok') { ui.tip = ui.tipQ.length ? ui.tipQ.shift() : null; if (ui.tip) { const x = seen(); x[ui.tip] = 1; store.set(TIPS, JSON.stringify(x)); } render(); }
     else if (a === 'handoff') { ui.shown = Number(el.dataset.v); render(); }
     else if (a === 'closesheet') { ui.sheet = null; ui.deckOf = null; render(); }
-    else if (a === 'log') { ui.log = !ui.log; render(); }
+    else if (a === 'log') { ui.log = !ui.log; ui.menu = false; render(); }
     else if (a === 'skip') { ui.skip = true; render(); }
     else if (a === 'card') { ui.sheet = Number(el.dataset.u); render(); }
     else if (a === 'deck') { const p = Number(el.dataset.p); if (s && (p === viewer(s) || (viewer(s) === null && p === humans(s)[0]) || s.showAll)) { ui.deckOf = p; render(); } }

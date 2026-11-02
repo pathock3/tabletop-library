@@ -21,6 +21,8 @@ const ok = (s, id) => { const r = E.answer(s, id); assert.ok(r.ok, 'answer ' + i
 const pend = s => s.pending && s.pending.kind;
 const opts = s => s.pending.opts.map(o => String(o.id));
 const total = (s, p) => E.bestTotal(s, p);
+/* put a chip on a total with a chosen arrival, so that the tracking sweep does not move it */
+const chip = (s, p, total, at) => { s.pl[p].chip = total; s.pl[p].arrivedAt = at; };
 const uOf = (s, p, id) => s.pl[p].line.find(e => e.c.id === id).c.u;
 
 test('the data: 9 number cards (one each of 1 to 9), 50 wildcards, no suits and no Ace', () => {
@@ -74,19 +76,19 @@ test('bust window: Palm, Stacker, Holdout, Fall Guy, Getaway Car, Bribe; declini
   ok(s, 'fall-guy'); ok(s, 'p1'); assert.equal(ids(s, 1).pop(), 'five'); assert.equal(s.pl[0].status, 'active');
 });
 
-test('turns: everyone chooses Hit or Pass at once, in secret; all pass ends the round; Getaway passes by itself', () => {
+test('turns: no waiting for others; a hit happens at once; a pass around the table with no hits ends the round; Getaway passes by itself', () => {
   const s = game(3); line(s, 0, ['two', 'three']); line(s, 1, ['two', 'four']); line(s, 2, ['two', 'five']); for (const p of [0, 1, 2]) deck(s, p, ['six', 'seven', 'eight']);
   s.stack = [{ t: 'turn', step: 0 }]; E.run(s);
-  assert.equal(pend(s), 'turn'); assert.equal(s.pending.who, 0); ok(s, 'pass'); assert.equal(s.pending.who, 1); ok(s, 'pass'); assert.equal(s.pending.who, 2);
-  assert.equal(s.pl[0].last, 'none', 'nobody sees a choice before everyone has chosen'); assert.equal(ids(s, 0).length, 2);
-  ok(s, 'hit'); assert.equal(ids(s, 2).pop(), 'six', 'the choices are revealed together and the hit happens'); assert.deepEqual([s.pl[0].last, s.pl[1].last, s.pl[2].last], ['pass', 'pass', 'hit']);
-  assert.equal(pend(s), 'turn', 'a new simultaneous choice begins'); assert.equal(s.pending.who, 0);
-  ok(s, 'pass'); ok(s, 'pass'); ok(s, 'pass'); assert.equal(pend(s), 'results', 'everyone passed together: reveal and score');
+  assert.equal(pend(s), 'turn'); assert.equal(s.pending.who, 0); ok(s, 'hit'); assert.equal(ids(s, 0).pop(), 'six', 'you see your new card the moment you hit, before anyone else has acted');
+  assert.equal(s.pending.who, 1); ok(s, 'pass'); assert.equal(s.pending.who, 2); ok(s, 'pass');
+  assert.equal(pend(s), 'turn', 'someone hit: another pass around the table'); assert.equal(s.pending.who, 0); ok(s, 'pass'); ok(s, 'pass'); ok(s, 'pass'); assert.equal(pend(s), 'results', 'everyone passed in one pass around the table: reveal and score');
   const g = game(3); line(g, 0, ['two']); line(g, 1, ['two']); line(g, 2, ['two']); g.pl[1].getaway = 17; g.stack = [{ t: 'turn', step: 0 }]; E.run(g);
   assert.equal(g.pending.who, 0); ok(g, 'pass'); assert.equal(g.pending.who, 2, 'a player under Getaway Car is not asked'); ok(g, 'pass'); assert.equal(pend(g), 'results');
-  const h = game(3); line(h, 0, ['two', 'three']); line(h, 1, ['two', 'four']); line(h, 2, ['two', 'five']); deck(h, 0, ['hit-man', 'one']); deck(h, 1, ['six', 'seven']); deck(h, 2, ['eight', 'nine']);
-  h.stack = [{ t: 'turn', step: 0 }]; E.run(h); ok(h, 'hit'); ok(h, 'pass'); ok(h, 'pass');
-  assert.equal(ids(h, 1).pop(), 'six', 'Hit Man: a player who chose Pass this round must hit'); assert.equal(ids(h, 2).pop(), 'eight');
+  const m = E.newGame({ seed: 2, seats: [{ name: 'A', kind: 'ai', level: 'easy' }, { name: 'B', kind: 'human' }, { name: 'C', kind: 'ai', level: 'easy' }] }); m.first = 0; m.stack = [{ t: 'turn', step: 0 }]; m.pending = null; E.run(m);
+  assert.equal(m.pending.who, 1, 'people are asked before the computer players');
+  const h = game(3); line(h, 0, ['two', 'three']); line(h, 1, ['two', 'four']); line(h, 2, ['two', 'five']); deck(h, 0, ['six', 'one']); deck(h, 1, ['seven', 'two']); deck(h, 2, ['hit-man', 'nine']);
+  h.stack = [{ t: 'turn', step: 0 }]; E.run(h); ok(h, 'pass'); ok(h, 'pass'); ok(h, 'hit');
+  assert.equal(ids(h, 0).pop(), 'six', 'Hit Man: a player who passed must hit'); assert.equal(ids(h, 1).pop(), 'seven');
 });
 
 test('scoring: every row of the examples table, plus Tightrope, Side Bet, Run and Sandbag', () => {
@@ -100,14 +102,14 @@ test('scoring: every row of the examples table, plus Tightrope, Side Bet, Run an
   for (const n of [2, 3, 4, 5, 6]) {                    // every row of the points table: players in strict order, then everyone tied, then all busted
     const tbl = D.rules.POINTS_BY_PLACE[n]; assert.equal(tbl.length, n);
     assert.deepEqual(pts(score(Array.from({ length: n }, (_, k) => 21 - k))), tbl, n + ' players, no ties');
-    assert.deepEqual(pts(score(Array.from({ length: n }, () => 18))), Array(n).fill(tbl[0]), n + ' players all tied for first');
+    assert.deepEqual(pts(score(Array.from({ length: n }, () => 18))), tbl, n + ' players all on the same total: every place is different, so the table applies in full');
     assert.deepEqual(pts(score(Array.from({ length: n }, () => 'bust'))), Array(n).fill(tbl[n - 1]), n + ' players all bust: the last-place entry');
     assert.deepEqual(pts(score(Array.from({ length: n }, (_, k) => k === 0 ? 14 : 'bust'))), [tbl[0]].concat(Array(n - 1).fill(tbl[n - 1])));
   }
   assert.deepEqual(D.rules.POINTS_BY_PLACE, { 2: [6, 2], 3: [6, 4, 2], 4: [6, 4, 3, 1], 5: [6, 5, 3, 2, 1], 6: [6, 5, 4, 3, 2, 1] });
-  assert.deepEqual(pts(score([20, 20, 18, 'bust', 'bust'])), [6, 6, 3, 1, 1], 'ties share the higher place and the next is skipped; every bust scores the last entry');
-  assert.deepEqual(pts(score([20, 20, 19, 17])), [6, 6, 3, 1], '4 players: two tied for 1st both score 6, the next is 3rd and scores 3');
-  assert.deepEqual(pts(score([21, 20, 20, 15, 10, 'bust'])), [6, 5, 5, 3, 2, 1]);
+  assert.deepEqual(pts(score([20, 20, 18, 'bust', 'bust'])), [6, 5, 3, 1, 1], 'tied totals do not share a place; every bust scores the last entry');
+  assert.deepEqual(pts(score([20, 20, 19, 17])), [6, 4, 3, 1], '4 players: the tie is broken, so the places are 1st, 2nd, 3rd, 4th');
+  assert.deepEqual(pts(score([21, 20, 20, 15, 10, 'bust'])), [6, 5, 4, 3, 2, 1]);
   s = game(3); line(s, 0, ['ten', 'ten', 'one'].slice(0, 2).concat([])); s.pl[0].load = 1; line(s, 1, ['ten', 'ten']); s.pl[1].line.push({ c: card(s, 'tightrope', 1), down: false, unk: false }); line(s, 2, ['ten', 'nine']);
   s.stack = [{ t: 'reveal', step: 0 }]; E.run(s); assert.deepEqual(s.result.rows.map(r => [r.total, r.place, r.pts]), [[21, 2, 4], [21, 1, 6], [19, 3, 2]], 'Tightrope ranks above the other 21');
   s = game(3); line(s, 0, ['ten', 'ten', 'five', 'side-bet']); line(s, 1, ['ten', 'ten', 'five']); line(s, 2, ['ten', 'nine']); s.stack = [{ t: 'reveal', step: 0 }]; E.run(s);
@@ -115,7 +117,7 @@ test('scoring: every row of the examples table, plus Tightrope, Side Bet, Run an
   s = game(3); line(s, 0, ['ten', 'ten', 'five', 'side-bet']); line(s, 1, ['nine', 'nine']); line(s, 2, ['ten', 'nine']); s.stack = [{ t: 'reveal', step: 0 }]; E.run(s);
   assert.equal(s.result.rows[0].pts, 2, 'Side Bet needs another bust');
   s = game(3); line(s, 0, ['ten', 'ten']); s.pl[0].line.push({ c: card(s, 'tightrope', 0), down: false, unk: false }); line(s, 1, ['ten', 'ten']); s.pl[1].line.push({ c: card(s, 'tightrope', 1), down: false, unk: false }); line(s, 2, ['ten', 'ten']); s.pl[2].load = 1; s.stack = [{ t: 'reveal', step: 0 }]; E.run(s);
-  assert.deepEqual(s.result.rows.map(r => [r.total, r.place, r.pts]), [[21, 1, 6], [21, 1, 6], [21, 3, 2]], 'two Tightropes at 21 tie with each other, above the plain 21');
+  assert.deepEqual(s.result.rows.map(r => [r.total, r.place, r.pts]), [[21, 1, 6], [21, 2, 4], [21, 3, 2]], 'two Tightropes at 21: the earlier arrival ranks higher; both rank above the plain 21');
   s = game(3); line(s, 0, ['four', 'five', 'six', 'run']); line(s, 1, ['ten', 'nine']); line(s, 2, ['ten', 'eight']); s.stack = [{ t: 'reveal', step: 0 }]; E.run(s); assert.ok(s.pl[0].prio, 'Run: three consecutive values');
   s = game(3); line(s, 0, ['five', 'seven', 'eight', 'run']); line(s, 1, ['ten', 'nine']); line(s, 2, ['ten', 'eight']); s.stack = [{ t: 'reveal', step: 0 }]; E.run(s); assert.ok(!s.pl[0].prio, 'Run: 5, 7, 8 and 3 have no three consecutive values');
   s = game(3); line(s, 0, ['two', 'sandbag']); line(s, 1, ['ten', 'nine']); line(s, 2, ['ten', 'eight']); s.stack = [{ t: 'reveal', step: 0 }]; E.run(s); assert.ok(s.pl[0].prio, 'Sandbag: finished last without busting');
@@ -259,8 +261,10 @@ test('a tie for the most points runs tiebreak rounds: only the tied players, no 
   line(s, 0, ['ten', 'nine']); line(s, 1, ['ten', 'eight']); s.stack = [{ t: 'reveal', step: 0 }]; s.pending = null; E.run(s);
   assert.deepEqual(s.pl.map(p => p.pts), [22, 22, 8], 'tiebreak points are not added'); resultsOf(s); assert.equal(s.winner, 0); assert.equal(s.phase, 'over');
   s = game(3); s.pl.forEach((p, i) => { p.pts = [22, 22, 22][i]; }); resultsOf(s); assert.deepEqual(s.part, [0, 1, 2]);
-  line(s, 0, ['ten', 'nine']); line(s, 1, ['ten', 'nine']); line(s, 2, ['ten', 'eight']); s.stack = [{ t: 'reveal', step: 0 }]; s.pending = null; E.run(s); resultsOf(s);
-  assert.equal(s.phase, 'play', 'still tied for first: another tiebreak'); assert.deepEqual(s.part, [0, 1]);
+  line(s, 0, ['ten', 'ten', 'five']); line(s, 1, ['ten', 'ten', 'five']); line(s, 2, ['ten', 'ten', 'five']); s.stack = [{ t: 'reveal', step: 0 }]; s.pending = null; E.run(s); resultsOf(s);
+  assert.equal(s.phase, 'play', 'everyone busted: still tied, another tiebreak'); assert.deepEqual(s.part, [0, 1, 2]);
+  line(s, 0, ['ten', 'nine']); line(s, 1, ['ten', 'nine']); line(s, 2, ['ten', 'eight']); chip(s, 0, 19, 9); chip(s, 1, 19, 4); chip(s, 2, 18, 1); s.stack = [{ t: 'reveal', step: 0 }]; s.pending = null; E.run(s); resultsOf(s); s.pending = null; E.run(s); resultsOf(s);
+  assert.equal(s.phase, 'over'); assert.equal(s.winner, 1, 'tied totals in a tiebreak round: the earlier arrival wins, so the game is decided');
 });
 
 test('the upgrade deck has two copies of every upgrade card (100, or 92 in a Friendly Game); two copies in a line work on their own', () => {
@@ -287,4 +291,24 @@ test('naming: Stackjack, wildcards and number cards; no "Loaded" or "upgrade" an
   assert.equal(D.texts.tips.draft[0], 'Draft wildcards');
   const s = game(3); s.pl.forEach(p => { p.pts = 3; }); s.phase = 'results'; s.pending = { who: null, kind: 'results', opts: [{ id: 'continue' }], prompt: '' }; ok(s, 'continue');
   assert.match(s.pending.prompt, /: pick a wildcard$/);
+});
+
+test('tied round totals: the chip that arrived first ranks higher; every place is different', () => {
+  const s = game(3); line(s, 0, ['ten', 'five']); line(s, 1, ['ten', 'five']); line(s, 2, ['ten', 'two']);
+  chip(s, 0, 15, 8); chip(s, 1, 15, 3); chip(s, 2, 12, 1); s.stack = [{ t: 'reveal', step: 0 }]; E.run(s);
+  assert.deepEqual(s.result.rows.map(r => [r.place, r.pts]), [[2, 4], [1, 6], [3, 2]], 'player 1 got to 15 first, so places higher than player 0');
+  const t2 = game(3); line(t2, 0, ['ten', 'ten']); line(t2, 1, ['ten', 'ten']); line(t2, 2, ['ten', 'ten']); t2.pl[0].load = 1; t2.pl[1].load = 1; t2.pl[2].load = 1; t2.pl[1].line.push({ c: card(t2, 'tightrope', 1), down: false, unk: false }); t2.pl[1].load = 0;
+  chip(t2, 0, 21, 1); chip(t2, 1, 21, 9); chip(t2, 2, 21, 2); t2.stack = [{ t: 'reveal', step: 0 }]; E.run(t2);
+  assert.deepEqual(t2.result.rows.map(r => [r.total, r.place]), [[21, 2], [21, 1], [21, 3]], 'Tightrope at exactly 21 beats earlier 21s; the others go by arrival');
+});
+
+test('arrival: a chip that leaves a space and comes back arrives again; one effect that moves several chips gives each its own number, in the order it is applied', () => {
+  const s = game(3); line(s, 0, ['five']); line(s, 1, ['two']); line(s, 2, ['three']); E.trackAll(s);
+  const a0 = s.pl[0].arrivedAt; assert.ok(Number.isFinite(a0)); E.trackAll(s); assert.equal(s.pl[0].arrivedAt, a0, 'nothing moved: the arrival stays');
+  s.pl[0].line.push({ c: card(s, 'three', 0), down: false, unk: false }); E.trackAll(s); const a1 = s.pl[0].arrivedAt; assert.ok(a1 > a0, 'a new total is a new arrival');
+  s.pl[0].line.pop(); E.trackAll(s); assert.ok(s.pl[0].arrivedAt > a1, 'back on the old space: the later arrival counts');
+  const before = s.tick; line(s, 0, ['pit-boss']); s.pl[0].line[0].c.id = 'pit-boss'; fire(s, 0, 0);
+  assert.ok(s.pl[1].arrivedAt >= before && s.pl[2].arrivedAt > s.pl[1].arrivedAt, 'Pit Boss: every other player takes 1 Load, in seat order, each with a different arrival number');
+  const k = game(2); line(k, 0, ['ten']); line(k, 1, ['ten']); E.trackAll(k); const x0 = k.pl[0].arrivedAt; k.pl[0].load = 0; E.giveLoad(k, 0, 1, 1); assert.ok(k.pl[0].arrivedAt > x0, 'Load moves the chip');
+  const hh = game(2); line(hh, 0, ['two', 'three']); line(hh, 1, ['two']); deck(hh, 0, ['six']); hh.stack = [{ t: 'turn', step: 0 }]; E.run(hh); const b0 = hh.pl[0].arrivedAt; ok(hh, 'hit'); assert.ok(hh.pl[0].arrivedAt > b0, 'a hit moves the chip');
 });
