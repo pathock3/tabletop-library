@@ -18,34 +18,16 @@ test('ui: play a round against the computer: hit, pass, results, the draft, the 
     let sawDraft = false;
     for (let i = 0; i < 600; i++) {
       await p.waitForTimeout(40);
-      const st = await p.evaluate(() => { const s = LB.ui.s, pd = s.pending; return { phase: s.phase, round: s.round, kind: pd && pd.kind, who: pd && pd.who, human: pd && pd.who != null && s.pl[pd.who].kind === 'human' }; });
+      const st = await p.evaluate(() => { const s = LB.ui.s, pd = s.pending; return { phase: s.phase, round: s.round, kind: pd && pd.kind, who: pd && pd.who, human: pd && pd.who != null && s.pl[pd.who].kind === 'human', canAct: Engine.isOpen(s) && s.pl[0].kind === 'human' && s.pl[0].status === 'active' && !s.pl[0].locked }; });
       if (st.round >= 2 && st.phase === 'play') break;
       if (st.phase === 'draft') sawDraft = true;
-      if (st.kind === 'turn' && st.human) { await p.click('[data-act=ans][data-v=pass]'); continue; }
+      if (st.canAct) { await p.click('[data-act=act][data-v=pass]'); continue; }
       if (st.kind === 'results') { await p.waitForSelector('.results [data-v=continue]'); await p.click('.results [data-v=continue]'); continue; }
       if (st.human && st.kind === 'pick') { await p.click('.market .canpick'); continue; }
       if (st.human && st.kind) { await p.evaluate(() => { const s = LB.ui.s; const b = document.querySelector('.sheet [data-act=ans]'); if (b) b.click(); else { Engine.answer(s, s.pending.opts[0].id); LB.render(); } }); }
     }
     assert.ok(sawDraft, 'the draft screen came up');
     assert.equal(await p.evaluate(() => LB.ui.s.round), 2, 'the second round began');
-    assert.deepEqual(errs, []);
-  } finally { await b.close(); }
-});
-
-test('ui: pass and play hides each player\'s private cards behind a handoff screen', { skip: !chromium }, async () => {
-  const { b, p, errs } = await open({ width: 820, height: 1180 });
-  try {
-    await p.evaluate(() => LB.newGame({ seed: 3, seats: [{ name: 'A', kind: 'human' }, { name: 'B', kind: 'human' }, { name: 'C', kind: 'ai', level: 'easy' }] }));
-    await p.waitForSelector('.cover', { timeout: 20000 });
-    assert.equal(await p.locator('.card').count(), 0, 'nothing private on the handoff screen');
-    const who = await p.evaluate(() => LB.ui.s.pending.who);
-    await p.click('[data-act=handoff]');
-    await p.waitForSelector('.pnl.me');
-    assert.match(await p.innerText('.pnl.me'), /HIDDEN/i);
-    await p.click('[data-act=ans][data-v=pass]');
-    await p.waitForTimeout(900);
-    const next = await p.evaluate(() => LB.ui.s.pending && LB.ui.s.pending.who);
-    if (next !== who && next != null && await p.evaluate(() => LB.ui.s.pl[LB.ui.s.pending.who].kind === 'human')) { await p.waitForSelector('.cover'); assert.equal(await p.locator('.pnl.me').count(), 0, 'the other player\'s cards are hidden until they take the device'); }
     assert.deepEqual(errs, []);
   } finally { await b.close(); }
 });
@@ -121,3 +103,19 @@ for (const [w, h] of [[1180, 820], [1440, 800], [820, 1180], [402, 874]]) {
     } finally { await b.close(); }
   });
 }
+
+test('ui: the leaderboard has a chip for every player and moves it the instant you hit; every card is face up and the score is public', { skip: !chromium, timeout: 60000 }, async () => {
+  const { b, p, errs } = await open({ width: 1180, height: 820 });
+  try {
+    await p.click('[data-act=newgame]'); await p.evaluate(() => LB.newGame({ seed: 5 })); await p.waitForSelector('.lb .lbchip');
+    assert.equal(await p.locator('.lb .lbchip').count(), 4); 
+    assert.equal(await p.locator('.card.back').count(), 0, 'no card is face down'); assert.equal(await p.locator('text=HIDDEN').count(), 0);
+    const where = () => p.evaluate(() => { const c = document.querySelector('.lbchip.me'); return { col: c.parentElement.querySelector('.lbn').textContent.trim(), tot: document.querySelector('.pnl.me .tot').textContent.trim() }; });
+    const before = await where(); assert.equal(before.col, before.tot, 'the chip sits on your total');
+    await p.click('[data-act=act][data-v=hit]'); const after = await where(); assert.equal(after.col, after.tot, 'and moves at once when you hit');
+    assert.equal(await p.locator('.pnl.me .line .card').count() >= 3, true, 'your new card is there the moment you tap');
+    assert.equal(await p.locator('[data-act=ans][data-v=hit], .topbar [data-act=log], [data-act=flip]').count(), 0);
+    await p.click('[data-act=act][data-v=pass]'); await p.waitForTimeout(300); assert.equal(await p.locator('[data-act=act]').count(), 0, 'a pass locks in your score: no more buttons'); assert.match(await p.innerText('.status'), /locked in/i);
+    await p.waitForSelector('.results', { timeout: 30000 }); assert.deepEqual(errs, []);
+  } finally { await b.close(); }
+});

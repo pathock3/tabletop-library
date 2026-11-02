@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- **Stackjack — a live leaderboard, no hidden cards, no turns:** there is a leaderboard across the top, a space for every total 1 to 21 and a BUST space. Your chip, and everyone else's, sits on its total and slides there the instant a card lands; tied chips line up with the first to arrive in front. Every card is face up and every score is public (Spotter, Snitch, Tell and Hand Mucker had nothing left to do and are gone: 46 wildcards, 92 in the deck). Nobody takes turns: hit as often as you like and see the card at once while the computer players hit on their own clocks. Pass locks in your score. The round ends when everyone has passed. A game saved before this update can't be continued.
+
 - **Stackjack:** tied round totals are broken by who got there first (every place is different; Tightrope at exactly 21 still beats earlier 21s). The results show the totals as a track, with chips lined up in arrival order and a "1st" badge. Hitting is back to happening at once: no turns, you see your new card the moment you tap, and you are never made to wait for the computer players. The Log is in the menu, New Game is only on the main menu, and the "21" over the title is gone. The main menu, the table and the box art now look like a tabletop game: felt and a wooden rail, a fan of cards, stacks of chips, and a deck pile next to every player.
 
 - **Loaded Blackjack is now Stackjack** ("Stack the deck. Hit 21."). The cards you draft between rounds are called **wildcards**; the nine you start with are **number cards**. No rules changed. The old address still works (it redirects) and a saved game carries over.

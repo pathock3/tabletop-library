@@ -23,16 +23,21 @@ const opts = s => s.pending.opts.map(o => String(o.id));
 const total = (s, p) => E.bestTotal(s, p);
 /* put a chip on a total with a chosen arrival, so that the tracking sweep does not move it */
 const chip = (s, p, total, at) => { s.pl[p].chip = total; s.pl[p].arrivedAt = at; };
+/* one step of an all-computer game: answer the question that is waiting, or let one of the players still in the round act */
+function advance(s) {
+  if (s.pending) { const pd = s.pending; return E.answer(s, pd.kind === 'results' ? 'continue' : AI.answer(s, pd.who)); }
+  const open = E.openPlayers(s); assert.ok(open && open.length, 'stuck'); const p = open[s.tick % open.length]; return E.act(s, p, AI.answer(s, p));
+}
 const uOf = (s, p, id) => s.pl[p].line.find(e => e.c.id === id).c.u;
 
-test('the data: 9 number cards (one each of 1 to 9), 50 wildcards, no suits and no Ace', () => {
+test('the data: 9 number cards (one each of 1 to 9), 46 wildcards, no suits and no Ace', () => {
   assert.deepEqual(D.numbers.map(c => c.id), ['one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine']); assert.ok(D.numbers.every((c, k) => !('copies' in c) && c.val.kind === 'fixed' && c.val.v === k + 1 && c.trig === 'none'));
   const g = game(2); assert.equal(g.pl[0].deck.length + g.pl[0].line.length, 9, 'setup gives each player 9 cards'); assert.deepEqual(Object.values(g.cards).filter(c => c.o === 0 && D.numbers.some(d => d.id === c.id)).map(c => c.id).sort(), ['eight', 'five', 'four', 'nine', 'one', 'seven', 'six', 'three', 'two']);
   const all = D.numbers.concat(D.wild); assert.ok(!all.some(c => 'suit' in c || c.id === 'ace' || (c.name || '') === 'Ace'), 'no card has a suit, and there is no Ace');
   assert.ok(!/[♠♥♣♦]|\bAces?\b|\bsuits?\b/i.test(JSON.stringify(D)), 'no suit or Ace anywhere in the game data');
   const html = require('fs').readFileSync(require('./load').FILE, 'utf8'); assert.ok(!/[♠♥♣♦]/.test(html), 'no suit symbols in the game file'); assert.ok(!/\bAces?\b/.test(html.replace(/there is no Ace/g, '')), 'no Ace in the game file');
-  assert.equal(D.wild.length, 50); assert.deepEqual(D.wild.find(c => c.id === 'hi-lo').val, { kind: 'flex', opts: [1, 10] }); assert.equal(D.wild.find(c => c.id === 'hit-man').val.v, 8);
-  assert.deepEqual(D.wild.filter(c => c.mean).map(c => c.id).sort(), ['cooler', 'hand-mucker', 'hit-man', 'last-call']);
+  assert.equal(D.wild.length, 46); assert.deepEqual(D.wild.find(c => c.id === 'hi-lo').val, { kind: 'flex', opts: [1, 10] }); assert.equal(D.wild.find(c => c.id === 'hit-man').val.v, 8);
+  assert.deepEqual(D.wild.filter(c => c.mean).map(c => c.id).sort(), ['cooler', 'hit-man', 'last-call']);
   for (const c of D.wild) { assert.ok(c.ai >= 1 && c.ai <= 5, c.id); assert.ok(c.name && c.cat && c.trig, c.id); }
 });
 
@@ -76,19 +81,22 @@ test('bust window: Palm, Stacker, Holdout, Fall Guy, Getaway Car, Bribe; declini
   ok(s, 'fall-guy'); ok(s, 'p1'); assert.equal(ids(s, 1).pop(), 'five'); assert.equal(s.pl[0].status, 'active');
 });
 
-test('turns: no waiting for others; a hit happens at once; a pass around the table with no hits ends the round; Getaway passes by itself', () => {
+test('no turns: anyone hits at once and sees the card; Pass locks in your score; the round ends when everyone has passed', () => {
   const s = game(3); line(s, 0, ['two', 'three']); line(s, 1, ['two', 'four']); line(s, 2, ['two', 'five']); for (const p of [0, 1, 2]) deck(s, p, ['six', 'seven', 'eight']);
   s.stack = [{ t: 'turn', step: 0 }]; E.run(s);
-  assert.equal(pend(s), 'turn'); assert.equal(s.pending.who, 0); ok(s, 'hit'); assert.equal(ids(s, 0).pop(), 'six', 'you see your new card the moment you hit, before anyone else has acted');
-  assert.equal(s.pending.who, 1); ok(s, 'pass'); assert.equal(s.pending.who, 2); ok(s, 'pass');
-  assert.equal(pend(s), 'turn', 'someone hit: another pass around the table'); assert.equal(s.pending.who, 0); ok(s, 'pass'); ok(s, 'pass'); ok(s, 'pass'); assert.equal(pend(s), 'results', 'everyone passed in one pass around the table: reveal and score');
+  assert.ok(E.isOpen(s) && !s.pending, 'nobody is asked anything: everyone may act'); assert.deepEqual(E.openPlayers(s), [0, 1, 2]);
+  assert.ok(E.act(s, 2, 'hit').ok); assert.equal(ids(s, 2).pop(), 'six', 'the card is there the moment you hit'); assert.ok(E.act(s, 2, 'hit').ok, 'the same player can hit again and again, without waiting for anyone');
+  assert.ok(E.act(s, 0, 'pass').ok); assert.equal(s.pl[0].locked, true); assert.equal(E.act(s, 0, 'hit').ok, false, 'a pass locks in the score');
+  assert.ok(E.act(s, 1, 'hit').ok); assert.ok(E.isOpen(s)); assert.ok(E.act(s, 1, 'pass').ok); assert.ok(E.isOpen(s), 'player 2 has not passed yet'); assert.ok(E.act(s, 2, 'pass').ok);
+  assert.equal(pend(s), 'results', 'everyone has passed: the round is scored');
   const g = game(3); line(g, 0, ['two']); line(g, 1, ['two']); line(g, 2, ['two']); g.pl[1].getaway = 17; g.stack = [{ t: 'turn', step: 0 }]; E.run(g);
-  assert.equal(g.pending.who, 0); ok(g, 'pass'); assert.equal(g.pending.who, 2, 'a player under Getaway Car is not asked'); ok(g, 'pass'); assert.equal(pend(g), 'results');
-  const m = E.newGame({ seed: 2, seats: [{ name: 'A', kind: 'ai', level: 'easy' }, { name: 'B', kind: 'human' }, { name: 'C', kind: 'ai', level: 'easy' }] }); m.first = 0; m.stack = [{ t: 'turn', step: 0 }]; m.pending = null; E.run(m);
-  assert.equal(m.pending.who, 1, 'people are asked before the computer players');
+  assert.deepEqual(E.openPlayers(g), [0, 2], 'a player under Getaway Car is locked in at once'); E.act(g, 0, 'pass'); E.act(g, 2, 'pass'); assert.equal(pend(g), 'results');
   const h = game(3); line(h, 0, ['two', 'three']); line(h, 1, ['two', 'four']); line(h, 2, ['two', 'five']); deck(h, 0, ['six', 'one']); deck(h, 1, ['seven', 'two']); deck(h, 2, ['hit-man', 'nine']);
-  h.stack = [{ t: 'turn', step: 0 }]; E.run(h); ok(h, 'pass'); ok(h, 'pass'); ok(h, 'hit');
-  assert.equal(ids(h, 0).pop(), 'six', 'Hit Man: a player who passed must hit'); assert.equal(ids(h, 1).pop(), 'seven');
+  h.stack = [{ t: 'turn', step: 0 }]; E.run(h); E.act(h, 0, 'pass'); E.act(h, 1, 'pass'); E.act(h, 2, 'hit');
+  assert.equal(ids(h, 0).pop(), 'six', 'Hit Man: a player who passed must hit'); assert.equal(ids(h, 1).pop(), 'seven'); assert.equal(h.pl[0].locked, true, 'and stays locked in');
+  const q = game(2); line(q, 0, ['two']); line(q, 1, ['two']); q.pl[0].deck = []; q.stack = [{ t: 'turn', step: 0 }]; E.run(q); assert.ok(!E.turnOptions(q, 0).some(o => o.id === 'hit'), 'an empty deck cannot hit');
+  const w = game(2); line(w, 0, ['two', 'shiner']); line(w, 1, ['two']); deck(w, 0, ['six', 'seven']); w.stack = [{ t: 'turn', step: 0 }]; E.run(w); E.act(w, 0, 'use' + w.pl[0].line[1].c.u);
+  assert.equal(pend(w), 'choice'); assert.equal(E.act(w, 1, 'pass').ok, false, 'while a question is waiting for its answer nobody else can act');
 });
 
 test('scoring: every row of the examples table, plus Tightrope, Side Bet, Run and Sandbag', () => {
@@ -150,7 +158,7 @@ test('cleanup: cards moved by Plant, Fall Guy and Hand Mucker go home; Getaway C
 });
 
 test('the same seed and the same choices give the same game', () => {
-  const run = seed => { const s = E.newGame({ seed, seats: [0, 1, 2].map(i => ({ name: 'P' + i, kind: 'ai', level: ['easy', 'medium', 'hard'][i] })) }); let n = 0; while (s.phase !== 'over' && n++ < 20000) { const pd = s.pending; E.answer(s, pd.kind === 'results' ? 'continue' : AI.answer(s, pd.who)); } return s.log.map(l => l.t).join('|') + s.pl.map(p => p.pts); };
+  const run = seed => { const s = E.newGame({ seed, seats: [0, 1, 2].map(i => ({ name: 'P' + i, kind: 'ai', level: ['easy', 'medium', 'hard'][i] })) }); let n = 0; while (s.phase !== 'over' && n++ < 30000) advance(s); return s.log.map(l => l.t).join('|') + s.pl.map(p => p.pts); };
   assert.equal(run(42), run(42)); assert.notEqual(run(42), run(43));
 });
 
@@ -183,19 +191,13 @@ test('Stacker, Palm, Holdout, Second Deal, Getaway Car, Fall Guy, Side Bet: prot
 });
 test('Attack cards: Shill, Heat, Squeeze, Pit Boss, Cooler, Hit Man, Plant, Last Call', () => {
   let s = game(3); line(s, 0, ['shill']); line(s, 1, ['two']); line(s, 2, ['three']); fire(s, 0, 0); ok(s, 'p1'); assert.equal(s.pl[1].load, 1);
-  s = game(3); line(s, 0, ['heat', 'two']); line(s, 1, ['two']); line(s, 2, ['three']); s.pl[1].last = 'pass'; fire(s, 0, 0); assert.equal(s.pl[1].load, 1, 'only a player who passed (one target: no question)'); assert.equal(s.pl[2].load, 0);
+  s = game(3); line(s, 0, ['heat', 'two']); line(s, 1, ['two']); line(s, 2, ['three']); s.pl[1].locked = true; fire(s, 0, 0); assert.equal(s.pl[1].load, 1, 'only a player who passed (one target: no question)'); assert.equal(s.pl[2].load, 0);
   s = game(3); line(s, 0, ['squeeze']); line(s, 1, ['two', 'two', 'two', 'two']); line(s, 2, ['three', 'three', 'three']); fire(s, 0, 0); assert.equal(s.pl[1].load, 2, '4 or more cards'); assert.equal(s.pl[2].load, 0, '3 cards is not enough');
   s = game(3); line(s, 0, ['pit-boss']); line(s, 1, ['two']); line(s, 2, ['three']); fire(s, 0, 0); assert.deepEqual([s.pl[1].load, s.pl[2].load], [1, 1]);
   s = game(3); line(s, 0, ['cooler']); line(s, 1, ['two']); line(s, 2, ['three']); deck(s, 1, ['six']); fire(s, 0, 0); ok(s, 'p1'); assert.equal(ids(s, 1).pop(), 'six'); assert.equal(s.pl[1].last, 'hit');
-  s = game(3); line(s, 0, ['hit-man']); line(s, 1, ['two']); line(s, 2, ['three']); deck(s, 1, ['six']); deck(s, 2, ['seven']); s.pl[1].last = 'pass'; s.pl[2].last = 'pass'; fire(s, 0, 0); assert.equal(ids(s, 1).pop(), 'six'); assert.equal(ids(s, 2).pop(), 'seven');
+  s = game(3); line(s, 0, ['hit-man']); line(s, 1, ['two']); line(s, 2, ['three']); deck(s, 1, ['six']); deck(s, 2, ['seven']); s.pl[1].locked = true; s.pl[2].locked = true; fire(s, 0, 0); assert.equal(ids(s, 1).pop(), 'six'); assert.equal(ids(s, 2).pop(), 'seven');
   s = game(3); line(s, 0, ['two', 'plant']); line(s, 1, ['two']); line(s, 2, ['three']); fire(s, 0, 1); ok(s, 'p2'); assert.equal(ids(s, 2).pop(), 'plant'); assert.equal(ids(s, 0).length, 1);
   s = game(2); line(s, 0, ['two', 'last-call']); line(s, 1, ['three']); s.stack = [{ t: 'reveal', step: 0 }]; E.run(s); assert.equal(s.pl[1].load, 1, 'Last Call at reveal');
-});
-test('Info cards: Spotter, Snitch, Tell, Hand Mucker', () => {
-  let s = game(2); line(s, 0, ['two', 'spotter'], 1); line(s, 1, ['nine', 'three'], 1); fire(s, 0, 1); assert.equal(pend(s), 'ack'); assert.equal(s.cards[s.pl[0].known.hidden[1]].id, 'nine'); ok(s, 'ok');
-  s = game(2); line(s, 0, ['two', 'snitch']); line(s, 1, ['nine', 'three'], 1); fire(s, 0, 1); assert.equal(at(s, 1, 0).down, false);
-  s = game(2); line(s, 0, ['two', 'tell']); line(s, 1, ['ten', 'seven']); fire(s, 0, 1); ok(s, 'p1'); assert.equal(s.pl[0].known.tell[0].over, true); assert.equal(pend(s), 'ack'); ok(s, 'ok');
-  s = game(2); line(s, 0, ['hand-mucker', 'two'], 1); at(s, 0, 0).down = false; at(s, 0, 1).down = true; line(s, 1, ['nine', 'three'], 1); const a = at(s, 0, 1).c, b = at(s, 1, 0).c; fire(s, 0, 0); assert.equal(at(s, 0, 1).c, b); assert.equal(at(s, 1, 0).c, a); assert.ok(at(s, 0, 1).unk && at(s, 1, 0).unk);
 });
 test('Defense cards: Bribe, Muscle, Alibi, Comp', () => {
   let s = game(2); line(s, 0, ['bribe', 'two']); line(s, 1, ['three']); s.pl[0].load = 2; fire(s, 0, 0); assert.deepEqual([s.pl[0].load, s.pl[1].load], [1, 1]);
@@ -207,7 +209,7 @@ test('Push Your Luck cards: High Roller, Nerve, Double Down, Hot Streak, Tightro
   let s = game(3); line(s, 0, ['ten', 'six', 'high-roller']); line(s, 1, ['two']); line(s, 2, ['three']); fire(s, 0, 2); ok(s, 'p1'); ok(s, 'p2'); assert.deepEqual([s.pl[1].load, s.pl[2].load], [1, 1], '2 Load split as you like');
   s = game(2); line(s, 0, ['four', 'high-roller']); line(s, 1, ['two']); fire(s, 0, 1); assert.equal(s.pl[1].load, 0, 'needs 15 or more before this card');
   s = game(2); line(s, 0, ['ten', 'seven', 'nerve']); deck(s, 0, ['two', 'three']); fire(s, 0, 2); assert.equal(pend(s), 'choice'); ok(s, 'draw'); assert.equal(ids(s, 0).pop(), 'two');
-  s = game(2); line(s, 0, ['double-down', 'two']); line(s, 1, ['three']); deck(s, 0, ['four', 'five']); s.stack = [{ t: 'turn', step: 0 }]; E.run(s); ok(s, 'double'); ok(s, 'pass'); assert.deepEqual(ids(s, 0).slice(-2), ['four', 'five']); assert.equal(s.pl[1].load, 1);
+  s = game(2); line(s, 0, ['double-down', 'two']); line(s, 1, ['three']); deck(s, 0, ['four', 'five']); s.stack = [{ t: 'turn', step: 0 }]; E.run(s); assert.ok(E.act(s, 0, 'double').ok); assert.deepEqual(ids(s, 0).slice(-2), ['four', 'five']); assert.equal(s.pl[1].load, 1);
   s = game(3); line(s, 0, ['two', 'two', 'two', 'two', 'hot-streak']); line(s, 1, ['two']); line(s, 2, ['three']); fire(s, 0, 4); assert.deepEqual([s.pl[1].load, s.pl[2].load], [1, 1], '5 cards counting Hot Streak itself');
   s = game(3); line(s, 0, ['two', 'two', 'two', 'hot-streak']); line(s, 1, ['two']); fire(s, 0, 3); assert.equal(s.pl[1].load, 0, '4 cards is not enough');
 });
@@ -224,14 +226,14 @@ test('the simulation: random all-AI games finish, cards stay put, Load never goe
   for (const n of [2, 3, 4, 5, 6]) for (let k = 1; k <= 4; k++) {
     const s = E.newGame({ seed: k * 11 + n, seats: Array.from({ length: n }, (_, i) => ({ name: 'P' + i, kind: 'ai', level: ['easy', 'medium', 'hard'][i % 3] })) });
     let steps = 0;
-    while (s.phase !== 'over') { assert.ok(++steps < 20000 && s.pending, 'stuck'); const pd = s.pending; assert.ok(E.answer(s, pd.kind === 'results' ? 'continue' : AI.answer(s, pd.who)).ok); if (steps % 9 === 0 && !s.stack.some(t => t.t === 'draw' && t.card)) E.auditCards(s); }
+    while (s.phase !== 'over') { assert.ok(++steps < 30000, 'stuck'); assert.ok(advance(s).ok); if (steps % 9 === 0 && !s.stack.some(t => t.t === 'draw' && t.card)) E.auditCards(s); }
     assert.ok(s.winner !== null);
   }
 });
-test('the computer never sees hidden cards: a view hides other players\' hidden cards and decks', () => {
-  const s = game(3); line(s, 1, ['nine', 'three'], 1); deck(s, 1, ['one', 'two']);
-  const v = E.viewFor(s, 0, true); assert.equal(v.pl[1].line[0].c.id, '?'); assert.equal(v.pl[1].deck[0].id, '?'); assert.equal(v.pl[1].known, null);
-  s.showAll = true; assert.equal(E.viewFor(s, 0, true).pl[1].line[0].c.id, '?', 'even with Show all hidden info on, an AI does not cheat'); assert.equal(E.viewFor(s, 0, false).pl[1].line[0].c.id, 'nine');
+test('every card in a line is public; the computer sees no deck but its own', () => {
+  const s = game(3); line(s, 1, ['nine', 'three']); deck(s, 1, ['one', 'two']);
+  const v = E.viewFor(s, 0, true); assert.deepEqual(v.pl[1].line.map(e => e.c.id), ['nine', 'three'], 'cards in a line are face up for everyone'); assert.equal(v.pl[1].deck[0].id, '?', 'other decks stay private'); assert.equal(v.pl[1].known, null);
+  assert.ok(!E.newGame({ seed: 4, seats: [{ name: 'a' }, { name: 'b' }] }).pl.some(p => p.line.some(e => e.down)), 'no card is ever dealt face down');
 });
 
 test('values from 0 to 10 are valid in the data and resolve in a line', () => {
@@ -267,13 +269,13 @@ test('a tie for the most points runs tiebreak rounds: only the tied players, no 
   assert.equal(s.phase, 'over'); assert.equal(s.winner, 1, 'tied totals in a tiebreak round: the earlier arrival wins, so the game is decided');
 });
 
-test('the upgrade deck has two copies of every upgrade card (100, or 92 in a Friendly Game); two copies in a line work on their own', () => {
+test('the upgrade deck has two copies of every upgrade card (92, or 86 in a Friendly Game); two copies in a line work on their own', () => {
   assert.equal(D.rules.WILDCARD_COPIES, 2);
   const mk = fr => E.newGame({ seed: 4, friendly: fr, seats: [{ name: 'a' }, { name: 'b' }, { name: 'c' }] });
   const all = s => s.wild.concat(...s.pl.map(p => p.deck.filter(c => DEF_UP.has(c.id))));
   const DEF_UP = new Set(D.wild.map(c => c.id));
-  let s = mk(false); assert.equal(s.wild.length, 100); for (const c of D.wild) assert.equal(s.wild.filter(x => x.id === c.id).length, 2, c.id + ' x2');
-  s = mk(true); assert.equal(s.wild.length, 92); for (const id of ['cooler', 'hit-man', 'hand-mucker', 'last-call']) assert.equal(s.wild.filter(x => x.id === id).length, 0, 'Friendly removes both copies of ' + id);
+  let s = mk(false); assert.equal(s.wild.length, 92); for (const c of D.wild) assert.equal(s.wild.filter(x => x.id === c.id).length, 2, c.id + ' x2');
+  s = mk(true); assert.equal(s.wild.length, 86); for (const id of ['cooler', 'hit-man', 'last-call']) assert.equal(s.wild.filter(x => x.id === id).length, 0, 'Friendly removes both copies of ' + id);
   s = game(); line(s, 0, ['ten', 'nine', 'getaway-car', 'getaway-car', 'five']); s.stack = [{ t: 'bustcheck' }]; E.run(s); ok(s, 'getaway-car');
   assert.equal(s.removed.filter(c => c.id === 'getaway-car').length, 1, 'only the copy that was used leaves the game'); assert.equal(s.pl[0].line.filter(e => e.c.id === 'getaway-car').length, 1);
   s = game(); line(s, 0, ['muscle', 'muscle', 'two']); assert.ok(E.hasMuscle(s, 0)); line(s, 0, ['palm', 'palm', 'two']); assert.equal(E.canUseFree(s, 0).length, 0, 'nothing drawn yet: Palm cannot be used');
@@ -285,7 +287,7 @@ test('naming: Stackjack, wildcards and number cards; no "Loaded" or "upgrade" an
   assert.equal(D.title, 'Stackjack'); assert.equal(D.tagline, 'Stack the deck. Hit 21.');
   const bad = x => /\bLoaded\b|\bLOADED\b/.test(x) || /upgrade/i.test(x);
   assert.ok(!bad(JSON.stringify(D)), 'the data block'); assert.ok(!bad(html), 'the page: title, tips, help, prompts, screens');
-  assert.match(html, /<title>Stackjack<\/title>/); assert.ok(Array.isArray(D.wild) && D.wild.length === 50 && Array.isArray(D.numbers) && D.numbers.length === 9); assert.equal(D.rules.WILDCARD_COPIES, 2);
+  assert.match(html, /<title>Stackjack<\/title>/); assert.ok(Array.isArray(D.wild) && D.wild.length === 46 && Array.isArray(D.numbers) && D.numbers.length === 9); assert.equal(D.rules.WILDCARD_COPIES, 2);
   assert.ok(D.numbers.every(c => c.cat === 'Number card'));
   assert.equal(D.texts.tips.welcome[1], 'Get closest to 21 without going over. Each round, the highest total scores the most points. Between rounds, draft wildcards to stack your deck. First to 21 points wins.');
   assert.equal(D.texts.tips.draft[0], 'Draft wildcards');
@@ -310,5 +312,5 @@ test('arrival: a chip that leaves a space and comes back arrives again; one effe
   const before = s.tick; line(s, 0, ['pit-boss']); s.pl[0].line[0].c.id = 'pit-boss'; fire(s, 0, 0);
   assert.ok(s.pl[1].arrivedAt >= before && s.pl[2].arrivedAt > s.pl[1].arrivedAt, 'Pit Boss: every other player takes 1 Load, in seat order, each with a different arrival number');
   const k = game(2); line(k, 0, ['ten']); line(k, 1, ['ten']); E.trackAll(k); const x0 = k.pl[0].arrivedAt; k.pl[0].load = 0; E.giveLoad(k, 0, 1, 1); assert.ok(k.pl[0].arrivedAt > x0, 'Load moves the chip');
-  const hh = game(2); line(hh, 0, ['two', 'three']); line(hh, 1, ['two']); deck(hh, 0, ['six']); hh.stack = [{ t: 'turn', step: 0 }]; E.run(hh); const b0 = hh.pl[0].arrivedAt; ok(hh, 'hit'); assert.ok(hh.pl[0].arrivedAt > b0, 'a hit moves the chip');
+  const hh = game(2); line(hh, 0, ['two', 'three']); line(hh, 1, ['two']); deck(hh, 0, ['six']); hh.stack = [{ t: 'turn', step: 0 }]; E.run(hh); const b0 = hh.pl[0].arrivedAt; E.act(hh, 0, 'hit'); assert.ok(hh.pl[0].arrivedAt > b0, 'a hit moves the chip');
 });

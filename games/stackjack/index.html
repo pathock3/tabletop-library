@@ -184,6 +184,14 @@ h1 { margin: -4px 0 0; font-size: 84px; line-height: 1; font-weight: 1000; font-
 .score .sc { background: linear-gradient(#5a3519, #3d2310); border-width: 3px; box-shadow: inset 0 2px 0 rgba(255,220,160,.25), 0 3px 0 #1a0f06; } .score .sc.now { background: linear-gradient(#ffe48f, #e0a82e); }
 .sheetin { background: linear-gradient(#2a6a49, #123223); box-shadow: 0 0 0 4px #5a3519, 0 20px 40px rgba(0,0,0,.6); }
 @media (orientation: portrait) { .chipstack { bottom: 8%; transform: scale(.85); transform-origin: 50% 100%; } }
+/* ---- the leaderboard: a space for every total ---- */
+.lb { width: 100%; flex: none; display: grid; grid-template-columns: repeat(21, minmax(0, 1fr)) minmax(0, 1.7fr); gap: 2px; padding: calc(4px * var(--u, 1)) calc(6px * var(--u, 1)); background: linear-gradient(#5a3519, #3d2310); border: 2px solid #2c1a0b; border-radius: 12px; box-shadow: inset 0 2px 0 rgba(255,220,160,.3), 0 4px 0 rgba(0,0,0,.4); }
+.lbc { display: flex; flex-direction: column; align-items: center; gap: 2px; min-width: 0; background: rgba(0,0,0,.28); border-radius: 6px; padding-bottom: 3px; min-height: calc((26px + 40px * var(--rows, 1)) * var(--u, 1)); }
+.lbc.top { background: rgba(224,168,46,.35); } .lbc.bust { background: rgba(160,38,18,.45); }
+.lbn { font-weight: 900; font-size: calc(15px * var(--u, 1)); color: #ffe9b0; line-height: calc(24px * var(--u, 1)); } .lbc.bust .lbn { font-size: calc(13px * var(--u, 1)); }
+.lbchip { position: relative; width: min(calc(38px * var(--u, 1)), 92%); aspect-ratio: 1; border-radius: 50%; background: radial-gradient(circle at 35% 30%, #fff 0, var(--pc) 48%, #000 150%); border: 3px dashed rgba(255,255,255,.9); box-shadow: 0 3px 0 #000; display: grid; place-items: center; z-index: 2; }
+.lbchip b { font-size: calc(15px * var(--u, 1)); color: #0b0b0b; } .lbchip.me { outline: 3px solid var(--gold); outline-offset: 1px; }
+.lbchip .first { position: absolute; right: -6px; top: -9px; font-style: normal; font-weight: 900; font-size: calc(10px * var(--u, 1)); background: var(--gold); color: #3b230a; border-radius: 99px; padding: 0 4px; box-shadow: 0 2px 0 #000; }
 @media (prefers-reduced-motion: reduce) { .fc { animation: none; } }
 </style>
 </head>
@@ -206,9 +214,9 @@ const GAME_DATA = {
     picksPerPlayer: 2,             // everyone drafts this many
     sideBetBonus: 1,               // Side Bet: a bust scores the last-place entry plus this (only when at least one other player also busted)
     getawayTotal: 17,              // Getaway Car: your total becomes this
-    passDelayMs: 800, aiTurnMs: 450,              // an AI takes one action about this often
-    dealAt: [0, 1],                // the first card dealt is hidden, the second face up
-  },
+    passDelayMs: 800,              // a computer player answers a question about this often
+    aiThinkMs: [500, 1500],        // a computer player hits or passes at a random moment between these (milliseconds), on its own clock
+      },
   ai: {
     levels: ['easy', 'medium', 'hard'],
     easyHitAtMost: 14, mediumBustChance: .35,
@@ -257,11 +265,6 @@ const GAME_DATA = {
     { id: 'hit-man', name: 'Hit Man', cat: 'Attack', val: { kind: 'fixed', v: 8 }, trig: 'drawn', text: 'When drawn: every player who has passed must hit.', ai: 3, mean: true },
     { id: 'plant', name: 'Plant', cat: 'Attack', val: { kind: 'fixed', v: 1 }, trig: 'drawn', text: 'When drawn: put this card into another player\'s line. It counts for them this round.', ai: 3 },
     { id: 'last-call', name: 'Last Call', cat: 'Attack', val: { kind: 'fixed', v: 5 }, trig: 'reveal', text: 'At reveal: give 1 Load to another player.', ai: 3, mean: true },
-    // Info
-    { id: 'spotter', name: 'Spotter', cat: 'Info', val: { kind: 'fixed', v: 2 }, trig: 'once', text: "Once per round: secretly look at another player's hidden card.", ai: 3 },
-    { id: 'snitch', name: 'Snitch', cat: 'Info', val: { kind: 'fixed', v: 3 }, trig: 'drawn', text: 'When drawn: choose a player. They flip their hidden card face up.', ai: 2 },
-    { id: 'tell', name: 'Tell', cat: 'Info', val: { kind: 'fixed', v: 1 }, trig: 'drawn', text: 'When drawn: ask any player "over or under 15?" They must answer truthfully.', ai: 2 },
-    { id: 'hand-mucker', name: 'Hand Mucker', cat: 'Info', val: { kind: 'fixed', v: 3 }, trig: 'once', text: "Once per round: swap your hidden card with another player's hidden card. Neither of you looks.", ai: 2, mean: true },
     // Defense
     { id: 'bribe', name: 'Bribe', cat: 'Defense', val: { kind: 'fixed', v: 2 }, trig: 'once', text: 'Once per round: move 1 Load from you to another player.', ai: 3 },
     { id: 'muscle', name: 'Muscle', cat: 'Defense', val: { kind: 'fixed', v: 4 }, trig: 'passive', text: 'Nobody can give you Load while Muscle is face up.', ai: 4 },
@@ -285,19 +288,18 @@ const GAME_DATA = {
   ],
   texts: {
     steps: [
-      { title: 'Get close to 21', text: 'Everyone starts with the same nine number cards, 1 through 9, shuffled into their own deck. Each round you build a line of cards from it. Add them up: the highest total that is 21 or less wins the round. Go over 21 and you bust. Tied totals? Whoever got there first wins the tie.' },
-      { title: 'Hit or pass, no waiting', text: 'There are no turns. Everyone hits or passes on their own, and the moment you hit you see your new card. Passing is not final: you can hit again later. When everyone passes, the round ends.' },
+      { title: 'Get close to 21', text: 'Everyone starts with the same nine number cards, 1 through 9, shuffled into their own deck. Each round you build a line of cards from it, and every card is face up for everyone. Add them up: the highest total that is 21 or less wins the round. Go over 21 and you bust. Tied totals? Whoever got there first wins the tie.' },
+      { title: 'Hit or pass, no waiting', text: 'There are no turns. Hit whenever you like and see the card at once; your chip moves up the leaderboard as your total grows. Pass locks in your score. When everyone has passed, the round ends.' },
       { title: 'Draft and race to 21 points', text: 'The best total scores the most points (6 for first). Then everyone drafts wildcards to stack their deck, fewest points first. The first player to reach 21 points wins.' },
     ],
     tips: {
       welcome: ['Welcome', 'Get closest to 21 without going over. Each round, the highest total scores the most points. Between rounds, draft wildcards to stack your deck. First to 21 points wins.'],
-      deal: ['Your hidden card', 'Your first card is hidden. Only you can see it, and it still counts toward your total.'],
-      turn: ['Hit or Pass', "Hit to draw a card at once, or Pass. Passing doesn't lock you in: you can hit again later. The round ends when everyone passes."],
+      turn: ['Hit or Pass', "Hit as often as you like and see each card at once; nobody takes turns. Pass locks in your score. The round ends when everyone has passed."],
       tied: ['Tied!', 'The chip that got here first wins the tie.'],
       load: ['Load', 'Load adds 1 to your total. Watch out, it can push you over 21.'],
       window: ['A way out', "You're about to bust, but you have a trick that can save you."],
       bust: ['Bust!', 'Bust! You score the points for last place this round.'],
-      reveal: ['The reveal', "Everyone flips their hidden card. Here's who really won the round."],
+      reveal: ['Round over', "Everyone has passed. Here's who won the round."],
       draft: ['Draft wildcards', 'Pick 2 wildcards for your deck. Whoever has the fewest points picks first.'],
     },
   },
@@ -396,7 +398,7 @@ const Engine = (() => {
   // ---------- starting a game ----------
   function newGame(opts) {
     const seats = opts.seats, n = seats.length;
-    const s = { v: 1, rng: (opts.seed == null ? Date.now() : opts.seed) | 0, seed: opts.seed, n, winAt: opts.target || (opts.quick ? R.QUICK_WIN_POINTS : R.WIN_POINTS), friendly: !!opts.friendly, showAll: !!opts.showAll,
+    const s = { v: 2, rng: (opts.seed == null ? Date.now() : opts.seed) | 0, seed: opts.seed, n, winAt: opts.target || (opts.quick ? R.QUICK_WIN_POINTS : R.WIN_POINTS), friendly: !!opts.friendly, showAll: !!opts.showAll,
       round: 1, nextU: 1, cards: {}, mod: {}, pl: [], part: [], first: 0, active: 0, stack: [], pending: null, log: [], discard: [], removed: [], market: [], wild: [],
       tick: 1, phase: 'play', tiebreak: false, result: null, history: [], draft: null, winner: null, cause: {}, handoff: null };
     seats.forEach((st, i) => {
@@ -414,12 +416,12 @@ const Engine = (() => {
   // ---------- one round ----------
   function startRound(s) {
     s.phase = 'play'; s.result = null; s.stack = []; s.pending = null; s.cause = {}; s.mod = {};
-    s.part.forEach(i => { const p = s.pl[i]; p.status = 'active'; p.line = []; p.hitRound = false; p.load = 0; p.last = 'none'; p.getaway = null; p.prio = false; p.lastDrawn = null; p.known = { top: [], bottom: null, all: null, hidden: {}, tell: [] }; });
+    s.part.forEach(i => { const p = s.pl[i]; p.status = 'active'; p.line = []; p.hitRound = false; p.locked = false; p.load = 0; p.last = 'none'; p.getaway = null; p.prio = false; p.lastDrawn = null; p.known = { top: [], bottom: null, all: null, hidden: {}, tell: [] }; });
     s.pl.forEach((p, i) => { if (!s.part.includes(i)) p.status = 'out'; });
     const order = seatOrder(s, s.first);
-    for (const i of s.part) { const p = s.pl[i]; const a = p.deck.shift(), b = p.deck.shift(); p.line.push({ c: a, down: true, unk: false }, { c: b, down: false, unk: false }); p.lastDrawn = b.u; touch(s, i, 'top'); p.opening = bestTotal(s, i) || minTotal(s, i); p.runRound = false; p.chip = undefined; }
+    for (const i of s.part) { const p = s.pl[i]; const a = p.deck.shift(), b = p.deck.shift(); p.line.push({ c: a, down: false, unk: false }, { c: b, down: false, unk: false }); p.lastDrawn = b.u; touch(s, i, 'top'); p.opening = bestTotal(s, i) || minTotal(s, i); p.runRound = false; p.chip = undefined; }
     for (const i of seatOrder(s, s.first)) if (s.part.includes(i)) track(s, i);
-    log(s, `Round ${s.round}${s.tiebreak ? ' (tiebreak)' : ''}: ${nameOf(s, s.first)} goes first.`);
+    log(s, `Round ${s.round}${s.tiebreak ? ' (tiebreak)' : ''} begins.`);
     s.active = s.first;
     const tasks = [];
     for (const i of order) { const e = s.pl[i].line[1]; if (def(e.c).trig === 'drawn') tasks.push({ t: 'abil', u: e.c.u, h: i, step: 0, d: {} }); }
@@ -437,7 +439,7 @@ const Engine = (() => {
     let guard = 0;
     while (!s.pending && s.stack.length && s.phase !== 'over') {
       if (++guard > 5000) throw new Error('the engine looped');
-      const t = top(s); H[t.t](s, t, undefined); if (s.phase === 'play') trackAll(s);
+      const t = top(s); if (t.t === 'turn' && t.step === 'open') break; H[t.t](s, t, undefined); if (s.phase === 'play') trackAll(s);
     }
   }
   function answer(s, id) {
@@ -471,7 +473,6 @@ const Engine = (() => {
     s.pl[to].line.push({ c, down: false, unk: false }); s.cause[to] = { k: 'card', u: c.u, how: how || 'moved' };
   }
   function removeFromLine(s, p, u) { const L = s.pl[p].line, k = L.findIndex(e => e.c.u === u); return k < 0 ? null : L.splice(k, 1)[0]; }
-  function flipDown(s, p) { const e = s.pl[p].line.find(x => x.down); if (e) { e.down = false; e.unk = false; } return e; }
 
   // ---------- bust checks and windows ----------
   const interrupts = (s, p) => {
@@ -486,7 +487,7 @@ const Engine = (() => {
     return out;
   }
   function busted(s, p) {
-    const pl = s.pl[p]; pl.status = 'busted'; flipDown(s, p); 
+    const pl = s.pl[p]; pl.status = 'busted'; 
     log(s, `${nameOf(s, p)} busts!`, p); s.bustedNow = (s.bustedNow || []).concat([p]);
   }
 
@@ -496,13 +497,6 @@ const Engine = (() => {
     const e = fx;
     if (e.k === 'load') { giveLoad(s, e.to, e.n, e.from); s.stack.push({ t: 'bustcheck' }); }
     else if (e.k === 'force') { s.stack.push({ t: 'draw', p: e.to, how: 'forced', step: 0 }); }
-    else if (e.k === 'flip') { const ent = flipDown(s, e.to); log(s, `${nameOf(s, e.to)} flips their hidden card: ${def(ent.c).name}.`, e.to); if (ent && def(ent.c).trig === 'drawn') s.stack.push({ t: 'abil', u: ent.c.u, h: e.to, step: 0, d: {} }); }
-    else if (e.k === 'spot') { const ent = s.pl[e.to].line.find(x => x.down); if (ent) { s.pl[e.from].known.hidden[e.to] = ent.c.u; log(s, `${nameOf(s, e.from)} secretly looks at ${nameOf(s, e.to)}'s hidden card.`, e.from); } }
-    else if (e.k === 'tell') { const b = bestTotal(s, e.to), over = b !== null && b >= 15; s.pl[e.from].known.tell.push({ p: e.to, over, round: s.round }); log(s, `${nameOf(s, e.from)} asks ${nameOf(s, e.to)}: over or under 15?`, e.from); s.tellSeen = { who: e.from, p: e.to, over }; }
-    else if (e.k === 'swap') {
-      const a = s.pl[e.from].line.find(x => x.down), b = s.pl[e.to].line.find(x => x.down);
-      if (a && b) { const t = a.c; a.c = b.c; b.c = t; a.unk = true; b.unk = true; log(s, `${nameOf(s, e.from)} swaps hidden cards with ${nameOf(s, e.to)}.`, e.from); }
-    }
     else if (e.k === 'plant') {
       const en = removeFromLine(s, e.from, e.u); if (en) { placeRight(s, e.to, en.c, 'moved'); log(s, `${nameOf(s, e.from)} puts ${def(en.c).name} into ${nameOf(s, e.to)}'s line.`, e.from); s.stack.push({ t: 'bustcheck' }); }
     }
@@ -637,21 +631,10 @@ const Engine = (() => {
     if (t.step === 'to') { t.d.to = idx(a); targeted(s, t, p, t.d.to, { k: 'force' }, c.u); t.step = 'end'; return; }
     done(s, t);
   };
-  ABIL['hit-man'] = (s, t, a, e, p) => { const ids = seatOrder(s, p).filter(x => x !== p && s.pl[x].status === 'active' && s.pl[x].last === 'pass'); for (let k = ids.length - 1; k >= 0; k--) s.stack.push({ t: 'draw', p: ids[k], how: 'forced', step: 0 }); done(s, t); };
+  ABIL['hit-man'] = (s, t, a, e, p) => { const ids = seatOrder(s, p).filter(x => x !== p && s.pl[x].status === 'active' && s.pl[x].locked); for (let k = ids.length - 1; k >= 0; k--) s.stack.push({ t: 'draw', p: ids[k], how: 'forced', step: 0 }); done(s, t); };
   ABIL['plant'] = (s, t, a, e, p, c) => {
     if (t.step === 0) { pickTarget(s, t, p, nonBusted(s, p), 'Plant: whose line does it go into?', 'to', () => { targeted(s, t, p, t.d.to, { k: 'plant', u: c.u }, c.u); t.step = 'end'; }); return; }
     if (t.step === 'to') { t.d.to = idx(a); targeted(s, t, p, t.d.to, { k: 'plant', u: c.u }, c.u); t.step = 'end'; return; }
-    done(s, t);
-  };
-  ABIL['snitch'] = (s, t, a, e, p, c) => {
-    if (t.step === 0) { const ids = alive(s).filter(j => s.pl[j].line.some(x => x.down)); pickTarget(s, t, p, ids, 'Snitch: whose hidden card flips?', 'to', () => { targeted(s, t, p, t.d.to, { k: 'flip' }, c.u); t.step = 'end'; }); return; }
-    if (t.step === 'to') { t.d.to = idx(a); targeted(s, t, p, t.d.to, { k: 'flip' }, c.u); t.step = 'end'; return; }
-    done(s, t);
-  };
-  ABIL['tell'] = (s, t, a, e, p, c) => {
-    if (t.step === 0) { pickTarget(s, t, p, alive(s), 'Tell: ask which player "over or under 15?"', 'to', () => { s.tellSeen = null; targeted(s, t, p, t.d.to, { k: 'tell' }, c.u); t.step = 'end'; }); return; }
-    if (t.step === 'to') { t.d.to = idx(a); s.tellSeen = null; targeted(s, t, p, t.d.to, { k: 'tell' }, c.u); t.step = 'end'; return; }
-    if (t.step === 'end') { if (s.tellSeen && s.tellSeen.who === p) { t.step = 'ack'; askAck(s, p, `${nameOf(s, s.tellSeen.p)} answers: ${s.tellSeen.over ? '15 or more' : 'under 15'}.`); s.tellSeen = null; return; } }
     done(s, t);
   };
   ABIL['comp'] = (s, t, a, e, p) => { if (s.pl[p].load > 0) { s.pl[p].load -= 1; log(s, `${nameOf(s, p)} removes 1 Load.`, p); } done(s, t); };
@@ -746,19 +729,8 @@ const Engine = (() => {
     done(s, t);
   };
   ABIL['heat'] = (s, t, a, e, p, c) => {
-    if (t.step === 0) { const ids = nonBusted(s, p).filter(j => s.pl[j].last === 'pass'); pickTarget(s, t, p, ids, 'Heat: give 1 Load to which player who passed?', 'to', () => { markUsed(s, c); targeted(s, t, p, t.d.to, { k: 'load', n: 1 }, c.u); t.step = 'end'; }); return; }
+    if (t.step === 0) { const ids = nonBusted(s, p).filter(j => s.pl[j].locked); pickTarget(s, t, p, ids, 'Heat: give 1 Load to which player who passed?', 'to', () => { markUsed(s, c); targeted(s, t, p, t.d.to, { k: 'load', n: 1 }, c.u); t.step = 'end'; }); return; }
     if (t.step === 'to') { t.d.to = idx(a); markUsed(s, c); targeted(s, t, p, t.d.to, { k: 'load', n: 1 }, c.u); t.step = 'end'; return; }
-    done(s, t);
-  };
-  ABIL['spotter'] = (s, t, a, e, p, c) => {
-    if (t.step === 0) { const ids = nonBusted(s, p).filter(j => s.pl[j].line.some(x => x.down)); pickTarget(s, t, p, ids, "Spotter: look at which player's hidden card?", 'to', () => { markUsed(s, c); targeted(s, t, p, t.d.to, { k: 'spot' }, c.u); t.step = 'end'; }); return; }
-    if (t.step === 'to') { t.d.to = idx(a); markUsed(s, c); targeted(s, t, p, t.d.to, { k: 'spot' }, c.u); t.step = 'end'; return; }
-    if (t.step === 'end') { const u = s.pl[p].known.hidden[t.d.to]; if (u) { t.step = 'ack'; askAck(s, p, `${nameOf(s, t.d.to)}'s hidden card`, [u]); return; } }
-    done(s, t);
-  };
-  ABIL['hand-mucker'] = (s, t, a, e, p, c) => {
-    if (t.step === 0) { const ids = nonBusted(s, p).filter(j => s.pl[j].line.some(x => x.down)); if (!s.pl[p].line.some(x => x.down)) { done(s, t); return; } pickTarget(s, t, p, ids, "Hand Mucker: swap hidden cards with which player?", 'to', () => { markUsed(s, c); targeted(s, t, p, t.d.to, { k: 'swap' }, c.u); t.step = 'end'; }); return; }
-    if (t.step === 'to') { t.d.to = idx(a); markUsed(s, c); targeted(s, t, p, t.d.to, { k: 'swap' }, c.u); t.step = 'end'; return; }
     done(s, t);
   };
   ABIL['sleight'] = (s, t, a, e, p, c) => {
@@ -825,60 +797,49 @@ const Engine = (() => {
       else if (id === 'shiner') ok = pl.deck.length > 0;
       else if (id === 'stacker') ok = L.some(x => x.c.o === p);
       else if (id === 'palm') ok = !!(pl.lastDrawn && L.some(x => x.c.u === pl.lastDrawn));
-      else if (id === 'heat') ok = others(s, p).some(j => s.pl[j].last === 'pass');
-      else if (id === 'spotter') ok = others(s, p).some(j => s.pl[j].line.some(x => x.down));
-      else if (id === 'hand-mucker') ok = L.some(x => x.down) && others(s, p).some(j => s.pl[j].line.some(x => x.down));
+      else if (id === 'heat') ok = others(s, p).some(j => s.pl[j].locked);
       else if (id === 'bribe') ok = pl.load > 0 && others(s, p).some(j => !hasMuscle(s, j));
       else if (id === 'sleight') ok = L.length > 1;
       if (ok) out.push(e);
     }
     return out;
   };
-  /* There are no turns. In each pass around the table every player still in the round hits or passes, and a hit happens at once (you see your new card the moment you tap). People are asked before the computer players, so you never wait for them to act first. When everyone in a pass around the table passed, the round ends. */
+  /* There are no turns. Everyone hits whenever they like and sees the new card at once; Pass locks in your score. The round ends when every player still in it has passed. The engine sits in 'open' while that goes on; `act` is how a player (or the computer) hits or passes, and while any question is waiting for an answer nobody else can act. */
   H.turn = (s, t, a) => {
-    if (t.step === 0) {
+    if (t.step === 0 || t.step === 'check') {
       const live = alive(s);
-      if (!live.length) { done(s, t); s.stack.push({ t: 'reveal', step: 0 }); return; }
-      const seats = seatOrder(s, s.first).filter(i => s.pl[i].status === 'active');
-      t.q = seats.filter(i => s.pl[i].kind === 'human').concat(seats.filter(i => s.pl[i].kind !== 'human')); t.k = 0; t.choice = {}; t.step = 'ask';
+      for (const i of live) if (s.pl[i].getaway !== null && !s.pl[i].locked) { s.pl[i].locked = true; s.pl[i].last = 'pass'; log(s, `${nameOf(s, i)} is locked in at 17 (Getaway Car).`, i); }
+      if (!live.length || live.every(i => s.pl[i].locked)) { if (live.length) log(s, 'Everyone has passed. The round ends.'); done(s, t); s.stack.push({ t: 'reveal', step: 0 }); return; }
+      t.step = 'open';
     }
-    if (t.step === 'ask') {
-      while (t.k < t.q.length && s.pl[t.q[t.k]].status !== 'active') t.k++;
-      if (t.k >= t.q.length) {
-        const who = t.q.filter(i => s.pl[i].status === 'active');
-        if (!who.length || who.every(i => t.choice[i] === 'pass' || t.choice[i] === 'getaway')) { if (who.length) log(s, 'Everyone passes. The round ends.'); done(s, t); s.stack.push({ t: 'reveal', step: 0 }); return; }
-        t.step = 0; return;                 // someone hit: another pass around the table
-      }
-      const p = t.q[t.k], pl = s.pl[p]; s.active = p;
-      if (pl.getaway !== null) { t.choice[p] = 'getaway'; pl.last = 'pass'; t.k++; return; }
-      const opts = [];
-      opts.push(opt('hit', 'Hit', { off: !pl.deck.length })); opts.push(opt('pass', 'Pass'));
-      const dd = entry(s, p, 'double-down'); if (dd && usable(s, dd) && pl.deck.length) opts.push(opt('double', 'Double Down', { u: dd.c.u }));
-      if (pl.line.some(x => x.down)) opts.push(opt('flip', 'Flip hidden card'));
-      for (const e of canUseFree(s, p)) opts.push(opt('use' + e.c.u, 'Use ' + DEF[e.c.id].name, { u: e.c.u }));
-      ask(s, p, 'turn', `${nameOf(s, p)}: hit or pass?`, opts.filter(o => !o.off)); t.step = 'got'; return;
-    }
-    if (t.step === 'got') {
-      const p = t.q[t.k];
-      if (a === 'hit') { t.choice[p] = 'hit'; s.pl[p].hitRound = true; s.pl[p].last = 'hit'; t.k++; t.step = 'ask'; s.stack.push({ t: 'draw', p, how: 'hit', step: 0 }); return; }
-      if (a === 'pass') { t.choice[p] = 'pass'; s.pl[p].last = 'pass'; log(s, `${nameOf(s, p)} passes.`, p); t.k++; t.step = 'ask'; return; }
-      if (a === 'double') { t.choice[p] = 'hit'; s.pl[p].hitRound = true; s.pl[p].last = 'hit'; t.k++; t.step = 'ask'; const e = entry(s, p, 'double-down'); s.stack.push({ t: 'abil', u: e.c.u, h: p, step: 0, d: {} }); return; }
-      if (a === 'flip') {
-        const en = flipDown(s, p); log(s, `${nameOf(s, p)} flips their hidden card: ${DEF[en.c.id].name}.`, p); t.step = 'ask';
-        if (def(en.c).trig === 'drawn') { t.step = 'free'; s.stack.push({ t: 'bustcheck' }); s.stack.push({ t: 'abil', u: en.c.u, h: p, step: 0, d: {} }); }
-        return;
-      }
-      if (String(a).startsWith('use')) { const u = Number(String(a).slice(3)); t.step = 'free'; s.stack.push({ t: 'abil', u, h: p, step: 0, d: {} }); return; }
-    }
-    if (t.step === 'free') { t.step = 'ask'; return; }          // a free action ended: ask the same player again (a bust takes them out of the round)
   };
+  const isOpen = s => { const t = s.stack && s.stack[s.stack.length - 1]; return !!(t && t.t === 'turn' && t.step === 'open' && !s.pending && s.phase === 'play'); };
+  function turnOptions(s, p) {
+    const pl = s.pl[p], opts = [];
+    opts.push(opt('hit', 'Hit', { off: !pl.deck.length })); opts.push(opt('pass', 'Pass'));
+    const dd = entry(s, p, 'double-down'); if (dd && usable(s, dd) && pl.deck.length) opts.push(opt('double', 'Double Down', { u: dd.c.u }));
+    for (const e of canUseFree(s, p)) opts.push(opt('use' + e.c.u, 'Use ' + DEF[e.c.id].name, { u: e.c.u }));
+    return opts.filter(o => !o.off);
+  }
+  const openPlayers = s => isOpen(s) ? alive(s).filter(i => !s.pl[i].locked) : null;
+  function act(s, p, a) {
+    if (!isOpen(s)) return { ok: false, error: 'not now' };
+    const pl = s.pl[p]; if (!pl || pl.status !== 'active' || pl.locked) return { ok: false, error: 'cannot act' };
+    if (!turnOptions(s, p).some(o => o.id === a)) return { ok: false, error: 'not an option' };
+    const t = top(s); s.active = p; t.step = 'check';
+    if (a === 'hit') { pl.hitRound = true; s.stack.push({ t: 'draw', p, how: 'hit', step: 0 }); }
+    else if (a === 'pass') { pl.locked = true; pl.last = 'pass'; log(s, `${nameOf(s, p)} passes: ${nameOf(s, p)}'s score is locked in.`, p); }
+    else if (a === 'double') { pl.hitRound = true; const e = entry(s, p, 'double-down'); s.stack.push({ t: 'abil', u: e.c.u, h: p, step: 0, d: {} }); }
+    else { const u = Number(String(a).slice(3)); s.stack.push({ t: 'abil', u, h: p, step: 0, d: {} }); }
+    trackAll(s); run(s); return { ok: true };
+  }
   H.turn.__ = 1;
 
   // ---------- reveal and scoring ----------
   H.reveal = (s, t, a) => {
     if (t.step === 0) {
       alive(s).forEach(i => s.pl[i].line.forEach(e => { e.down = false; e.unk = false; }));
-      log(s, 'Reveal: every hidden card flips face up.');
+      log(s, 'The round is over: scores are counted.');
       const calls = seatOrder(s, s.first).filter(i => s.pl[i].status === 'active' && faceUp(s, i, 'last-call'));
       t.calls = calls; t.k = 0; t.step = 1;
     }
@@ -978,7 +939,7 @@ const Engine = (() => {
   // ---------- views and helpers for the UI and the AI ----------
   const deckList = (s, p) => Object.values(s.cards).filter(c => c.o === p && !s.removed.includes(c)).map(c => c.id);
   function viewFor(s, who, forAI) {          // what `who` may know: everything public, plus their own hidden card and private info
-    const showAll = s.showAll && !forAI, pend = s.pending;
+    const showAll = s.showAll && !forAI, pend = s.pending || (isOpen(s) && s.pl[who] && s.pl[who].status === 'active' && !s.pl[who].locked ? { who, kind: 'turn', prompt: '', opts: turnOptions(s, who) } : null);
     const v = JSON.parse(JSON.stringify(Object.assign({}, s, { cards: null, stack: null })));
     v.me = who; delete v.rng; v.cards = null; v.wild = s.wild.length;
     const idOf = u => (s.cards[u] ? s.cards[u].id : '?');
@@ -992,7 +953,7 @@ const Engine = (() => {
     if (pend) { v.pending = JSON.parse(JSON.stringify(pend)); if (pend.src) v.pending.srcId = idOf(pend.src); if (pend.show) v.pending.showIds = pend.show.map(idOf); if (pend.opts) v.pending.opts.forEach(o => { if (o.u) o.id2 = idOf(o.u); }); }
     return v;
   }
-  const info = { track, trackAll, DEF, T, def, minTotal, bestTotal, bestChoice, range, lineValuesFor, optionsFor, hasRun, deckList, alive, others, faceUp, entry, usable, canUseFree, interrupts, hasMuscle, seatOrder, nextSeat, nameOf, mod };
+  const info = { act, turnOptions, openPlayers, isOpen, track, trackAll, DEF, T, def, minTotal, bestTotal, bestChoice, range, lineValuesFor, optionsFor, hasRun, deckList, alive, others, faceUp, entry, usable, canUseFree, interrupts, hasMuscle, seatOrder, nextSeat, nameOf, mod };
 
   // ---------- checks used by the tests and the simulation ----------
   function auditCards(s) {            // every card is in exactly one place
@@ -1039,7 +1000,6 @@ const AI = (() => {
     const useOf = id => { const o = pd.opts.find(x => x.id.startsWith('use') && v.pl[me].line.find(e => e.c.u === Number(x.id.slice(3)) && e.c.id === id)); return o ? o.id : null; };
     const best = selfBest(v);
     // 1. peeks and information before deciding
-    if (ids.includes('flip') && !pl.line.find(e => e.down && e.unk)) { const dn = pl.line.find(e => e.down); if (dn && DEF[dn.c.id].trig === 'drawn' && optional(v, me, dn.c.u)) return 'flip'; }
     let u;
     if ((u = useOf('shiner')) && optional(v, me, 1) && !(pl.known.topIds && pl.known.topIds[0])) return u;
     if ((u = useOf('spotter')) && optional(v, me, 2)) return u;
@@ -1077,7 +1037,6 @@ const AI = (() => {
     if (pd.kind === 'target') {
       const t = pd.opts.map(o => o.p); const sid = src;
       const helpful = false;
-      if (sid === 'snitch' || sid === 'spotter' || sid === 'tell' || sid === 'hand-mucker') return 'p' + rival(v, t);
       return 'p' + rival(v, t);
     }
     if (pd.kind === 'card') {
@@ -1111,7 +1070,7 @@ const AI = (() => {
   }
 
   function answer(s, who) {
-    const v = E.viewFor(s, who, true), pd = v.pending;
+    const v = E.viewFor(s, who, true), pd = v.pending; if (!pd) return null;
     if (pd.prompt && pd.prompt.startsWith('Fixer') && pd.opts.some(o => o.id === 'up')) return fixerDir(v, pd);
     return choose(v, pd);
   }
@@ -1132,14 +1091,15 @@ const AI = (() => {
   ['save', 'tips'].forEach(k => { const o = 'tabletop-library-loaded-blackjack-' + k, n = 'tabletop-library-stackjack-' + k; if (store.get(o) !== null && store.get(n) === null) { store.set(n, store.get(o)); } store.del(o); });
   const PTS = ['#e8c14a', '#58b6f0', '#e8744c', '#7ad08a', '#b48cf0', '#f08ab4'];
 
-  const ui = { screen: 'home', setup: null, s: null, shown: null, sheet: null, deckOf: null, log: false, help: false, menu: false, settings: false, confirmNew: false, tipsReset: false, timer: null, tip: null, tipQ: [], skip: false, pick: null, lastLen: 0 };
+  const ui = { screen: 'home', setup: null, s: null, shown: null, sheet: null, deckOf: null, log: false, help: false, menu: false, settings: false, confirmNew: false, tipsReset: false, timer: null, due: {}, chipPos: {}, tip: null, tipQ: [], skip: false, pick: null, lastLen: 0 };
   /* a new game is always you against one Easy, one Medium and one Hard computer player */
   const QUICK_SEATS = () => [{ name: 'You', kind: 'human' }, { name: 'Easy', kind: 'ai', level: 'easy' }, { name: 'Medium', kind: 'ai', level: 'medium' }, { name: 'Hard', kind: 'ai', level: 'hard' }];
   const dims = () => { const W = innerWidth, H = innerHeight, land = W > H * 1.05, u = land ? Math.min(W / 1180, H / 820) : Math.min(W / 820, H / 1180); return { W, H, land, u: Math.max(.55, Math.min(u, 1.7)) }; };
   /* the widest a card can be so that n cards fit in a w x h box (a card is 1.42 times as tall as it is wide) */
   const fitW = (n, w, h, max) => Math.max(34, Math.floor(Math.min(max, (w - 8) / Math.max(n, 1) - 8, (h - 6) / 1.42)));
   const seen = () => { try { return JSON.parse(store.get(TIPS)) || {}; } catch (e) { return {}; } };
-  const hasSave = () => !!store.get(SAVE);
+  /* a game saved by an older version (v1: hidden cards and turns) cannot be carried on */
+  const hasSave = () => { try { const d = JSON.parse(store.get(SAVE)); if (d && d.s && d.s.v === 2) return true; } catch (e) { /* none */ } return false; };
   const save = () => { if (ui.s && ui.s.phase !== 'over') store.set(SAVE, JSON.stringify({ s: ui.s })); else store.del(SAVE); };
 
   // ---------- who is looking ----------
@@ -1162,34 +1122,27 @@ const AI = (() => {
   }
   const backHTML = (o) => `<div class="card back ${o && o.cls || ''}" ${o && o.attr || ''}><div class="cback">${o && o.tag ? `<span>${esc(o.tag)}</span>` : '<em>S</em>'}</div></div>`;
 
-  // one player's line, as the viewer is allowed to see it
+  const humanOpts = (s, v) => { const me = v === null ? humans(s)[0] : v; if (me === undefined || !s.pl[me] || s.pl[me].kind !== 'human' || !E.isOpen(s) || s.pl[me].status !== 'active' || s.pl[me].locked) return null; return { me, opts: E.turnOptions(s, me) }; };
+  // one player's line: every card is face up for everyone
   function lineHTML(s, p, viewerIdx, big) {
-    const pl = s.pl[p], vals = E.lineValuesFor(s, p, null), canMine = viewerIdx === p && s.pending && s.pending.kind === 'turn' && s.pending.who === p;
-    const usableUs = canMine ? new Set(s.pending.opts.map(o => o.u).filter(Boolean)) : new Set();
+    const pl = s.pl[p], vals = E.lineValuesFor(s, p, null), ho = humanOpts(s, viewerIdx), usableUs = ho && ho.me === p ? new Set(ho.opts.map(o => o.u).filter(Boolean)) : new Set();
     return pl.line.map((e, i) => {
-      const m = s.mod[e.c.u] || {}, sideways = m.side ? 'side' : '', mine = viewerIdx === p, vis = !e.down || s.showAll || (mine && !e.unk);
-      const glow = usableUs.has(e.c.u) ? ' glow' : '';
+      const m = s.mod[e.c.u] || {}, sideways = m.side ? 'side' : '', glow = usableUs.has(e.c.u) ? ' glow' : '';
       const attr = `data-act="card" data-u="${e.c.u}" data-p="${p}"`;
-      if (!vis) return backHTML({ cls: sideways + (big ? ' lg' : ''), attr, tag: mine && e.unk ? '?' : '' });
       const shown = m.chosen != null ? vals[i] : (DEF[e.c.id].val.kind === 'fixed' || DEF[e.c.id].val.kind === 'headcount' ? vals[i] : valText(e.c));
       const adj = (m.fd || m.half) ? ` (${vals[i]})` : '';
-      return faceHTML(e.c, { big, cls: `${sideways}${glow}${e.down ? ' hiddenc' : ''}`, attr, val: shown + (m.chosen == null && adj ? adj : ''), tag: e.down ? 'hidden' : '' });
+      return faceHTML(e.c, { big, cls: `${sideways}${glow}`, attr, val: shown + (m.chosen == null && adj ? adj : '') });
     }).join('');
   }
-  function totalText(s, p, viewerIdx) {
-    const pl = s.pl[p];
-    if (pl.status === 'busted') return 'BUST';
-    const mine = viewerIdx === p || s.showAll, hasUnk = pl.line.some(e => e.unk && e.down);
-    if (mine && !hasUnk) { const r = E.range(s, p); return r.min === r.max ? String(r.min) : r.min + '–' + r.max; }
-    const r = E.range(s, p, true), hasDown = pl.line.some(e => e.down);
-    const t = r.min === r.max ? String(r.min) : r.min + '–' + r.max;
-    return t + (hasDown || hasUnk ? ' + ?' : '');
+  /* a player's score is public: the total their chip sits on */
+  function totalText(s, p) {
+    const pl = s.pl[p]; if (pl.status === 'busted') return 'BUST';
+    const b = E.bestTotal(s, p); return b === null ? 'BUST' : String(b);
   }
   function badges(s, p) {
     const pl = s.pl[p], b = [];
-    if (s.first === p) b.push('1st player'); if (s.pending && s.pending.kind === 'turn' && s.pending.who === p) b.push('turn');
-    if (pl.status === 'busted') b.push('Busted'); else if (pl.getaway !== null) b.push('Getaway 17'); else if (pl.last === 'pass') b.push('Passed');
-    return b.map(x => `<i class="bdg ${x === 'turn' ? 'on' : ''} ${x === 'Busted' ? 'bad' : ''}">${esc(x)}</i>`).join('');
+    if (pl.status === 'busted') b.push('Busted'); else if (pl.getaway !== null) b.push('Getaway 17'); else if (pl.locked) b.push('Locked in');
+    return b.map(x => `<i class="bdg ${x === 'Busted' ? 'bad' : ''}">${esc(x)}</i>`).join('');
   }
   function panelHTML(s, p, viewerIdx, big, targetOpt, cw) {
     const pl = s.pl[p], isT = targetOpt;
@@ -1226,8 +1179,8 @@ const AI = (() => {
   }
   const isMeFor = (s, pd, v) => pd.who != null && s.pl[pd.who].kind === 'human' && (v === pd.who || (humans(s).length === 1));
   /* how big the cards are so that the table fills the screen: opponents on top, you below */
-  function tableSizes(s, nOpp, me) {
-    const d = dims(), top = Math.round(56 * d.u) + 8, status = Math.round(50 * d.u), pad = 28, body = d.H - top - status - pad;
+  function tableSizes(s, nOpp, me, occ) {
+    const d = dims(), top = Math.round(56 * d.u) + 8, status = Math.round(50 * d.u), pad = 28, lb = Math.round((26 + 40 * (occ || 1)) * d.u) + 10, body = d.H - top - status - pad - lb;
     const cols = Math.max(1, Math.min(nOpp, d.land ? 3 : 2)), rows = Math.max(1, Math.ceil(nOpp / cols)), oppH = Math.round(body * (d.land ? .4 : .36));
     const head = Math.round(40 * d.u) + 14, colW = (d.W - 28 - (cols - 1) * 8) / cols - 24 - Math.round(56 * d.u), nO = Math.max(4, ...s.pl.map((p, i) => i === me ? 0 : p.line.length));
     const oppCw = fitW(nO, colW, oppH / rows - head - 8, Math.round(190 * d.u));
@@ -1235,17 +1188,30 @@ const AI = (() => {
     const meCw = fitW(Math.max(4, s.pl[me] ? s.pl[me].line.length : 4), meW, meH - head - 12, Math.round(300 * d.u));
     return { cols, oppH, oppCw, meCw };
   }
+  /* the leaderboard: a space for every total, a chip for every player; chips on one space line up with the first to arrive at the top (and a "1st" badge) */
+  function lbCols(s) {
+    const cols = {}; for (let t = 1; t <= 21; t++) cols[t] = []; cols.bust = [];
+    for (const i of s.part) { const pl = s.pl[i]; if (pl.status === 'busted') { cols.bust.push(i); continue; } const b = E.bestTotal(s, i); if (b === null) cols.bust.push(i); else cols[Math.max(1, Math.min(21, b))].push(i); }
+    for (const k of Object.keys(cols)) cols[k].sort((a, b) => (s.pl[a].arrivedAt == null ? 1e9 : s.pl[a].arrivedAt) - (s.pl[b].arrivedAt == null ? 1e9 : s.pl[b].arrivedAt));
+    return cols;
+  }
+  function lbHTML(s, me) {
+    const cols = lbCols(s);
+    const cell = (k, label) => `<div class="lbc ${k === 21 ? 'top' : ''} ${k === 'bust' ? 'bust' : ''}"><div class="lbn">${label}</div>${cols[k].map((i, n, arr) => `<span class="lbchip ${i === me ? 'me' : ''}" data-p="${i}" style="--pc:${PTS[i % 6]}" title="${esc(s.pl[i].name)}"><b>${esc(s.pl[i].name.slice(0, 1))}</b>${arr.length > 1 && n === 0 ? '<i class="first">1st</i>' : ''}</span>`).join('')}</div>`;
+    return `<div class="lb" style="--rows:${Math.max(1, ...Object.values(cols).map(c => c.length))}">${Array.from({ length: 21 }, (_, k) => cell(k + 1, k + 1)).join('')}${cell('bust', 'BUST')}</div>`;
+  }
   function tableHTML(s, v, me, order, targetSet) {
-    const pd = s.pending, mine = pd && isMeFor(s, pd, v) ? pd : null, z = tableSizes(s, order.length, me);
+    const pd = s.pending, ho = humanOpts(s, v), z = tableSizes(s, order.length, me, Math.max(1, ...Object.values(lbCols(s)).map(c => c.length)));
     const opp = order.map(i => panelHTML(s, i, v, false, targetSet.has(i), z.oppCw)).join('');
-    const msg = s.pending && s.pending.kind === 'turn' ? (mine ? 'Hit or pass?' : esc(s.pl[s.pending.who].name) + ' is deciding…') : (s.pending && s.pending.who != null && !mine ? esc(s.pl[s.pending.who].name) + ' is deciding…' : '');
-    return `<div class="opps" style="--cols:${z.cols};--oppH:${z.oppH}px">${opp}</div><div class="status">${msg}<small>${esc(lastLog(s))}</small></div><div class="merow">${panelHTML(s, me, v, true, targetSet.has(me), z.meCw)}${actionBar(s, mine)}</div>`;
+    const mp = s.pl[me], pdMine = pd && isMeFor(s, pd, v);
+    const msg = ho ? 'Hit as often as you like. Pass locks in your score.' : (mp && mp.status === 'busted' ? 'You busted.' : (mp && mp.locked ? 'Your score is locked in. Waiting for the others…' : (pd && pd.who != null && !pdMine ? esc(s.pl[pd.who].name) + ' is deciding…' : '')));
+    return `${lbHTML(s, me)}<div class="opps" style="--cols:${z.cols};--oppH:${z.oppH}px">${opp}</div><div class="status">${msg}<small>${esc(lastLog(s))}</small></div><div class="merow">${panelHTML(s, me, v, true, targetSet.has(me), z.meCw)}${actionBar(s, ho)}</div>`;
   }
   const lastLog = s => (s.log.length ? s.log[s.log.length - 1].t : '');
-  function actionBar(s, mine) {
-    if (!mine || mine.kind !== 'turn') return '<div class="actions">' + (s.pending && s.pending.kind === 'turn' ? '<span class="wait">Waiting for ' + esc(s.pl[s.pending.who].name) + '…</span>' : '') + '</div>';
-    const o = id => mine.opts.find(x => x.id === id);
-    return `<div class="actions">${o('hit') ? '<button class="act hit" data-act="ans" data-v="hit">Hit</button>' : ''}<button class="act pass" data-act="ans" data-v="pass">Pass</button>${o('double') ? '<button class="act dd" data-act="ans" data-v="double">Double Down</button>' : ''}${o('flip') ? '<button class="act flip" data-act="ans" data-v="flip">Flip hidden card</button>' : ''}</div>`;
+  function actionBar(s, ho) {
+    if (!ho) return '<div class="actions"></div>';
+    const o = id => ho.opts.find(x => x.id === id);
+    return `<div class="actions">${o('hit') ? '<button class="act hit" data-act="act" data-v="hit">Hit</button>' : ''}<button class="act pass" data-act="act" data-v="pass">Pass</button>${o('double') ? '<button class="act dd" data-act="act" data-v="double">Double Down</button>' : ''}</div>`;
   }
   function handoffHTML(s) { const w = s.pending.who; return `<div class="screen cover"><div class="hero"><div class="suits">21</div><h1 style="color:${PTS[w % 6]}">${esc(s.pl[w].name)}</h1><p class="tag">Pass the device to ${esc(s.pl[w].name)}.</p></div><button class="big gold" data-act="handoff" data-v="${w}">I'm ${esc(s.pl[w].name)}. Tap when ready</button></div>`; }
 
@@ -1262,14 +1228,11 @@ const AI = (() => {
     if (ui.sheet !== null) {
       const c = s.cards[ui.sheet]; if (c) {
         const d = DEF[c.id], where = s.pl.findIndex(p => p.line.some(e => e.c.u === c.u)), ent = where >= 0 ? s.pl[where].line.find(e => e.c.u === c.u) : null;
-        const hiddenToMe = ent && ent.down && !s.showAll && !(v === where && !ent.unk);
-        const useOpt = pd && pd.kind === 'turn' && isMeFor(s, pd, v) ? pd.opts.find(o => o.u === c.u) : null;
-        const flip = pd && pd.kind === 'turn' && isMeFor(s, pd, v) && ent && ent.down && where === pd.who ? pd.opts.find(o => o.id === 'flip') : null;
-        if (hiddenToMe) return `<div class="sheet" data-act="closesheet"><div class="sheetin" data-act="none"><h3>A hidden card</h3><p>${esc(s.pl[where].name)}'s hidden card is face down. It still counts toward their total.</p><button class="big" data-act="closesheet">Close</button></div></div>`;
-        return `<div class="sheet" data-act="closesheet"><div class="sheetin" data-act="none">${faceHTML(c, { big: true, cls: 'zoom' })}<h3>${esc(d.name)}</h3><p><b>${esc(d.cat)}</b> · value ${esc(valText(c))}${ent ? ' · in ' + esc(s.pl[where].name) + "'s line" : ''}${c.o >= 0 && c.o !== where ? ' · owned by ' + esc(s.pl[c.o].name) : ''}</p><p>${esc(d.text || 'No ability.')}</p>${useOpt ? `<button class="big gold" data-act="ans" data-v="${esc(useOpt.id)}">Use ${esc(d.name)}</button>` : ''}${flip ? '<button class="big gold" data-act="ans" data-v="flip">Flip this card face up</button>' : ''}<button class="big ghost" data-act="closesheet">Close</button></div></div>`;
+        const hop = humanOpts(s, v), useOpt = hop && where === hop.me ? hop.opts.find(o => o.u === c.u) : null, flip = null;
+        return `<div class="sheet" data-act="closesheet"><div class="sheetin" data-act="none">${faceHTML(c, { big: true, cls: 'zoom' })}<h3>${esc(d.name)}</h3><p><b>${esc(d.cat)}</b> · value ${esc(valText(c))}${ent ? ' · in ' + esc(s.pl[where].name) + "'s line" : ''}${c.o >= 0 && c.o !== where ? ' · owned by ' + esc(s.pl[c.o].name) : ''}</p><p>${esc(d.text || 'No ability.')}</p>${useOpt ? `<button class="big gold" data-act="act" data-v="${esc(useOpt.id)}">Use ${esc(d.name)}</button>` : ''}<button class="big ghost" data-act="closesheet">Close</button></div></div>`;
       }
     }
-    if (!pd || pd.kind === 'turn' || pd.kind === 'results' || !isMeFor(s, pd, v)) return h;
+    if (!pd || pd.kind === 'results' || !isMeFor(s, pd, v)) return h;
     if (pd.kind === 'target') return `<div class="sheet bottom"><div class="sheetin"><h3>${esc(pd.prompt)}</h3><div class="opts2">${pd.opts.map(o => `<button class="big" data-act="ans" data-v="${esc(o.id)}"><span class="sdot" style="background:${PTS[o.p % 6]}"></span> ${esc(o.label)}</button>`).join('')}</div></div></div>`;
     if (pd.kind === 'pick') return '';
     const show = (pd.show || []).map(u => s.cards[u]).filter(Boolean);
@@ -1329,8 +1292,7 @@ const AI = (() => {
     const sn = seen(), pd = s.pending, v = viewer(s), want = [];
     const add = k => { if (!sn[k] && !ui.tipQ.includes(k)) want.push(k); };
     if (s.phase === 'play') { add('welcome'); }
-    if (s.phase === 'play' && v !== null && s.pl[v] && s.pl[v].line.length >= 2) add('deal');
-    if (pd && pd.kind === 'turn' && isMeFor(s, pd, v)) add('turn');
+    if (humanOpts(s, v)) add('turn');
     if (v !== null && s.pl[v] && s.pl[v].load > 0) add('load');
     if (pd && pd.kind === 'window' && isMeFor(s, pd, v)) add('window');
     if (v !== null && s.pl[v] && s.pl[v].status === 'busted') add('bust');
@@ -1356,16 +1318,38 @@ const AI = (() => {
     else h = homeHTML();
     app.style.setProperty('--u', dims().u.toFixed(3));
     app.innerHTML = h + (ui.menu && ui.screen === 'game' ? menuHTML() : '') + (ui.settings ? settingsHTML() : '') + (ui.help ? helpHTML() : '') + (ui.tip ? tipHTML() : '');
-    drive();
+    animateChips(); drive();
+  }
+  /* a chip that moves slides to its new space instead of jumping */
+  function animateChips() {
+    const next = {};
+    app.querySelectorAll('.lbchip').forEach(el => {
+      const p = el.dataset.p, r = el.getBoundingClientRect(); next[p] = { x: r.left, y: r.top };
+      const o = ui.chipPos[p]; if (o && el.animate && (Math.abs(o.x - r.left) > 2 || Math.abs(o.y - r.top) > 2)) el.animate([{ transform: `translate(${o.x - r.left}px, ${o.y - r.top}px)` }, { transform: 'none' }], { duration: 380, easing: 'cubic-bezier(.2,.8,.3,1)' });
+    });
+    ui.chipPos = next;
   }
   function drive() {
-    const s = ui.s; if (ui.screen !== 'game' || !s || s.phase === 'over' || ui.menu || ui.help || ui.tip || ui.settings) return;
-    const pd = s.pending; if (!pd) return;
+    const s = ui.s; if (ui.screen !== 'game' || !s || s.phase === 'over' || ui.menu || ui.help || ui.tip || ui.settings) { ui.due = {}; return; }
+    const pd = s.pending;
+    if (!pd) {                              // everyone hits whenever they like: each computer player acts on its own clock
+      const open = E.openPlayers(s); if (!open) return;
+      const ais = open.filter(p => s.pl[p].kind === 'ai'), now = Date.now(), [lo, hi] = D.rules.aiThinkMs;
+      for (const p of ais) if (!ui.due[p]) ui.due[p] = now + lo + Math.random() * (hi - lo);
+      for (const k of Object.keys(ui.due)) if (!ais.includes(Number(k))) delete ui.due[k];
+      if (!ais.length) return;
+      ui.timer = setTimeout(() => {
+        if (ui.s !== s || s.pending || !E.isOpen(s)) return; const t = Date.now();
+        for (const p of ais.filter(p => ui.due[p] !== undefined && ui.due[p] <= t + 5)) { if (s.pending || !E.isOpen(s)) break; delete ui.due[p]; const id = AI.answer(s, p); if (id) E.act(s, p, id); }
+        save(); render();
+      }, Math.max(30, Math.min(...ais.map(p => ui.due[p])) - now));
+      return;
+    }
     if (pd.kind === 'results') { if (humans(s).length === 0) ui.timer = setTimeout(() => answerNow('continue'), 3500); return; }
     if (pd.who == null) return;
     const pl = s.pl[pd.who];
-    if (pl.kind === 'human') { if (multi(s) && ui.shown !== pd.who) return; return; }
-    const delay = pd.kind === 'ack' ? 250 : pd.kind === 'turn' ? D.rules.aiTurnMs * (humans(s).length ? 1 : .5) : D.rules.passDelayMs * (humans(s).length ? 1 : .35);
+    if (pl.kind === 'human') return;
+    const delay = pd.kind === 'ack' ? 250 : D.rules.passDelayMs * (humans(s).length ? 1 : .35);
     ui.timer = setTimeout(() => { if (ui.s !== s || s.pending !== pd) return; const id = AI.answer(s, pd.who); const r = E.answer(s, id); if (!r.ok) console.error('AI answer refused', id, pd.prompt); save(); render(); }, delay);
   }
 
@@ -1389,6 +1373,7 @@ const AI = (() => {
     else if (a === 'deck') { const p = Number(el.dataset.p); if (s && (p === viewer(s) || (viewer(s) === null && p === humans(s)[0]) || s.showAll)) { ui.deckOf = p; render(); } }
     else if (a === 'target') { const pd = s && s.pending; if (pd && pd.kind === 'target' && isMeFor(s, pd, viewer(s))) { const o = pd.opts.find(x => x.p === Number(el.dataset.p)); if (o) { answerNow(o.id); return; } } }
     else if (a === 'ans') { if (s && s.pending) answerNow(el.dataset.v); }
+    else if (a === 'act') { const ho = s && humanOpts(s, viewer(s)); if (ho && E.act(s, ho.me, el.dataset.v).ok) { ui.sheet = null; ui.skip = false; save(); render(); } }
   });
   render();
   if (typeof window !== 'undefined') window.LB = { ui, render, newGame };

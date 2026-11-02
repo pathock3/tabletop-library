@@ -16,9 +16,11 @@ for (const n of [2, 3, 4, 5, 6]) {
     try {
       let steps = 0;
       while (s.phase !== 'over') {
-        if (++steps > 40000 || !s.pending) throw new Error('stuck');
-        const pd = s.pending, r = E.answer(s, pd.kind === 'results' ? 'continue' : AI.answer(s, pd.who));
-        if (!r.ok) throw new Error('refused ' + pd.prompt);
+        if (++steps > 60000) throw new Error('stuck');
+        let r, pd = s.pending;
+        if (pd) r = E.answer(s, pd.kind === 'results' ? 'continue' : AI.answer(s, pd.who));
+        else { const open = E.openPlayers(s); if (!open || !open.length) throw new Error('stuck'); const p = open[(s.tick + steps) % open.length]; r = E.act(s, p, AI.answer(s, p)); }
+        if (!r.ok) throw new Error('refused ' + (pd ? pd.prompt : 'act'));
         if (steps % 25 === 0 && !s.stack.some(t => t.t === 'draw' && t.card)) E.auditCards(s);
       }
       E.auditCards(s);
