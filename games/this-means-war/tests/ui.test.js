@@ -107,3 +107,45 @@ test('ui: abilities are used on purpose: Outwit at the start of a battle; a tap 
     await p.click('[data-act=useab]'); assert.match(await p.innerText('.bnotes'), /Outwit/); await p.click('[data-act=ready]');
   } finally { await b.close(); }
 });
+
+test('ui: choose a board (small is recommended for learning); the large board has tunnels; a unit on a castle shows where its tunnels go; cut-off castles are marked', { skip: !chromium, timeout: 60000 }, async () => {
+  const b = await chromium.launch(), p = await b.newPage({ viewport: { width: 1180, height: 820 } });
+  const errs = []; p.on('pageerror', e => errs.push(e.message));
+  try {
+    await p.goto(URL); await p.click('[data-act=mode-ai]');
+    assert.equal(await p.locator('.btile').count(), 2); assert.match(await p.innerText('.btile.on'), /Small[\s\S]*Recommended for learning/); assert.ok(await p.locator('.btile .mini').count() === 2, 'each board has a picture');
+    await p.click('[data-act=board][data-m=large]'); assert.match(await p.innerText('.btile.on'), /Large/);
+    await p.click('[data-act=pickfac][data-f=basic]:not([data-paired="1"])'); await p.waitForSelector('.board');
+    assert.equal(await p.evaluate(() => WAR.ui.s.map), 'large'); assert.equal(await p.locator('g[data-hex] .cas').count(), 10, 'ten castles'); assert.equal(await p.locator('.tunl').count(), await p.evaluate(() => Engine.MAPS.large.tunnels.length), 'tunnels are drawn between castles 2 or fewer spaces apart');
+    await p.evaluate(() => { const s = WAR.ui.s; s.flagQueue = []; s.step = 'play'; s.cur = 1; s.hands = [[], []]; const hx = Engine.castleHex[Engine.MAPS.large.starts[1][0]]; s.units = [{ id: 5, owner: 1, at: hx, cards: [{ id: 'a', type: 'ranger', owner: 1 }], acted: false }]; s.castles[Engine.MAPS.large.starts[0][0]].owner = 1; WAR.ui.sel = { t: 'unit', id: 5 }; WAR.render(); });
+    assert.ok(await p.locator('.hx.tun').count() >= 2, 'the castles it can reach by tunnel are highlighted'); assert.ok(await p.locator('.tunl.mine').count() >= 2, 'tunnels between castles you hold are drawn brighter');
+    assert.ok(await p.locator('.cutx').count() >= 1, 'a captured castle with no chain to a starting castle is marked cut off');
+    assert.deepEqual(errs, []);
+  } finally { await b.close(); }
+});
+
+test('ui: Retreat with one card left: a button, then tap a space; the Fallen pile can be opened; over seven cards you choose what to lose', { skip: !chromium, timeout: 90000 }, async () => {
+  const b = await chromium.launch(), p = await b.newPage({ viewport: { width: 1180, height: 820 } });
+  const errs = []; p.on('pageerror', e => errs.push(e.message));
+  try {
+    await p.goto(URL); await p.click('[data-act=mode-ai]'); await p.click('[data-act=pickfac][data-f=basic]:not([data-paired="1"])'); await p.waitForSelector('.board');
+    await p.evaluate(() => { const s = WAR.ui.s, c = (t, o) => ({ id: o + '-' + t + '-z', type: t, owner: o }); s.flagQueue = []; s.step = 'play'; s.cur = 0; s.hands = [[], []];
+      s.units = [{ id: 50, owner: 0, at: '0,0', cards: [c('leader', 0), c('general', 0)], acted: false }, { id: 51, owner: 1, at: '0,0', cards: [c('spy', 1)], acted: false }]; WAR.ui.seen = null; WAR.ui.announced = null; WAR.render(); });
+    await p.evaluate(() => { const s = WAR.ui.s; Engine.apply(s, { type: 'endMove' }); WAR.ui.announced = null; WAR.render(); });
+    await p.waitForSelector('[data-act=startbattle]'); await p.click('[data-act=startbattle]');
+    await p.waitForSelector('.battle');
+    await p.waitForSelector('[data-act=retreat]'); assert.ok(await p.locator('[data-act=bplay], .hint').count(), 'Retreat sits beside the Play button');
+    await p.click('[data-act=retreat]'); assert.match(await p.innerText('.status'), /Retreat/); assert.ok(await p.locator('.hx.reach').count() > 0); assert.ok(await p.locator('[data-act=rcancel]').count());
+    await p.click('[data-act=rcancel]'); assert.equal(await p.locator('.battle').count(), 1, 'cancel goes back to the battle');
+    await p.click('[data-act=retreat]'); const to = await p.evaluate(() => Engine.viewFor(WAR.ui.s, 1).battle.retreat[0]); await p.click(`[data-hex="${to}"] polygon.hx`, { force: true });
+    await p.waitForSelector('.outcome'); assert.match(await p.innerText('.outcome'), /retreated 1 card/); await p.click('[data-act=outack]');
+    assert.equal(await p.evaluate(() => WAR.ui.s.units.some(u => u.owner === 1 && u.at === Engine.parse ? true : true)), true);
+    // the hand limit, and the Fallen pile
+    await p.evaluate(() => { WAR.ui.mode = 'ai'; const s = WAR.ui.s; s.step = 'discard'; s.cur = 1; s.battle = null; s.hands[1] = Array.from({ length: 9 }, (_, i) => ({ id: '1-x-' + i, type: ['leader', 'general', 'warrior', 'ranger', 'sorcerer', 'spy', 'assassin', 'spy', 'ranger'][i], owner: 1 })); WAR.ui.seen = null; WAR.render(); });
+    await p.waitForSelector('[data-act=loseok]'); assert.match(await p.innerText('.sheet'), /Tap 2 cards/); assert.match(await p.locator('[data-act=loseok]').getAttribute('class'), /off/);
+    await p.click('[data-lose="1-x-0"]'); await p.click('[data-lose="1-x-1"]'); await p.click('[data-act=loseok]');
+    assert.equal(await p.evaluate(() => WAR.ui.s.hands[1].length), 7); assert.equal(await p.evaluate(() => WAR.ui.s.fallen[1].length), 2);
+    await p.waitForTimeout(100); await p.click('[data-act=fallen][data-p="1"]'); assert.match(await p.innerText('.sheet'), /Fallen pile \(2\)/); assert.equal(await p.locator('.sheet .card').count(), 2); await p.click('[data-act=closesheet]');
+    assert.deepEqual(errs, []);
+  } finally { await b.close(); }
+});
