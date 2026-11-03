@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- **This Means WAR!:** the Large board loses the 5 empty spaces on its left side and the 5 on its right (32 spaces, all ten castles still on it).
+
 - **This Means WAR!:** the Small board loses the 12 empty spaces around its edge: 19 spaces, all seven castles still on it.
 
 - **This Means WAR! — boards, tunnels, supply, retreat, permanent losses:** choose a **Small** board (recommended for learning) or a **Large** one (Patrick's two boards, three starting castles a side). Castles 2 or fewer spaces apart are joined by **tunnels**: a unit on a castle you hold can use its action to travel to any castle in its chain. You can only **deploy** at castles in supply (a starting castle, or chained to one); others are marked cut off. With your **last card** in a battle you may **retreat** it to a neighbouring space (you lose the battle). Cards defeated are **gone for good** (the Fallen pile, which anyone can open), the deck is never reshuffled, you may keep cards in hand, you keep at most 7 at the end of your turn, and a side with no units, hand or deck loses. A game saved before this can't be continued.
