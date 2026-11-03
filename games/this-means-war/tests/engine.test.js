@@ -168,3 +168,68 @@ test('factions: computer vs computer finishes with different factions', () => {
     assert.equal(s.step, 'over');
   }
 });
+
+// ---------- Survivor abilities: used on purpose, never by playing the card ----------
+function setup(facs, att, def, extraUnits = []) {
+  const s = E.createGame({ seed: 7, first: 0, factions: facs }); s.step = 'play'; s.cur = 0; s.hands = [[], []];
+  s.units = [{ id: 1, owner: 0, at: '2,0', cards: att.map(t => card(t, 0)), acted: false }, { id: 2, owner: 1, at: '2,0', cards: def.map(t => card(t, 1)), acted: false }].concat(extraUnits);
+  assert.ok(E.apply(s, { type: 'endMove' }).ok); return s;
+}
+const cid = (s, p, type) => s.battle.side[p].hand.concat(s.battle.side[p].aside).find(c => c.type === type).id;
+
+test('abilities: a battle with no usable ability goes straight to the first card; the data names which abilities the game plays', () => {
+  const s = setup(['basic', 'basic'], ['warrior', 'spy'], ['ranger', 'leader']); assert.equal(s.battle.stage, 'first'); assert.equal(E.actor(s), 1);
+  assert.deepEqual(Object.keys(E.FAC.survivor.play).sort(), ['general', 'leader', 'ranger', 'sorcerer', 'spy']);
+  for (const a of Object.values(E.FAC.survivor.play)) assert.ok(D.abilities[a]);
+});
+
+test('Outwit (Yul): used at the start of the battle by the attacker; the defender plays face down; a right guess defeats the card, a wrong guess leaves it down until both have played', () => {
+  let s = setup(['survivor', 'basic'], ['ranger', 'spy'], ['warrior', 'leader']);
+  assert.equal(s.battle.stage, 'start'); assert.equal(E.actor(s), 0); const v = E.viewFor(s, 0); assert.deepEqual(v.battle.abil.map(a => a.ability), ['outwit']);
+  assert.equal(E.apply(s, { type: 'play', card: cid(s, 0, 'spy') }).ok, false, 'playing a card is not using an ability, and not allowed yet');
+  assert.ok(E.apply(s, { type: 'ability', ability: 'outwit', card: cid(s, 0, 'ranger') }).ok); assert.equal(s.battle.stage, 'start', 'still the start: Ready ends it'); assert.ok(E.apply(s, { type: 'ready' }).ok);
+  assert.equal(s.battle.stage, 'first'); assert.equal(E.actor(s), 1);
+  const w = cid(s, 1, 'warrior'); assert.ok(E.apply(s, { type: 'play', card: w }).ok); assert.equal(s.battle.stage, 'guess'); assert.equal(E.actor(s), 0);
+  assert.equal(E.viewFor(s, 0).battle.played.theirs, null, 'the attacker cannot see it'); assert.equal(E.viewFor(s, 0).battle.played.theirsHidden, true);
+  assert.ok(E.apply(s, { type: 'guess', role: 'warrior' }).ok); assert.equal(s.battle.stage, 'first', 'right: defeated, and they play another'); assert.equal(s.discard[1].length, 1); assert.equal(s.battle.played[1], null);
+  s = setup(['survivor', 'basic'], ['ranger', 'spy'], ['warrior', 'leader']); E.apply(s, { type: 'ability', ability: 'outwit', card: cid(s, 0, 'ranger') }); E.apply(s, { type: 'ready' }); E.apply(s, { type: 'play', card: cid(s, 1, 'warrior') });
+  assert.ok(E.apply(s, { type: 'guess', role: 'spy' }).ok); assert.equal(s.battle.stage, 'second'); assert.equal(E.viewFor(s, 0).battle.played.theirs, null, 'still face down for the attacker'); E.apply(s, { type: 'play', card: cid(s, 0, 'ranger') });
+  assert.equal(s.battle.stage, 'result'); assert.ok(E.viewFor(s, 0).battle.played.theirs, 'both show at the result');
+  const d = setup(['survivor', 'basic'], ['spy'], ['ranger']); assert.deepEqual(E.viewFor(d, 1).battle.abil, [], 'the defender cannot Outwit');
+});
+
+test('Idol Play (Parvati): the Idol makes the card played with it safe, once per battle; No Idol is a bluff that can be used again', () => {
+  const s = setup(['basic', 'survivor'], ['leader', 'general', 'ranger'], ['sorcerer', 'warrior', 'ranger', 'assassin']); assert.equal(s.battle.stage, 'first'); assert.equal(E.actor(s), 1);
+  assert.equal(E.viewFor(s, 1).battle.idol.ok, true, 'Parvati is in the army and you play first'); assert.equal(E.viewFor(s, 0).battle.idol.ok, false);
+  assert.equal(E.apply(s, { type: 'play', card: cid(s, 1, 'warrior'), idol: 'maybe' }).ok, false);
+  assert.ok(E.apply(s, { type: 'play', card: cid(s, 1, 'warrior'), idol: 'idol' }).ok); assert.equal(E.viewFor(s, 0).battle.idol.theirs, 'down', 'the other side only sees an idol card face down');
+  E.apply(s, { type: 'play', card: cid(s, 0, 'leader') }); assert.equal(s.battle.stage, 'result');
+  assert.equal(s.battle.dies[1], false, 'the Warrior would have fallen to the Leader, but the Idol saved it'); assert.equal(s.battle.saved[1], true); assert.equal(s.battle.dies[0], false);
+  assert.equal(E.viewFor(s, 0).battle.idol.theirs, 'idol', 'revealed at the result'); E.apply(s, { type: 'continue' }); assert.equal(E.actor(s), 0, 'the other player plays first now');
+  E.apply(s, { type: 'play', card: cid(s, 0, 'general') }); E.apply(s, { type: 'play', card: cid(s, 1, 'ranger') }); assert.equal(s.battle.dies[1], true, 'no idol when you play second'); E.apply(s, { type: 'continue' });
+  assert.equal(E.actor(s), 1); assert.equal(E.apply(s, { type: 'play', card: cid(s, 1, 'assassin'), idol: 'idol' }).ok, false, 'the Idol is used up');
+  assert.ok(E.apply(s, { type: 'play', card: cid(s, 1, 'assassin'), idol: 'noidol' }).ok, 'No Idol may be played again'); E.apply(s, { type: 'play', card: cid(s, 0, 'ranger') }); assert.equal(s.battle.saved[1], false); assert.equal(s.battle.dies[1], true, 'No Idol does not protect the card');
+});
+
+test('Anyone But Me (Sandra): after the other player plays, the exposed Sandra may be swapped for a card in hand', () => {
+  const s = setup(['basic', 'survivor'], ['leader', 'warrior'], ['spy', 'ranger']);
+  E.apply(s, { type: 'play', card: cid(s, 1, 'spy') }); E.apply(s, { type: 'play', card: cid(s, 0, 'warrior') });
+  assert.equal(s.battle.stage, 'swap'); assert.equal(E.actor(s), 1); assert.equal(E.viewFor(s, 1).battle.swapOK, true);
+  assert.ok(E.apply(s, { type: 'swap', card: cid(s, 1, 'ranger') }).ok); assert.equal(s.battle.stage, 'result'); assert.equal(s.battle.played[1].type, 'ranger'); assert.ok(s.battle.side[1].hand.some(c => c.type === 'spy'), 'Sandra goes back to the hand');
+  const k = setup(['basic', 'survivor'], ['leader', 'warrior'], ['spy', 'ranger']); E.apply(k, { type: 'play', card: cid(k, 1, 'spy') }); E.apply(k, { type: 'play', card: cid(k, 0, 'warrior') }); assert.ok(E.apply(k, { type: 'swap', card: null }).ok); assert.equal(k.battle.played[1].type, 'spy');
+});
+
+test('Blindsided (Rob) brings the card from another unit; Flip Allegiances (Cirie) steals when attacked, a duplicate is discarded', () => {
+  const s = setup(['survivor', 'basic'], ['warrior'], ['ranger'], [{ id: 5, owner: 0, at: '0,-2', cards: [card('leader', 0), card('spy', 0)], acted: false }]);
+  const ab = E.viewFor(s, 0).battle.abil; assert.deepEqual(ab.map(a => a.ability), ['blindsided']); assert.deepEqual(ab[0].units, [5]);
+  assert.ok(E.apply(s, { type: 'ability', ability: 'blindsided', unit: 5 }).ok); assert.ok(s.battle.side[0].hand.some(c => c.type === 'leader')); assert.deepEqual(s.units.find(u => u.id === 5).cards.map(c => c.type), ['spy']);
+  assert.ok(E.viewFor(s, 0).battle.abil.length === 0, 'used once per battle'); E.apply(s, { type: 'ready' }); assert.equal(s.battle.stage, 'first');
+  const c = setup(['basic', 'survivor'], ['warrior', 'ranger'], ['general', 'spy']); assert.equal(c.battle.stage, 'start'); assert.equal(E.actor(c), 1);
+  assert.ok(E.apply(c, { type: 'ability', ability: 'allegiances', card: cid(c, 1, 'general') }).ok); assert.equal(c.battle.side[1].hand.length + c.battle.side[1].aside.length + c.discard[0].length, 3, 'one card moved over (or a duplicate was discarded)'); assert.equal(c.battle.side[0].hand.length, 1);
+});
+
+test('battles are recorded when they end, so the screen can say who won', () => {
+  const s = setup(['basic', 'basic'], ['leader'], ['spy']); assert.equal(s.outcomes.length, 0);
+  E.apply(s, { type: 'play', card: cid(s, 1, 'spy') }); E.apply(s, { type: 'play', card: cid(s, 0, 'leader') }); E.apply(s, { type: 'continue' });
+  assert.equal(s.outcomes.length, 1); assert.equal(s.outcomes[0].winner, 0); assert.equal(s.outcomes[0].att, 0);
+});

@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- **This Means WAR! — abilities and clearer battles:** Survivor's Yul (Outwit), Parvati (Idol Play, with the two idol cards), Rob (Blindsided), Cirie (Flip Allegiances) and Sandra (Anyone But Me) now work, used on purpose from a panel at the start of a battle (tapping a card only chooses it; Play is a button). A battle no longer starts the instant the computer resolves: you see where it is and press Start battle. Every round shows both cards and who beat whom with an animation, and each finished battle says who won. Resolve asks first when you still have units that can move; tapping a selected unit cancels; you can open any of your units, see Your units, and read every card of your faction from the menu; the faction picker has See all 7 cards. The computer's moves are slower and units slide. The way back to the library is only on the main menu, and the "more factions are not finished" note is gone.
+
 - **Library:** the zoom into a box now starts exactly on the box you tapped, however far down the shelf it is (the art is placed in the page's own coordinates, not the screen's), and the page can't be scrolled while it zooms.
 
 - **Dig Dig BOOM!:** the pulse on "BOOM!" in the title keeps going from where it was when the menu redraws (tapping New Game and its confirmation no longer restarts it).
