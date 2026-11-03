@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- **Library:** the zoom into a box now starts exactly on the box you tapped, however far down the shelf it is (the art is placed in the page's own coordinates, not the screen's), and the page can't be scrolled while it zooms.
+
 - **Dig Dig BOOM!:** the pulse on "BOOM!" in the title keeps going from where it was when the menu redraws (tapping New Game and its confirmation no longer restarts it).
 
 - **Stackjack — a live leaderboard, no hidden cards, no turns:** there is a leaderboard across the top, a space for every total 1 to 21 and a BUST space. Your chip, and everyone else's, sits on its total and slides there the instant a card lands; tied chips line up with the first to arrive in front. Every card is face up and every score is public (Spotter, Snitch, Tell and Hand Mucker had nothing left to do and are gone: 46 wildcards, 92 in the deck). Nobody takes turns: hit as often as you like and see the card at once while the computer players hit on their own clocks. Pass locks in your score. The round ends when everyone has passed. A game saved before this update can't be continued.
