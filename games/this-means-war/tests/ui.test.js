@@ -27,9 +27,9 @@ test('ui: hide a flag, place a card, play a staged battle through the screen', {
     await p.waitForSelector('[data-bsel]');
     await p.click('[data-bsel]'); assert.equal(await p.locator('.slot:first-child .card:not(.empty)').count(), 0, 'tapping a card only chooses it: it is not played yet'); await p.click('[data-act=bplay]');
     await p.waitForSelector('[data-act=bc]');
-    assert.match(await p.innerText('.msg'), /beats/); assert.ok(await p.locator('.slot.win, .slot.lose').count() >= 1, 'the winner and the loser are marked');
+    assert.match(await p.innerText('.msg'), /▶/, 'a line of symbols: winner ▶ loser'); assert.ok(await p.locator('.slot.win, .slot.lose').count() >= 1, 'the winner and the loser are marked');
     await p.click('[data-act=bc]');
-    await p.waitForSelector('.outcome'); assert.match(await p.innerText('.outcome'), /wins/); await p.click('[data-act=outack]');
+    await p.waitForSelector('.outcome'); assert.ok(await p.locator('.outcome .shield.win').count() === 1 && await p.locator('.outcome .shield.lose').count() === 1, 'a picture: one army wins, one falls'); assert.ok(!/\p{L}/u.test(await p.innerText('.outcome')), 'no words at all, only pictures'); await p.click('[data-act=outack]');
     assert.equal(await p.locator('.battle').count(), 0);
     assert.deepEqual(errs, []);
   } finally { await b.close(); }
@@ -135,10 +135,10 @@ test('ui: Retreat with one card left: a button, then tap a space; the Fallen pil
     await p.waitForSelector('[data-act=startbattle]'); await p.click('[data-act=startbattle]');
     await p.waitForSelector('.battle');
     await p.waitForSelector('[data-act=retreat]'); assert.ok(await p.locator('[data-act=bplay], .hint').count(), 'Retreat sits beside the Play button');
-    await p.click('[data-act=retreat]'); assert.match(await p.innerText('.status'), /Retreat/); assert.ok(await p.locator('.hx.reach').count() > 0); assert.ok(await p.locator('[data-act=rcancel]').count());
+    await p.click('[data-act=retreat]'); assert.match(await p.innerText('.status'), /glowing/); assert.ok(await p.locator('.hx.reach').count() > 0); assert.ok(await p.locator('[data-act=rcancel]').count());
     await p.click('[data-act=rcancel]'); assert.equal(await p.locator('.battle').count(), 1, 'cancel goes back to the battle');
     await p.click('[data-act=retreat]'); const to = await p.evaluate(() => Engine.viewFor(WAR.ui.s, 1).battle.retreat[0]); await p.click(`[data-hex="${to}"] polygon.hx`, { force: true });
-    await p.waitForSelector('.outcome'); assert.match(await p.innerText('.outcome'), /retreated 1 card/); await p.click('[data-act=outack]');
+    await p.waitForSelector('.outcome'); assert.equal(await p.locator('.outcome .run').count(), 1, 'a running figure shows who retreated'); await p.click('[data-act=outack]');
     assert.equal(await p.evaluate(() => WAR.ui.s.units.some(u => u.owner === 1 && u.at === Engine.parse ? true : true)), true);
     // the hand limit, and the Fallen pile
     await p.evaluate(() => { WAR.ui.mode = 'ai'; const s = WAR.ui.s; s.step = 'discard'; s.cur = 1; s.battle = null; s.hands[1] = Array.from({ length: 9 }, (_, i) => ({ id: '1-x-' + i, type: ['leader', 'general', 'warrior', 'ranger', 'sorcerer', 'spy', 'assassin', 'spy', 'ranger'][i], owner: 1 })); WAR.ui.seen = null; WAR.render(); });
@@ -146,6 +146,24 @@ test('ui: Retreat with one card left: a button, then tap a space; the Fallen pil
     await p.click('[data-lose="1-x-0"]'); await p.click('[data-lose="1-x-1"]'); await p.click('[data-act=loseok]');
     assert.equal(await p.evaluate(() => WAR.ui.s.hands[1].length), 7); assert.equal(await p.evaluate(() => WAR.ui.s.fallen[1].length), 2);
     await p.waitForTimeout(100); await p.click('[data-act=fallen][data-p="1"]'); assert.match(await p.innerText('.sheet'), /Fallen pile \(2\)/); assert.equal(await p.locator('.sheet .card').count(), 2); await p.click('[data-act=closesheet]');
+    assert.deepEqual(errs, []);
+  } finally { await b.close(); }
+});
+
+test('ui: tap several cards then one castle to deploy them all; Undo takes it back; the computer deals its cards onto the board where you can see them', { skip: !chromium, timeout: 60000 }, async () => {
+  const b = await chromium.launch(), p = await b.newPage({ viewport: { width: 1180, height: 820 } });
+  const errs = []; p.on('pageerror', e => errs.push(e.message));
+  try {
+    await p.goto(URL); await p.click('[data-act=mode-ai]'); await p.click('[data-act=pickfac][data-f=basic]:not([data-paired="1"])'); await p.waitForSelector('.board');
+    await p.evaluate(() => { const s = WAR.ui.s; s.flagQueue = []; s.step = 'play'; s.cur = 1; s.hands = [[{ id: '0-x', type: 'ranger', owner: 0 }, { id: '0-y', type: 'spy', owner: 0 }], [{ id: '1-ranger-a', type: 'ranger', owner: 1 }, { id: '1-spy-a', type: 'spy', owner: 1 }, { id: '1-leader-a', type: 'leader', owner: 1 }]]; s.units = []; WAR.ui.sel = null; WAR.render(); });
+    assert.equal(await p.locator('.oppstrip .obk').count(), 2, 'you can see how many cards the other side holds');
+    assert.equal(await p.locator('[data-act=undo]').count(), 0);
+    await p.click('[data-card="1-ranger-a"]'); await p.click('[data-card="1-spy-a"]'); assert.equal(await p.locator('.card.sel').count(), 2, 'several cards can be chosen');
+    await p.click('[data-hex="0,2"]'); assert.equal(await p.evaluate(() => WAR.ui.s.units.find(u => u.at === '0,2').cards.length), 2, 'both went onto the one castle'); assert.equal(await p.evaluate(() => WAR.ui.s.hands[1].length), 1);
+    assert.ok(await p.locator('[data-act=undo]').count(), 'Undo appears'); await p.click('[data-act=undo]'); assert.equal(await p.evaluate(() => WAR.ui.s.hands[1].length), 3, 'both cards are back in hand'); assert.equal(await p.locator('[data-act=undo]').count(), 0);
+    // the computer's turn: a card flies in and the unit pops
+    await p.evaluate(() => { const s = WAR.ui.s; s.hands[1] = []; s.cur = 0; s.undo = []; WAR.ui.sel = null; WAR.render(); });
+    await p.waitForFunction(() => document.querySelectorAll('.flycard').length > 0, null, { timeout: 8000 }); assert.ok(await p.locator('.flycard').count() >= 1, 'a card flies from their hand to the castle it was dealt to');
     assert.deepEqual(errs, []);
   } finally { await b.close(); }
 });

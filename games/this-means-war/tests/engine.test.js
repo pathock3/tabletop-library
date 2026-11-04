@@ -293,11 +293,11 @@ test('retreat: with exactly one card left you may take it to a neighbouring spac
   assert.ok(!JSON.stringify(E.viewFor(s, 0).units.filter(x => x.owner === 1)).includes('ranger'), 'the card is not revealed');
 });
 
-test('retreat from a castle gives the attacker the castle, and the game if it held the flag; two cards or a surrounded unit cannot retreat', () => {
-  const s = E.createGame({ seed: 3, first: 1, map: 'classic' }); s.step = 'play'; s.cur = 1; s.flagQueue = []; s.hands = [[], []]; s.castles.nw.flagOf = 0;
+test('retreat from a castle gives the attacker the castle (never from the flag castle); two cards or a surrounded unit cannot retreat', () => {
+  const s = E.createGame({ seed: 3, first: 1, map: 'classic' }); s.step = 'play'; s.cur = 1; s.flagQueue = []; s.hands = [[], []]; s.castles.ne.flagOf = 0;          // the flag is in the other starting castle
   s.units = [{ id: 1, owner: 1, at: '0,-2', cards: [card('leader', 1), card('spy', 1)], acted: false }, { id: 2, owner: 0, at: '0,-2', cards: [card('ranger', 0)], acted: false }];
   E.apply(s, { type: 'endMove' }); assert.equal(s.battle.stage, 'first'); assert.equal(E.actor(s), 0); const to = E.retreatSpots(s, 0)[0]; assert.ok(to);
-  assert.ok(E.apply(s, { type: 'retreat', to }).ok); assert.equal(s.step, 'over'); assert.equal(s.winner, 1, 'the attacker took the castle that held the flag');
+  assert.ok(E.apply(s, { type: 'retreat', to }).ok); assert.equal(s.step, 'play'.length ? s.step : '', 'the game goes on'); assert.equal(s.castles.nw.owner, 1, 'the attacker took the castle the defender left'); assert.equal(s.outcomes[0].retreat.by, 0);
   const t = setup(['basic', 'basic'], ['leader'], ['ranger', 'spy']); assert.equal(E.retreatSpots(t, 1).length, 0, 'two cards: no retreat');
   const q = setup(['basic', 'basic'], ['leader', 'spy'], ['ranger'], ['1,0', '3,0', '2,-1', '3,-1', '1,1', '2,1'].map((at, i) => ({ id: 80 + i, owner: 0, at, cards: [card('spy', 0)], acted: false })));
   assert.equal(E.retreatSpots(q, 1).length, 0, 'surrounded by enemy units'); assert.equal(E.apply(q, { type: 'retreat', to: '1,0' }).ok, false);
@@ -306,4 +306,32 @@ test('retreat from a castle gives the attacker the castle, and the game if it he
 test('a retreating card that lands on an allied unit merges, a duplicate going to the bottom of the deck', () => {
   const s = setup(['basic', 'basic'], ['leader', 'general'], ['ranger'], [{ id: 60, owner: 1, at: '2,-1', cards: [card('ranger', 1), card('spy', 1)], acted: false }]);
   assert.ok(E.apply(s, { type: 'retreat', to: '2,-1' }).ok); assert.equal(s.units.filter(u => u.owner === 1).length, 1); assert.equal(s.units.find(u => u.owner === 1).cards.length, 2); assert.equal(s.decks[1][0].type, 'ranger');
+});
+
+test('undo: everything you did this turn (deploys, moves) can be taken back one step at a time, until you resolve', () => {
+  const s = play(); s.hands[0] = [card('ranger'), card('spy'), card('warrior')]; s.units = [{ id: 1, owner: 0, at: '0,-2', cards: [card('leader')], acted: false }];
+  const before = JSON.stringify(s.hands[0]); assert.equal(E.apply(s, { type: 'undo' }).ok, false, 'nothing to undo yet');
+  assert.ok(E.apply(s, { type: 'deploy', cards: [s.hands[0][0].id, s.hands[0][1].id], castle: 'n' }).ok, 'two cards onto one castle in one go'); assert.equal(s.hands[0].length, 1); assert.equal(s.units.find(u => u.at === '0,-2').cards.length, 3);
+  assert.ok(E.apply(s, { type: 'move', unit: 1, to: '-1,-1' }).ok); assert.equal(E.viewFor(s, 0).canUndo, true);
+  assert.ok(E.apply(s, { type: 'undo' }).ok); assert.equal(s.units.find(u => u.id === 1).at, '0,-2'); assert.equal(s.units.find(u => u.id === 1).acted, false, 'the move is taken back');
+  assert.ok(E.apply(s, { type: 'undo' }).ok); assert.equal(JSON.stringify(s.hands[0]), before, 'and the deploy: the cards are back in hand, in order'); assert.equal(s.units.length, 1);
+  assert.equal(E.apply(s, { type: 'undo' }).ok, false);
+  E.apply(s, { type: 'deploy', card: s.hands[0][0].id, castle: 'n' }); assert.ok(E.apply(s, { type: 'endMove' }).ok); assert.equal(E.apply(s, { type: 'undo' }).ok, false, 'after Resolve there is no undo'); assert.equal(E.viewFor(s, 1).canUndo, false);
+});
+
+test('a battle only ends when one side has no cards left (all survivors come back as a new hand), or a side retreats; nobody retreats from the castle that hides their flag', () => {
+  let ended = 0, retreats = 0;
+  for (let seed = 1; seed <= 60; seed++) {
+    const s = E.createGame({ seed, first: seed % 2, map: ['classic', 'small', 'large'][seed % 3] }); let n = 0, seen = 0;
+    while (s.step !== 'over' && n++ < 30000) {
+      const p = E.actor(s), v = E.viewFor(s, p), a = Bots.nextAction(v, () => Math.random());
+      if (a.type === 'retreat') { const hx = s.battle.hex, cn = E.hexCastle[hx]; assert.ok(!(cn && s.castles[cn].flagOf === p), 'never retreat from the flag castle'); }
+      assert.ok(E.apply(s, a).ok);
+      while (seen < s.outcomes.length) { const o = s.outcomes[seen++]; ended++; if (o.retreat) retreats++; else assert.equal(o.loserLeft, 0, 'a battle that is not a retreat ends only when the loser has no cards left (seed ' + seed + ')'); }
+    }
+  }
+  assert.ok(ended > 20, 'enough battles were checked');
+  const s = E.createGame({ seed: 3, first: 1, map: 'classic' }); s.step = 'play'; s.cur = 1; s.flagQueue = []; s.hands = [[], []]; s.castles.nw.flagOf = 0;
+  s.units = [{ id: 1, owner: 1, at: '0,-2', cards: [card('leader', 1), card('spy', 1)], acted: false }, { id: 2, owner: 0, at: '0,-2', cards: [card('ranger', 0)], acted: false }];
+  E.apply(s, { type: 'endMove' }); assert.deepEqual(E.retreatSpots(s, 0), [], 'the flag is here: no retreat'); assert.equal(E.viewFor(s, 0).battle.retreat.length, 0);
 });

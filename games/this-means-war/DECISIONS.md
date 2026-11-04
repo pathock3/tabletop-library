@@ -37,3 +37,8 @@ The newest rulebook ("Quickfire Kingdoms" inside) is the source. Not built yet: 
 - **Abilities that mention the discard pile** now say Fallen pile (text only: none of them is played yet): Sauron (The Dark Lord Rises), Luke (Rebels spy), Tacullu (Counter Summon), Breaker/Memory Break (send to the Fallen pile instead of discard), the Benders effect "place one in their Fallen pile", and the Game of Thrones card that moves a card from the Fallen pile to the top of the deck. No implemented ability returns a card from the Fallen pile, so that part of the spec is not testable yet.
 - Already matching (left alone): the defender plays first in the first exchange and the lead then alternates; a lower card is defeated unless it is the weakness; a tie defeats both; surviving cards form a new hand; units hold 1 to 7 cards with no duplicate type; each turn ends by drawing 2.
 - Saved games from before this update cannot be continued.
+
+## Undo, visuals and retreat (v5)
+- Undo: before every deploy and move the whole game is saved (as text); Undo restores the last one; Resolve and a new turn clear them. Several cards can be deployed in one go onto one castle (one Undo step).
+- A retreat is never silent, even when it ends the game: the result picture comes before the Game Over screen. `RULING:` nobody may retreat from the castle that hides their own flag (retreating would hand over the castle and the game). The computer retreats its last card when the card it can see would beat it; it never does when it plays first.
+- A battle ends only when one side has no cards left (the survivors always come back as a new hand) or a side retreats: a test plays 60 computer games and checks that every battle ended that way.

@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- **This Means WAR! — less to read, more to see:** an **Undo** button takes back everything you did this turn, one step at a time, until you Resolve. Tap **several cards, then one castle** to deploy them all at once. When the computer takes its turn you watch it: its hand is shown at the top, each card flies onto the board to the castle it was dealt to and the unit pops, units slide, and a castle that changes hands flashes. A finished battle is a picture, not a paragraph: two armies run together, one falls, the winner stands with the cards it has left (and a castle if one changed hands); a retreat shows a running figure, and it always shows before the game ends. A round in a battle reads `Warrior ▶ Spy`. The computer now retreats its last card when it would lose it, and nobody can retreat from the castle that hides their flag.
+
 - **This Means WAR!:** the Large board loses the 5 empty spaces on its left side and the 5 on its right (32 spaces, all ten castles still on it).
 
 - **This Means WAR!:** the Small board loses the 12 empty spaces around its edge: 19 spaces, all seven castles still on it.

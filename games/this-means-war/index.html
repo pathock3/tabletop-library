@@ -157,6 +157,20 @@ h1 { margin: -6px 0 0; font-size: 104px; line-height: .95; font-weight: 1000; fo
 .playrow { display: flex; gap: 12px; align-items: center; justify-content: center; flex-wrap: wrap; } .big.retreat { background: linear-gradient(#6b6b6b, #3a3a3a); border-color: #cfcfcf; }
 .deckline { display: flex; flex-wrap: wrap; gap: 6px 10px; align-items: center; justify-content: center; font-size: 14px; color: var(--dim); } .fallenbtn { min-height: 44px; padding: 0 14px; border-radius: 12px; border: 3px solid; background: rgba(0,0,0,.35); color: #f3dfae; font-weight: 800; font-size: 15px; }
 .hand.mini.big .card { --w: 96px; }
+.chip.undo { min-height: 52px; font-size: 18px; padding: 0 22px; background: linear-gradient(#ffd45e, #e0a21b); color: #3b230a; border-color: #fff1bd; } .tools .chip { min-height: 48px; }
+
+/* ---- v4: see it happen ---- */
+.oppstrip { display: flex; gap: 5px; justify-content: center; align-items: center; min-height: 54px; flex: none; } .obk { width: 30px; height: 44px; border-radius: 5px; border: 3px solid var(--fc); background: repeating-linear-gradient(45deg, #5a3a22, #5a3a22 5px, #3a2414 5px, #3a2414 10px); box-shadow: 0 2px 0 #000; }
+.flycard { position: fixed; width: 36px; height: 52px; border-radius: 6px; border: 3px solid var(--fc); background: repeating-linear-gradient(45deg, #5a3a22, #5a3a22 5px, #3a2414 5px, #3a2414 10px); z-index: 40; pointer-events: none; box-shadow: 0 6px 12px rgba(0,0,0,.6); }
+.tok { transform-box: fill-box; transform-origin: center; } .hx.capflash { animation: capflash .9s ease-out; } @keyframes capflash { 0% { filter: brightness(2.4); } 100% { filter: none; } }
+.ocbattle { display: flex; align-items: center; gap: 0; height: 190px; } .shield { width: 130px; height: 150px; display: grid; place-items: center; position: relative; background: var(--c); clip-path: polygon(50% 100%, 0 70%, 0 8%, 100% 8%, 100% 70%); box-shadow: inset 0 0 0 8px rgba(255,255,255,.35); } .shield b { font-size: 54px; color: #fff; text-shadow: 0 3px 0 #000; } .shield .run { position: absolute; bottom: 4px; font-style: normal; font-size: 40px; }
+.shield.l { animation: runl .8s cubic-bezier(.3,.7,.3,1) both; } .shield.r { animation: runr .8s cubic-bezier(.3,.7,.3,1) both; } @keyframes runl { from { transform: translateX(-160px); } } @keyframes runr { from { transform: translateX(160px); } }
+.shield.lose { animation: runl .8s cubic-bezier(.3,.7,.3,1) both, fall 1s .85s ease-in both; } .shield.r.lose { animation: runr .8s cubic-bezier(.3,.7,.3,1) both, fall 1s .85s ease-in both; } @keyframes fall { 0% { transform: none; } 30% { transform: rotate(-8deg); } 100% { transform: translateY(60px) rotate(25deg) scale(.7); opacity: .25; filter: grayscale(1); } }
+.shield.win { animation: runl .8s cubic-bezier(.3,.7,.3,1) both, grow 1s .85s ease-out both; } .shield.r.win { animation: runr .8s cubic-bezier(.3,.7,.3,1) both, grow 1s .85s ease-out both; } @keyframes grow { to { transform: scale(1.25); filter: drop-shadow(0 0 22px var(--c)); } }
+.ocx { font-size: 80px; margin: 0 -26px; z-index: 2; animation: clashx .8s .5s both; } @keyframes clashx { 0% { transform: scale(0); } 60% { transform: scale(1.6) rotate(12deg); } 100% { transform: scale(1); } }
+.ocwho { font-size: 84px; animation: crown 1s 1.1s both; } @keyframes crown { from { transform: translateY(-40px) scale(.2); opacity: 0; } }
+.ocrest { display: flex; gap: 6px; align-items: center; min-height: 66px; } .mb { width: 30px; height: 44px; border-radius: 5px; border: 3px solid var(--c); background: repeating-linear-gradient(45deg, #5a3a22, #5a3a22 5px, #3a2414 5px, #3a2414 10px); animation: popin .4s 1.5s both; } .ocastle { font-size: 52px; margin-left: 14px; filter: drop-shadow(0 0 10px var(--c)); animation: popin .5s 1.7s both; } .ocastle em { font-style: normal; color: var(--c); font-weight: 900; } @keyframes popin { from { transform: scale(0); } }
+@media (prefers-reduced-motion: reduce) { .shield, .ocx, .ocwho, .mb, .ocastle { animation: none !important; } }
 </style>
 </head>
 <body>
@@ -372,7 +386,7 @@ const Engine = (() => {
     opts = opts || {};
     const first = opts.first === 1 ? 1 : 0;
     const mid = MAPS[opts.map] ? opts.map : 'classic'; M = MAPS[mid];
-    const s = { v: 2, map: mid, fac: (opts.factions || ['basic', 'basic']).slice(), rng: (opts.seed == null ? Date.now() : opts.seed) | 0, first, cur: first, step: 'flag', flagQueue: [first, other(first)], castles: {}, decks: [[], []], fallen: [[], []], hands: [[], []], units: [], uid: 1, reveals: [], revealN: 0, outcomes: [], winner: null, battle: null, pending: [], notice: '', turns: 1 };
+    const s = { v: 2, map: mid, fac: (opts.factions || ['basic', 'basic']).slice(), rng: (opts.seed == null ? Date.now() : opts.seed) | 0, first, cur: first, step: 'flag', flagQueue: [first, other(first)], castles: {}, decks: [[], []], fallen: [[], []], hands: [[], []], units: [], uid: 1, reveals: [], revealN: 0, outcomes: [], undo: [], winner: null, battle: null, pending: [], notice: '', turns: 1 };
     M.castles.forEach(c => { s.castles[c.id] = { owner: null, flagOf: null, revealed: false }; });
     M.starts.forEach((ids, p) => ids.forEach(id => { s.castles[id].owner = p; }));
     for (let p = 0; p < 2; p++) {
@@ -474,7 +488,7 @@ const Engine = (() => {
   }
   function passTurn(s) {
     s.cur = other(s.cur); s.turns++; s.step = 'play'; s.battle = null;
-    s.units.forEach(u => { u.acted = false; });
+    s.units.forEach(u => { u.acted = false; }); s.undo = [];
     if (s.turns > R.maxTurns) { s.step = 'over'; s.winner = -1; return; }
     checkExhausted(s);
   }
@@ -495,7 +509,7 @@ const Engine = (() => {
       s.units.filter(u => u.at === k).forEach(u => side[u.owner].push.apply(side[u.owner], u.cards));
       s.units = s.units.filter(u => u.at !== k);
       s.battle = { hex: k, att: s.cur, def: other(s.cur), stage: 'start', first: other(s.cur), played: [null, null], result: null, rounds: 0, side: [{ hand: side[0], aside: [] }, { hand: side[1], aside: [] }],
-        ready: [false, false], used: [{}, {}], notes: [], idolPlayed: [null, null], idolSpent: [false, false], saved: [false, false], dies: [false, false], outwit: false, outwitDone: false, blind: false, swapBy: null, seq: 0 };
+        sizes: [side[0].length, side[1].length], ready: [false, false], used: [{}, {}], notes: [], idolPlayed: [null, null], idolSpent: [false, false], saved: [false, false], dies: [false, false], outwit: false, outwitDone: false, blind: false, swapBy: null, seq: 0 };
       s.step = 'battle'; skipStart(s);
       return;
     }
@@ -570,6 +584,7 @@ const Engine = (() => {
   function retreatSpots(s, p) {
     use(s); const b = s.battle; if (s.step !== 'battle' || !b || (b.stage !== 'first' && b.stage !== 'second') || actor(s) !== p) return [];
     const sd = b.side[p]; if (sd.hand.length !== 1 || sd.aside.length) return [];
+    const here = M.hexCastle[b.hex]; if (here && s.castles[here].flagOf === p) return [];          // never abandon the castle that hides your flag
     const [q, r] = parse(b.hex), out = [];
     DIRS.forEach(d => {
       const nq = q + d[0], nr = r + d[1], k = hk(nq, nr); if (!onBoard(nq, nr) || enemyAt(s, k, p)) return;
@@ -587,7 +602,8 @@ const Engine = (() => {
       s.notice += sideName(winner) + ' won the battle. ';
       if (winner === b.att) capture(s, b.hex, winner);
     } else s.notice += 'Both armies were wiped out. ';
-    s.outcomes.push({ n: s.outcomes.length + 1, hex: b.hex, att: b.att, winner, rounds: b.rounds, retreat: b.retreated ? { by: b.retreated.p, to: b.retreated.to } : null, left: winner == null ? 0 : b.side[winner].hand.length + b.side[winner].aside.length });
+    const loserLeft = winner == null ? 0 : b.side[other(winner)].hand.length + b.side[other(winner)].aside.length;          // (a battle only ends when one side has no cards left, or a side retreats)
+    s.outcomes.push({ n: s.outcomes.length + 1, hex: b.hex, att: b.att, winner, rounds: b.rounds, sizes: b.sizes.slice(), loserLeft, retreat: b.retreated ? { by: b.retreated.p, to: b.retreated.to } : null, left: winner == null ? 0 : b.side[winner].hand.length + b.side[winner].aside.length });
     b.side.forEach(sd => sd.hand.concat(sd.aside).forEach(c => { if (winner == null || c.owner !== winner) s.fallen[c.owner].push(c); }));
     s.battle = null;
     checkExhausted(s);
@@ -596,7 +612,21 @@ const Engine = (() => {
   }
 
   const bad = msg => ({ ok: false, error: msg });
+  /* Undo: before each deploy or move the whole game is saved; Undo puts the last one back. Resolving (or a new turn) clears them. */
+  const snapOf = s => { const c = Object.assign({}, s); delete c.undo; return JSON.stringify(c); };
   function apply(s, a) {
+    use(s);
+    if (a.type === 'undo') {
+      if (s.step !== 'play' || !s.undo || !s.undo.length) return bad('nothing to undo');
+      const prev = JSON.parse(s.undo.pop()), keep = s.undo; Object.keys(s).forEach(k => { delete s[k]; }); Object.assign(s, prev); s.undo = keep; return { ok: true };
+    }
+    const rec = s.step === 'play' && (a.type === 'deploy' || a.type === 'move' || a.type === 'power'), snap = rec ? snapOf(s) : null;
+    const r = applyRaw(s, a);
+    if (r.ok && snap) (s.undo = s.undo || []).push(snap);
+    if (r.ok && a.type === 'endMove') s.undo = [];
+    return r;
+  }
+  function applyRaw(s, a) {
     use(s); const p = actor(s);
     if (p == null) return bad('game over');
     if (a.type === 'flag') {
@@ -619,14 +649,16 @@ const Engine = (() => {
     }
     if (s.step === 'play') {
       if (a.type === 'deploy') {
-        const i = s.hands[p].findIndex(c => c.id === a.card), c = s.hands[p][i], cs = s.castles[a.castle];
-        if (!c) return bad('no such card');
+        const ids = a.cards || [a.card], cs = s.castles[a.castle];          // one card, or several onto the same castle at once
+        if (!ids.length || new Set(ids).size !== ids.length || !ids.every(id => s.hands[p].some(c => c.id === id))) return bad('no such card');
         if (!cs || cs.owner !== p) return bad('place cards on your own castles');
         if (supplied(s, p).indexOf(a.castle) < 0) return bad('that castle is cut off: you can only deploy at a castle in supply');
         const k = M.castleHex[a.castle];
-        s.hands[p].splice(i, 1);
-        const u = s.units.find(x => x.owner === p && x.at === k && x.cards.length < R.unitMax && !x.cards.some(y => y.type === c.type));
-        if (u) u.cards.push(c); else s.units.push({ id: s.uid++, owner: p, at: k, cards: [c], acted: false });
+        ids.forEach(id => {
+          const i = s.hands[p].findIndex(c => c.id === id), c = s.hands[p].splice(i, 1)[0];
+          const u = s.units.find(x => x.owner === p && x.at === k && x.cards.length < R.unitMax && !x.cards.some(y => y.type === c.type));
+          if (u) u.cards.push(c); else s.units.push({ id: s.uid++, owner: p, at: k, cards: [c], acted: false });
+        });
         return { ok: true };
       }
       if (a.type === 'move') {
@@ -735,7 +767,7 @@ const Engine = (() => {
     const o = other(p), copy = c => ({ id: c.id, type: c.type, owner: c.owner });
     const v = { me: p, opp: o, fac: (s.fac || ['basic', 'basic']).slice(), step: s.step, cur: s.cur, first: s.first, winner: s.winner, notice: s.notice, turns: s.turns, actor: actor(s),
       hand: s.hands[p].map(copy), oppHand: s.hands[o].length, deck: [s.decks[0].length, s.decks[1].length], fallen: [s.fallen[0].map(copy), s.fallen[1].map(copy)], map: s.map, supply: supplied(s, p),
-      castles: {}, units: s.units.map(u => ({ id: u.id, owner: u.owner, at: u.at, acted: u.acted, n: u.cards.length, cards: u.owner === p ? u.cards.map(copy) : null })), battle: null, reveals: s.reveals.map(r => ({ n: r.n, castle: r.castle, by: r.by, flag: r.flag })) };
+      canUndo: s.step === 'play' && s.cur === p && (s.undo || []).length > 0, castles: {}, units: s.units.map(u => ({ id: u.id, owner: u.owner, at: u.at, acted: u.acted, n: u.cards.length, cards: u.owner === p ? u.cards.map(copy) : null })), battle: null, reveals: s.reveals.map(r => ({ n: r.n, castle: r.castle, by: r.by, flag: r.flag })) };
     Object.keys(s.castles).forEach(id => { const c = s.castles[id]; v.castles[id] = { owner: c.owner, mine: c.flagOf === p, flag: c.revealed ? c.flagOf != null : c.flagOf === p, revealed: c.revealed }; });
     if (s.battle) {
       const b = s.battle, seeFirst = !(b.blind || b.stage === 'guess') || p !== b.att;          // Outwit: the card played first stays down for the attacker
@@ -822,6 +854,7 @@ const Bots = (() => {
     if (b.stage === 'guess') return { type: 'guess', role: pick(E.ROLES, rng) };
     if (b.stage === 'swap') return { type: 'swap', card: null };
     const idol = b.idol.ok ? (!b.idol.spent && (rng || Math.random)() < .5 ? 'idol' : 'noidol') : undefined;
+    if (b.retreat && b.retreat.length && b.stage === 'second' && b.played.theirs && E.duel(hand[0], b.played.theirs, v.fac) !== 'a') return { type: 'retreat', to: b.retreat[0] };          // save its last card rather than lose it
     if (b.stage === 'second' && b.played.theirs) {
       const win = hand.filter(c => E.duel(c, b.played.theirs, v.fac) === 'a');
       return { type: 'play', card: (win[0] || hand[0]).id };
@@ -852,7 +885,7 @@ const Bots = (() => {
   const save = () => tryStore(() => { if (ui.s && ui.s.step !== 'over') localStorage.setItem(SAVE, JSON.stringify({ mode: ui.mode, human: ui.human, s: ui.s })); else localStorage.removeItem(SAVE); });
 
   function newGame(mode, factions, mapId) {
-    ui.mode = mode; ui.human = 1; ui.sel = null; ui.help = false; ui.menu = false; ui.revN = 0; ui.outN = 0; ui.announced = null; ui.bsel = null; ui.idol = null; ui.sheet = null; ui.askResolve = false; ui.tokPos = {};
+    ui.mode = mode; ui.human = 1; ui.sel = null; ui.help = false; ui.menu = false; ui.revN = 0; ui.outN = 0; ui.announced = null; ui.bsel = null; ui.idol = null; ui.sheet = null; ui.askResolve = false; ui.tokPos = {}; ui.unitN = {}; ui.capOwn = {}; ui.animOK = false;
     ui.s = E.createGame({ first: mode === 'ai' ? 1 : 0, factions, map: mapId || 'small' }); ui.retreating = false; ui.dsel = [];
     ui.seen = null; ui.screen = 'game'; save(); render();
   }
@@ -910,7 +943,7 @@ const Bots = (() => {
       rim += `<polygon points="${hexPts(x, y, 1.0)}" fill="#6a431f" stroke="#6a431f" stroke-width=".5" stroke-linejoin="round"/>`;
       let fill = GRASS[(((q * 7 + r * 13) % 4) + 4) % 4];
       if (c) fill = c.owner == null ? '#b7ad94' : (c.owner === 0 ? '#e58a74' : '#7fa9e6');
-      tiles += `<g data-hex="${k}"><polygon points="${hexPts(x, y, 0.95)}" fill="${fill}" class="hx ${isReach ? 'reach' : ''} ${isTun ? 'reach tun' : ''} ${isDep ? 'dep' : ''} ${cutOff ? 'cut' : ''} ${c ? 'cas' : ''}"/><polygon points="${hexPts(x, y - 0.04, 0.78)}" fill="#fff" opacity=".1" pointer-events="none"/>`;
+      tiles += `<g data-hex="${k}"><polygon points="${hexPts(x, y, 0.95)}" fill="${fill}" data-own="${c ? c.owner : ''}" class="hx ${isReach ? 'reach' : ''} ${isTun ? 'reach tun' : ''} ${isDep ? 'dep' : ''} ${cutOff ? 'cut' : ''} ${c ? 'cas' : ''}"/><polygon points="${hexPts(x, y - 0.04, 0.78)}" fill="#fff" opacity=".1" pointer-events="none"/>`;
       if (c) tiles += castleSVG(x, y, null, 1, c.flag);
       if (cutOff) tiles += `<text x="${x}" y="${y - 0.55}" text-anchor="middle" class="cutx" pointer-events="none">cut off</text>`;
       tiles += '</g>';
@@ -925,7 +958,7 @@ const Bots = (() => {
         const ux = x + (i - (list.length - 1) / 2) * 0.82, uy = y + 0.46;
         let top = '?'; if (u.cards && u.cards.length) top = CT[u.cards.slice().sort((a, b) => pw(b) - pw(a))[0].type].mark;
         const mv = canMove && u.owner === v.me && !u.acted;
-        toks += `<g data-unit="${u.id}" data-hex="${k}" class="tok ${selUnit === u.id ? 'selu' : ''} ${u.acted && u.owner === v.me ? 'done' : ''} ${mv ? 'movable' : ''}"><circle cx="${ux}" cy="${uy}" r="0.5" fill="transparent"/><circle cx="${ux}" cy="${uy}" r="0.44" fill="${col(u.owner)}" class="body"/><text x="${ux}" y="${uy + 0.05}" class="tm">${top}</text><circle cx="${ux + 0.34}" cy="${uy - 0.34}" r="0.24" class="bd"/><text x="${ux + 0.34}" y="${uy - 0.33}" class="bn">${u.n}</text></g>`;
+        toks += `<g data-unit="${u.id}" data-hex="${k}" data-n="${u.n != null ? u.n : (u.cards || []).length}" data-own="${u.owner}" class="tok ${selUnit === u.id ? 'selu' : ''} ${u.acted && u.owner === v.me ? 'done' : ''} ${mv ? 'movable' : ''}"><circle cx="${ux}" cy="${uy}" r="0.5" fill="transparent"/><circle cx="${ux}" cy="${uy}" r="0.44" fill="${col(u.owner)}" class="body"/><text x="${ux}" y="${uy + 0.05}" class="tm">${top}</text><circle cx="${ux + 0.34}" cy="${uy - 0.34}" r="0.24" class="bd"/><text x="${ux + 0.34}" y="${uy - 0.33}" class="bn">${u.n}</text></g>`;
       });
     });
     let cl = '';
@@ -1031,14 +1064,14 @@ const Bots = (() => {
     let msg = '', panel = '';
     if (stage === 'result') {
       const mine = pl.mine, theirs = pl.theirs, wp = !b.dies[me] ? me : (!b.dies[opp] ? opp : null), w = wp === me ? mine : theirs, L = wp === me ? theirs : mine;
-      msg = b.result === 'both' && !b.saved[0] && !b.saved[1] ? `Both ${nmc(mine)} and ${nmc(theirs)} are defeated!` : (wp == null ? `Both cards are defeated.` : `${wp === me ? 'Your' : nm(opp) + "'s"} ${nmc(w)} beats ${wp === me ? nm(opp) + "'s" : 'your'} ${nmc(L)}${pw(w) < pw(L) && !b.saved[1 - wp] ? ' (its weakness!)' : ''}${b.saved[1 - wp] ? ' ... but the Idol saved it!' : ''}`);
+      msg = wp == null ? `💥 ${nmc(mine)}  ✕  ${nmc(theirs)}` : `${nmc(w)}  ▶  ${nmc(L)}${pw(w) < pw(L) && !b.saved[1 - wp] ? '  ⚡' : ''}${b.saved[1 - wp] ? '  🛡' : ''}`;
       panel = '<button class="big go" data-act="bc">Continue</button>';
     } else if (stage === 'start') {
       if (mineTurn) {
         const ab = b.abil.map(a => { const c = a.card && b.mine.hand.find(x => x.id === a.card);
           const where2 = a.units ? a.units.map(id => { const u = v.units.find(x => x.id === id); return `<button class="big" data-act="useab" data-ab="${a.ability}" data-unit="${id}">Use it: from ${esc(u ? placeName(u.at) : 'a unit')}</button>`; }).join('') : `<button class="big" data-act="useab" data-ab="${a.ability}" data-card="${a.card}">Use ${esc(a.name)}</button>`;
           return `<div class="abrow">${c ? cardHTML(c, { small: true, attr: 'disabled' }) : ''}<div class="abtxt"><b>${esc(a.name)}</b><p>${esc(a.short)}</p>${where2}</div></div>`; }).join('');
-        msg = 'Start of the battle: use an ability on purpose, or just start fighting.';
+        msg = 'Abilities?';
         panel = `<div class="abilpanel">${ab}</div><button class="big go" data-act="ready">${b.abil.length ? 'No more abilities: start fighting' : 'Start fighting'}</button>`;
       } else msg = `${nm(v.actor)} is getting ready…`;
     } else if (stage === 'guess') {
@@ -1050,7 +1083,7 @@ const Bots = (() => {
     } else if (mineTurn) {
       const sel = ui.bsel && b.mine.hand.find(c => c.id === ui.bsel);
       const idolCard = k => `<button class="idolcard ${ui.idol === k ? 'sel' : ''}" data-act="idol" data-k="${k}" ${k === 'idol' && b.idol.spent ? 'disabled' : ''}><b>${k === 'idol' ? 'IDOL' : 'NO IDOL'}</b><small>${k === 'idol' && b.idol.spent ? 'already used' : k === 'idol' ? 'your card is safe' : 'a bluff'}</small></button>`;
-      msg = stage === 'first' ? 'You play first this round. Tap a card to choose it.' : `${nm(opp)} played ${pl.theirs ? nmc(pl.theirs) : 'a card face down'}. Tap a card to choose it.`;
+      msg = stage === 'first' ? 'You lead' : 'Your card';
       panel = `${b.idol.ok ? `<div class="idols"><small>Idol Play (Parvati): put an idol card down with your card. Optional.</small><div class="idolrow">${idolCard('idol')}${idolCard('noidol')}</div></div>` : ''}<div class="playrow">${sel ? `<button class="big go" data-act="bplay">Play ${esc(short(cname(sel)))}${ui.idol ? ' with ' + (ui.idol === 'idol' ? 'the Idol' : 'No Idol') : ''}</button>` : '<p class="hint">Choose a card, then tap Play.</p>'}${b.retreat.length ? '<button class="big retreat" data-act="retreat">Retreat</button>' : ''}</div>`;
     } else msg = `${nm(v.actor)} is choosing a card…`;
     const canSel = mineTurn && (stage === 'first' || stage === 'second');
@@ -1067,16 +1100,22 @@ const Bots = (() => {
   }
 
   /* where a fight is about to happen: the board with a clash marker, and a button that starts it */
+  /* two armies run together, one falls, the winner stands with what is left; a castle icon if it changed hands; a running man if a side retreated */
   function outcomeHTML(o, v) {
-    const where = placeName(o.hex), w = o.winner, color = w == null ? '#e0b052' : col(w);
-    return `<div class="outcome" data-act="outack"><div class="oc" style="--oc:${color}"><div class="ocswords">⚔</div><div class="ocwho">${w == null ? 'Nobody wins' : esc(nm(w)) + ' wins'}</div>${o.retreat ? `<div class="ocsub">${esc(nm(o.retreat.by))} retreated 1 card to ${esc(placeName(o.retreat.to))}.</div>` : ''}<div class="ocsub">${w == null ? 'Both armies were wiped out at ' + esc(where) + '.' : 'the battle at ' + esc(where) + (o.left ? ' with ' + o.left + ' card' + (o.left === 1 ? '' : 's') + ' left' : '') + '.'}</div>${w != null && w === o.att && E.hexCastle[o.hex] ? `<div class="ocsub">${esc(nm(w))} captures ${esc(where)}.</div>` : ''}${w != null && w !== o.att ? `<div class="ocsub">${esc(nm(w))} holds ${esc(where)}.</div>` : ''}<button class="big gold">Continue</button></div></div>`;
+    const w = o.winner, color = w == null ? '#e0b052' : col(w), isCastle = !!E.hexCastle[o.hex], took = w != null && w === o.att && isCastle;
+    const shield = p => `<div class="shield ${p === 0 ? 'l' : 'r'} ${w == null ? 'draw' : w === p ? 'win' : 'lose'}" style="--c:${col(p)}"><b>${o.sizes ? o.sizes[p] : ''}</b>${o.retreat && o.retreat.by === p ? '<i class="run">🏃</i>' : ''}</div>`;
+    const left = w == null ? 0 : o.left;
+    return `<div class="outcome" data-act="outack"><div class="oc" style="--oc:${color}"><div class="ocbattle">${shield(0)}<div class="ocx">⚔</div>${shield(1)}</div>
+      <div class="ocwho">${w == null ? '💥' : '👑'}</div>
+      <div class="ocrest">${Array.from({ length: Math.min(left, 7) }, () => `<span class="mb" style="--c:${color}"></span>`).join('')}${isCastle && w != null ? `<span class="ocastle" style="--c:${color}">🏰${took ? '<em>＋</em>' : ''}</span>` : ''}</div>
+      <button class="big gold">▶</button></div></div>`;
   }
 
   function gameHTML() {
     const s = ui.s, me = viewer(), v = E.viewFor(s, me), a = v.actor;
-    let selUnit = null, reach = [], tun = [], selCard = null;
+    let selUnit = null, reach = [], tun = [], selIds = [];
     if (ui.sel && ui.sel.t === 'unit') { const u = v.units.find(x => x.id === ui.sel.id); if (u && u.owner === me) { selUnit = u.id; if (!u.acted && v.step === 'play' && a === me) { reach = E.reachable(v, u); tun = E.tunnelTo(v, u); } } else ui.sel = null; }
-    if (ui.sel && ui.sel.t === 'card') selCard = ui.sel.id;
+    if (ui.sel && ui.sel.t === 'cards') selIds = ui.sel.ids.filter(id => v.hand.some(c => c.id === id));
     const retreatSpots = ui.retreating && v.step === 'battle' && v.battle.retreat.length ? v.battle.retreat : null; if (ui.retreating && !retreatSpots) ui.retreating = false;
     const clash = v.step === 'battle' && (unannounced() || retreatSpots) ? { hex: v.battle.hex, counts: v.battle.counts } : null;
     const myTurn = v.step === 'play' && a === me;
@@ -1084,43 +1123,44 @@ const Bots = (() => {
     const movable = myTurn && v.units.some(u => u.owner === me && !u.acted);          // you may move with cards still in your hand: you do not have to deploy them
     let status;
     if (v.step === 'over') status = v.winner === -1 ? 'Nobody wins. Draw.' : `${nm(v.winner)} wins!`;
-    else if (v.step === 'flag') status = a === me ? 'Hide your flag: tap one of your starting castles. Your opponent can\'t see which.' : `${nm(a)} is hiding their flag…`;
+    else if (v.step === 'flag') status = a === me ? 'Hide your flag: tap a castle' : `${nm(a)} is hiding their flag…`;
     else if (v.step === 'discard') status = a === me ? `Your hand is over ${D.rules.handMax}: choose ${v.hand.length - D.rules.handMax} card${v.hand.length - D.rules.handMax === 1 ? '' : 's'} to lose.` : `${nm(a)} is choosing cards to lose…`;
-    else if (retreatSpots) status = 'Retreat: tap a glowing space to take your last card there. You will lose this battle.';
-    else if (v.step === 'battle') status = clash ? `⚔ Battle at ${placeName(v.battle.hex)}! ${v.battle.att === me ? 'You attack' : nm(v.battle.att) + ' attacks'} with ${v.battle.counts[v.battle.att]} card${v.battle.counts[v.battle.att] === 1 ? '' : 's'} against ${v.battle.counts[1 - v.battle.att]}.` : 'Resolving the battles';
-    else if (!myTurn) status = `${nm(a)} is moving…`;
-    else if (selCard) status = 'Now tap one of your castles in supply';
-    else if (selUnit) status = !(v.units.find(u => u.id === selUnit) || {}).acted ? 'Tap a glowing space to move there (ringed castles by tunnel), or tap the unit again to cancel.' : 'This unit has moved. Tap it again to close.';
-    else if (!handEmpty) status = 'Place cards: tap a card, then a castle in supply. Or keep them for later, move, and Resolve.';
-    else if (movable) status = 'Tap a ringed unit, then where it goes. Then tap Resolve!';
-    else status = 'All moved. Tap Resolve!';
+    else if (retreatSpots) status = '🏃 Tap a glowing space';
+    else if (v.step === 'battle') status = clash ? '⚔' : '…';
+    else if (!myTurn) status = `${nm(a)}…`;
+    else if (selIds.length) status = selIds.length > 1 ? `${selIds.length} cards: tap a castle` : 'Tap a castle';
+    else if (selUnit) status = !(v.units.find(u => u.id === selUnit) || {}).acted ? 'Tap a glowing space (tap the unit again to cancel)' : 'Moved. Tap it again to close';
+    else if (!handEmpty) status = 'Tap cards, then a castle';
+    else if (movable) status = 'Tap a unit, then where it goes';
+    else status = 'Tap Resolve!';
     const phase = v.step === 'battle' ? 2 : 1;
     const mySel = selUnit && v.units.find(u => u.id === selUnit);
     let low = '';
     if (v.step !== 'battle') {
       if (mySel) low = `<div class="unitinfo"><small>Cards in this unit (${mySel.cards.length})</small><div class="hand">${mySel.cards.slice().sort((x, y) => pw(y) - pw(x)).map(c => cardHTML(c, { small: true, attr: 'disabled' })).join('')}</div></div>`;
-      else if (v.hand.length) low = `<div class="hand" style="--n:${v.hand.length}">${v.hand.slice().sort((x, y) => pw(y) - pw(x)).map(c => cardHTML(c, { sel: c.id === selCard, attr: myTurn ? `data-card="${c.id}"` : 'disabled' })).join('')}</div>`;
+      else if (v.hand.length) low = `<div class="hand" style="--n:${v.hand.length}">${v.hand.slice().sort((x, y) => pw(y) - pw(x)).map(c => cardHTML(c, { sel: selIds.indexOf(c.id) >= 0, attr: myTurn ? `data-card="${c.id}"` : 'disabled' })).join('')}</div>`;
       else low = '<div class="hand"><small class="hint">No cards in hand</small></div>';
     }
-    const deployMode = (myTurn && v.hand.length && selCard) || (v.step === 'flag' && a === me);
+    const deployMode = (myTurn && v.hand.length && selIds.length) || (v.step === 'flag' && a === me);
     const flagMode = v.step === 'flag' && a === me;
     return `<div class="screen game" style="--me:${col(me)}">
       <div class="topbar"><button class="chip menuchip" data-act="menu" aria-label="Menu">☰ Menu</button></div>
       <div class="main">
+        ${v.step === 'play' || v.step === 'flag' ? `<div class="oppstrip" style="--fc:${col(v.opp)}" aria-label="${esc(nm(v.opp))}'s hand">${Array.from({ length: Math.min(v.oppHand, 9) }, () => '<i class="obk"></i>').join('')}</div>` : ''}
         <div class="boardwrap">${boardHTML(v, selUnit, retreatSpots ? retreatSpots : reach, deployMode, movable, clash, tun)}</div>
         <div class="side">
           <div class="phases"><span class="who" style="background:${col(v.cur)}">${nm(v.cur)}'s turn · ${esc(facName(v.cur))}</span><span class="ph ${phase === 1 ? 'on' : ''}">1 · Deploy &amp; Move</span><span class="ph ${phase === 2 ? 'on' : ''}">2 · Resolve</span></div>
           <div class="status">${esc(status)}</div>
-          ${v.notice ? `<div class="notice">${esc(v.notice)}</div>` : ''}
           ${retreatSpots ? '<button class="big" data-act="rcancel">Cancel: stay and play the card</button>' : clash ? '<button class="big go" data-act="startbattle">Start battle</button>' : low}
           ${myTurn && !clash ? `<button class="big go ${ui.askResolve ? 'warn' : ''}" data-act="endmove">${ui.askResolve ? ui.askResolve : 'Resolve!'}</button>` : ''}
+          ${myTurn && !clash ? `<div class="tools">${v.canUndo ? '<button class="chip undo" data-act="undo">↶ Undo</button>' : ''}${v.hand.length > 1 ? `<button class="chip" data-act="allcards">${selIds.length === v.hand.length ? 'None' : 'All cards'}</button>` : ''}</div>` : ''}
           ${v.step !== 'battle' && v.step !== 'over' ? '<div class="tools"><button class="chip" data-act="units">Your units</button><button class="chip" data-act="myfac">Your cards</button></div>' : ''}
           <div class="deckline"><span>You: deck ${v.deck[me]} · hand ${v.hand.length}</span><button class="fallenbtn" data-act="fallen" data-p="${me}" style="border-color:${col(me)}">Fallen ${v.fallen[me].length}</button><span>${esc(nm(v.opp))}: deck ${v.deck[v.opp]} · hand ${v.oppHand}</span><button class="fallenbtn" data-act="fallen" data-p="${v.opp}" style="border-color:${col(v.opp)}">Fallen ${v.fallen[v.opp].length}</button></div>
         </div>
       </div>
       ${v.step === 'battle' && !clash ? battleHTML(v) : ''}
       ${v.step === 'discard' && a === me ? discardHTML(v) : ''}
-      ${v.step === 'over' ? sheet(`<h2 style="color:${v.winner >= 0 ? col(v.winner) : 'inherit'}">${v.winner === -1 ? 'Draw' : nm(v.winner) + ' wins!'}</h2><button class="big gold" data-act="again">Play again</button><button class="big ghost" data-act="home">Main Menu</button>`) : ''}
+      ${v.step === 'over' && !pendingOutcome() && !pendingReveal() ? sheet(`<h2 style="color:${v.winner >= 0 ? col(v.winner) : 'inherit'}">${v.winner === -1 ? 'Draw' : nm(v.winner) + ' wins!'}</h2><button class="big gold" data-act="again">Play again</button><button class="big ghost" data-act="home">Main Menu</button>`) : ''}
     </div>`;
   }
 
@@ -1137,24 +1177,32 @@ const Bots = (() => {
     animateTokens();
     if (ui.screen === 'game' && ui.s && isBotTurn() && !needsCover()) {
       const s = ui.s, bot = 1 - ui.human, quick = s.step === 'play';
+      const a = Bots.nextAction(E.viewFor(s, bot)), delay = a.type === 'endMove' ? 1200 : (quick ? (s.hands[bot].length ? D.bot.deployMs : D.bot.moveMs) : D.bot.thinkMs);          // a beat to look at the board before it resolves
       ui.timer = setTimeout(() => {
-        const a = Bots.nextAction(E.viewFor(s, bot));
+        if (ui.s !== s) return;
         const r = E.apply(s, a);
         if (!r.ok) console.error('bot move refused', a, r.error);
         save(); render();
-      }, quick ? (s.hands[bot].length ? D.bot.deployMs : D.bot.moveMs) : D.bot.thinkMs);
+      }, delay);
     }
   }
   /* a unit that moves slides to where it went, so you can watch the computer move */
   function animateTokens() {
-    const svg = app.querySelector('svg.board'), next = {};
-    if (!svg) { ui.tokPos = {}; return; }
-    const vb = svg.viewBox.baseVal, r = svg.getBoundingClientRect(), k = Math.min(r.width / (vb.width || 12.3), r.height / (vb.height || 11.1)) || 1;
+    const svg = app.querySelector('svg.board'), next = {}, nextN = {}, nextOwn = {};
+    if (!svg) { ui.tokPos = {}; ui.unitN = {}; ui.capOwn = {}; ui.animOK = false; return; }
+    const vb = svg.viewBox.baseVal, r = svg.getBoundingClientRect(), k = Math.min(r.width / (vb.width || 12.3), r.height / (vb.height || 11.1)) || 1, me = viewer(), strip = app.querySelector('.oppstrip .obk:last-child'), reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
     svg.querySelectorAll('g[data-unit]').forEach(el => {
-      const id = el.dataset.unit, b = el.getBoundingClientRect(); next[id] = { x: b.left, y: b.top, h: el.dataset.hex };
-      const o = ui.tokPos[id]; if (o && o.h !== el.dataset.hex && el.animate) el.animate([{ transform: `translate(${(o.x - b.left) / k}px, ${(o.y - b.top) / k}px)` }, { transform: 'none' }], { duration: 650, easing: 'cubic-bezier(.3,.7,.3,1)' });
+      const id = el.dataset.unit, b = el.getBoundingClientRect(), n = Number(el.dataset.n), own = Number(el.dataset.own), o = ui.tokPos[id], pn = (ui.unitN || {})[id];
+      next[id] = { x: b.left, y: b.top, h: el.dataset.hex }; nextN[id] = n;
+      if (reduce || !el.animate) return;
+      if (o && o.h !== el.dataset.hex) el.animate([{ transform: `translate(${(o.x - b.left) / k}px, ${(o.y - b.top) / k}px)` }, { transform: 'none' }], { duration: 650, easing: 'cubic-bezier(.3,.7,.3,1)' });          // a unit slides to where it went
+      else if (ui.animOK && (pn === undefined || n > pn)) {          // a card was dealt onto the board: it flies from the hand to the unit, which pops
+        if (own !== me && strip) { const s0 = strip.getBoundingClientRect(), fc = document.createElement('div'); fc.className = 'flycard'; fc.style.cssText = `left:${s0.left}px;top:${s0.top}px;--fc:${col(own)}`; document.body.appendChild(fc); fc.animate([{ transform: 'translate(0,0) rotate(0)', opacity: 1 }, { transform: `translate(${b.left + b.width / 2 - s0.left - 18}px, ${b.top + b.height / 2 - s0.top - 26}px) rotate(200deg) scale(.7)`, opacity: 1 }], { duration: 480, easing: 'ease-in' }).onfinish = () => fc.remove(); }
+        el.animate([{ opacity: pn === undefined ? 0 : 1, transform: `scale(${pn === undefined ? .2 : 1})` }, { opacity: 1, transform: 'scale(1.45)', offset: .6 }, { opacity: 1, transform: 'scale(1)' }], { duration: 420, delay: own !== me ? 440 : 0, fill: 'backwards', easing: 'ease-out' });
+      }
     });
-    ui.tokPos = next;
+    svg.querySelectorAll('polygon.cas[data-own]').forEach(el => { const h = el.parentNode.dataset.hex; nextOwn[h] = el.dataset.own; if (ui.animOK && (ui.capOwn || {})[h] !== undefined && ui.capOwn[h] !== el.dataset.own && !reduce) el.classList.add('capflash'); });          // a castle that changed hands flashes
+    ui.tokPos = next; ui.unitN = nextN; ui.capOwn = nextOwn; ui.animOK = true;
   }
 
   function tapHex(k, unitId) {
@@ -1163,7 +1211,7 @@ const Bots = (() => {
     if (s.step === 'battle') { if (ui.retreating && actorNow() === me && v.battle.retreat.indexOf(k) >= 0) act({ type: 'retreat', to: k }); return; }
     if (tu && tu.owner === me && sel && sel.t === 'unit' && sel.id === tu.id) { ui.sel = null; ui.askResolve = false; render(); return; }          // tap the unit again: cancel
     if (!myTurn) { ui.sel = tu && tu.owner === me ? { t: 'unit', id: tu.id } : null; render(); return; }          // look inside any of your units, any time
-    if (sel && sel.t === 'card') { const cn = E.hexCastle[k]; if (cn && s.castles[cn].owner === me && v.supply.indexOf(cn) >= 0) act({ type: 'deploy', card: sel.id, castle: cn }); else { ui.sel = null; render(); } return; }
+    if (sel && sel.t === 'cards') { const cn = E.hexCastle[k]; if (cn && s.castles[cn].owner === me && v.supply.indexOf(cn) >= 0 && sel.ids.length) act({ type: 'deploy', cards: sel.ids, castle: cn }); else { ui.sel = null; render(); } return; }
     if (sel && sel.t === 'unit') {
       const u = v.units.find(x => x.id === sel.id);
       if (u && !u.acted && (E.reachable(v, u).indexOf(k) >= 0 || E.tunnelTo(v, u).indexOf(k) >= 0)) { act({ type: 'move', unit: u.id, to: k }); return; }
@@ -1194,6 +1242,8 @@ const Bots = (() => {
         ui.askResolve = false; act({ type: 'endMove' });
       }
       else if (a === 'bc') act({ type: 'continue' });
+      else if (a === 'undo') act({ type: 'undo' });
+      else if (a === 'allcards') { const v = E.viewFor(ui.s, viewer()), all = ui.sel && ui.sel.t === 'cards' && ui.sel.ids.length === v.hand.length; ui.sel = all ? null : { t: 'cards', ids: v.hand.map(c => c.id) }; render(); }
       else if (a === 'startbattle') { ui.announced = battleKey(ui.s); render(); }
       else if (a === 'outack') { const o = pendingOutcome(); if (o) ui.outN = o.n; render(); }
       else if (a === 'viewfac') { ui.sheet = { t: 'fac', id: actEl.dataset.f, alt: (ui.s && ui.screen === 'game' && ui.s.fac.indexOf(actEl.dataset.f) >= 0) ? ui.s.fac[1 - ui.s.fac.indexOf(actEl.dataset.f)] : null }; render(); }
@@ -1218,7 +1268,7 @@ const Bots = (() => {
     if (bsel) { ui.bsel = ui.bsel === bsel.dataset.bsel ? null : bsel.dataset.bsel; render(); return; }          // tapping a card only chooses it; Play is a button
     if (swap) { act({ type: 'swap', card: swap.dataset.swap }); return; }
     if (guess) { act({ type: 'guess', role: guess.dataset.guess }); return; }
-    if (card) { ui.sel = ui.sel && ui.sel.id === card.dataset.card ? null : { t: 'card', id: card.dataset.card }; render(); return; }
+    if (card) { const id = card.dataset.card, cur = ui.sel && ui.sel.t === 'cards' ? ui.sel.ids : []; const ids = cur.indexOf(id) >= 0 ? cur.filter(x => x !== id) : cur.concat(id); ui.sel = ids.length ? { t: 'cards', ids } : null; render(); return; }          // tap several cards, then one castle
     const s = ui.s;
     if (s && s.step === 'flag' && actorNow() === viewer() && hex) { const cn = E.hexCastle[hex.dataset.hex]; if (cn) act({ type: 'flag', castle: cn }); return; }
     if (hex || unit) { tapHex((unit || hex).dataset.hex, unit && unit.dataset.unit); }
