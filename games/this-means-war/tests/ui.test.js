@@ -167,3 +167,25 @@ test('ui: tap several cards then one castle to deploy them all; Undo takes it ba
     assert.deepEqual(errs, []);
   } finally { await b.close(); }
 });
+
+test('ui: Powers lists every ability you can use, a question is answered by tapping, Pidgeot flies, and battle powers are chosen with the card', { skip: !chromium, timeout: 90000 }, async () => {
+  const b = await chromium.launch(), p = await b.newPage({ viewport: { width: 1180, height: 820 } });
+  const errs = []; p.on('pageerror', e => errs.push(e.message));
+  try {
+    await p.goto(URL); await p.click('[data-act=mode-ai]'); await p.click('[data-act=pickfac][data-f=pokemon]:not([data-paired="1"])'); await p.waitForSelector('.board');
+    await p.evaluate(() => { const s = WAR.ui.s, c = (t, o, id) => ({ id: id || o + '-' + t + '-z', type: t, owner: o }); s.fac = ['pokemon', 'got']; s.flagQueue = []; s.step = 'play'; s.cur = 1;
+      s.hands = [[], [c('sorcerer', 1, 'mel')]]; s.fallen[1] = [c('warrior', 1, 'w1'), c('ranger', 1, 'r1')]; s.units = [{ id: 50, owner: 1, at: '0,2', cards: [c('ranger', 1, 'pidg'), c('spy', 1)], acted: false }]; WAR.ui.sel = null; WAR.render(); });
+    assert.match(await p.innerText('[data-act=powers]'), /Powers 1/, 'Melisandre from the hand (a Fallen pile to draw from)');
+    await p.click('[data-act=powers]'); assert.match(await p.innerText('.sheet'), /Resurrection|Transform|Fly/i); await p.click('[data-act=usepower]');
+    await p.waitForSelector('.popts'); assert.equal(await p.locator('.popt').count(), 2, 'the Fallen pile to choose from'); await p.click('.popt >> nth=0');
+    assert.equal(await p.evaluate(() => WAR.ui.s.decks[1][WAR.ui.s.decks[1].length - 1].id), 'w1', 'the chosen card is on top of the deck'); assert.equal(await p.evaluate(() => WAR.ui.s.fallen[1].length), 1);
+    await p.evaluate(() => { WAR.ui.s.fac = ['basic', 'pokemon']; WAR.render(); });
+    await p.click('[data-unit="50"]'); assert.ok(await p.locator('.hx.tun').count() > 3, 'Pidgeot can fly to any empty space'); const to = await p.evaluate(() => Engine.flyTo(WAR.ui.s, WAR.ui.s.units[0])[0]); await p.click(`[data-hex="${to}"] polygon.hx`, { force: true });
+    assert.equal(await p.evaluate(() => WAR.ui.s.units[0].at), to);
+    // a battle: Dragonite offers Hyper Beam with the card
+    await p.evaluate(() => { const s = WAR.ui.s, c = (t, o) => ({ id: o + '-' + t + '-z', type: t, owner: o }); s.fac = ['basic', 'pokemon']; s.cur = 0; s.hands = [[], []]; s.units = [{ id: 60, owner: 0, at: '0,0', cards: [c('leader', 0), c('spy', 0)], acted: false }, { id: 61, owner: 1, at: '0,0', cards: [c('general', 1), c('ranger', 1)], acted: false }]; Engine.apply(s, { type: 'endMove' }); WAR.ui.announced = null; WAR.render(); });
+    await p.click('[data-act=startbattle]'); await p.waitForSelector('[data-bsel]'); await p.locator('[data-bsel]').first().click();
+    const flagBtns = await p.locator('[data-act=bpow]').count(); assert.ok(flagBtns <= 1);
+    assert.deepEqual(errs, []);
+  } finally { await b.close(); }
+});

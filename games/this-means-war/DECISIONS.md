@@ -42,3 +42,6 @@ The newest rulebook ("Quickfire Kingdoms" inside) is the source. Not built yet: 
 - Undo: before every deploy and move the whole game is saved (as text); Undo restores the last one; Resolve and a new turn clear them. Several cards can be deployed in one go onto one castle (one Undo step).
 - A retreat is never silent, even when it ends the game: the result picture comes before the Game Over screen. `RULING:` nobody may retreat from the castle that hides their own flag (retreating would hand over the castle and the game). The computer retreats its last card when the card it can see would beat it; it never does when it plays first.
 - A battle ends only when one side has no cards left (the survivors always come back as a new hand) or a side retreats: a test plays 60 computer games and checks that every battle ended that way.
+
+## Abilities (v6)
+- Every card of the six offered factions has its ability programmed (`PW` board/hand powers, `BA` start-of-battle questions, `RQ` reactions). Prompts are plain data in the game state, so saves and undo work. `RULING:` a power that needs a target which does not exist is not offered. A battle army emptied by an ability (Allegiances, Jon's escape) ends the battle: the other side wins, or nobody if both are gone. Factions not offered on the picker are unprogrammed.

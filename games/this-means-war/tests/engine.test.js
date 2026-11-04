@@ -178,7 +178,7 @@ const cid = (s, p, type) => s.battle.side[p].hand.concat(s.battle.side[p].aside)
 
 test('abilities: a battle with no usable ability goes straight to the first card; the data names which abilities the game plays', () => {
   const s = setup(['basic', 'basic'], ['warrior', 'spy'], ['ranger', 'leader']); assert.equal(s.battle.stage, 'first'); assert.equal(E.actor(s), 1);
-  assert.deepEqual(Object.keys(E.FAC.survivor.play).sort(), ['general', 'leader', 'ranger', 'sorcerer', 'spy']);
+  assert.deepEqual(Object.keys(E.FAC.survivor.play).sort(), ['assassin', 'general', 'leader', 'ranger', 'sorcerer', 'spy', 'warrior'], 'every role of an offered faction has an ability the game plays');
   for (const a of Object.values(E.FAC.survivor.play)) assert.ok(D.abilities[a]);
 });
 
