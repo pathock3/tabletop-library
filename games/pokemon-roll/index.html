@@ -878,7 +878,7 @@ const Engine = (() => {
       const n = living(b, sd).filter(u => !u.skip).length;
       b.dice[sd] = Array.from({ length: n }, () => die(s));
       b.dcol = b.dcol || [[], []]; b.dcol[sd] = diceColors(s, b, sd).slice(0, n);
-      b.rr[sd] = R.baseRerolls; b.rrFace[sd] = []; b.rrUsed[sd] = {}; (b.locked = b.locked || [{}, {}])[sd] = {};
+      b.rr[sd] = R.baseRerolls; b.rrFace[sd] = []; b.rrUsed[sd] = {}; (b.locked = b.locked || [{}, {}])[sd] = {}; (b.fixed = b.fixed || [{}, {}])[sd] = {};
       living(b, sd).forEach(u => tags(u).forEach(t => { if (t.t === 'reroll') b.rr[sd] += t.n; if (t.t === 'rerollFace' && b.rrFace[sd].indexOf(t.face) < 0) b.rrFace[sd].push(t.face); }));
     });
     living(b, 0).concat(living(b, 1)).forEach(u => { if (has(u, 'dampReroll') && b.cols[colIdx(b, u.uid)] && b.cols[colIdx(b, u.uid)][other(u.side)] != null) b.rr[other(u.side)] = Math.max(0, b.rr[other(u.side)] - 1); });
@@ -890,13 +890,14 @@ const Engine = (() => {
     const b = s.battle; if (b.stage !== 'assign') return 'not assigning now';
     const side = a.side, u = U(b, a.uid), d = b.dice[side][a.die];
     if (!u || u.side !== side || u.ko) return 'not your card'; if (u.skip) return CARDS[u.id].name + ' loses this round'; if (d == null) return 'no such die';
+    const fx = (b.fixed && b.fixed[side]) || {}; if (fx[a.die]) return 'that die is locked in after the reroll'; const had = b.asg[side][u.uid]; if (had && had.dice.some(i => fx[i])) return CARDS[u.id].name + ' already has its die: locked in after the reroll';
     Object.keys(b.asg[side]).forEach(k => { const x = b.asg[side][k]; x.dice = x.dice.filter(i => i !== a.die); if (!x.dice.length) delete b.asg[side][k]; });
     const cur = b.asg[side][u.uid], sp = parseSpecial(CARDS[u.id].special);
     if (cur && sp && d === sp.face && b.dice[side][cur.dice[0]] === d && cur.dice.length < sp.count) cur.dice.push(a.die);
     else b.asg[side][u.uid] = { dice: [a.die], tgt: null };
     return null;
   }
-  function doUnassign(s, a) { const b = s.battle; if (b.stage !== 'assign') return 'not assigning now'; delete b.asg[a.side][a.uid]; return null; }
+  function doUnassign(s, a) { const b = s.battle; if (b.stage !== 'assign') return 'not assigning now'; const x = b.asg[a.side][a.uid], fx = (b.fixed && b.fixed[a.side]) || {}; if (x && x.dice.some(i => fx[i])) return 'that die is locked in after the reroll'; delete b.asg[a.side][a.uid]; return null; }
   // a reroll: throw the dice you have not given out again, together, once. They are locked in after that.
   // `all` = every die not on a card yet; `dice` = a chosen set (the computer decides before it gives any out); `die` = one die (a card that lets you reroll a face for free)
   function doReroll(s, a) {
@@ -911,7 +912,9 @@ const Engine = (() => {
     const set = (a.all ? Array.from({ length: n }, (_, i) => i) : (a.dice || [])).filter(i => b.dice[side][i] != null && !locked[i] && !used.has(i));
     if (!set.length) return 'nothing to reroll: dice you have given out, or already rerolled, stay as they are';
     if (b.rr[side] <= 0) return 'no rerolls left';
-    b.rr[side]--; set.forEach(i => { b.dice[side][i] = die(s); locked[i] = 1; }); return null;
+    b.rr[side]--; set.forEach(i => { b.dice[side][i] = die(s); locked[i] = 1; });
+    const fx = (b.fixed = b.fixed || [{}, {}])[side]; used.forEach(i => { fx[i] = 1; });              // the dice you had already given out stay where they are: no shuffling them once you have seen the new roll
+    return null;
   }
   function doTweak(s, a) {
     const b = s.battle; if (b.stage !== 'assign') return 'not assigning now';
@@ -1771,7 +1774,7 @@ const Bots = (() => {
     const sp = E.parseSpecial(c.special);
     const rows = c.moves.map((m, i) => [m, i]).reverse().map(([m, i]) => `<div class="f${m ? '' : ' blank'}${o.face === i + 1 && !o.sp ? ' hot' : ''}${o.pf === i + 1 && o.face !== i + 1 ? ' pick' : ''}"><span class="pip">${i + 1}</span><span class="mt">${m ? short(m) : '—'}</span></div>`).join('');
     return `<div class="card${u.sh ? ' shiny' : ''}${o.foe ? ' foe' : ''}${o.ko ? ' ko' : ''}${o.sel ? ' sel' : ''}${o.die != null ? ' has-die' : ''}${o.cls ? ' ' + o.cls : ''}" style="--cw:${cw}px;--bg:${e.bg};--c:${e.color}" ${o.attr || ''}>
-      ${D.elements[c.weak] ? `<div class="wkt" style="--wc:${el(c.weak).color}">weak: ${el(c.weak).icon} ${esc(c.weak)}</div>` : ''}
+      ${D.elements[c.weak] ? `<div class="wkt" style="--wc:${el(c.weak).color}">weak: ${el(c.weak).icon} ${esc(c.weak)} ×2</div>` : ''}
       <div class="nmrow"><div class="nm">${esc(c.name)}${u.sh ? ' ✨' : ''}</div></div>
       <div class="top2"><div class="art"><img src="${art(u.id, u.sh)}" alt="${esc(c.name)}">${u.sh ? sparkles() : ''}${o.mark ? `<div class="mark">${o.mark}</div>` : ''}${o.die != null ? `<div class="dbadge${o.heroDie ? ' hero' : ''}${o.land ? ' land' : ''}${o.dieCol ? ' colored' : ''}" ${o.dieAttr || ''}${o.dieCol ? ` style="background:${o.dieCol}"` : ''}>${o.die}${o.dieBonus ? '<small>+1</small>' : ''}</div>` : ''}</div>
         <div class="inf"><div class="lv">Lv ${c.level}</div><div class="hprow"><div class="hpc${lvl}">♥ <span class="hpn">${Math.max(0, hp)}</span><small>/${mx}</small></div>${o.chg ? `<span class="hpchg${o.chg.heal ? ' up' : ''}">${o.chg.heal ? '+' : '−'}${o.chg.n}${o.chg.weak ? ' <b>×2</b>' : ''}</span>` : ''}</div>${o.shield ? `<div class="shd">🛡 ${o.shield}</div>` : ''}</div></div>
@@ -2203,7 +2206,7 @@ const Bots = (() => {
       const swb = canMv && E.tags(u).some(g => g.t === 'swapper') && u.swapR !== b.round && E.living(b, 1).length > 1 ? `<div class="xb" data-act="swapstart" data-uid="${u.uid}">${ui.swap && ui.swap.uid === u.uid ? 'Tap two of theirs' : '⇄ Swap two'}</div>` : '';
       const pf = assign && !waitRoll && u.side === 0 && !ko && ui.die != null ? b.dice[0][ui.die] : 0;
       const dcol1 = info && info.die.length === 1 && b.dcol && b.dcol[u.side] ? dieCol(b.dcol[u.side][info.die[0]]) : null, dbonus = info && !ko && E.colorBonus(b, u) > 0;
-      return card(u, { cw, dieCol: dcol1, dieBonus: dbonus, foe: u.side === 1, ko: koOf(u), hp: hpOf(u), shield: u.shield || 0, face, sp: spOn, pf, die, chg: chgOf(u), land: ui.landed === u.uid, heroDie: u.side === 0, dieAttr: u.side === 0 && assign ? `data-act="unmv" data-uid="${u.uid}"${info && info.die.length === 1 ? ` data-i="${info.die[0]}"` : ''}` : '', mark, extra: extra + mvb + swb, cls: clsOf(u) + (ui.swap && u.side === 1 && !ko ? (ui.swap.picks.indexOf(u.uid) >= 0 ? ' sel act' : ' sel') : ''), pop: popOf(u), attr: `data-act="unit" data-uid="${u.uid}"` });
+      return card(u, { cw, dieCol: dcol1, dieBonus: dbonus, foe: u.side === 1, ko: koOf(u), hp: hpOf(u), shield: u.shield || 0, face, sp: spOn, pf, die, chg: chgOf(u), land: ui.landed === u.uid, heroDie: u.side === 0, dieAttr: u.side === 0 && assign && !(info && b.fixed && b.fixed[0] && info.die.some(i => b.fixed[0][i])) ? `data-act="unmv" data-uid="${u.uid}"${info && info.die.length === 1 ? ` data-i="${info.die[0]}"` : ''}` : '', mark, extra: extra + mvb + swb, cls: clsOf(u) + (ui.swap && u.side === 1 && !ko ? (ui.swap.picks.indexOf(u.uid) >= 0 ? ' sel act' : ' sel') : ''), pop: popOf(u), attr: `data-act="unit" data-uid="${u.uid}"` });
     };
     const slotHtml = (ci, side) => {
       const uid = b.cols[ci][side];
@@ -2219,7 +2222,7 @@ const Bots = (() => {
     const heroTray = teamSort(E.handOf(b, 0), hc => hc.hid != null ? hc.hid : hc.uid).map(hc => { const k = hc.hid != null ? hc.hid : hc.uid; return card(hc, { cw: hcw, sel: k === selected, attr: `data-act="tray" data-uid="${k}"` }); }).join('');
     // the bay: your hand while you set the matchups, then the dice
     const hd = b.dice[0], used = E.assignedDice(b, 0);
-    const diceHtml = !waitRoll && (assign || done || p) && hd.length ? hd.map((v, i) => dieHtml(v, { sel: ui.die === i, used: used.has(i), tumble: rolling && (!ui.rerolled || ui.rerolled.indexOf(i) >= 0), color: dieCol(b.dcol && b.dcol[0] && b.dcol[0][i]), attr: assign && !rolling ? `data-act="die" data-i="${i}"` : '' })).join('') : '';
+    const diceHtml = !waitRoll && (assign || done || p) && hd.length ? hd.map((v, i) => dieHtml(v, { sel: ui.die === i, used: used.has(i), tumble: rolling && (!ui.rerolled || ui.rerolled.indexOf(i) >= 0), color: dieCol(b.dcol && b.dcol[0] && b.dcol[0][i]), attr: assign && !rolling && !(b.fixed && b.fixed[0] && b.fixed[0][i]) ? `data-act="die" data-i="${i}"` : '' })).join('') : '';
     let status = '', btns = '';
     const opt = yourPlace && b.pl.optional;
     if (placing) status = (b.sudden ? 'SUDDEN DEATH · ' : '') + (yourPlace ? (selected != null ? 'Now tap where it goes' : opt ? 'Bring another card (they will draw one more), or fight now' : 'Pick a Pokémon from your hand to put down') : 'They are putting a card down…');
@@ -2269,7 +2272,7 @@ const Bots = (() => {
     { t: 'Weakness hurts double', cap: 'The tab at the top shows what it fears.', vis: () => `<div class="hv"><div class="hs">${spr('4.2', 0)}<b>🔥 Fire</b></div><div class="boom">2 ➜ <span>4</span> 💥</div><div class="hs">${spr('1.2', 0)}<b>weak 🔥</b></div></div>` },
     { t: 'Win cards. Beat gym leaders.', cap: 'Every gym leader opens a new road.', vis: () => `<div class="hv">${['L1', 'B1', 'B2'].map((id, k) => `${k ? '<span class="arrow">➜</span>' : ''}<div class="hmap"><svg viewBox="0 0 160 120">${sceneOf(E.node(id))}</svg></div>`).join('')}</div>` },
     { t: 'Shinies and legendaries', cap: 'Shiny is a look. A 9 on two dice finds a legend.', vis: () => `<div class="hv"><div class="hs">${spr('6.5', 0)}</div><span class="arrow">➜</span><div class="hs shw">${spr('6.5', 1)}${sparkles()}</div><div class="boom">${dieHtml(4, {})}${dieHtml(5, {})}</div><div class="hs">${spr('249', 0)}</div></div>` },
-    { t: 'Good to know', cap: '', vis: () => `<ul class="hl"><li>🛡 A blocker takes what it can’t soak.</li><li>💥 A card at 0 is out right away.</li><li>🛡 A shield soaks damage once a round.</li><li>🎨 A die the colour of a card's type adds +1 to its move. Beat a gym leader to keep their colour.</li><li>🔄 Once a round, give out the dice you like and throw the rest again. They are locked in after that.</li><li>🏃 Leave any fight. Nothing is lost.</li><li>🎲 Tap anywhere to roll again.</li></ul>` },
+    { t: 'Good to know', cap: '', vis: () => `<ul class="hl"><li>⚠️ <b>weak ×2</b>: a card takes double damage from attacks of the type on its top strip.</li><li>🛡 A blocker takes what it can’t soak.</li><li>💥 A card at 0 is out right away.</li><li>🛡 A shield soaks damage once a round.</li><li>🎨 A die the colour of a card's type adds +1 to its move. Beat a gym leader to keep their colour.</li><li>🔄 Once a round, give out the dice you like and throw the rest again. They are locked in after that.</li><li>🏃 Leave any fight. Nothing is lost.</li><li>🎲 Tap anywhere to roll again.</li></ul>` },
   ];
   const helpSheet = () => { const i = Math.max(0, Math.min(HELP.length - 1, ui.helpPage || 0)), pg = HELP[i]; return `<div class="sheet" data-act="closehelp"><div class="box hbox" data-stop="1"><div class="hvis" data-act="hnext">${pg.vis()}</div><h2>${pg.t}</h2>${pg.cap ? `<p class="hcap">${pg.cap}</p>` : ''}<div class="hnav"><button class="ib" data-act="hprev">◀</button><div class="dots">${HELP.map((_, k) => `<i class="${k === i ? 'on' : ''}"></i>`).join('')}</div><button class="ib" data-act="hnext">▶</button></div></div></div>`; };
   function menuSheet() {

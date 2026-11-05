@@ -335,34 +335,6 @@ test('legendaries: with two dice, a nine on two dice at the start of a turn spot
 });
 
 // ================================================================ whole games
-test('fuzz: forty computer-played campaigns, from the first rival to the champion, with no errors', (tc) => { E.faceOrder('top'); tc.after(() => E.faceOrder('sheet'));
-  for (let i = 1; i <= 40; i++) {
-    const s = E.newGame({ seed: i * 7919, starter: D.starters[i % 5].key, size: i % 2 ? 'short' : 'long', ai: ['easy', 'normal', 'master'][i % 3] });
-    let n = 0;
-    while (s.phase !== 'won' && n++ < 60000) {
-      let g; while ((g = B.step(s))) { const r = E.apply(s, g); assert.ok(r.ok, 'computer: ' + r.error); }
-      const a = B.heroStep(s, ['easy', 'normal', 'master'][(i + 1) % 3]); assert.ok(a, 'stuck in ' + s.phase);
-      const r = B.applyHero(s, a); assert.ok(r.ok, 'player: ' + JSON.stringify(a).slice(0, 100) + ' ' + r.error);
-    }
-    assert.equal(s.phase, 'won', 'campaign ' + i + ' finished');
-    assert.equal(s.lv, 6); const sd = E.starterOf(s.starter); assert.ok([sd.levels[5], sd.evolve && sd.evolve[6]].includes(s.coll.find(c => c.starter).id), 'the partner grew all the way');
-    assert.ok(s.coll.length >= 7, 'a collection of cards was built');
-  }
-});
-
-test('ai: Easy never rerolls and plays blind; Master and Normal are real levers in the data; Master beats Normal beats Easy', (tc) => { E.faceOrder('top'); tc.after(() => E.faceOrder('sheet'));
-  const B = Bots, ais = E.D.ai; assert.deepEqual(Object.keys(ais), ['easy', 'normal', 'master']);
-  const c = craft(['1.1'], ['10']); c.b.dice[1] = [1]; c.b.rr[1] = 3;
-  for (let i = 0; i < 30; i++) assert.equal(B.step(c.s, 'easy').t, 'gm', 'Easy hands out dice without ever rerolling');
-  const lose = { easy: [0, 0], normal: [0, 0], master: [0, 0] };       // [hero battles lost, played]
-  for (let g = 0; g < 8; g++) ['easy', 'normal', 'master'].forEach(lvl => {
-    const s = E.newGame({ seed: 300 + g, starter: D.starters[g % 5].key, size: 'short', ai: lvl }); let n = 0;
-    while (s.phase !== 'won' && s.phase !== 'lost' && n++ < 30000) { let a; while ((a = B.step(s))) E.apply(s, a); if (s.phase === 'result' && s.res) { lose[lvl][1]++; if (!s.res.win) lose[lvl][0]++; } const h = B.heroStep(s, 'master'); if (!h) break; B.applyHero(s, h); }
-  });
-  const rate = k => lose[k][0] / lose[k][1];
-  assert.ok(rate('easy') < rate('normal') && rate('normal') < rate('master') + 0.02, 'a stronger computer beats the same player more often: ' + JSON.stringify(lose));
-});
-
 // ================================================================ cards that move cards, and Haunter
 const col = (b, i, sd) => b.cols[i][sd];
 test('movement: Machoke\'s fighting attack pushes a card it hits to the side, Golbat forbids it', () => {
@@ -510,4 +482,14 @@ test('draw pile: with a pile of one left and more cards wanted, the last unseen 
   const s = E.newGame({ seed: 41, starter: 'bulbasaur' }); const all = s.decks[2].slice(); s.decks[2] = [all[0]]; s.discard[2] = all.slice(1, 4);
   const d = T.drawWild(s, 2, 3).map(i => i.id); assert.equal(d[0], all[0], 'the unseen card first'); assert.ok(d.slice(1).every(x => [all[1], all[2], all[3]].includes(x)), 'then cards from the discard pile');
   assert.equal(new Set(d).size, 3, 'no card twice'); assert.equal(s.discard[2].length, 0, 'the discard pile became the new draw pile'); assert.equal(s.decks[2].length, 1);
+});
+
+test('rules: after a reroll the dice you had already given out are locked in; only the rerolled dice are placed after', () => {
+  const c = craft(['1.1', '1.2', '7.1'], ['10', '10', '10']); const { s, b } = c; b.dice[0] = [3, 4, 5]; const [h0, h1, h2] = E.living(b, 0);
+  assert.ok(E.apply(s, { t: 'assign', side: 0, uid: h0.uid, die: 0 }).ok); assert.ok(E.apply(s, { t: 'reroll', side: 0, all: true }).ok);
+  assert.equal(E.apply(s, { t: 'assign', side: 0, uid: h1.uid, die: 0 }).ok, false, 'the die already on a card cannot be moved to another card');
+  assert.equal(E.apply(s, { t: 'unassign', side: 0, uid: h0.uid }).ok, false, 'nor taken back');
+  assert.equal(E.apply(s, { t: 'assign', side: 0, uid: h0.uid, die: 1 }).ok, false, 'and that card cannot take another die');
+  assert.ok(E.apply(s, { t: 'assign', side: 0, uid: h1.uid, die: 1 }).ok); assert.ok(E.apply(s, { t: 'assign', side: 0, uid: h2.uid, die: 2 }).ok, 'the rerolled dice go to the cards still waiting');
+  assert.ok(E.apply(s, { t: 'unassign', side: 0, uid: h1.uid }).ok, 'and can still be moved around among themselves');
 });

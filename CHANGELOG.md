@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- **Pokémon Roll! — a reroll locks in what you already placed, and weak says what it does:** once you reroll, the dice you had already given out stay on their cards (you only place the rerolled ones, after seeing them). The weakness strip now reads "weak: 💧 Water ×2" (the card takes double damage from that type), and the help says so.
+
 - **Faster updates on the iPad:** the site now tells browsers and home-screen apps to check for a new version every time, so force-quitting and reopening the app shows the latest deploy instead of an old copy.
 
 - **Pokémon Roll! — no card twice before you have seen them all:** the cards of a place now come off the draw pile one at a time and everything you face goes to the discard pile (what you do not take, and everything if you lose); only when the whole draw pile has been used is the discard pile shuffled into a new one. Two leaks are closed: a legendary turning up used to shuffle the discard pile back in early, and a draw that needed more cards than were left reshuffled the discards before the unseen ones.
