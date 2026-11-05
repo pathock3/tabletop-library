@@ -113,7 +113,7 @@ test('ui: the game is saved, and Continue brings it back', { skip: !chromium }, 
     await p.goto(URL); assert.equal(await p.locator('[data-act=continue]').count(), 0);
     await p.click('[data-act=new]'); await p.click('[data-act=starter][data-k=pikachu]');
     await p.reload(); assert.equal(await p.locator('[data-act=continue]').count(), 1);
-    await p.click('[data-act=continue]'); assert.equal(await p.locator('.place').count(), 6);
+    await p.click('[data-act=continue]'); assert.equal(await p.locator('.place').count(), 16);
     assert.equal(await p.evaluate(() => window.__pokemonRoll.G.starter), 'pikachu');
   } finally { await b.close(); }
 });
@@ -214,12 +214,10 @@ test('ui: with two dice you can add a second Pokémon to a wild fight: there are
     await p.locator('[data-act=tray]').first().click();                                    // the first card goes across from the wild card by itself (one spot)
     await p.waitForFunction(() => window.__pokemonRoll.G.battle.placed[0] === 1, null, { timeout: 4000 });
     assert.ok(await p.locator('[data-act=ready]').count() === 1, 'you can fight now, or bring another');
+    await p.click('[data-act=drawdeck]');                                                   // tap the deck: the next wild card comes down
+    await p.waitForFunction(() => { const g = window.__pokemonRoll.G.battle; return g.placed[1] === 2 && g.pl.side === 0; }, null, { timeout: 6000 });
     await p.locator('[data-act=tray]').first().click();
-    assert.ok(await p.locator('.slot[data-act=ins]').count() >= 1, 'there are spots to tap for the second card');
-    const dsz = await p.evaluate(() => { const a = document.querySelector('.slot[data-act=ins]').getBoundingClientRect(), c = document.querySelector('.board .card').getBoundingClientRect(); return [Math.abs(a.width - c.width), Math.abs(a.height - c.height)]; }); assert.ok(dsz[0] <= 3 && dsz[1] <= 3, 'a spot for a card is exactly the size and shape of a card: ' + dsz);
-    await p.locator('.slot[data-act=ins]').first().click();
     await p.waitForFunction(() => window.__pokemonRoll.G.battle.placed[0] === 2, null, { timeout: 4000 });
-    await p.waitForFunction(() => { const g = window.__pokemonRoll.G.battle; return g.placed[1] === 2 || g.stage === 'assign'; }, null, { timeout: 6000 });
     assert.deepEqual(errs, []);
   } finally { await b.close(); }
 });

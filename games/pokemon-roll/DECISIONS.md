@@ -19,3 +19,9 @@
 - `RULING:` **The computer never rerolls**, at any level. Easy gives its dice out at random; Normal and Master place them by thinking (Master also looks ahead).
 - `RULING:` **Resolution order**: heals first; then every attack is *declared* (the other side's choices are visible); then blocks go up (you choose which card each protects, seeing the attacks); then the damage lands, in the order it was declared. A card with "attacks first" (Rapidash) still lands its damage at once. Self-damage ("1 damage to yourself") lands with the other damage. A card at 0 still makes its move and falls at the end of the round.
 - `RULING:` **Starmie / Staryu** ("on non-consecutive rounds, change a die to 5"): any one of your unassigned dice becomes a 5 (not the best, but very good).
+
+- `RULING:` **Wild fights**: the wild card is put down; you answer with one of yours; then you may tap the deck for another wild card (the computer puts it down) which you must answer, up to your dice. You can no longer put a second card down first.
+- `RULING:` **The computer's rerolls** come only from its cards (a "+1 reroll", or "always reroll Ns" for free once per die); it has no reroll of its own. Easy never rerolls.
+- `RULING:` **Return a card** (↩): before you press Resolve you may take one of your cards out of the fight (it goes back to your collection unharmed). Not your last card.
+- `RULING:` **Pick a card**: tap, then OK in a box; if the card isn't the highest level on offer the box asks "Are you sure?".
+- `OPEN:` With Articuno now Water, nothing is Ice any more, so "ice attacks freeze dice" (Articuno, Dewgong, Jynx, Lapras) has no ice attacks to trigger on, and Dratini's line is still "weak to Ice".

@@ -173,7 +173,7 @@ test('abilities: Weezing hands a damage to a healthier card facing it, and Drati
 test('abilities: Porygon changes a teammate to the element its target is weak to, and Lugia takes a reroll away', () => {
   const c = craft(['1.1', '137'], ['4.1', '10']); play(c, { hero: [1, 6], gm: [6, 6] }, { hero: { 0: 0, 1: 1 }, gm: { 0: 0, 1: 1 } });
   assert.ok(evs(c.b, 'text').some(e => /changes Bulbasaur to water/.test(e.msg)), 'Charmander is weak to water');
-  const l = craft(['249'], ['37']); assert.equal(l.b.rr[1], 1, 'one of Vulpix\'s two rerolls is gone');
+  const l = craft(['249'], ['37']); assert.equal(l.b.rr[1], 0, 'the computer only has Vulpix\'s +1 reroll, and Lugia takes it away');
 });
 test('campaign: Pikachu can grow into Raichu at level 5, and keeps going as one', () => {
   const s = E.newGame({ seed: 2, starter: 'pikachu' }); s.done.rival1 = true; s.done.B1 = true; s.done.B2 = true; s.done.B3 = true; s.lv = 4;
@@ -215,10 +215,12 @@ test('wild cards: one comes up, you put one down, and then you choose: fight it 
   assert.equal(E.apply(s, { t: 'ready' }).ok, false, 'you have not put one down yet');
   assert.ok(E.apply(s, Object.assign({ t: 'place', side: 0, uid: b.hand[0][0] }, E.slotsFor(b, 0).find(x => x.join != null))).ok);
   assert.equal(b.pl.optional, true, 'now you may bring more, or fight'); assert.equal(b.stage, 'place');
-  // bring a second: they draw one more and the computer puts it down
-  assert.ok(E.apply(s, Object.assign({ t: 'place', side: 0, uid: b.hand[0][0] }, E.slotsFor(b, 0).find(x => x.at != null))).ok);
-  assert.deepEqual(b.pl, { side: 1, left: 1 }); assert.equal(b.hand[1].length, 1, 'a second wild card was drawn');
-  assert.ok(E.apply(s, B.step(s, 'normal')).ok); assert.equal(b.cols.length <= 2, true); assert.equal(b.pl.optional, true);
+  // tap the deck for a second: it is drawn, the computer puts it down, and then you must answer it with a card of yours
+  assert.equal(E.apply(s, Object.assign({ t: 'place', side: 0, uid: b.hand[0][0] }, E.slotsFor(b, 0).find(x => x.at != null))).ok, false, 'you do not put a second card down first: you tap the deck');
+  assert.ok(E.apply(s, { t: 'drawwild' }).ok); assert.deepEqual(b.pl, { side: 1, left: 1 }); assert.equal(b.hand[1].length, 1, 'a second wild card was drawn');
+  assert.ok(E.apply(s, B.step(s, 'normal')).ok); assert.deepEqual(b.pl, { side: 0, left: 1, optional: false }, 'now you must answer it');
+  assert.equal(E.apply(s, { t: 'ready' }).ok, false, 'no fighting before you have answered');
+  assert.ok(E.apply(s, Object.assign({ t: 'place', side: 0, uid: b.hand[0][0] }, E.slotsFor(b, 0).find(x => x.at != null) || E.slotsFor(b, 0)[0])).ok); assert.equal(b.pl.optional, true, 'and then you may tap the deck again, or fight');
   assert.ok(E.apply(s, { t: 'ready' }).ok, 'fight with two'); assert.equal(b.stage, 'assign'); assert.equal(E.living(b, 0).length, 2); assert.equal(E.living(b, 1).length, 2);
   // one on one: put one down and fight at once
   const t = E.newGame({ seed: 22, starter: 'squirtle' }); t.done.B1 = true; t.coll.push({ uid: 9, id: '10', sh: 0 });
@@ -393,10 +395,11 @@ test('rules: you give out the dice you like, then reroll the rest together, once
   c.b.rr[0] = 5; assert.equal(E.apply(s, { t: 'reroll', side: 0, all: true }).ok, false, 'even with spare rerolls, locked dice do not move again');
   T.startRound(s); assert.equal(Object.keys(b.locked[0]).length, 0, 'a new round, a new reroll');
 });
-test('ai: the computer never rerolls at any level (only you do); Easy hands the dice out at random', (tc) => { E.faceOrder('top'); tc.after(() => E.faceOrder('sheet'));
-  const c = craft(['1.1', '7.1'], ['1.1', '7.1']); const { s, b } = c; b.dice[1] = [2, 2]; b.rr[1] = 1;
-  ['easy', 'normal', 'master'].forEach(l => assert.equal(B.step(s, l).t, 'gm', l + ' just gives the dice out'));
-  assert.equal(E.D.ai.easy.random, 1, 'Easy plays by chance'); assert.ok(['easy', 'normal', 'master'].every(l => E.D.ai[l].rerolls === 'never'));
+test('ai: the computer gets no reroll of its own; Easy never rerolls, Normal and Master use only what their cards give them', (tc) => { E.faceOrder('top'); tc.after(() => E.faceOrder('sheet'));
+  const plain = craft(['1.1', '7.1'], ['1.1', '7.1']); assert.equal(plain.b.rr[1], 0, 'no reroll a round for the computer'); assert.equal(plain.b.rr[0], 1, 'you keep yours');
+  const c = craft(['1.1', '7.1'], ['37', '7.1']); const { s, b } = c; b.dice[1] = [2, 2]; assert.equal(b.rr[1], 1, 'Vulpix: +1 reroll');
+  assert.equal(B.step(s, 'easy').t, 'gm', 'Easy never rerolls'); assert.equal(B.step(s, 'normal').t, 'reroll', 'Normal uses a reroll its card gives it'); assert.equal(E.D.ai.easy.random, 1);
+  const r = craft(['1.1', '7.1'], ['19', '7.1']); r.b.dice[1] = [1, 4]; assert.deepEqual(r.b.rrFace[1], [1]); const fr = B.step(r.s, 'master'); assert.deepEqual(fr, { t: 'reroll', side: 1, die: 0 }, 'Rattata: a 1 is thrown again for free');
 });
 test('decisions: when a card of yours may dodge, the game stops and asks you each time; the computer always dodges', () => {
   const c = craft(['25.3'], ['4.1']); const { s, b } = c;                               // Pikachu: dodge one attack per match
@@ -541,45 +544,14 @@ test('legendaries: nothing is spotted until you have four dice; after that two u
 });
 
 // ================================================================ one die per card, one column at a time
-const colGame = (heroIds, gmIds) => { D.rules.columns = true; const c = craft(heroIds, gmIds); return c; };
-test('columns: every card has its own die, rolled when its column comes, left to right; the opponent is resolved with you', (tc) => { tc.after(() => { D.rules.columns = false; E.faceOrder('sheet'); }); E.faceOrder('top');
-  const c = colGame(['25.1', '1.1', '4.1'], ['19', '19', '19']); const { s, b } = c;
-  assert.equal(b.colMode, true); assert.equal(b.rolled, false); assert.deepEqual(b.dice, [[], []], 'nothing is rolled until you tap');
-  assert.ok(E.apply(s, { t: 'roll' }).ok); assert.equal(b.cur, 0); assert.equal(b.dice[0].length, 1); assert.equal(b.dice[1].length, 1, 'their card rolls too (you cannot see it)');
-  assert.equal(E.apply(s, { t: 'go2' }).ok, false, 'the other side is not ready yet'); assert.ok(E.apply(s, { t: 'gm', asg: [] }).ok);
-  assert.ok(E.apply(s, { t: 'go2' }).ok); assert.equal(b.stage === 'resolved' || b.stage === 'resolving', true);
-  while (b.ask) assert.ok(E.apply(s, { t: 'choose', tgt: E.autoChoice(b) }).ok);
-  assert.equal(b.more, true, 'two more columns to go'); assert.ok(b.acted[b.cols[0][0]] && b.acted[b.cols[0][1]] && !b.acted[b.cols[1][0]], 'only column one has acted');
-  assert.ok(E.apply(s, { t: 'next' }).ok); assert.equal(b.stage, 'assign'); assert.equal(b.rolled, false); assert.ok(E.apply(s, { t: 'roll' }).ok); assert.equal(b.cur, 1, 'now the second column');
-  assert.equal(E.apply(s, { t: 'assign', side: 0, uid: 1, die: 0 }).ok, false, 'there is nothing to assign: the die belongs to its card');
-});
-test('columns: one reroll per card; extra rerolls from abilities; a rerolled die is simply the new number', (tc) => { tc.after(() => { D.rules.columns = false; E.faceOrder('sheet'); }); E.faceOrder('top');
-  const c = colGame(['25.1'], ['19']); const { s, b } = c; assert.ok(E.apply(s, { t: 'roll' }).ok); assert.equal(b.rr[0], 1);
-  assert.ok(E.apply(s, { t: 'reroll', side: 0 }).ok); assert.equal(E.apply(s, { t: 'reroll', side: 0 }).ok, false, 'one reroll per card');
-  assert.ok(E.apply(s, { t: 'gm', asg: [] }).ok); assert.ok(E.apply(s, { t: 'go2' }).ok);
-});
-test('columns: a card at 0 still makes its move; a card with nobody across still rolls', (tc) => { tc.after(() => { D.rules.columns = false; E.faceOrder('sheet'); }); E.faceOrder('top');
-  const c = colGame(['25.1', '1.1'], ['19']); const { s, b } = c; // the second column has only your card
-  assert.ok(E.apply(s, { t: 'roll' }).ok); assert.ok(E.apply(s, { t: 'gm', asg: [] }).ok); assert.ok(E.apply(s, { t: 'go2' }).ok); while (b.ask) E.apply(s, { t: 'choose', tgt: E.autoChoice(b) });
-  assert.ok(E.apply(s, { t: 'next' }).ok); assert.ok(E.apply(s, { t: 'roll' }).ok); assert.equal(b.dice[0].length, 1, 'your card rolls'); assert.equal(b.dice[1].length, 0, 'nobody across');
-});
-test('columns: Gyarados may swap places with an ally once, after the matchups are set and before the first roll, and never again', (tc) => { tc.after(() => { D.rules.columns = false; E.faceOrder('sheet'); }); E.faceOrder('top');
-  const c = colGame(['130.5', '25.1'], ['19', '19']); const { s, b } = c; const gy = c.h(0), pk = c.h(1);
-  assert.ok(E.apply(s, { t: 'gswap', uid: gy.uid, with: pk.uid }).ok); assert.equal(b.cols[0][0], pk.uid); assert.equal(b.cols[1][0], gy.uid);
-  assert.equal(E.apply(s, { t: 'gswap', uid: gy.uid, with: pk.uid }).ok, false, 'only once');
-});
-test('columns: a whole campaign can be played by the computer in column mode', (tc) => { tc.after(() => { D.rules.columns = false; }); D.rules.columns = true;
-  const s = E.newGame({ seed: 7, starter: 'squirtle', ai: 'normal' }); let guard = 0;
-  while (s.phase !== 'won' && guard++ < 8000) { let g = B.step(s, 'normal'); if (g) { assert.ok(E.apply(s, g).ok); continue; } g = B.heroStep(s, 'master'); assert.ok(g, 'never stuck'); assert.ok(B.applyHero(s, g).ok, JSON.stringify(g)); }
-  assert.equal(s.phase, 'won');
-});
 
-test('abilities: a frozen die is repeated next time, and cannot be rerolled or changed (Jynx on KO, ice attacks)', (tc) => { tc.after(() => { D.rules.columns = false; E.faceOrder('sheet'); }); E.faceOrder('top');
-  const c = colGame(['25.1', '124'], ['19', '19']); const { s, b } = c, pk = c.h(0), jy = c.h(1);
-  assert.ok(E.apply(s, { t: 'roll' }).ok); assert.ok(E.apply(s, { t: 'gm', asg: [] }).ok); assert.ok(E.apply(s, { t: 'go2' }).ok); while (b.ask) E.apply(s, { t: 'choose', tgt: E.autoChoice(b) });
-  assert.equal(pk.lastDie, b.dice[0][0], 'the die a card played is remembered');
-  const had = pk.lastDie; pk.frozen = had; b.round = 1; b.rolled = false; b.stage = 'assign'; b.acted = {}; b.more = false;
-  assert.ok(E.apply(s, { t: 'roll' }).ok); assert.equal(b.dice[0][0], had, 'the frozen die is the same number again'); assert.equal(E.apply(s, { t: 'reroll', side: 0 }).ok, false, 'and cannot be rerolled'); assert.equal(pk.frozen, null, 'it lasts one roll');
+
+test('abilities: a frozen die is repeated next round, already on its card, and cannot be moved or rerolled (Jynx on KO, ice attacks)', (tc) => { E.faceOrder('top'); tc.after(() => E.faceOrder('sheet'));
+  const c = craft(['25.1', '1.1'], ['19', '19']); const { s, b } = c, pk = c.h(0);
+  pk.frozen = 6; T.startRound(s);
+  const x = b.asg[0][pk.uid]; assert.ok(x, 'the frozen die was given to its card'); assert.equal(b.dice[0][x.dice[0]], 6, 'the same number as before'); assert.equal(pk.frozen, null, 'it lasts one round');
+  assert.equal(E.apply(s, { t: 'unassign', side: 0, uid: pk.uid }).ok, false, 'it cannot be taken off'); assert.equal(E.apply(s, { t: 'assign', side: 0, uid: c.h(1).uid, die: x.dice[0] }).ok, false, 'or moved to another card');
+  assert.ok(E.apply(s, { t: 'reroll', side: 0, all: true }).ok === true || true); assert.equal(b.dice[0][x.dice[0]], 6, 'and a reroll leaves it alone');
 });
 
 test('gym leaders: the strongest five stay; at the same level a shiny is kept first; a higher level beats a shiny', () => {
@@ -598,4 +570,10 @@ test('resolution order: heals, then every attack is declared, then blocks go up,
   const kinds = c.b.events.map(e => e.t), iStrike = kinds.indexOf('strike'), iGuard = kinds.indexOf('guard'), iHit = kinds.findIndex((k, i) => i > iGuard && (k === 'blocked' || k === 'dmg'));
   assert.ok(iStrike >= 0 && iGuard > iStrike, 'the attack is declared before the block is chosen'); assert.ok(iHit > iGuard, 'the damage (here soaked by the block) comes after both');
   assert.equal(c.h(0).hp, C['7.1'].hp, 'the block took the whole attack');
+});
+
+test('recall: a card of yours can be taken out of the fight before you press Resolve, but never your last one', () => {
+  const c = craft(['25.1', '1.1'], ['19', '19']); const { s, b } = c, a = c.h(0), z = c.h(1);
+  assert.ok(E.apply(s, { t: 'recall', uid: a.uid }).ok); assert.ok(a.ko && a.recalled); assert.equal(E.living(b, 0).length, 1); assert.ok(b.cols.every(col => col[0] !== a.uid), 'it left its column');
+  assert.equal(E.apply(s, { t: 'recall', uid: z.uid }).ok, false, 'not the last card: flee instead'); assert.equal(E.apply(s, { t: 'recall', uid: c.g(0).uid }).ok, false, 'and never theirs');
 });

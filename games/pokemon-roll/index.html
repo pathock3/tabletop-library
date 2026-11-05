@@ -399,6 +399,28 @@ button{font:inherit;color:inherit;border:0;cursor:pointer}
 </style>
 
 <style>.card .nm{left:calc(var(--cw)*.025);font-size:calc(var(--cw)*.112);max-width:60%}</style>
+
+<style>.pilebay.tappable{pointer-events:auto;cursor:pointer;animation:pulse2 1.2s infinite;border-radius:14px}</style>
+
+<style>
+.card .pips{display:flex;flex-wrap:wrap;gap:calc(var(--cw)*.008);max-width:calc(var(--cw)*.4);padding-left:calc(var(--cw)*.03)}
+.card .pips i{width:calc(var(--cw)*.028);height:calc(var(--cw)*.05);border:max(1px,calc(var(--cw)*.006)) solid var(--ink);border-radius:2px;background:#0003}
+.card .pips i.k{background:#e23a3a}.card .pips i.g{background:#2fa35b}.card .pips i.l{background:repeating-linear-gradient(135deg,#e23a3a88 0 3px,#fff8 3px 5px)}
+.card .rcl{position:absolute;right:calc(var(--cw)*.05);top:calc(var(--cw)*.1);z-index:5;min-width:calc(var(--cw)*.1);height:calc(var(--cw)*.1);padding:0 calc(var(--cw)*.02);display:grid;place-items:center;border-radius:99px;background:#fffd;border:max(1px,calc(var(--cw)*.012)) solid var(--ink);font-weight:900;font-size:calc(var(--cw)*.07);line-height:1}
+.card .rcl.sure{background:#ffb703;font-size:calc(var(--cw)*.06);padding:0 calc(var(--cw)*.03)}
+.trainer{display:flex;flex-direction:column;align-items:center;gap:2px;margin-top:6px}
+.trainer img{width:min(calc(100% - 20px),150px);height:auto;aspect-ratio:1;image-rendering:pixelated;filter:drop-shadow(0 4px 0 #0007)}
+.trainer b{font:900 15px system-ui;color:#fff;text-shadow:0 2px 0 #000}
+</style>
+
+<style>
+.card .side{gap:calc(var(--cw)*.016)}
+.card .pips i{height:calc(var(--cw)*.036)}
+.card .side .tagl{font-size:calc(var(--cw)*.062);line-height:1.2}
+.card .side .lv{font-size:calc(var(--cw)*.055)}
+.trainer{width:100%}
+.trainer img{width:76%;max-width:150px;min-width:70px}
+</style>
 <script id="data">
 /* Pokémon Roll! — every rule number, the map, the bosses, the card sheet and the art live here. The engine and bots read this and hard-code none of it. */
 const GAME_DATA = {
@@ -428,8 +450,8 @@ const GAME_DATA = {
   // random = share of decisions made blindly · search = looks for swaps and specials · rerollBelow = rerolls a die only when nothing it could do is worth this much (Master compares against a fresh throw instead)
   ai: {
     easy:   { label: 'Easy',   random: 1,    search: false, specials: false, rerolls: 'never',  placeRandom: 1,    lookahead: false },
-    normal: { label: 'Normal', random: 0,    search: true,  specials: true,  rerolls: 'never',  placeRandom: 0,    lookahead: false },
-    master: { label: 'Master', random: 0,    search: true,  specials: true,  rerolls: 'never',  placeRandom: 0,    lookahead: true,  rerollMargin: 0.4 },
+    normal: { label: 'Normal', random: 0,    search: true,  specials: true,  rerolls: 'expect', placeRandom: 0,    lookahead: false, rerollMargin: 0.4 },
+    master: { label: 'Master', random: 0,    search: true,  specials: true,  rerolls: 'expect', placeRandom: 0,    lookahead: true,  rerollMargin: 0.4 },
   },
   elements: {
     Grass:    { color: '#4caf50', bg: '#bfe8a5', icon: '🌿' },
@@ -943,9 +965,8 @@ const Engine = (() => {
   function afterPlace(s, side) {
     const b = s.battle;
     if (b.mode === 'wild') {
-      if (side === 1) { if (b.placed[0] === 0) { b.pl = { side: 0, left: 1, optional: false }; return; } if (canExpand(s)) b.pl = { side: 0, left: 1, optional: true }; else beginFight(s); return; }     // a wild card is down
-      if (b.placed[0] === 1) { if (canExpand(s)) b.pl = { side: 0, left: 1, optional: true }; else beginFight(s); return; }                                                                            // your first card is down: bring more, or fight
-      const w = drawWild(s, b.loc, 1); if (!w.length) { beginFight(s); return; } addHand(b, 1, w[0]); b.pl = { side: 1, left: 1 };                                                            // you brought another: they draw one more
+      if (side === 1) { if (b.hand[0].length) b.pl = { side: 0, left: 1, optional: false }; else beginFight(s); return; }          // a wild card is down: you answer it
+      if (canExpand(s)) b.pl = { side: 0, left: 1, optional: true }; else beginFight(s);                                        // your card is down: tap the deck for another wild card, or fight
       return;
     }
     if (b.placed[0] >= b.need[0] && b.placed[1] >= b.need[1]) { beginFight(s); return; }
@@ -955,6 +976,7 @@ const Engine = (() => {
   function doPlace(s, a) {
     const b = s.battle; if (b.stage !== 'place') return 'not placing now';
     if (!b.pl || b.pl.side !== a.side) return 'not your turn to place';
+    if (b.mode === 'wild' && b.pl.optional) return 'tap the deck to draw another wild card, or press Fight';
     if (b.hand[a.side].indexOf(a.uid) < 0) return 'that card is not in the tray';
     if (a.join != null) { const c = b.cols[a.join]; if (!c || c[a.side] != null) return 'that space is taken'; }
     else if (a.at != null) { if (b.cols.length >= colLimit(b, a.side) || a.at < 0 || a.at > b.cols.length) return 'no room for another column'; }
@@ -986,8 +1008,12 @@ const Engine = (() => {
       const n = living(b, sd).filter(u => !u.skip).length;
       b.dice[sd] = Array.from({ length: n }, () => die(s));
       b.dcol = b.dcol || [[], []]; b.dcol[sd] = diceColors(s, b, sd).slice(0, n);
-      b.rr[sd] = R.baseRerolls; b.rrFace[sd] = []; b.rrUsed[sd] = {}; (b.locked = b.locked || [{}, {}])[sd] = {}; (b.fixed = b.fixed || [{}, {}])[sd] = {};
+      b.rr[sd] = sd === 0 ? R.baseRerolls : 0; b.rrFace[sd] = []; b.rrUsed[sd] = {}; (b.locked = b.locked || [{}, {}])[sd] = {}; (b.fixed = b.fixed || [{}, {}])[sd] = {};
       living(b, sd).forEach(u => tags(u).forEach(t => { if (t.t === 'reroll') b.rr[sd] += t.n; if (t.t === 'rerollFace' && b.rrFace[sd].indexOf(t.face) < 0) b.rrFace[sd].push(t.face); }));
+    });
+    [0, 1].forEach(sd => {                                           // a frozen die: the card keeps last round's number, already given to it, and it cannot be moved or rerolled
+      const fx = b.fixed[sd]; let k = b.dice[sd].length - 1;
+      living(b, sd).forEach(u => { if (u.frozen == null) return; if (!u.skip && k >= 0) { b.dice[sd][k] = u.frozen; b.asg[sd][u.uid] = { dice: [k], tgt: null }; fx[k] = 1; b.locked[sd][k] = 1; ev(b, { t: 'text', msg: CARDS[u.id].name + "'s die is frozen at " + u.frozen }); k--; } u.frozen = null; });
     });
     living(b, 0).concat(living(b, 1)).forEach(u => { if (has(u, 'dampReroll') && b.cols[colIdx(b, u.uid)] && b.cols[colIdx(b, u.uid)][other(u.side)] != null) b.rr[other(u.side)] = Math.max(0, b.rr[other(u.side)] - 1); });
     b.units.forEach(u => { u.elem = null; });
@@ -1684,6 +1710,10 @@ const Engine = (() => {
     }
     if (!b) return 'no battle';
     switch (a.t) {
+      case 'drawwild': {                                              // tap the deck: the next wild card comes up, the computer puts it down, and you must answer it
+        if (b.stage !== 'place' || b.mode !== 'wild' || !b.pl || !b.pl.optional || b.pl.side !== 0 || !canExpand(s)) return 'not now';
+        const w = drawWild(s, b.loc, 1); if (!w.length) return 'the deck is empty'; addHand(b, 1, w[0]); b.pl = { side: 1, left: 1 }; return null;
+      }
       case 'ready': if (b.stage !== 'place' || b.mode !== 'wild' || !b.pl || !b.pl.optional || b.pl.side !== 0) return 'not now'; beginFight(s); return null;
       case 'first': if (b.stage !== 'place' || b.firstChosen || b.mode === 'wild') return 'too late'; b.pl = { side: a.side === 0 ? 0 : 1, left: R.firstPlaceCount }; return null;
       case 'place': return doPlace(s, a);
@@ -1694,8 +1724,10 @@ const Engine = (() => {
       case 'tweak': return doTweak(s, a);
       case 'aim': return doAim(s, a);
       case 'gm': {                                    // the computer's side: its dice go on its cards
-        if (b.stage !== 'assign') return 'not assigning now'; if (b.colMode) { if (!b.rolled) return 'not rolled'; b.gmReady = true; return null; } b.asg[1] = {};
-        (a.asg || []).forEach(x => { if (x.uid != null && x.dice && x.dice.every(i => b.dice[1][i] != null)) b.asg[1][x.uid] = { dice: x.dice.slice(), tgt: x.tgt == null ? null : x.tgt }; });
+        if (b.stage !== 'assign') return 'not assigning now'; if (b.colMode) { if (!b.rolled) return 'not rolled'; b.gmReady = true; return null; }
+        const kept = {}, usedD = new Set(); Object.keys(b.asg[1]).forEach(k => { const x = b.asg[1][k]; if (x.dice.some(i => b.fixed[1][i])) { kept[k] = x; x.dice.forEach(i => usedD.add(i)); } }); b.asg[1] = kept;       // frozen dice stay where they are
+        (a.asg || []).forEach(x => { if (x.uid != null && !kept[x.uid] && x.dice && x.dice.every(i => b.dice[1][i] != null && !usedD.has(i))) { b.asg[1][x.uid] = { dice: x.dice.slice(), tgt: x.tgt == null ? null : x.tgt }; x.dice.forEach(i => usedD.add(i)); } });
+        if (Object.keys(kept).length) { const free = b.dice[1].map((_, i) => i).filter(i => !usedD.has(i)); living(b, 1).filter(u => !u.skip && !b.asg[1][u.uid]).forEach(u => { const i = free.shift(); if (i != null) b.asg[1][u.uid] = { dice: [i], tgt: null }; }); }
         b.gmReady = true; return null;
       }
       case 'go2': {
@@ -1716,6 +1748,12 @@ const Engine = (() => {
         if (b.out === 'hero' || b.out === 'gm') { cleanUp(s); endBattle(s, b.out === 'hero'); return null; }
         if (b.out === 'sudden') { suddenDeath(s); return null; }
         cleanUp(s); startRound(s); return null;
+      }
+      case 'recall': {                                                // take one of your cards out of the fight (it goes back to your collection unharmed): a way out of tricky spots
+        if (b.stage !== 'assign') return 'only before you press Resolve'; const u = U(b, a.uid);
+        if (!u || u.side !== 0 || u.ko) return 'not your card'; if (living(b, 0).length < 2) return 'that is your last card: flee instead';
+        const ci = colIdx(b, u.uid); if (ci >= 0) b.cols[ci][0] = null; u.ko = true; u.recalled = true; delete b.asg[0][u.uid]; dropEmpty(b);
+        ev(b, { t: 'text', msg: CARDS[u.id].name + ' is called back' }); return null;
       }
       case 'forfeit': endBattle(s, false); return null;
     }
@@ -1811,6 +1849,13 @@ const Bots = (() => {
   }
   // which dice to throw again, all together and once: Master tries throwing away its weakest 1..n dice and compares the average plan with the one it has;
   // Normal and Easy never reroll. (A small fixed random stream is used so thinking about it never disturbs the game's own dice.)
+  // a card that says "you may always reroll 1s": any such die is thrown again for free, once each (Normal and Master)
+  function freeReroll(s, side, level) {
+    const b = s.battle; if (lv(level).rerolls === 'never' || !b.rrFace[side].length) return null;
+    const lk = (b.locked && b.locked[side]) || {}, used = E.assignedDice(b, side);
+    const i = b.dice[side].findIndex((v, k) => b.rrFace[side].indexOf(v) >= 0 && !b.rrUsed[side][k] && !lk[k] && !used.has(k));
+    return i >= 0 ? { t: 'reroll', side, die: i } : null;
+  }
   function rerollPlan(s, side, level) {
     const b = s.battle, L = lv(level); if (L.rerolls === 'never' || b.rr[side] <= 0) return null;
     const dice = b.dice[side], units = E.living(b, side).filter(u => !u.skip); if (!dice.length || !units.length) return null;
@@ -1871,6 +1916,7 @@ const Bots = (() => {
     }
     if (b.stage === 'assign' && !b.gmReady) {
       const m = movements(s, 1, level); if (m) return m;
+      const fr = freeReroll(s, 1, level); if (fr) return fr;
       const rr = rerollPlan(s, 1, level); if (rr) return rr;
       return { t: 'gm', asg: assignment(s, 1, level) };
     }
@@ -1898,7 +1944,7 @@ const Bots = (() => {
     if (s.phase === 'won') return { t: 'done' };
     if (!b) return null;
     if (b.stage === 'place') {
-      if (b.pl.side === 0) return placement(s, 0, level);
+      if (b.pl.side === 0) { if (b.mode === 'wild' && b.pl.optional) return E.canExpand(s) ? { t: 'drawwild' } : { t: 'ready' }; return placement(s, 0, level); }
       return null;
     }
     if (b.colMode && b.stage === 'assign') {
@@ -1996,6 +2042,8 @@ const Bots = (() => {
     .replace(/max h\b/g, 'max health').replace(/\b(at|below) (\d+)h\b/g, '$1 $2 health')
     .replace(/(\d+)a\b/g, '$1 attack').replace(/(\d+)b\b/g, '$1 block').replace(/(\d+)h\b/g, '$1 heal').replace(/(\d+)d\b/g, '$1 💥')
     .replace(/[<>^]+/g, m => m.replace(/</g, '◀').replace(/>/g, '▶').replace(/\^/g, '▲')).replace(/\bv\b/g, '▼'));
+  // health as pips: solid = health now; hatched = health lost since the round began (blocks can only win back up to where the round began); green = healed above it; empty = room up to max
+  const hpPips = (cur, start, mx) => { let h = ''; for (let i = 1; i <= mx; i++) h += `<i class="${i <= Math.min(cur, start) ? 'k' : i <= cur ? 'g' : i <= start ? 'l' : ''}"></i>`; return `<div class="pips" title="${cur} now, ${start} at the start of the round, ${mx} at most">${h}</div>`; };
   const CH = 1.58;          // a card is this many card-widths tall
   const lvName = n => (D.rules.levelLabels || [])[n - 1] || n;
   const lvRange = loc => { const ls = Object.values(C).filter(c => c.loc === loc && !c.legend).map(c => c.level); if (!ls.length) return ''; const a = lvName(Math.min(...ls)), b = lvName(Math.max(...ls)); return a === b ? 'Level ' + a : 'Levels ' + a + '–' + b; };
@@ -2012,8 +2060,8 @@ const Bots = (() => {
       ${D.elements[c.weak] ? `<div class="wkt" style="--wc:${el(c.weak).color}">weak: ${el(c.weak).icon} ${esc(c.weak)} ×2</div>` : ''}
       <div class="cbox">
         <div class="art"><img src="${art(u.id, u.sh)}" alt="${esc(c.name)}">${u.sh ? sparkles() : ''}${o.mark ? `<div class="mark">${o.mark}</div>` : ''}${o.die != null ? `<div class="dbadge${o.heroDie ? ' hero' : ''}${o.land ? ' land' : ''}${o.dieCol ? ' colored' : ''}" ${o.dieAttr || ''}${o.dieCol ? ` style="background:${o.dieCol}"` : ''}>${o.die}${o.dieBonus ? '<small>+1</small>' : ''}</div>` : ''}</div>
-        <div class="nm">${esc(c.name)}${u.sh ? ' ✨' : ''}</div>
-        <div class="side"><div class="hprow"><div class="hpc${lvl}">♥ <span class="hpn">${Math.max(0, hp)}</span><small>/${mx}</small></div>${o.chg ? `<span class="hpchg${o.chg.heal ? ' up' : ''}">${o.chg.heal ? '+' : '−'}${o.chg.n}${o.chg.weak ? ' <b>×2</b>' : ''}</span>` : ''}</div>${o.shield ? `<div class="shd">🛡 ${o.shield}</div>` : ''}<div class="tagl">${e.icon} ${esc(c.type)}</div><div class="lv">Lv ${lvName(c.level)}</div></div>
+        <div class="nm">${esc(c.name)}${u.sh ? ' ✨' : ''}</div>${o.recall ? `<div class="rcl${o.recall === 'sure' ? ' sure' : ''}" data-act="recall" data-uid="${u.uid}">${o.recall === 'sure' ? 'Return it?' : '↩'}</div>` : ''}
+        <div class="side"><div class="hprow"><div class="hpc${lvl}">♥ <span class="hpn">${Math.max(0, hp)}</span><small>/${mx}</small></div>${o.chg ? `<span class="hpchg${o.chg.heal ? ' up' : ''}">${o.chg.heal ? '+' : '−'}${o.chg.n}${o.chg.weak ? ' <b>×2</b>' : ''}</span>` : ''}</div>${o.shield ? `<div class="shd">🛡 ${o.shield}</div>` : ''}${o.start != null && mx <= 14 ? hpPips(hp, o.start, mx) : ''}<div class="tagl">${e.icon} ${esc(c.type)}</div><div class="lv">Lv ${lvName(c.level)}</div></div>
       </div>
       <div class="ab${o.ab ? ' ' + o.ab.state + (o.ab.on ? ' on' : '') : ''}" ${o.ab && o.ab.state === 'ready' && o.ab.attr ? o.ab.attr : ''}>${c.ability ? abText(c.ability) : 'No ability'}${o.ab && o.ab.html ? o.ab.html : ''}</div>
       <div class="faces">${rows}</div>
@@ -2544,7 +2592,7 @@ const Bots = (() => {
       }
       const pf = assign && !waitRoll && u.side === 0 && !ko && ui.die != null ? b.dice[0][ui.die] : 0;
       const dcol1 = null, dbonus = false;
-      return card(u, { cw, dieCol: dcol1, dieBonus: dbonus, foe: u.side === 1, ko: koOf(u), hp: hpOf(u), shield: u.shield || 0, face, sp: spOn, pf, die, chg: chgOf(u), land: ui.landed === u.uid, heroDie: u.side === 0, dieAttr: !colM && u.side === 0 && assign && !(info && b.fixed && b.fixed[0] && info.die.some(i => b.fixed[0][i])) ? `data-act="unmv" data-uid="${u.uid}"${info && info.die.length === 1 ? ` data-i="${info.die[0]}"` : ''}` : '', mark, ab: abil, cls: clsOf(u) + (ui.swap && u.side === 1 && !ko ? (ui.swap.picks.indexOf(u.uid) >= 0 ? ' sel act' : ' sel') : ''), pop: popOf(u), attr: `data-act="unit" data-uid="${u.uid}"` });
+      return card(u, { cw, dieCol: dcol1, dieBonus: dbonus, foe: u.side === 1, ko: koOf(u), hp: hpOf(u), start: (b.stage === 'assign' || b.stage === 'place') ? hpOf(u) : (b.before && b.before[u.uid] != null ? b.before[u.uid] : hpOf(u)), shield: u.shield || 0, face, sp: spOn, pf, die, chg: chgOf(u), land: ui.landed === u.uid, heroDie: u.side === 0, dieAttr: !colM && u.side === 0 && assign && !(info && b.fixed && b.fixed[0] && info.die.some(i => b.fixed[0][i])) ? `data-act="unmv" data-uid="${u.uid}"${info && info.die.length === 1 ? ` data-i="${info.die[0]}"` : ''}` : '', mark, ab: abil, recall: assign && !rolling && u.side === 0 && !ko && E.living(b, 0).length > 1 ? (ui.recall === u.uid ? 'sure' : 'ask') : '', cls: clsOf(u) + (ui.swap && u.side === 1 && !ko ? (ui.swap.picks.indexOf(u.uid) >= 0 ? ' sel act' : ' sel') : ''), pop: popOf(u), attr: `data-act="unit" data-uid="${u.uid}"` });
     };
     const slotHtml = (ci, side) => {
       const uid = b.cols[ci][side];
@@ -2563,7 +2611,7 @@ const Bots = (() => {
     const diceHtml = !waitRoll && (assign || done || p) && hd.length ? hd.map((v, i) => [v, i]).sort((x, y) => y[0] - x[0] || x[1] - y[1]).map(([v, i]) => dieHtml(v, { sel: ui.die === i, used: !colM && used.has(i), tumble: rolling && (!ui.rerolled || ui.rerolled.indexOf(i) >= 0), attr: !colM && assign && !rolling && !(b.fixed && b.fixed[0] && b.fixed[0][i]) ? `data-act="die" data-i="${i}"` : '' })).join('') : '';
     let status = '', btns = '';
     const opt = yourPlace && b.pl.optional;
-    if (placing) status = (b.sudden ? 'SUDDEN DEATH · ' : '') + (yourPlace ? (selected != null ? 'Now tap where it goes' : opt ? 'Bring another card (they will draw one more), or fight now' : 'Pick a Pokémon from your hand to put down') : 'They are putting a card down…');
+    if (placing) status = (b.sudden ? 'SUDDEN DEATH · ' : '') + (yourPlace ? (selected != null ? 'Now tap where it goes' : opt ? 'Tap the deck for another wild card, or Fight!' : 'Pick a Pokémon from your hand to put down') : 'They are putting a card down…');
     else if (waitRoll) status = '<span class="rollhint">🎲 Tap anywhere to roll</span>';
     else if (assign && colM) { status = (b.sudden ? 'SUDDEN DEATH · ' : '') + (rolling ? 'Rolling…' : b.dice[0].length ? 'Keep it, or reroll?' : 'Nothing to roll for you here'); }
     else if (assign) { const need = E.living(b, 0).filter(u => !u.skip && !b.asg[0][u.uid]).length; status = (b.sudden ? 'SUDDEN DEATH · ' : '') + (rolling ? 'Rolling…' : ui.tweak != null ? 'Tap the die to change to ' + (E.tags(E.U(b, ui.tweak)).find(g => g.t === 'setDie') || {}).v : ui.die != null ? 'Tap a card to give it that ' + b.dice[0][ui.die] : (E.readyToGo(b, 0) ? 'Ready? Press Resolve!' : 'Drag a die onto a card')); }
@@ -2582,11 +2630,12 @@ const Bots = (() => {
       btns = `${b.rr[0] > 0 ? `<button class="btn alt" data-act="reroll" ${canRe ? '' : 'disabled'}>🔄 Reroll</button>` : ''}${canFree ? '<button class="btn alt" data-act="rerollfree">🔄 Free reroll</button>' : ''}<button class="btn big" data-act="go" ${!rolling && E.readyToGo(b, 0) && b.gmReady ? '' : 'disabled'}>Resolve</button>`;
     }
     const nodeB = E.node(b.node), pw = Math.max(64, Math.min(96, RW - 70));
-    const pileHtml = placing && nodeB.kind === 'loc' ? `<div class="pilebay" style="--pw:${pw}px">${deckPile(nodeB.loc, { pw, count: E.deckSize(G, nodeB.loc) })}</div>` : placing && nodeB.kind === 'boss' ? `<div class="pilebay" style="--pw:${pw}px">${deckPile(null, { pw, count: b.hand[1].length, svg: gymBack(nodeB), dk: gymPal(nodeB)[0] })}</div>` : '';
+    const pileHtml = placing && nodeB.kind === 'loc' ? `<div class="pilebay${opt ? ' tappable' : ''}" style="--pw:${pw}px" ${opt ? 'data-act="drawdeck"' : ''}>${deckPile(nodeB.loc, { pw, count: E.deckSize(G, nodeB.loc) })}</div>` : placing && nodeB.kind === 'boss' ? `<div class="pilebay" style="--pw:${pw}px">${deckPile(null, { pw, count: b.hand[1].length, svg: gymBack(nodeB), dk: gymPal(nodeB)[0] })}</div>` : '';
     const fight = opt ? '<button class="btn big" data-act="ready">Fight!</button>' : '';
+    const trainerHtml = nodeB.kind !== 'loc' && D.trainerArt && D.trainerArt[nodeB.id] ? `<div class="trainer"><img class="pix" src="data:image/png;base64,${D.trainerArt[nodeB.id]}" alt="${esc(nodeB.name)}"><b>${esc(nodeB.name)}</b></div>` : '';
     const railIn = placing ? `<div class="status">${status}</div>${fight}<div class="hrow handrow hcol">${heroTray}</div>${pileHtml}` : `<div class="rmid"><div class="status">${status}</div><div class="dice">${diceHtml}</div></div><div class="acts">${btns}</div>`;
     const dw = RW >= 200 ? 78 : RW >= 150 ? 62 : 46;
-    return `<div class="bt"><div class="board">${cols}</div><div class="rail" style="width:${RW}px;--dw:${dw}px"><div class="rtop"><button class="ib" data-act="leave" style="${ui.leaveAsk ? 'width:auto;padding:0 12px;font-size:16px;font-weight:800' : ''}" aria-label="Leave">${ui.leaveAsk ? 'Flee?' : '🏃'}</button><button class="ib" data-act="menu" aria-label="Menu">☰</button></div>${railIn}</div></div>`;
+    return `<div class="bt"><div class="board">${cols}</div><div class="rail" style="width:${RW}px;--dw:${dw}px"><div class="rtop"><button class="ib" data-act="leave" style="${ui.leaveAsk ? 'width:auto;padding:0 12px;font-size:16px;font-weight:800' : ''}" aria-label="Leave">${ui.leaveAsk ? 'Flee?' : '🏃'}</button><button class="ib" data-act="menu" aria-label="Menu">☰</button></div>${trainerHtml}${railIn}</div></div>`;
   }
   // a card is picked in two steps so a quick tap can never choose one by accident: tap it, then OK in the middle of the screen (and a card that is not the strongest asks again)
   function pickDialog(r) {
@@ -2825,6 +2874,8 @@ const Bots = (() => {
     },
     ready() { act({ t: 'ready' }); },
     leave() { if (!ui.leaveAsk) { ui.leaveAsk = true; render(); setTimeout(() => { if (ui.leaveAsk) { ui.leaveAsk = false; render(); } }, 3000); return; } ui.leaveAsk = false; act({ t: 'forfeit' }); },
+    drawdeck() { act({ t: 'drawwild' }); },
+    recall(el) { const k = +el.dataset.uid; if (ui.recall === k) { ui.recall = null; act({ t: 'recall', uid: k }); } else { ui.recall = k; render(); } },
     tray(el) {
       if (!(G.battle && G.battle.pl && G.battle.pl.side === 0)) return;                 // not your turn yet
       const k = +el.dataset.uid; ui.sel = ui.sel === k ? null : k;
@@ -2906,11 +2957,12 @@ const Bots = (() => {
     else render();
   });
   document.addEventListener('pointercancel', endDrag);
-  function resetSel() { ui.pickSel = null; ui.more = false; ui.gsw = null; ui.chip = false; ui.tweak = null; ui.sel = null; ui.die = null; ui.aim = null; ui.pick = []; ui.chooser = null; ui.play = null; ui.rolledFor = 0; ui.rollTap = null; ui.rolling = 0; ui.mapX = null; }
+  function resetSel() { ui.recall = null; ui.pickSel = null; ui.more = false; ui.gsw = null; ui.chip = false; ui.tweak = null; ui.sel = null; ui.die = null; ui.aim = null; ui.pick = []; ui.chooser = null; ui.play = null; ui.rolledFor = 0; ui.rollTap = null; ui.rolling = 0; ui.mapX = null; }
   document.addEventListener('click', ev => {
     if (ui.dragged && Date.now() - ui.dragged < 400) return;                 // that was the end of a drag, not a tap
     if (ui.rolling && Date.now() < ui.rolling) return;                       // the dice are still tumbling
     const t = ev.target.closest('[data-act]');
+    if (ui.recall != null && !(t && t.dataset.act === 'recall')) { ui.recall = null; render(); }          // tapping anywhere else cancels "Return it?"
     { const st = ev.target.closest('[data-stop]'); if (t && st && t !== st && !st.contains(t)) return; }          // a tap inside a sheet's frame (not on one of its buttons) does not close it; a tap outside does
     if (ui.play && !ui.play.waiting) { const ac = t && t.dataset.act; if (ac === 'skip') { skipPlay(); return; } if (!(ac === 'menu' || ac === 'tipok' || ac === 'leave')) { advancePlay(); return; } }      // a tap shows the next card
     if (G && G.phase === 'battle' && G.battle && G.battle.colMode && G.battle.stage === 'assign' && !G.battle.rolled && !ui.play && !ui.menu && !ui.help && !ui.coll && !ui.tip && !ui.settings && ui.gsw == null && !ui.swap && !(t && t.dataset.act === 'unit' && (ui.gsw != null || ui.swap) || t && ['menu', 'tipok', 'leave', 'mv', 'swapstart', 'gswstart', 'tweak'].indexOf(t.dataset.act) >= 0)) { act({ t: 'roll' }); setTimeout(maybeTips, 1100); return; }      // tap anywhere to roll this column's dice
