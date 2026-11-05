@@ -330,3 +330,29 @@ test('ui: arriving on the map deals the piles out from the left, once, not on ev
     assert.deepEqual(errs, []);
   } finally { await b.close(); }
 });
+test('ui: a die on a card can be dragged to another card, or back to the tray', { skip: !chromium }, async () => {
+  const b = await chromium.launch(), p = await b.newPage({ viewport: { width: 820, height: 1180 } });
+  const errs = []; p.on('pageerror', e => errs.push(e.message));
+  try {
+    await p.goto(URL); await p.evaluate(() => { localStorage.setItem('pokemon-roll-tips', JSON.stringify({ place: 1, dice: 1, roll: 1, end: 1, shiny: 1 })); }); await p.reload();
+    await p.evaluate(() => {
+      const s = Engine.newGame({ seed: 12, starter: 'charmander', size: 'short', ai: 'normal' }); s.done.B1 = true; s.lv = 3; s.coll.push({ uid: 10, id: '1.2', sh: 0 });
+      const R = window.__pokemonRoll; R.setG(s); R.act({ t: 'go', node: 'B2' }); const G = R.G; let g; while ((g = Bots.step(G))) Engine.apply(G, g);
+      for (let i = 0; i < 8 && G.battle.stage === 'place'; i++) { if (G.battle.pl.side === 0 && G.battle.hand[0].length) Engine.apply(G, Object.assign({ t: 'place', side: 0, uid: G.battle.hand[0][0] }, Engine.slotsFor(G.battle, 0).find(x => x.join != null) || Engine.slotsFor(G.battle, 0)[0])); while ((g = Bots.step(G))) Engine.apply(G, g); }
+      R.render();
+    });
+    await p.waitForFunction(() => window.__pokemonRoll.G.battle.stage === 'assign', null, { timeout: 8000 }); await p.locator('.rollhint').click(); await p.waitForTimeout(1500);
+    const asg = () => p.evaluate(() => { const a = window.__pokemonRoll.G.battle.asg[0]; return Object.keys(a).map(k => k + ':' + a[k].dice.join()).sort().join('|'); });
+    const box = async sel => { const r = await p.locator(sel).first().boundingBox(); return [r.x + r.width / 2, r.y + r.height / 2]; };
+    const drag = async (from, to) => { await p.mouse.move(from[0], from[1]); await p.mouse.down(); await p.mouse.move(from[0] + 20, from[1] + 20, { steps: 3 }); await p.mouse.move(to[0], to[1], { steps: 8 }); await p.mouse.up(); await p.waitForTimeout(300); };
+    const cards = await p.locator('.board .card:not(.foe)').count(); assert.ok(cards >= 2, 'two of your cards');
+    await drag(await box('.die[data-act=die]'), await box('.board .card:not(.foe) >> nth=0'));
+    const one = await asg(); assert.equal(one.split('|').length, 1, 'a die is on a card: ' + one);
+    assert.equal(await p.locator('.dbadge.hero').first().evaluate(e => getComputedStyle(e).backgroundColor), 'rgb(255, 255, 255)', 'the die on a card looks like a die: white');
+    await drag(await box('.dbadge.hero'), await box('.board .card:not(.foe) >> nth=1'));
+    const two = await asg(); assert.equal(two.split('|').length, 1, 'still one die on a card'); assert.notEqual(two.split(':')[0], one.split(':')[0], 'it moved to the other card: ' + one + ' -> ' + two);
+    await drag(await box('.dbadge.hero'), await box('.rail .dice'));
+    assert.equal(await asg(), '', 'dropped anywhere but a card, it goes back to the tray');
+    assert.deepEqual(errs, []);
+  } finally { await b.close(); }
+});

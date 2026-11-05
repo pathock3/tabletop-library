@@ -16,8 +16,10 @@
 <style>
 :root{--ink:#14110f;--navy:#0e1a33;--panel:#17264a;--gold:#ffd23f;--red:#e5383b;--green:#2fa35b;--blue:#2a6fdb;--card:#fffdf4}
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent;-webkit-touch-callout:none;user-select:none}
-html,body{margin:0;height:100%;overflow:hidden;overscroll-behavior:none;background:#6a4423;color:#fff;font-family:system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;touch-action:manipulation}
-#app{position:fixed;inset:0;padding:env(safe-area-inset-top) 0 env(safe-area-inset-bottom);display:flex;flex-direction:column;background:radial-gradient(130% 95% at 50% 42%,transparent 50%,#1c0e0594 100%),url("data:image/svg+xml;utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='380' height='380'%3E%3Cfilter id='w' x='0' y='0' width='100%25' height='100%25'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.045 0.0035' numOctaves='5' seed='11'/%3E%3CfeColorMatrix values='0 0 0 0 .20  0 0 0 0 .09  0 0 0 0 .03  0 0 0 1.6 -.35'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url%28%23w%29'/%3E%3C/svg%3E"),repeating-linear-gradient(90deg,#9a6a3a 0 173px,#2a160a 173px 176px,#8b5c30 176px 349px,#2a160a 349px 352px,#a2723f 352px 525px,#2a160a 525px 528px,#865830 528px 701px,#2a160a 701px 704px),#8b5c30;background-size:auto,380px 380px,704px 100%,auto}
+html,body{margin:0;height:100%;overflow:hidden;overscroll-behavior:none;color:#fff;font-family:system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;touch-action:manipulation}
+html{background-color:#8c5d31;background-image:url("data:image/svg+xml;utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='380' height='380'%3E%3Cfilter id='w' x='0' y='0' width='100%25' height='100%25'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.05 0.0035' numOctaves='5' seed='11' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .22  0 0 0 0 .10  0 0 0 0 .03  0 0 0 1.5 -.32'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url%28%23w%29'/%3E%3C/svg%3E");background-size:380px 380px}
+body{background:transparent}
+#app{position:fixed;inset:0;padding:env(safe-area-inset-top) 0 0;display:flex;flex-direction:column}
 button{font:inherit;color:inherit;border:0;cursor:pointer}
 .btn{min-height:56px;padding:10px 26px;border-radius:16px;font-weight:900;font-size:22px;background:linear-gradient(#ffe066,#ffb703);color:#3a2600;border:3px solid #14110f;box-shadow:0 5px 0 #14110f;letter-spacing:.02em}
 .btn:active{transform:translateY(3px);box-shadow:0 2px 0 #14110f}
@@ -79,7 +81,8 @@ button{font:inherit;color:inherit;border:0;cursor:pointer}
 .card .sp.hot{box-shadow:0 0 0 2px #fff,0 0 12px #ffd000}
 .card .xb{position:absolute;left:4%;right:4%;bottom:1.5%;z-index:6;margin:0;box-shadow:0 2px 0 #0007;padding:2px;border-radius:calc(var(--cw)*.035);background:#ffb703;color:#14110f;font-weight:900;font-size:calc(var(--cw)*.07);text-align:center;border:max(1px,calc(var(--cw)*.011)) solid var(--ink)}
 .card .dbadge{position:absolute;right:calc(var(--cw)*.015);bottom:calc(var(--cw)*.015);z-index:3;min-width:calc(var(--cw)*.2);height:calc(var(--cw)*.2);padding:0 calc(var(--cw)*.03);border-radius:calc(var(--cw)*.04);background:#fff;color:var(--ink);border:max(1px,calc(var(--cw)*.016)) solid var(--ink);display:grid;place-items:center;font-weight:900;font-size:calc(var(--cw)*.14);box-shadow:0 3px 0 #0006}
-.card .dbadge.hero{background:#ffe46b}
+.card .dbadge.hero{background:#fff;touch-action:none;cursor:grab}
+.card .dbadge.lifted{opacity:.25}
 .card .dbadge.land{animation:land .4s cubic-bezier(.3,1.6,.5,1)}
 @keyframes land{from{transform:translateY(-44px) rotate(-60deg) scale(1.6);opacity:0}to{transform:none;opacity:1}}
 .card.dropok{transform:translateY(-6px);box-shadow:0 0 0 4px #7dff9c,0 8px 18px #000a}
@@ -2048,12 +2051,12 @@ const Bots = (() => {
   function battleScreen() {
     const b = G.battle, p = ui.play, placing = b.stage === 'place', assign = b.stage === 'assign', done = b.stage === 'resolved' && !p;
     // one screen: the cards fill it top to bottom, and everything else (your hand, the dice, the buttons) lives in a column down the right
-    const H = viewH(), RW = innerWidth >= 1000 ? 212 : innerWidth >= 700 ? 176 : innerWidth >= 500 ? 150 : 118, W = Math.min(innerWidth, 1000 + RW) - RW;
+    const H = viewH(), RW = innerWidth >= 1000 ? 212 : innerWidth >= 700 ? 160 : innerWidth >= 500 ? 150 : 118, W = Math.min(innerWidth, 1000 + RW) - RW;
     const selected = ui.sel != null && b.hand[0].indexOf(ui.sel) >= 0 ? ui.sel : null;
     const yourPlace = placing && b.pl.side === 0;
     const insAts = yourPlace && selected != null ? E.slotsFor(b, 0).filter(sl => sl.at != null).map(sl => sl.at) : [];       // where a new column could go: each one is shown as a spot the size of a card
     const m = Math.max(1, b.cols.length + insAts.length, b.mode === 'wild' ? b.cap : Math.max(b.need[0], b.need[1]));
-    const cwW = Math.floor((W - 8 - (m + 1) * 6 - m * 14) / m), cwH = Math.floor((H - 12 - 10 - 2) / 2 / 1.9);
+    const cwW = Math.floor((W - 8 - (m + 1) * 4 - m * 6) / m), cwH = Math.floor((H - 10 - 2) / 2 / 1.9);
     const cw = Math.max(insAts.length ? 90 : 120, Math.min(320, cwW, cwH)), hcw = Math.max(80, Math.min(180, RW - 30));
     if (ui.lastTurn === G.turn && ui.lastCw && ui.lastCw !== cw) ui.zoomFrom = ui.lastCw / cw; ui.lastCw = cw; ui.lastTurn = G.turn;       // if the board changes size, it zooms rather than jumps
     const waitRoll = assign && b.round === 1 && ui.rollTap !== G.turn;                       // the first roll of a fight is a tap, too
@@ -2086,7 +2089,7 @@ const Bots = (() => {
       const mvb = canMv && E.tags(u).some(g => g.t === 'mover') && u.movedR !== b.round && b.cols.length > 1 ? `<div class="xb"><span data-act="mv" data-uid="${u.uid}" data-dir="-1" style="padding:8px 16px">◀</span> Move <span data-act="mv" data-uid="${u.uid}" data-dir="1" style="padding:8px 16px">▶</span></div>` : '';
       const swb = canMv && E.tags(u).some(g => g.t === 'swapper') && u.swapR !== b.round && E.living(b, 1).length > 1 ? `<div class="xb" data-act="swapstart" data-uid="${u.uid}">${ui.swap && ui.swap.uid === u.uid ? 'Tap two of theirs' : '⇄ Swap two'}</div>` : '';
       const pf = assign && !waitRoll && u.side === 0 && !ko && ui.die != null ? b.dice[0][ui.die] : 0;
-      return card(u, { cw, foe: u.side === 1, ko: koOf(u), hp: hpOf(u), shield: u.shield || 0, face, sp: spOn, pf, die, chg: chgOf(u), land: ui.landed === u.uid, heroDie: u.side === 0, dieAttr: u.side === 0 && assign ? `data-act="unmv" data-uid="${u.uid}"` : '', mark, extra: extra + mvb + swb, cls: clsOf(u) + (ui.swap && u.side === 1 && !ko ? (ui.swap.picks.indexOf(u.uid) >= 0 ? ' sel act' : ' sel') : ''), pop: popOf(u), attr: `data-act="unit" data-uid="${u.uid}"` });
+      return card(u, { cw, foe: u.side === 1, ko: koOf(u), hp: hpOf(u), shield: u.shield || 0, face, sp: spOn, pf, die, chg: chgOf(u), land: ui.landed === u.uid, heroDie: u.side === 0, dieAttr: u.side === 0 && assign ? `data-act="unmv" data-uid="${u.uid}"${info && info.die.length === 1 ? ` data-i="${info.die[0]}"` : ''}` : '', mark, extra: extra + mvb + swb, cls: clsOf(u) + (ui.swap && u.side === 1 && !ko ? (ui.swap.picks.indexOf(u.uid) >= 0 ? ' sel act' : ' sel') : ''), pop: popOf(u), attr: `data-act="unit" data-uid="${u.uid}"` });
     };
     const slotHtml = (ci, side) => {
       const uid = b.cols[ci][side];
@@ -2122,7 +2125,7 @@ const Bots = (() => {
     const pileHtml = placing && nodeB.kind === 'loc' ? `<div class="pilebay" style="--pw:${pw}px">${deckPile(nodeB.loc, { pw, count: E.deckSize(G, nodeB.loc) })}</div>` : '';
     const fight = opt ? '<button class="btn big" data-act="ready">Fight!</button>' : '';
     const railIn = placing ? `<div class="status">${status}</div>${fight}<div class="hrow handrow hcol">${heroTray}</div>${pileHtml}` : `<div class="rmid"><div class="status">${status}</div><div class="dice">${diceHtml}</div></div><div class="acts">${btns}</div>`;
-    const dw = RW >= 200 ? 78 : RW >= 170 ? 70 : RW >= 140 ? 62 : 46;
+    const dw = RW >= 200 ? 78 : RW >= 150 ? 62 : 46;
     return `<div class="bt"><div class="board">${cols}</div><div class="rail" style="width:${RW}px;--dw:${dw}px"><div class="rtop"><button class="ib" data-act="leave" style="${ui.leaveAsk ? 'width:auto;padding:0 12px;font-size:16px;font-weight:800' : ''}" aria-label="Leave">${ui.leaveAsk ? 'Flee?' : '🏃'}</button><button class="ib" data-act="menu" aria-label="Menu">☰</button></div>${railIn}</div></div>`;
   }
   function resultScreen() {
@@ -2352,12 +2355,16 @@ const Bots = (() => {
   const dropTarget = (x, y) => { const t = document.elementFromPoint(x, y), c = t && t.closest('.card[data-act=unit]'); if (!c || !G || !G.battle) return null; const u = E.U(G.battle, +c.dataset.uid); return u && u.side === 0 && !u.ko && G.battle.stage === 'assign' ? { c, u } : null; };
   const endDrag = () => { if (drag && drag.ghost) drag.ghost.remove(); if (drag && drag.el) drag.el.classList.remove('lifted'); document.querySelectorAll('.dropok').forEach(x => x.classList.remove('dropok')); drag = null; };
   document.addEventListener('pointerdown', ev => {
-    const d = ev.target.closest('.die[data-act=die]'); if (!d || (ui.rolling && Date.now() < ui.rolling)) return;
-    drag = { i: +d.dataset.i, x: ev.clientX, y: ev.clientY, moved: false, el: d, ghost: null };
+    const d = ev.target.closest('.die[data-act=die], .dbadge[data-act=unmv][data-i]'); if (!d || (ui.rolling && Date.now() < ui.rolling)) return;
+    drag = { i: +d.dataset.i, x: ev.clientX, y: ev.clientY, moved: false, el: d, ghost: null, from: d.classList.contains('dbadge') ? +d.dataset.uid : null };      // a die in the tray, or the die on a card (lift it to move it or put it back)
   });
   document.addEventListener('pointermove', ev => {
     if (!drag) return;
-    if (!drag.moved && Math.hypot(ev.clientX - drag.x, ev.clientY - drag.y) > 8) { drag.moved = true; const g = drag.el.cloneNode(true); g.classList.add('ghost'); g.classList.remove('sel'); g.removeAttribute('data-act'); document.body.appendChild(g); drag.ghost = g; drag.el.classList.add('lifted'); }
+    if (!drag.moved && Math.hypot(ev.clientX - drag.x, ev.clientY - drag.y) > 8) {
+      drag.moved = true; let g;
+      if (drag.from != null) { g = document.createElement('div'); g.className = 'die'; g.textContent = G.battle.dice[0][drag.i]; } else { g = drag.el.cloneNode(true); g.classList.remove('sel'); g.removeAttribute('data-act'); }
+      g.classList.add('ghost'); document.body.appendChild(g); drag.ghost = g; drag.el.classList.add('lifted');
+    }
     if (!drag.moved) return;
     drag.ghost.style.left = (ev.clientX - 33) + 'px'; drag.ghost.style.top = (ev.clientY - 33) + 'px';
     document.querySelectorAll('.dropok').forEach(x => x.classList.remove('dropok')); const t = dropTarget(ev.clientX, ev.clientY); if (t) t.c.classList.add('dropok');
@@ -2366,7 +2373,10 @@ const Bots = (() => {
     if (!drag) return; const d = drag; const t = d.moved ? dropTarget(ev.clientX, ev.clientY) : null; endDrag();
     if (!d.moved) return;
     ui.dragged = Date.now();
-    if (t && act({ t: 'assign', side: 0, uid: t.u.uid, die: d.i })) { ui.die = null; ui.landed = t.u.uid; setTimeout(() => { ui.landed = null; }, 700); } else render();
+    if (t && t.u.uid === d.from) { render(); return; }                                       // put back where it was
+    if (t && act({ t: 'assign', side: 0, uid: t.u.uid, die: d.i })) { ui.die = null; ui.landed = t.u.uid; setTimeout(() => { ui.landed = null; }, 700); }
+    else if (!t && d.from != null) act({ t: 'unassign', side: 0, uid: d.from });            // dropped anywhere but on a card: the die goes back to the tray
+    else render();
   });
   document.addEventListener('pointercancel', endDrag);
   function resetSel() { ui.sel = null; ui.die = null; ui.aim = null; ui.pick = []; ui.chooser = null; ui.play = null; ui.rolledFor = 0; ui.rollTap = null; ui.rolling = 0; ui.mapX = null; }
