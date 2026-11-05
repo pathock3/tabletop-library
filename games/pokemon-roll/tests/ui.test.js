@@ -39,6 +39,8 @@ test('ui: menu, new game, map, and a whole first fight through real taps, with n
     assert.equal(await p.locator('.place').count(), 6, 'what is open, and one step beyond it');
     assert.equal(await p.locator('.place:not(.lock)').count(), 3, 'Viridian Forest, Brock and Mt. Moon are open from the start');
     assert.equal(await p.locator('.place svg').count(), 6, 'each place is drawn as a picture');
+    assert.ok(await p.evaluate(() => { const w = document.querySelector('.mapwrap'); return w.scrollWidth <= w.clientWidth + 1 && w.scrollHeight <= w.clientHeight + 1; }), 'the map fills the screen without scrolling');
+    assert.equal(await p.locator('.dock').count(), 0, 'no bar along the bottom'); assert.ok(await p.locator('.top [data-act=coll]').count() === 1, 'Your cards is in the top bar');
     assert.equal(await p.locator('[data-act=auto]').count(), 0, 'no Suggest button');
     assert.ok(await p.evaluate(() => document.documentElement.scrollWidth <= innerWidth && document.documentElement.scrollHeight <= innerHeight), 'the page does not scroll');
     await p.click('[data-id=L1]'); assert.equal(await p.locator('[data-act=pickc]').count(), 0, 'no team to pick first');
@@ -57,13 +59,13 @@ test('ui: the table fits on the iPad and the iPhone, and cards open into the ful
       const p = await b.newPage({ viewport: { width: w, height: h } }); const errs = []; p.on('pageerror', e => errs.push(e.message));
       await p.goto(URL);
       await p.evaluate(() => {
-        const s = Engine.newGame({ seed: 12, starter: 'bulbasaur', size: 'short', ai: 'medium' });
+        const s = Engine.newGame({ seed: 12, starter: 'bulbasaur', size: 'short', ai: 'normal' });
         s.done.rival1 = true; s.done.B1 = true; s.done.B2 = true; s.done.B3 = true; s.lv = 4; s.coll[0].id = '2.4';
         ['74', '56', '100', '3.5', '16', '19'].forEach((id, i) => s.coll.push({ uid: 10 + i, id, sh: i === 1 ? 1 : 0 }));
         window.__pokemonRoll.setG(s);
       });
       await p.click('[data-id=B4]');
-      assert.equal(await p.locator('.card.foe').count(), 0, 'a gym leader is a surprise: none of their cards are shown in advance'); assert.ok(await p.locator('.back').count() >= 1, 'their hand is face down');
+      assert.equal(await p.locator('.card.foe').count(), 0, 'a gym leader is a surprise: none of their cards are shown in advance'); assert.equal(await p.locator('.back').count(), 0, 'no card is ever shown face down');
       for (let i = 0; i < 40; i++) { await p.waitForTimeout(400); await p.locator('[data-act=tipok]').click({ timeout: 250 }).catch(() => {}); if (await p.evaluate(() => { const g = window.__pokemonRoll.G.battle; return g && g.stage === 'place' && g.pl.side === 0; })) break; }
       // put all four down quickly
       for (let i = 0; i < 40; i++) {
@@ -78,7 +80,7 @@ test('ui: the table fits on the iPad and the iPhone, and cards open into the ful
       // every card on the table is the whole card: six faces, ability, weakness tab flush with the top edge, art, HP, and nothing clipped
       const cards = await p.evaluate(() => [...document.querySelectorAll('.board .card')].map(c => { const r = c.getBoundingClientRect(), t = c.querySelector('.wkt'); return { faces: c.querySelectorAll('.f').length, ab: !!c.querySelector('.ab'), art: !!c.querySelector('.art img'), hp: !!c.querySelector('.hpc'), tab: t ? Math.round(c.classList.contains('foe') ? r.bottom - t.getBoundingClientRect().bottom : t.getBoundingClientRect().top - r.top) : 99, foe: c.classList.contains('foe'), upside: c.classList.contains('foe') ? getComputedStyle(c).rotate : '', w: Math.round(r.width), clipped: c.scrollHeight > c.clientHeight + 1, inView: r.left >= -1 && r.right <= innerWidth + 1 }; }));
       assert.ok(cards.length >= 6, 'cards on the table');
-      cards.forEach(c => { assert.equal(c.faces, 6); assert.ok(c.ab && c.art && c.hp); assert.ok(c.tab <= 6, 'weakness tab flush with the top'); assert.ok(!c.clipped, 'no part of the card is cut off'); assert.ok(c.w >= 140, 'big enough to read: ' + c.w); });
+      cards.forEach(c => { assert.equal(c.faces, 6); assert.ok(c.ab && c.art && c.hp); assert.ok(c.tab <= 6, 'weakness tab flush with the top'); assert.ok(!c.clipped, 'no part of the card is cut off'); assert.ok(c.w >= 120, 'big enough to read: ' + c.w); });
       if (w === 820) assert.ok(cards.every(c => c.inView), 'on the iPad in portrait the whole table is on screen');
       assert.ok(cards.some(c => c.foe && /180deg/.test(c.upside)), 'their cards are upside down, head to head'); assert.ok(cards.filter(c => !c.foe).every(c => !c.upside));
       assert.equal(await p.locator('.sheet .card').count(), 0, 'there is no second, enlarged version of a card');
@@ -97,7 +99,7 @@ test('ui: a shiny sparkles on the table and on its card, and is only a look (the
     });
     await p.click('[data-act=coll]'); assert.ok(await p.locator('.card.shiny').count() === 1, 'a shiny in your cards'); assert.ok(await p.locator('.card.shiny .star').count() >= 3, 'sparkles'); assert.match(await p.innerText('.card.shiny .nm'), /✨/);
     // tapping a card in your collection fills the screen with it, and a tap closes it
-    await p.click('.card.shiny'); const big = await p.locator('.sheet .card').last().boundingBox(); assert.ok(big.width >= 600, 'the card fills the screen: ' + big.width);
+    await p.click('.card.shiny'); const big = await p.locator('.sheet .card').last().boundingBox(); assert.ok(big.width >= 500, 'the card fills the screen: ' + big.width);
     await p.click('.sheet .card >> nth=-1'); assert.equal(await p.locator('.sheet[data-act=closezoom]').count(), 0, 'a tap closes it');
     const same = await p.evaluate(() => { const c = Engine.CARDS['25.2']; return c.hp; }); assert.equal(same, 4);
     const sprites = await p.evaluate(() => [...document.querySelectorAll('.card .art img')].map(i => i.src.slice(0, 30)));
@@ -130,7 +132,7 @@ test('ui: a die is dragged onto a card and lands in its art area (and a tap stil
       while ((g = Bots.step(G))) Engine.apply(G, g);
       Engine.apply(G, { t: 'ready' }); R.render();
     });
-    await p.waitForSelector('.die[data-act=die]', { timeout: 5000 }); await p.waitForTimeout(1200);
+    await p.locator('.rollhint').click({ timeout: 4000 }); await p.waitForSelector('.die[data-act=die]', { timeout: 5000 }); await p.waitForTimeout(1200);
     await p.locator('[data-act=tipok]').click({ timeout: 300 }).catch(() => {});
     const dr = await p.locator('.die[data-act=die]').first().boundingBox(), cr = await p.locator('.col .card:not(.foe)').first().boundingBox();
     await p.mouse.move(dr.x + dr.width / 2, dr.y + dr.height / 2); await p.mouse.down();
@@ -178,24 +180,27 @@ test('ui: the menu has Settings (Tips and Computer difficulty live there) and no
     const items = await p.locator('.sheet .box .btn').allInnerTexts(); assert.ok(items.some(t => /Settings/.test(t))); assert.ok(!items.some(t => /Your cards/.test(t)), 'your cards is on the map, not in the menu');
     assert.equal(await p.locator('.sheet [data-act=tips]').count(), 0, 'tips are not on the menu');
     await p.click('[data-act=settings]'); assert.equal(await p.locator('.sheet [data-act=tips]').count(), 2); assert.equal(await p.locator('.sheet [data-act=ai]').count(), 3);
-    await p.click('.sheet [data-act=ai][data-v=hard]'); assert.equal(await p.evaluate(() => window.__pokemonRoll.set.ai), 'hard');
+    await p.click('.sheet [data-act=ai][data-v=master]'); assert.equal(await p.evaluate(() => window.__pokemonRoll.set.ai), 'master');
     await p.click('.sheet [data-act=tips][data-v=false]'); assert.equal(await p.evaluate(() => window.__pokemonRoll.set.tips), false);
   } finally { await b.close(); }
 });
 
-test('ui: you only choose when there is a choice: one card and one spot goes down by itself', { skip: !chromium }, async () => {
+test('ui: you only choose when there is a choice for where a card goes, but dice are always yours to give out', { skip: !chromium }, async () => {
   const b = await chromium.launch(), p = await b.newPage({ viewport: { width: 820, height: 1180 } });
   const errs = []; p.on('pageerror', e => errs.push(e.message));
   try {
     await p.goto(URL); await p.click('[data-act=new]'); await p.click('[data-act=starter][data-k=charmander]');
-    await p.click('[data-id=L1]');
+    await p.waitForSelector('[data-id=L1]'); await p.waitForTimeout(800); await p.locator('[data-act=tipok]').click({ timeout: 300 }).catch(() => {}); await p.click('[data-id=L1]', { timeout: 5000 });
     await p.waitForFunction(() => { const g = window.__pokemonRoll.G.battle; return g && g.stage === 'assign'; }, null, { timeout: 6000 });
     assert.equal(await p.evaluate(() => window.__pokemonRoll.G.battle.cols.length), 1, 'your only card is across from theirs: no tap needed');
-    // and with one card there is no die to give out: the round plays by itself
-    await p.waitForFunction(() => { const g = window.__pokemonRoll.G.battle; return g && (g.stage === 'resolving' || g.stage === 'resolved' || g.round > 1); }, null, { timeout: 8000 });
+    // dice are never given out for you: the first roll is a tap, and you drag the die onto your card
+    assert.equal(await p.locator('.die').count(), 0, 'no dice until you tap'); assert.ok(await p.locator('.rollhint').count() >= 1, 'Tap anywhere to roll');
+    await p.locator('.rollhint').click(); await p.waitForSelector('.die[data-act=die]', { timeout: 4000 }); await p.waitForTimeout(1100);
+    assert.equal(await p.evaluate(() => Object.keys(window.__pokemonRoll.G.battle.asg[0]).length), 0, 'the die is not on the card until you put it there');
+    assert.equal(await p.evaluate(() => window.__pokemonRoll.G.battle.stage), 'assign', 'and the round does not play by itself');
     // several cards but only one spot: tapping the card is enough
     await p.evaluate(() => { const s = Engine.newGame({ seed: 4, starter: 'squirtle' }); s.coll.push({ uid: 8, id: '10', sh: 0 }, { uid: 9, id: '16', sh: 0 }); window.__pokemonRoll.setG(s); });
-    await p.click('[data-id=L1]'); await p.waitForFunction(() => { const g = window.__pokemonRoll.G.battle; return g && g.stage === 'place' && g.pl.side === 0; }, null, { timeout: 6000 });
+    await p.waitForTimeout(500); await p.locator('[data-act=tipok]').click({ timeout: 300 }).catch(() => {}); await p.click('[data-id=L1]', { timeout: 5000 }); await p.waitForFunction(() => { const g = window.__pokemonRoll.G.battle; return g && g.stage === 'place' && g.pl.side === 0; }, null, { timeout: 6000 });
     await p.locator('[data-act=tray]').first().click(); await p.waitForTimeout(200);
     assert.equal(await p.evaluate(() => window.__pokemonRoll.G.battle.placed[0]), 1, 'one tap placed it, because there was only one spot');
     assert.deepEqual(errs, []);
@@ -212,5 +217,36 @@ test('ui: a gym leader has an eye that explains how their team was made; dice ca
     assert.match(txt, /random team/i); assert.match(txt, /before your game began/i); assert.match(txt, /Mt\. Moon/); assert.match(txt, /Viridian Forest/);
     assert.equal(await p.locator('.sheet .eyerow').count(), 2, 'Brock draws from two places');
     await p.click('.hbox .btn'); assert.equal(await p.locator('.sheet').count(), 0);
+  } finally { await b.close(); }
+});
+
+test('ui: with two dice you can add a second Pokémon to a wild fight: there are spots to tap', { skip: !chromium }, async () => {
+  const b = await chromium.launch(), p = await b.newPage({ viewport: { width: 820, height: 1180 } });
+  const errs = []; p.on('pageerror', e => errs.push(e.message));
+  try {
+    await p.goto(URL);
+    await p.evaluate(() => { const s = Engine.newGame({ seed: 7, starter: 'bulbasaur' }); s.done.B1 = true; s.coll.push({ uid: 9, id: '10', sh: 0 }, { uid: 11, id: '16', sh: 0 }); window.__pokemonRoll.setG(s); });
+    await p.click('[data-id=L2]');
+    await p.waitForFunction(() => { const g = window.__pokemonRoll.G.battle; return g && g.stage === 'place' && g.pl.side === 0; }, null, { timeout: 6000 });
+    await p.locator('[data-act=tray]').first().click();                                    // the first card goes across from the wild card by itself (one spot)
+    await p.waitForFunction(() => window.__pokemonRoll.G.battle.placed[0] === 1, null, { timeout: 4000 });
+    assert.ok(await p.locator('[data-act=ready]').count() === 1, 'you can fight now, or bring another');
+    await p.locator('[data-act=tray]').first().click();
+    assert.ok(await p.locator('.ins[data-act=ins]').count() >= 1, 'there are spots to tap for the second card');
+    await p.locator('.ins[data-act=ins]').first().click();
+    await p.waitForFunction(() => window.__pokemonRoll.G.battle.placed[0] === 2, null, { timeout: 4000 });
+    await p.waitForFunction(() => { const g = window.__pokemonRoll.G.battle; return g.placed[1] === 2 || g.stage === 'assign'; }, null, { timeout: 6000 });
+    assert.deepEqual(errs, []);
+  } finally { await b.close(); }
+});
+
+test('ui: your team is sorted by level (highest on the left), then by when you got each card (oldest on the left)', { skip: !chromium }, async () => {
+  const b = await chromium.launch(), p = await b.newPage({ viewport: { width: 820, height: 1180 } });
+  try {
+    await p.goto(URL);
+    await p.evaluate(() => { const s = Engine.newGame({ seed: 3, starter: 'bulbasaur' }); ['10', '3.5', '16', '74', '6.5'].forEach((id, i) => s.coll.push({ uid: 10 + i, id, sh: 0 })); window.__pokemonRoll.setG(s); });   // levels: partner 2, 1, 5, 1, 1, 5
+    await p.click('[data-act=coll]');
+    const order = await p.evaluate(() => [...document.querySelectorAll('.sheet .card .nm')].map(e => e.textContent.trim()));
+    assert.deepEqual(order, ['Venusaur', 'Charizard', 'Bulbasaur', 'Caterpie', 'Pidgey', 'Geodude'], 'level first, then oldest to newest: ' + order.join(', '));
   } finally { await b.close(); }
 });

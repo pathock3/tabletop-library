@@ -48,36 +48,37 @@ button{font:inherit;color:inherit;border:0;cursor:pointer}
 .card{--cw:190px;--ink:#14110f;width:var(--cw);flex:none;position:relative;color:var(--ink);background:var(--bg);border:calc(var(--cw)*.022 + 1px) solid var(--ink);border-radius:calc(var(--cw)*.07);overflow:hidden;box-shadow:0 5px 12px #0008;display:flex;flex-direction:column;transition:transform .15s,filter .3s,opacity .3s;text-align:left;padding-bottom:calc(var(--cw)*.03)}
 .card.foe{--ink:#2a0e0e;rotate:180deg}                 /* their cards face you, like a player sitting across the table */
 .card.foe .pop{rotate:180deg}
-.card .wkt{position:absolute;top:0;left:50%;transform:translateX(-50%);z-index:4;background:#fff;border:0 solid var(--ink);border-width:0 2px 2px;border-radius:0 0 calc(var(--cw)*.05) calc(var(--cw)*.05);padding:0 calc(var(--cw)*.06) 1px;font-weight:800;font-size:max(11px,calc(var(--cw)*.065));letter-spacing:.03em;white-space:nowrap}
-.card{min-height:calc(var(--cw)*1.72)}
+.card .wkt{position:absolute;top:0;left:50%;transform:translateX(-50%);z-index:4;background:#fff;border:0 solid var(--ink);border-width:0 2px 2px;border-radius:0 0 calc(var(--cw)*.05) calc(var(--cw)*.05);padding:0 calc(var(--cw)*.06) 1px;font-weight:800;font-size:calc(var(--cw)*.065);letter-spacing:.03em;white-space:nowrap}
+.card{height:calc(var(--cw)*1.9);min-height:0}
 .card .nmrow{padding:calc(var(--cw)*.1) calc(var(--cw)*.04) 0}
 .card .top2{display:flex;gap:calc(var(--cw)*.04);padding:calc(var(--cw)*.02) calc(var(--cw)*.04) 0}
-.card .art{width:calc(var(--cw)*.4);height:calc(var(--cw)*.4);flex:none;padding:3%;border:2px solid var(--ink);border-radius:calc(var(--cw)*.05);background:radial-gradient(circle at 50% 40%,#fff9,var(--c) 78%);display:grid;place-items:center;position:relative;overflow:hidden}
+.card .art{width:calc(var(--cw)*.4);height:calc(var(--cw)*.4);flex:none;padding:3%;border:max(1px,calc(var(--cw)*.011)) solid var(--ink);border-radius:calc(var(--cw)*.05);background:radial-gradient(circle at 50% 40%,#fff9,var(--c) 78%);display:grid;place-items:center;position:relative;overflow:hidden}
 .card .art img{width:100%;height:100%;object-fit:contain;image-rendering:pixelated;filter:drop-shadow(0 3px 0 #0003)}
-.card .inf{flex:1;min-width:0;display:flex;flex-direction:column;justify-content:space-between;gap:2px}
-.card .nm{font-weight:900;font-size:max(15px,calc(var(--cw)*.125));line-height:1.05;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.card .lv{font-weight:800;font-size:max(11px,calc(var(--cw)*.064));color:#000b;white-space:nowrap}
-.card .tag{align-self:flex-start;max-width:100%;overflow:hidden;text-overflow:ellipsis;background:var(--c);border:2px solid var(--ink);border-radius:99px;padding:0 calc(var(--cw)*.03);font-weight:800;font-size:max(10px,calc(var(--cw)*.056));letter-spacing:-.01em;color:#fff;text-shadow:0 1px 0 #0008;white-space:nowrap}
-.card .hpc{align-self:flex-start;background:#e23a3a;border:2px solid var(--ink);border-radius:99px;color:#fff;font-weight:900;font-size:max(15px,calc(var(--cw)*.12));padding:0 calc(var(--cw)*.05);display:inline-flex;align-items:baseline;gap:2px;line-height:1.15;box-shadow:inset 0 -3px 0 #0003}
+.card .inf{flex:1;min-width:0;display:flex;flex-direction:column;justify-content:space-between;gap:calc(var(--cw)*.01)}
+.card .nm{font-weight:900;font-size:calc(var(--cw)*.125);line-height:1.05;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.card .lv{font-weight:800;font-size:calc(var(--cw)*.064);color:#000b;white-space:nowrap}
+.card .tagrow{margin:calc(var(--cw)*.025) calc(var(--cw)*.04) 0;display:flex}
+.card .tag{flex:1;text-align:center;background:var(--c);border:max(1px,calc(var(--cw)*.011)) solid var(--ink);border-radius:99px;padding:0 calc(var(--cw)*.03);font-weight:800;font-size:calc(var(--cw)*.07);color:#fff;text-shadow:0 1px 0 #0008;white-space:nowrap}
+.card .hpc{align-self:flex-start;background:#e23a3a;border:max(1px,calc(var(--cw)*.011)) solid var(--ink);border-radius:99px;color:#fff;font-weight:900;font-size:calc(var(--cw)*.12);padding:0 calc(var(--cw)*.05);display:inline-flex;align-items:baseline;gap:calc(var(--cw)*.01);line-height:1.15;box-shadow:inset 0 -3px 0 #0003}
 .card .hpc.mid{background:#f08a00}.card .hpc.lo{background:#a4001b}
 .card .hpc small{font-size:.62em;font-weight:800;opacity:.9}
-.card .shd{align-self:flex-start;background:#1457b8;color:#fff;border:2px solid var(--ink);border-radius:99px;font-weight:900;font-size:max(11px,calc(var(--cw)*.07));padding:0 calc(var(--cw)*.04)}
-.card .ab{margin:calc(var(--cw)*.03) calc(var(--cw)*.04) 0;padding:calc(var(--cw)*.012) calc(var(--cw)*.035);border-radius:calc(var(--cw)*.035);background:#fffc;border:2px solid var(--ink);font-weight:700;font-size:max(11px,calc(var(--cw)*.064));line-height:1.12;min-height:calc(var(--cw)*.17);display:flex;align-items:center}
-.card .faces{margin:calc(var(--cw)*.03) calc(var(--cw)*.04) 0;display:grid;gap:2px}
-.card .f{display:flex;align-items:center;gap:calc(var(--cw)*.03);background:#fffd;border:2px solid var(--ink);border-radius:calc(var(--cw)*.03);padding:0 calc(var(--cw)*.025);font-weight:800;font-size:max(12px,calc(var(--cw)*.078));min-height:calc(var(--cw)*.105);line-height:1.05}
+.card .shd{align-self:flex-start;background:#1457b8;color:#fff;border:max(1px,calc(var(--cw)*.011)) solid var(--ink);border-radius:99px;font-weight:900;font-size:calc(var(--cw)*.07);padding:0 calc(var(--cw)*.04)}
+.card .ab{flex:none;margin:calc(var(--cw)*.03) calc(var(--cw)*.04) 0;padding:calc(var(--cw)*.012) calc(var(--cw)*.035);border-radius:calc(var(--cw)*.035);background:#fffc;border:max(1px,calc(var(--cw)*.011)) solid var(--ink);font-weight:700;font-size:calc(var(--cw)*.064);line-height:1.12;min-height:calc(var(--cw)*.17);display:flex;align-items:center}
+.card .faces{margin:calc(var(--cw)*.03) calc(var(--cw)*.04) 0;display:grid;grid-auto-rows:minmax(min-content,1fr);gap:calc(var(--cw)*.01);flex:1;min-height:0}
+.card .f{overflow:hidden;display:flex;align-items:center;gap:calc(var(--cw)*.03);background:#fffd;border:max(1px,calc(var(--cw)*.011)) solid var(--ink);border-radius:calc(var(--cw)*.03);padding:0 calc(var(--cw)*.025);font-weight:800;font-size:calc(var(--cw)*.078);min-height:0;line-height:1.05}
 .card .f .mt{flex:1;min-width:0}
 .card .f small{font-size:.78em;opacity:.85;font-weight:700}
 .card .f.hot{background:#ffe46b;box-shadow:0 0 0 2px #fff,0 0 10px #ffd000;z-index:1}
 .card .f.hot .pip{background:var(--ink);color:#fff}
-.card .f.pick{outline:3px dashed #ffb703;outline-offset:-1px;background:#fff7cf;animation:pulse2 1s infinite}
+.card .f.pick{outline:max(1px,calc(var(--cw)*.014)) dashed #ffb703;outline-offset:-1px;background:#fff7cf;animation:pulse2 1s infinite}
 .card .f.blank{opacity:.45}
-.card .pip{width:calc(var(--cw)*.085);height:calc(var(--cw)*.085);min-width:17px;min-height:17px;border-radius:calc(var(--cw)*.025);background:#fff;border:2px solid var(--ink);display:grid;place-items:center;font-weight:900;font-size:max(11px,calc(var(--cw)*.065));flex:none}
+.card .pip{width:calc(var(--cw)*.085);height:calc(var(--cw)*.085);border-radius:calc(var(--cw)*.025);background:#fff;border:max(1px,calc(var(--cw)*.011)) solid var(--ink);display:grid;place-items:center;font-weight:900;font-size:calc(var(--cw)*.065);flex:none}
 .mA{color:#c1121f}.mB{color:#1457b8}.mH{color:#17803d}.mD{color:#6b6b6b}
-.card .sp{margin:calc(var(--cw)*.025) calc(var(--cw)*.04) 0;padding:0 calc(var(--cw)*.03);border-radius:calc(var(--cw)*.035);background:var(--ink);color:#ffe46b;font-weight:800;font-size:max(12px,calc(var(--cw)*.07));display:flex;gap:6px;align-items:center;min-height:calc(var(--cw)*.1)}
+.card .sp{margin:calc(var(--cw)*.025) calc(var(--cw)*.04) 0;padding:0 calc(var(--cw)*.03);border-radius:calc(var(--cw)*.035);background:var(--ink);color:#ffe46b;font-weight:800;font-size:calc(var(--cw)*.07);display:flex;gap:6px;align-items:center;min-height:calc(var(--cw)*.1)}
 .card .sp i{font-style:normal;background:#ffe46b;color:var(--ink);border-radius:5px;padding:0 5px;white-space:nowrap}
 .card .sp.hot{box-shadow:0 0 0 2px #fff,0 0 12px #ffd000}
-.card .xb{margin:calc(var(--cw)*.025) calc(var(--cw)*.04) 0;padding:2px;border-radius:calc(var(--cw)*.035);background:#ffb703;color:#14110f;font-weight:900;font-size:max(12px,calc(var(--cw)*.07));text-align:center;border:2px solid var(--ink)}
-.card .dbadge{position:absolute;right:calc(var(--cw)*.015);bottom:calc(var(--cw)*.015);z-index:3;min-width:calc(var(--cw)*.2);height:calc(var(--cw)*.2);padding:0 5px;border-radius:calc(var(--cw)*.04);background:#fff;color:var(--ink);border:3px solid var(--ink);display:grid;place-items:center;font-weight:900;font-size:max(16px,calc(var(--cw)*.14));box-shadow:0 3px 0 #0006}
+.card .xb{margin:calc(var(--cw)*.025) calc(var(--cw)*.04) 0;padding:2px;border-radius:calc(var(--cw)*.035);background:#ffb703;color:#14110f;font-weight:900;font-size:calc(var(--cw)*.07);text-align:center;border:max(1px,calc(var(--cw)*.011)) solid var(--ink)}
+.card .dbadge{position:absolute;right:calc(var(--cw)*.015);bottom:calc(var(--cw)*.015);z-index:3;min-width:calc(var(--cw)*.2);height:calc(var(--cw)*.2);padding:0 calc(var(--cw)*.03);border-radius:calc(var(--cw)*.04);background:#fff;color:var(--ink);border:max(1px,calc(var(--cw)*.016)) solid var(--ink);display:grid;place-items:center;font-weight:900;font-size:calc(var(--cw)*.14);box-shadow:0 3px 0 #0006}
 .card .dbadge.hero{background:#ffe46b}
 .card .dbadge.land{animation:land .4s cubic-bezier(.3,1.6,.5,1)}
 @keyframes land{from{transform:translateY(-44px) rotate(-60deg) scale(1.6);opacity:0}to{transform:none;opacity:1}}
@@ -113,7 +114,7 @@ button{font:inherit;color:inherit;border:0;cursor:pointer}
 .board{flex:1;min-height:0;display:flex;align-items:center;gap:6px;position:relative;overflow:auto;padding:4px}
 .board::before,.board::after{content:'';margin:auto}
 .col{display:flex;flex-direction:column;gap:10px;align-items:center;position:relative;padding:6px 3px;border-radius:14px;background:#ffffff0d}
-.slot{width:var(--cw);min-height:calc(var(--cw)*1.52);border:3px dashed #ffffff44;border-radius:calc(var(--cw)*.1);display:grid;place-items:center;font-size:calc(var(--cw)*.3);color:#ffffff66}
+.slot{width:var(--cw);height:calc(var(--cw)*1.9);border:3px dashed #ffffff44;border-radius:calc(var(--cw)*.1);display:grid;place-items:center;font-size:calc(var(--cw)*.3);color:#ffffff66}
 .slot.ok{border-color:var(--gold);color:var(--gold);background:#ffd23f22;animation:pulse 1s infinite}
 .ins{width:calc(var(--cw)*.28);align-self:stretch;border:3px dashed var(--gold);border-radius:12px;display:grid;place-items:center;color:var(--gold);font:900 calc(var(--cw)*.25) system-ui;background:#ffd23f1a;animation:pulse 1s infinite}
 @keyframes pulse{50%{background:#ffd23f44}}
@@ -122,12 +123,28 @@ button{font:inherit;color:inherit;border:0;cursor:pointer}
 .cap-sp{width:38px;height:38px;image-rendering:pixelated}
 .capd{color:#ff6b6b;font-size:30px}.caph{color:#7dff9c;font-size:28px}.capw{color:#ffd23f}.capb{color:#8ec5ff}.capx{color:#ffe46b}.capk{color:#ff9d9d}.capt{opacity:.9}.arrowc{font-size:30px;color:#ffd23f}.caphp{font-weight:800;opacity:.9;font-size:20px}.capnext{font-size:20px;opacity:.9}
 .fx{position:fixed;inset:0;width:100%;height:100%;pointer-events:none;z-index:40}
+.orb{position:fixed;left:0;top:0;font-size:48px;line-height:1;z-index:45;pointer-events:none;filter:drop-shadow(0 0 10px #fff) drop-shadow(0 0 22px #ffd23f)}
+.mvbub{position:fixed;z-index:46;transform:translate(-50%,-100%);background:#fff;color:#14110f;border:3px solid #14110f;border-radius:18px;padding:4px 14px 4px 6px;font:800 22px system-ui;display:flex;gap:8px;align-items:center;box-shadow:0 5px 0 #0008;animation:bub .25s ease-out;white-space:nowrap}
+.mvbub img{width:36px;height:36px;image-rendering:pixelated}
+@keyframes bub{from{transform:translate(-50%,-60%) scale(.5);opacity:0}}
+.card.dim{filter:brightness(.5) saturate(.6)}
+.card.hurt2{animation:shake .45s}.card.heal2{animation:glowg .9s}
+@keyframes glowg{30%{box-shadow:0 0 0 6px #7dff9c,0 0 40px 14px #7dff9c}}
+.card.kofall{animation:kofall .9s forwards}
+@keyframes kofall{to{transform:rotate(14deg) translateY(14px) scale(.9);filter:grayscale(1) brightness(.55);opacity:.45}}
+.card .ring{position:absolute;left:50%;top:28%;width:22%;aspect-ratio:1;border:calc(var(--cw)*.035) solid #fff;border-radius:50%;transform:translate(-50%,-50%) scale(.2);animation:ringo .55s ease-out forwards;pointer-events:none;z-index:6}
+@keyframes ringo{to{transform:translate(-50%,-50%) scale(6.5);opacity:0}}
+.card .weakb{position:absolute;left:0;right:0;top:44%;text-align:center;z-index:7;font:900 calc(var(--cw)*.15)/1 system-ui;color:#ffe46b;text-shadow:0 0 6px #000,0 3px 0 #000,2px 2px 0 #000,-2px 2px 0 #000;transform:rotate(-8deg);animation:weakb 1.2s ease-out forwards;pointer-events:none}
+@keyframes weakb{0%{transform:rotate(-8deg) scale(.3);opacity:0}25%{opacity:1;transform:rotate(-8deg) scale(1.2)}80%{opacity:1}100%{transform:rotate(-8deg) translateY(-20px);opacity:0}}
+.card .plus{position:absolute;top:70%;font-size:calc(var(--cw)*.12);color:#7dff9c;text-shadow:0 0 6px #0a0;z-index:6;animation:plusup 1s ease-out forwards;opacity:0;pointer-events:none}
+@keyframes plusup{20%{opacity:1}to{transform:translateY(calc(var(--cw)*-.7));opacity:0}}
+.card .pop{animation:rise 1.3s ease-out forwards;font-size:calc(var(--cw)*.34)}
 .fx .fxl{stroke-dasharray:16 12;animation:fxdash .45s linear infinite;filter:drop-shadow(0 3px 0 #0008)}
 @keyframes fxdash{to{stroke-dashoffset:-28}}
 .card.lunge2{animation:lunge2 .5s ease-out;z-index:5}
 @keyframes lunge2{35%{transform:translate(var(--dx),var(--dy)) scale(1.07)}100%{transform:none}}
 .status{padding:4px 12px;text-align:center;font-weight:800;font-size:18px;min-height:30px}
-.bt{flex:1;min-height:0;display:flex;flex-direction:column}.bt.wide{flex-direction:row}
+.bt{flex:1;min-height:0;display:flex;flex-direction:column}
 .bt .main{flex:1;min-width:0;min-height:0;display:flex;flex-direction:column}
 .dock.side{width:176px;flex:none;border-top:0;border-left:2px solid #ffffff22;justify-content:center;align-items:center;overflow:auto}
 .dock.side .dice{max-width:160px}
@@ -172,9 +189,10 @@ button{font:inherit;color:inherit;border:0;cursor:pointer}
 .hnav{display:flex;align-items:center;gap:14px;margin:6px 0}
 .dots i{display:inline-block;width:12px;height:12px;border-radius:50%;background:#ffffff44;margin:0 4px}.dots i.on{background:var(--gold)}
 /* ---- the map: left to right, each place drawn as a little scene ---- */
-.mapwrap{flex:1;min-height:0;overflow:auto;-webkit-overflow-scrolling:touch;display:flex}
-.mapin{position:relative;flex:none;margin:auto}
+.mapwrap{flex:1;min-height:0;overflow:hidden;position:relative}
+.mapin{position:absolute;left:0;top:0;transform-origin:top left}
 .mapsvg{position:absolute;left:0;top:0;pointer-events:none}
+.place .pl b{font-size:19px}
 .place{position:absolute;width:160px;height:184px;padding:0;border:4px solid #14110f;border-radius:18px;background:#fffdf4;overflow:hidden;box-shadow:0 6px 0 #0008;display:flex;flex-direction:column;color:#14110f;text-align:center}
 .place svg{width:100%;height:auto;display:block;flex:none}
 .place .pl{flex:1;display:flex;flex-direction:column;justify-content:center;padding:2px 4px;background:#fffdf4}
@@ -188,6 +206,30 @@ button{font:inherit;color:inherit;border:0;cursor:pointer}
 .place .ck{position:absolute;top:6px;right:6px;width:30px;height:30px;border-radius:50%;background:#2fa35b;color:#fff;border:3px solid #14110f;display:grid;place-items:center;font-weight:900}
 .place.done svg{filter:saturate(.75)}
 .place.next{animation:pulse2 1.4s infinite}
+.top .rt{margin-left:auto}
+.cardsbtn{min-height:44px;font-size:18px;cursor:pointer}
+@media (max-width:560px){.cardsbtn .cl{display:none}.mapt{display:none}.top .chip{font-size:15px;padding:5px 10px}}
+.fab{position:absolute;z-index:30;background:#0a1229cc}
+.board{display:flex;align-items:center;gap:6px;position:relative;overflow-x:auto;overflow-y:hidden;flex:none;padding:44px 4px 4px;transform-origin:center}
+.bay{flex:none;display:flex;flex-direction:column;justify-content:center;align-items:center;gap:8px;border-top:2px solid #ffffff22;background:#0a1229d9;overflow:hidden}
+.bay .hrow{max-width:100%;padding:4px 8px}
+.bay .status{font-size:22px;min-height:34px}
+.bay .die{width:88px;height:88px;font-size:52px;border-radius:20px}
+.bay .dice{gap:14px}
+.bay .btn.big{min-height:76px;font-size:30px;padding:10px 38px}
+.bay .btn.alt{min-height:60px}
+.hprow{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.card .hpchg{font-weight:900;color:#c1121f;font-size:calc(var(--cw)*.105);background:#fff;border:2px solid var(--ink);border-radius:99px;padding:0 calc(var(--cw)*.035);animation:chg .5s}.card .hpchg.up{color:#17803d}.card .hpchg b{color:#e08a00}
+@keyframes chg{from{transform:scale(.4);opacity:0}60%{transform:scale(1.25)}to{transform:none;opacity:1}}
+.plbar{position:absolute;top:8px;left:104px;right:12px;display:flex;justify-content:center;align-items:center;gap:12px;z-index:25;pointer-events:none}
+.plbar .pill{background:#000b;border:2px solid #ffffff33;border-radius:99px;padding:6px 18px;font-weight:800;font-size:18px;text-align:center}
+.plbar .btn{pointer-events:auto}
+.table{overflow:hidden}
+.recgrid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;width:100%}
+.rectile{background:#ffffff14;border-radius:14px;padding:6px;text-align:center;opacity:.75}.rectile.got{opacity:1;background:#2fa35b33}
+.rectile b{display:block;font-size:15px;margin-top:4px}.recn{font:900 28px system-ui;color:var(--gold)}.recn small{font-size:13px;color:#fff;opacity:.8}
+.nb{color:#ffd23f;font-weight:900}.pb{opacity:.8;font-size:.85em}
+@media (max-width:560px){.recgrid{grid-template-columns:repeat(2,1fr)}}
 /* ---- sheets and overlays ---- */
 .sheet{position:fixed;inset:0;background:#000b;z-index:50;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;padding:calc(12px + env(safe-area-inset-top)) 12px calc(12px + env(safe-area-inset-bottom))}
 .sheet .box{background:#17264a;border:3px solid #ffffff44;border-radius:20px;padding:18px;max-width:min(680px,94vw);max-height:84vh;overflow:auto;width:100%}
@@ -212,10 +254,10 @@ button{font:inherit;color:inherit;border:0;cursor:pointer}
 /* Pokémon Roll! — every rule number, the map, the bosses, the card sheet and the art live here. The engine and bots read this and hard-code none of it. */
 const GAME_DATA = {
   title: 'Pokémon Roll!',
-  version: 1,
+  version: 2,
   library: { name: 'Tabletop Library', href: '../../index.html' },
   rules: {
-    shinyChance: 0.05,          // every draw from the wild; a card on your team or a boss's team keeps its form
+    shinyChance: 0.10,          // each card is rolled once, before anything is dealt, and keeps its form for the whole game (a partner keeps its form through every level and evolution)
     legendaryDice: 2, legendarySum: 9, legendaryFromSlots: 2,   // roll two dice at the start of a turn once you have a second die: a 9 spots a legendary
     startSlots: 1, startLevel: 2,   // you begin with your partner at level 2 (the level the first rival fight gave in the paper game)
                  // cards you may challenge a location with; each boss beaten adds one
@@ -224,7 +266,15 @@ const GAME_DATA = {
     maxRounds: 60, stallRounds: 6,   // a fight that goes nowhere is lost (a tie is a loss for the hero)
     suddenDeathTries: 3,
     perColumnLimit: 1,
+    baseRerolls: 1,             // every side may throw one die again each round (cards add more); Easy never uses it
     firstPlaceCount: 1, placeCount: 2,   // the first player puts down one card, then both put down two at a time
+  },
+  // the computer's three levels: Master is the best play we can build; Normal is Master with its levers turned down; Easy is pure chance.
+  // random = share of decisions made blindly · search = looks for swaps and specials · rerollBelow = rerolls a die only when nothing it could do is worth this much (Master compares against a fresh throw instead)
+  ai: {
+    easy:   { label: 'Easy',   random: 1,    search: false, specials: false, rerolls: 'never',  placeRandom: 1,    lookahead: false },
+    normal: { label: 'Normal', random: 0.5,  search: false, specials: false, rerolls: 'poor',   placeRandom: 0.5, lookahead: false, rerollBelow: 1.2 },
+    master: { label: 'Master', random: 0,    search: true,  specials: true,  rerolls: 'expect', placeRandom: 0,    lookahead: true,  rerollMargin: 0.4 },
   },
   elements: {
     Grass:    { color: '#4caf50', bg: '#bfe8a5', icon: '🌿' },
@@ -618,7 +668,7 @@ const Engine = (() => {
 
   function newGame(o) {
     o = o || {};
-    const s = { v: D.version, seed: o.seed != null ? o.seed : (Date.now() % 2147483647), size: o.size === 'long' ? 'long' : 'short', ai: o.ai || 'medium', phase: 'start', starter: null, rival: null, lv: 1, coll: [], decks: {}, discard: {}, bosses: {}, done: {}, legend: [], nextUid: 1, turn: 0, pend: null, battle: null, res: null, notes: [] };
+    const s = { v: D.version, seed: o.seed != null ? o.seed : (Date.now() % 2147483647), size: o.size === 'long' ? 'long' : 'short', ai: ({ hard: 'master', medium: 'normal' })[o.ai] || o.ai || 'normal', phase: 'start', starter: null, rival: null, lv: 1, coll: [], decks: {}, discard: {}, bosses: {}, done: {}, bossTurns: {}, legend: [], nextUid: 1, turn: 0, pend: null, battle: null, res: null, notes: [] };
     s.rng = s.seed | 0;
     if (o.starter) chooseStarter(s, o.starter);
     return s;
@@ -626,7 +676,9 @@ const Engine = (() => {
   function chooseStarter(s, key) {
     const st = starterOf(key); if (!st) return false;
     s.starter = key; s.rival = rivalFor(key).key; s.lv = R.startLevel;
-    s.coll = [{ uid: s.nextUid++, id: st.levels[R.startLevel - 1], sh: 0, starter: 1 }];
+    s.sh = {}; Object.keys(CARDS).forEach(id => { s.sh[id] = shiny(s); });                       // shiny or not, for the whole game, decided before anything is dealt
+    const lineSh = s.sh[st.levels[0]]; st.levels.concat(st.evolve ? Object.values(st.evolve) : []).forEach(id => { s.sh[id] = lineSh; });      // a partner keeps its form as it levels up and evolves
+    s.coll = [{ uid: s.nextUid++, id: st.levels[R.startLevel - 1], sh: lineSh, starter: 1 }];
     const mine = new Set(st.levels.concat(st.evolve ? Object.values(st.evolve) : [])), startersAll = new Set(D.starters.flatMap(x => x.levels));
     D.locations.forEach(l => { s.decks[l.id] = []; s.discard[l.id] = []; });
     Object.values(CARDS).forEach(c => { if (c.legend || c.loc === 0 || mine.has(c.id)) return; s.decks[c.loc].push(c.id); });
@@ -635,8 +687,8 @@ const Engine = (() => {
     const leg = shuffle(s, Object.values(CARDS).filter(c => c.legend).map(c => c.id));
     D.nodes.filter(n => n.kind === 'boss').forEach(n => {
       const team = [];
-      n.draws.forEach(([loc, k, x]) => { const cnt = k + (s.size === 'long' ? x : 0); for (let i = 0; i < cnt; i++) { const id = s.decks[loc].shift(); if (id) team.push(inst(s, id, shiny(s))); } });
-      if (n.legendary) team.push(inst(s, leg.shift(), shiny(s)));
+      n.draws.forEach(([loc, k, x]) => { const cnt = k + (s.size === 'long' ? x : 0); for (let i = 0; i < cnt; i++) { const id = s.decks[loc].shift(); if (id) team.push(inst(s, id, s.sh[id])); } });
+      if (n.legendary) { const lid = leg.shift(); team.push(inst(s, lid, s.sh[lid])); }
       s.bosses[n.id] = team;
     });
     s.legend = leg; s.phase = 'map';
@@ -644,7 +696,7 @@ const Engine = (() => {
   }
   function drawWild(s, loc, n) {
     if (s.decks[loc].length < n) { s.decks[loc] = shuffle(s, s.decks[loc].concat(s.discard[loc])); s.discard[loc] = []; }
-    const out = []; for (let i = 0; i < n && s.decks[loc].length; i++) out.push(inst(s, s.decks[loc].shift(), shiny(s)));      // a fresh chance at shiny on every draw
+    const out = []; for (let i = 0; i < n && s.decks[loc].length; i++) { const id = s.decks[loc].shift(); out.push(inst(s, id, s.sh[id])); }
     return out;
   }
   const deckSize = (s, loc) => s.decks[loc].length + s.discard[loc].length;
@@ -686,7 +738,7 @@ const Engine = (() => {
   }
   function enterHit(s, b, u, ci) {
     const foe = b.cols[ci][other(u.side)]; if (foe == null) return;
-    const f = U(b, foe), t = tag(f, 'enter'); if (t && !f.ko) { ev(b, { t: 'text', msg: CARDS[f.id].name + ' burns ' + CARDS[u.id].name }); dealDamage(s, b, u, t.n, f, true); }
+    const f = U(b, foe), t = tag(f, 'enter'); if (t && !f.ko) { ev(b, { t: 'text', msg: CARDS[f.id].name + ' burns ' + CARDS[u.id].name }); dealDamage(s, b, u, t.n, f, true); (b.entered = b.entered || []).push({ u: u.uid, by: f.uid, n: t.n }); }
   }
   const canExpand = s => { const b = s.battle; return b.mode === 'wild' && b.placed[0] < b.cap && b.hand[0].length > 0 && deckSize(s, b.loc) > 0; };
   function beginFight(s) { const b = s.battle; b.hand = [[], []]; if (b.hcards) b.hcards = {}; nidoMax(b); startRound(s); }
@@ -728,7 +780,7 @@ const Engine = (() => {
     [0, 1].forEach(sd => {
       const n = living(b, sd).filter(u => !u.skip).length;
       b.dice[sd] = Array.from({ length: n }, () => die(s));
-      b.rr[sd] = 0; b.rrFace[sd] = []; b.rrUsed[sd] = {};
+      b.rr[sd] = R.baseRerolls; b.rrFace[sd] = []; b.rrUsed[sd] = {};
       living(b, sd).forEach(u => tags(u).forEach(t => { if (t.t === 'reroll') b.rr[sd] += t.n; if (t.t === 'rerollFace' && b.rrFace[sd].indexOf(t.face) < 0) b.rrFace[sd].push(t.face); }));
     });
     living(b, 0).concat(living(b, 1)).forEach(u => { if (has(u, 'dampReroll') && b.cols[colIdx(b, u.uid)] && b.cols[colIdx(b, u.uid)][other(u.side)] != null) b.rr[other(u.side)] = Math.max(0, b.rr[other(u.side)] - 1); });
@@ -1129,11 +1181,10 @@ const Engine = (() => {
     const b = s.battle, nd = node(b.node), gm = b.units.filter(u => u.side === 1).map(u => ({ id: u.id, sh: u.sh })).concat(b.hcards ? b.hand[1].map(h => ({ id: b.hcards[h].id, sh: b.hcards[h].sh })) : []);
     s.res = { win, node: b.node, kind: b.kind, gm, rounds: b.round }; s.battle = null; s.phase = 'result';
     if (nd.kind === 'loc') {
-      if (win) s.res.pick = gm; else gm.forEach(i => s.decks[CARDS[i.id].loc].push(i.id));
-      if (!win) shuffle(s, s.decks[CARDS[gm[0].id].loc]);
+      if (win) s.res.pick = gm; else gm.forEach(i => s.discard[CARDS[i.id].loc].push(i.id));      // what you dug goes to the discard pile; the draw pile is worked through once before it is shuffled again
       if (win && !gm.length) s.res.pick = [];
     } else if (win) {
-      s.done[nd.id] = true;
+      s.done[nd.id] = true; s.bossTurns[nd.id] = s.turn;          // how many turns it took to get this far
       if (nd.kind === 'boss') {
         const team = s.bosses[nd.id]; team.forEach(i => s.discard[CARDS[i.id].loc || 1].push(i.id));
         s.res.cleared = team;
@@ -1219,7 +1270,7 @@ const Engine = (() => {
     const st = starterOf(s.rival), team = [inst(s, st.levels[Math.max(0, nd.rivalLevel - 1)], 0)];
     if (nd.finale) {
       const ex = D.rivalFinalExtra, pool = Object.values(CARDS).filter(c => !c.legend && c.loc && c.level >= ex.minLevel && c.level <= ex.maxLevel);
-      shuffle(s, pool); for (let i = 0; i < ex.count && i < pool.length; i++) team.push(inst(s, pool[i].id, shiny(s)));
+      shuffle(s, pool); for (let i = 0; i < ex.count && i < pool.length; i++) team.push(inst(s, pool[i].id, s.sh[pool[i].id]));
     }
     return team;
   }
@@ -1234,12 +1285,15 @@ const Engine = (() => {
 
 </script>
 <script id="bots">
-/* Pokémon Roll! computer players: they see only the public view (the other side's dice and plans are hidden). Easy plays at random, Medium assigns greedily, Hard searches. */
+/* Pokémon Roll! computer players: they see only the public view (the other side's dice and plans are hidden). The three levels are levers in GAME_DATA.ai: Easy is pure chance, Normal is Master with its levers turned down, Master searches everything and rerolls by expected value. */
 const Bots = (() => {
   'use strict';
   const E = Engine, C = E.CARDS;
   const other = x => 1 - x;
   const pick = (s, a) => a[E.ri(s, a.length)];
+  const ALIAS = { medium: 'normal', hard: 'master' };
+  const lv = level => E.D.ai[ALIAS[level] || level] || E.D.ai.normal;
+  const chance = (s, p) => p >= 1 || (p > 0 && E.ri(s, 1000) < p * 1000);
 
   // how well card `a` fares against card `t` before a die is even thrown
   const matchScore = (a, t) => {
@@ -1251,7 +1305,8 @@ const Bots = (() => {
     const key = u => u.hid != null ? u.hid : u.uid;
     const slots = E.slotsFor(b, side);
     if (!slots.length) return null;
-    if (level === 'easy') return { t: 'place', side, uid: key(pick(s, units)), ...pick(s, slots) };
+    const L = lv(level);
+    if (chance(s, L.placeRandom)) return { t: 'place', side, uid: key(pick(s, units)), ...pick(s, slots) };
     let best = null, bv = -1e9;
     units.forEach(u => slots.forEach(sl => {
       let v = (C[u.id].level * 0.5 + u.hp * 0.1);
@@ -1268,16 +1323,17 @@ const Bots = (() => {
     if (!units.length || !n) return [];
     const vals = (u, di) => E.preview(b, u, b.dice[side][di]).value;
     const dieIdx = Array.from({ length: n }, (_, i) => i);
-    let perm = dieIdx.slice(); for (let i = perm.length - 1; i > 0; i--) { const j = E.ri(s, i + 1); [perm[i], perm[j]] = [perm[j], perm[i]]; }   // perm[k] = the die that card k gets
+    let perm = dieIdx.slice(); if (lv(level).random >= 1) for (let i = perm.length - 1; i > 0; i--) { const j = E.ri(s, i + 1); [perm[i], perm[j]] = [perm[j], perm[i]]; }   // perm[k] = the die that card k gets
     const total = p => units.reduce((t, u, k) => t + (p[k] != null ? vals(u, p[k]) : 0), 0);
-    if (level !== 'easy') {
+    const L = lv(level);
+    if (L.random < 1) {
       // start greedy: biggest gain first, then swap pairs until nothing improves
       const free = new Set(dieIdx), p = [];
       units.map((u, k) => ({ u, k })).forEach(() => {});
       const order = units.map((u, k) => k).sort((x, y) => Math.max(...dieIdx.map(d => vals(units[y], d))) - Math.max(...dieIdx.map(d => vals(units[x], d))));
-      order.forEach(k => { let bd = -1, bv = -1e9; free.forEach(d => { const v = vals(units[k], d); if (v > bv) { bv = v; bd = d; } }); if (bd >= 0) { p[k] = bd; free.delete(bd); } });
+      order.forEach(k => { let bd = -1, bv = -1e9; if (chance(s, L.random)) { bd = pick(s, Array.from(free)); } else free.forEach(d => { const v = vals(units[k], d); if (v > bv) { bv = v; bd = d; } }); if (bd >= 0) { p[k] = bd; free.delete(bd); } });
       perm = p;
-      if (level === 'hard') {
+      if (L.search) {
         let improved = true, guard = 0;
         while (improved && guard++ < 6) {
           improved = false;
@@ -1291,7 +1347,7 @@ const Bots = (() => {
     }
     let out = units.map((u, k) => perm[k] != null ? { uid: u.uid, dice: [perm[k]] } : null).filter(Boolean);
     let score = total(perm);
-    if (level === 'hard') {                      // a special move can beat two or three ordinary ones
+    if (L.specials) {                      // a special move can beat two or three ordinary ones
       units.forEach((u, k) => {
         const sp = E.parseSpecial(C[u.id].special); if (!sp) return;
         const ds = dieIdx.filter(d => b.dice[side][d] === sp.face); if (ds.length < sp.count) return;
@@ -1303,23 +1359,32 @@ const Bots = (() => {
         if (alt > score + 0.5) { score = alt; out = [{ uid: u.uid, dice: use }].concat(q); }
       });
     }
+    out.score = score;
     return out;
   }
-  // should a die be thrown again? only when there is a reroll to spend and the face is poor for everyone
+  // should a die be thrown again? Master compares the best plan it has with the average plan after a fresh throw of each die;
+  // Normal only throws a die back when nothing it could do with it is worth much; Easy never does.
   function rerollWorth(s, side, level) {
-    const b = s.battle; if (level === 'easy') return null;
-    const units = E.living(b, side).filter(u => !u.skip);
-    for (let d = 0; d < b.dice[side].length; d++) {
-      const v = b.dice[side][d], free = b.rrFace[side].indexOf(v) >= 0 && !b.rrUsed[side][d];
-      if (!free && b.rr[side] <= 0) continue;
-      const best = Math.max(...units.map(u => E.preview(b, u, v).value));
-      if (best < 1.2) return d;
+    const b = s.battle, L = lv(level); if (L.rerolls === 'never') return null;
+    const units = E.living(b, side).filter(u => !u.skip), dice = b.dice[side];
+    const can = d => (b.rrFace[side].indexOf(dice[d]) >= 0 && !b.rrUsed[side][d]) || b.rr[side] > 0;
+    if (L.rerolls === 'poor') {
+      for (let d = 0; d < dice.length; d++) { if (!can(d)) continue; if (Math.max(...units.map(u => E.preview(b, u, dice[d]).value)) < L.rerollBelow) return d; }
+      return null;
     }
-    return null;
+    const base = assignment(s, side, level).score || 0; let bestD = null, bestGain = L.rerollMargin;
+    for (let d = 0; d < dice.length; d++) {
+      if (!can(d)) continue;
+      const keep = dice[d]; let sum = 0;
+      for (let f = 1; f <= 6; f++) { dice[d] = f; sum += assignment(s, side, level).score || 0; }
+      dice[d] = keep;
+      const gain = sum / 6 - base; if (gain > bestGain) { bestGain = gain; bestD = d; }
+    }
+    return bestD;
   }
   // the next thing the computer's side does, or null if it is the player's move
   function step(s, level) {
-    const b = s.battle; if (!b) return null; level = level || s.ai || 'medium';
+    const b = s.battle; if (!b) return null; level = level || s.ai || 'normal';
     if (b.stage === 'place' && b.pl && b.pl.side === 1) return placement(s, 1, level);
     if (b.stage === 'assign' && !b.gmReady) {
       const d = rerollWorth(s, 1, level); if (d != null) return { t: 'reroll', side: 1, die: d };
@@ -1330,7 +1395,7 @@ const Bots = (() => {
 
   // ---- the player's side, for the tests and the "play it for me" runs: the same thinking, from the hero's seat
   function heroStep(s, level) {
-    level = level || 'hard';
+    level = level || 'master';
     const b = s.battle;
     if (s.phase === 'map') {
       const open = E.D.nodes.filter(n => E.unlocked(s, n) && !((n.kind === 'boss' || n.kind === 'rival') && s.done[n.id]));
@@ -1387,31 +1452,43 @@ const Bots = (() => {
   const lsSet = (k, v) => { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) { /* private window: carry on without saving */ } };
 
   let G = null;
-  const set = Object.assign({ ai: 'medium', size: 'short', tips: true }, lsGet(SET) || {});
-  const ui = { screen: 'menu', sel: null, die: null, aim: null, menu: false, play: null, pick: [], chooser: null, tip: null, burst: null, busy: false, toast: '', help: false, coll: false, rolling: 0, rolledFor: 0, mapX: null, zoom: null, helpPage: 0, newAsk: false, settings: false, eye: null };
+  const set = Object.assign({ ai: 'normal', size: 'short', tips: true }, lsGet(SET) || {});
+  set.ai = ({ medium: 'normal', hard: 'master' })[set.ai] || (D.ai[set.ai] ? set.ai : 'normal');
+  const ui = { screen: 'menu', sel: null, die: null, aim: null, menu: false, play: null, pick: [], chooser: null, tip: null, burst: null, busy: false, toast: '', help: false, coll: false, rolling: 0, rolledFor: 0, rollTap: null, flash: {}, lastCw: 0, lastTurn: 0, zoomFrom: null, mapX: null, zoom: null, helpPage: 0, newAsk: false, settings: false, eye: null, records: false, recSize: null };
   const saved = () => { const s = lsGet(KEY); return s && s.v === D.version && s.phase !== 'start' ? s : null; };
   const save = () => { if (G) lsSet(KEY, G); };
   const tipsSeen = lsGet(TIPS) || {};
+  // personal bests: the fewest turns to beat each gym leader, and the whole game, for each game length
+  const SCORES = 'pokemon-roll-scores';
+  const scores = () => lsGet(SCORES) || {};
+  function recordResult() {
+    const r = G && G.res; if (!r || r.rec || !r.win) return; const nd = E.node(r.node); r.rec = true;
+    const key = nd.kind === 'boss' ? nd.id : nd.finale ? 'game' : null; if (!key) return;
+    const turns = G.bossTurns[nd.id]; if (turns == null) return;
+    const all = scores(), rec = all[G.size] = all[G.size] || {}, prev = rec[key];
+    r.turns = turns; r.best = prev; r.newBest = prev == null || turns < prev; if (r.newBest) { rec[key] = turns; lsSet(SCORES, all); }
+  }
 
   // ---------------------------------------------------------------- pictures
   const uriC = {};
   const art = (id, sh) => { const dex = C[id].dex, k = dex + (sh ? 's' : 'n'); return uriC[k] || (uriC[k] = 'data:image/png;base64,' + (D.art[dex] || D.art[1])[sh ? 's' : 'n']); };
   const el = t => D.elements[t] || D.elements.Normal;
-  const WORD = { a: 'Attack', b: 'Block', h: 'Heal', d: 'Damage 💥' }, KLS = { a: 'mA', b: 'mB', h: 'mH', d: 'mD' };
+  const WORD = { a: 'Attack', b: 'Block', h: 'Heal', d: 'Damage 💥' }, ARROWD = '▼ ', KLS = { a: 'mA', b: 'mB', h: 'mH', d: 'mD' };
   // "3a <^ or >" -> ⚔3 ◀▲ or ▶   (a short, readable move)
   const arrows = s => s.replace(/\bover\b/g, 'split').replace(/</g, '◀').replace(/>/g, '▶').replace(/\^/g, '▲').replace(/\bv\b/g, '▼').replace(/\s+/g, ' ').trim();
   const short = str => {
     if (!str) return '';
     return str.replace(/(\+?)(\d+)([abhd])(\s+(?:over\s+)?[<>^v][<>^v ]*(?:(?:or|and\/or|and)\s*[<>^v ]*)*)?/g, (m, plus, n, k, sp) => {
       const arr = k === 'd' ? '' : (sp ? ' ' + arrows(sp) : '');
-      return `<span class="${KLS[k]}">${plus}${n} ${WORD[k]}</span><small>${arr}</small>`;
+      return `<span class="${KLS[k]}">${k === 'd' ? ARROWD : ''}${plus}${n} ${WORD[k]}</span><small>${arr}</small>`;
     }).replace(/,\s*/g, ' · ');
   };
   // an ability in plain words: "-1d" is "-1 damage", "2h" is "2 heal", the arrows become ◀ ▲ ▶
   const abText = t => esc(String(t)
+    .replace(/When enemies enter this column, (\d+)d/g, 'When enemies enter this column: ➜ them $1 💥')
     .replace(/-(\d+)d from matchup/g, 'takes $1 less damage from the card across').replace(/-(\d+)d\b/g, '$1 shield')
     .replace(/max h\b/g, 'max health').replace(/\b(at|below) (\d+)h\b/g, '$1 $2 health')
-    .replace(/(\d+)a\b/g, '$1 attack').replace(/(\d+)b\b/g, '$1 block').replace(/(\d+)h\b/g, '$1 heal').replace(/(\d+)d\b/g, '$1 damage')
+    .replace(/(\d+)a\b/g, '$1 attack').replace(/(\d+)b\b/g, '$1 block').replace(/(\d+)h\b/g, '$1 heal').replace(/(\d+)d\b/g, '$1 💥')
     .replace(/[<>^]+/g, m => m.replace(/</g, '◀').replace(/>/g, '▶').replace(/\^/g, '▲')).replace(/\bv\b/g, '▼'));
   const stars = lv => '★'.repeat(lv) + '☆'.repeat(Math.max(0, 6 - lv));
   const sparkles = () => [[8, 12], [86, 16], [14, 76], [82, 70], [50, 40]].map(([x, y], i) => `<span class="star" style="left:${x}%;top:${y}%;font-size:${12 + (i % 3) * 4}px;animation-delay:${i * 0.3}s">✦</span>`).join('');
@@ -1426,7 +1503,8 @@ const Bots = (() => {
       ${D.elements[c.weak] ? `<div class="wkt">weak ${el(c.weak).icon}</div>` : ''}
       <div class="nmrow"><div class="nm">${esc(c.name)}${u.sh ? ' ✨' : ''}</div></div>
       <div class="top2"><div class="art"><img src="${art(u.id, u.sh)}" alt="${esc(c.name)}">${u.sh ? sparkles() : ''}${o.mark ? `<div class="mark">${o.mark}</div>` : ''}${o.die != null ? `<div class="dbadge${o.heroDie ? ' hero' : ''}${o.land ? ' land' : ''}" ${o.dieAttr || ''}>${o.die}</div>` : ''}</div>
-        <div class="inf"><div class="lv">Lv ${c.level}</div><span class="tag">${e.icon} ${esc(c.type)}</span><div class="hpc${lvl}">♥ <span class="hpn">${Math.max(0, hp)}</span><small>/${mx}</small></div>${o.shield ? `<div class="shd">🛡 ${o.shield}</div>` : ''}</div></div>
+        <div class="inf"><div class="lv">Lv ${c.level}</div><div class="hprow"><div class="hpc${lvl}">♥ <span class="hpn">${Math.max(0, hp)}</span><small>/${mx}</small></div>${o.chg ? `<span class="hpchg${o.chg.heal ? ' up' : ''}">${o.chg.heal ? '+' : '−'}${o.chg.n}${o.chg.weak ? ' <b>×2</b>' : ''}</span>` : ''}</div>${o.shield ? `<div class="shd">🛡 ${o.shield}</div>` : ''}</div></div>
+      <div class="tagrow"><span class="tag">${e.icon} ${esc(c.type)}</span></div>
       <div class="ab">${c.ability ? abText(c.ability) : 'No ability'}</div>
       <div class="faces">${rows}</div>
       ${sp ? `<div class="sp${o.sp ? ' hot' : ''}"><i>${String(sp.face).repeat(sp.count).split('').join(' ')}</i><span>${short(c.special.replace(/^\d+:\s*/, ''))}</span></div>` : ''}
@@ -1467,7 +1545,12 @@ const Bots = (() => {
   function toast(t) { ui.toast = t; render(); setTimeout(() => { if (ui.toast === t) { ui.toast = ''; const x = document.querySelector('.toast'); if (x) x.remove(); } }, 2400); }
   function act(a) {
     const r = E.apply(G, a); if (!r.ok) { toast(r.error); return false; }
-    save(); drive(); return true;
+    recordResult(); save(); showEntered(); drive(); return true;
+  }
+  // damage from an ability when a card enters a column (Charmander's line) shows on the card straight away
+  function showEntered() {
+    const b = G.battle; if (!b || !b.entered || !b.entered.length) return; const es = b.entered; b.entered = [];
+    es.forEach(x => { ui.flash[x.u] = { txt: '-' + x.n + ' 💥', cls: '' }; }); setTimeout(() => { ui.flash = {}; render(); }, 1500);
   }
   // the computer's turn to place: one card at a time so you can watch it happen
   function drive() {
@@ -1484,16 +1567,6 @@ const Bots = (() => {
     let g, guard = 0;
     while ((g = B.step(G, set.ai)) && guard++ < 40) { const r = E.apply(G, g); if (!r.ok) break; }
     ui.busy = false; if (!autoPlace()) maybeTips(); render();
-  }
-  // dice: a lone die goes onto a lone card by itself, and a true one-on-one (nothing to choose, no reroll to think about) plays on its own
-  function autoAssign() {
-    const b = G && G.battle; if (!b || b.stage !== 'assign' || ui.play || (ui.rolling && Date.now() < ui.rolling)) return;
-    const used = E.assignedDice(b, 0), free = b.dice[0].map((v, i) => i).filter(i => !used.has(i)), bare = E.living(b, 0).filter(u => !u.skip && !b.asg[0][u.uid]);
-    if (free.length === 1 && bare.length === 1) { const uid = bare[0].uid; if (act({ t: 'assign', side: 0, uid, die: free[0] })) { ui.landed = uid; setTimeout(() => { ui.landed = null; }, 700); } }
-    const mine = E.living(b, 0).filter(u => !u.skip);
-    if (mine.length === 1 && b.dice[0].length === 1 && b.asg[0][mine[0].uid] && !(b.rr[0] > 0 || b.rrFace[0].indexOf(b.dice[0][0]) >= 0) && !E.tags(mine[0]).some(g => g.t === 'incDie' || g.t === 'setDie')) {
-      const round = b.round; setTimeout(() => { const c = G && G.battle; if (c && c.stage === 'assign' && c.round === round && !ui.play && E.readyToGo(c, 0) && c.gmReady) A.go(); }, 900);
-    }
   }
   // only ask for a choice when there is one: a lone card with a lone spot goes down by itself; a lone card with several spots is already picked
   function autoPlace() {
@@ -1517,7 +1590,7 @@ const Bots = (() => {
     const beats = []; let cur = null;
     const open = (kind, actor) => { cur = { kind, actor, evs: [], auto: false }; beats.push(cur); return cur; };
     evs.forEach(e => {
-      if (e.t === 'move') { p.revealed[e.u] = true; return; }
+      if (e.t === 'move') { p.revealed[e.u] = true; p.moves[e.u] = e.txt; return; }
       if (e.t === 'strike') { if (!(cur && cur.kind === 'special' && cur.actor === e.u && !cur.struck)) open('strike', e.u); cur.struck = true; cur.to = e.to; }
       else if (e.t === 'special') open('special', e.u);
       else if (e.t === 'guard') { open('guard', e.u).auto = true; }
@@ -1563,43 +1636,73 @@ const Bots = (() => {
   }
   function startPlay() {
     const b = G.battle, hp = {}; b.units.forEach(u => { hp[u.uid] = b.before[u.uid]; });
-    ui.play = { hp, ko: {}, revealed: {}, beats: [], bi: -1, eidx: 0, wait: false, cur: null, pop: {}, waiting: false, cap: '', running: false };
+    ui.play = { hp, ko: {}, revealed: {}, moves: {}, beats: [], bi: -1, eidx: 0, wait: false, cur: null, pop: {}, waiting: false, cap: '', running: false };
     absorbEvents(); render();
     ui.pt = setTimeout(nextBeat, 1000);                                        // everyone's dice are shown first, then the first card acts
   }
   const cardEl = uid => document.querySelector('.card[data-uid="' + uid + '"]');
-  function clearFx() { document.querySelectorAll('.fx').forEach(x => x.remove()); document.querySelectorAll('.lunge2').forEach(x => x.classList.remove('lunge2')); }
+  const ctr = el => { const r = el.getBoundingClientRect(); return [r.left + r.width / 2, r.top + r.height / 2, r]; };
+  function clearFx() { document.querySelectorAll('.fx,.orb,.mvbub').forEach(x => x.remove()); document.querySelectorAll('.lunge2').forEach(x => x.classList.remove('lunge2')); }
+  const iconOf = uid => { const x = E.U(G.battle, uid); const t = E.typeOf(x); return (D.elements[t[0].toUpperCase() + t.slice(1)] || D.elements.Normal).icon; };
   function drawFx(beat) {
-    const a = beat.actor != null && cardEl(beat.actor); if (!a) return;
-    const ar = a.getBoundingClientRect(), ac = [ar.left + ar.width / 2, ar.top + ar.height / 2];
-    const tids = (beat.to || []).filter(t => t !== beat.actor).concat(beat.kind === 'heal' ? beat.evs.filter(e => e.t === 'heal' && e.u !== beat.actor).map(e => e.u) : []);
-    let svg = '<defs><marker id="ah" viewBox="0 0 10 10" refX="7" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse"><path d="M0 0L10 5L0 10Z" fill="#ffd23f"/></marker><marker id="ahg" viewBox="0 0 10 10" refX="7" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse"><path d="M0 0L10 5L0 10Z" fill="#7dff9c"/></marker></defs>';
-    tids.forEach(t => { const te = cardEl(t); if (!te) return; const r = te.getBoundingClientRect(), tc = [r.left + r.width / 2, r.top + r.height / 2], heal = beat.kind === 'heal'; svg += `<path class="fxl" d="M${ac[0]} ${ac[1]} L${tc[0]} ${tc[1]}" stroke="${heal ? '#7dff9c' : '#ffd23f'}" stroke-width="10" stroke-linecap="round" fill="none" marker-end="url(#${heal ? 'ahg' : 'ah'})"/>`; });
-    if (tids.length) { const te = cardEl(tids[0]), r = te.getBoundingClientRect(), dx = (r.left + r.width / 2 - ac[0]), dy = (r.top + r.height / 2 - ac[1]), d = Math.hypot(dx, dy) || 1; a.style.setProperty('--dx', (dx / d * 36) + 'px'); a.style.setProperty('--dy', (dy / d * 36) + 'px'); a.classList.add('lunge2'); }
-    const el = document.createElementNS('http://www.w3.org/2000/svg', 'svg'); el.setAttribute('class', 'fx'); el.innerHTML = svg; document.body.appendChild(el);
+    const a = beat.actor != null && cardEl(beat.actor); if (!a) return; const p = ui.play;
+    const [ax, ay, ar] = ctr(a);
+    const tids = (beat.to || []).filter(t => t !== beat.actor).concat(beat.kind === 'heal' ? beat.evs.filter(e => e.t === 'heal' && e.u !== beat.actor).map(e => e.u) : []).filter((t, i, arr) => arr.indexOf(t) === i);
+    // the move being used, named above the card that uses it
+    const mv = p.moves[beat.actor], au = E.U(G.battle, beat.actor);
+    const bub = document.createElement('div'); bub.className = 'mvbub';
+    bub.innerHTML = `<img class="pix" src="${art(au.id, au.sh)}" alt=""><span>${beat.kind === 'special' ? '<b class="capx" style="color:#c1121f">SPECIAL!</b> ' : ''}${mv ? short(mv) : (beat.kind === 'guard' ? '🛡 Guard' : '')}</span>`;
+    bub.style.left = ax + 'px'; bub.style.top = Math.max(60, ar.top - 6) + 'px'; document.body.appendChild(bub);
+    if (tids.length) {
+      const te = cardEl(tids[0]), [tx, ty] = ctr(te), dx = tx - ax, dy = ty - ay, d = Math.hypot(dx, dy) || 1;
+      a.style.setProperty('--dx', (dx / d * 40) + 'px'); a.style.setProperty('--dy', (dy / d * 40) + 'px'); a.classList.add('lunge2');
+      let svg = '<defs><marker id="ah" viewBox="0 0 10 10" refX="7" refY="5" markerWidth="4" markerHeight="4" orient="auto-start-reverse"><path d="M0 0L10 5L0 10Z" fill="#ffd23f"/></marker><marker id="ahg" viewBox="0 0 10 10" refX="7" refY="5" markerWidth="4" markerHeight="4" orient="auto-start-reverse"><path d="M0 0L10 5L0 10Z" fill="#7dff9c"/></marker></defs>';
+      const heal = beat.kind === 'heal';
+      tids.forEach(t => { const e2 = cardEl(t); if (!e2) return; const [x2, y2] = ctr(e2); svg += `<path class="fxl" d="M${ax} ${ay} L${x2} ${y2}" stroke="${heal ? '#7dff9c' : '#ffd23f'}" stroke-width="6" stroke-linecap="round" fill="none" marker-end="url(#${heal ? 'ahg' : 'ah'})"/>`; });
+      const sv = document.createElementNS('http://www.w3.org/2000/svg', 'svg'); sv.setAttribute('class', 'fx'); sv.innerHTML = svg; document.body.appendChild(sv);
+      setTimeout(() => {                                                                   // a projectile of the attacker's element flies across
+        if (ui.play !== p || p.cur !== beat) return;
+        tids.forEach(t => { const e2 = cardEl(t); if (!e2) return; const [x2, y2] = ctr(e2), o = document.createElement('div'); o.className = 'orb'; o.textContent = heal ? '✚' : iconOf(beat.actor); o.style.color = heal ? '#7dff9c' : '#fff'; document.body.appendChild(o);
+          o.animate([{ transform: `translate(${ax - 24}px,${ay - 24}px) scale(.6)`, opacity: 1 }, { transform: `translate(${x2 - 24}px,${y2 - 24}px) scale(1.5)`, opacity: 1 }], { duration: 380, easing: 'ease-in', fill: 'forwards' }).onfinish = () => o.remove(); });
+      }, 280);
+    }
+    setTimeout(() => impact(beat), tids.length ? 700 : 450);
+  }
+  // the hit lands: a ring and a shake and the number on the card that was hit, HP counting down, a card knocked out falling away
+  function impact(beat) {
+    const p = ui.play; if (!p || p.cur !== beat || beat.hit) return; beat.hit = true;
+    const add = (el, cls, txt, style) => el.insertAdjacentHTML('beforeend', `<div class="${cls}" ${style ? 'style="' + style + '"' : ''}>${txt}</div>`);
+    const to = {};
+    beat.evs.forEach(e => {
+      const el = e.u != null && cardEl(e.u); if (!el) return;
+      if (e.t === 'dmg') { el.classList.add('hurt2'); add(el, 'pop', '-' + e.n); add(el, 'ring', ''); if (e.weak) add(el, 'weakb', 'WEAK ×2'); to[e.u] = e.hp; }
+      else if (e.t === 'heal') { el.classList.add('heal2'); add(el, 'pop heal', '+' + e.n); for (let i = 0; i < 6; i++) add(el, 'plus', '✚', `left:${10 + i * 15}%;animation-delay:${i * 0.07}s`); to[e.u] = e.hp; }
+      else if (e.t === 'blocked') add(el, 'pop txt', e.n ? '🛡 −' + e.n : '🛡 Blocked');
+      else if (e.t === 'dodge') add(el, 'pop txt', 'Dodged!');
+      else if (e.t === 'immune') add(el, 'pop txt', 'No effect');
+      else if (e.t === 'skip') add(el, 'pop txt', 'Loses a round');
+      else if (e.t === 'ko') setTimeout(() => { const x = cardEl(e.u); if (x) x.classList.add('kofall'); }, 500);
+    });
+    Object.keys(to).forEach(k => tweenHp(+k, p.hp[k], to[k]));
   }
   // HP counts down (or up) on the card
   function tweenHp(uid, from, to) {
     const el = cardEl(uid), n = el && el.querySelector('.hpn'); if (!n) return; const steps = Math.abs(to - from); if (!steps) return;
-    let cur = from; const iv = setInterval(() => { cur += to > from ? 1 : -1; n.textContent = Math.max(0, cur); if (cur === to || !document.contains(n)) clearInterval(iv); }, Math.min(220, 520 / steps));
+    let cur = from; const iv = setInterval(() => { cur += to > from ? 1 : -1; n.textContent = Math.max(0, cur); if (cur === to || !document.contains(n)) clearInterval(iv); }, Math.min(260, 700 / steps));
   }
   function nextBeat() {
     clearTimeout(ui.pt); const p = ui.play; if (!p) return; clearFx();
     if (p.bi + 1 >= p.beats.length) { if (G.battle.ask) { p.waiting = true; p.cur = null; p.wait = false; render(); return; } finishPlay(); return; }
     p.bi++; const beat = p.beats[p.bi]; p.cur = beat; p.wait = false; p.pop = {};
-    p.cap = capOf(beat, p.hp);
-    beat.evs.forEach(e => { if (e.t === 'dmg') p.pop[e.u] = { txt: '-' + e.n, cls: '' }; else if (e.t === 'heal') p.pop[e.u] = { txt: '+' + e.n, cls: 'heal' }; else if (e.t === 'blocked') p.pop[e.u] = { txt: e.n ? '🛡 ' + e.n : '🛡', cls: 'txt' }; else if (e.t === 'dodge') p.pop[e.u] = { txt: 'Dodged!', cls: 'txt' }; else if (e.t === 'immune') p.pop[e.u] = { txt: 'No effect', cls: 'txt' }; else if (e.t === 'skip') p.pop[e.u] = { txt: 'Loses a round', cls: 'txt' }; else if (e.t === 'special') p.pop[e.u] = { txt: 'SPECIAL!', cls: 'txt' }; });
     const actor = beat.actor != null ? E.U(G.battle, beat.actor) : null; if (actor && actor.sh) ui.burst = actor.uid;
     render(); drawFx(beat);
-    // the numbers move after a beat, so the arrow is seen first
-    setTimeout(() => { const q = ui.play; if (!q || q.cur !== beat) return; const to = {}; beat.evs.forEach(e => { if (e.t === 'dmg' || e.t === 'heal') to[e.u] = e.hp; }); Object.keys(to).forEach(k => tweenHp(+k, q.hp[k], to[k])); }, 420);
-    ui.pt = setTimeout(() => endBeat(beat), 1100);
+    ui.pt = setTimeout(() => endBeat(beat), beat.auto ? 700 : 1700);
   }
   function endBeat(beat) {
-    const p = ui.play; if (!p || p.cur !== beat || p.wait) return; clearTimeout(ui.pt);
+    const p = ui.play; if (!p || p.cur !== beat || p.wait) return; clearTimeout(ui.pt); if (!beat.hit) impact(beat);
     beat.evs.forEach(e => { if (e.t === 'dmg' || e.t === 'heal') p.hp[e.u] = e.hp; if (e.t === 'ko') p.ko[e.u] = true; });
-    ui.burst = null; clearFx(); p.wait = true; p.pop = {};
-    if (beat.auto) { ui.pt = setTimeout(nextBeat, 350); p.cur = null; render(); return; }
+    ui.burst = null; p.wait = true; p.pop = {};
+    if (beat.auto) { ui.pt = setTimeout(nextBeat, 250); p.cur = null; render(); return; }
     render();
   }
   // a tap: finish the card that is playing, or go on to the next one
@@ -1629,7 +1732,7 @@ const Bots = (() => {
   function maybeTips() {
     const b = G && G.battle; if (!b) return;
     if (b.stage === 'place' && b.pl && b.pl.side === 0) tipOnce('place');
-    if (b.stage === 'assign') tipOnce('dice');
+    if (b.stage === 'assign' && (b.round > 1 || ui.rollTap === G.turn)) tipOnce('dice');
   }
 
   // ---------------------------------------------------------------- screens
@@ -1644,6 +1747,7 @@ const Bots = (() => {
         ${sv ? `<button class="btn big" data-act="continue">Continue</button>` : ''}
         ${sv && ui.newAsk ? `<button class="btn red" data-act="new">This deletes your saved game.<br>Start over?</button>` : `<button class="btn ${sv ? 'alt' : 'big'}" data-act="new">New Game</button>`}
         <button class="btn alt" data-act="help">How to Play</button>
+        <button class="btn alt" data-act="records">Records</button>
       </div>
       <div class="foot">A game by Patrick Blim-Hockberger · Sprites © Nintendo / Game Freak / The Pokémon Company, for private play<br>build: ${esc(buildStamp())}</div>
     </div>`;
@@ -1652,38 +1756,35 @@ const Bots = (() => {
     return `<div class="top"><button class="ib" data-act="menu0">←</button><div class="t">Choose your partner</div><div style="width:52px"></div></div>
       <div class="scr"><div class="center" style="padding-top:12px">
         <div style="display:flex;flex-wrap:wrap;gap:14px;justify-content:center">${D.starters.map(st => { const c = C[st.levels[0]], e = el(c.type); return `<button data-act="starter" data-k="${st.key}" style="background:${e.bg};color:#14110f;border:4px solid #14110f;border-radius:18px;padding:10px 14px 12px;width:150px;box-shadow:0 6px 0 #0008"><img class="pix" width="112" height="112" src="${art(st.levels[0], 0)}" alt=""><div style="font:900 20px system-ui">${st.name}</div><div style="font:800 14px system-ui;opacity:.75">${e.icon} ${c.type}</div></button>`; }).join('')}</div>
-        <div style="display:flex;gap:8px;flex-wrap:wrap;justify-content:center;align-items:center"><b>Computer:</b>${['easy', 'medium', 'hard'].map(x => `<button class="chip${set.ai === x ? ' on' : ''}" data-act="ai" data-v="${x}">${x[0].toUpperCase() + x.slice(1)}</button>`).join('')}</div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;justify-content:center;align-items:center"><b>Computer:</b>${['easy', 'normal', 'master'].map(x => `<button class="chip${set.ai === x ? ' on' : ''}" data-act="ai" data-v="${x}">${D.ai[x].label}</button>`).join('')}</div>
         <div style="display:flex;gap:8px;flex-wrap:wrap;justify-content:center;align-items:center"><b>Game length:</b>${[['short', 'Regular'], ['long', 'Extra Long']].map(([x, l]) => `<button class="chip${set.size === x ? ' on' : ''}" data-act="size" data-v="${x}">${l}</button>`).join('')}</div>
       </div></div>`;
   }
 
-  // ---- the map: left to right; only what is open, and one step beyond it (so the two paths show up as a fork)
-  const TW = 210, TH = 214, PADX = 24, PADY = 20;
+  // ---- the map: left to right, only what is open and one step beyond it; scaled to fill the screen, never scrolled
+  const TILE_W = 160, PADX = 20, PADY = 16;
   const shown = n => E.unlocked(G, n) || n.needs.every(id => E.unlocked(G, E.node(id)));
-  const nodeXY = n => [PADX + n.stage * TW + TW / 2, PADY + n.lane * TH + TH / 2];
   function mapScreen() {
     const vis = D.nodes.filter(shown), ids = new Set(vis.map(n => n.id));
-    const maxStage = Math.max(...vis.map(n => n.stage)), W = PADX * 2 + (maxStage + 1) * TW, H = PADY * 2 + 3 * TH;
+    const stages = Math.max(...vis.map(n => n.stage)) + 1, pitch = stages > 4 ? 178 : 210;
+    const availW = innerWidth, availH = innerHeight - 52;
+    const W0 = PADX * 2 + stages * pitch, sc = Math.min(availW / W0, 1.45);
+    const H0 = availH / sc, lane = Math.max(214, (H0 - PADY * 2) / 3);
+    const xy = n => [PADX + n.stage * pitch + pitch / 2, PADY + n.lane * lane + lane / 2];
     const lines = vis.map(n => n.needs.filter(id => ids.has(id)).map(id => {
-      const a = E.node(id), [x1, y1] = nodeXY(a), [x2, y2] = nodeXY(n), done = G.done[id], mx = (x1 + x2) / 2;
-      return `<path d="M${x1 + 78} ${y1}C${mx} ${y1} ${mx} ${y2} ${x2 - 78} ${y2}" fill="none" stroke="${done ? '#ffd23f' : '#ffffff77'}" stroke-width="${done ? 8 : 5}" stroke-linecap="round" ${done ? '' : 'stroke-dasharray="2 12"'}/>`;
+      const a = E.node(id), [x1, y1] = xy(a), [x2, y2] = xy(n), done = G.done[id], mx = (x1 + x2) / 2;
+      return `<path d="M${x1 + 76} ${y1}C${mx} ${y1} ${mx} ${y2} ${x2 - 76} ${y2}" fill="none" stroke="${done ? '#ffd23f' : '#ffffff77'}" stroke-width="${done ? 8 : 5}" stroke-linecap="round" ${done ? '' : 'stroke-dasharray="2 12"'}/>`;
     }).join('')).join('');
     const tiles = vis.map(n => {
-      const open = E.unlocked(G, n), done = n.kind !== 'loc' && G.done[n.id], [cx, cy] = nodeXY(n);
+      const open = E.unlocked(G, n), done = n.kind !== 'loc' && G.done[n.id], [cx, cy] = xy(n);
       const next = open && !done && n.kind === 'boss';
       const sub = !open ? 'Locked' : n.kind === 'loc' ? E.deckSize(G, n.loc) + ' cards here' : n.kind === 'boss' ? (done ? 'Beaten!' : 'Gym leader') : (done ? 'Beaten!' : 'The final fight');
-      return `<button class="place${open ? '' : ' lock'}${done ? ' done' : ''}${next ? ' next' : ''}${n.kind === 'boss' ? ' gym' : ''}" style="left:${cx - 80}px;top:${cy - 92}px" data-act="node" data-id="${n.id}">
+      return `<button class="place${open ? '' : ' lock'}${done ? ' done' : ''}${next ? ' next' : ''}${n.kind === 'boss' ? ' gym' : ''}" style="left:${cx - TILE_W / 2}px;top:${cy - 92}px" data-act="node" data-id="${n.id}" data-id2="${n.id}">
         <svg viewBox="0 0 160 120" role="img" aria-label="${esc(n.name)}">${sceneOf(n)}</svg>${open ? '' : '<div class="lk">🔒</div>'}${done ? '<div class="ck">✔</div>' : ''}${n.kind === 'boss' ? `<div class="eye" data-act="eye" data-id="${n.id}" aria-label="How their team is made">👁</div>` : ''}
         <div class="pl"><b>${esc(n.name)}</b><span>${sub}</span></div></button>`;
     }).join('');
-    const sl = E.slots(G);
-    return `<div class="top"><button class="ib" data-act="menu">☰</button><div class="t">Kanto Map</div><span class="chip">🎲 ×${sl}</span><span class="chip">★ Lv ${G.lv}</span></div>
-      <div class="mapwrap"><div class="mapin" style="width:${W}px;height:${H}px"><svg class="mapsvg" width="${W}" height="${H}">${lines}</svg>${tiles}</div></div>
-      <div class="dock" style="flex-direction:row;justify-content:center"><button class="btn alt" data-act="coll">Your cards (${G.coll.length})</button></div>`;
-  }
-  function frontierX() {
-    const vis = D.nodes.filter(n => E.unlocked(G, n) && !(n.kind !== 'loc' && G.done[n.id])), st = vis.length ? Math.max(...vis.map(n => n.stage)) : 0;
-    return Math.max(0, PADX + st * TW + TW / 2 - innerWidth / 2);
+    return `<div class="top"><button class="ib" data-act="menu">☰</button><div class="t mapt">Kanto Map</div><span class="chip rt">🎲 ×${E.slots(G)} · ★ ${G.lv}</span><button class="chip cardsbtn" data-act="coll">🃏 <span class="cl">Your cards </span>${G.coll.length}</button></div>
+      <div class="mapwrap"><div class="mapin" style="width:${W0}px;height:${H0}px;transform:scale(${sc});margin-left:${Math.max(0, (availW - W0 * sc) / 2)}px"><svg class="mapsvg" width="${W0}" height="${H0}">${lines}</svg>${tiles}</div></div>`;
   }
 
   // a wrapping grid of whole cards, as big as the screen allows
@@ -1697,26 +1798,32 @@ const Bots = (() => {
     const vals = a.dice.map(i => b.dice[u.side][i]); return { vals, m: E.chosenMove(b, u, vals), die: a.dice };
   }
   function battleScreen() {
-    const b = G.battle, p = ui.play, nd = E.node(b.node), placing = b.stage === 'place', assign = b.stage === 'assign', done = b.stage === 'resolved' && !p;
-    const wide = innerWidth > innerHeight * 1.1, SIDE = 176, m = Math.max(1, b.cols.length, b.mode === 'wild' ? b.cap : Math.max(b.need[0], b.need[1]));
-    const W = Math.min((wide ? innerWidth - SIDE : innerWidth), 900), H = innerHeight;
-    const trayN = placing ? b.hand[0].length : 0, rows = trayN ? 3 : 2;
-    const chrome = 48 + 14 + (placing ? 40 : wide ? 0 : 130);
-    const cwW = Math.floor((W - 16 - (m + 1) * 6 - m * 14) / m), cwH = Math.floor((H - chrome) / rows / 1.56);
-    const cw = Math.max(140, Math.min(260, cwW, cwH));
+    const b = G.battle, p = ui.play, placing = b.stage === 'place', assign = b.stage === 'assign', done = b.stage === 'resolved' && !p;
+    const H = innerHeight, W = Math.min(innerWidth, 1000), BAYP = Math.round(H * 0.3), BAY = placing ? BAYP : Math.round(Math.max(150, Math.min(190, H * 0.2))), boardH = H - BAY;          // one screen: the bay below holds your hand while you set the matchups, then shrinks to the dice and the board zooms into the room
+    const m = Math.max(1, b.cols.length, b.mode === 'wild' ? b.cap : Math.max(b.need[0], b.need[1]));
+    const cwW = Math.floor((W - 16 - (m + 1) * 6 - m * 14) / m), cwH = Math.floor((boardH - 16 - 22 - 44) / 2 / 1.9);
+    const cw = Math.max(120, Math.min(260, cwW, cwH)), hcw = Math.max(90, Math.min(190, Math.floor((BAYP - 28) / 1.9)));
+    if (ui.lastTurn === G.turn && ui.lastCw && ui.lastCw !== cw) ui.zoomFrom = ui.lastCw / cw; ui.lastCw = cw; ui.lastTurn = G.turn;       // if the board changes size, it zooms rather than jumps
     const selected = ui.sel != null && b.hand[0].indexOf(ui.sel) >= 0 ? ui.sel : null;
     const yourPlace = placing && b.pl.side === 0;
-    if (assign && ui.rolledFor !== b.round) { ui.rolledFor = b.round; ui.rolling = Date.now() + 950; setTimeout(() => { ui.rolling = 0; render(); autoAssign(); }, 1000); }
+    const waitRoll = assign && b.round === 1 && ui.rollTap !== G.turn;                       // the first roll of a fight is a tap, too
+    if (assign && !waitRoll && ui.rolledFor !== b.round) { ui.rolledFor = b.round; ui.rolling = Date.now() + 950; setTimeout(() => { ui.rolling = 0; render(); }, 1000); }
     const rolling = ui.rolling && Date.now() < ui.rolling;
     const asking = b.stage === 'resolving' && b.ask && (!p || p.waiting);
     const hpOf = u => p ? (p.hp[u.uid] != null ? p.hp[u.uid] : u.hp) : u.hp;
     const koOf = u => p ? !!p.ko[u.uid] : u.ko;
-    const popOf = u => p && p.pop[u.uid];
+    const popOf = u => (p && p.pop[u.uid]) || ui.flash[u.uid];
     const clsOf = u => {
       let c = ''; const cur = p && p.cur;
-      if (cur && cur.evs.some(e => e.t === 'dmg' && e.u === u.uid)) c += ' hurt';
+      if (cur && cur.kind !== 'misc') { const inv = u.uid === cur.actor || (cur.to || []).indexOf(u.uid) >= 0 || cur.evs.some(e => e.u === u.uid); if (!inv) c += ' dim'; }      // spotlight
       if (ui.burst === u.uid) c += ' burst';
       if (asking && b.ask.opts.some(o => o.indexOf(u.uid) >= 0)) c += ' sel'; if (asking && b.ask.uid === u.uid) c += ' act'; return c;
+    };
+    // what happened to a card in the beat on show: shown on the card itself (−3, ×2 for a weakness), next to its HP
+    const chgOf = u => {
+      const cur = p && p.cur; if (!cur) return null; let n = 0, heal = false, weak = false;
+      cur.evs.forEach(e => { if (e.u === u.uid && e.t === 'dmg') { n += e.n; weak = weak || e.weak; } else if (e.u === u.uid && e.t === 'heal') { n += e.n; heal = true; } });
+      return n ? { n, heal, weak } : null;
     };
     const unitCard = u => {
       const info = unitMove(b, u), ko = u.ko || koOf(u), reveal = u.side === 0 || done || (p && p.revealed[u.uid]);
@@ -1725,8 +1832,8 @@ const Bots = (() => {
       const mark = ko ? '✕' : (u.skip && (assign || p || done)) ? '💤' : '';
       const tw = E.tags(u).find(g => g.t === 'incDie' || g.t === 'setDie');
       const extra = tw && u.side === 0 && assign && info && !ko && b.round - u.lastTweak >= tw.every ? `<div class="xb" data-act="tweak" data-uid="${u.uid}">⚡ Use ability</div>` : '';
-      const pf = assign && u.side === 0 && !ko && ui.die != null ? b.dice[0][ui.die] : 0;
-      return card(u, { cw, foe: u.side === 1, ko: koOf(u), hp: hpOf(u), shield: u.shield || 0, face, sp: spOn, pf, die, land: ui.landed === u.uid, heroDie: u.side === 0, dieAttr: u.side === 0 && assign ? `data-act="unmv" data-uid="${u.uid}"` : '', mark, extra, cls: clsOf(u), pop: popOf(u), attr: `data-act="unit" data-uid="${u.uid}"` });
+      const pf = assign && !waitRoll && u.side === 0 && !ko && ui.die != null ? b.dice[0][ui.die] : 0;
+      return card(u, { cw, foe: u.side === 1, ko: koOf(u), hp: hpOf(u), shield: u.shield || 0, face, sp: spOn, pf, die, chg: chgOf(u), land: ui.landed === u.uid, heroDie: u.side === 0, dieAttr: u.side === 0 && assign ? `data-act="unmv" data-uid="${u.uid}"` : '', mark, extra, cls: clsOf(u), pop: popOf(u), attr: `data-act="unit" data-uid="${u.uid}"` });
     };
     const slotHtml = (ci, side) => {
       const uid = b.cols[ci][side];
@@ -1734,47 +1841,37 @@ const Bots = (() => {
       const ok = yourPlace && selected != null && side === 0 && E.slotsFor(b, 0).some(s => s.join === ci);
       return `<div class="slot${ok ? ' ok' : ''}" style="--cw:${cw}px" ${ok ? `data-act="join" data-col="${ci}"` : ''}>${ok ? '＋' : ''}</div>`;
     };
-    const canIns = yourPlace && selected != null && b.cols.length < b.limit;
+    const canIns = yourPlace && selected != null && E.slotsFor(b, 0).some(sl => sl.at != null);
     const ins = at => canIns ? `<div class="ins" style="--cw:${cw}px" data-act="ins" data-at="${at}">+</div>` : '';
     let cols = ins(0);
     b.cols.forEach((c, i) => { cols += `<div class="col" style="--cw:${cw}px">${slotHtml(i, 1)}${slotHtml(i, 0)}</div>` + ins(i + 1); });
     if (!b.cols.length && !canIns) cols = `<div class="vsl">${placing ? 'Cards go here' : ''}</div>`;
-    const foeTray = b.hand[1].length ? b.hand[1].map(() => back(34)).join('') : '';
-    const heroTray = E.handOf(b, 0).map(hc => { const k = hc.hid != null ? hc.hid : hc.uid; return card(hc, { cw, sel: k === selected, attr: `data-act="tray" data-uid="${k}"` }); }).join('');
-    // the rolling interface: the dice, Go, and a line of words
+    const heroTray = teamSort(E.handOf(b, 0), hc => hc.hid != null ? hc.hid : hc.uid).map(hc => { const k = hc.hid != null ? hc.hid : hc.uid; return card(hc, { cw: hcw, sel: k === selected, attr: `data-act="tray" data-uid="${k}"` }); }).join('');
+    // the bay: your hand while you set the matchups, then the dice
     const hd = b.dice[0], used = E.assignedDice(b, 0);
-    const owner = {}; Object.keys(b.asg[0]).forEach(k => b.asg[0][k].dice.forEach(i => { owner[i] = +k; }));
-    const diceHtml = (assign || done || p) && hd.length ? hd.map((v, i) => dieHtml(v, { sel: ui.die === i, used: used.has(i), tumble: rolling, attr: assign && !rolling ? `data-act="die" data-i="${i}"` : '', badge: '' })).join('') : '';
+    const diceHtml = !waitRoll && (assign || done || p) && hd.length ? hd.map((v, i) => dieHtml(v, { sel: ui.die === i, used: used.has(i), tumble: rolling, attr: assign && !rolling ? `data-act="die" data-i="${i}"` : '' })).join('') : '';
     let status = '', btns = '';
     const opt = yourPlace && b.pl.optional;
-    if (placing) status = yourPlace ? (selected != null ? 'Now tap where it goes' : opt ? 'Bring another card (they will draw one more), or fight now' : 'Pick a Pokémon from your hand to put down') : 'They are putting a card down…';
-    else if (assign) { const need = E.living(b, 0).filter(u => !u.skip && !b.asg[0][u.uid]).length; status = rolling ? 'Rolling…' : ui.die != null ? 'Tap a card to give it that ' + b.dice[0][ui.die] : (E.readyToGo(b, 0) ? 'Ready? Press Go!' : 'Tap a die, then a card (' + need + ' to go)'); }
+    if (placing) status = (b.sudden ? 'SUDDEN DEATH · ' : '') + (yourPlace ? (selected != null ? 'Now tap where it goes' : opt ? 'Bring another card (they will draw one more), or fight now' : 'Pick a Pokémon from your hand to put down') : 'They are putting a card down…');
+    else if (waitRoll) status = '<span class="rollhint">🎲 Tap anywhere to roll</span>';
+    else if (assign) { const need = E.living(b, 0).filter(u => !u.skip && !b.asg[0][u.uid]).length; status = (b.sudden ? 'SUDDEN DEATH · ' : '') + (rolling ? 'Rolling…' : ui.die != null ? 'Tap a card to give it that ' + b.dice[0][ui.die] : (E.readyToGo(b, 0) ? 'Ready? Press Go!' : 'Drag a die onto a card (' + need + ' to go)')); }
     else if (asking) status = `Tap who ${C[E.U(b, b.ask.uid).id].name} ${b.ask.k === 'a' ? 'attacks' : 'heals'}`;
-    else if (p) status = p.bi < 0 ? 'Here is what everyone rolled…' : `<span class="capline">${p.cap}</span>${p.wait ? ' <span class="rollhint capnext">Tap ▶</span>' : ''}`;
+    else if (p) status = p.bi < 0 ? 'Here is what everyone rolled…' : (p.wait ? '<span class="rollhint capnext">Tap ▶</span>' : '');
     else if (done) status = `<span class="rollhint">${b.out === 'hero' ? '🏆 You win! Tap anywhere to continue' : b.out === 'gm' ? 'You lose this one. Tap anywhere to continue' : b.out === 'sudden' ? 'Everyone fell! Tap anywhere for sudden death' : '🎲 Tap anywhere to roll'}</span>`;
-    if (assign) {
+    if (assign && !waitRoll) {
       const canRe = !rolling && ui.die != null && (b.rr[0] > 0 || (b.rrFace[0].indexOf(hd[ui.die]) >= 0 && !b.rrUsed[0][ui.die]));
       btns = `${canRe ? `<button class="btn alt" data-act="reroll">🔄 ${b.rr[0] || 'Free'}</button>` : ''}<button class="btn big" data-act="go" ${!rolling && E.readyToGo(b, 0) && b.gmReady ? '' : 'disabled'}>Go!</button>`;
     } else if (p && !p.waiting) btns = `<button class="btn ghost" data-act="skip">Skip ▶▶</button>`;
-    const living = s => E.living(b, s).length;
-    const dockIn = `<div class="status">${status}</div><div class="dockrow"><div class="dice">${diceHtml}</div><div class="acts">${btns}</div></div>`;
-    const dock = placing ? '' : `<div class="dock${wide ? ' side' : ''}">${dockIn}</div>`;
-    return `<div class="top"><button class="ib" data-act="menu">☰</button><div class="t">${esc(nd.name)}${b.round ? ' · Round ' + b.round : ''}${b.sudden ? ' · SUDDEN DEATH' : ''}</div><button class="chip" data-act="leave" style="min-height:40px">${ui.leaveAsk ? 'Sure? Leave' : '🏃 Leave'}</button></div>
-      <div class="bt${wide ? ' wide' : ''}"><div class="main">
-        ${placing ? `<div class="status plrow"><span>${status}</span>${opt ? '<button class="btn big" data-act="ready">Fight!</button>' : ''}</div>` : ''}
-        <div class="table">
-          ${foeTray ? `<div class="tray" style="min-height:0;padding:2px">${foeTray}</div>` : ''}
-          <div class="board">${cols}</div>
-          ${trayN ? `<div class="hrow">${heroTray}</div>` : ''}
-        </div>
-        ${wide ? '' : dock}
-      </div>${wide ? dock : ''}</div>`;
+    const bayIn = placing ? `<div class="hrow handrow">${heroTray}</div>` : `<div class="status">${status}</div><div class="dockrow"><div class="dice">${diceHtml}</div><div class="acts">${btns}</div></div>`;
+    return `<button class="ib fab" data-act="menu" style="left:6px;top:6px" aria-label="Menu">☰</button><button class="ib fab" data-act="leave" style="left:6px;top:56px;${ui.leaveAsk ? 'width:auto;padding:0 12px;font-size:16px;font-weight:800' : ''}" aria-label="Leave">${ui.leaveAsk ? 'Sure? Leave' : '🏃'}</button>
+      ${placing ? `<div class="plbar"><span class="pill">${status}</span>${opt ? '<button class="btn big" data-act="ready">Fight!</button>' : ''}</div>` : ''}
+      <div class="bt"><div class="board" style="height:${boardH}px">${cols}</div><div class="bay" style="height:${BAY}px">${bayIn}</div></div>`;
   }
   function resultScreen() {
     const r = G.res, nd = E.node(r.node), sdv = E.starterOf(G.starter), cw = 150;
     const take = r.pick ? `<div class="status">Choose one to join your team!</div><div class="hrow">${r.pick.map((i, k) => card(i, { cw, attr: `data-act="take" data-i="${k}"` })).join('')}</div>` : (r.took ? `<div class="status">You caught ${esc(C[r.took.id].name)}${r.took.sh ? ' ✨' : ''}!</div><div class="hrow">${card(r.took, { cw })}</div>` : '');
     const evo = r.evolve ? `<div class="status">${esc(C[sdv.levels[r.evolve - 1]].name)} is ready to evolve! Which will it be?</div><div class="hrow">${[[sdv.levels[r.evolve - 1], 0], [sdv.evolve[r.evolve], 1]].map(([id, y]) => card({ id, sh: 0 }, { cw, attr: `data-act="evolve" data-yes="${y}"` })).join('')}</div>` : '';
-    const lines = []; if (r.win && nd.kind === 'boss') lines.push(`You beat ${esc(nd.name)}! +1 die`); if (r.levelUp) lines.push(`Your partner grew to level ${r.levelUp}!`); if (r.legend && r.win) lines.push(`${esc(C[r.legend.id].name)}${r.legend.sh ? ' ✨' : ''} joins your team!`);
+    const lines = []; if (r.win && nd.kind === 'boss') lines.push(`You beat ${esc(nd.name)}! +1 die`); if (r.turns != null) lines.push(`${nd.finale ? 'You beat the game' : 'Beaten'} in <b>${r.turns} turn${r.turns === 1 ? '' : 's'}</b>${r.newBest ? ' <span class="nb">New best!</span>' : (r.best != null ? ` <span class="pb">(best ${r.best})</span>` : '')}`); if (r.levelUp) lines.push(`Your partner grew to level ${r.levelUp}!`); if (r.legend && r.win) lines.push(`${esc(C[r.legend.id].name)}${r.legend.sh ? ' ✨' : ''} joins your team!`);
     return `<div class="scr" style="overflow:auto"><div class="center" style="justify-content:flex-start;padding-top:56px"><div class="banner">${r.win ? (nd.finale ? 'CHAMPION!' : 'Victory!') : 'Not this time'}</div>
       ${lines.map(l => `<div style="font:800 22px system-ui">${l}</div>`).join('')}
       ${r.win && r.levelUp && !r.evolve ? `<div class="hrow">${card({ id: G.coll.find(c => c.starter).id, sh: 0 }, { cw })}</div>` : ''}
@@ -1783,8 +1880,8 @@ const Bots = (() => {
       ${r.pick || r.evolve ? '' : `<button class="btn big" data-act="done">${G.phase === 'won' ? 'Hall of Fame' : 'Continue'}</button>`}</div></div>`;
   }
   function wonScreen() {
-    return `<div class="scr"><div class="center" style="flex:none;padding-top:56px"><div class="banner" style="font-size:54px">CHAMPION!</div><div style="font:800 22px system-ui">You beat the gym leaders, Lance and your rival in ${G.turn} turns.</div></div>
-      ${cardGrid(G.coll, { max: 170, attr: c => `data-act="zoom" data-uid="${c.uid}"` })}<div class="dock" style="flex-direction:row;justify-content:center"><button class="btn big" data-act="menu0">Main menu</button></div></div>`;
+    return `<div class="scr"><div class="center" style="flex:none;padding-top:56px"><div class="banner" style="font-size:54px">CHAMPION!</div><div style="font:800 22px system-ui">You beat the gym leaders, Lance and your rival in <b>${G.turn} turns</b>.${(scores()[G.size] || {}).game != null ? ` <span class="pb">Best: ${(scores()[G.size] || {}).game}</span>` : ''}</div></div>
+      ${cardGrid(collSorted(), { max: 170, attr: c => `data-act="zoom" data-uid="${c.uid}"` })}<div class="dock" style="flex-direction:row;justify-content:center"><button class="btn big" data-act="menu0">Main menu</button></div></div>`;
   }
 
   // ---- overlays
@@ -1803,19 +1900,30 @@ const Bots = (() => {
   function menuSheet() {
     const inB = !!G.battle;
     return `<div class="sheet" data-act="closemenu"><div class="box" data-stop="1" style="max-width:420px;display:flex;flex-direction:column;gap:12px"><h2>Menu</h2>
-      <button class="btn alt" data-act="help">How to Play</button><button class="btn alt" data-act="settings">Settings</button>
+      <button class="btn alt" data-act="help">How to Play</button><button class="btn alt" data-act="records">Records</button><button class="btn alt" data-act="settings">Settings</button>
       ${inB ? '<button class="btn red" data-act="forfeit">Give up this fight</button>' : ''}
       <button class="btn" data-act="menu0">Save &amp; main menu</button><button class="btn ghost" data-act="closemenu">Close</button></div></div>`;
   }
   const settingsSheet = () => `<div class="sheet" data-act="closesettings"><div class="box" data-stop="1" style="max-width:460px;display:flex;flex-direction:column;gap:16px"><h2>Settings</h2>
       <div><b style="font-size:19px">Tips</b><div style="display:flex;gap:8px;margin-top:8px">${[[true, 'On'], [false, 'Off']].map(([v, l]) => `<button class="chip${set.tips === v ? ' on' : ''}" data-act="tips" data-v="${v}" style="min-height:48px;font-size:19px">${l}</button>`).join('')}</div></div>
-      <div><b style="font-size:19px">Computer</b><div style="display:flex;gap:8px;margin-top:8px">${['easy', 'medium', 'hard'].map(x => `<button class="chip${set.ai === x ? ' on' : ''}" data-act="ai" data-v="${x}" style="min-height:48px;font-size:19px">${x[0].toUpperCase() + x.slice(1)}</button>`).join('')}</div></div>
+      <div><b style="font-size:19px">Computer</b><div style="display:flex;gap:8px;margin-top:8px">${['easy', 'normal', 'master'].map(x => `<button class="chip${set.ai === x ? ' on' : ''}" data-act="ai" data-v="${x}" style="min-height:48px;font-size:19px">${D.ai[x].label}</button>`).join('')}</div></div>
       <button class="btn" data-act="closesettings">Done</button></div></div>`;
-  const collSorted = () => G.coll.slice().sort((a, b) => C[b.id].level - C[a.id].level);
+  // your team, left to right: highest level first, then the order you got them (oldest on the left)
+  const teamSort = (arr, ord) => arr.slice().sort((a, b) => C[b.id].level - C[a.id].level || ord(a) - ord(b));
+  function recordsSheet() {
+    const sz = ui.recSize || set.size, rec = scores()[sz] || {}, bosses = D.nodes.filter(n => n.kind === 'boss');
+    const tile = (n, key, label) => `<div class="rectile${rec[key] != null ? ' got' : ''}"><div class="hmap" style="width:100%"><svg viewBox="0 0 160 120">${n ? sceneOf(n) : finaleScene()}</svg></div><b>${esc(label)}</b><div class="recn">${rec[key] != null ? rec[key] + '<small> turns</small>' : '—'}</div></div>`;
+    return `<div class="sheet" data-act="closerec"><div class="box hbox" data-stop="1" style="max-width:640px"><h2>Records</h2>
+      <div style="display:flex;gap:8px">${[['short', 'Regular'], ['long', 'Extra Long']].map(([x, l]) => `<button class="chip${sz === x ? ' on' : ''}" data-act="recsize" data-v="${x}" style="min-height:44px;font-size:18px">${l}</button>`).join('')}</div>
+      <p class="hcap" style="font-size:18px">Your fewest turns. A turn is one challenge, won or lost.</p>
+      <div class="recgrid">${tile(null, 'game', 'Beat the game')}${bosses.map(n => tile(n, n.id, n.name)).join('')}</div>
+      <button class="btn" data-act="closerec">Done</button></div></div>`;
+  }
+  const collSorted = () => teamSort(G.coll, c => c.uid);
   // tapping a card in your collection fills the screen with it (the same card, as big as the screen allows)
   function zoomSheet() {
     const list = collSorted(), c = list.find(x => x.uid === ui.zoom); if (!c) return '';
-    const cw = Math.max(200, Math.min(760, innerWidth - 24, Math.floor((innerHeight - 130) / 1.55)));
+    const cw = Math.max(200, Math.min(760, innerWidth - 24, Math.floor((innerHeight - 130) / 1.9)));
     return `<div class="sheet" style="z-index:60" data-act="closezoom">${card(c, { cw })}<div class="hnav"><button class="ib" data-act="zprev">◀</button><button class="btn" data-act="closezoom">Close</button><button class="ib" data-act="znext">▶</button></div></div>`;
   }
   const collSheet = () => `<div class="sheet" style="justify-content:flex-start"><div class="top" style="width:100%"><div class="t">Your cards (${G.coll.length})</div><button class="ib" data-act="closecoll">✕</button></div><div style="flex:1;min-height:0;width:100%;display:flex;flex-direction:column">${cardGrid(collSorted(), { max: 200, attr: c => `data-act="zoom" data-uid="${c.uid}"` })}</div></div>`;
@@ -1838,7 +1946,6 @@ const Bots = (() => {
   }
   function render() {
     if (!$app) return;
-    const mw0 = document.querySelector('.mapwrap'); if (mw0) ui.mapX = mw0.scrollLeft;
     let h = '';
     if (ui.screen === 'new') h = newScreen();
     else if (!G || ui.screen === 'menu') h = menuScreen();
@@ -1850,13 +1957,19 @@ const Bots = (() => {
     if (ui.coll) h += collSheet();
     if (ui.zoom != null) h += zoomSheet();
     if (ui.eye) h += eyeSheet();
+    if (ui.records) h += recordsSheet();
     if (ui.menu) h += menuSheet();
     if (ui.settings) h += settingsSheet();
     if (ui.help) h += helpSheet();
     if (ui.tip) h += `<div class="tip">${esc(ui.tip.text)}<br><button class="btn" data-act="tipok">OK</button></div>`;
     if (ui.toast) h += `<div class="toast">${esc(ui.toast)}</div>`;
+    const oldHand = document.querySelector('.handrow'), oldRect = oldHand && oldHand.getBoundingClientRect(), oldHtml = oldHand && oldHand.innerHTML;
     $app.innerHTML = h; flicker();
-    const mw = document.querySelector('.mapwrap'); if (mw) mw.scrollLeft = ui.mapX != null ? ui.mapX : frontierX();
+    if (oldHand && !document.querySelector('.handrow') && G && G.battle && G.battle.stage !== 'place') {        // the rest of your hand flies away
+      const gh = document.createElement('div'); gh.className = 'handghost hrow'; gh.style.cssText = `position:fixed;left:${oldRect.left}px;top:${oldRect.top}px;width:${oldRect.width}px;height:${oldRect.height}px;z-index:35;pointer-events:none`; gh.innerHTML = oldHtml; document.body.appendChild(gh);
+      gh.animate([{ transform: 'translateY(0)', opacity: 1 }, { transform: 'translateY(60%)', opacity: 0 }], { duration: 550, easing: 'ease-in', fill: 'forwards' }).onfinish = () => gh.remove(); setTimeout(() => gh.remove(), 900);
+    }
+    if (ui.zoomFrom) { const bd = document.querySelector('.board'); if (bd) bd.animate([{ transform: 'scale(' + ui.zoomFrom + ')' }, { transform: 'scale(1)' }], { duration: 500, easing: 'ease-out' }); ui.zoomFrom = null; }
   }
 
   // ---------------------------------------------------------------- taps
@@ -1874,6 +1987,7 @@ const Bots = (() => {
     tips(el) { set.tips = el && el.dataset.v ? el.dataset.v === 'true' : !set.tips; lsSet(SET, set); render(); },
     settings() { ui.settings = true; ui.menu = false; render(); }, closesettings() { ui.settings = false; render(); },
     starter(el) { G = E.newGame({ starter: el.dataset.k, size: set.size, ai: set.ai }); ui.screen = 'play'; resetSel(); save(); render(); },
+    records() { ui.records = true; ui.menu = false; render(); }, closerec() { ui.records = false; render(); }, recsize(el) { ui.recSize = el.dataset.v; render(); },
     eye(el) { ui.eye = el.dataset.id; render(); }, closeeye() { ui.eye = null; render(); },
     zoom(el) { ui.zoom = +el.dataset.uid; render(); }, closezoom() { ui.zoom = null; render(); },
     zprev() { const l = collSorted(), i = l.findIndex(c => c.uid === ui.zoom); ui.zoom = l[(i + l.length - 1) % l.length].uid; render(); },
@@ -1941,18 +2055,20 @@ const Bots = (() => {
     if (t && act({ t: 'assign', side: 0, uid: t.u.uid, die: d.i })) { ui.die = null; ui.landed = t.u.uid; setTimeout(() => { ui.landed = null; }, 700); } else render();
   });
   document.addEventListener('pointercancel', endDrag);
-  function resetSel() { ui.sel = null; ui.die = null; ui.aim = null; ui.pick = []; ui.chooser = null; ui.play = null; ui.rolledFor = 0; ui.rolling = 0; ui.mapX = null; }
+  function resetSel() { ui.sel = null; ui.die = null; ui.aim = null; ui.pick = []; ui.chooser = null; ui.play = null; ui.rolledFor = 0; ui.rollTap = null; ui.rolling = 0; ui.mapX = null; }
   document.addEventListener('click', ev => {
     if (ui.dragged && Date.now() - ui.dragged < 400) return;                 // that was the end of a drag, not a tap
     if (ui.rolling && Date.now() < ui.rolling) return;                       // the dice are still tumbling
     const t = ev.target.closest('[data-act]');
     if (ui.play && !ui.play.waiting) { const ac = t && t.dataset.act; if (ac === 'skip') { skipPlay(); return; } if (!(ac === 'menu' || ac === 'tipok' || ac === 'leave')) { advancePlay(); return; } }      // a tap shows the next card
+    if (G && G.phase === 'battle' && G.battle && G.battle.stage === 'assign' && G.battle.round === 1 && ui.rollTap !== G.turn && !ui.play && !ui.menu && !ui.help && !ui.coll && !ui.tip && !ui.settings && !(t && (t.dataset.act === 'menu' || t.dataset.act === 'tipok' || t.dataset.act === 'leave'))) { ui.rollTap = G.turn; render(); setTimeout(maybeTips, 1100); return; }      // tap anywhere to roll the first dice
     // after a round: tap anywhere to roll the next one (the menu button and open sheets still work)
     if (G && G.phase === 'battle' && G.battle && G.battle.stage === 'resolved' && !ui.play && !ui.menu && !ui.help && !ui.coll && !ui.tip && !(t && (t.dataset.act === 'menu' || t.dataset.act === 'tipok'))) { A.next(); return; }
     if (!t) return;
     const f = A[t.dataset.act]; if (f) { ev.stopPropagation(); f(t); }
   });
   document.addEventListener('contextmenu', e => e.preventDefault());
+  let rz = null; window.addEventListener('resize', () => { clearTimeout(rz); rz = setTimeout(() => { if (G && ui.screen === 'play' && G.phase === 'map') render(); }, 120); });
   render();
   window.__pokemonRoll = { get G() { return G; }, setG(x) { G = x; ui.screen = 'play'; resetSel(); save(); drive(); }, ui, A, render, act, get set() { return set; } };
 })();

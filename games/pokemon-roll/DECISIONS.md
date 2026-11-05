@@ -3,13 +3,14 @@
 Sources (Patrick's Google Drive, folder "Pokémon Roll"): **Pokémon Roll! Rulebook**, **Pokémon Roll design doc**, **Pokémon Roll cards** (sheet, tab `v2`, 175 cards). The rulebook is a draft full of open questions; every call below is mine unless marked *(owner)*.
 
 ## Decided by the owner
-- *(owner)* **One roll, no rerolls.** Each side rolls one die per card; the strategy is which die goes on which card. Cards that say "+1 reroll" or "you may always reroll 3s" still do, because the card says so.
-- *(owner)* **Solo against the computer** (Easy / Medium / Hard); no pass and play for now.
+- *(owner, later)* **One reroll per round, per side** ("add back in that you can reroll once"): on top of any "+1 reroll" a card gives. Easy never rerolls and hands dice out at random.
+- *(owner)* **One roll.** Each side rolls one die per card; the strategy is which die goes on which card. Cards that say "+1 reroll" or "you may always reroll 3s" still do, because the card says so.
+- *(owner)* **Solo against the computer** (Easy / Normal / Master); no pass and play for now.
 - *(owner)* **Legendaries are in.** The nine level-6 cards that are not starters: Articuno, Zapdos, Moltres, Dragonite, Mewtwo, Suicune, Lugia, Ho-oh, Celebi. Once you have two dice, a 9 on two dice at the start of a turn spots one: it is shuffled into the place on its card (with that place's discard pile). Lance holds one, drawn at the start of the game.
 - *(owner)* **A blocker takes the leftover.** If a block cannot soak the whole attack, the blocker takes what is left.
 - *(owner)* **A card is out the moment it reaches 0 health.**
 - *(owner)* **Bosses get a random team** from the places on their boss card (Regular or Extra Long game).
-- *(owner)* **Art:** Crystal sprites, shown as big as the card allows. A card drawn from the wild has a fresh **5% chance to be shiny** each time; a card on your team or on a boss's team keeps its form for good. Shiny is **purely cosmetic**, with a sparkle when it comes into play.
+- *(owner)* **Art:** Crystal sprites, shown as big as the card allows. A card drawn from the wild has a fresh **10% chance to be shiny** each time; a card on your team or on a boss's team keeps its form for good. Shiny is **purely cosmetic**, with a sparkle when it comes into play.
 - *(owner)* **Card design:** the weakness is a tab flush with the top of the card.
 
 - *(owner)* **No opening rival fight.** In the paper game it only decides who goes first, so it is gone. `RULING:` your partner starts at level 2 (the level that fight gave), and Viridian Forest, Mt. Moon and Brock are open from the start. The final fight against your rival after Lance is still there (one line in the data to remove it).
@@ -66,3 +67,8 @@ Every ability on the sheet is read from its text by the table in the data block.
 
 ## Not in this version
 - Colored dice and the elemental dice rules, trading cards, the GM-swapping two-player game, Map 1 (the same data would do it), the ten-card hard-mode rival, quests, and the Hall of Fame.
+
+## Computer levels (owner: "build the best AI you can and call it Master; Normal is between perfect and random; Easy may be completely random")
+- **Master** = the best play we have: exhaustive-ish dice-to-card search with pair swaps, special moves weighed against ordinary ones, matchup-based placement, and a reroll whenever the average plan after a fresh throw beats the current plan by a margin. **Normal** = the same thing with levers turned down (`GAME_DATA.ai.normal`: half of its dice go to random cards, no swap search, no special moves, half its placements random, rerolls only a die nothing can use). **Easy** = everything random, never rerolls. Measured by playing the Master hero bot against each (10 campaigns): the hero loses 6% of battles to Easy, 25% to Normal, 34% to Master.
+- Saved settings `medium`/`hard` are read as Normal/Master.
+- **Records, shiny per game (10%, starter keeps its form), draw pile used before dug cards are reshuffled, team sorted by level then oldest, dice are never given out for you:** see the changelog.
