@@ -237,8 +237,9 @@ test('ui: with two dice you can add a second Pokémon to a wild fight: there are
     await p.waitForFunction(() => window.__pokemonRoll.G.battle.placed[0] === 1, null, { timeout: 4000 });
     assert.ok(await p.locator('[data-act=ready]').count() === 1, 'you can fight now, or bring another');
     await p.locator('[data-act=tray]').first().click();
-    assert.ok(await p.locator('.ins[data-act=ins]').count() >= 1, 'there are spots to tap for the second card');
-    await p.locator('.ins[data-act=ins]').first().click();
+    assert.ok(await p.locator('.slot[data-act=ins]').count() >= 1, 'there are spots to tap for the second card');
+    const dsz = await p.evaluate(() => { const a = document.querySelector('.slot[data-act=ins]').getBoundingClientRect(), c = document.querySelector('.board .card').getBoundingClientRect(); return [Math.abs(a.width - c.width), Math.abs(a.height - c.height)]; }); assert.ok(dsz[0] <= 3 && dsz[1] <= 3, 'a spot for a card is exactly the size and shape of a card: ' + dsz);
+    await p.locator('.slot[data-act=ins]').first().click();
     await p.waitForFunction(() => window.__pokemonRoll.G.battle.placed[0] === 2, null, { timeout: 4000 });
     await p.waitForFunction(() => { const g = window.__pokemonRoll.G.battle; return g.placed[1] === 2 || g.stage === 'assign'; }, null, { timeout: 6000 });
     assert.deepEqual(errs, []);
@@ -251,7 +252,7 @@ test('ui: your team is sorted by level (highest on the left), then by when you g
     await p.goto(URL);
     await p.evaluate(() => { const s = Engine.newGame({ seed: 3, starter: 'bulbasaur' }); ['10', '3.5', '16', '74', '6.5'].forEach((id, i) => s.coll.push({ uid: 10 + i, id, sh: 0 })); window.__pokemonRoll.setG(s); });   // levels: partner 2, 1, 5, 1, 1, 5
     await p.click('[data-act=coll]');
-    const order = await p.evaluate(() => [...document.querySelectorAll('.sheet .card .nm')].map(e => e.textContent.trim()));
+    const order = await p.evaluate(() => [...document.querySelectorAll('.handov .card .nm')].map(e => e.textContent.trim()));
     assert.deepEqual(order, ['Venusaur', 'Charizard', 'Bulbasaur', 'Caterpie', 'Pidgey', 'Geodude'], 'level first, then oldest to newest: ' + order.join(', '));
   } finally { await b.close(); }
 });
