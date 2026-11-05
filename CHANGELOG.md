@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- **Pokémon Roll! — levels, Hall of Fame, Pokédex:** levels are now called 1, 10, 20, 30, 40, 50 (the rules still count 1–6); a place's ⓘ and each gym leader's ⓘ show the level range of the cards there; Chansey has 12 health; **Records** became the **Hall of Fame** (every finished run: the team that fought Lance and the turns it took, above the old records); new **Pokédex** (main menu and in-game menu): blank spots in number order that fill in the first time you meet a Pokémon, in any game.
+
 - **Pokémon Roll! — map and hand polish:** gym leaders on the map show just their name on one line (no element badge, no "Gym leader", "Locked" or "Beaten" — the lock, tick and ⓘ say it); Settings sits above Records in the menu; in "Your cards" the last card can always be scrolled fully into view, the cards fly back over the top bar, and the pile reappears as soon as the first card lands.
 
 - **Pokémon Roll! — slower map deal:** the cards dealing out onto the map now take about 2.5 seconds, left to right, so you can watch them land.

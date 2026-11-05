@@ -318,6 +318,17 @@ button{font:inherit;color:inherit;border:0;cursor:pointer}
 <body>
 <div id="app"></div>
 
+
+<style>
+.dxgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(92px,1fr));gap:8px;width:100%}
+.dxc{background:#0003;border-radius:10px;padding:6px 2px;display:flex;flex-direction:column;align-items:center;gap:1px;min-height:112px;justify-content:center;color:#fff9}
+.dxc.got{background:#fff2;color:#fff}.dxc img{width:56px;height:56px;image-rendering:pixelated}
+.dxq{width:56px;height:56px;display:grid;place-items:center;font:900 30px system-ui;opacity:.35}
+.dxc small{font:700 11px system-ui;opacity:.7}.dxc b{font:800 12px system-ui;text-align:center}
+.hofl{display:flex;flex-direction:column;gap:8px;width:100%;max-height:34vh;overflow:auto}
+.hofr{background:#0003;border-radius:10px;padding:8px}.hofh{font:600 16px system-ui;margin-bottom:4px}
+.hofteam{display:flex;flex-wrap:wrap;gap:2px}.hofteam img{width:48px;height:48px;image-rendering:pixelated}
+</style>
 <script id="data">
 /* Pokémon Roll! — every rule number, the map, the bosses, the card sheet and the art live here. The engine and bots read this and hard-code none of it. */
 const GAME_DATA = {
@@ -328,6 +339,7 @@ const GAME_DATA = {
     shinyHp: 1,                 // a shiny card has this much more health than the same card that is not
     shinyChance: 0.10,          // each card is rolled once, before anything is dealt, and keeps its form for the whole game (a partner keeps its form through every level and evolution)
     legendaryDice: 2, legendarySum: 9, legendaryFromSlots: 2,   // roll two dice at the start of a turn once you have a second die: a 9 spots a legendary
+    levelLabels: [1, 10, 20, 30, 40, 50],   // what a card's level 1-6 is called on screen (the rules still count 1-6)
     startSlots: 1, startLevel: 2,   // you begin with your partner at level 2 (the level the first rival fight gave in the paper game)
                  // cards you may challenge a location with; each boss beaten adds one
     locationMax: 6,             // never more than six cards at a time
@@ -595,7 +607,7 @@ Koffing|109|Normal|Psychic|2|2 Mt. Moon|2|Attack|Ignore enemy blocks|3a <^ or >|
 Weezing|110|Normal|Psychic|3|5 Pokemon Tower|5|Attack|After each round, if matchup has more health than you, give them one of your d|4a < or >|2a <>|1a|1d v|||
 Rhyhorn|111|Ground|Grass|2|9 Victory Road|4|Attack, defend|Rhyhorn's ground attacks push all opposing cards to their left|3a|2b < or >|1a|1d v|||
 Rhydon|112|Ground|Grass|4|9 Victory Road|8|Attack, defend|Rhydon's ground attacks push all opposing cards to their right|2a <^>|3a <^ or >|2b <v or >|2a|1d v||4444: 10a all non-ground on both teams
-Chansey|113|Normal|Psychic|5|6 Safari Zone|9|Heal|If no allies, moves become a <^ or >|6h over <v>|4h over <v>|3h over <v>|2h <v or >|1h <v or >|1d v|666: 15h over <<<v>>>
+Chansey|113|Normal|Psychic|5|6 Safari Zone|12|Heal|If no allies, moves become a <^ or >|6h over <v>|4h over <v>|3h over <v>|2h <v or >|1h <v or >|1d v|666: 15h over <<<v>>>
 Tangela|114|Grass|Fire|2|7 Seafoam Islands|4|Support|Opponents cannot use abilities to change columns|2a <^|1a <^|1b|1d v|||
 Kangaskhan|115|Normal|Psychic|5|6 Safari Zone|9|Attack|Cannot heal ^|4a <^|3a ^>|2a <>|2b|1d v||66: 4a <^>
 Horsea|116|Water|Electric|1|4 S.S. Anne|1|Attack|+2a water <>|1a <^ or >|1b|1d v||||
@@ -1461,7 +1473,7 @@ const Engine = (() => {
   }
   function endBattle(s, win) {
     const b = s.battle, nd = node(b.node), gm = b.units.filter(u => u.side === 1).map(u => ({ id: u.id, sh: u.sh })).concat(b.hcards ? b.hand[1].map(h => ({ id: b.hcards[h].id, sh: b.hcards[h].sh })) : []);
-    s.res = { win, node: b.node, kind: b.kind, gm, rounds: b.round }; s.battle = null; s.phase = 'result';
+    s.res = { win, node: b.node, kind: b.kind, gm, rounds: b.round, team: b.units.filter(u => u.side === 0).map(u => ({ id: u.id, sh: u.sh })) }; s.battle = null; s.phase = 'result';
     if (nd.kind === 'loc') {
       if (win) s.res.pick = gm; else gm.forEach(i => s.discard[CARDS[i.id].loc].push(i.id));      // what you dug goes to the discard pile; the draw pile is worked through once before it is shuffled again
       if (win && !gm.length) s.res.pick = [];
@@ -1763,12 +1775,19 @@ const Bots = (() => {
   const save = () => { if (G) lsSet(KEY, G); };
   const tipsSeen = lsGet(TIPS) || {};
   // personal bests: the fewest turns to beat each gym leader, and the whole game, for each game length
-  const SCORES = 'pokemon-roll-scores';
+  const SCORES = 'pokemon-roll-scores', HOF = 'pokemon-roll-hof', DEX = 'pokemon-roll-dex';
+  const hofList = () => lsGet(HOF) || [], dexSeen = () => lsGet(DEX) || {};
+  // the Pokédex fills in as you meet each Pokémon, in any game: your own cards and everything that stands across from you
+  function markDex() {
+    if (!G) return; const seen = dexSeen(); let add = 0, ids = G.coll.map(c => c.id).concat(G.battle ? G.battle.units.map(x => x.id) : []);
+    ids.forEach(id => { const d = C[id] && C[id].dex; if (d && !seen[d]) { seen[d] = 1; add++; } }); if (add) lsSet(DEX, seen);
+  }
   const scores = () => lsGet(SCORES) || {};
   function recordResult() {
     const r = G && G.res; if (!r || r.rec || !r.win) return; const nd = E.node(r.node); r.rec = true;
     const keys = [nd.kind === 'boss' ? nd.id : null, nd.finale ? 'game' : null].filter(Boolean); if (!keys.length) return;      // beating Lance also finishes the whole game
     const turns = G.bossTurns[nd.id]; if (turns == null) return;
+    if (nd.finale) { const h = hofList(); h.push({ t: Date.now(), turns, size: G.size, ai: G.ai, starter: G.starter, team: (r.team || G.coll.map(c => ({ id: c.id, sh: c.sh }))) }); lsSet(HOF, h); }
     const all = scores(), rec = all[G.size] = all[G.size] || {};
     keys.forEach(key => { const prev = rec[key]; if (key === (nd.finale ? 'game' : nd.id)) { r.turns = turns; r.best = prev; r.newBest = prev == null || turns < prev; } if (prev == null || turns < prev) rec[key] = turns; });
     lsSet(SCORES, all);
@@ -1801,6 +1820,8 @@ const Bots = (() => {
     .replace(/max h\b/g, 'max health').replace(/\b(at|below) (\d+)h\b/g, '$1 $2 health')
     .replace(/(\d+)a\b/g, '$1 attack').replace(/(\d+)b\b/g, '$1 block').replace(/(\d+)h\b/g, '$1 heal').replace(/(\d+)d\b/g, '$1 💥')
     .replace(/[<>^]+/g, m => m.replace(/</g, '◀').replace(/>/g, '▶').replace(/\^/g, '▲')).replace(/\bv\b/g, '▼'));
+  const lvName = n => (D.rules.levelLabels || [])[n - 1] || n;
+  const lvRange = loc => { const ls = Object.values(C).filter(c => c.loc === loc && !c.legend).map(c => c.level); if (!ls.length) return ''; const a = lvName(Math.min(...ls)), b = lvName(Math.max(...ls)); return a === b ? 'Level ' + a : 'Levels ' + a + '–' + b; };
   const stars = lv => '★'.repeat(lv) + '☆'.repeat(Math.max(0, 6 - lv));
   const sparkles = () => [[8, 12], [86, 16], [14, 76], [82, 70], [50, 40]].map(([x, y], i) => `<span class="star" style="left:${x}%;top:${y}%;font-size:${12 + (i % 3) * 4}px;animation-delay:${i * 0.3}s">✦</span>`).join('');
 
@@ -1814,7 +1835,7 @@ const Bots = (() => {
       ${D.elements[c.weak] ? `<div class="wkt" style="--wc:${el(c.weak).color}">weak: ${el(c.weak).icon} ${esc(c.weak)} ×2</div>` : ''}
       <div class="nmrow"><div class="nm">${esc(c.name)}${u.sh ? ' ✨' : ''}</div></div>
       <div class="top2"><div class="art"><img src="${art(u.id, u.sh)}" alt="${esc(c.name)}">${u.sh ? sparkles() : ''}${o.mark ? `<div class="mark">${o.mark}</div>` : ''}${o.die != null ? `<div class="dbadge${o.heroDie ? ' hero' : ''}${o.land ? ' land' : ''}${o.dieCol ? ' colored' : ''}" ${o.dieAttr || ''}${o.dieCol ? ` style="background:${o.dieCol}"` : ''}>${o.die}${o.dieBonus ? '<small>+1</small>' : ''}</div>` : ''}</div>
-        <div class="inf"><div class="lv">Lv ${c.level}</div><div class="hprow"><div class="hpc${lvl}">♥ <span class="hpn">${Math.max(0, hp)}</span><small>/${mx}</small></div>${o.chg ? `<span class="hpchg${o.chg.heal ? ' up' : ''}">${o.chg.heal ? '+' : '−'}${o.chg.n}${o.chg.weak ? ' <b>×2</b>' : ''}</span>` : ''}</div>${o.shield ? `<div class="shd">🛡 ${o.shield}</div>` : ''}</div></div>
+        <div class="inf"><div class="lv">Lv ${lvName(c.level)}</div><div class="hprow"><div class="hpc${lvl}">♥ <span class="hpn">${Math.max(0, hp)}</span><small>/${mx}</small></div>${o.chg ? `<span class="hpchg${o.chg.heal ? ' up' : ''}">${o.chg.heal ? '+' : '−'}${o.chg.n}${o.chg.weak ? ' <b>×2</b>' : ''}</span>` : ''}</div>${o.shield ? `<div class="shd">🛡 ${o.shield}</div>` : ''}</div></div>
       <div class="tagrow"><span class="tag">${e.icon} ${esc(c.type)}</span></div>
       <div class="ab">${c.ability ? abText(c.ability) : 'No ability'}</div>
       <div class="faces">${rows}</div>
@@ -2148,7 +2169,8 @@ const Bots = (() => {
         ${sv ? `<button class="btn big" data-act="continue">Continue</button>` : ''}
         ${sv && ui.newAsk ? `<button class="btn red" data-act="new">This deletes your saved game.<br>Start over?</button>` : `<button class="btn ${sv ? 'alt' : 'big'}" data-act="new">New Game</button>`}
         <button class="btn alt" data-act="help">How to Play</button>
-        <button class="btn alt" data-act="records">Records</button>
+        <button class="btn alt" data-act="records">Hall of Fame</button>
+        <button class="btn alt" data-act="dex">Pokédex</button>
       </div>
       <div class="foot">A game by Patrick Blim-Hockberger · Sprites © Nintendo / Game Freak / The Pokémon Company, for private play<br>build: ${esc(buildStamp())}</div>
     </div>`;
@@ -2202,7 +2224,7 @@ const Bots = (() => {
         <svg viewBox="0 0 160 120" role="img" aria-label="${esc(n.name)}">${sceneOf(n)}</svg>${open ? '' : '<div class="lk">🔒</div>'}${done ? '<div class="ck">✔</div>' : ''}${n.kind === 'boss' ? `<div class="eye" data-act="eye" data-id="${n.id}" aria-label="How their team is made">i</div>` : ''}
         <div class="pl"><b>${esc(n.name)}</b></div></button>`;
     }).join('');
-    return `<div class="top"><button class="chip" data-act="chipinfo">🎲 ×${E.slots(G)} · ★ ${G.lv}</button><div class="t mapt">Kanto Map</div><button class="mypile${ui.coll ? ' away' : ''}" data-act="coll" aria-label="Your cards">${myPile()}</button><button class="ib mbtn" data-act="menu" aria-label="Menu">☰</button></div>
+    return `<div class="top"><button class="chip" data-act="chipinfo">🎲 ×${E.slots(G)} · ★ ${lvName(G.lv)}</button><div class="t mapt">Kanto Map</div><button class="mypile${ui.coll ? ' away' : ''}" data-act="coll" aria-label="Your cards">${myPile()}</button><button class="ib mbtn" data-act="menu" aria-label="Menu">☰</button></div>
       <div class="mapwrap"><div class="mapin" style="width:${W0}px;height:${H0}px;transform:scale(${sc});margin-left:${Math.max(0, (availW - W0 * sc) / 2)}px"><svg class="mapsvg" width="${W0}" height="${H0}">${lines}</svg>${tiles}</div></div>`;
   }
 
@@ -2303,7 +2325,7 @@ const Bots = (() => {
     const r = G.res, nd = E.node(r.node), sdv = E.starterOf(G.starter), cw = 150;
     const take = r.pick ? `<div class="status">Choose one to join your team!</div><div class="hrow">${r.pick.map((i, k) => card(i, { cw, attr: `data-act="take" data-i="${k}"` })).join('')}</div>` : (r.took ? `<div class="status">You caught ${esc(C[r.took.id].name)}${r.took.sh ? ' ✨' : ''}!</div><div class="hrow">${card(r.took, { cw })}</div>` : '');
     const evo = r.evolve ? `<div class="status">${esc(C[sdv.levels[r.evolve - 1]].name)} is ready to evolve! Which will it be?</div><div class="hrow">${[[sdv.levels[r.evolve - 1], 0], [sdv.evolve[r.evolve], 1]].map(([id, y]) => card({ id, sh: 0 }, { cw, attr: `data-act="evolve" data-yes="${y}"` })).join('')}</div>` : '';
-    const lines = []; if (r.win && nd.kind === 'boss') lines.push(`You beat ${esc(nd.name)}! +1 die`); if (r.dieGain) lines.push(`You keep ${r.dieGain.map(c => `<b style="color:${dieCol(c)}">${c}</b>`).join(', ')}: a die that adds +1 to a move of its colour`); if (r.turns != null) lines.push(`${nd.finale ? 'You beat the game' : 'Beaten'} in <b>${r.turns} turn${r.turns === 1 ? '' : 's'}</b>${r.newBest ? ' <span class="nb">New best!</span>' : (r.best != null ? ` <span class="pb">(best ${r.best})</span>` : '')}`); if (r.levelUp) lines.push(`Your starter grew to level ${r.levelUp}!`); if (r.legend && r.win) lines.push(`${esc(C[r.legend.id].name)}${r.legend.sh ? ' ✨' : ''} joins your team!`);
+    const lines = []; if (r.win && nd.kind === 'boss') lines.push(`You beat ${esc(nd.name)}! +1 die`); if (r.dieGain) lines.push(`You keep ${r.dieGain.map(c => `<b style="color:${dieCol(c)}">${c}</b>`).join(', ')}: a die that adds +1 to a move of its colour`); if (r.turns != null) lines.push(`${nd.finale ? 'You beat the game' : 'Beaten'} in <b>${r.turns} turn${r.turns === 1 ? '' : 's'}</b>${r.newBest ? ' <span class="nb">New best!</span>' : (r.best != null ? ` <span class="pb">(best ${r.best})</span>` : '')}`); if (r.levelUp) lines.push(`Your starter grew to level ${lvName(r.levelUp)}!`); if (r.legend && r.win) lines.push(`${esc(C[r.legend.id].name)}${r.legend.sh ? ' ✨' : ''} joins your team!`);
     return `<div class="scr" style="overflow:auto"><div class="center" style="justify-content:flex-start;padding-top:56px"><div class="banner">${r.win ? (nd.finale ? 'CHAMPION!' : 'Victory!') : 'Not this time'}</div>
       ${lines.map(l => `<div style="font:800 22px system-ui">${l}</div>`).join('')}
       ${r.win && r.levelUp && !r.evolve ? `<div class="hrow">${card({ id: G.coll.find(c => c.starter).id, sh: 0 }, { cw })}</div>` : ''}
@@ -2332,7 +2354,7 @@ const Bots = (() => {
   function menuSheet() {
     const inB = !!G.battle;
     return `<div class="sheet" data-act="closemenu"><div class="box" data-stop="1" style="max-width:420px;display:flex;flex-direction:column;gap:12px"><h2>Menu</h2>
-      <button class="btn alt" data-act="help">How to Play</button><button class="btn alt" data-act="settings">Settings</button>${inB ? '' : '<button class="btn alt" data-act="records">Records</button>'}
+      <button class="btn alt" data-act="help">How to Play</button><button class="btn alt" data-act="settings">Settings</button><button class="btn alt" data-act="dex">Pokédex</button>${inB ? '' : '<button class="btn alt" data-act="records">Hall of Fame</button>'}
       <button class="btn" data-act="menu0">Save &amp; main menu</button><button class="btn ghost" data-act="closemenu">Close</button></div></div>`;
   }
   const settingsSheet = () => `<div class="sheet" data-act="closesettings"><div class="box" data-stop="1" style="max-width:460px;display:flex;flex-direction:column;gap:16px"><h2>Settings</h2>
@@ -2341,11 +2363,22 @@ const Bots = (() => {
       <button class="btn" data-act="closesettings">Done</button></div></div>`;
   // your team, left to right: highest level first, then the order you got them (oldest on the left)
   const teamSort = (arr, ord) => arr.slice().sort((a, b) => C[b.id].level - C[a.id].level || ord(a) - ord(b));
+  function dexSheet() {
+    const by = {}; Object.values(C).forEach(c => { if (c.dex && (!by[c.dex] || c.level < by[c.dex].level)) by[c.dex] = c; });
+    const nums = Object.keys(by).map(Number).sort((a, b) => a - b), seen = dexSeen(), got = nums.filter(d => seen[d]).length;
+    const cell = d => { const k = !!seen[d], p = String(d).padStart(3, '0'); return `<div class="dxc${k ? ' got' : ''}">${k && D.art[d] ? `<img class="pix" src="data:image/png;base64,${D.art[d].n}" alt="">` : '<div class="dxq">?</div>'}<small>No. ${p}</small><b>${k ? esc(by[d].name) : '???'}</b></div>`; };
+    return `<div class="sheet" data-act="closedex"><div class="box hbox" data-stop="1" style="max-width:760px;max-height:92vh;overflow:auto"><h2>Pokédex</h2><p class="hcap" style="font-size:18px">${got} of ${nums.length} seen. A Pokémon fills in the first time you meet it, in any game.</p><div class="dxgrid">${nums.map(cell).join('')}</div><button class="btn" data-act="closedex">Done</button></div></div>`;
+  }
+  function hofRuns() {
+    const runs = hofList().slice().reverse(); if (!runs.length) return '<p class="hcap" style="font-size:18px">Beat Lance to put your team here.</p>';
+    return runs.map(r => `<div class="hofr"><div class="hofh"><b>${new Date(r.t).toLocaleDateString()}</b> · <b>${r.turns}</b> turns · ${r.size === 'long' ? 'Extra Long' : 'Regular'}${r.ai ? ' · ' + esc(({ easy: 'Easy', normal: 'Normal', master: 'Master' })[r.ai] || r.ai) : ''}</div><div class="hofteam">${(r.team || []).map(m => C[m.id] ? `<img class="pix" src="${art(m.id, m.sh)}" alt="${esc(C[m.id].name)}" title="${esc(C[m.id].name)}">` : '').join('')}</div></div>`).join('');
+  }
   function recordsSheet() {
     const sz = ui.recSize || set.size, rec = scores()[sz] || {}, bosses = D.nodes.filter(n => n.kind === 'boss');
     const tile = (n, key, label) => `<div class="rectile${rec[key] != null ? ' got' : ''}"><div class="hmap" style="width:100%"><svg viewBox="0 0 160 120">${n ? sceneOf(n) : finaleScene()}</svg></div><b>${esc(label)}</b><div class="recn">${rec[key] != null ? rec[key] + '<small> turns</small>' : '—'}</div></div>`;
-    return `<div class="sheet" data-act="closerec"><div class="box hbox" data-stop="1" style="max-width:640px"><h2>Records</h2>
+    return `<div class="sheet" data-act="closerec"><div class="box hbox" data-stop="1" style="max-width:640px"><h2>Hall of Fame</h2>
       <div style="display:flex;gap:8px">${[['short', 'Regular'], ['long', 'Extra Long']].map(([x, l]) => `<button class="chip${sz === x ? ' on' : ''}" data-act="recsize" data-v="${x}" style="min-height:44px;font-size:18px">${l}</button>`).join('')}</div>
+      <div class="hofl">${hofRuns()}</div>
       <p class="hcap" style="font-size:18px">Your fewest turns. A turn is one challenge, won or lost.</p>
       <div class="recgrid">${tile(null, 'game', 'Beat the game')}${bosses.map(n => tile(n, n.id, n.name)).join('')}</div>
       <button class="btn" data-act="closerec">Done</button></div></div>`;
@@ -2399,11 +2432,11 @@ const Bots = (() => {
     const rows = Object.keys(by).sort((a, b) => by[b] - by[a] || (a < b ? -1 : 1)).map(t => { const e = el(t); return `<div class="eyerow" style="--c:${e.color}"><div class="tyb" style="background:${e.color}">${e.icon}</div><div><b>${esc(t)}</b></div><div class="tycount">${by[t]}</div></div>`; }).join('');
     return `<div class="sheet" data-act="closeeye"><div class="box hbox" data-stop="1" style="height:auto;max-height:88vh"><div class="infoi">i</div><h2>${esc(n.name)}</h2>
       <div class="piles"><div class="pbox"><b>${draw.length}</b><span>in the draw pile</span></div><div class="pbox"><b>${disc.length}</b><span>in the discard pile</span></div></div>
-      <p class="hcap" style="font-size:17px">When the draw pile runs out, the discard pile is shuffled back in.</p><div class="hcap" style="font-size:18px">Every card here, by type</div><div class="eyelist" style="overflow:auto">${rows || '<div class="hcap">Nothing left here.</div>'}</div></div></div>`;
+      <p class="hcap" style="font-size:17px">When the draw pile runs out, the discard pile is shuffled back in.</p><div class="hcap" style="font-size:18px"><b>${lvRange(n.loc)}</b> · every card here, by type</div><div class="eyelist" style="overflow:auto">${rows || '<div class="hcap">Nothing left here.</div>'}</div></div></div>`;
   }
   function eyeSheet() {
     const n = E.node(ui.eye), long = G.size === 'long'; if (n.kind === 'loc') return deckInfoSheet(n);
-    const rows = n.draws.map(([loc, k, x]) => [loc, k + (long ? x : 0)]).filter(r => r[1] > 0).map(([loc, k]) => { const ln = E.node(D.nodes.find(q => q.loc === loc).id); return `<div class="eyerow"><div class="hmap" style="width:92px"><svg viewBox="0 0 160 120">${SCENE[loc]()}</svg></div><div><b>${esc(ln.name)}</b><div class="eyen">${k} card${k === 1 ? '' : 's'}</div></div></div>`; });
+    const rows = n.draws.map(([loc, k, x]) => [loc, k + (long ? x : 0)]).filter(r => r[1] > 0).map(([loc, k]) => { const ln = E.node(D.nodes.find(q => q.loc === loc).id); return `<div class="eyerow"><div class="hmap" style="width:92px"><svg viewBox="0 0 160 120">${SCENE[loc]()}</svg></div><div><b>${esc(ln.name)}</b><div class="eyen">${k} card${k === 1 ? '' : 's'} · ${lvRange(loc)}</div></div></div>`; });
     if (n.legendary) rows.push(`<div class="eyerow"><div class="hmap" style="width:92px;display:grid;place-items:center;font-size:46px;background:#4527a0">🌟</div><div><b>A legendary</b><div class="eyen">1 card</div></div></div>`);
     const team = G.seen && G.seen[n.id] && G.bosses[n.id];
     const body = team
@@ -2415,7 +2448,7 @@ const Bots = (() => {
     const n = E.slots(G), mx = D.rules.locationMax;
     return `<div class="sheet" data-act="closechip"><div class="box hbox" style="height:auto;max-width:560px"><div class="infoi">i</div><h2>Your table</h2>
       <p class="hcap" style="font-size:20px"><b>🎲 ×${n}</b> — you roll <b>${n}</b> ${n === 1 ? 'die' : 'dice'} each round, and you can put out up to <b>${n}</b> ${n === 1 ? 'card' : 'cards'} at a time at a place. Beat a gym leader to get one more (never more than ${mx}).</p>
-      <p class="hcap" style="font-size:20px"><b>★ ${G.lv}</b> — the level of your starter. It levels up by winning fights (and evolves), so it grows with you.</p>
+      <p class="hcap" style="font-size:20px"><b>★ ${lvName(G.lv)}</b> — the level of your starter. It levels up by winning fights (and evolves), so it grows with you.</p>
       <p class="hcap" style="font-size:16px;opacity:.7">Tap anywhere to close.</p></div></div>`;
   }
   function legendSheet() {
@@ -2443,6 +2476,7 @@ const Bots = (() => {
     if (ui.eye) h += eyeSheet();
     if (ui.chip && ui.screen === 'play' && G && G.phase === 'map') h += chipSheet();
     if (ui.records) h += recordsSheet();
+    if (ui.dex) h += dexSheet();
     if (ui.menu) h += menuSheet();
     if (ui.settings) h += settingsSheet();
     if (ui.help) h += helpSheet();
@@ -2450,7 +2484,7 @@ const Bots = (() => {
     if (ui.toast) h += `<div class="toast">${esc(ui.toast)}</div>`;
     const oldHand = document.querySelector('.handrow'), oldRect = oldHand && oldHand.getBoundingClientRect(), oldHtml = oldHand && oldHand.innerHTML;
     const oldPileEl = document.querySelector('.pilebay'), oldPileRect = oldPileEl && oldPileEl.getBoundingClientRect(), oldPileHtml = oldPileEl && oldPileEl.outerHTML;
-    $app.innerHTML = h; flicker();
+    markDex(); $app.innerHTML = h; flicker();
     if (oldPileEl && !document.querySelector('.pilebay') && G && G.battle && G.battle.stage !== 'place') {        // done drawing: the pile flies away with the rest of your hand
       const pg = document.createElement('div'); pg.innerHTML = oldPileHtml; const pe = pg.firstChild; pe.style.cssText += `;position:fixed;left:${oldPileRect.left}px;top:${oldPileRect.top}px;width:${oldPileRect.width}px;z-index:36;pointer-events:none;right:auto;bottom:auto`; document.body.appendChild(pe);
       pe.animate([{ transform: 'none', opacity: 1 }, { transform: 'translate(60vw,40vh) rotate(24deg) scale(.5)', opacity: 0 }], { duration: 650, easing: 'cubic-bezier(.5,0,.9,.5)', fill: 'forwards' }).onfinish = () => pe.remove(); setTimeout(() => pe.remove(), 1000);
@@ -2486,6 +2520,7 @@ const Bots = (() => {
     tips(el) { set.tips = el && el.dataset.v ? el.dataset.v === 'true' : !set.tips; lsSet(SET, set); render(); },
     settings() { ui.settings = true; ui.menu = false; render(); }, closesettings() { ui.settings = false; render(); },
     starter(el) { G = E.newGame({ starter: el.dataset.k, size: set.size, ai: set.ai }); ui.screen = 'play'; resetSel(); save(); render(); },
+    dex() { ui.dex = true; ui.menu = false; render(); }, closedex() { ui.dex = false; render(); },
     records() { ui.records = true; ui.menu = false; render(); }, closerec() { ui.records = false; render(); }, recsize(el) { ui.recSize = el.dataset.v; render(); },
     eye(el) { ui.eye = el.dataset.id; render(); }, closeeye() { ui.eye = null; render(); }, chipinfo() { ui.chip = true; render(); }, closechip() { ui.chip = false; render(); },
     zoom(el) { ui.zoom = +el.dataset.uid; render(); }, closezoom() { ui.zoom = null; render(); },

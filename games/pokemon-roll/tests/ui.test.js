@@ -293,6 +293,8 @@ test('ui: beating Lance records the whole-game best (and Lance\'s own), and the 
       return JSON.parse(localStorage.getItem('pokemon-roll-scores'));
     });
     assert.equal(sc.short.game, 31, 'the whole-game record'); assert.equal(sc.short.B7, 31, 'and Lance');
+    const hof = await p.evaluate(() => JSON.parse(localStorage.getItem('pokemon-roll-hof') || '[]')); assert.equal(hof.length, 1, 'the run is in the Hall of Fame'); assert.equal(hof[0].turns, 31); assert.ok(Array.isArray(hof[0].team) && hof[0].team.length > 0, 'with the team that fought');
+    const dx = await p.evaluate(() => JSON.parse(localStorage.getItem('pokemon-roll-dex') || '{}')); assert.ok(dx[4], 'Charmander is in the Pokédex (your starter)');
     assert.match(await p.evaluate(() => document.body.innerHTML), /reroll|🔄/, 'the help or the screen says you can reroll');
   } finally { await b.close(); }
 });
