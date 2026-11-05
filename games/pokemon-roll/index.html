@@ -249,7 +249,7 @@ button{font:inherit;color:inherit;border:0;cursor:pointer}
 .handov{position:fixed;inset:0;z-index:50;background:rgba(0,0,0,.42);display:flex;align-items:center}
 .handf{display:flex;align-items:center;overflow-x:auto;overflow-y:hidden;width:100%;padding:40px 0;-webkit-overflow-scrolling:touch;scrollbar-width:none}
 .handf::-webkit-scrollbar{display:none}
-.handf::before,.handf::after{content:'';flex:none;width:44px}                 /* real end space: padding at the end of a scrolling row is dropped by Safari, which cut the last card */
+.handf::before,.handf::after{content:'';flex:none;width:calc(var(--cw,200px)*.62)}          /* the fanned cards swing outward at the top: leave room so the outer corners are never clipped */                 /* real end space: padding at the end of a scrolling row is dropped by Safari, which cut the last card */
 .handf.fly{overflow:visible}
 .hc{flex:none;transform-origin:50% 130%}
 .hci{transform-origin:50% 50%}
