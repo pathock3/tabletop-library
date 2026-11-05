@@ -46,6 +46,7 @@ button{font:inherit;color:inherit;border:0;cursor:pointer}
 .foot a{color:inherit}
 /* ---- the card: ONE design at every size, a standard portrait card (--cw is its width; the whole card is always on show) ---- */
 .card{--cw:190px;--ink:#14110f;width:var(--cw);flex:none;position:relative;color:var(--ink);background:var(--bg);border:calc(var(--cw)*.022 + 1px) solid var(--ink);border-radius:calc(var(--cw)*.07);overflow:hidden;box-shadow:0 5px 12px #0008;display:flex;flex-direction:column;transition:transform .15s,filter .3s,opacity .3s;text-align:left;padding-bottom:calc(var(--cw)*.03)}
+.card.zero{filter:saturate(.55) brightness(.9);outline:3px solid #e5383b88;outline-offset:-2px}
 .card.foe{--ink:#2a0e0e}                 /* their cards face up to you, the right way round, so every card reads the same */
 .card .wkt{position:absolute;top:0;left:50%;transform:translateX(-50%);z-index:4;background:#fff;border:0 solid var(--ink);border-width:0 2px 2px;border-radius:0 0 calc(var(--cw)*.05) calc(var(--cw)*.05);padding:0 calc(var(--cw)*.06) 1px;font-weight:800;font-size:calc(var(--cw)*.065);letter-spacing:.03em;white-space:nowrap}
 .card{height:calc(var(--cw)*1.9);min-height:0}
@@ -817,6 +818,7 @@ const Engine = (() => {
   // ---------------------------------------------------------------- a round: roll, assign, resolve
   function startRound(s) {
     const b = s.battle;
+    settle(s, b);
     const h0 = living(b, 0).length, g0 = living(b, 1).length;
     if (!h0 || !g0) { b.stage = 'resolved'; b.events = []; b.out = g0 && !h0 ? 'gm' : h0 && !g0 ? 'hero' : 'gm'; return; }     // a burn on entry can end it before a die is thrown
     b.round++; b.stage = 'assign'; b.events = []; b.asg = [{}, {}]; b.gmReady = false; b.pools = []; b.out = null;
@@ -918,7 +920,7 @@ const Engine = (() => {
     if (t && living(b, u.side).length === 1) return clause.map(e => e.k === 'h' ? { k: 'a', n: e.n, bonus: e.bonus, spec: t.sp || { opts: [[0]], spread: false, all: true } } : e);
     return clause;
   }
-  function hitValue(b, a, t, n) { const m = n * wm(b, a, t); return Math.min(m, t.hp) + (m >= t.hp ? 3 : 0); }
+  function hitValue(b, a, t, n) { if (t.hp <= 0) return 0; const m = n * wm(b, a, t); return Math.min(m, t.hp) + (m >= t.hp ? 3 : 0); }
   function candidates(b, u, e) {
     const enemy = e.k === 'a'; let opts = e.spec.opts;
     if (enemy && has(u, 'anyTarget') && typeOf(u) === 'psychic') { const ci = colIdx(b, u.uid); opts = living(b, other(u.side)).map(x => [colIdx(b, x.uid) - ci]); }
@@ -938,7 +940,7 @@ const Engine = (() => {
     effectsOf(b, u, clause).forEach(e => {
       const amt = amountOf(b, u, e);
       if (e.k === 'a') { const T = pickTargets(b, u, e, amt, hint); if (e.spec.spread) { let r = amt; T.forEach(t => { const x = Math.min(r, Math.ceil(t.u.hp / wm(b, u, t.u))); r -= x; v += hitValue(b, u, t.u, x); }); } else T.forEach(t => { v += hitValue(b, u, t.u, amt); }); if (!T.length) v -= 0.5; }
-      else if (e.k === 'h') { const T = pickTargets(b, u, e, amt, hint); let r = amt; T.forEach(t => { const x = Math.min(e.spec.spread ? r : amt, t.u.max - t.u.hp); r -= x; v += x * 0.9; }); }
+      else if (e.k === 'h') { const T = pickTargets(b, u, e, amt, hint); let r = amt; T.forEach(t => { const x = t.u.hp <= 0 ? 0 : Math.min(e.spec.spread ? r : amt, t.u.max - t.u.hp); r -= x; v += x * 0.9; }); }
       else if (e.k === 'b') v += amt * (living(b, other(u.side)).some(x => !x.skip) ? 0.55 : 0.1);
       else if (e.k === 'd') v -= e.n * 1.3 + (u.hp <= e.n ? 6 : 0);
     });
@@ -958,7 +960,7 @@ const Engine = (() => {
 
   // ---------------------------------------------------------------- damage, healing, knock-outs
   function healUnit(b, t, n, src) {
-    if (t.ko || n <= 0) return 0;
+    if (t.ko || n <= 0 || t.hp <= 0) return 0;                   // a card at 0 cannot be healed: it falls at the end of the round
     const foe = b.units.find(x => !x.ko && x.side !== t.side && tags(x).some(g => { if (g.t !== 'noHeal') return false; const xi = colIdx(b, x.uid), ti = colIdx(b, t.uid); return g.offs.indexOf(ti - xi) >= 0; }));
     if (foe) { ev(b, { t: 'text', msg: CARDS[foe.id].name + ' stops the healing' }); return 0; }
     if (has(t, 'doubleHeal')) n *= 2;
@@ -1021,6 +1023,10 @@ const Engine = (() => {
     });
     b.units.forEach(x => { if (!x.ko && x !== T) tags(x).forEach(g => { if (g.t === 'koAnyHeal') healUnit(b, x, g.n, x); }); });
   }
+  // the end of a round: every card at 0 falls (it has made its move, and nobody could heal it)
+  function settle(s, b) {
+    b.units.forEach(u => { if (!u.ko && u.hp <= 0) { const src = u.zeroBy != null ? U(b, u.zeroBy) : null; u.zero = false; knockOut(s, b, u, src && !src.ko ? src : null); } });
+  }
   const shieldMax = (b, T) => tags(T).reduce((t, g) => t + (g.t === 'shield' ? g.n : g.t === 'nido' && g.k === 'd' ? b.units.filter(x => !x.ko && x.side === T.side && x !== T && /^Nido/.test(CARDS[x.id].name)).length : 0), 0);
   function dealDamage(s, b, T, n, src, raw, weak) {
     if (T.ko || n <= 0) return 0;
@@ -1035,7 +1041,7 @@ const Engine = (() => {
     });
     if (T.hp <= 0 && !T.ko) {
       if (has(T, 'survive') && !T.survUsed) { T.survUsed = true; T.hp = 1; T.hold = b.round; ev(b, { t: 'text', msg: CARDS[T.id].name + ' hangs on' }); }
-      else knockOut(s, b, T, src);
+      else { T.zero = true; if (src) T.zeroBy = src.uid; }                 // out at 0, but it still gets to make its move: it falls when the round ends
     }
     return n;
   }
@@ -1099,7 +1105,7 @@ const Engine = (() => {
   function execEffect(s, b, u, e, hint) {
     if (e.k === 'h') {
       const amt = amountOf(b, u, e), T = pickTargets(b, u, e, amt, hint);
-      if (e.spec.spread) { const g = spreadOut(amt, T, t => t.u.max - t.u.hp); T.forEach((t, j) => healUnit(b, t.u, g[j], u)); }
+      if (e.spec.spread) { const g = spreadOut(amt, T, t => t.u.hp <= 0 ? 0 : t.u.max - t.u.hp); T.forEach((t, j) => healUnit(b, t.u, g[j], u)); }
       else T.forEach(t => healUnit(b, t.u, amt, u));
     } else if (e.k === 'b') {
       const cover = []; e.spec.opts.forEach(o => o.forEach(x => { if (cover.indexOf(x) < 0) cover.push(x); }));
@@ -1189,7 +1195,7 @@ const Engine = (() => {
         else T.slice().forEach(t => hit(s, b, u, t.u, e.n, t.off));
         after(s, b, u, T, e.n);
       } else if (e.k === 'h') {
-        if (e.spec && e.spec.spread) { const g = spreadOut(e.n, T, t => t.u.max - t.u.hp); T.forEach((t, j) => healUnit(b, t.u, g[j], u)); }
+        if (e.spec && e.spec.spread) { const g = spreadOut(e.n, T, t => t.u.hp <= 0 ? 0 : t.u.max - t.u.hp); T.forEach((t, j) => healUnit(b, t.u, g[j], u)); }
         else T.forEach(t => healUnit(b, t.u, e.n, u));
       }
     });
@@ -1234,11 +1240,12 @@ const Engine = (() => {
   function finishRound(s) {
     const b = s.battle;
     orderOf(b).forEach(w => {                                    // Weezing: hands one of its damage to a healthier card facing it
-      if (!has(w, 'giveDamage') || w.ko || w.hp >= w.max) return;
+      if (!has(w, 'giveDamage') || w.ko || w.hp <= 0 || w.hp >= w.max) return;
       const fid = b.cols[colIdx(b, w.uid)] && b.cols[colIdx(b, w.uid)][other(w.side)]; if (fid == null) return;
       const foe = U(b, fid); if (foe.ko || foe.hp <= w.hp) return;
       w.hp++; ev(b, { t: 'heal', u: w.uid, n: 1, hp: w.hp }); dealDamage(s, b, foe, 1, w, true);
     });
+    settle(s, b);
     const h = living(b, 0).length, g = living(b, 1).length;
     const moved = b.dealtRound[0] + b.dealtRound[1] + b.events.filter(e => e.t === 'heal').length;
     b.stall = moved ? 0 : b.stall + 1;
@@ -1773,6 +1780,7 @@ const Bots = (() => {
       else if (e.t === 'guard') { open('guard', e.u).auto = true; }
       else if (e.t === 'miss') open('miss', e.u);
       else if (e.t === 'heal' && e.by != null && !(cur && cur.actor === e.by && cur.kind === 'heal')) open('heal', e.by);
+      else if (e.t === 'ko') { if (!(cur && cur.kind === 'misc' && cur.evs.every(x => x.t === 'ko'))) open('misc', null); }      // the cards at 0 fall together, once everyone has moved
       else if (!cur) open('misc', null);
       cur.evs.push(e);
     });
@@ -2004,7 +2012,7 @@ const Bots = (() => {
     const clsOf = u => {
       let c = ''; const cur = p && p.cur;
       if (cur && cur.kind !== 'misc') { const inv = u.uid === cur.actor || (cur.to || []).indexOf(u.uid) >= 0 || cur.evs.some(e => e.u === u.uid); if (!inv) c += ' dim'; }      // spotlight
-      if (ui.burst === u.uid) c += ' burst';
+      if (ui.burst === u.uid) c += ' burst'; if (hpOf(u) <= 0 && !koOf(u)) c += ' zero';
       if (asking && b.ask.opts.some(o => o.indexOf(u.uid) >= 0)) c += ' sel'; if (asking && b.ask.uid === u.uid) c += ' act'; return c;
     };
     // what happened to a card in the beat on show: shown on the card itself (−3, ×2 for a weakness), next to its HP

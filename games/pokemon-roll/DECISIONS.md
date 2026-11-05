@@ -79,3 +79,7 @@ Every ability on the sheet is read from its text by the table in the data block.
 - `RULING:` **Alakazam**: once a round, an attack aimed at one of its team that would hurt more than it would on another ally goes to that ally instead ("ally" is your own card, per the rulebook's glossary). It is automatic, and the card shows what happened.
 - `RULING:` **Haunter**: when a teammate is KO'd while Haunter is still up, you are asked to keep that card's ability(ies) on Haunter or say no thanks; using it once spends it for the battle. The computer always keeps the first one. Haunter keeps it only as long as Haunter is up.
 - The computer (Normal and Master) moves cards when it makes its dice worth more; Easy never moves them.
+
+## Falling at 0 (owner: "all Pokémon get to do their moves, so they are KO'd at the end of the round — but a Pokémon at 0 cannot be healed")
+- `RULING:` Replaces the earlier "KO'd the moment it hits 0". A card at 0 or below stays on the table for the rest of the round: it still acts, still blocks, and can still be hit (it is just worth nothing to aim at). It cannot be healed. When the round ends every card at 0 falls together, and "when KO'd" abilities (attacker loses a round, thorns, Jynx-style effects, Haunter) trigger then, against whoever last hit it. A card taken to 0 by a burn when cards enter a column falls before the next round starts.
+- The computer values a card at 0 as a worthless target and never heals it.

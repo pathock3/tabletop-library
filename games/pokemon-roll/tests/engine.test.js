@@ -85,9 +85,15 @@ test('rules: a card hit by its weakness takes double damage', () => {
   const d = craft(['1.1'], ['4.1']); const b2 = play(d, { hero: [1], gm: [6] }, { hero: { 0: 0 }, gm: { 0: 0 } });
   assert.equal(evs(b2, 'dmg')[0].n, 2, 'grass on fire is not a weakness'); assert.equal(d.g(0).hp, 2);
 });
-test('rules: a card at 0 health is out right away and does not act later in the round', () => {
-  const c = craft(['4.1'], ['1.1']); const b = play(c, { hero: [1], gm: [1] }, { hero: { 0: 0 }, gm: { 0: 0 } });   // the hero card goes first in a column and knocks Bulbasaur out
-  assert.ok(c.g(0).ko); assert.equal(evs(b, 'dmg').filter(e => e.by === c.g(0).uid).length, 0, 'Bulbasaur never gets to attack'); assert.equal(c.h(0).hp, 4);
+test('rules: a card at 0 health still makes its move, and it falls when the round ends', () => {
+  const c = craft(['4.1'], ['1.1']); const b = play(c, { hero: [1], gm: [1] }, { hero: { 0: 0 }, gm: { 0: 0 } });   // the hero card goes first in a column and takes Bulbasaur to 0
+  assert.ok(evs(b, 'dmg').some(e => e.by === c.g(0).uid), 'Bulbasaur still attacks after being taken to 0'); assert.ok(c.g(0).ko, 'and it is out at the end of the round');
+  const evOrder = b.events.map(e => e.t); assert.ok(evOrder.lastIndexOf('dmg') < evOrder.indexOf('ko'), 'the knock-out comes after everyone has moved');
+});
+test('rules: a card at 0 health cannot be healed (not even by its own attack)', () => {
+  const c = craft(['4.1'], ['1.1']); c.g(0).hp = 2;                      // Charmander's 2 attack takes Bulbasaur to 0; Bulbasaur's own attack would heal it 1 (grass attacks grant 1h)
+  play(c, { hero: [1], gm: [1] }, { hero: { 0: 0 }, gm: { 0: 0 } });
+  assert.ok(c.g(0).ko, 'still at 0, so it falls'); assert.ok(!evs(c.b, 'heal').some(e => e.u === c.g(0).uid), 'no healing for a card at 0');
 });
 test('rules: healing is resolved before attacks', () => {
   const c = craft(['1.2'], ['7.1']); c.h(0).hp = 1;                                    // Bulbasaur heals 2 on a 3; Squirtle attacks for 2 on a 2
