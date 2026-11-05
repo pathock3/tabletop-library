@@ -813,6 +813,14 @@ const Engine = (() => {
   const unlocked = (s, n) => n.any ? n.needs.some(id => s.done[id]) : n.needs.every(id => s.done[id]);       // `any`: either of two paths opens it
   const inst = (s, id, sh) => ({ id, sh: sh ? 1 : 0 });
 
+  // the strongest `room` cards of a team: highest level first; at the same level a shiny is kept before the others; any other tie is random. The rest are shuffled back into their own places' draw piles.
+  function keepStrongest(s, team, room) {
+    const order = shuffle(s, team.map((t, i) => i)).sort((p, q) => CARDS[team[q].id].level - CARDS[team[p].id].level || team[q].sh - team[p].sh);
+    const keep = new Set(order.slice(0, room)), back = new Set();
+    team.forEach((t, i) => { if (!keep.has(i)) { const loc = CARDS[t.id].loc; s.decks[loc].push(t.id); back.add(loc); } });
+    back.forEach(loc => { s.decks[loc] = shuffle(s, s.decks[loc]); });
+    return team.filter((t, i) => keep.has(i));
+  }
   function newGame(o) {
     o = o || {};
     const s = { v: D.version, seed: o.seed != null ? o.seed : (Date.now() % 2147483647), size: o.size === 'long' ? 'long' : 'short', ai: ({ hard: 'master', medium: 'normal' })[o.ai] || o.ai || 'normal', cdice: [], phase: 'start', starter: null, rival: null, lv: 1, coll: [], decks: {}, discard: {}, bosses: {}, done: {}, bossTurns: {}, legend: [], nextUid: 1, turn: 0, pend: null, battle: null, res: null, notes: [] };
@@ -835,15 +843,9 @@ const Engine = (() => {
     D.nodes.filter(n => n.kind === 'boss').forEach(n => {
       const team = [];
       n.draws.forEach(([loc, k, x]) => { const cnt = k + (s.size === 'long' ? x : 0); for (let i = 0; i < cnt; i++) { const id = s.decks[loc].shift(); if (id) team.push(inst(s, id, s.sh[id])); } });
-      // a leader fields at most five: the strongest. The weakest (ties broken at random) go back into their own place's draw pile before the game starts
+      // a leader fields at most five: the strongest. The weakest go back into their own place's draw pile before the game starts
       const room = R.locationMax - (n.legendary ? 1 : 0);
-      if (team.length > room) {
-        const order = shuffle(s, team.map((t, i) => i)).sort((p, q) => CARDS[team[q].id].level - CARDS[team[p].id].level);          // shuffled first, so equal levels are picked at random
-        const keep = new Set(order.slice(0, room)), back = new Set();
-        team.forEach((t, i) => { if (!keep.has(i)) { const loc = CARDS[t.id].loc; s.decks[loc].push(t.id); back.add(loc); } });
-        back.forEach(loc => { s.decks[loc] = shuffle(s, s.decks[loc]); });
-        team.splice(0, team.length, ...team.filter((t, i) => keep.has(i)));
-      }
+      if (team.length > room) { const kept = keepStrongest(s, team, room); team.splice(0, team.length, ...kept); }
       if (n.legendary) { const lid = leg.shift(); team.push(inst(s, lid, s.sh[lid])); }
       s.bosses[n.id] = team;
     });
@@ -1675,7 +1677,7 @@ const Engine = (() => {
     if (v.battle && v.battle.stage === 'assign') { const o = other(side); v.battle.dice[o] = v.battle.dice[o].map(() => 0); v.battle.asg[o] = {}; }
     return v;
   }
-  return { autoChoice, hauntAsk, blocksMove, colorBonus, faceOrder: layMoves, _t: { startBattle, startRound, resolveRound, cleanUp, drawWild }, handOf, canExpand, apply, newGame, chooseStarter, viewFor, CARDS, parseMove, parseSpecial, tagsOf, tags, preview, bestClause, chosenMove, candidates, pickTargets, amountOf, slotsFor, readyToGo, assignedDice, living, colIdx, U, rnd, ri, shuffle, node, starterOf, rivalFor, slots, unlocked, deckSize, heroCount, gmCount, typeOf, wm, hitValue, parseSpec, clauseValue, effectsOf, D, R };
+  return { autoChoice, hauntAsk, blocksMove, colorBonus, faceOrder: layMoves, _t: { keepStrongest, startBattle, startRound, resolveRound, cleanUp, drawWild }, handOf, canExpand, apply, newGame, chooseStarter, viewFor, CARDS, parseMove, parseSpecial, tagsOf, tags, preview, bestClause, chosenMove, candidates, pickTargets, amountOf, slotsFor, readyToGo, assignedDice, living, colIdx, U, rnd, ri, shuffle, node, starterOf, rivalFor, slots, unlocked, deckSize, heroCount, gmCount, typeOf, wm, hitValue, parseSpec, clauseValue, effectsOf, D, R };
 })();
 
 </script>

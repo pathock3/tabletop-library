@@ -583,3 +583,14 @@ test('abilities: a frozen die is repeated next time, and cannot be rerolled or c
   const had = pk.lastDie; pk.frozen = had; b.round = 1; b.rolled = false; b.stage = 'assign'; b.acted = {}; b.more = false;
   assert.ok(E.apply(s, { t: 'roll' }).ok); assert.equal(b.dice[0][0], had, 'the frozen die is the same number again'); assert.equal(E.apply(s, { t: 'reroll', side: 0 }).ok, false, 'and cannot be rerolled'); assert.equal(pk.frozen, null, 'it lasts one roll');
 });
+
+test('gym leaders: the strongest five stay; at the same level a shiny is kept first; a higher level beats a shiny', () => {
+  const s = E.newGame({ seed: 5, starter: 'bulbasaur' }), mk = (id, sh) => ({ id, sh });
+  // level 1: 10 Caterpie, 13 Weedle, 16 Pidgey, 19 Rattata; level 2: 11 Metapod; level 5: 18 Pidgeot
+  const team = [mk('10', 0), mk('13', 1), mk('16', 0), mk('19', 0), mk('11', 0), mk('18', 0)];
+  const before = [].concat(...D.locations.map(l => s.decks[l.id])).length;
+  const kept = T.keepStrongest(s, team.slice(), 3).map(i => i.id).sort();
+  assert.deepEqual(kept, ['11', '13', '18'], 'Pidgeot and Metapod (higher levels), then the shiny Weedle among the level 1s');
+  assert.equal([].concat(...D.locations.map(l => s.decks[l.id])).length, before + 3, 'the other three went back to their places');
+  const kept2 = T.keepStrongest(s, [mk('10', 1), mk('18', 0), mk('13', 0)], 1).map(i => i.id); assert.deepEqual(kept2, ['18'], 'a higher level is kept over a shiny');
+});

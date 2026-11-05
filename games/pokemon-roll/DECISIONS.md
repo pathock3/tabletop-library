@@ -12,3 +12,5 @@
 - `RULING:` **Freezing a die** (Jynx "On KO, freeze an ally die"; "ice attacks freeze dice"): the card's next roll repeats the number it last had, and that die cannot be rerolled or changed (one roll). Jynx picks the ally whose last number was best (automatic); an ice attack freezes whatever it hits. Before this, ice attacks made the card lose a round.
 
 - `RULING:` **The road** (owner's map): Brock → Misty, Lt. Surge, Power Plant. Misty → S.S. Anne and Erika. Surge → Pokémon Tower and Blaine. Erika **or** Blaine opens Safari Zone, Cinnabar Island and Blue (so Misty→Erika or Surge→Blaine both work; only Surge opens Pokémon Tower and only Misty opens the S.S. Anne). Gold lines are roads you have opened; dotted lines are roads still to come; a road that would run behind a tile arcs round it.
+
+- `RULING:` When a leader draws more cards than they field, the highest levels stay; **at the same level a shiny is kept before the others** (a higher-level card still beats a shiny); any other tie is random.

@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- **Pokémon Roll! — shinies as a tiebreaker:** when a gym leader has to send cards back, the strongest stay; at the same level a shiny is kept first (a higher-level card still beats a shiny).
+
 - **Pokémon Roll! — Pokédex:** tap a Pokémon you have seen to see its full card; tap anywhere to put it away. Done, or a tap outside the Pokédex frame, closes the Pokédex.
 
 - **Pokémon Roll! — the map road, straightened:** Erika now follows Misty and Blaine follows Surge (they were crossed), so each road is a straight line; Erika or Blaine opens the last stage. Roads that would run behind a tile arc round it. Fixed the leftmost card in "Your cards" being clipped at the top-left corner. The main menu gets a **More** button (How to Play, Hall of Fame, Pokédex) and a toy table of dice, letter blocks and starters you can throw around.
