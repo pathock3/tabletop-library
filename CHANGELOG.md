@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- **Pokémon Roll! — an "i" on every place:** the eyeball is now an "i" for information, and every open location has one too: tap it to see how many cards of each type are still in that deck (and how many are in its discard pile).
+
 - **Pokémon Roll! — you choose who a block protects, and Ditto's pick:** a block that says "itself or a neighbour" now protects ONE card, and when its turn comes you tap which one (it is no longer a blanket over everyone in reach). Ditto asks whose move it copies this round: the card across or one of that card's neighbours. Survival ("hangs on") stays automatic.
 
 - **Pokémon Roll! — one grain of wood, cards to the bottom, dice you can pick up:** the table is one continuous piece of wood on the whole page (no planks, no seams, no plain strip at the bottom of the iPad), and in a fight the cards run right down to the bottom edge and are a little bigger. A die on a card looks like a die (white, no longer yellow) and can be dragged to another card, or dropped anywhere that is not a card to put it back in the tray.

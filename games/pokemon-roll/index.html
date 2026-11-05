@@ -208,8 +208,12 @@ button{font:inherit;color:inherit;border:0;cursor:pointer}
 .place.gym{border-color:#8a0000;box-shadow:0 6px 0 #4a0000}
 .place.lock svg{filter:grayscale(.85) brightness(.65)}.place.lock{opacity:.85}
 .place .lk{position:absolute;top:26px;left:0;right:0;text-align:center;font-size:40px}
-.place .eye{position:absolute;top:5px;right:5px;width:36px;height:36px;border-radius:50%;background:#fff;border:3px solid #14110f;display:grid;place-items:center;font-size:19px;z-index:3;box-shadow:0 2px 0 #0006}
+.place .eye{position:absolute;top:5px;right:5px;width:38px;height:38px;border-radius:50%;background:#fff;color:#14110f;border:3px solid #14110f;display:grid;place-items:center;font:900 24px/1 Georgia,'Times New Roman',serif;z-index:3;box-shadow:0 2px 0 #0006}
 .place.gym .ck{left:6px;right:auto}
+.place.deck .eye{top:4px;right:16px}
+.infoi{width:64px;height:64px;border-radius:50%;background:#fff;color:#14110f;border:4px solid #14110f;display:grid;place-items:center;font:900 44px/1 Georgia,serif}
+.tyb{width:44px;height:44px;border-radius:50%;display:grid;place-items:center;font-size:24px;border:3px solid #14110f;flex:none}
+.tycount{margin-left:auto;font:900 30px system-ui;min-width:44px;text-align:right}
 .eyelist{display:grid;gap:10px;width:100%}.eyerow{display:flex;gap:14px;align-items:center;text-align:left;background:#ffffff14;border-radius:14px;padding:8px}.eyerow b{font-size:21px}.eyen{font-size:17px;opacity:.85}
 .place .ck{position:absolute;top:6px;right:6px;width:30px;height:30px;border-radius:50%;background:#2fa35b;color:#fff;border:3px solid #14110f;display:grid;place-items:center;font-weight:900}
 .place.done svg{filter:saturate(.75)}
@@ -2073,10 +2077,10 @@ const Bots = (() => {
       const sub = !open ? 'Locked' : n.kind === 'loc' ? E.deckSize(G, n.loc) + ' cards here' : n.kind === 'boss' ? (done ? 'Beaten!' : 'Gym leader') : (done ? 'Beaten!' : 'The final fight');
       if (n.kind === 'loc') {
         const left = E.deckSize(G, n.loc);
-        return `<button class="place deck${open ? '' : ' lock'}" style="left:${cx - 62}px;top:${cy - 87}px" data-act="node" data-id="${n.id}" data-id2="${n.id}" aria-label="${esc(n.name)}, ${left} cards">${deckPile(n.loc, { pw: 124, count: open ? left : null })}${open ? '' : '<div class="lk">🔒</div>'}</button>`;
+        return `<button class="place deck${open ? '' : ' lock'}" style="left:${cx - 62}px;top:${cy - 87}px" data-act="node" data-id="${n.id}" data-id2="${n.id}" aria-label="${esc(n.name)}, ${left} cards">${deckPile(n.loc, { pw: 124, count: open ? left : null })}${open ? `<div class="eye" data-act="eye" data-id="${n.id}" aria-label="What is left in this deck">i</div>` : '<div class="lk">🔒</div>'}</button>`;
       }
       return `<button class="place${open ? '' : ' lock'}${done ? ' done' : ''}${next ? ' next' : ''}${n.kind === 'boss' ? ' gym' : ''}" style="left:${cx - TILE_W / 2}px;top:${cy - 92}px" data-act="node" data-id="${n.id}" data-id2="${n.id}">
-        <svg viewBox="0 0 160 120" role="img" aria-label="${esc(n.name)}">${sceneOf(n)}</svg>${open ? '' : '<div class="lk">🔒</div>'}${done ? '<div class="ck">✔</div>' : ''}${n.kind === 'boss' ? `<div class="eye" data-act="eye" data-id="${n.id}" aria-label="How their team is made">👁</div>` : ''}
+        <svg viewBox="0 0 160 120" role="img" aria-label="${esc(n.name)}">${sceneOf(n)}</svg>${open ? '' : '<div class="lk">🔒</div>'}${done ? '<div class="ck">✔</div>' : ''}${n.kind === 'boss' ? `<div class="eye" data-act="eye" data-id="${n.id}" aria-label="How their team is made">i</div>` : ''}
         <div class="pl"><b>${esc(n.name)}</b><span>${sub}</span></div></button>`;
     }).join('');
     return `<div class="top"><button class="ib" data-act="menu">☰</button><div class="t mapt">Kanto Map</div><span class="chip rt">🎲 ×${E.slots(G)} · ★ ${G.lv}</span><button class="mypile" data-act="coll" aria-label="Your cards">${myPile()}</button></div>
@@ -2255,15 +2259,22 @@ const Bots = (() => {
     setTimeout(done, 230 + n * 14 + 30);
   }
   // the eye on a gym leader: how their team came about
+  // the info on a location: what is still in its deck, by type
+  function deckInfoSheet(n) {
+    const ids = G.decks[n.loc] || [], by = {}; ids.forEach(id => { const t = C[id].type; by[t] = (by[t] || 0) + 1; });
+    const rows = Object.keys(by).sort((a, b) => by[b] - by[a] || (a < b ? -1 : 1)).map(t => { const e = el(t); return `<div class="eyerow" style="--c:${e.color}"><div class="tyb" style="background:${e.color}">${e.icon}</div><div><b>${esc(t)}</b></div><div class="tycount">${by[t]}</div></div>`; }).join('');
+    const out = (G.discard[n.loc] || []).length;
+    return `<div class="sheet" data-act="closeeye"><div class="box hbox" data-stop="1" style="height:auto;max-height:88vh"><div class="infoi">i</div><h2>${esc(n.name)}</h2><p class="hcap" style="font-size:19px">${ids.length} card${ids.length === 1 ? '' : 's'} left in the deck${out ? `, ${out} in the discard pile` : ''}</p><div class="eyelist" style="overflow:auto">${rows || '<div class="hcap">Nothing left here.</div>'}</div></div></div>`;
+  }
   function eyeSheet() {
-    const n = E.node(ui.eye), long = G.size === 'long';
+    const n = E.node(ui.eye), long = G.size === 'long'; if (n.kind === 'loc') return deckInfoSheet(n);
     const rows = n.draws.map(([loc, k, x]) => [loc, k + (long ? x : 0)]).filter(r => r[1] > 0).map(([loc, k]) => { const ln = E.node(D.nodes.find(q => q.loc === loc).id); return `<div class="eyerow"><div class="hmap" style="width:92px"><svg viewBox="0 0 160 120">${SCENE[loc]()}</svg></div><div><b>${esc(ln.name)}</b><div class="eyen">${k} card${k === 1 ? '' : 's'}</div></div></div>`; });
     if (n.legendary) rows.push(`<div class="eyerow"><div class="hmap" style="width:92px;display:grid;place-items:center;font-size:46px;background:#4527a0">🌟</div><div><b>A legendary</b><div class="eyen">1 card</div></div></div>`);
     const team = G.seen && G.seen[n.id] && G.bosses[n.id];
     const body = team
       ? `<p class="hcap" style="font-size:19px">You have faced ${esc(n.name)}, so you know the whole team.</p><div class="eyecards">${cardGrid(team.map(i => ({ id: i.id, sh: i.sh })), { max: 150 })}</div>`
       : `<p class="hcap" style="font-size:19px">A random team, drawn from these places before your game began. Face ${esc(n.name)} once and you will see the whole team here.</p><div class="eyelist">${rows.join('')}</div>`;
-    return `<div class="sheet" data-act="closeeye"><div class="box hbox" data-stop="1" style="${team ? 'max-width:760px;overflow:auto' : ''}"><div style="font-size:54px">👁</div><h2>${esc(n.name)}'s team</h2>${body}<button class="btn" data-act="closeeye">Got it</button></div></div>`;
+    return `<div class="sheet" data-act="closeeye"><div class="box hbox" data-stop="1" style="height:auto;max-height:88vh;${team ? 'max-width:760px;overflow:auto' : ''}"><div class="infoi">i</div><h2>${esc(n.name)}'s team</h2>${body}<button class="btn" data-act="closeeye">Got it</button></div></div>`;
   }
   function legendSheet() {
     const n = G.notes[0]; if (!n || n.indexOf('legend:') !== 0) return '';
