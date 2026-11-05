@@ -1516,7 +1516,7 @@ const Engine = (() => {
         if (!s.res || !s.res.evolve) return 'nothing to choose'; const sd = starterOf(s.starter);
         if (a.yes) { s.evolved = true; s.coll.find(c => c.starter).id = sd.evolve[s.res.evolve]; s.res.evolved = true; } s.res.evolve = 0; return null;
       }
-      case 'done': if (s.phase !== 'result' && s.phase !== 'won') return 'nothing to finish'; if (s.res && s.res.pick) return 'take a card first'; if (s.res && s.res.evolve) return 'choose how your partner grows'; finish(s); return null;
+      case 'done': if (s.phase !== 'result' && s.phase !== 'won') return 'nothing to finish'; if (s.res && s.res.pick) return 'take a card first'; if (s.res && s.res.evolve) return 'choose how your starter grows'; finish(s); return null;
     }
     if (!b) return 'no battle';
     switch (a.t) {
@@ -2142,7 +2142,7 @@ const Bots = (() => {
     </div>`;
   }
   function newScreen() {
-    return `<div class="top"><button class="ib" data-act="menu0">←</button><div class="t">Choose your partner</div><div style="width:52px"></div></div>
+    return `<div class="top"><button class="ib" data-act="menu0">←</button><div class="t">Choose your starter</div><div style="width:52px"></div></div>
       <div class="scr"><div class="center" style="padding-top:12px">
         <div style="display:flex;flex-wrap:wrap;gap:14px;justify-content:center">${D.starters.map(st => { const c = C[st.levels[0]], e = el(c.type); return `<button data-act="starter" data-k="${st.key}" style="background:${e.bg};color:#14110f;border:4px solid #14110f;border-radius:18px;padding:10px 14px 12px;width:150px;box-shadow:0 6px 0 #0008"><img class="pix" width="112" height="112" src="${art(st.levels[0], 0)}" alt=""><div style="font:900 20px system-ui">${st.name}</div><div style="font:800 14px system-ui;opacity:.75">${e.icon} ${c.type}</div></button>`; }).join('')}</div>
         <div style="display:flex;gap:8px;flex-wrap:wrap;justify-content:center;align-items:center"><b>Computer:</b>${['easy', 'normal', 'master'].map(x => `<button class="chip${set.ai === x ? ' on' : ''}" data-act="ai" data-v="${x}">${D.ai[x].label}</button>`).join('')}</div>
@@ -2153,7 +2153,7 @@ const Bots = (() => {
   // ---- the map: left to right, only what is open and one step beyond it; scaled to fill the screen, never scrolled
   const TILE_W = 160, PADX = 20, PADY = 16;
   const shown = n => E.unlocked(G, n) || n.needs.every(id => E.unlocked(G, E.node(id)));
-  // "Your cards" is a pile with your partner on top; tap it to turn them all face up
+  // "Your cards" is a pile with your starter on top; tap it to turn them all face up
   function myPile() {
     const st = G.coll.find(c => c.starter) || G.coll[0], n = G.coll.length;
     return `<i class="m3"></i><i class="m2"></i><div class="mtop">${card(st, { cw: 46 })}</div><span class="pcount">${n}</span>`;
@@ -2291,7 +2291,7 @@ const Bots = (() => {
     const r = G.res, nd = E.node(r.node), sdv = E.starterOf(G.starter), cw = 150;
     const take = r.pick ? `<div class="status">Choose one to join your team!</div><div class="hrow">${r.pick.map((i, k) => card(i, { cw, attr: `data-act="take" data-i="${k}"` })).join('')}</div>` : (r.took ? `<div class="status">You caught ${esc(C[r.took.id].name)}${r.took.sh ? ' ✨' : ''}!</div><div class="hrow">${card(r.took, { cw })}</div>` : '');
     const evo = r.evolve ? `<div class="status">${esc(C[sdv.levels[r.evolve - 1]].name)} is ready to evolve! Which will it be?</div><div class="hrow">${[[sdv.levels[r.evolve - 1], 0], [sdv.evolve[r.evolve], 1]].map(([id, y]) => card({ id, sh: 0 }, { cw, attr: `data-act="evolve" data-yes="${y}"` })).join('')}</div>` : '';
-    const lines = []; if (r.win && nd.kind === 'boss') lines.push(`You beat ${esc(nd.name)}! +1 die`); if (r.dieGain) lines.push(`You keep ${r.dieGain.map(c => `<b style="color:${dieCol(c)}">${c}</b>`).join(', ')}: a die that adds +1 to a move of its colour`); if (r.turns != null) lines.push(`${nd.finale ? 'You beat the game' : 'Beaten'} in <b>${r.turns} turn${r.turns === 1 ? '' : 's'}</b>${r.newBest ? ' <span class="nb">New best!</span>' : (r.best != null ? ` <span class="pb">(best ${r.best})</span>` : '')}`); if (r.levelUp) lines.push(`Your partner grew to level ${r.levelUp}!`); if (r.legend && r.win) lines.push(`${esc(C[r.legend.id].name)}${r.legend.sh ? ' ✨' : ''} joins your team!`);
+    const lines = []; if (r.win && nd.kind === 'boss') lines.push(`You beat ${esc(nd.name)}! +1 die`); if (r.dieGain) lines.push(`You keep ${r.dieGain.map(c => `<b style="color:${dieCol(c)}">${c}</b>`).join(', ')}: a die that adds +1 to a move of its colour`); if (r.turns != null) lines.push(`${nd.finale ? 'You beat the game' : 'Beaten'} in <b>${r.turns} turn${r.turns === 1 ? '' : 's'}</b>${r.newBest ? ' <span class="nb">New best!</span>' : (r.best != null ? ` <span class="pb">(best ${r.best})</span>` : '')}`); if (r.levelUp) lines.push(`Your starter grew to level ${r.levelUp}!`); if (r.legend && r.win) lines.push(`${esc(C[r.legend.id].name)}${r.legend.sh ? ' ✨' : ''} joins your team!`);
     return `<div class="scr" style="overflow:auto"><div class="center" style="justify-content:flex-start;padding-top:56px"><div class="banner">${r.win ? (nd.finale ? 'CHAMPION!' : 'Victory!') : 'Not this time'}</div>
       ${lines.map(l => `<div style="font:800 22px system-ui">${l}</div>`).join('')}
       ${r.win && r.levelUp && !r.evolve ? `<div class="hrow">${card({ id: G.coll.find(c => c.starter).id, sh: 0 }, { cw })}</div>` : ''}
