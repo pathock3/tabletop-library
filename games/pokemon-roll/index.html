@@ -896,7 +896,11 @@ const Engine = (() => {
     const face = dice[0], card = CARDS[u.id], sp = parseSpecial(card.special);
     if (sp && dice.length === sp.count && face === sp.face) return { face, sp, str: card.special };
     let str = card.moves[face - 1];
-    if (has(u, 'ditto')) { const ci = colIdx(b, u.uid), f = ci >= 0 && b.cols[ci][other(u.side)]; str = f != null && f !== false ? CARDS[U(b, f).id].moves[face - 1] : ''; }
+    if (has(u, 'ditto')) {                                   // Ditto uses the move printed on one of the cards facing it: the one across, or a neighbour of that one (chosen when its turn comes)
+      const src = b.dittoSrc && b.dittoSrc[u.uid], ci = colIdx(b, u.uid); let f = null;
+      if (src != null) f = src >= 0 ? src : null; else f = ci >= 0 ? b.cols[ci][other(u.side)] : null;
+      str = f != null ? CARDS[U(b, f).id].moves[face - 1] : '';
+    }
     return { face, mv: parseMove(str), str: str || '' };
   }
   const weakMult = (a, t) => (lc(CARDS[t.id].weak) === typeOf(a) && !(typeOf(t) === 'fire' && noWeakOn(a.side === t.side ? a : t, t))) ? 2 : 1;
@@ -1145,8 +1149,9 @@ const Engine = (() => {
       if (e.spec.spread) { const g = spreadOut(amt, T, t => t.u.hp <= 0 ? 0 : t.u.max - t.u.hp); T.forEach((t, j) => healUnit(b, t.u, g[j], u)); }
       else T.forEach(t => healUnit(b, t.u, amt, u));
     } else if (e.k === 'b') {
-      const cover = []; e.spec.opts.forEach(o => o.forEach(x => { if (cover.indexOf(x) < 0) cover.push(x); }));
-      b.pools.push({ uid: u.uid, n: amountOf(b, u, e), cover }); ev(b, { t: 'guard', u: u.uid, n: amountOf(b, u, e) });
+      const cands = blockCands(b, u, e), pick = hint != null ? cands.find(x => x.u.uid === hint) : bestBlock(b, u, e, cands);
+      if (!pick) return;                                                         // nobody there to protect
+      b.pools.push({ uid: u.uid, n: amountOf(b, u, e), cover: [pick.off] }); ev(b, { t: 'guard', u: u.uid, n: amountOf(b, u, e), for: pick.u.uid });
     } else if (e.k === 'a') {
       const amt = amountOf(b, u, e);
       if (!e.bonus && has(u, 'onceA') && !u.onceUsed) u.onceUsed = true;
@@ -1161,13 +1166,50 @@ const Engine = (() => {
   // the effects a card has this round (read again each time, so it plays out one card at a time)
   const effsFor = (b, u, act) => { const m = chosenMove(b, u, act.dice); if (!m || m.sp || !m.mv) return []; return effectsOf(b, u, m.mv.clauses[act.ci] || m.mv.clauses[0]); };
   // an "or" for the player to settle when this card's turn comes: the groups of cards it could reach
+  // a block protects ONE card: the blocker itself or a neighbour it can reach. Which one is the player's call, when the blocker's turn comes.
+  function blockCands(b, u, e) {
+    const ci = colIdx(b, u.uid), seen = {}, out = [];
+    e.spec.opts.forEach(o => o.forEach(off => { const c = b.cols[ci + off]; if (!c || c[u.side] == null || seen[c[u.side]]) return; const t = U(b, c[u.side]); if (t.ko) return; seen[t.uid] = 1; out.push({ u: t, off }); }));
+    return out;
+  }
+  // the computer's pick (and the best guess for the player's auto-play): the card that faces the biggest hit, itself on a tie
+  function bestBlock(b, u, e, cands) {
+    const r = b.res; let best = null, bv = -1e9;
+    cands.forEach(c => {
+      const ci = colIdx(b, c.u.uid), fid = b.cols[ci] && b.cols[ci][other(c.u.side)], foe = fid != null ? U(b, fid) : null; let threat = 0;
+      if (foe && !foe.ko) { const act = r && r.acts.find(a => a.uid === foe.uid); if (act && !act.sp) effsFor(b, foe, act).forEach(f => { if (f.k === 'a') threat += amountOf(b, foe, f) * wm(b, foe, c.u); }); }
+      const v = Math.min(threat, Math.max(c.u.hp, 0) + e.n) + (threat >= c.u.hp ? 2 : 0) + (c.off === 0 ? .01 : 0);
+      if (v > bv) { bv = v; best = c; }
+    });
+    return best;
+  }
   function choiceOf(b, u, e) {
-    if (u.side !== 0 || (e.k !== 'a' && e.k !== 'h')) return null;
+    if (u.side !== 0) return null;
+    if (e.k === 'b') { const c = blockCands(b, u, e); return c.length < 2 ? null : c.map(x => [x.u.uid]); }
+    if (e.k !== 'a' && e.k !== 'h') return null;
     const cand = candidates(b, u, e); if (cand.length < 2 || (e.spec.all && !spreadsDragon(b, u, e))) return null;
     return cand.map(c => c.map(t => t.u.uid));
   }
+  function setDitto(b, act, src) {
+    (b.dittoSrc = b.dittoSrc || {})[act.uid] = src; const u = U(b, act.uid), m = chosenMove(b, u, act.dice);
+    if (m && m.mv && !m.sp) { const c = bestClause(b, u, m.mv, null); act.ci = Math.max(0, m.mv.clauses.indexOf(c && c.clause)); }
+    ev(b, { t: 'move', u: u.uid, f: act.face, txt: m ? (m.str || '—') : '—', sp: false });
+  }
+  function dittoFoes(b, u) { const ci = colIdx(b, u.uid); return [-1, 0, 1].map(o => b.cols[ci + o] && b.cols[ci + o][other(u.side)]).filter(x => x != null).map(x => U(b, x)).filter(x => !x.ko); }
+  function dittoBest(b, u, act) {
+    let best = null, bv = -1e9; dittoFoes(b, u).forEach(f => { const mv = parseMove(CARDS[f.id].moves[act.face - 1]), cl = mv && bestClause(b, u, mv, null), v = cl ? cl.value : -1; if (v > bv) { bv = v; best = f; } }); return best;
+  }
   function advance(s) {
     const b = s.battle, r = b.res;
+    if (!r.dittoDone) {                                                   // Ditto: whose move does it copy this round?
+      for (const act of r.acts) {
+        const u = U(b, act.uid); if (u.ko || act.sp || !has(u, 'ditto') || !act.dice.length || (b.dittoSrc && b.dittoSrc[u.uid] != null)) continue;
+        const foes = dittoFoes(b, u); if (!foes.length) { setDitto(b, act, -1); continue; }
+        if (u.side === 0 && foes.length > 1) { b.ask = { what: 'ditto', k: 'd', uid: u.uid, opts: foes.map(f => [f.uid]) }; b.stage = 'resolving'; return; }
+        setDitto(b, act, dittoBest(b, u, act).uid);
+      }
+      r.dittoDone = true;
+    }
     while (r.phase !== 'done') {
       if (r.i >= r.acts.length) { r.i = 0; r.ei = 0; r.main = false; r.phase = r.phase === 'heal' ? 'block' : r.phase === 'block' ? 'attack' : 'done'; continue; }
       const act = r.acts[r.i], u = U(b, act.uid);
@@ -1191,7 +1233,9 @@ const Engine = (() => {
   // for the computer playing the player's side: the choice the game would make
   function autoChoice(b) {
     if (b.ask && b.ask.kind === 'yn') return null;
+    if (b.ask.what === 'ditto') { const act = b.res.acts.find(x => x.uid === b.ask.uid); return dittoBest(b, U(b, act.uid), act).uid; }
     const r = b.res, act = r.acts[r.i], u = U(b, act.uid), e = effsFor(b, u, act)[r.ei];
+    if (e.k === 'b') return bestBlock(b, u, e, blockCands(b, u, e)).u.uid;
     const T = pickTargets(b, u, e, amountOf(b, u, e), null); return T.length ? T[0].u.uid : b.ask.opts[0][0];
   }
   function doDecide(s, a) {
@@ -1201,6 +1245,7 @@ const Engine = (() => {
   function doChoose(s, a) {
     const b = s.battle; if (b.stage !== 'resolving' || !b.ask || b.ask.kind === 'yn') return 'nothing to choose';
     if (!b.ask.opts.some(o => o.indexOf(a.tgt) >= 0)) return 'choose one of the highlighted cards';
+    if (b.ask.what === 'ditto') { const act = b.res.acts.find(x => x.uid === b.ask.uid); setDitto(b, act, a.tgt); b.ask = null; b.stage = 'resolving'; advance(s); return null; }
     b.res.ch[b.ask.uid + ':' + b.ask.ei] = a.tgt; b.ask = null; b.stage = 'resolving'; advance(s); return null;
   }
   // what happens after an attack lands: ability side effects
@@ -1276,7 +1321,7 @@ const Engine = (() => {
     });
     acts.forEach(a => ev(b, { t: 'move', u: a.u.uid, f: a.face, txt: a.m ? (a.m.sp ? 'Special' : a.m.str) : (a.u.skip ? 'loses a round' : '—'), sp: !!(a.m && a.m.sp) }));
     acts.forEach(a => { const t = tag(a.u, 'tireOn'); if (t && a.m && a.face && (a.face === t.a || a.face === t.b)) a.u.skipNext = true; });
-    b.ask = null;
+    b.ask = null; b.dittoSrc = {};
     b.res = { phase: 'heal', i: 0, ei: 0, main: false, ch: {}, dec: {}, acts: acts.map(a => {
       const dice = (b.asg[a.u.side][a.u.uid] || { dice: [] }).dice.map(i => b.dice[a.u.side][i]);
       let ci = 0; if (a.m && a.m.mv && !a.m.sp) { const c = bestClause(b, a.u, a.m.mv, null); ci = Math.max(0, a.m.mv.clauses.indexOf(c && c.clause)); }
@@ -2112,7 +2157,7 @@ const Bots = (() => {
     else if (waitRoll) status = '<span class="rollhint">🎲 Tap anywhere to roll</span>';
     else if (assign) { const need = E.living(b, 0).filter(u => !u.skip && !b.asg[0][u.uid]).length; status = (b.sudden ? 'SUDDEN DEATH · ' : '') + (rolling ? 'Rolling…' : ui.die != null ? 'Tap a card to give it that ' + b.dice[0][ui.die] : (E.readyToGo(b, 0) ? 'Ready? Press Go!' : 'Drag a die onto a card (' + need + ' to go)')); }
     else if (asking && b.ask.kind === 'yn') { status = `<b>${C[E.U(b, b.ask.uid).id].name}</b> is attacked by ${C[E.U(b, b.ask.by).id].name} for ${b.ask.n}. Dodge?`; btns = `<button class="btn big" data-act="decide" data-yes="1">Dodge!</button><button class="btn alt" data-act="decide" data-yes="0">Take it</button>`; }
-    else if (asking) status = `Tap who ${C[E.U(b, b.ask.uid).id].name} ${b.ask.k === 'a' ? 'attacks' : 'heals'}`;
+    else if (asking) status = b.ask.what === 'ditto' ? `Tap whose move ${C[E.U(b, b.ask.uid).id].name} copies` : `Tap who ${C[E.U(b, b.ask.uid).id].name} ${b.ask.k === 'a' ? 'attacks' : b.ask.k === 'b' ? 'blocks for' : 'heals'}`;
     else if (p) status = p.bi < 0 ? 'Here is what everyone rolled…' : (p.wait ? '<span class="rollhint capnext">Tap ▶</span>' : '');
     else if (done && E.hauntAsk(b)) { const k = E.hauntAsk(b); status = `<b>${C[E.U(b, k.hid).id].name}</b> can keep an ability — tap one`; btns = k.opts.map(id => `<button class="btn alt" data-act="haunt" data-uid="${id}">Keep ${C[E.U(b, id).id].name}</button>`).join('') + `<button class="btn ghost" data-act="haunt">No thanks</button>`; }
     else if (done) status = `<span class="rollhint">${b.out === 'hero' ? '🏆 You win! Tap anywhere to continue' : b.out === 'gm' ? 'You lose this one. Tap anywhere to continue' : b.out === 'sudden' ? 'Everyone fell! Tap anywhere for sudden death' : '🎲 Tap anywhere to roll'}</span>`;

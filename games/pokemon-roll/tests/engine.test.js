@@ -444,3 +444,23 @@ test('decisions: when a card of yours may dodge, the game stops and asks you eac
   const g = craft(['4.1'], ['25.3']); g.b.dice = [[1], [1]]; g.b.asg = [{ [g.b.units[0].uid]: { dice: [0], tgt: null } }, { [g.b.units[1].uid]: { dice: [0], tgt: null } }]; g.b.gmReady = true;
   E.apply(g.s, { t: 'go2' }); assert.ok(!g.b.ask, 'the computer is never asked'); assert.ok(evs(g.b, 'dodge').length >= 1, 'it dodged');
 });
+test('decisions: a block protects one card, and you choose which; a card that blocks for "itself or a neighbour" asks', () => {
+  const bc = Object.values(C).find(c => /^\d+b <v or >$/.test(c.moves[0]) && !c.legend); assert.ok(bc, 'a card with a "<v or >" block on a 1');
+  const run = pick => {
+    const c = craft([bc.id, '1.1'], ['10', '4.1']); const { s, b } = c; const [blk, nb] = [b.units[0], b.units[1]]; nb.hp = nb.max = 20; blk.hp = blk.max = 20;
+    b.dice = [[1, 6], [6, 1]]; b.asg = [{ [blk.uid]: { dice: [0], tgt: null }, [nb.uid]: { dice: [1], tgt: null } }, { [b.units[3].uid]: { dice: [1], tgt: null } }]; b.gmReady = true;
+    assert.ok(E.apply(s, { t: 'go2' }).ok); assert.ok(b.ask && b.ask.k === 'b', 'asked who it blocks for'); assert.ok(b.ask.opts.flat().includes(blk.uid) && b.ask.opts.flat().includes(nb.uid));
+    assert.ok(E.apply(s, { t: 'choose', tgt: pick === 'self' ? blk.uid : nb.uid }).ok); while (b.ask) assert.ok(E.apply(s, { t: 'choose', tgt: E.autoChoice(b) }).ok);
+    return { blk, nb };
+  };
+  const a = run('neighbour'), z = run('self');
+  assert.ok(a.nb.hp > z.nb.hp, 'protecting the neighbour: it takes less than when the blocker protects itself (' + a.nb.hp + ' vs ' + z.nb.hp + ')');
+  assert.ok(a.blk.hp <= z.blk.hp);
+});
+test('abilities: Ditto copies the move of the card across or of one of its neighbours, your pick', () => {
+  const c = craft(['132', '1.1'], ['4.1', '7.1']); const { s, b } = c; const ditto = b.units[0];
+  b.dice = [[1, 6], [6, 6]]; b.asg = [{ [ditto.uid]: { dice: [0], tgt: null }, [b.units[1].uid]: { dice: [1], tgt: null } }, {}]; b.gmReady = true;
+  assert.ok(E.apply(s, { t: 'go2' }).ok); assert.equal(b.ask.what, 'ditto'); assert.deepEqual(b.ask.opts.flat().sort(), [b.units[2].uid, b.units[3].uid].sort(), 'the card across and its neighbour');
+  assert.ok(E.apply(s, { t: 'choose', tgt: b.units[3].uid }).ok); assert.equal(b.dittoSrc[ditto.uid], b.units[3].uid);
+  const mv = b.events.filter(e => e.t === 'move' && e.u === ditto.uid).pop(); assert.equal(mv.txt, C['7.1'].moves[0], 'Ditto uses Squirtle\'s move');
+});
