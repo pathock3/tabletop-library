@@ -53,11 +53,11 @@ test('data: moves read the way the sheet means them', () => {
   const sp = E.parseSpecial('66: 12a'); assert.deepEqual([sp.face, sp.count, sp.effs[0].n], [6, 2, 12]);
   assert.equal(E.parseSpecial('4444: 10a all non-ground on both teams').effs[0].scope, 'non');
 });
-test('data: the abilities that are not in this version are exactly the ones that move cards around, swap dice or reach outside a fight', () => {
+test('data: the only abilities not in this version are the Jynx KO freeze and the Gyarados blue die (colored dice are dropped for now)', () => {
   const un = new Set();
   Object.values(C).forEach(c => c.ability.split(/;\s*/).forEach(p => { if (p && !E.tagsOf({ id: 'q' + c.id + p, ability: p }).length) un.add(p); }));
-  assert.equal(un.size, 12);
-  assert.ok([...un].every(p => /push|swap|redirect|change (column|position|a teammate)|move <>|enemy die|persist|give them|-9d|blue die|freeze an ally|reroll \^|Ally dragon|abilities to change|move/i.test(p)), [...un].join(' | '));
+  assert.equal(un.size, 2);
+  assert.ok([...un].every(p => /push|swap|redirect|change (column|position|a teammate)|move <>|enemy die|blue die|freeze an ally|reroll \^|Ally dragon|abilities to change|move/i.test(p)), [...un].join(' | '));
 });
 
 // ================================================================ a round of fighting
@@ -251,7 +251,7 @@ test('campaign: places open when the earlier fight is won, and you start with on
   s.done.B1 = true; assert.ok(open().includes('L3') && open().includes('B2') && open().includes('B3')); assert.equal(E.slots(s), 2);
   assert.ok(!open().includes('L4') && !open().includes('B4')); s.done.B2 = true; s.done.B3 = true; assert.ok(open().includes('L4') && open().includes('L5') && open().includes('B4') && open().includes('B5'));
   assert.ok(!open().includes('B6')); s.done.B4 = true; s.done.B5 = true; assert.ok(open().includes('B6') && open().includes('L6') && open().includes('L7'));
-  s.done.B6 = true; assert.ok(open().includes('B7') && open().includes('L8') && open().includes('L9')); s.done.B7 = true; assert.ok(open().includes('rival2'));
+  s.done.B6 = true; assert.ok(open().includes('B7') && open().includes('L8') && open().includes('L9')); s.done.B7 = true; assert.ok(!D.nodes.some(n => n.kind === 'rival'), 'there is no rival in solo: Lance is the last fight');
 });
 test('campaign: your rival picks the partner that beats yours', () => {
   const beats = { bulbasaur: 'charmander', charmander: 'squirtle', squirtle: 'pikachu', pikachu: 'larvitar', larvitar: 'bulbasaur' };
@@ -287,7 +287,7 @@ test('records: the turn each gym leader was beaten on is kept, and the whole gam
   while (s.phase !== 'won' && n++ < 40000) { let g; while ((g = B.step(s))) E.apply(s, g); const a = B.heroStep(s, 'master'); B.applyHero(s, a); }
   assert.equal(s.phase, 'won'); const ids = D.nodes.filter(x => x.kind === 'boss').map(x => x.id);
   ids.forEach(id => { assert.ok(s.bossTurns[id] >= 1 && s.bossTurns[id] <= s.turn, id + ' beaten on turn ' + s.bossTurns[id]); });
-  assert.ok(s.bossTurns.B1 <= s.bossTurns.B2 || s.bossTurns.B1 <= s.bossTurns.B3); assert.ok(s.bossTurns.rival2 === s.turn, 'the game was won on the last turn');
+  assert.ok(s.bossTurns.B1 <= s.bossTurns.B2 || s.bossTurns.B1 <= s.bossTurns.B3); assert.ok(s.bossTurns.B7 === s.turn, 'the game was won on the last turn: beating Lance ends it');
 });
 test('shiny: your partner keeps its form through every level and evolution', () => {
   for (let seed = 1; seed <= 60; seed++) {
@@ -351,4 +351,55 @@ test('ai: Easy never rerolls and plays blind; Master and Normal are real levers 
   });
   const rate = k => lose[k][0] / lose[k][1];
   assert.ok(rate('easy') < rate('normal') && rate('normal') < rate('master') + 0.02, 'a stronger computer beats the same player more often: ' + JSON.stringify(lose));
+});
+
+// ================================================================ cards that move cards, and Haunter
+const col = (b, i, sd) => b.cols[i][sd];
+test('movement: Machoke\'s fighting attack pushes a card it hits to the side, Golbat forbids it', () => {
+  const c = craft(['67', '1.1', '1.1'], ['10', '10', '10']); const { b } = c, [a1, b1, c1] = [3, 4, 5].map(i => b.units[i].uid);
+  b.cols = [[b.units[0].uid, a1], [null, b1], [null, c1]]; b.units.forEach(u => { u.hp = u.max = 20; });
+  play(c, { hero: [1], gm: [] }, { hero: { 0: 0 } });
+  assert.equal(col(b, 1, 1), c1); assert.equal(col(b, 2, 1), b1, 'the card to its right was pushed one column right');
+  const g = craft(['67', '1.1', '1.1'], ['10', '10', '42']); const gb = g.b;
+  gb.cols = [[gb.units[0].uid, gb.units[3].uid], [null, gb.units[4].uid], [null, gb.units[5].uid]]; gb.units.forEach(u => { u.hp = u.max = 20; });
+  play(g, { hero: [1], gm: [] }, { hero: { 0: 0 } });
+  assert.equal(col(gb, 1, 1), gb.units[4].uid, 'Golbat is on their team: nothing of theirs is pushed');
+});
+test('movement: Rhyhorn\'s ground attack pushes their whole line left, unless Golbat is there', () => {
+  const c = craft(['111', '1.1', '1.1'], ['10', '10', '10']); const { b } = c;
+  b.cols = [[b.units[0].uid, b.units[3].uid], [b.units[1].uid, null], [b.units[2].uid, b.units[4].uid]]; b.units.forEach(u => { u.hp = u.max = 20; });
+  play(c, { hero: [1], gm: [] }, { hero: { 0: 0 } });
+  assert.equal(col(b, 1, 1), b.units[4].uid, 'the far card slid into the gap on its left');
+  const g = craft(['111', '1.1', '1.1'], ['10', '10', '42']); const gb = g.b;
+  gb.cols = [[gb.units[0].uid, gb.units[3].uid], [gb.units[1].uid, null], [gb.units[2].uid, gb.units[5].uid]]; gb.units.forEach(u => { u.hp = u.max = 20; });
+  play(g, { hero: [1], gm: [] }, { hero: { 0: 0 } });
+  assert.equal(col(gb, 2, 1), gb.units[5].uid, 'Golbat: they cannot be moved');
+});
+test('movement: Kadabra and Celebi change column once a round, Abra swaps two opponents, Tangela stops all of it', () => {
+  const c = craft(['64', '1.1'], ['10', '10']); const { b, s } = c, k = b.units[0].uid, bu = b.units[1].uid;
+  assert.ok(E.apply(s, { t: 'move', side: 0, uid: k, dir: 1 }).ok); assert.equal(col(b, 1, 0), k); assert.equal(col(b, 0, 0), bu, 'they traded places');
+  assert.equal(E.apply(s, { t: 'move', side: 0, uid: k, dir: -1 }).ok, false, 'once a round'); assert.equal(E.apply(s, { t: 'move', side: 0, uid: bu, dir: 1 }).ok, false, 'only cards that can move');
+  const a = craft(['63'], ['10', '4.1']); const g1 = a.b.units[1].uid, g2 = a.b.units[2].uid;
+  a.b.cols = [[a.b.units[0].uid, g1], [null, g2]];
+  assert.ok(E.apply(a.s, { t: 'swap', side: 0, uid: a.b.units[0].uid, a: g1, b: g2 }).ok); assert.equal(col(a.b, 0, 1), g2); assert.equal(col(a.b, 1, 1), g1);
+  const t = craft(['64', '1.1'], ['114', '10']); assert.equal(E.apply(t.s, { t: 'move', side: 0, uid: t.b.units[0].uid, dir: 1 }).ok, false, 'Tangela: opponents cannot change columns');
+});
+test('movement: Alakazam sends an attack that would finish a card to a healthier ally, once a round', () => {
+  const c = craft(['65', '16'], ['1.1', '10']); const { b } = c; b.units[0].hp = 1; b.units[1].hp = b.units[1].max = 20;
+  play(c, { hero: [], gm: [1] }, { gm: { 0: 0 } });
+  assert.ok(evs(b, 'text').some(e => /sends the attack to/.test(e.msg)), 'redirected'); assert.ok(!b.units[0].ko, 'Alakazam is still up');
+});
+test('Haunter: when a teammate falls you may keep its ability, once per battle', () => {
+  const c = craft(['93', '1.1'], ['10', '1.1']); const { b, s } = c; b.units[1].hp = 1;
+  play(c, { hero: [], gm: [1] }, { gm: { 1: 0 } });
+  assert.ok(b.units[1].ko, 'the teammate fell'); assert.equal(E.apply(s, { t: 'next' }).ok, false, 'asked first');
+  assert.ok(E.hauntAsk(b).opts.includes(b.units[1].uid));
+  assert.ok(E.apply(s, { t: 'haunt', uid: b.units[1].uid }).ok); assert.equal(b.units[0].ghost, C['1.1'].ability); assert.ok(E.tags(b.units[0]).some(g => g.t === 'grant'), 'Haunter now grants like the fallen card');
+  assert.equal(E.hauntAsk(b), null); assert.ok(b.units[0].hauntUsed);
+  const g = craft(['1.1'], ['93', '10']); g.b.units[2].hp = 1;
+  play(g, { hero: [1], gm: [] }, { hero: { 0: 0 } });     // the hero hits the card in front of it; the computer's Haunter keeps what it can
+  if (g.b.units[1].ko) assert.equal(g.b.units[2].ghost || null, null);
+});
+test('campaign: nobody has a rival at the end; beating Lance wins the game', () => {
+  assert.equal(D.nodes.filter(n => n.finale).map(n => n.id).join(), 'B7'); assert.ok(!('rivalFinalExtra' in D));
 });

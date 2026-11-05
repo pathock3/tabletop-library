@@ -250,3 +250,26 @@ test('ui: your team is sorted by level (highest on the left), then by when you g
     assert.deepEqual(order, ['Venusaur', 'Charizard', 'Bulbasaur', 'Caterpie', 'Pidgey', 'Geodude'], 'level first, then oldest to newest: ' + order.join(', '));
   } finally { await b.close(); }
 });
+test('ui: Kadabra can change column and Abra can swap two of theirs, right on the cards', { skip: !chromium }, async () => {
+  const b = await chromium.launch(), p = await b.newPage({ viewport: { width: 820, height: 1180 } });
+  const errs = []; p.on('pageerror', e => errs.push(e.message));
+  try {
+    await p.goto(URL); await p.evaluate(() => { localStorage.setItem('pokemon-roll-tips', JSON.stringify({ place: 1, dice: 1, roll: 1, end: 1, shiny: 1 })); }); await p.reload();
+    await p.evaluate(() => {
+      const s = Engine.newGame({ seed: 12, starter: 'charmander', size: 'short', ai: 'master' }); s.done.B1 = true; s.lv = 4; s.coll[0].id = '5.4'; ['64', '63'].forEach((id, i) => s.coll.push({ uid: 10 + i, id, sh: 0 }));
+      const R = window.__pokemonRoll; R.setG(s); R.act({ t: 'go', node: 'B2' }); const G = R.G; let g; while ((g = Bots.step(G))) Engine.apply(G, g);
+      for (let i = 0; i < 8 && G.battle.stage === 'place'; i++) { if (G.battle.pl.side === 0 && G.battle.hand[0].length) Engine.apply(G, Object.assign({ t: 'place', side: 0, uid: G.battle.hand[0][0] }, Engine.slotsFor(G.battle, 0).find(x => x.join != null) || Engine.slotsFor(G.battle, 0)[0])); while ((g = Bots.step(G))) Engine.apply(G, g); }
+      R.render();
+    });
+    await p.waitForFunction(() => window.__pokemonRoll.G.battle.stage === 'assign', null, { timeout: 8000 });
+    await p.locator('.rollhint').click(); await p.waitForTimeout(1400);
+    const mine = () => p.evaluate(() => window.__pokemonRoll.G.battle.cols.map(c => c[0]));
+    const before = await mine(); await p.locator('[data-act=mv][data-dir="1"]').click(); const after = await mine();
+    assert.notDeepEqual(after, before, 'Kadabra changed column: ' + before + ' -> ' + after); assert.equal(await p.locator('[data-act=mv]').count(), 0, 'once a round');
+    const foes = () => p.evaluate(() => window.__pokemonRoll.G.battle.cols.map(c => c[1]));
+    const f0 = await foes(); await p.locator('[data-act=swapstart]').click();
+    const cards = p.locator('.card.foe.sel'); assert.ok(await cards.count() >= 2, 'their cards light up'); await cards.nth(0).click(); await cards.nth(1).click().catch(() => {});
+    await p.waitForTimeout(300); const f1 = await foes(); assert.notDeepEqual(f1, f0, 'Abra swapped two of their cards');
+    assert.deepEqual(errs, []);
+  } finally { await b.close(); }
+});
