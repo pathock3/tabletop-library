@@ -403,3 +403,7 @@ test('Haunter: when a teammate falls you may keep its ability, once per battle',
 test('campaign: nobody has a rival at the end; beating Lance wins the game', () => {
   assert.equal(D.nodes.filter(n => n.finale).map(n => n.id).join(), 'B7'); assert.ok(!('rivalFinalExtra' in D));
 });
+test('campaign: a gym leader you have faced is no longer a secret', () => {
+  const s = E.newGame({ seed: 4, starter: 'charmander' }); s.done.B1 = true; assert.ok(!(s.seen && s.seen.B2));
+  assert.ok(E.apply(s, { t: 'go', node: 'B2' }).ok); assert.ok(s.seen.B2, 'facing them is what reveals the team');
+});

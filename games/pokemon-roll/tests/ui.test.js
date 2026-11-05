@@ -217,6 +217,10 @@ test('ui: a gym leader has an eye that explains how their team was made; dice ca
     assert.match(txt, /random team/i); assert.match(txt, /before your game began/i); assert.match(txt, /Mt\. Moon/); assert.match(txt, /Viridian Forest/);
     assert.equal(await p.locator('.sheet .eyerow').count(), 2, 'Brock draws from two places');
     await p.click('.hbox .btn'); assert.equal(await p.locator('.sheet').count(), 0);
+    // once you have faced a gym leader, the eye shows their whole team
+    const n = await p.evaluate(() => { const G = window.__pokemonRoll.G; G.seen = G.seen || {}; G.seen.B1 = true; window.__pokemonRoll.render(); return G.bosses.B1.length; });
+    await p.click('.place[data-id=B1] .eye'); assert.equal(await p.locator('.sheet .card').count(), n, 'every card of their team is on show');
+    assert.match(await p.innerText('.hbox'), /whole team/i);
   } finally { await b.close(); }
 });
 
