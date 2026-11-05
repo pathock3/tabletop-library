@@ -361,3 +361,12 @@ test('ui: a die on a card can be dragged to another card, or back to the tray', 
     assert.deepEqual(errs, []);
   } finally { await b.close(); }
 });
+
+test('ui: a card lists its moves from 6 at the top down to 1 at the bottom', { skip: !chromium }, async () => {
+  const b = await chromium.launch(), p = await b.newPage({ viewport: { width: 820, height: 1180 } });
+  try {
+    await p.goto(URL); await p.click('[data-act=new]'); await p.click('[data-act=starter][data-k=pikachu]'); await p.click('.mypile'); await p.waitForSelector('.handf .card');
+    const pips = await p.locator('.handf .card').first().locator('.pip').allInnerTexts(); assert.deepEqual(pips, ['6', '5', '4', '3', '2', '1'], 'best on top');
+    const rows = await p.locator('.handf .card').first().locator('.f .mt').allInnerTexts(); assert.match(rows[0], /Attack/, 'move 1 is on the 6'); assert.match(rows[5], /Damage/, 'the damage to itself is on the 1');
+  } finally { await b.close(); }
+});

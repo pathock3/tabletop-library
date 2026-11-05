@@ -324,6 +324,7 @@ const GAME_DATA = {
     maxRounds: 60, stallRounds: 6,   // a fight that goes nowhere is lost (a tie is a loss for the hero)
     suddenDeathTries: 3,
     perColumnLimit: 1,
+    moveOrder: 'top',           // 'top': a card's move 1 is rolled on a 6, move 2 on a 5 and so on down; a move that only hurts the card itself sits at the bottom (the worst on a 1, the next worst on a 2). 'sheet': move 1 on a 1
     colorBonus: 1,              // a die the colour of the move's element adds this to the move (coloured dice come from gym leaders: both sides use the leader's colour in that fight, and you keep it)
     baseRerolls: 1,             // every side may throw one die again each round (cards add more); Easy never uses it
     firstPlaceCount: 1, placeCount: 2,   // the first player puts down one card, then both put down two at a time
@@ -648,7 +649,7 @@ const Engine = (() => {
   const CARDS = {};
   D.cardsPsv.trim().split('\n').forEach(line => {
     const f = line.split('|');
-    const c = { id: f[1], name: f[0], dex: Math.floor(parseFloat(f[1])), type: f[2], weak: f[3], level: +f[4], loc: parseInt(f[5], 10) || 0, hp: +f[6], role: f[7], ability: f[8].trim(), moves: f.slice(9, 15).map(x => x.trim()), special: (f[15] || '').trim() };
+    const c = { id: f[1], name: f[0], dex: Math.floor(parseFloat(f[1])), type: f[2], weak: f[3], level: +f[4], loc: parseInt(f[5], 10) || 0, hp: +f[6], role: f[7], ability: f[8].trim(), sheet: f.slice(9, 15).map(x => x.trim()), moves: [], special: (f[15] || '').trim() };
     c.legend = c.level === 6 && c.loc !== 0;
     CARDS[c.id] = c;
   });
@@ -693,6 +694,19 @@ const Engine = (() => {
     }).filter(Boolean);
     return (SP[str] = effs.length ? { face: +m[1][0], count: m[1].length, effs, raw: str } : null);
   }
+
+
+  // which die rolls which move: the sheet lists a card's moves 1..6 with its best first; on the card, move 1 is the 6, move 2 the 5 ... and a move that only hurts the card itself is at the bottom (worst on a 1)
+  function layMoves(order) {
+    Object.values(CARDS).forEach(c => {
+      if (order === 'sheet') { c.moves = c.sheet.slice(); return; }
+      const regular = [], hurt = [];
+      c.sheet.forEach(m => { if (!m) return; const pm = parseMove(m); (pm && pm.clauses.every(cl => cl.every(x => x.k === 'd')) ? hurt : regular).push({ m, n: pm ? Math.max(...pm.clauses.map(cl => cl.reduce((t, x) => t + x.n, 0))) : 0 }); });
+      hurt.sort((p, q) => q.n - p.n);                                  // the worst hurt goes on the 1
+      const out = ['', '', '', '', '', '']; regular.forEach((x, i) => { out[5 - i] = x.m; }); hurt.forEach((x, i) => { out[i] = x.m; }); c.moves = out;
+    });
+  }
+  layMoves(R.moveOrder);
 
   // ---------------------------------------------------------------- reading an ability
   const AB = D.abilities.map(([re, tag]) => [new RegExp(re, 'i'), tag]);
@@ -1502,7 +1516,7 @@ const Engine = (() => {
     if (v.battle && v.battle.stage === 'assign') { const o = other(side); v.battle.dice[o] = v.battle.dice[o].map(() => 0); v.battle.asg[o] = {}; }
     return v;
   }
-  return { autoChoice, hauntAsk, blocksMove, colorBonus, _t: { startBattle, startRound, resolveRound, cleanUp, drawWild }, handOf, canExpand, apply, newGame, chooseStarter, viewFor, CARDS, parseMove, parseSpecial, tagsOf, tags, preview, bestClause, chosenMove, candidates, pickTargets, amountOf, slotsFor, readyToGo, assignedDice, living, colIdx, U, rnd, ri, shuffle, node, starterOf, rivalFor, slots, unlocked, deckSize, heroCount, gmCount, typeOf, wm, hitValue, parseSpec, clauseValue, effectsOf, D, R };
+  return { autoChoice, hauntAsk, blocksMove, colorBonus, faceOrder: layMoves, _t: { startBattle, startRound, resolveRound, cleanUp, drawWild }, handOf, canExpand, apply, newGame, chooseStarter, viewFor, CARDS, parseMove, parseSpecial, tagsOf, tags, preview, bestClause, chosenMove, candidates, pickTargets, amountOf, slotsFor, readyToGo, assignedDice, living, colIdx, U, rnd, ri, shuffle, node, starterOf, rivalFor, slots, unlocked, deckSize, heroCount, gmCount, typeOf, wm, hitValue, parseSpec, clauseValue, effectsOf, D, R };
 })();
 
 </script>
@@ -1743,7 +1757,7 @@ const Bots = (() => {
     o = o || {}; const c = C[u.id], e = el(c.type), cw = o.cw || 180, mx = u.max || c.hp, hp = o.hp != null ? o.hp : (u.hp != null ? u.hp : c.hp);
     const pct = Math.max(0, Math.min(100, hp / mx * 100)), lvl = pct <= 33 ? ' lo' : pct <= 66 ? ' mid' : '';
     const sp = E.parseSpecial(c.special);
-    const rows = c.moves.map((m, i) => `<div class="f${m ? '' : ' blank'}${o.face === i + 1 && !o.sp ? ' hot' : ''}${o.pf === i + 1 && o.face !== i + 1 ? ' pick' : ''}"><span class="pip">${i + 1}</span><span class="mt">${m ? short(m) : '—'}</span></div>`).join('');
+    const rows = c.moves.map((m, i) => [m, i]).reverse().map(([m, i]) => `<div class="f${m ? '' : ' blank'}${o.face === i + 1 && !o.sp ? ' hot' : ''}${o.pf === i + 1 && o.face !== i + 1 ? ' pick' : ''}"><span class="pip">${i + 1}</span><span class="mt">${m ? short(m) : '—'}</span></div>`).join('');
     return `<div class="card${u.sh ? ' shiny' : ''}${o.foe ? ' foe' : ''}${o.ko ? ' ko' : ''}${o.sel ? ' sel' : ''}${o.die != null ? ' has-die' : ''}${o.cls ? ' ' + o.cls : ''}" style="--cw:${cw}px;--bg:${e.bg};--c:${e.color}" ${o.attr || ''}>
       ${D.elements[c.weak] ? `<div class="wkt" style="--wc:${el(c.weak).color}">weak · ${el(c.weak).icon} ${esc(c.weak)}</div>` : ''}
       <div class="nmrow"><div class="nm">${esc(c.name)}${u.sh ? ' ✨' : ''}</div></div>

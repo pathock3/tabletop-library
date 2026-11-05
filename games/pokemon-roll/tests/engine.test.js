@@ -30,6 +30,8 @@ function play(c, dice, give) {
 const evs = (b, t) => b.events.filter(e => e.t === t);
 
 // ================================================================ the cards
+// the older rule tests are written the way the sheet lists a card (move 1 on a 1); the tests that play whole games, and the ones named 'dice faces', use the real order (move 1 on a 6)
+E.faceOrder('sheet');
 test('data: all 175 cards load, with nine legendaries and six levels for each of the five starters', () => {
   assert.equal(Object.keys(C).length, 175);
   assert.equal(Object.values(C).filter(c => c.legend).length, 9);
@@ -198,7 +200,7 @@ test('rules: a fight that goes nowhere for six rounds is lost', () => {
   c.b.stall = 5; const b = play(c, { hero: [6], gm: [6] }, { hero: { 0: 0 }, gm: { 0: 0 } });
   assert.equal(b.out, 'gm');
 });
-test('placement: a gym fight starts from your whole hand; the computer puts down one card, then two at a time, and you put down only as many as they bring', () => {
+test('placement: a gym fight starts from your whole hand; the computer puts down one card, then two at a time, and you put down only as many as they bring', (tc) => { E.faceOrder('top'); tc.after(() => E.faceOrder('sheet'));
   const s = E.newGame({ seed: 5, starter: 'bulbasaur' }); s.done.B1 = true;
   s.coll.push({ uid: 5, id: '10', sh: 0 }, { uid: 6, id: '16', sh: 0 }, { uid: 7, id: '19', sh: 0 });
   assert.ok(E.apply(s, { t: 'go', node: 'B2' }).ok); assert.equal(s.phase, 'battle', 'no team to pick: straight into the fight');
@@ -211,7 +213,7 @@ test('placement: a gym fight starts from your whole hand; the computer puts down
   assert.equal(b.stage, 'assign'); assert.ok(b.cols.length <= 3);
   assert.equal(E.living(b, 0).length, 3, 'three of your four cards fight; the fourth stays in your hand'); assert.equal(E.living(b, 1).length, 3);
 });
-test('wild cards: one comes up, you put one down, and then you choose: fight it one on one, or bring more and they draw one more each time', () => {
+test('wild cards: one comes up, you put one down, and then you choose: fight it one on one, or bring more and they draw one more each time', (tc) => { E.faceOrder('top'); tc.after(() => E.faceOrder('sheet'));
   const s = E.newGame({ seed: 21, starter: 'bulbasaur' }); s.done.B1 = true; s.done.B2 = true; s.done.B3 = true;            // four dice
   ['74', '56', '100'].forEach((id, i) => s.coll.push({ uid: 10 + i, id, sh: 0 }));
   assert.ok(E.apply(s, { t: 'go', node: 'L1' }).ok); const b = s.battle;
@@ -234,7 +236,7 @@ test('wild cards: one comes up, you put one down, and then you choose: fight it 
   const one = E.newGame({ seed: 23, starter: 'pikachu' }); one.coll.push({ uid: 9, id: '10', sh: 0 }); E.apply(one, { t: 'go', node: 'L1' }); E.apply(one, B.step(one, 'normal'));
   E.apply(one, Object.assign({ t: 'place', side: 0, uid: one.battle.hand[0][0] }, E.slotsFor(one.battle, 0).find(x => x.join != null))); assert.equal(one.battle.stage, 'assign', 'one die: the fight starts as soon as your card is down');
 });
-test('hidden information: the computer never sees your dice, and you never see theirs until the round is played', () => {
+test('hidden information: the computer never sees your dice, and you never see theirs until the round is played', (tc) => { E.faceOrder('top'); tc.after(() => E.faceOrder('sheet'));
   const s = E.newGame({ seed: 9, starter: 'charmander' }); E.apply(s, { t: 'go', node: 'L1' });
   let g; while ((g = B.step(s)) || (s.battle.stage === 'place' && s.battle.pl.side === 0)) { if (g) E.apply(s, g); else E.apply(s, Object.assign({ t: 'place', side: 0, uid: s.battle.hand[0][0] }, E.slotsFor(s.battle, 0)[0])); }
   assert.equal(s.battle.stage, 'assign');
@@ -288,7 +290,7 @@ test('draw pile: a place is worked through once, every card, before what was dug
   const t = E.newGame({ seed: 32, starter: 'squirtle' }), before = t.decks[1].length; E.apply(t, { t: 'go', node: 'L1' }); E.apply(t, { t: 'forfeit' });
   assert.equal(t.decks[1].length, before - 1); assert.equal(t.discard[1].length, 1);
 });
-test('records: the turn each gym leader was beaten on is kept, and the whole game takes a number of turns', () => {
+test('records: the turn each gym leader was beaten on is kept, and the whole game takes a number of turns', (tc) => { E.faceOrder('top'); tc.after(() => E.faceOrder('sheet'));
   const s = E.newGame({ seed: 5, starter: 'larvitar', ai: 'master' }); let n = 0;
   while (s.phase !== 'won' && n++ < 40000) { let g; while ((g = B.step(s))) E.apply(s, g); const a = B.heroStep(s, 'master'); B.applyHero(s, a); }
   assert.equal(s.phase, 'won'); const ids = D.nodes.filter(x => x.kind === 'boss').map(x => x.id);
@@ -331,7 +333,7 @@ test('legendaries: with two dice, a nine on two dice at the start of a turn spot
 });
 
 // ================================================================ whole games
-test('fuzz: forty computer-played campaigns, from the first rival to the champion, with no errors', () => {
+test('fuzz: forty computer-played campaigns, from the first rival to the champion, with no errors', (tc) => { E.faceOrder('top'); tc.after(() => E.faceOrder('sheet'));
   for (let i = 1; i <= 40; i++) {
     const s = E.newGame({ seed: i * 7919, starter: D.starters[i % 5].key, size: i % 2 ? 'short' : 'long', ai: ['easy', 'normal', 'master'][i % 3] });
     let n = 0;
@@ -346,7 +348,7 @@ test('fuzz: forty computer-played campaigns, from the first rival to the champio
   }
 });
 
-test('ai: Easy never rerolls and plays blind; Master and Normal are real levers in the data; Master beats Normal beats Easy', () => {
+test('ai: Easy never rerolls and plays blind; Master and Normal are real levers in the data; Master beats Normal beats Easy', (tc) => { E.faceOrder('top'); tc.after(() => E.faceOrder('sheet'));
   const B = Bots, ais = E.D.ai; assert.deepEqual(Object.keys(ais), ['easy', 'normal', 'master']);
   const c = craft(['1.1'], ['10']); c.b.dice[1] = [1]; c.b.rr[1] = 3;
   for (let i = 0; i < 30; i++) assert.equal(B.step(c.s, 'easy').t, 'gm', 'Easy hands out dice without ever rerolling');
@@ -424,7 +426,7 @@ test('rules: you give out the dice you like, then reroll the rest together, once
   c.b.rr[0] = 5; assert.equal(E.apply(s, { t: 'reroll', side: 0, all: true }).ok, false, 'even with spare rerolls, locked dice do not move again');
   T.startRound(s); assert.equal(Object.keys(b.locked[0]).length, 0, 'a new round, a new reroll');
 });
-test('ai: Easy and Normal never reroll, Master rerolls the weak dice together before giving any out', () => {
+test('ai: Easy and Normal never reroll, Master rerolls the weak dice together before giving any out', (tc) => { E.faceOrder('top'); tc.after(() => E.faceOrder('sheet'));
   const c = craft(['1.1', '7.1'], ['1.1', '7.1']); const { s, b } = c; b.dice[1] = [6, 6]; b.rr[1] = 1;
   assert.equal(B.step(s, 'easy').t, 'gm'); assert.equal(B.step(s, 'normal').t, 'gm');
   const m = B.step(s, 'master'); assert.equal(m.t, 'reroll', 'two dead 6s are worth throwing again'); assert.ok(m.dice.length >= 1 && m.dice.every(i => i >= 0 && i < 2));
@@ -488,4 +490,16 @@ test('rules: a card with nobody across from it is not put to sleep: it rolls, he
   d.b.dice = [[1, 1], [6]]; d.b.asg = [{ [d.b.units[0].uid]: { dice: [0] }, [d.b.units[1].uid]: { dice: [1] } }, {}]; d.b.gmReady = true; assert.ok(E.apply(d.s, { t: 'go2' }).ok); while (d.b.ask) assert.ok(E.apply(d.s, { t: 'choose', tgt: E.autoChoice(d.b) }).ok);
   assert.ok(evs(d.b, 'strike').some(e => e.u === d.b.units[1].uid && e.to.indexOf(d.b.units[2].uid) >= 0), 'Charmeleon, with nobody across, hits the card in the next column over');
   const v = craft(['1.1'], ['10']); v.b.units[0].hp = 3; const sd = craft(['25.3'], ['10', '10']); assert.ok(sd.b.dice[0].length === 1);
+});
+
+test('dice faces: move 1 is rolled on a 6, move 2 on a 5 and so on; a move that only hurts the card is at the bottom, the worst on a 1', (t) => {
+  E.faceOrder('top'); t.after(() => E.faceOrder('sheet'));
+  const rolls = id => E.CARDS[id].moves;                         // index = die - 1
+  const pika = rolls('25.3'); assert.deepEqual([pika[5], pika[4], pika[3], pika[2], pika[1], pika[0]], ['3a', '2a', '2h v or >', '2a', '', '1d v'], 'Pikachu: moves 1-4 on 6, 5, 4, 3; nothing on 2; the damage to itself on 1');
+  const volt = rolls('100'); assert.equal(volt[5], '4a, 4d v', 'an attack that also hurts is still move 1 and is rolled on a 6'); assert.equal(volt[0], '1d v');
+  const two = Object.values(E.CARDS).find(c => c.sheet.filter(m => /^\d+d v$/.test(m)).length >= 2);
+  if (two) { const d = two.sheet.filter(m => /^\d+d v$/.test(m)).sort((a, b) => parseInt(b) - parseInt(a)); assert.deepEqual([two.moves[0], two.moves[1]], d.slice(0, 2), two.name + ': the worst self-damage on a 1, the next worst on a 2'); }
+  Object.values(E.CARDS).forEach(c => { assert.equal(c.moves.length, 6); assert.equal(c.moves.filter(Boolean).length, c.sheet.filter(Boolean).length, c.name + ' keeps all its moves'); });
+  const c = craft(['25.3'], ['16']); c.b.units[1].hp = c.b.units[1].max = 30; play(c, { hero: [6], gm: [] }, { hero: { 0: 0 } });
+  assert.ok(c.b.units[1].hp < 30, 'a 6 on Pikachu is its 3 Attack'); const e = craft(['25.3'], ['16']); const hp = e.b.units[0].hp; play(e, { hero: [1], gm: [] }, { hero: { 0: 0 } }); assert.equal(e.b.units[0].hp, hp - 1, 'a 1 on Pikachu hurts itself');
 });
