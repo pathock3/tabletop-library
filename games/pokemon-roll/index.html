@@ -1801,6 +1801,7 @@ const Bots = (() => {
   // one die for one card: Master throws it again when the face it shows is worth less than an average face would be (Normal and Easy never reroll)
   function colReroll(s, side, level) {
     const b = s.battle, L = lv(level); if (L.rerolls === 'never' || !b.rolled || !b.dice[side].length) return null;
+    if (b.frozenNow && b.frozenNow[side]) return null;                       // a frozen die stays as it is
     const v = b.dice[side][0], free = b.rrFace[side].indexOf(v) >= 0 && !b.rrUsed[side][0];
     if (!free && b.rr[side] <= 0 && b.bonus[side] <= 0) return null;
     const uid = b.cols[b.cur][side]; if (uid == null) return null; const u = E.U(b, uid);
