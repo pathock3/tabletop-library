@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- **Pokémon Roll! — slower map deal:** the cards dealing out onto the map now take about 2.5 seconds, left to right, so you can watch them land.
+
 - **Library — longer zoom into a game:** the box zoom now lasts up to 3 seconds (it still goes in as soon as the game has loaded), so a slow load never leaves the screen frozen on the dark.
 
 - **Pokémon Roll! — paths are a choice:** beating Blaine *or* Erika now opens the next stage (it used to need both). Erika sits above Blaine on the map, Misty above Lt. Surge.

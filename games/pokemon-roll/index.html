@@ -1915,10 +1915,10 @@ const Bots = (() => {
   // arriving on the map: the piles are dealt out from the left, quickly, one stage after another
   function mapIntro() {
     const tiles = [...document.querySelectorAll('.mapin .place')]; if (!tiles.length || !tiles[0].animate) return;
-    const xs = tiles.map(t => parseFloat(t.style.left) || 0), lo = Math.min(...xs), hi = Math.max(...xs, lo + 1), span = 330;
-    tiles.forEach((t, i) => t.animate([{ transform: 'translate(-90px,-26px) rotate(-16deg) scale(.45)', opacity: 0 }, { transform: 'translate(0,4px) rotate(2deg) scale(1.04)', opacity: 1, offset: .75 }, { transform: 'none', opacity: 1 }], { duration: 380, delay: (xs[i] - lo) / (hi - lo) * span + (parseFloat(t.style.top) || 0) % 40, easing: 'cubic-bezier(.2,.8,.3,1)', fill: 'backwards' }));
-    const sv = document.querySelector('.mapsvg'); if (sv) sv.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 300, delay: span, fill: 'backwards' });
-    const mp = document.querySelector('.mypile'); if (mp) mp.animate([{ transform: 'translate(40px,-30px) scale(.4)', opacity: 0 }, { transform: 'none', opacity: 1 }], { duration: 360, delay: 40, easing: 'cubic-bezier(.2,.8,.3,1)', fill: 'backwards' });
+    const xs = tiles.map(t => parseFloat(t.style.left) || 0), lo = Math.min(...xs), hi = Math.max(...xs, lo + 1), span = 1500;
+    tiles.forEach((t, i) => t.animate([{ transform: 'translate(-90px,-26px) rotate(-16deg) scale(.45)', opacity: 0 }, { transform: 'translate(0,4px) rotate(2deg) scale(1.04)', opacity: 1, offset: .75 }, { transform: 'none', opacity: 1 }], { duration: 850, delay: 150 + (xs[i] - lo) / (hi - lo) * span + (parseFloat(t.style.top) || 0) % 120, easing: 'cubic-bezier(.2,.8,.3,1)', fill: 'backwards' }));
+    const sv = document.querySelector('.mapsvg'); if (sv) sv.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 500, delay: span, fill: 'backwards' });
+    const mp = document.querySelector('.mypile'); if (mp) mp.animate([{ transform: 'translate(40px,-30px) scale(.4)', opacity: 0 }, { transform: 'none', opacity: 1 }], { duration: 800, delay: 40, easing: 'cubic-bezier(.2,.8,.3,1)', fill: 'backwards' });
   }
   // a card is drawn from the pile: it flies from the pile to its place, turning face up on the way
   function drawFly(uid) {
