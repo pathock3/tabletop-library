@@ -33,7 +33,7 @@ Sources (Patrick's Google Drive, folder "Pokémon Roll"): **Pokémon Roll! Ruleb
 - You start with **one die** (one card per challenge). Each gym leader you beat is another die (up to six). Challenge a place with as many cards as you have dice; it brings the same number. Win and you keep one of theirs (the rest go to the place's discard pile); lose and they go back to the deck.
 - Gym leaders: Brock 2, Misty 3, Lt. Surge 3, Blaine 4/5, Erika 4/5, Blue 5/7, Lance 6/9 (short/long), drawn from the places on the boss card. `RULING:` you take as many cards as you have (up to the boss's number): an outnumbered fight is allowed, as the rulebook says.
 - `RULING:` The map opens like the design doc's list: rival → Viridian Forest, Mt. Moon, Brock → Power Plant, Misty, Surge → S.S. Anne / Pokemon Tower, Blaine / Erika → Safari Zone, Cinnabar Island, Blue (needs both Blaine and Erika) → Seafoam, Victory Road, Lance → the final rival fight.
-- Your partner levels to one above the level on the boss's card when you beat them (the first rival fight takes it to 2). Pikachu does not evolve into Raichu in this version.
+- Your partner levels to one above the level on the boss's card when you beat them (the first rival fight takes it to 2). Pikachu may evolve into Raichu at level 5 (you choose once; Raichu then goes on to level 6).
 - Your rival picks the partner whose element beats yours. In the last fight the rival brings their level 6 partner and five other cards (levels 4–5).
 - When a place's deck runs out it is refilled from its discard pile. After beating a gym leader, their team goes to the discard piles of the places it came from.
 - Beating Lance gives you his legendary.
@@ -46,6 +46,9 @@ Every ability on the sheet is read from its text by the table in the data block.
 - `RULING:` Dice-changing abilities (Golduck, Exeggcute, Exeggutor, Staryu) are a button on the card sheet ("Use ability on its die") during the dice step.
 - `RULING:` "Dodge" means the attack does nothing; "immune" cards take no damage from that element; "absorb" (Oddish vs water, Magmar vs fire) heals instead.
 - `RULING:` The heal ability "Receives double effect from healing" doubles heals on that card only.
+
+- *(owner)* **Magikarp:** while it has allies, anything the card directly across from it attacks with is cut by 9. Alone, it is an ordinary card.
+- `RULING:` **Slowpoke/Slowbro** lower the die of the card facing them by 1 (1 becomes 6), every other round, automatically. **Porygon** (every other round) gives a teammate's attack the element its target is weak to. **Weezing** hands one of its damage to a healthier card facing it at the end of the round. **Dratini** lets its dragon allies' plain attacks hit left, across or right. **Lugia** takes one reroll from the other side.
 
 ## Not in this version
 - Colored dice and the elemental dice rules, trading cards, the GM-swapping two-player game, Map 1 (the same data would do it), the ten-card hard-mode rival, quests, and the Hall of Fame.

@@ -190,7 +190,7 @@ const GAME_DATA = {
     { key: 'bulbasaur', name: 'Bulbasaur', levels: ['1.1', '1.2', '2.3', '2.4', '3.5', '3.6'] },
     { key: 'charmander', name: 'Charmander', levels: ['4.1', '4.2', '5.3', '5.4', '6.5', '6.6'] },
     { key: 'squirtle', name: 'Squirtle', levels: ['7.1', '7.2', '8.3', '8.4', '9.5', '9.6'] },
-    { key: 'pikachu', name: 'Pikachu', levels: ['25.1', '25.2', '25.3', '25.4', '25.5', '25.6'] },
+    { key: 'pikachu', name: 'Pikachu', levels: ['25.1', '25.2', '25.3', '25.4', '25.5', '25.6'], evolve: { 5: '26.5', 6: '26.6' } },
     { key: 'larvitar', name: 'Larvitar', levels: ['246.1', '246.2', '247.3', '247.4', '248.5', '248.6'] },
   ],
   // Map 2 from the design doc. A node opens when everything in `needs` is beaten. `lvl` is the level your starter should have;
@@ -268,6 +268,12 @@ const GAME_DATA = {
     ['^When I damage matchup, they lose a round$', { t: 'hitMatchSkip' }],
     ['^(Team |All )?(\\w+) attacks grant (\\d)h$', { t: 'grant', scope: '$1', el: '$2', n: '$3' }],
     ['^When enemies enter this column, (\\d)d$', { t: 'enter', n: '$1' }],
+    ['^If you have allies, -(\\d)d from matchup$', { t: 'matchShield', n: '$1' }],
+    ['^On non-consecutive rounds, decrease an enemy die by 1', { t: 'decEnemy', every: 2 }],
+    ['^On non-consecutive rounds, change a teammate.s move to any type$', { t: 'retype', every: 2 }],
+    ['^After each round, if matchup has more health than you, give them one of your d$', { t: 'giveDamage' }],
+    ['^Ally dragon attacks hit <\\^ or >$', { t: 'dragonSpread' }],
+    ['^-1 reroll \\^$', { t: 'dampReroll' }],
     ['^\\+(\\d) max h <>$', { t: 'auraMax', n: '$1' }],
     ['^Neighbor moves \\+(<|>)$', { t: 'aura', n: 1, kind: 'any', range: 1, side: '$1' }],
     ['^\\+(\\d)([abh])? ?(?:(grass|fire|water|electric|ground|normal|psychic|fighting|dark|ice|dragon) )?(?:moves )?(<+>+)$', { t: 'aura', n: '$1', kind: '$2', el: '$3', range: '$4' }],
@@ -467,7 +473,7 @@ const Engine = (() => {
     c.legend = c.level === 6 && c.loc !== 0;
     CARDS[c.id] = c;
   });
-  const typeOf = u => lc(CARDS[u.id].type);
+  const typeOf = u => lc(u.elem || CARDS[u.id].type);
 
   // ---------------------------------------------------------------- reading a move
   // arrows: < the column to the left, ^ the opposing card (an attack's matchup), v yourself, > the column to the right; "<<" reaches two columns.
@@ -561,7 +567,7 @@ const Engine = (() => {
     const st = starterOf(key); if (!st) return false;
     s.starter = key; s.rival = rivalFor(key).key; s.lv = 1;
     s.coll = [{ uid: s.nextUid++, id: st.levels[0], sh: 0, starter: 1 }];
-    const mine = new Set(st.levels), startersAll = new Set(D.starters.flatMap(x => x.levels));
+    const mine = new Set(st.levels.concat(st.evolve ? Object.values(st.evolve) : [])), startersAll = new Set(D.starters.flatMap(x => x.levels));
     D.locations.forEach(l => { s.decks[l.id] = []; s.discard[l.id] = []; });
     Object.values(CARDS).forEach(c => { if (c.legend || c.loc === 0 || mine.has(c.id)) return; s.decks[c.loc].push(c.id); });
     D.locations.forEach(l => shuffle(s, s.decks[l.id]));
@@ -642,6 +648,8 @@ const Engine = (() => {
       b.rr[sd] = 0; b.rrFace[sd] = []; b.rrUsed[sd] = {};
       living(b, sd).forEach(u => tags(u).forEach(t => { if (t.t === 'reroll') b.rr[sd] += t.n; if (t.t === 'rerollFace' && b.rrFace[sd].indexOf(t.face) < 0) b.rrFace[sd].push(t.face); }));
     });
+    living(b, 0).concat(living(b, 1)).forEach(u => { if (has(u, 'dampReroll') && b.cols[colIdx(b, u.uid)] && b.cols[colIdx(b, u.uid)][other(u.side)] != null) b.rr[other(u.side)] = Math.max(0, b.rr[other(u.side)] - 1); });
+    b.units.forEach(u => { u.elem = null; });
     b.hold = null;
   }
   function assignedDice(b, side) { const used = new Set(); Object.values(b.asg[side]).forEach(a => a.dice.forEach(i => used.add(i))); return used; }
@@ -734,11 +742,13 @@ const Engine = (() => {
   function candidates(b, u, e) {
     const enemy = e.k === 'a'; let opts = e.spec.opts;
     if (enemy && has(u, 'anyTarget') && typeOf(u) === 'psychic') { const ci = colIdx(b, u.uid); opts = living(b, other(u.side)).map(x => [colIdx(b, x.uid) - ci]); }
+    if (enemy && spreadsDragon(b, u, e)) opts = [[-1], [0], [1]];
     return opts.map(o => unitsAt(b, u, o, enemy)).filter(c => c.length);
   }
+  const spreadsDragon = (b, u, e) => typeOf(u) === 'dragon' && e.spec.opts.length === 1 && e.spec.opts[0].length === 1 && e.spec.opts[0][0] === 0 && b.units.some(x => !x.ko && x.side === u.side && has(x, 'dragonSpread'));
   function pickTargets(b, u, e, amt, hint) {
     const cand = candidates(b, u, e); if (!cand.length) return [];
-    if (e.spec.all || cand.length === 1) return cand[0];
+    if ((e.spec.all && !spreadsDragon(b, u, e)) || cand.length === 1) return cand[0];
     if (hint != null) { const h = cand.find(c => c.some(t => t.u.uid === hint)); if (h) return h; }
     const score = c => c.reduce((sum, t) => sum + (e.k === 'a' ? hitValue(b, u, t.u, amt) : Math.min(amt, t.u.max - t.u.hp)), 0);
     return cand.reduce((best, c) => score(c) > score(best) ? c : best);
@@ -818,6 +828,8 @@ const Engine = (() => {
     const dg = ta.find(g => g.t === 'dodgeIfType'); if (dg && !T.dodgedRound && b.actType && b.actType[T.uid] === dg.el) { T.dodgedRound = true; ev(b, { t: 'dodge', u: T.uid }); return; }
     const raw = n, m = wm(b, A, T); n *= m; const weak = m === 2;
     ta.forEach(g => { if (g.t === 'shield') n = Math.max(0, n - g.n); if (g.t === 'nido' && g.k === 'd') n = Math.max(0, n - b.units.filter(x => !x.ko && x.side === T.side && x !== T && /^Nido/.test(CARDS[x.id].name)).length); });
+    const ms = ta.find(g => g.t === 'matchShield');
+    if (ms && living(b, T.side).length > 1 && colIdx(b, A.uid) === colIdx(b, T.uid)) n = Math.max(0, n - ms.n);
     if (n <= 0) { ev(b, { t: 'blocked', u: T.uid, n: 0 }); return; }
     if (!has(A, 'pierce')) {
       const ti = colIdx(b, T.uid);
@@ -925,6 +937,12 @@ const Engine = (() => {
   function resolveRound(s) {
     const b = s.battle; b.events = []; b.before = {}; b.dealtRound = [0, 0]; b.pools = []; b.actType = {};
     b.units.forEach(u => { b.before[u.uid] = u.hp; u.attacked = false; });
+    orderOf(b).forEach(u => {                                    // Slowpoke and Slowbro: the card facing them rolls one lower (1 becomes 6)
+      const t = tag(u, 'decEnemy'); if (!t || u.skip || b.round - u.lastTweak < t.every) return;
+      const ci = colIdx(b, u.uid), fid = b.cols[ci] && b.cols[ci][other(u.side)]; if (fid == null) return;
+      const foe = U(b, fid), a = b.asg[foe.side][foe.uid]; if (!a || !a.dice.length || foe.ko) return;
+      const v = b.dice[foe.side][a.dice[0]]; b.dice[foe.side][a.dice[0]] = v === 1 ? 6 : v - 1; u.lastTweak = b.round; ev(b, { t: 'text', msg: CARDS[u.id].name + ' slows ' + CARDS[foe.id].name });
+    });
     const acts = orderOf(b).map(u => {
       const m = chosenMove(b, u, (b.asg[u.side][u.uid] || {}).dice && b.asg[u.side][u.uid].dice.map(i => b.dice[u.side][i]));
       const a = { u, m, hint: b.asg[u.side][u.uid] ? b.asg[u.side][u.uid].tgt : null, face: m ? m.face : 0 };
@@ -932,12 +950,25 @@ const Engine = (() => {
       if (m && !m.sp && a.effs.some(e => e.k === 'a')) b.actType[u.uid] = typeOf(u);
       return a;
     });
+    acts.forEach(a => {                                          // Porygon: once in a while a teammate's attack takes the element its target is weak to
+      const t = tag(a.u, 'retype'); if (!t || a.u.skip || b.round - a.u.lastTweak < t.every) return;
+      const pick = acts.find(x => x.u.side === a.u.side && x !== a && x.effs.some(f => f.k === 'a'));
+      const foe = pick && b.cols[colIdx(b, pick.u.uid)] && b.cols[colIdx(b, pick.u.uid)][other(pick.u.side)]; if (foe == null) return;
+      const w = lc(CARDS[U(b, foe).id].weak); if (!D.elements[w[0].toUpperCase() + w.slice(1)]) return;
+      pick.u.elem = w; a.u.lastTweak = b.round; ev(b, { t: 'text', msg: CARDS[a.u.id].name + ' changes ' + CARDS[pick.u.id].name + ' to ' + w });
+    });
     acts.forEach(a => ev(b, { t: 'move', u: a.u.uid, f: a.face, txt: a.m ? (a.m.sp ? 'Special' : a.m.str) : (a.u.skip ? 'loses a round' : '—'), sp: !!(a.m && a.m.sp) }));
     acts.forEach(a => { const t = tag(a.u, 'tireOn'); if (t && a.m && a.face && (a.face === t.a || a.face === t.b)) a.u.skipNext = true; });
     acts.forEach(a => { if (!a.u.ko && a.m && a.m.sp) { const sp = a.m.sp; /* handled in the attack phase */ } });
     acts.forEach(a => { if (!a.u.ko) applyEffects(s, b, a.u, a.effs, 'heal', a.hint); });
     acts.forEach(a => { if (!a.u.ko) { if (a.m && a.m.sp) a.m.sp.effs.filter(e => e.k === 'b').length; applyEffects(s, b, a.u, a.effs, 'block', a.hint); } });
     acts.forEach(a => { if (!a.u.ko) { if (a.m && a.m.sp) doSpecial(s, b, a.u, a.m.sp, a.hint); else applyEffects(s, b, a.u, a.effs, 'attack', a.hint); } });
+    orderOf(b).forEach(w => {                                    // Weezing: hands one of its damage to a healthier card facing it
+      if (!has(w, 'giveDamage') || w.ko || w.hp >= w.max) return;
+      const fid = b.cols[colIdx(b, w.uid)] && b.cols[colIdx(b, w.uid)][other(w.side)]; if (fid == null) return;
+      const foe = U(b, fid); if (foe.ko || foe.hp <= w.hp) return;
+      w.hp++; ev(b, { t: 'heal', u: w.uid, n: 1, hp: w.hp }); dealDamage(s, b, foe, 1, w, true);
+    });
     const h = living(b, 0).length, g = living(b, 1).length;
     const moved = b.dealtRound[0] + b.dealtRound[1] + b.events.filter(e => e.t === 'heal').length;
     b.stall = moved ? 0 : b.stall + 1;
@@ -992,7 +1023,7 @@ const Engine = (() => {
       }
       if (nd.kind === 'rival' && nd.finale) { s.phase = 'won'; }
       const nl = Math.min(R.maxLevel, (nd.lvl || 1) + 1);
-      if (nd.kind !== 'rival' || !nd.finale) if (nl > s.lv) { s.lv = nl; const st = s.coll.find(c => c.starter); st.id = starterOf(s.starter).levels[nl - 1]; s.res.levelUp = nl; }
+      if (nd.kind !== 'rival' || !nd.finale) if (nl > s.lv) { s.lv = nl; const st = s.coll.find(c => c.starter), sd = starterOf(s.starter); st.id = s.evolved && sd.evolve[nl] ? sd.evolve[nl] : sd.levels[nl - 1]; s.res.levelUp = nl; if (sd.evolve && sd.evolve[nl] && !s.evolved && !s.evoAsked) { s.evoAsked = true; s.res.evolve = nl; } }
     }
   }
   function finish(s) {                      // the result is read: back to the map (a captured legendary joins the team)
@@ -1037,7 +1068,11 @@ const Engine = (() => {
         s.res.pick.forEach((x, j) => { if (j !== a.i) s.discard[CARDS[x.id].loc].push(x.id); });
         s.res.took = i; s.res.pick = null; return null;
       }
-      case 'done': if (s.phase !== 'result' && s.phase !== 'won') return 'nothing to finish'; if (s.res && s.res.pick) return 'take a card first'; finish(s); return null;
+      case 'evolve': {
+        if (!s.res || !s.res.evolve) return 'nothing to choose'; const sd = starterOf(s.starter);
+        if (a.yes) { s.evolved = true; s.coll.find(c => c.starter).id = sd.evolve[s.res.evolve]; s.res.evolved = true; } s.res.evolve = 0; return null;
+      }
+      case 'done': if (s.phase !== 'result' && s.phase !== 'won') return 'nothing to finish'; if (s.res && s.res.pick) return 'take a card first'; if (s.res && s.res.evolve) return 'choose how your partner grows'; finish(s); return null;
     }
     if (!b) return 'no battle';
     switch (a.t) {
@@ -1199,6 +1234,7 @@ const Bots = (() => {
       return { t: 'team', uids: best.map(c => c.uid) };
     }
     if (s.phase === 'result') {
+      if (s.res && s.res.evolve) return { t: 'evolve', yes: true };
       if (s.res && s.res.pick) { let bi = 0; s.res.pick.forEach((i, k) => { if (C[i.id].level * 2 + C[i.id].hp > C[s.res.pick[bi].id].level * 2 + C[s.res.pick[bi].id].hp) bi = k; }); return { t: 'take', i: bi }; }
       return { t: 'done' };
     }
@@ -1518,13 +1554,14 @@ const Bots = (() => {
   function resultScreen() {
     const r = G.res, nd = E.node(r.node);
     const take = r.pick ? `<div class="status">Choose one to join your team!</div><div class="grid" style="flex:none">${r.pick.map((i, k) => mini(i, { cw: Math.min(130, Math.floor((Math.min(innerWidth, 860) - 30) / Math.max(2, r.pick.length)) - 10), attr: `data-act="take" data-i="${k}"` })).join('')}</div>` : (r.took ? `<div class="status">You caught ${esc(C[r.took.id].name)}${r.took.sh ? ' ✨' : ''}!</div><div class="row">${mini(r.took, { cw: 130 })}</div>` : '');
+    const sdv = E.starterOf(G.starter), evo = r.evolve ? `<div class="status">${esc(C[sdv.levels[r.evolve - 1]].name)} is ready to evolve! Which will it be?</div><div class="row" style="gap:16px">${[[sdv.levels[r.evolve - 1], 0], [sdv.evolve[r.evolve], 1]].map(([id, y]) => mini({ id, sh: 0 }, { cw: 140, attr: `data-act="evolve" data-yes="${y}"` })).join('')}</div>` : '';
     const lines = []; if (r.win && nd.kind === 'boss') lines.push(`You beat ${esc(nd.name)}! +1 die`); if (r.levelUp) lines.push(`Your partner grew to level ${r.levelUp}!`); if (r.legend && r.win) lines.push(`${esc(C[r.legend.id].name)}${r.legend.sh ? ' ✨' : ''} joins your team!`);
     return `<div class="center" style="justify-content:flex-start;padding-top:24px"><div class="banner">${r.win ? (nd.finale ? 'CHAMPION!' : 'Victory!') : 'Not this time'}</div>
       ${lines.map(l => `<div style="font:800 22px system-ui">${l}</div>`).join('')}
       ${r.win && r.levelUp ? `<div class="row">${mini({ id: G.coll.find(c => c.starter).id, sh: 0 }, { cw: 130 })}</div>` : ''}
       ${r.win && r.legend ? `<div class="row">${mini(r.legend, { cw: 130 })}</div>` : ''}
-      ${take}
-      ${r.pick ? '' : `<button class="btn big" data-act="done">${G.phase === 'won' ? 'Hall of Fame' : 'Continue'}</button>`}</div>`;
+      ${evo}${take}
+      ${r.pick || r.evolve ? '' : `<button class="btn big" data-act="done">${G.phase === 'won' ? 'Hall of Fame' : 'Continue'}</button>`}</div>`;
   }
   function wonScreen() {
     return `<div class="center"><div class="banner" style="font-size:54px">CHAMPION!</div><div style="font:800 22px system-ui">You beat the gym leaders, Lance and your rival in ${G.turn} turns.</div>
@@ -1643,6 +1680,7 @@ const Bots = (() => {
     skip() { skipPlay(); },
     next() { const b = G.battle; ui.die = null; const out = b.out; if (act({ t: 'next' })) {  } },
     take(el) { act({ t: 'take', i: +el.dataset.i }); },
+    evolve(el) { act({ t: 'evolve', yes: el.dataset.yes === '1' }); },
     done() { if (act({ t: 'done' })) { ui.shown = {}; render(); } },
     forfeit() { ui.menu = false; act({ t: 'forfeit' }); },
     tipok() { ui.tip = null; render(); },

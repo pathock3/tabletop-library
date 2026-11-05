@@ -55,7 +55,7 @@ test('data: moves read the way the sheet means them', () => {
 test('data: the abilities that are not in this version are exactly the ones that move cards around, swap dice or reach outside a fight', () => {
   const un = new Set();
   Object.values(C).forEach(c => c.ability.split(/;\s*/).forEach(p => { if (p && !E.tagsOf({ id: 'q' + c.id + p, ability: p }).length) un.add(p); }));
-  assert.equal(un.size, 18);
+  assert.equal(un.size, 12);
   assert.ok([...un].every(p => /push|swap|redirect|change (column|position|a teammate)|move <>|enemy die|persist|give them|-9d|blue die|freeze an ally|reroll \^|Ally dragon|abilities to change|move/i.test(p)), [...un].join(' | '));
 });
 
@@ -130,6 +130,36 @@ test('abilities: a card that loses its round gets no die next round (Caterpie)',
   const c = craft(['4.1'], ['10']); play(c, { hero: [1], gm: [6] }, { hero: { 0: 0 }, gm: { 0: 0 } });      // Charmander knocks out Caterpie... which has no further effect on a dead target
   const d = craft(['1.1'], ['16']); d.h(0).hp = 1; play(d, { hero: [6], gm: [1] }, { hero: { 0: 0 }, gm: { 0: 0 } });
   assert.ok(d.h(0).ko, 'Pidgey hits Bulbasaur dead');
+});
+test('abilities: Magikarp takes nothing from the card across from it while it has allies, and everything when it is alone', () => {
+  let c = craft(['4.1', '1.1'], ['129', '10']); play(c, { hero: [1, 6], gm: [6, 6] }, { hero: { 0: 0, 1: 1 }, gm: { 0: 0, 1: 1 } });
+  assert.equal(c.g(0).hp, C['129'].hp, 'Charmander cannot hurt it: 4 damage minus 9');
+  c = craft(['4.1'], ['129']); play(c, { hero: [1], gm: [6] }, { hero: { 0: 0 }, gm: { 0: 0 } });
+  assert.ok(c.g(0).ko, 'alone, it is just a Magikarp');
+});
+test('abilities: Slowpoke makes the card facing it roll one lower, and 1 becomes 6', () => {
+  const c = craft(['1.1'], ['79']); c.b.dice = [[1], [3]]; c.b.asg = [{ [c.h(0).uid]: { dice: [0], tgt: null } }, { [c.g(0).uid]: { dice: [0], tgt: null } }]; c.b.gmReady = true;
+  assert.ok(E.apply(c.s, { t: 'go2' }).ok); assert.equal(c.b.dice[0][0], 6, 'a 1 became a 6');
+  assert.equal(evs(c.b, 'move')[0].txt, '', 'Bulbasaur has nothing on a 6');
+});
+test('abilities: Weezing hands a damage to a healthier card facing it, and Dratini widens its dragons', () => {
+  const c = craft(['110'], ['1.1']); c.h(0).hp = 1; c.g(0).hp = 4; play(c, { hero: [6], gm: [6] }, { hero: { 0: 0 }, gm: { 0: 0 } });
+  assert.equal(c.h(0).hp, 2); assert.equal(c.g(0).hp, 3);
+  const d = craft(['10', '148', '147'], ['10', '16', '19']);       // Dragonair's 6a (a 1) can hit a neighbour because Dratini is on the team
+  const cand = E.candidates(d.b, d.h(1), E.parseMove('6a').clauses[0][0]); assert.equal(cand.length, 3, 'left, across or right');
+  const solo = craft(['148'], ['10']); assert.equal(E.candidates(solo.b, solo.h(0), E.parseMove('6a').clauses[0][0]).length, 1);
+});
+test('abilities: Porygon changes a teammate to the element its target is weak to, and Lugia takes a reroll away', () => {
+  const c = craft(['1.1', '137'], ['4.1', '10']); play(c, { hero: [1, 6], gm: [6, 6] }, { hero: { 0: 0, 1: 1 }, gm: { 0: 0, 1: 1 } });
+  assert.ok(evs(c.b, 'text').some(e => /changes Bulbasaur to water/.test(e.msg)), 'Charmander is weak to water');
+  const l = craft(['249'], ['37']); assert.equal(l.b.rr[1], 0, 'Vulpix\'s reroll is gone');
+});
+test('campaign: Pikachu can grow into Raichu at level 5, and keeps going as one', () => {
+  const s = E.newGame({ seed: 2, starter: 'pikachu' }); s.done.rival1 = true; s.done.B1 = true; s.done.B2 = true; s.done.B3 = true; s.lv = 4;
+  s.phase = 'battle'; const b = T.startBattle(s, 'boss', 'B4', [{ id: '25.4', sh: 0 }], [{ id: '10', sh: 0 }]); b.units[1].ko = true; b.units[1].hp = 0; b.cols = [[b.units[0].uid, b.units[1].uid]]; b.stage = 'resolved'; b.out = 'hero'; b.hand = [[], []];
+  assert.ok(E.apply(s, { t: 'next' }).ok); assert.equal(s.res.evolve, 5); assert.equal(E.apply(s, { t: 'done' }).ok, false, 'choose first');
+  assert.ok(E.apply(s, { t: 'evolve', yes: true }).ok); assert.equal(s.coll[0].id, '26.5'); assert.equal(s.evolved, true);
+  assert.ok(![].concat(...Object.values(s.decks)).includes('26.5'), 'your Raichu is not also lying around in the wild');
 });
 test('rules: if everyone falls in the same round it is sudden death, decided by who deals more damage', () => {
   const c = craft(['100'], ['100']);       // Voltorb: 4a and 4d to itself on a 1, so both fall
@@ -235,7 +265,7 @@ test('fuzz: forty computer-played campaigns, from the first rival to the champio
       const r = B.applyHero(s, a); assert.ok(r.ok, 'player: ' + JSON.stringify(a).slice(0, 100) + ' ' + r.error);
     }
     assert.equal(s.phase, 'won', 'campaign ' + i + ' finished');
-    assert.equal(s.lv, 6); assert.equal(s.coll.find(c => c.starter).id, E.starterOf(s.starter).levels[5], 'the partner grew all the way');
+    assert.equal(s.lv, 6); const sd = E.starterOf(s.starter); assert.ok([sd.levels[5], sd.evolve && sd.evolve[6]].includes(s.coll.find(c => c.starter).id), 'the partner grew all the way');
     assert.ok(s.coll.length >= 7, 'a collection of cards was built');
   }
 });
