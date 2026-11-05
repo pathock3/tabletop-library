@@ -32,7 +32,7 @@ test('build: only the pages and the icons are published (no tests, docs or tools
   const walk = d => fs.readdirSync(d, { withFileTypes: true }).forEach(e => (e.isDirectory() ? walk(path.join(d, e.name)) : files.push(path.relative(dir, path.join(d, e.name)))));
   walk(dir);
   const icons = fs.readdirSync(path.join(root, 'assets')).filter(f => f.endsWith('.png'));
-  assert.deepEqual(files.sort(), ['index.html', '_redirects', path.join('games', 'loaded-blackjack', 'index.html'), ...icons.map(f => path.join('assets', f)), ...games.map(g => path.join('games', g, 'index.html'))].sort(), '(the two extra files are the redirect from the old Loaded Blackjack address)');
+  assert.deepEqual(files.sort(), ['index.html', '_redirects', '_headers', path.join('games', 'loaded-blackjack', 'index.html'), ...icons.map(f => path.join('assets', f)), ...games.map(g => path.join('games', g, 'index.html'))].sort(), '(the extra files are the redirect from the old Loaded Blackjack address and the cache rule)');
 });
 
 test('icons: every page has a Home Screen / Favorites icon that exists, and the page title is the Home Screen name', () => {
@@ -69,4 +69,8 @@ test('build: the old Loaded Blackjack address redirects to Stackjack', () => {
   assert.match(fs.readFileSync(path.join(out, 'games', 'loaded-blackjack', 'index.html'), 'utf8'), /stackjack\/index\.html/);
   assert.match(fs.readFileSync(path.join(out, '_redirects'), 'utf8'), /\/games\/loaded-blackjack\/\* \/games\/stackjack\/:splat 301/);
   assert.ok(fs.existsSync(path.join(out, 'games', 'stackjack', 'index.html')));
+});
+
+test('build: pages are always revalidated, so a reopened app shows the latest deploy', () => {
+  const dir = build(); assert.match(read(dir, '_headers'), /\/\*\s+Cache-Control: no-cache/);
 });

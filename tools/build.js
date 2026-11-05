@@ -39,6 +39,8 @@ for (const [from, to] of Object.entries(MOVED)) {
   const dest = '/' + to + '/';
   fs.writeFileSync(path.join(out, from, 'index.html'), '<!doctype html><meta charset="utf-8"><title>Stackjack</title><meta http-equiv="refresh" content="0;url=../../' + to + '/index.html"><link rel="canonical" href="' + dest + '"><script>location.replace("../../' + to + '/index.html" + location.search + location.hash)</script><p><a href="../../' + to + '/index.html">Stackjack has moved here.</a></p>\n');
 }
+// always ask the server whether a page has changed (cheap: it answers "unchanged" when it has not), so reopening the app after a deploy shows the new version instead of an old cached copy
+fs.writeFileSync(path.join(out, '_headers'), '/*\n  Cache-Control: no-cache\n');
 fs.writeFileSync(path.join(out, '_redirects'), Object.entries(MOVED).map(([from, to]) => '/' + from + '/* /' + to + '/:splat 301').join('\n') + '\n');
 // shared icons (Favorites / Home Screen) are published in assets/, the same place they sit in the repo; pages link to them, but still work without them
 const assets = path.join(root, 'assets');
