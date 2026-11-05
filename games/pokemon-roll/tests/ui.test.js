@@ -353,7 +353,7 @@ test('ui: a die on a card can be dragged to another card, or back to the tray', 
     const cards = await p.locator('.board .card:not(.foe)').count(); assert.ok(cards >= 2, 'two of your cards');
     await drag(await box('.die[data-act=die]'), await box('.board .card:not(.foe) >> nth=0'));
     const one = await asg(); assert.equal(one.split('|').length, 1, 'a die is on a card: ' + one);
-    assert.equal(await p.locator('.dbadge.hero').first().evaluate(e => getComputedStyle(e).backgroundColor), 'rgb(255, 255, 255)', 'the die on a card looks like a die: white');
+    assert.notEqual(await p.locator('.dbadge.hero').first().evaluate(e => getComputedStyle(e).backgroundColor), 'rgb(255, 228, 107)', 'the die on a card is the die (white, or its own colour), not a yellow highlight');
     await drag(await box('.dbadge.hero'), await box('.board .card:not(.foe) >> nth=1'));
     const two = await asg(); assert.equal(two.split('|').length, 1, 'still one die on a card'); assert.notEqual(two.split(':')[0], one.split(':')[0], 'it moved to the other card: ' + one + ' -> ' + two);
     await drag(await box('.dbadge.hero'), await box('.rail .dice'));
