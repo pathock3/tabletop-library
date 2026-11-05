@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+- **Pokémon Roll! — shinies are tougher:** a shiny card has one more health than the same card that is not.
+
+- **Pokémon Roll! — arrows say what they mean, splits are yours, gym hands, and where cards go:** a move's arrows now read "◀ and ▲ and ▶" (all of them) or "◀ or ▲ or ▶" (you pick one); with "split" you tap cards to share the points out yourself (Jolteon's 4 attack, healing split between cards); and the game never asks about a heal when only one card is hurt. Against a gym leader their hand shows as card backs with a count, and each card they play is drawn from it like a deck. A beaten leader's cards go back to the places they came from, shuffled into the draw pile (the legendary you win from Lance is no longer also put back in the wild).
+
 - **Pokémon Roll! — a reroll locks in what you already placed, and weak says what it does:** once you reroll, the dice you had already given out stay on their cards (you only place the rerolled ones, after seeing them). The weakness strip now reads "weak: 💧 Water ×2" (the card takes double damage from that type), and the help says so.
 
 - **Faster updates on the iPad:** the site now tells browsers and home-screen apps to check for a new version every time, so force-quitting and reopening the app shows the latest deploy instead of an old copy.

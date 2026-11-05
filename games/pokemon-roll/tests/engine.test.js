@@ -493,3 +493,33 @@ test('rules: after a reroll the dice you had already given out are locked in; on
   assert.ok(E.apply(s, { t: 'assign', side: 0, uid: h1.uid, die: 1 }).ok); assert.ok(E.apply(s, { t: 'assign', side: 0, uid: h2.uid, die: 2 }).ok, 'the rerolled dice go to the cards still waiting');
   assert.ok(E.apply(s, { t: 'unassign', side: 0, uid: h1.uid }).ok, 'and can still be moved around among themselves');
 });
+test('decisions: "split" asks you how many points each target gets; a heal only asks when more than one card is hurt', (tc) => {
+  E.faceOrder('top'); tc.after(() => E.faceOrder('sheet'));
+  const jt = Object.values(C).find(c => /split/.test(c.moves.join('|').replace(/over/g, 'split')) && /over/.test(c.moves[5] || '') && /a/.test(c.moves[5])); assert.ok(jt, 'a card whose best move is an attack that is shared out');
+  const c = craft([jt.id, '1.1', '1.1'], ['10', '10', '10']); const { s, b } = c; b.units.forEach(u => { u.hp = u.max = 30; });
+  const atk = c.b.units[0]; b.dice = [[6, 1, 1], [1, 1, 1]]; b.asg = [{ [atk.uid]: { dice: [0], tgt: null }, [b.units[1].uid]: { dice: [1], tgt: null }, [b.units[2].uid]: { dice: [2], tgt: null } }, {}]; b.gmReady = true;
+  assert.ok(E.apply(s, { t: 'go2' }).ok); let guard = 0; while (b.ask && b.ask.kind !== 'alloc' && guard++ < 6) E.apply(s, { t: 'choose', tgt: E.autoChoice(b) });
+  assert.equal(b.ask && b.ask.kind, 'alloc', 'asked to share the points out'); const n = b.ask.n, first = b.ask.opts[0][0];
+  for (let i = 0; i < n; i++) assert.ok(E.apply(s, { t: 'alloc', tgt: first }).ok); assert.ok(!b.ask || b.ask.kind !== 'alloc', 'all points given out');
+  const dmg = evs(b, 'dmg').filter(e => e.u === first && e.by === atk.uid).reduce((t, e) => t + e.n, 0); assert.ok(dmg >= n, 'all of it went where you put it');
+  const h = craft(['25.3', '1.2'], ['10', '10']); const pk = h.b.units[0]; h.b.units[0].hp = 2; h.b.units[1].hp = h.b.units[1].max;       // Pikachu heals itself or a neighbour; only it is hurt
+  h.b.dice = [[4, 1], [1, 1]]; h.b.asg = [{ [pk.uid]: { dice: [0], tgt: null }, [h.b.units[1].uid]: { dice: [1], tgt: null } }, {}]; h.b.gmReady = true; assert.ok(E.apply(h.s, { t: 'go2' }).ok);
+  assert.ok(!h.b.ask || h.b.ask.k !== 'h', 'no question when only one card could be healed'); assert.ok(pk.hp > 2, 'it healed the one that was hurt');
+});
+test('draw pile: a beaten gym leader\'s cards go back to the places they came from, shuffled into the draw pile; the legendary you win does not also go back', () => {
+  const s = E.newGame({ seed: 9, starter: 'charmander' }); s.phase = 'battle'; const team = s.bosses.B1.slice(), before = {}; D.locations.forEach(l => { before[l.id] = s.decks[l.id].length; });
+  const b = T.startBattle(s, 'boss', 'B1', [{ id: '4.2', sh: 0 }, { id: '1.1', sh: 0 }], team.map(i => ({ id: i.id, sh: i.sh }))); b.hand = [[], []];
+  b.units.filter(u => u.side === 1).forEach(u => { u.ko = true; u.hp = 0; }); b.cols = [[b.units[0].uid, null], [b.units[1].uid, null]]; b.stage = 'resolved'; b.out = 'hero';
+  assert.ok(E.apply(s, { t: 'next' }).ok);
+  team.forEach(i => { const loc = C[i.id].loc; assert.ok(s.decks[loc].includes(i.id), C[i.id].name + ' is back in the draw pile of its place'); assert.ok(!s.discard[loc].includes(i.id), 'not in the discard pile'); });
+  const lance = E.newGame({ seed: 10, starter: 'charmander' }); const lg = lance.bosses.B7[lance.bosses.B7.length - 1].id; lance.phase = 'battle';
+  const lb = T.startBattle(lance, 'boss', 'B7', [{ id: '4.2', sh: 0 }], lance.bosses.B7.map(i => ({ id: i.id, sh: i.sh }))); lb.hand = [[], []]; lb.units.filter(u => u.side === 1).forEach(u => { u.ko = true; u.hp = 0; });
+  lb.cols = [[lb.units[0].uid, null]]; lb.stage = 'resolved'; lb.out = 'hero'; assert.ok(E.apply(lance, { t: 'next' }).ok);
+  assert.ok(!lance.decks[C[lg].loc].includes(lg) && !lance.discard[C[lg].loc].includes(lg), 'Lance\'s legendary is yours, not also back in the wild'); assert.equal(lance.res.legend.id, lg);
+});
+test('shiny: a shiny card has one more health than the same card that is not', () => {
+  const c = craft(['4.1', '4.1'], ['10']); const s2 = E.newGame({ seed: 3, starter: 'charmander' }); s2.phase = 'battle';
+  const b = T.startBattle(s2, 'loc', 'L1', [{ id: '4.1', sh: 1 }, { id: '4.1', sh: 0 }], [{ id: '10', sh: 0 }]);
+  const [shiny, plain] = b.units; assert.equal(shiny.max, plain.max + D.rules.shinyHp); assert.equal(shiny.hp, shiny.max); assert.equal(D.rules.shinyHp, 1);
+  const n = E.newGame({ seed: 4, starter: 'bulbasaur' }); n.phase = 'battle'; const nb = T.startBattle(n, 'loc', 'L1', [{ id: '2.4', sh: 1 }], [{ id: '10', sh: 0 }]); assert.equal(nb.units[0].max, C['2.4'].hp + 1);
+});

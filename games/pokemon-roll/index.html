@@ -323,6 +323,7 @@ const GAME_DATA = {
   version: 2,
   library: { name: 'Tabletop Library', href: '../../index.html' },
   rules: {
+    shinyHp: 1,                 // a shiny card has this much more health than the same card that is not
     shinyChance: 0.10,          // each card is rolled once, before anything is dealt, and keeps its form for the whole game (a partner keeps its form through every level and evolution)
     legendaryDice: 2, legendarySum: 9, legendaryFromSlots: 2,   // roll two dice at the start of a turn once you have a second die: a 9 spots a legendary
     startSlots: 1, startLevel: 2,   // you begin with your partner at level 2 (the level the first rival fight gave in the paper game)
@@ -806,10 +807,10 @@ const Engine = (() => {
   const ev = (b, e) => { b.events.push(e); return e; };
   function mkUnit(b, i, side) {
     const c = CARDS[i.id];
-    const u = { uid: b.nextUid++, id: i.id, sh: i.sh ? 1 : 0, side, hp: c.hp, max: c.hp, ko: false, skip: false, skipNext: false, hurt: 0, lastHurt: 0, blk: 0, lastBlk: 0, hits: 0, dodgeUsed: false, dodgedRound: false, survUsed: false, onceUsed: false, hold: 0, lastTweak: -9 };
+    const u = { uid: b.nextUid++, id: i.id, sh: i.sh ? 1 : 0, side, hp: c.hp + (i.sh ? R.shinyHp : 0), max: c.hp + (i.sh ? R.shinyHp : 0), ko: false, skip: false, skipNext: false, hurt: 0, lastHurt: 0, blk: 0, lastBlk: 0, hits: 0, dodgeUsed: false, dodgedRound: false, survUsed: false, onceUsed: false, hold: 0, lastTweak: -9 };
     b.units.push(u); return u;
   }
-  const nidoMax = b => b.units.forEach(u => { const t = tag(u, 'nido'); if (t && t.k === 'hp') { const n = b.units.filter(x => x.side === u.side && x !== u && /^Nido/.test(CARDS[x.id].name)).length; u.max = CARDS[u.id].hp + n; u.hp = u.max; } });
+  const nidoMax = b => b.units.forEach(u => { const t = tag(u, 'nido'); if (t && t.k === 'hp') { const n = b.units.filter(x => x.side === u.side && x !== u && /^Nido/.test(CARDS[x.id].name)).length; u.max = CARDS[u.id].hp + (u.sh ? R.shinyHp : 0) + n; u.hp = u.max; } });
   function addHand(b, side, i) { const hid = b.nextH++; b.hcards[hid] = { hid, id: i.id, sh: i.sh ? 1 : 0 }; b.hand[side].push(hid); return hid; }
   // the cards in a side's hand (a hand card has a `hid`; in the old, eager form a hand card is a unit with a `uid`)
   const handOf = (b, side) => b.hand[side].map(h => b.hcards ? Object.assign({ hp: CARDS[b.hcards[h].id].hp, max: CARDS[b.hcards[h].id].hp }, b.hcards[h]) : U(b, h));
@@ -1200,7 +1201,7 @@ const Engine = (() => {
   function execEffect(s, b, u, e, hint) {
     if (e.k === 'h') {
       const amt = amountOf(b, u, e), T = pickTargets(b, u, e, amt, hint);
-      if (e.spec.spread) { const g = spreadOut(amt, T, t => t.u.hp <= 0 ? 0 : t.u.max - t.u.hp); T.forEach((t, j) => healUnit(b, t.u, g[j], u)); }
+      if (e.spec.spread) { const g = b.curAlloc ? T.map(t => b.curAlloc[t.u.uid] || 0) : spreadOut(amt, T, t => t.u.hp <= 0 ? 0 : t.u.max - t.u.hp); T.forEach((t, j) => healUnit(b, t.u, g[j], u)); }
       else T.forEach(t => healUnit(b, t.u, amt, u));
     } else if (e.k === 'b') {
       const cands = blockCands(b, u, e), pick = hint != null ? cands.find(x => x.u.uid === hint) : bestBlock(b, u, e, cands);
@@ -1212,7 +1213,7 @@ const Engine = (() => {
       const T = pickTargets(b, u, e, amt, hint);
       if (!T.length) { ev(b, { t: 'miss', u: u.uid }); if (has(u, 'missSelf')) dealDamage(s, b, u, amt, u, true); return; }
       ev(b, { t: 'strike', u: u.uid, to: T.map(t => t.u.uid) });
-      if (e.spec.spread) { const g = spreadOut(amt, T, t => Math.ceil(t.u.hp / wm(b, u, t.u))); T.forEach((t, j) => { if (g[j] > 0) hit(s, b, u, t.u, g[j], t.off); }); }
+      if (e.spec.spread) { const g = b.curAlloc ? T.map(t => b.curAlloc[t.u.uid] || 0) : spreadOut(amt, T, t => Math.ceil(t.u.hp / wm(b, u, t.u))); T.forEach((t, j) => { if (g[j] > 0) hit(s, b, u, t.u, g[j], t.off); }); }
       else T.forEach(t => hit(s, b, u, t.u, amt, t.off));
       after(s, b, u, T, amt);
     } else if (e.k === 'd') { ev(b, { t: 'strike', u: u.uid, to: [u.uid] }); dealDamage(s, b, u, e.n, u, true); }
@@ -1241,7 +1242,8 @@ const Engine = (() => {
     if (u.side !== 0) return null;
     if (e.k === 'b') { const c = blockCands(b, u, e); return c.length < 2 ? null : c.map(x => [x.u.uid]); }
     if (e.k !== 'a' && e.k !== 'h') return null;
-    const cand = candidates(b, u, e); if (cand.length < 2 || (e.spec.all && !spreadsDragon(b, u, e))) return null;
+    let cand = candidates(b, u, e); if (e.k === 'h') cand = cand.filter(c => c.some(t => t.u.hp > 0 && t.u.hp < t.u.max));         // only cards that are hurt can be healed: if one choice is left, there is nothing to ask
+    if (cand.length < 2 || (e.spec.all && !spreadsDragon(b, u, e))) return null;
     return cand.map(c => c.map(t => t.u.uid));
   }
   function setDitto(b, act, src) {
@@ -1275,18 +1277,26 @@ const Engine = (() => {
       if (!mine || (e.bonus && !r.main)) { r.ei++; continue; }
       const key = act.uid + ':' + r.ei, chosen = r.ch[key];
       if (chosen == null) { const opts = choiceOf(b, u, e); if (opts) { b.ask = { uid: u.uid, ei: r.ei, k: e.k, opts }; b.stage = 'resolving'; return; } }
+      if ((e.k === 'a' || e.k === 'h') && e.spec.spread && u.side === 0) {         // "split": you decide how many points each possible target gets
+        const ak = act.uid + ':' + r.ei;
+        if (r.alloc[ak] === undefined) {
+          const amt = amountOf(b, u, e), T = pickTargets(b, u, e, amt, chosen == null ? null : chosen).filter(t => e.k === 'a' ? t.u.hp > 0 : (t.u.hp > 0 && t.u.hp < t.u.max));
+          if (T.length >= 2 && amt > 0) { b.ask = { kind: 'alloc', k: e.k, uid: u.uid, key: ak, n: amt, opts: T.map(t => [t.u.uid]), given: {} }; b.stage = 'resolving'; return; }
+          r.alloc[ak] = null;                                                         // only one card could take any: nothing to ask
+        }
+      }
       if (e.k === 'a') {                                                          // does one of the player's cards get to decide something about this attack?
         const dk = act.uid + ':' + r.ei, dm = (r.dec[dk] = r.dec[dk] || {}), amt = amountOf(b, u, e);
         const T = pickTargets(b, u, e, amt, chosen == null ? null : chosen);
         for (const t of T) { const x = t.u; if (amt > 0 && x.side === 0 && dm[x.uid] == null && dodgeAvail(b, x, false) && !tags(x).some(g => g.t === 'immune' && g.types.indexOf(typeOf(u)) >= 0)) { b.ask = { kind: 'yn', what: 'dodge', uid: x.uid, by: u.uid, key: dk, n: amt }; b.stage = 'resolving'; return; } }
       }
-      b.curDec = r.dec[act.uid + ':' + r.ei] || null; execEffect(s, b, u, e, chosen == null ? null : chosen); b.curDec = null; r.main = true; r.ei++;
+      b.curDec = r.dec[act.uid + ':' + r.ei] || null; b.curAlloc = r.alloc[act.uid + ':' + r.ei] || null; execEffect(s, b, u, e, chosen == null ? null : chosen); b.curDec = null; b.curAlloc = null; r.main = true; r.ei++;
     }
     finishRound(s);
   }
   // for the computer playing the player's side: the choice the game would make
   function autoChoice(b) {
-    if (b.ask && b.ask.kind === 'yn') return null;
+    if (b.ask && (b.ask.kind === 'yn' || b.ask.kind === 'alloc')) return null;
     if (b.ask.what === 'ditto') { const act = b.res.acts.find(x => x.uid === b.ask.uid); return dittoBest(b, U(b, act.uid), act).uid; }
     const r = b.res, act = r.acts[r.i], u = U(b, act.uid), e = effsFor(b, u, act)[r.ei];
     if (e.k === 'b') return bestBlock(b, u, e, blockCands(b, u, e)).u.uid;
@@ -1296,8 +1306,20 @@ const Engine = (() => {
     const b = s.battle; if (b.stage !== 'resolving' || !b.ask || b.ask.kind !== 'yn') return 'nothing to decide';
     (b.res.dec[b.ask.key] = b.res.dec[b.ask.key] || {})[b.ask.uid] = !!a.yes; b.ask = null; b.stage = 'resolving'; advance(s); return null;
   }
+  function doAlloc(s, a) {
+    const b = s.battle, k = b.ask; if (b.stage !== 'resolving' || !k || k.kind !== 'alloc') return 'nothing to share out';
+    const tg = k.opts.map(o => U(b, o[0])), need = x => k.k === 'h' ? x.max - x.hp : 1e9;
+    if (a.auto) { const g = spreadOut(k.n, tg.map(x => ({ u: x })), t => k.k === 'h' ? t.u.max - t.u.hp : Math.ceil(t.u.hp / 2)); tg.forEach((x, j) => { k.given[x.uid] = g[j]; }); }
+    else {
+      if (!k.opts.some(o => o[0] === a.tgt)) return 'tap one of the highlighted cards'; const x = U(b, a.tgt);
+      if ((k.given[x.uid] || 0) >= need(x)) return CARDS[x.id].name + ' is already full'; k.given[x.uid] = (k.given[x.uid] || 0) + 1;
+    }
+    const total = Object.values(k.given).reduce((t, v) => t + v, 0), room = tg.reduce((t, x) => t + Math.max(0, need(x) - (k.given[x.uid] || 0)), 0);
+    if (total >= k.n || room <= 0) { b.res.alloc[k.key] = k.given; b.ask = null; b.stage = 'resolving'; advance(s); }
+    return null;
+  }
   function doChoose(s, a) {
-    const b = s.battle; if (b.stage !== 'resolving' || !b.ask || b.ask.kind === 'yn') return 'nothing to choose';
+    const b = s.battle; if (b.stage !== 'resolving' || !b.ask || b.ask.kind === 'yn' || b.ask.kind === 'alloc') return 'nothing to choose';
     if (!b.ask.opts.some(o => o.indexOf(a.tgt) >= 0)) return 'choose one of the highlighted cards';
     if (b.ask.what === 'ditto') { const act = b.res.acts.find(x => x.uid === b.ask.uid); setDitto(b, act, a.tgt); b.ask = null; b.stage = 'resolving'; advance(s); return null; }
     b.res.ch[b.ask.uid + ':' + b.ask.ei] = a.tgt; b.ask = null; b.stage = 'resolving'; advance(s); return null;
@@ -1376,7 +1398,7 @@ const Engine = (() => {
     acts.forEach(a => ev(b, { t: 'move', u: a.u.uid, f: a.face, txt: a.m ? (a.m.sp ? 'Special' : a.m.str) : (a.u.skip ? 'loses a round' : '—'), sp: !!(a.m && a.m.sp) }));
     acts.forEach(a => { const t = tag(a.u, 'tireOn'); if (t && a.m && a.face && (a.face === t.a || a.face === t.b)) a.u.skipNext = true; });
     b.ask = null; b.dittoSrc = {};
-    b.res = { phase: 'heal', i: 0, ei: 0, main: false, ch: {}, dec: {}, acts: acts.map(a => {
+    b.res = { phase: 'heal', i: 0, ei: 0, main: false, ch: {}, dec: {}, alloc: {}, acts: acts.map(a => {
       const dice = (b.asg[a.u.side][a.u.uid] || { dice: [] }).dice.map(i => b.dice[a.u.side][i]);
       let ci = 0; if (a.m && a.m.mv && !a.m.sp) { const c = bestClause(b, a.u, a.m.mv, null); ci = Math.max(0, a.m.mv.clauses.indexOf(c && c.clause)); }
       return { uid: a.u.uid, dice, ci, sp: !!(a.m && a.m.sp), face: a.face };
@@ -1440,7 +1462,8 @@ const Engine = (() => {
       s.done[nd.id] = true; s.bossTurns[nd.id] = s.turn;
       if (nd.die && !nd.finale) { const gain = nd.die.filter(c => (s.cdice = s.cdice || []).indexOf(c) < 0); gain.forEach(c => s.cdice.push(c)); if (gain.length) s.res.dieGain = gain; }          // you keep the leader's colour          // how many turns it took to get this far
       if (nd.kind === 'boss') {
-        const team = s.bosses[nd.id]; team.forEach(i => s.discard[CARDS[i.id].loc || 1].push(i.id));
+        const team = s.bosses[nd.id], back = team.filter((i, k) => !(nd.legendary && k === team.length - 1)), locs = new Set();         // the beaten team goes back where it came from, shuffled into that place's draw pile (the legendary you win is not among them)
+        back.forEach(i => { const loc = CARDS[i.id].loc || 1; s.decks[loc].push(i.id); locs.add(loc); }); locs.forEach(loc => { s.decks[loc] = shuffle(s, s.decks[loc]); });
         s.res.cleared = team;
         if (nd.legendary) { s.res.legend = team[team.length - 1]; }
       }
@@ -1511,6 +1534,7 @@ const Engine = (() => {
       }
       case 'choose': return doChoose(s, a);
       case 'decide': return doDecide(s, a);
+      case 'alloc': return doAlloc(s, a);
       case 'move': return doMove(s, a);
       case 'swap': return doSwap(s, a);
       case 'haunt': return doHaunt(s, a);
@@ -1699,7 +1723,7 @@ const Bots = (() => {
       }
       return { t: 'go2' };
     }
-    if (b.stage === 'resolving') return b.ask ? (b.ask.kind === 'yn' ? { t: 'decide', yes: true } : { t: 'choose', tgt: E.autoChoice(b) }) : null;
+    if (b.stage === 'resolving') return b.ask ? (b.ask.kind === 'yn' ? { t: 'decide', yes: true } : b.ask.kind === 'alloc' ? { t: 'alloc', auto: true } : { t: 'choose', tgt: E.autoChoice(b) }) : null;
     if (b.stage === 'resolved') { const k = E.hauntAsk(b); return k ? { t: 'haunt', uid: k.opts[0] } : { t: 'next' }; }
     return null;
   }
@@ -1749,7 +1773,13 @@ const Bots = (() => {
   const el = t => D.elements[t] || D.elements.Normal;
   const WORD = { a: 'Attack', b: 'Block', h: 'Heal', d: 'Damage 💥' }, ARROWD = '▼ ', KLS = { a: 'mA', b: 'mB', h: 'mH', d: 'mD' };
   // "3a <^ or >" -> ⚔3 ◀▲ or ▶   (a short, readable move)
-  const arrows = s => s.replace(/\bover\b/g, 'split').replace(/</g, '◀').replace(/>/g, '▶').replace(/\^/g, '▲').replace(/\bv\b/g, '▼').replace(/\s+/g, ' ').trim();
+  // the arrows, explicit: with an "or" you pick ONE of them (◀ or ▲ or ▶); without it the move reaches ALL of them (◀ and ▲ and ▶); "split" means you share the points out between them
+  const GL = { '<': '◀', '>': '▶', '^': '▲', v: '▼' };
+  const arrows = s => {
+    const t = s.replace(/\bover\b/g, '').trim(), glyphs = (t.match(/<+|>+|\^|v/g) || []).map(g => GL[g[0]].repeat(g.length));
+    const sep = /and\/or/.test(t) ? ' and/or ' : /\bor\b/.test(t) ? ' or ' : ' and ';
+    return (/\bover\b/.test(s) ? 'split ' : '') + glyphs.join(sep);
+  };
   const short = str => {
     if (!str) return '';
     return str.replace(/(\+?)(\d+)([abhd])(\s+(?:over\s+)?[<>^v][<>^v ]*(?:(?:or|and\/or|and)\s*[<>^v ]*)*)?/g, (m, plus, n, k, sp) => {
@@ -1819,11 +1849,11 @@ const Bots = (() => {
 
   // ---------------------------------------------------------------- a location is a deck of cards: this is its back
   const DECKC = { green: ['#0c4a26', '#2f9d55', '#c4f3cf'], brown: ['#46291a', '#a9693a', '#f4d9b4'], yellow: ['#6e4f00', '#eeb11a', '#fff2ae'], blue: ['#0a2c66', '#2d7de0', '#c6e4ff'], purple: ['#38106b', '#8a4fd0', '#e6d2ff'], red: ['#650d0d', '#df452d', '#ffd0c0'] };
-  const deckBack = loc => {
-    const L = D.locations.find(x => x.id === loc), [dk, md, lt] = DECKC[L.color] || DECKC.blue, k = 'db' + loc, gold = '#ffd96a';
+  const backFrame = (k, nm, scene, [dk, md, lt]) => {
+    const gold = '#ffd96a';
     const dia = [[24, 26], [176, 26], [24, 254], [176, 254]].map(([x, y]) => `<path d="M${x} ${y - 9}L${x + 7} ${y} ${x} ${y + 9} ${x - 7} ${y}Z" fill="${gold}" stroke="#6b4a00" stroke-width="1.5"/>`).join('');
-    const nm = L.name, tl = Math.min(122, nm.length * 9.4);
-    return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 280" preserveAspectRatio="none" role="img" aria-label="${esc(nm)} deck"><defs>
+    const tl = Math.min(122, nm.length * 9.4);
+    return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 280" preserveAspectRatio="none" role="img" aria-label="${esc(nm)}"><defs>
       <linearGradient id="${k}g" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="${md}"/><stop offset="1" stop-color="${dk}"/></linearGradient>
       <pattern id="${k}p" width="18" height="18" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><path d="M0 9H18M9 0V18" stroke="${lt}" stroke-opacity=".16" stroke-width="1.2"/><circle cx="9" cy="9" r="1.7" fill="${lt}" fill-opacity=".34"/></pattern>
       <clipPath id="${k}c"><path d="M30 192V96a70 70 0 0 1 140 0V192Z"/></clipPath><clipPath id="${k}r"><rect x="2" y="2" width="196" height="276" rx="16"/></clipPath>
@@ -1833,18 +1863,23 @@ const Bots = (() => {
       <rect x="6" y="6" width="188" height="268" rx="13" fill="none" stroke="${gold}" stroke-width="3"/><rect x="14" y="14" width="172" height="252" rx="9" fill="none" stroke="${gold}" stroke-opacity=".85" stroke-width="1.5"/>
       ${dia}
       <path d="M25 196V96a75 75 0 0 1 150 0V196Z" fill="#14110f"/><path d="M30 192V96a70 70 0 0 1 140 0V192Z" fill="${lt}"/>
-      <g clip-path="url(#${k}c)"><svg x="30" y="26" width="140" height="166" viewBox="12 0 136 120" preserveAspectRatio="xMidYMid slice">${SCENE[loc]()}</svg><rect x="30" y="26" width="140" height="166" fill="url(#${k}v)"/></g>
+      <g clip-path="url(#${k}c)"><svg x="30" y="26" width="140" height="166" viewBox="12 0 136 120" preserveAspectRatio="xMidYMid slice">${scene}</svg><rect x="30" y="26" width="140" height="166" fill="url(#${k}v)"/></g>
       <path d="M30 192V96a70 70 0 0 1 140 0V192Z" fill="none" stroke="${gold}" stroke-width="3"/>
       <path d="M18 208h164l-10 16 10 16H18l10-16Z" fill="#14110f"/><path d="M22 210h156l-9 14 9 14H22l9-14Z" fill="${dk}" stroke="${gold}" stroke-width="2.5"/>
       <text x="100" y="230" text-anchor="middle" font-family="Georgia,'Times New Roman',serif" font-weight="900" font-size="15" fill="#fff6d6" textLength="${tl}" lengthAdjust="spacingAndGlyphs">${esc(nm)}</text>
       <g fill="${gold}" stroke="#6b4a00" stroke-width="1">${[80, 100, 120].map((x, i) => `<path d="M${x} ${i === 1 ? 247 : 250}l2.4 5 5.6.8-4 4 1 5.6-5-2.7-5 2.7 1-5.6-4-4 5.6-.8z"/>`).join('')}</g>
       <path d="M-30 0L90 0 -10 280-130 280Z" transform="translate(50 0)" fill="#fff" fill-opacity=".09" clip-path="url(#${k}r)"/></svg>`;
   };
+  const deckBack = loc => { const L = D.locations.find(x => x.id === loc); return backFrame('db' + loc, L.name, SCENE[loc](), DECKC[L.color] || DECKC.blue); };
+  const mixHex = (h, t, k) => { const a = [1, 3, 5].map(i => parseInt(h.slice(i, i + 2), 16)), b = [1, 3, 5].map(i => parseInt(t.slice(i, i + 2), 16)); return '#' + a.map((x, i) => Math.round(x + (b[i] - x) * k).toString(16).padStart(2, '0')).join(''); };
+  const gymPal = n => { const c = n.color || '#78909c'; return [mixHex(c, '#000000', .55), c, mixHex(c, '#ffffff', .78)]; };
+  const gymBack = n => backFrame('gb' + n.id, n.name + "'s team", gymScene(n), gymPal(n));
+  const uriOf = svg => 'url("data:image/svg+xml;utf8,' + encodeURIComponent(svg).replace(/"/g, '%22') + '")';
   const deckUri = loc => 'url("data:image/svg+xml;utf8,' + encodeURIComponent(deckBack(loc)).replace(/"/g, '%22') + '")';
   // the deck as a pile: a few cards stacked under the top one, and how many are left
   const deckPile = (loc, o) => {
-    o = o || {}; const n = o.count, layers = n == null ? 3 : Math.max(0, Math.min(3, n - 1)), L = D.locations.find(x => x.id === loc), dk = (DECKC[L.color] || DECKC.blue)[0];
-    return `<div class="pile${o.cls ? ' ' + o.cls : ''}" style="--pw:${o.pw}px">${[3, 2, 1].filter(i => i <= layers).map(i => `<i class="pl${i}" style="background:${dk}"></i>`).join('')}<div class="ptop">${deckBack(loc)}</div>${n != null ? `<span class="pcount">${n}</span>` : ''}</div>`;
+    o = o || {}; const n = o.count, layers = n == null ? 3 : Math.max(0, Math.min(3, n - 1)), L = loc != null ? D.locations.find(x => x.id === loc) : null, dk = o.dk || (L ? (DECKC[L.color] || DECKC.blue)[0] : '#222');
+    return `<div class="pile${o.cls ? ' ' + o.cls : ''}" style="--pw:${o.pw}px">${[3, 2, 1].filter(i => i <= layers).map(i => `<i class="pl${i}" style="background:${dk}"></i>`).join('')}<div class="ptop">${o.svg || deckBack(loc)}</div>${n != null ? `<span class="pcount">${n}</span>` : ''}</div>`;
   };
 
 
@@ -1875,7 +1910,7 @@ const Bots = (() => {
     const cr = c.getBoundingClientRect(), pr = pl.getBoundingClientRect(), dx = pr.left + pr.width / 2 - (cr.left + cr.width / 2), dy = pr.top + pr.height / 2 - (cr.top + cr.height / 2), s = pr.width / cr.width;
     const dur = 560; c.style.zIndex = 40;
     c.animate([{ transform: `translate(${dx}px,${dy}px) scale(${s}) rotate(-10deg)` }, { transform: 'translate(0,0) scale(1.06)', offset: .72 }, { transform: 'none' }], { duration: dur, easing: 'cubic-bezier(.22,.8,.3,1)' }).onfinish = () => { c.style.zIndex = ''; };
-    const bk = document.createElement('div'); bk.className = 'dbackov'; bk.style.backgroundImage = deckUri(E.node(G.battle.node).loc); c.appendChild(bk);
+    const bk = document.createElement('div'); bk.className = 'dbackov'; const nd0 = E.node(G.battle.node); bk.style.backgroundImage = nd0.kind === 'loc' ? deckUri(nd0.loc) : uriOf(gymBack(nd0)); c.appendChild(bk);
     bk.animate([{ opacity: 1 }, { opacity: 1, offset: .45 }, { opacity: 0 }], { duration: dur, fill: 'forwards' }).onfinish = () => bk.remove(); setTimeout(() => bk.remove(), dur + 200);
     pl.animate([{ transform: 'none' }, { transform: 'translate(-3px,-5px) rotate(-2deg)', offset: .3 }, { transform: 'none' }], { duration: 300 });
   }
@@ -1898,7 +1933,7 @@ const Bots = (() => {
       ui.busy = true; render();
       setTimeout(() => {
         const g = B.step(G, set.ai); if (!g) { ui.busy = false; render(); return; }
-        const placed = g.uid; E.apply(G, g); const u = E.U(G.battle, placed); if (u && u.sh) burst(u.uid); if (u && G.battle.kind === 'loc') ui.drawFly = u.uid;
+        const placed = g.uid; E.apply(G, g); const u = E.U(G.battle, placed); if (u && u.sh) burst(u.uid); if (u) ui.drawFly = u.uid;
         save(); ui.busy = false; drive();
       }, 650);
       return;
@@ -2229,6 +2264,7 @@ const Bots = (() => {
     else if (waitRoll) status = '<span class="rollhint">🎲 Tap anywhere to roll</span>';
     else if (assign) { const need = E.living(b, 0).filter(u => !u.skip && !b.asg[0][u.uid]).length; status = (b.sudden ? 'SUDDEN DEATH · ' : '') + (rolling ? 'Rolling…' : ui.die != null ? 'Tap a card to give it that ' + b.dice[0][ui.die] : (E.readyToGo(b, 0) ? 'Ready? Press Resolve!' : 'Drag a die onto a card')); }
     else if (asking && b.ask.kind === 'yn') { status = `<b>${C[E.U(b, b.ask.uid).id].name}</b> is attacked by ${C[E.U(b, b.ask.by).id].name} for ${b.ask.n}. Dodge?`; btns = `<button class="btn big" data-act="decide" data-yes="1">Dodge!</button><button class="btn alt" data-act="decide" data-yes="0">Take it</button>`; }
+    else if (asking && b.ask.kind === 'alloc') { const left = b.ask.n - Object.values(b.ask.given).reduce((t, v) => t + v, 0); status = `Share ${left} ${b.ask.k === 'a' ? 'attack' : 'heal'} point${left === 1 ? '' : 's'} from <b>${C[E.U(b, b.ask.uid).id].name}</b>: tap a card for each` + (Object.keys(b.ask.given).length ? '<br>' + Object.keys(b.ask.given).map(k => `${C[E.U(b, +k).id].name} ${b.ask.given[k]}`).join(' · ') : ''); }
     else if (asking) status = b.ask.what === 'ditto' ? `Tap whose move ${C[E.U(b, b.ask.uid).id].name} copies` : `Tap who ${C[E.U(b, b.ask.uid).id].name} ${b.ask.k === 'a' ? 'attacks' : b.ask.k === 'b' ? 'blocks for' : 'heals'}`;
     else if (p) status = p.bi < 0 ? 'Here is what everyone rolled…' : (p.wait ? '<span class="rollhint capnext">Tap ▶</span>' : '');
     else if (done && E.hauntAsk(b)) { const k = E.hauntAsk(b); status = `<b>${C[E.U(b, k.hid).id].name}</b> can keep an ability — tap one`; btns = k.opts.map(id => `<button class="btn alt" data-act="haunt" data-uid="${id}">Keep ${C[E.U(b, id).id].name}</button>`).join('') + `<button class="btn ghost" data-act="haunt">No thanks</button>`; }
@@ -2239,7 +2275,7 @@ const Bots = (() => {
       btns = `${b.rr[0] > 0 ? `<button class="btn alt" data-act="reroll" ${canRe ? '' : 'disabled'}>🔄 Reroll</button>` : ''}${canFree ? '<button class="btn alt" data-act="rerollfree">🔄 Free reroll</button>' : ''}<button class="btn big" data-act="go" ${!rolling && E.readyToGo(b, 0) && b.gmReady ? '' : 'disabled'}>Resolve</button>`;
     }
     const nodeB = E.node(b.node), pw = Math.max(64, Math.min(96, RW - 70));
-    const pileHtml = placing && nodeB.kind === 'loc' ? `<div class="pilebay" style="--pw:${pw}px">${deckPile(nodeB.loc, { pw, count: E.deckSize(G, nodeB.loc) })}</div>` : '';
+    const pileHtml = placing && nodeB.kind === 'loc' ? `<div class="pilebay" style="--pw:${pw}px">${deckPile(nodeB.loc, { pw, count: E.deckSize(G, nodeB.loc) })}</div>` : placing && nodeB.kind === 'boss' ? `<div class="pilebay" style="--pw:${pw}px">${deckPile(null, { pw, count: b.hand[1].length, svg: gymBack(nodeB), dk: gymPal(nodeB)[0] })}</div>` : '';
     const fight = opt ? '<button class="btn big" data-act="ready">Fight!</button>' : '';
     const railIn = placing ? `<div class="status">${status}</div>${fight}<div class="hrow handrow hcol">${heroTray}</div>${pileHtml}` : `<div class="rmid"><div class="status">${status}</div><div class="dice">${diceHtml}</div></div><div class="acts">${btns}</div>`;
     const dw = RW >= 200 ? 78 : RW >= 150 ? 62 : 46;
@@ -2449,6 +2485,7 @@ const Bots = (() => {
     unit(el) {
       const b = G.battle, u = E.U(b, +el.dataset.uid); if (!u) return;
       if (b.ask && b.ask.kind === 'yn') return;
+      if (b.ask && b.ask.kind === 'alloc') { if (b.ask.opts.some(o => o[0] === u.uid) && act({ t: 'alloc', tgt: u.uid })) { const p = ui.play; if (p && !b.ask) { absorbEvents(); p.waiting = false; nextBeat(); } else if (!p && !b.ask) startPlay(); } return; }
       if (b.ask && (!ui.play || ui.play.waiting)) {                                 // an "or": settled on this card's turn
         if (b.ask.opts.some(o => o.indexOf(u.uid) >= 0) && act({ t: 'choose', tgt: u.uid })) { const p = ui.play; if (p) { absorbEvents(); p.waiting = false; nextBeat(); } else startPlay(); }
         return;

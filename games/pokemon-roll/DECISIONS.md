@@ -102,3 +102,6 @@ Every ability on the sheet is read from its text by the table in the data block.
 - *(owner)* The sheet's move 1 is rolled on a **6**, move 2 on a 5, move 3 on a 4 and so on. A move that only hurts the card itself is always at the bottom: the worst on a 1, the second worst on a 2; the numbers between are blank. (Pikachu: 3 Attack on 6, 2 Attack on 5, 2 Heal on 4, 2 Attack on 3, nothing on 2, 1 Damage on 1.) Cards are shown 6 at the top, 1 at the bottom. A few backwards cards (1 best, 6 worst) can come later.
 - `RULING:` A move that both attacks and hurts the card (Voltorb's "4 Attack, 4 Damage") is an ordinary move, not a self-damage move, so it keeps its place from the top. `rules.moveOrder` in the data block switches back to the old order (`'sheet'`) for tests and experiments.
 - *(owner)* **Special moves keep their dice numbers** (Fire 6s, Grass 5s, Ground 4s, Electric 3s, Water 2s) for now.
+
+## Shinies (owner, later: "make shinies have one more health than usual")
+- *(owner)* A shiny card has **+1 health** (`rules.shinyHp`), on top of looking different and sparkling when it is played. This replaces "purely cosmetic".
