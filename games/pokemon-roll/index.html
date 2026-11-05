@@ -2577,12 +2577,17 @@ const Bots = (() => {
   function dexSheet() {
     const by = {}; Object.values(C).forEach(c => { if (c.dex && (!by[c.dex] || c.level < by[c.dex].level)) by[c.dex] = c; });
     const nums = Object.keys(by).map(Number).sort((a, b) => a - b), seen = dexSeen(), got = nums.filter(d => seen[d]).length;
-    const cell = d => { const k = !!seen[d], p = String(d).padStart(3, '0'); return `<div class="dxc${k ? ' got' : ''}">${k && D.art[d] ? `<img class="pix" src="data:image/png;base64,${D.art[d].n}" alt="">` : '<div class="dxq">?</div>'}<small>No. ${p}</small><b>${k ? esc(by[d].name) : '???'}</b></div>`; };
+    const cell = d => { const k = !!seen[d], p = String(d).padStart(3, '0'); return `<div class="dxc${k ? ' got' : ''}"${k ? ` data-act="dexcard" data-dex="${d}"` : ''}>${k && D.art[d] ? `<img class="pix" src="data:image/png;base64,${D.art[d].n}" alt="">` : '<div class="dxq">?</div>'}<small>No. ${p}</small><b>${k ? esc(by[d].name) : '???'}</b></div>`; };
     return `<div class="sheet" data-act="closedex"><div class="box hbox" data-stop="1" style="max-width:760px;max-height:92vh;overflow:auto"><h2>Pokédex</h2><p class="hcap" style="font-size:18px">${got} of ${nums.length} seen. A Pokémon fills in the first time you meet it, in any game.</p><div class="dxgrid">${nums.map(cell).join('')}</div><button class="btn" data-act="closedex">Done</button></div></div>`;
   }
   function hofRuns() {
     const runs = hofList().slice().reverse(); if (!runs.length) return '<p class="hcap" style="font-size:18px">Beat Lance to put your team here.</p>';
     return runs.map(r => `<div class="hofr"><div class="hofh"><b>${new Date(r.t).toLocaleDateString()}</b> · <b>${r.turns}</b> turns · ${r.size === 'long' ? 'Extra Long' : 'Regular'}${r.ai ? ' · ' + esc(({ easy: 'Easy', normal: 'Normal', master: 'Master' })[r.ai] || r.ai) : ''}</div><div class="hofteam">${(r.team || []).map(m => C[m.id] ? `<img class="pix" src="${art(m.id, m.sh)}" alt="${esc(C[m.id].name)}" title="${esc(C[m.id].name)}">` : '').join('')}</div></div>`).join('');
+  }
+  function dexCardSheet() {
+    const cs = Object.values(C).filter(c => c.dex === ui.dexCard).sort((a, b) => a.level - b.level), c = cs[0]; if (!c) return '';
+    const cw = Math.max(150, Math.min(400, innerWidth - 60, Math.floor((viewH() - 80) / 1.9)));
+    return `<div class="sheet" style="z-index:70" data-act="closedexcard">${card({ id: c.id, sh: 0 }, { cw })}</div>`;
   }
   function recordsSheet() {
     const sz = ui.recSize || set.size, rec = scores()[sz] || {}, bosses = D.nodes.filter(n => n.kind === 'boss');
@@ -2689,6 +2694,7 @@ const Bots = (() => {
     if (ui.chip && ui.screen === 'play' && G && G.phase === 'map') h += chipSheet();
     if (ui.records) h += recordsSheet();
     if (ui.dex) h += dexSheet();
+    if (ui.dex && ui.dexCard) h += dexCardSheet();
     if (ui.more) h += moreSheet();
     if (ui.menu) h += menuSheet();
     if (ui.settings) h += settingsSheet();
@@ -2734,7 +2740,7 @@ const Bots = (() => {
     tips(el) { set.tips = el && el.dataset.v ? el.dataset.v === 'true' : !set.tips; lsSet(SET, set); render(); },
     settings() { ui.settings = true; ui.menu = false; render(); }, closesettings() { ui.settings = false; render(); },
     starter(el) { G = E.newGame({ starter: el.dataset.k, size: set.size, ai: set.ai }); ui.screen = 'play'; resetSel(); save(); render(); },
-    dex() { ui.dex = true; ui.more = false; ui.menu = false; render(); }, closedex() { ui.dex = false; render(); },
+    dex() { ui.dex = true; ui.more = false; ui.menu = false; render(); }, closedex() { ui.dex = false; ui.dexCard = null; render(); }, dexcard(el) { ui.dexCard = +el.dataset.dex; render(); }, closedexcard() { ui.dexCard = null; render(); },
     records() { ui.records = true; ui.more = false; ui.menu = false; render(); }, closerec() { ui.records = false; render(); }, recsize(el) { ui.recSize = el.dataset.v; render(); },
     eye(el) { ui.eye = el.dataset.id; render(); }, closeeye() { ui.eye = null; render(); }, chipinfo() { ui.chip = true; render(); }, closechip() { ui.chip = false; render(); },
     zoom(el) { ui.zoom = +el.dataset.uid; render(); }, closezoom() { ui.zoom = null; render(); },
