@@ -33,10 +33,10 @@ test('ui: menu, new game, map, and a whole first fight through real taps, with n
   const errs = []; p.on('pageerror', e => errs.push(e.message)); p.on('console', m => { if (m.type() === 'error') errs.push(m.text()); });
   try {
     await p.goto(URL);
-    assert.match(await p.innerText('.logo'), /ROLL!/); await p.waitForSelector('.arena .toy', { timeout: 4000 }); assert.equal(await p.locator('.arena .toy.stand img').count(), 5, 'the five starters are on the toy table'); assert.equal(await p.locator('.arena .toy.cube').count(), 5, 'ROLL! is five blocks'); assert.equal(await p.locator('[data-act=help]').count(), 0, 'help lives under More'); assert.ok(await p.locator('[data-act=more]').count() === 1, 'a More button');
-    await p.click('[data-act=new]'); assert.equal(await p.locator('[data-act=starter]').count(), 5);
+    assert.match(await p.innerText('.logo'), /ROLL!/); assert.equal(await p.locator('.mm2 .mapin .place').count(), 16, 'the map is dealt out right on the menu'); assert.equal(await p.locator('.arena').count(), 0, 'no toy table'); assert.equal(await p.locator('[data-act=help]').count(), 0, 'help lives under More'); assert.ok(await p.locator('[data-act=more]').count() === 1, 'a More button');
+    await p.click('[data-act=new]'); assert.equal(await p.locator('[data-act=starter]').count(), 5); assert.match(await p.innerText('.oakov .bubble'), /Professor Oak[\s\S]*level up and evolve[\s\S]*static cards/, 'Oak offers the starters and says only they evolve'); assert.equal(await p.locator('.oakov').count(), 1);
     await p.click('[data-act=starter][data-k=charmander]');
-    assert.equal(await p.locator('.place').count(), 16, 'the whole road is on show from the start, locked places included');
+    assert.equal(await p.locator('.oakov').count(), 0, 'Oak goes away and you are back on the map'); assert.equal(await p.locator('.place').count(), 16, 'the whole road is on show from the start, locked places included');
     assert.equal(await p.locator('.place:not(.lock)').count(), 3, 'Viridian Forest, Brock and Mt. Moon are open from the start');
     assert.equal(await p.locator('.place > svg, .place .ptop > svg').count(), await p.locator('.place').count(), 'each place is drawn as a picture (a gym, or the back of a deck)');
     assert.ok(await p.evaluate(() => { const w = document.querySelector('.mapwrap'); return w.scrollWidth <= w.clientWidth + 1 && w.scrollHeight <= w.clientHeight + 1; }), 'the map fills the screen without scrolling');
@@ -113,7 +113,7 @@ test('ui: the game is saved, and Continue brings it back', { skip: !chromium }, 
     await p.goto(URL); assert.equal(await p.locator('[data-act=continue]').count(), 0);
     await p.click('[data-act=new]'); await p.click('[data-act=starter][data-k=pikachu]');
     await p.reload(); assert.equal(await p.locator('[data-act=continue]').count(), 1);
-    await p.click('[data-act=continue]'); assert.equal(await p.locator('.place').count(), 16);
+    await p.click('[data-act=continue]'); assert.equal(await p.locator('.place').count(), 16); assert.equal(await p.locator('.top').count(), 1, 'the same map, now with its top bar: no new screen');
     assert.equal(await p.evaluate(() => window.__pokemonRoll.G.starter), 'pikachu');
   } finally { await b.close(); }
 });
@@ -294,12 +294,11 @@ test('ui: locations are decks of cards; picking one sweeps the map away, the pil
     assert.deepEqual(errs, []);
   } finally { await b.close(); }
 });
-test('ui: arriving on the map deals the piles out from the left, once, not on every redraw', { skip: !chromium }, async () => {
+test('ui: the menu deals the map out from the left, once, not on every redraw (and going on to the game does not deal it again)', { skip: !chromium }, async () => {
   const b = await chromium.launch(), p = await b.newPage({ viewport: { width: 820, height: 1180 } });
   const errs = []; p.on('pageerror', e => errs.push(e.message));
   try {
-    await p.goto(URL); await p.evaluate(() => { localStorage.setItem('pokemon-roll-tips', JSON.stringify({ place: 1, dice: 1, roll: 1, end: 1, shiny: 1 })); }); await p.reload();
-    await p.evaluate(() => { const s = Engine.newGame({ seed: 12, starter: 'charmander', size: 'short', ai: 'normal' }); window.__pokemonRoll.setG(s); });
+    await p.goto(URL);
     const n1 = await p.evaluate(() => document.getAnimations().filter(a => !(a instanceof CSSAnimation) && a.effect && a.effect.target && a.effect.target.classList && a.effect.target.classList.contains('place')).length);
     assert.ok(n1 >= 3, 'the piles are dealt out: ' + n1);
     await p.waitForTimeout(1200); await p.evaluate(() => window.__pokemonRoll.render());

@@ -577,3 +577,22 @@ test('recall: a card of yours can be taken out of the fight before you press Res
   assert.ok(E.apply(s, { t: 'recall', uid: a.uid }).ok); assert.ok(a.ko && a.recalled); assert.equal(E.living(b, 0).length, 1); assert.ok(b.cols.every(col => col[0] !== a.uid), 'it left its column');
   assert.equal(E.apply(s, { t: 'recall', uid: z.uid }).ok, false, 'not the last card: flee instead'); assert.equal(E.apply(s, { t: 'recall', uid: c.g(0).uid }).ok, false, 'and never theirs');
 });
+
+test('elements: each move has its own element: a card of one type can have a plain (normal) move, and only the element of the move counts for weakness', () => {
+  const c = craft(['144'], ['148']);                       // Articuno (Ice type) against Dragonair (weak to ice); the sheet colours Articuno's first four moves ice and its fifth plain
+  assert.equal(C['144'].type, 'Ice'); assert.equal(C['148'].weak, 'Ice');
+  const b = play(c, { hero: [1], gm: [1] }, { hero: { 0: 0 }, gm: {} });     // die 1: an ice attack of 3, doubled
+  assert.equal(evs(b, 'dmg')[0].n, 6); assert.equal(evs(b, 'dmg')[0].weak, true);
+  const d = craft(['144'], ['148']), b2 = play(d, { hero: [5], gm: [1] }, { hero: { 0: 0 }, gm: {} });      // die 5: a plain 1a: normal, no weakness
+  assert.equal(evs(b2, 'dmg')[0].n, 1); assert.ok(!evs(b2, 'dmg')[0].weak, 'a plain move from an Ice card is not an ice attack');
+});
+test('elements: a heal of the same element as the card it heals is twice as good; a block is twice as good against an attack of its own element', () => {
+  const save = C['1.1'].movEls.slice(); C['1.1'].movEls[2] = 'grass';                // pretend the sheet colours Bulbasaur's 1 heal green
+  try {
+    const c = craft(['1.1'], ['4.1']); c.h(0).hp = 1;
+    play(c, { hero: [3], gm: [1] }, { hero: { 0: 0 }, gm: {} });
+    assert.equal(c.h(0).hp, 3, 'a green heal of 1 on a grass card heals 2');
+  } finally { C['1.1'].movEls = save; }
+  const b = craft(['1.1'], ['4.1']).b; b.moveEl = { 1: 'fire' };
+  assert.equal(E._t.blkMult(b, { el: 'fire' }, E.U(b, 1)), 2); assert.equal(E._t.blkMult(b, { el: 'water' }, E.U(b, 1)), 1); assert.equal(E._t.blkMult(b, { el: 'normal' }, E.U(b, 1)), 1);
+});
