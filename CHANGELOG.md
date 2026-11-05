@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- **Pokémon Roll! — new card layout:** the picture is taller and sits on the right, the name runs across it in bold outlined type, and health, type and level stack down the left (type is now a small lozenge, no longer a whole row). Cards are a little shorter.
+
 - **Pokémon Roll! — shinies as a tiebreaker:** when a gym leader has to send cards back, the strongest stay; at the same level a shiny is kept first (a higher-level card still beats a shiny).
 
 - **Pokémon Roll! — Pokédex:** tap a Pokémon you have seen to see its full card; tap anywhere to put it away. Done, or a tap outside the Pokédex frame, closes the Pokédex.

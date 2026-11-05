@@ -51,7 +51,7 @@ button{font:inherit;color:inherit;border:0;cursor:pointer}
 .card.zero{filter:saturate(.55) brightness(.9);outline:3px solid #e5383b88;outline-offset:-2px}
 .card.foe{--ink:#2a0e0e}                 /* their cards face up to you, the right way round, so every card reads the same */
 .card .wkt{position:absolute;top:0;left:0;right:0;z-index:4;background:var(--wc,#fff);color:#fff;text-shadow:0 1px 0 #0009;border-bottom:max(1px,calc(var(--cw)*.011)) solid var(--ink);padding:calc(var(--cw)*.008) 0 calc(var(--cw)*.014);text-align:center;font-weight:900;font-size:calc(var(--cw)*.066);letter-spacing:.04em;white-space:nowrap;line-height:1.1}
-.card{height:calc(var(--cw)*1.9);min-height:0}
+.card{height:calc(var(--cw)*1.72);min-height:0}
 .card .nmrow{padding:calc(var(--cw)*.09) calc(var(--cw)*.04) 0}
 .card .top2{display:flex;gap:calc(var(--cw)*.04);padding:calc(var(--cw)*.02) calc(var(--cw)*.04) 0}
 .card .art{width:calc(var(--cw)*.42);height:calc(var(--cw)*.42);flex:none;padding:3%;border:max(1px,calc(var(--cw)*.011)) solid var(--ink);border-radius:calc(var(--cw)*.05);background:radial-gradient(circle at 50% 40%,#fff9,var(--c) 78%);display:grid;place-items:center;position:relative;overflow:hidden}
@@ -117,7 +117,7 @@ button{font:inherit;color:inherit;border:0;cursor:pointer}
 .board{flex:1;min-height:0;display:flex;align-items:center;gap:6px;position:relative;overflow:auto;padding:4px}
 .board::before,.board::after{content:'';margin:auto}
 .col{display:flex;flex-direction:column;gap:10px;align-items:center;position:relative;padding:6px 3px;border-radius:14px;background:#ffffff0d}
-.slot{width:var(--cw);height:calc(var(--cw)*1.9);border:3px dashed #ffffff44;border-radius:calc(var(--cw)*.1);display:grid;place-items:center;font-size:calc(var(--cw)*.3);color:#ffffff66}
+.slot{width:var(--cw);height:calc(var(--cw)*1.72);border:3px dashed #ffffff44;border-radius:calc(var(--cw)*.1);display:grid;place-items:center;font-size:calc(var(--cw)*.3);color:#ffffff66}
 .slot.ok{border-color:var(--gold);color:var(--gold);background:#ffd23f22;animation:pulse 1s infinite}
 .slot.ghost{visibility:hidden}
 .die.colored{color:#fff;text-shadow:0 2px 0 #000b;border-color:#14110f}
@@ -362,6 +362,18 @@ button{font:inherit;color:inherit;border:0;cursor:pointer}
 .tbtn.more:active{box-shadow:0 2px 0 #14110f}
 .mm .foot{flex:none;padding:4px 10px 0;font-size:12px}
 @media (max-height:760px){.arena{min-height:170px}.tbtn{min-height:58px;font-size:24px;box-shadow:0 6px 0 #14110f}.mm{padding-top:calc(env(safe-area-inset-top) + 44px);gap:8px}.mm .logo small{font-size:26px}}
+</style>
+
+<style>
+/* the new card: a tall picture on the right, the name across it, health / type / level down the left */
+.card .cbox{position:relative;flex:none;height:calc(var(--cw)*.74);margin:0 calc(var(--cw)*.03);padding-top:calc(var(--cw)*.085)}
+.card .art{position:absolute;right:0;top:calc(var(--cw)*.085);bottom:0;width:calc(var(--cw)*.56);height:auto;padding:0;display:flex;align-items:flex-end;justify-content:center;border-radius:calc(var(--cw)*.05)}
+.card .art img{width:100%;height:auto;max-height:100%;object-fit:contain;object-position:50% 100%;margin-bottom:calc(var(--cw)*.01)}
+.card .nm{position:absolute;left:calc(var(--cw)*.02);top:calc(var(--cw)*.1);z-index:3;max-width:96%;font-weight:900;font-size:calc(var(--cw)*.158);line-height:1;letter-spacing:-.01em;color:#14110f;white-space:nowrap;-webkit-text-stroke:calc(var(--cw)*.02) #fff;paint-order:stroke fill;text-shadow:0 calc(var(--cw)*.014) 0 #0004;overflow:visible;text-overflow:clip}
+.card .side{position:absolute;left:calc(var(--cw)*.02);top:calc(var(--cw)*.3);width:calc(var(--cw)*.4);display:flex;flex-direction:column;align-items:flex-start;gap:calc(var(--cw)*.035)}
+.card .tagl{background:var(--c);border:max(1px,calc(var(--cw)*.011)) solid var(--ink);border-radius:99px;color:#fff;text-shadow:0 1px 0 #0008;font-weight:900;font-size:calc(var(--cw)*.07);padding:0 calc(var(--cw)*.04);line-height:1.3;white-space:nowrap;box-shadow:inset 0 -3px 0 #0003}
+.card .side .lv{font-weight:900;font-size:calc(var(--cw)*.085);color:#14110fcc;padding-left:calc(var(--cw)*.015)}
+.card .hprow{margin:0}
 </style>
 <script id="data">
 /* Pokémon Roll! — every rule number, the map, the bosses, the card sheet and the art live here. The engine and bots read this and hard-code none of it. */
@@ -1946,6 +1958,7 @@ const Bots = (() => {
     .replace(/max h\b/g, 'max health').replace(/\b(at|below) (\d+)h\b/g, '$1 $2 health')
     .replace(/(\d+)a\b/g, '$1 attack').replace(/(\d+)b\b/g, '$1 block').replace(/(\d+)h\b/g, '$1 heal').replace(/(\d+)d\b/g, '$1 💥')
     .replace(/[<>^]+/g, m => m.replace(/</g, '◀').replace(/>/g, '▶').replace(/\^/g, '▲')).replace(/\bv\b/g, '▼'));
+  const CH = 1.72;          // a card is this many card-widths tall
   const lvName = n => (D.rules.levelLabels || [])[n - 1] || n;
   const lvRange = loc => { const ls = Object.values(C).filter(c => c.loc === loc && !c.legend).map(c => c.level); if (!ls.length) return ''; const a = lvName(Math.min(...ls)), b = lvName(Math.max(...ls)); return a === b ? 'Level ' + a : 'Levels ' + a + '–' + b; };
   const stars = lv => '★'.repeat(lv) + '☆'.repeat(Math.max(0, 6 - lv));
@@ -1959,10 +1972,11 @@ const Bots = (() => {
     const rows = c.moves.map((m, i) => [m, i]).reverse().map(([m, i]) => `<div class="f${m ? '' : ' blank'}${o.face === i + 1 && !o.sp ? ' hot' : ''}${o.pf === i + 1 && o.face !== i + 1 ? ' pick' : ''}"><span class="pip">${i + 1}</span><span class="mt">${m ? short(m) : '—'}</span></div>`).join('');
     return `<div class="card${u.sh ? ' shiny' : ''}${o.foe ? ' foe' : ''}${o.ko ? ' ko' : ''}${o.sel ? ' sel' : ''}${o.die != null ? ' has-die' : ''}${o.cls ? ' ' + o.cls : ''}" style="--cw:${cw}px;--bg:${e.bg};--c:${e.color}" ${o.attr || ''}>
       ${D.elements[c.weak] ? `<div class="wkt" style="--wc:${el(c.weak).color}">weak: ${el(c.weak).icon} ${esc(c.weak)} ×2</div>` : ''}
-      <div class="nmrow"><div class="nm">${esc(c.name)}${u.sh ? ' ✨' : ''}</div></div>
-      <div class="top2"><div class="art"><img src="${art(u.id, u.sh)}" alt="${esc(c.name)}">${u.sh ? sparkles() : ''}${o.mark ? `<div class="mark">${o.mark}</div>` : ''}${o.die != null ? `<div class="dbadge${o.heroDie ? ' hero' : ''}${o.land ? ' land' : ''}${o.dieCol ? ' colored' : ''}" ${o.dieAttr || ''}${o.dieCol ? ` style="background:${o.dieCol}"` : ''}>${o.die}${o.dieBonus ? '<small>+1</small>' : ''}</div>` : ''}</div>
-        <div class="inf"><div class="lv">Lv ${lvName(c.level)}</div><div class="hprow"><div class="hpc${lvl}">♥ <span class="hpn">${Math.max(0, hp)}</span><small>/${mx}</small></div>${o.chg ? `<span class="hpchg${o.chg.heal ? ' up' : ''}">${o.chg.heal ? '+' : '−'}${o.chg.n}${o.chg.weak ? ' <b>×2</b>' : ''}</span>` : ''}</div>${o.shield ? `<div class="shd">🛡 ${o.shield}</div>` : ''}</div></div>
-      <div class="tagrow"><span class="tag">${e.icon} ${esc(c.type)}</span></div>
+      <div class="cbox">
+        <div class="art"><img src="${art(u.id, u.sh)}" alt="${esc(c.name)}">${u.sh ? sparkles() : ''}${o.mark ? `<div class="mark">${o.mark}</div>` : ''}${o.die != null ? `<div class="dbadge${o.heroDie ? ' hero' : ''}${o.land ? ' land' : ''}${o.dieCol ? ' colored' : ''}" ${o.dieAttr || ''}${o.dieCol ? ` style="background:${o.dieCol}"` : ''}>${o.die}${o.dieBonus ? '<small>+1</small>' : ''}</div>` : ''}</div>
+        <div class="nm">${esc(c.name)}${u.sh ? ' ✨' : ''}</div>
+        <div class="side"><div class="hprow"><div class="hpc${lvl}">♥ <span class="hpn">${Math.max(0, hp)}</span><small>/${mx}</small></div>${o.chg ? `<span class="hpchg${o.chg.heal ? ' up' : ''}">${o.chg.heal ? '+' : '−'}${o.chg.n}${o.chg.weak ? ' <b>×2</b>' : ''}</span>` : ''}</div>${o.shield ? `<div class="shd">🛡 ${o.shield}</div>` : ''}<div class="tagl">${e.icon} ${esc(c.type)}</div><div class="lv">Lv ${lvName(c.level)}</div></div>
+      </div>
       <div class="ab">${c.ability ? abText(c.ability) : 'No ability'}</div>
       <div class="faces">${rows}</div>
       ${sp && D.rules.specials ? `<div class="sp${o.sp ? ' hot' : ''}"><i>${String(sp.face).repeat(sp.count).split('').join(' ')}</i><span>${short(c.special.replace(/^\d+:\s*/, ''))}</span></div>` : ''}
@@ -2450,7 +2464,7 @@ const Bots = (() => {
     const yourPlace = placing && b.pl.side === 0;
     const insAts = yourPlace && selected != null ? E.slotsFor(b, 0).filter(sl => sl.at != null).map(sl => sl.at) : [];       // where a new column could go: each one is shown as a spot the size of a card
     const m = Math.max(1, b.cols.length + insAts.length, b.mode === 'wild' ? b.cap : Math.max(b.need[0], b.need[1]));
-    const cwW = Math.floor((W - 8 - (m + 1) * 4 - m * 6) / m), cwH = Math.floor((H - 10 - 2) / 2 / 1.9);
+    const cwW = Math.floor((W - 8 - (m + 1) * 4 - m * 6) / m), cwH = Math.floor((H - 10 - 2) / 2 / CH);
     const cw = Math.max(insAts.length ? 90 : 120, Math.min(320, cwW, cwH)), hcw = Math.max(80, Math.min(180, RW - 30));
     if (ui.lastTurn === G.turn && ui.lastCw && ui.lastCw !== cw) ui.zoomFrom = ui.lastCw / cw; ui.lastCw = cw; ui.lastTurn = G.turn;       // if the board changes size, it zooms rather than jumps
     const colM = !!b.colMode, waitRoll = assign && (colM ? !b.rolled : b.round === 1 && ui.rollTap !== G.turn);                       // every card's roll is a tap
@@ -2534,7 +2548,7 @@ const Bots = (() => {
   }
   function resultScreen() {
     const r = G.res, nd = E.node(r.node), sdv = E.starterOf(G.starter);
-    const nShow = r.pick ? r.pick.length : r.evolve ? 2 : 1, perRow = Math.min(2, nShow), bigW = Math.floor((innerWidth - 70 - (perRow - 1) * 14) / perRow), bigH = Math.floor((viewH() - (r.pick || r.evolve ? 210 : 330)) / 1.9);
+    const nShow = r.pick ? r.pick.length : r.evolve ? 2 : 1, perRow = Math.min(2, nShow), bigW = Math.floor((innerWidth - 70 - (perRow - 1) * 14) / perRow), bigH = Math.floor((viewH() - (r.pick || r.evolve ? 210 : 330)) / CH);
     const cw = Math.max(150, Math.min(420, bigW, nShow <= 2 && (r.pick || r.evolve) ? bigH : r.pick || r.evolve ? 9999 : 230));          // the cards you choose between are as big as the screen allows: much bigger than in a battle
     const take = r.pick ? `<div class="status">Choose one to join your team!</div><div class="hrow" style="flex-wrap:wrap;justify-content:center;overflow:visible">${r.pick.map((i, k) => card(i, { cw, attr: `data-act="take" data-i="${k}"` })).join('')}</div>` : (r.took ? `<div class="status">You caught ${esc(C[r.took.id].name)}${r.took.sh ? ' ✨' : ''}!</div><div class="hrow">${card(r.took, { cw })}</div>` : '');
     const evo = r.evolve ? `<div class="status">${esc(C[sdv.levels[r.evolve - 1]].name)} is ready to evolve! Which will it be?</div><div class="hrow">${[[sdv.levels[r.evolve - 1], 0], [sdv.evolve[r.evolve], 1]].map(([id, y]) => card({ id, sh: 0 }, { cw, attr: `data-act="evolve" data-yes="${y}"` })).join('')}</div>` : '';
@@ -2588,7 +2602,7 @@ const Bots = (() => {
   }
   function dexCardSheet() {
     const cs = Object.values(C).filter(c => c.dex === ui.dexCard).sort((a, b) => a.level - b.level), c = cs[0]; if (!c) return '';
-    const cw = Math.max(150, Math.min(400, innerWidth - 60, Math.floor((viewH() - 80) / 1.9)));
+    const cw = Math.max(150, Math.min(400, innerWidth - 60, Math.floor((viewH() - 80) / CH)));
     return `<div class="sheet" style="z-index:70" data-act="closedexcard">${card({ id: c.id, sh: 0 }, { cw })}</div>`;
   }
   function recordsSheet() {
@@ -2605,12 +2619,12 @@ const Bots = (() => {
   // tapping a card in your collection fills the screen with it (the same card, as big as the screen allows)
   function zoomSheet() {
     const list = collSorted(), c = list.find(x => x.uid === ui.zoom); if (!c) return '';
-    const cw = Math.max(200, Math.min(760, innerWidth - 24, Math.floor((innerHeight - 130) / 1.9)));
+    const cw = Math.max(200, Math.min(760, innerWidth - 24, Math.floor((innerHeight - 130) / CH)));
     return `<div class="sheet" style="z-index:60" data-act="closezoom">${card(c, { cw })}<div class="hnav"><button class="ib" data-act="zprev">◀</button><button class="btn" data-act="closezoom">Close</button><button class="ib" data-act="znext">▶</button></div></div>`;
   }
   // your cards: picked up from the pile and splayed across the table like a hand; tap one to see it big, tap the table to put them back
   function collSheet() {
-    const list = collSorted(), n = list.length, cw = Math.max(110, Math.min(230, Math.floor(innerHeight * .6 / 1.9), Math.floor(innerWidth * .42)));
+    const list = collSorted(), n = list.length, cw = Math.max(110, Math.min(230, Math.floor(innerHeight * .6 / CH), Math.floor(innerWidth * .42)));
     const step = cw * .66;
     const cards = list.map((c, i) => { const a = Math.max(-11, Math.min(11, (i - (n - 1) / 2) * 2.4)), y = Math.round(Math.abs(a) * 2.2);
       return `<div class="hc" data-rot="${a.toFixed(1)}" data-y="${y}" style="margin-left:${i ? Math.round(step - cw) : 0}px;transform:rotate(${a.toFixed(1)}deg) translateY(${y}px)"><div class="hci">${card(c, { cw, attr: `data-act="zoom" data-uid="${c.uid}"` })}</div></div>`; }).join('');
