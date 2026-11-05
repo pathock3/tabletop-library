@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- **Pokémon Roll! — picking a card, the map, small fixes:** the cards you choose between are as big as they can be while all of them fit on screen; tapping one opens a regular OK box in the middle (a card that isn't the highest level asks "Are you sure?"), so fast tapping can't pick one by accident; the whole map is shown from the start with locked places greyed; dice in your tray are sorted highest to lowest; a gym leader's team in the ⓘ is sorted by level, shinies first, then name; names on cards are smaller and further left; Articuno is Water (weak to Fire).
+
 - **Pokémon Roll! — cards run edge to edge:** health and type are flat on the left with a round right end, the level is smaller, the name is a little smaller, move numbers sit flush on the left and the move text is bigger, the ability runs the full width and sits right under the picture, and cards are shorter. An ability you can use (Starmie, Kadabra, Abra, Gyarados) is the ability box itself: lit when you can use it, greyed when you cannot. Arrows read simply: ◀▲▶ all together, "◀ or ▲ or ▶" for a choice, no parentheses.
 
 - **Pokémon Roll! — back to the pool of dice, attacks before blocks:** each round everyone rolls a die per card together; you give out the dice you like, reroll the rest once, and give those out (one die per card, column by column is switched off). The computer never rerolls at any level; Easy gives out its dice at random. A round now plays heals, then every attack is declared, then blocks go up, then the damage lands. Starmie and Staryu change a die to 5 (it was 2).

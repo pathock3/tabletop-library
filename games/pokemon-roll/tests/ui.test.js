@@ -36,9 +36,9 @@ test('ui: menu, new game, map, and a whole first fight through real taps, with n
     assert.match(await p.innerText('.logo'), /ROLL!/); await p.waitForSelector('.arena .toy', { timeout: 4000 }); assert.equal(await p.locator('.arena .toy.stand img').count(), 5, 'the five starters are on the toy table'); assert.equal(await p.locator('.arena .toy.cube').count(), 5, 'ROLL! is five blocks'); assert.equal(await p.locator('[data-act=help]').count(), 0, 'help lives under More'); assert.ok(await p.locator('[data-act=more]').count() === 1, 'a More button');
     await p.click('[data-act=new]'); assert.equal(await p.locator('[data-act=starter]').count(), 5);
     await p.click('[data-act=starter][data-k=charmander]');
-    assert.equal(await p.locator('.place').count(), 6, 'what is open, and one step beyond it');
+    assert.equal(await p.locator('.place').count(), 16, 'the whole road is on show from the start, locked places included');
     assert.equal(await p.locator('.place:not(.lock)').count(), 3, 'Viridian Forest, Brock and Mt. Moon are open from the start');
-    assert.equal(await p.locator('.place > svg, .place .ptop > svg').count(), 6, 'each place is drawn as a picture (a gym, or the back of a deck)');
+    assert.equal(await p.locator('.place > svg, .place .ptop > svg').count(), await p.locator('.place').count(), 'each place is drawn as a picture (a gym, or the back of a deck)');
     assert.ok(await p.evaluate(() => { const w = document.querySelector('.mapwrap'); return w.scrollWidth <= w.clientWidth + 1 && w.scrollHeight <= w.clientHeight + 1; }), 'the map fills the screen without scrolling');
     assert.equal(await p.locator('.dock').count(), 0, 'no bar along the bottom'); assert.ok(await p.locator('.top [data-act=coll]').count() === 1, 'Your cards is in the top bar');
     assert.equal(await p.locator('[data-act=auto]').count(), 0, 'no Suggest button');
@@ -47,7 +47,7 @@ test('ui: menu, new game, map, and a whole first fight through real taps, with n
     assert.ok(await playFight(p), 'the fight reached a result');
     assert.match(await p.innerText('.banner'), /Victory|Not this time/);
     await p.click('[data-act=done]').catch(() => {});
-    if (await p.locator('[data-act=take]').count()) await p.click('[data-act=take]');
+    if (await p.locator('[data-act=pickcard]').count()) { await p.locator('[data-act=pickcard]').first().click(); await p.click('[data-act=pickok]'); }
     assert.deepEqual(errs, []);
   } finally { await b.close(); }
 });

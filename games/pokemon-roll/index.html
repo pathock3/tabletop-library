@@ -397,6 +397,8 @@ button{font:inherit;color:inherit;border:0;cursor:pointer}
 .card .f:last-child{border-bottom-width:0;border-radius:0 calc(var(--cw)*.03) 0 0}
 .card .pip{align-self:stretch;width:calc(var(--cw)*.1);height:auto;border-radius:0;border-width:0 max(1px,calc(var(--cw)*.011)) 0 0;font-size:calc(var(--cw)*.075)}
 </style>
+
+<style>.card .nm{left:calc(var(--cw)*.025);font-size:calc(var(--cw)*.112);max-width:60%}</style>
 <script id="data">
 /* Pokémon Roll! — every rule number, the map, the bosses, the card sheet and the art live here. The engine and bots read this and hard-code none of it. */
 const GAME_DATA = {
@@ -710,7 +712,7 @@ Kabuto|140|Ground|Grass|2|8 Cinnabar Island|4|Balanced|+1 ground moves <>|2b <v 
 Kabutops|141|Ground|Grass|4|8 Cinnabar Island|7|Balanced|+1 ground moves <>|3b <v or >|3a <>|3a < or >|1a|1d v||
 Aerodactyl|142|Ground|Grass|5|8 Cinnabar Island|8|Attack|Immune to ground|3a <^>|3a <^ or >|3a <^ or >|3a|1a|1d v|
 Snorlax|143|Normal|Psychic|5|5 Pokemon Tower|10|Defend|If no allies, h become a|7h|5h|3h|1h|2d v||
-Articuno|144|Ice|Fire|6|7 Seafoam Islands|10|Attack, support|Ice attacks freeze dice|3a <^ and/or >|5a <<^> or >|4a <<^> or >|3a <<^> or >|1a <^ or >||
+Articuno|144|Water|Fire|6|7 Seafoam Islands|10|Attack, support|Ice attacks freeze dice|3a <^ and/or >|5a <<^> or >|4a <<^> or >|3a <<^> or >|1a <^ or >||
 Zapdos|145|Electric|Ground|6|3 Power Plant|10|Attack|Electric attacks hit all opponents of target's element|7a|5a|3a|3a|1a||
 Moltres|146|Fire|Water|6|2 Mt. Moon|10|Attack|Immune to fire and ground|10a over <^>|7a over <^>|4a over <^>|3a over <^>|2a over <^>||
 Dratini|147|Dragon|Ice|2|9 Victory Road|4|Support|Ally dragon attacks hit <^ or >|3a|2a|1a|1d v|||
@@ -2438,7 +2440,7 @@ const Bots = (() => {
 
   // ---- the map: left to right, only what is open and one step beyond it; scaled to fill the screen, never scrolled
   const TILE_W = 160, PADX = 20, PADY = 16;
-  const shown = n => E.unlocked(G, n) || n.needs.some(id => E.unlocked(G, E.node(id)));
+  const shown = n => true;          // the whole road is on show from the start; places you cannot reach yet are shown locked
   // "Your cards" is a pile with your starter on top; tap it to turn them all face up
   function myPile() {
     const st = G.coll.find(c => c.starter) || G.coll[0], n = G.coll.length;
@@ -2558,7 +2560,7 @@ const Bots = (() => {
     const heroTray = teamSort(E.handOf(b, 0), hc => hc.hid != null ? hc.hid : hc.uid).map(hc => { const k = hc.hid != null ? hc.hid : hc.uid; return card(hc, { cw: hcw, sel: k === selected, attr: `data-act="tray" data-uid="${k}"` }); }).join('');
     // the bay: your hand while you set the matchups, then the dice
     const hd = b.dice[0], used = E.assignedDice(b, 0);
-    const diceHtml = !waitRoll && (assign || done || p) && hd.length ? hd.map((v, i) => dieHtml(v, { sel: ui.die === i, used: !colM && used.has(i), tumble: rolling && (!ui.rerolled || ui.rerolled.indexOf(i) >= 0), color: dieCol(b.dcol && b.dcol[0] && b.dcol[0][i]), attr: !colM && assign && !rolling && !(b.fixed && b.fixed[0] && b.fixed[0][i]) ? `data-act="die" data-i="${i}"` : '' })).join('') : '';
+    const diceHtml = !waitRoll && (assign || done || p) && hd.length ? hd.map((v, i) => [v, i]).sort((x, y) => y[0] - x[0] || x[1] - y[1]).map(([v, i]) => dieHtml(v, { sel: ui.die === i, used: !colM && used.has(i), tumble: rolling && (!ui.rerolled || ui.rerolled.indexOf(i) >= 0), attr: !colM && assign && !rolling && !(b.fixed && b.fixed[0] && b.fixed[0][i]) ? `data-act="die" data-i="${i}"` : '' })).join('') : '';
     let status = '', btns = '';
     const opt = yourPlace && b.pl.optional;
     if (placing) status = (b.sudden ? 'SUDDEN DEATH · ' : '') + (yourPlace ? (selected != null ? 'Now tap where it goes' : opt ? 'Bring another card (they will draw one more), or fight now' : 'Pick a Pokémon from your hand to put down') : 'They are putting a card down…');
@@ -2586,11 +2588,20 @@ const Bots = (() => {
     const dw = RW >= 200 ? 78 : RW >= 150 ? 62 : 46;
     return `<div class="bt"><div class="board">${cols}</div><div class="rail" style="width:${RW}px;--dw:${dw}px"><div class="rtop"><button class="ib" data-act="leave" style="${ui.leaveAsk ? 'width:auto;padding:0 12px;font-size:16px;font-weight:800' : ''}" aria-label="Leave">${ui.leaveAsk ? 'Flee?' : '🏃'}</button><button class="ib" data-act="menu" aria-label="Menu">☰</button></div>${railIn}</div></div>`;
   }
+  // a card is picked in two steps so a quick tap can never choose one by accident: tap it, then OK in the middle of the screen (and a card that is not the strongest asks again)
+  function pickDialog(r) {
+    const k = ui.pickSel; if (k == null || !r.pick || !r.pick[k]) return '';
+    const top = Math.max(...r.pick.map(i => C[i.id].level)), weak = C[r.pick[k].id].level < top, nm = esc(C[r.pick[k].id].name);
+    return `<div class="sheet" style="z-index:60" data-act="pickno"><div class="box" data-stop="1" style="max-width:380px;display:flex;flex-direction:column;gap:12px"><h2>${weak ? 'Are you sure?' : 'Keep ' + nm + '?'}</h2>
+      <p class="hcap" style="font-size:19px">${weak ? `${nm} is not the highest level you could take. Tap OK to keep it anyway, or tap another card.` : 'Tap OK to put it on your team, or tap another card.'}</p>
+      <button class="btn big" data-act="pickok">OK</button><button class="btn ghost" data-act="pickno">Choose again</button></div></div>`;
+  }
   function resultScreen() {
     const r = G.res, nd = E.node(r.node), sdv = E.starterOf(G.starter);
-    const nShow = r.pick ? r.pick.length : r.evolve ? 2 : 1, perRow = Math.min(2, nShow), bigW = Math.floor((innerWidth - 70 - (perRow - 1) * 14) / perRow), bigH = Math.floor((viewH() - (r.pick || r.evolve ? 210 : 330)) / CH);
-    const cw = Math.max(150, Math.min(420, bigW, nShow <= 2 && (r.pick || r.evolve) ? bigH : r.pick || r.evolve ? 9999 : 230));          // the cards you choose between are as big as the screen allows: much bigger than in a battle
-    const take = r.pick ? `<div class="status">Choose one to join your team!</div><div class="hrow" style="flex-wrap:wrap;justify-content:center;overflow:visible">${r.pick.map((i, k) => card(i, { cw, attr: `data-act="take" data-i="${k}"` })).join('')}</div>` : (r.took ? `<div class="status">You caught ${esc(C[r.took.id].name)}${r.took.sh ? ' ✨' : ''}!</div><div class="hrow">${card(r.took, { cw })}</div>` : '');
+    // the cards you choose between are as big as they can be while ALL of them fit on the screen at once (no scrolling, nothing cut off)
+    const fitCw = (n, w, h) => { let best = 120; for (let rows = 1; rows <= 3; rows++) { const per = Math.ceil(n / rows), c = Math.min(Math.floor((w - (per - 1) * 12) / per), Math.floor((h - (rows - 1) * 12) / rows / CH)); if (c > best * (rows > 1 ? 1.12 : 1)) best = c; } return Math.min(best, 420); };          // more rows only when that makes the cards clearly bigger
+    const pickN = r.pick ? r.pick.length : r.evolve ? 2 : 0, cw = pickN ? fitCw(pickN, innerWidth - 84, viewH() - 330) : 230;
+    const take = r.pick ? `<div class="status">Choose one to join your team!</div><div class="hrow" style="flex-wrap:wrap;justify-content:center;overflow:visible;gap:12px">${r.pick.map((i, k) => card(i, { cw, sel: ui.pickSel === k, attr: `data-act="pickcard" data-i="${k}"` })).join('')}</div>${pickDialog(r)}` : (r.took ? `<div class="status">You caught ${esc(C[r.took.id].name)}${r.took.sh ? ' ✨' : ''}!</div><div class="hrow">${card(r.took, { cw })}</div>` : '');
     const evo = r.evolve ? `<div class="status">${esc(C[sdv.levels[r.evolve - 1]].name)} is ready to evolve! Which will it be?</div><div class="hrow">${[[sdv.levels[r.evolve - 1], 0], [sdv.evolve[r.evolve], 1]].map(([id, y]) => card({ id, sh: 0 }, { cw, attr: `data-act="evolve" data-yes="${y}"` })).join('')}</div>` : '';
     const lines = []; if (r.win && nd.kind === 'boss') { lines.push(`<b>${esc(nd.name)}:</b> “${esc(nd.say || 'Well fought!')}”`); if (r.newDie) lines.push(`${esc(nd.name)} hands you a die. <i>“${esc(D.dieLine)}”</i>`); } if (r.dieGain) lines.push(`You keep ${r.dieGain.map(c => `<b style="color:${dieCol(c)}">${c}</b>`).join(', ')}: a die that adds +1 to a move of its colour`); if (r.turns != null) lines.push(`${nd.finale ? 'You beat the game' : 'Beaten'} in <b>${r.turns} turn${r.turns === 1 ? '' : 's'}</b>${r.newBest ? ' <span class="nb">New best!</span>' : (r.best != null ? ` <span class="pb">(best ${r.best})</span>` : '')}`); if (r.levelUp) lines.push(`Your starter grew to level ${lvName(r.levelUp)}!`); if (r.legend && r.win) lines.push(`${esc(C[r.legend.id].name)}${r.legend.sh ? ' ✨' : ''} joins your team!`);
     return `<div class="scr" style="overflow:auto"><div class="center" style="justify-content:flex-start;padding-top:56px"><div class="banner">${r.win ? (nd.finale ? 'CHAMPION!' : 'Victory!') : 'Not this time'}</div>
@@ -2713,7 +2724,7 @@ const Bots = (() => {
     if (n.legendary) rows.push(`<div class="eyerow"><div class="hmap" style="width:92px;display:grid;place-items:center;font-size:46px;background:#4527a0">🌟</div><div><b>A legendary</b><div class="eyen">1 card</div></div></div>`);
     const team = G.seen && G.seen[n.id] && G.bosses[n.id];
     const body = team
-      ? `<p class="hcap" style="font-size:19px">You have faced ${esc(n.name)}, so you know the whole team.</p><div class="eyecards">${cardGrid(team.map(i => ({ id: i.id, sh: i.sh })), { max: 150 })}</div>`
+      ? `<p class="hcap" style="font-size:19px">You have faced ${esc(n.name)}, so you know the whole team.</p><div class="eyecards">${cardGrid(team.map(i => ({ id: i.id, sh: i.sh })).sort((p, q) => C[q.id].level - C[p.id].level || (q.sh ? 1 : 0) - (p.sh ? 1 : 0) || C[p.id].name.localeCompare(C[q.id].name)), { max: 150 })          /* highest level first, a shiny before the others of its level, then by name */}</div>`
       : `<p class="hcap" style="font-size:19px">A team drawn from these places before your game began (their strongest cards; the weakest went back). Face ${esc(n.name)} once and you will see the whole team here.</p><div class="eyelist">${rows.join('')}</div>`;
     return `<div class="sheet" data-act="closeeye"><div class="box hbox" data-stop="1" style="height:auto;max-height:88vh;${team ? 'max-width:760px;overflow:auto' : ''}"><div class="infoi">i</div><h2>${esc(n.name)}'s team</h2>${body}<button class="btn" data-act="closeeye">Got it</button></div></div>`;
   }
@@ -2858,6 +2869,7 @@ const Bots = (() => {
     go() { ui.die = null; if (act({ t: 'go2' })) startPlay(); },
     skip() { skipPlay(); },
     next() { ui.die = null; act({ t: 'next' }); },
+    pickcard(el) { const k = +el.dataset.i; ui.pickSel = k; render(); }, pickno() { ui.pickSel = null; render(); }, pickok() { const k = ui.pickSel; ui.pickSel = null; if (k != null) act({ t: 'take', i: k }); },
     take(el) { act({ t: 'take', i: +el.dataset.i }); },
     evolve(el) { act({ t: 'evolve', yes: el.dataset.yes === '1' }); },
     done() { ui.mapX = null; if (act({ t: 'done' })) render(); },
@@ -2894,7 +2906,7 @@ const Bots = (() => {
     else render();
   });
   document.addEventListener('pointercancel', endDrag);
-  function resetSel() { ui.more = false; ui.gsw = null; ui.chip = false; ui.tweak = null; ui.sel = null; ui.die = null; ui.aim = null; ui.pick = []; ui.chooser = null; ui.play = null; ui.rolledFor = 0; ui.rollTap = null; ui.rolling = 0; ui.mapX = null; }
+  function resetSel() { ui.pickSel = null; ui.more = false; ui.gsw = null; ui.chip = false; ui.tweak = null; ui.sel = null; ui.die = null; ui.aim = null; ui.pick = []; ui.chooser = null; ui.play = null; ui.rolledFor = 0; ui.rollTap = null; ui.rolling = 0; ui.mapX = null; }
   document.addEventListener('click', ev => {
     if (ui.dragged && Date.now() - ui.dragged < 400) return;                 // that was the end of a drag, not a tap
     if (ui.rolling && Date.now() < ui.rolling) return;                       // the dice are still tumbling
