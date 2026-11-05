@@ -28,8 +28,8 @@ The primary target is the iPad **in portrait**, opened from the home screen as a
 - Scripts in `index.html`: `data` (all rules, the campaign levels), `engine` (pure rules, no DOM), `bots`, `campaign` (pure unlock logic), `ui`.
 
 ## Pokémon Roll! (`games/pokemon-roll/`)
-- Solo campaign against the computer from Patrick's Drive rulebook, design doc and card sheet. One roll, no rerolls (unless a card says so); you choose which die goes on which card. Cards, bosses and the map are all in the `data` block (`cardsPsv`, `nodes`, `abilities`); Crystal sprites (normal + shiny, 56×56, base64) are in `art`. Shiny is cosmetic only: a fresh 5% chance on every wild draw, fixed once a card is on a team or a boss's team.
-- `DECISIONS.md` lists every call, including which sheet abilities are not in yet. Scripts: `data`, `engine` (pure rules), `bots` (Easy/Medium/Hard, and the test player), `ui`. Tests: `tests/engine.test.js`, `tests/ui.test.js` (browser).
+- Solo campaign against the computer from Patrick's Drive rulebook, design doc and card sheet. One roll, and one reroll per round (cards can add more; Easy never rerolls); you choose which die goes on which card. Cards, bosses and the map are all in the `data` block (`cardsPsv`, `nodes`, `abilities`); Crystal sprites (normal + shiny, 56×56, base64) are in `art`. Shiny is cosmetic only: each card is rolled once per game at 10% and keeps it. There is no rival in solo: beating Lance ends the game.
+- `DECISIONS.md` lists every call, including which sheet abilities are not in yet. Scripts: `data`, `engine` (pure rules), `bots` (Easy / Normal / Master — levers in `data.ai`; Normal is Master without the reroll — and the test player), `ui`. Tests: `tests/engine.test.js`, `tests/ui.test.js` (browser).
 
 ## UI philosophy (from the owner — "the Tabletop Test")
 - The table is the UI: tap tiles, pieces and piles like physical components. No verb buttons ("Deliver"), no dropdowns, no modals for game actions. System chrome (help, new game) stays small and quiet.

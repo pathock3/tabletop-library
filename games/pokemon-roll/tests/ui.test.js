@@ -273,3 +273,15 @@ test('ui: Kadabra can change column and Abra can swap two of theirs, right on th
     assert.deepEqual(errs, []);
   } finally { await b.close(); }
 });
+test('ui: beating Lance records the whole-game best (and Lance\'s own), and the help mentions the reroll', { skip: !chromium }, async () => {
+  const b = await chromium.launch(), p = await b.newPage({ viewport: { width: 820, height: 1180 } });
+  try {
+    await p.goto(URL); await p.evaluate(() => { localStorage.removeItem('pokemon-roll-scores'); });
+    const sc = await p.evaluate(() => {
+      const R = window.__pokemonRoll, s = Engine.newGame({ seed: 3, starter: 'charmander', size: 'short', ai: 'normal' }); s.turn = 31; s.bossTurns.B7 = 31; s.phase = 'won'; s.res = { win: true, node: 'B7', kind: 'boss' }; R.setG(s); R.recordResult();
+      return JSON.parse(localStorage.getItem('pokemon-roll-scores'));
+    });
+    assert.equal(sc.short.game, 31, 'the whole-game record'); assert.equal(sc.short.B7, 31, 'and Lance');
+    assert.match(await p.evaluate(() => document.body.innerHTML), /reroll|🔄/, 'the help or the screen says you can reroll');
+  } finally { await b.close(); }
+});

@@ -1547,10 +1547,11 @@ const Bots = (() => {
   const scores = () => lsGet(SCORES) || {};
   function recordResult() {
     const r = G && G.res; if (!r || r.rec || !r.win) return; const nd = E.node(r.node); r.rec = true;
-    const key = nd.kind === 'boss' ? nd.id : nd.finale ? 'game' : null; if (!key) return;
+    const keys = [nd.kind === 'boss' ? nd.id : null, nd.finale ? 'game' : null].filter(Boolean); if (!keys.length) return;      // beating Lance also finishes the whole game
     const turns = G.bossTurns[nd.id]; if (turns == null) return;
-    const all = scores(), rec = all[G.size] = all[G.size] || {}, prev = rec[key];
-    r.turns = turns; r.best = prev; r.newBest = prev == null || turns < prev; if (r.newBest) { rec[key] = turns; lsSet(SCORES, all); }
+    const all = scores(), rec = all[G.size] = all[G.size] || {};
+    keys.forEach(key => { const prev = rec[key]; if (key === (nd.finale ? 'game' : nd.id)) { r.turns = turns; r.best = prev; r.newBest = prev == null || turns < prev; } if (prev == null || turns < prev) rec[key] = turns; });
+    lsSet(SCORES, all);
   }
 
   // ---------------------------------------------------------------- pictures
@@ -1807,7 +1808,7 @@ const Bots = (() => {
   // ---------------------------------------------------------------- tips (once per device)
   const TIPTEXT = {
     place: 'They put a card down. Pick one of your Pokémon, then tap where it goes. If you have dice to spare you can bring more cards (they draw one more each time), or press Fight!',
-    dice: 'Everyone rolls one die per card. Tap a die, then tap the card that should use it. Each card does something different on each number: the rows on the card show what.',
+    dice: 'Everyone rolls one die per card. Tap a die, then tap the card that should use it (or drag it). You may throw one die again each round: tap it, then 🔄. Each card does something different on each number: the rows on the card show what.',
     shiny: 'A shiny! It looks different, but plays just the same.',
     roll: 'Now tap anywhere to roll the dice for the next round.',
     end: 'Win by knocking out every card on their side. A card that reaches 0 health is out right away.',
@@ -1982,7 +1983,7 @@ const Bots = (() => {
     { t: 'Weakness hurts double', cap: 'The tab at the top shows what it fears.', vis: () => `<div class="hv"><div class="hs">${spr('4.2', 0)}<b>🔥 Fire</b></div><div class="boom">2 ➜ <span>4</span> 💥</div><div class="hs">${spr('1.2', 0)}<b>weak 🔥</b></div></div>` },
     { t: 'Win cards. Beat gym leaders.', cap: 'Every gym leader opens a new road.', vis: () => `<div class="hv">${['L1', 'B1', 'B2'].map((id, k) => `${k ? '<span class="arrow">➜</span>' : ''}<div class="hmap"><svg viewBox="0 0 160 120">${sceneOf(E.node(id))}</svg></div>`).join('')}</div>` },
     { t: 'Shinies and legendaries', cap: 'Shiny is a look. A 9 on two dice finds a legend.', vis: () => `<div class="hv"><div class="hs">${spr('6.5', 0)}</div><span class="arrow">➜</span><div class="hs shw">${spr('6.5', 1)}${sparkles()}</div><div class="boom">${dieHtml(4, {})}${dieHtml(5, {})}</div><div class="hs">${spr('249', 0)}</div></div>` },
-    { t: 'Good to know', cap: '', vis: () => `<ul class="hl"><li>🛡 A blocker takes what it can’t soak.</li><li>💥 A card at 0 is out right away.</li><li>🛡 A shield soaks damage once a round.</li><li>🏃 Leave any fight. Nothing is lost.</li><li>🎲 Tap anywhere to roll again.</li></ul>` },
+    { t: 'Good to know', cap: '', vis: () => `<ul class="hl"><li>🛡 A blocker takes what it can’t soak.</li><li>💥 A card at 0 is out right away.</li><li>🛡 A shield soaks damage once a round.</li><li>🔄 One reroll a round: tap a die, then 🔄.</li><li>🏃 Leave any fight. Nothing is lost.</li><li>🎲 Tap anywhere to roll again.</li></ul>` },
   ];
   const helpSheet = () => { const i = Math.max(0, Math.min(HELP.length - 1, ui.helpPage || 0)), pg = HELP[i]; return `<div class="sheet" data-act="closehelp"><div class="box hbox" data-stop="1"><div class="hvis" data-act="hnext">${pg.vis()}</div><h2>${pg.t}</h2>${pg.cap ? `<p class="hcap">${pg.cap}</p>` : ''}<div class="hnav"><button class="ib" data-act="hprev">◀</button><div class="dots">${HELP.map((_, k) => `<i class="${k === i ? 'on' : ''}"></i>`).join('')}</div><button class="ib" data-act="hnext">▶</button></div><button class="btn" data-act="closehelp">${i === HELP.length - 1 ? 'Got it' : 'Skip'}</button></div></div>`; };
   function menuSheet() {
@@ -2166,7 +2167,7 @@ const Bots = (() => {
   document.addEventListener('contextmenu', e => e.preventDefault());
   let rz = null; window.addEventListener('resize', () => { clearTimeout(rz); rz = setTimeout(() => { if (G && ui.screen === 'play' && G.phase === 'map') render(); }, 120); });
   render();
-  window.__pokemonRoll = { get G() { return G; }, setG(x) { G = x; ui.screen = 'play'; resetSel(); save(); drive(); }, ui, A, render, act, get set() { return set; } };
+  window.__pokemonRoll = { recordResult, get G() { return G; }, setG(x) { G = x; ui.screen = 'play'; resetSel(); save(); drive(); }, ui, A, render, act, get set() { return set; } };
 })();
 
 </script>
