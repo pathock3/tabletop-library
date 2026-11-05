@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- **Pokémon Roll! — their cards face you the right way up:** the computer's cards are no longer turned upside down, so every card on the table reads the same.
+
 - **Pokémon Roll! — cards that move cards, and Haunter:** Kadabra and Celebi change column (◀ ▶ on the card), Abra swaps two of their cards, the Machop line pushes what a Fighting attack hits, Rhyhorn and Rhydon slide a whole line, Golbat and Tangela stop the other side moving, Alakazam sends a hit to a healthier ally, and Haunter can keep a fallen friend's ability once per battle. The game now ends when you beat Lance: there is no rival in solo. Colored dice stay out for now.
 
 - **Pokémon Roll! — a stronger computer, and one reroll back:** every round each side may throw **one die again** (cards that add rerolls stack on top); tap a die, then 🔄. The computer is now **Easy / Normal / Master**: Master searches every way to hand out its dice (including special moves), picks cards by matchup and rerolls only when a fresh throw is worth more than what it has; Normal is Master with the levers turned down (half its choices random, no searching, rerolls only dead dice); Easy is pure chance and never rerolls. The levers live in the game's data block. Every shiny is decided once per game at 10%, the draw pile is used up before dug cards are reshuffled, the game records turns to finish and your best turns per gym leader (Records), battles now play as clear step-by-step animations on the cards, the battle is one continuous screen, you tap to roll and drag dice onto cards yourself, your team is sorted by level then age, and the map fills the screen with Your cards at the top right.

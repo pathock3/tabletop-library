@@ -78,11 +78,11 @@ test('ui: the table fits on the iPad and the iPhone, and cards open into the ful
       const fits = await p.evaluate(() => ({ sx: document.documentElement.scrollWidth <= innerWidth, sy: document.documentElement.scrollHeight <= innerHeight, over: true }));
       assert.ok(fits.sx && fits.sy, w + 'x' + h + ' the page itself never scrolls');
       // every card on the table is the whole card: six faces, ability, weakness tab flush with the top edge, art, HP, and nothing clipped
-      const cards = await p.evaluate(() => [...document.querySelectorAll('.board .card')].map(c => { const r = c.getBoundingClientRect(), t = c.querySelector('.wkt'); return { faces: c.querySelectorAll('.f').length, ab: !!c.querySelector('.ab'), art: !!c.querySelector('.art img'), hp: !!c.querySelector('.hpc'), tab: t ? Math.round(c.classList.contains('foe') ? r.bottom - t.getBoundingClientRect().bottom : t.getBoundingClientRect().top - r.top) : 99, foe: c.classList.contains('foe'), upside: c.classList.contains('foe') ? getComputedStyle(c).rotate : '', w: Math.round(r.width), clipped: c.scrollHeight > c.clientHeight + 1, inView: r.left >= -1 && r.right <= innerWidth + 1 }; }));
+      const cards = await p.evaluate(() => [...document.querySelectorAll('.board .card')].map(c => { const r = c.getBoundingClientRect(), t = c.querySelector('.wkt'); return { faces: c.querySelectorAll('.f').length, ab: !!c.querySelector('.ab'), art: !!c.querySelector('.art img'), hp: !!c.querySelector('.hpc'), tab: t ? Math.round(t.getBoundingClientRect().top - r.top) : 99, foe: c.classList.contains('foe'), upside: c.classList.contains('foe') ? getComputedStyle(c).rotate : '', w: Math.round(r.width), clipped: c.scrollHeight > c.clientHeight + 1, inView: r.left >= -1 && r.right <= innerWidth + 1 }; }));
       assert.ok(cards.length >= 6, 'cards on the table');
       cards.forEach(c => { assert.equal(c.faces, 6); assert.ok(c.ab && c.art && c.hp); assert.ok(c.tab <= 6, 'weakness tab flush with the top'); assert.ok(!c.clipped, 'no part of the card is cut off'); assert.ok(c.w >= 120, 'big enough to read: ' + c.w); });
       if (w === 820) assert.ok(cards.every(c => c.inView), 'on the iPad in portrait the whole table is on screen');
-      assert.ok(cards.some(c => c.foe && /180deg/.test(c.upside)), 'their cards are upside down, head to head'); assert.ok(cards.filter(c => !c.foe).every(c => !c.upside));
+      assert.ok(cards.some(c => c.foe && !/180deg/.test(c.upside)), 'their cards are the right way up, like yours, head to head'); assert.ok(cards.filter(c => !c.foe).every(c => !c.upside));
       assert.equal(await p.locator('.sheet .card').count(), 0, 'there is no second, enlarged version of a card');
       assert.deepEqual(errs, []); await p.close();
     }

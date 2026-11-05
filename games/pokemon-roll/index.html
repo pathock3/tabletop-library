@@ -46,8 +46,7 @@ button{font:inherit;color:inherit;border:0;cursor:pointer}
 .foot a{color:inherit}
 /* ---- the card: ONE design at every size, a standard portrait card (--cw is its width; the whole card is always on show) ---- */
 .card{--cw:190px;--ink:#14110f;width:var(--cw);flex:none;position:relative;color:var(--ink);background:var(--bg);border:calc(var(--cw)*.022 + 1px) solid var(--ink);border-radius:calc(var(--cw)*.07);overflow:hidden;box-shadow:0 5px 12px #0008;display:flex;flex-direction:column;transition:transform .15s,filter .3s,opacity .3s;text-align:left;padding-bottom:calc(var(--cw)*.03)}
-.card.foe{--ink:#2a0e0e;rotate:180deg}                 /* their cards face you, like a player sitting across the table */
-.card.foe .pop{rotate:180deg}
+.card.foe{--ink:#2a0e0e}                 /* their cards face up to you, the right way round, so every card reads the same */
 .card .wkt{position:absolute;top:0;left:50%;transform:translateX(-50%);z-index:4;background:#fff;border:0 solid var(--ink);border-width:0 2px 2px;border-radius:0 0 calc(var(--cw)*.05) calc(var(--cw)*.05);padding:0 calc(var(--cw)*.06) 1px;font-weight:800;font-size:calc(var(--cw)*.065);letter-spacing:.03em;white-space:nowrap}
 .card{height:calc(var(--cw)*1.9);min-height:0}
 .card .nmrow{padding:calc(var(--cw)*.1) calc(var(--cw)*.04) 0}
