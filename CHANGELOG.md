@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+- **Pokémon Roll! — clearer fights, and the map menu in the corner:** what is happening in a battle is now its own layer: a solid dark panel across the middle of the table says who uses what on whom ("Dugtrio  4 Attack → Squirtle"), the card using the move is outlined in gold and the card it hits in red (green when it heals), damage and healing numbers are solid badges, and a line is only drawn where it would not cross a card's text. There is no Skip button: you tap through. The map's menu button is big and always in the top right, like in a fight; the dice/level chip is on the left and your cards pile sits beside the menu. When you open your cards, they fly out of the pile in the corner (which empties while they are out) and fly back into it when you put them away.
+
+- **Pokémon Roll! — quieter dice area:** the hint just says "Drag a die onto a card", the button just says "🔄 Reroll", and rerolled dice no longer get a lock icon (they still can't be rerolled again).
+
 - **Pokémon Roll! — 6 is the best roll:** a card's first move is rolled on a **6**, its second on a 5, and so on down, and the card shows 6 at the top and 1 at the bottom. A move that only hurts the card itself is at the bottom: the worst on a 1, the next worst on a 2, with any unused numbers blank in between. Special moves keep their numbers for now.
 
 - **Pokémon Roll! — coloured dice:** beat a gym leader and you keep their colour die: Brock brown (Ground), Misty blue (Water), Lt. Surge yellow (Electric), Erika green (Grass), Blaine red (Fire). In a gym fight both sides also use that leader's colour (Lance: one of each). A die the colour of a card's type adds +1 to that card's move (a "+1" shows on the die on the card); specials are not doubled. Gyarados gets +1 attack from the blue die. The first die is always white.

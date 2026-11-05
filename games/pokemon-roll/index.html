@@ -28,7 +28,7 @@ button{font:inherit;color:inherit;border:0;cursor:pointer}
 .btn.red{background:linear-gradient(#ff7b7e,#e5383b);color:#fff}
 .btn.ghost{background:#ffffff18;color:#fff;border-color:#ffffff55;box-shadow:none;font-size:18px;min-height:48px}
 .btn[disabled]{opacity:.4;pointer-events:none}
-.top{display:flex;align-items:center;gap:10px;padding:4px 10px;min-height:48px}
+.top{display:flex;align-items:center;gap:10px;padding:4px 10px;min-height:60px}
 .top{position:relative}
 .top .t{position:absolute;left:64px;right:64px;pointer-events:none;font-weight:900;font-size:18px;text-align:center;letter-spacing:.04em}
 .ib{width:44px;height:44px;border-radius:12px;background:#ffffff20;border:2px solid #ffffff44;font-size:22px;display:grid;place-items:center}
@@ -104,7 +104,7 @@ button{font:inherit;color:inherit;border:0;cursor:pointer}
 .card.burst::before{content:'✨';position:absolute;inset:0;z-index:5;display:grid;place-items:center;font-size:calc(var(--cw)*.7);animation:burst .9s ease-out forwards;pointer-events:none}
 @keyframes burst{0%{transform:scale(.2) rotate(-30deg);opacity:0}30%{opacity:1}100%{transform:scale(1.7) rotate(40deg);opacity:0}}
 .pop{position:absolute;left:0;right:0;top:20%;text-align:center;z-index:6;font:900 calc(var(--cw)*.3) system-ui;color:#fff;text-shadow:0 0 4px #000,0 3px 0 #000,2px 2px 0 #000,-2px 2px 0 #000;animation:rise .9s ease-out forwards;pointer-events:none}
-.pop.heal{color:#7dff9c}.pop.txt{font-size:calc(var(--cw)*.15);color:#ffe46b}
+.pop.heal{background:#1f9d55}.pop.txt{font-size:calc(var(--cw)*.14);background:#101a33;color:#ffe46b;border-color:#ffe46b}
 @keyframes rise{from{transform:translateY(8px) scale(.6);opacity:0}25%{opacity:1;transform:translateY(0) scale(1.15)}to{transform:translateY(-34px);opacity:0}}
 .back{width:var(--cw);aspect-ratio:5/7;border-radius:calc(var(--cw)*.1);border:3px solid #2a0e0e;background:repeating-linear-gradient(45deg,#7b1e1e,#7b1e1e 10px,#8e2a2a 10px,#8e2a2a 20px);display:grid;place-items:center;font-size:calc(var(--cw)*.4);flex:none;box-shadow:0 5px 12px #0008}
 .hrow{display:flex;gap:10px;align-items:flex-start;overflow-x:auto;overflow-y:hidden;max-width:100%;padding:6px 8px 10px;-webkit-overflow-scrolling:touch}
@@ -123,7 +123,6 @@ button{font:inherit;color:inherit;border:0;cursor:pointer}
 .die.colored{color:#fff;text-shadow:0 2px 0 #000b;border-color:#14110f}
 .card .dbadge.colored{color:#fff;text-shadow:0 1px 0 #000b}
 .card .dbadge small{font-size:.55em;margin-left:2px;font-weight:900}
-.die.lockd::after{content:'🔒';position:absolute;right:-4px;top:-6px;font-size:calc(var(--dw,60px)*.32)}
 .die{position:relative}
 .col.insc{background:none}
 .ins{width:calc(var(--cw)*.28);align-self:stretch;border:3px dashed var(--gold);border-radius:12px;display:grid;place-items:center;color:var(--gold);font:900 calc(var(--cw)*.25) system-ui;background:#ffd23f1a;animation:pulse 1s infinite}
@@ -134,9 +133,14 @@ button{font:inherit;color:inherit;border:0;cursor:pointer}
 .capd{color:#ff6b6b;font-size:30px}.caph{color:#7dff9c;font-size:28px}.capw{color:#ffd23f}.capb{color:#8ec5ff}.capx{color:#ffe46b}.capk{color:#ff9d9d}.capt{opacity:.9}.arrowc{font-size:30px;color:#ffd23f}.caphp{font-weight:800;opacity:.9;font-size:20px}.capnext{font-size:20px;opacity:.9}
 .fx{position:fixed;inset:0;width:100%;height:100%;pointer-events:none;z-index:40}
 .orb{position:fixed;left:0;top:0;font-size:48px;line-height:1;z-index:45;pointer-events:none;filter:drop-shadow(0 0 10px #fff) drop-shadow(0 0 22px #ffd23f)}
-.mvbub{position:fixed;z-index:46;transform:translate(-50%,-100%);background:#fff;color:#14110f;border:3px solid #14110f;border-radius:18px;padding:4px 14px 4px 6px;font:800 22px system-ui;display:flex;gap:8px;align-items:center;box-shadow:0 5px 0 #0008;animation:bub .25s ease-out;white-space:nowrap}
+.mvbub{position:fixed;z-index:60;transform:translate(-50%,-50%);background:#101a33;color:#fff;border:5px solid var(--k,#ffd23f);border-radius:20px;padding:8px 18px 8px 10px;font:800 26px system-ui;display:flex;gap:12px;align-items:center;box-shadow:0 8px 0 #000a,0 0 0 3px #101a33,0 14px 30px #000c;animation:bub .25s ease-out;white-space:nowrap;max-width:94vw}
+.mvbub.attack{--k:#ff5a5a}.mvbub.heal{--k:#4cd964}.mvbub.guard{--k:#5aa9ff}.mvbub.special{--k:#ffd23f}
+.mvbub .who{font-weight:900;color:#ffe9a8}.mvbub .mvt{color:#fff;background:#ffffff22;border-radius:12px;padding:2px 12px}.mvbub .mvt b{color:#ffd23f}.mvbub .arr{font-size:30px;color:var(--k)}
 .mvbub img{width:36px;height:36px;image-rendering:pixelated}
-@keyframes bub{from{transform:translate(-50%,-60%) scale(.5);opacity:0}}
+@keyframes bub{from{transform:translate(-50%,-50%) scale(.5);opacity:0}}
+.card.fx-actor{box-shadow:0 0 0 6px #ffd23f,0 0 30px 10px #ffd23fb0;z-index:5}
+.card.fx-target{box-shadow:0 0 0 6px #ff4d4d,0 0 30px 10px #ff4d4db0;z-index:5}
+.card.fx-heal{box-shadow:0 0 0 6px #4cd964,0 0 30px 10px #4cd964b0;z-index:5}
 .card.dim{filter:brightness(.5) saturate(.6)}
 .card.hurt2{animation:shake .45s}.card.heal2{animation:glowg .9s}
 @keyframes glowg{30%{box-shadow:0 0 0 6px #7dff9c,0 0 40px 14px #7dff9c}}
@@ -144,11 +148,11 @@ button{font:inherit;color:inherit;border:0;cursor:pointer}
 @keyframes kofall{to{transform:rotate(14deg) translateY(14px) scale(.9);filter:grayscale(1) brightness(.55);opacity:.45}}
 .card .ring{position:absolute;left:50%;top:28%;width:22%;aspect-ratio:1;border:calc(var(--cw)*.035) solid #fff;border-radius:50%;transform:translate(-50%,-50%) scale(.2);animation:ringo .55s ease-out forwards;pointer-events:none;z-index:6}
 @keyframes ringo{to{transform:translate(-50%,-50%) scale(6.5);opacity:0}}
-.card .weakb{position:absolute;left:0;right:0;top:44%;text-align:center;z-index:7;font:900 calc(var(--cw)*.15)/1 system-ui;color:#ffe46b;text-shadow:0 0 6px #000,0 3px 0 #000,2px 2px 0 #000,-2px 2px 0 #000;transform:rotate(-8deg);animation:weakb 1.2s ease-out forwards;pointer-events:none}
+.card .weakb{position:absolute;left:0;right:0;margin:0 auto;width:fit-content;top:44%;z-index:7;font:900 calc(var(--cw)*.14)/1 system-ui;padding:calc(var(--cw)*.02) calc(var(--cw)*.06);background:#ffd23f;color:#14110f;border:calc(var(--cw)*.018 + 2px) solid #14110f;border-radius:calc(var(--cw)*.05);box-shadow:0 4px 0 #0008;transform:rotate(-8deg);animation:weakb 1.2s ease-out forwards;pointer-events:none}
 @keyframes weakb{0%{transform:rotate(-8deg) scale(.3);opacity:0}25%{opacity:1;transform:rotate(-8deg) scale(1.2)}80%{opacity:1}100%{transform:rotate(-8deg) translateY(-20px);opacity:0}}
 .card .plus{position:absolute;top:70%;font-size:calc(var(--cw)*.12);color:#7dff9c;text-shadow:0 0 6px #0a0;z-index:6;animation:plusup 1s ease-out forwards;opacity:0;pointer-events:none}
 @keyframes plusup{20%{opacity:1}to{transform:translateY(calc(var(--cw)*-.7));opacity:0}}
-.card .pop{animation:rise 1.3s ease-out forwards;font-size:calc(var(--cw)*.34)}
+.card .pop{animation:rise 1.3s ease-out forwards;font-size:calc(var(--cw)*.25);left:0;right:0;margin:0 auto;width:fit-content;top:12%;padding:0 calc(var(--cw)*.07);background:#c1121f;color:#fff;border:calc(var(--cw)*.02 + 2px) solid #fff;border-radius:calc(var(--cw)*.08);text-shadow:0 2px 0 #0007;box-shadow:0 5px 0 #0008,0 0 18px #000a}
 .fx .fxl{stroke-dasharray:16 12;animation:fxdash .45s linear infinite;filter:drop-shadow(0 3px 0 #0008)}
 @keyframes fxdash{to{stroke-dashoffset:-28}}
 .card.lunge2{animation:lunge2 .5s ease-out;z-index:5}
@@ -236,7 +240,7 @@ button{font:inherit;color:inherit;border:0;cursor:pointer}
 .place.deck .lk{top:60px}
 .pilebay{position:fixed;right:20px;bottom:16px;z-index:26;pointer-events:none}
 .dbackov{position:absolute;inset:0;border-radius:inherit;background-size:100% 100%;z-index:30;pointer-events:none}
-.mypile{position:absolute;right:12px;top:4px;width:46px;height:87px;z-index:30;background:none;border:0;padding:0;filter:drop-shadow(0 4px 4px #0008)}
+.mypile{position:absolute;right:84px;top:4px;width:46px;height:87px;z-index:30;background:none;border:0;padding:0;filter:drop-shadow(0 4px 4px #0008)}
 .mypile i{position:absolute;inset:0;border-radius:6px;background:#16233f;border:2px solid #ffffff55}
 .mypile .m2{transform:translate(2px,3px) rotate(3deg)}.mypile .m3{transform:translate(4px,6px) rotate(-3deg)}
 .mypile .mtop{position:absolute;inset:0;pointer-events:none}
@@ -245,7 +249,10 @@ button{font:inherit;color:inherit;border:0;cursor:pointer}
 .handf{display:flex;align-items:center;overflow-x:auto;overflow-y:hidden;width:100%;padding:40px 36px;-webkit-overflow-scrolling:touch;scrollbar-width:none}
 .handf::-webkit-scrollbar{display:none}
 .hc{flex:none;transform-origin:50% 130%}
-.top .rt{margin-right:60px}
+.hci{transform-origin:50% 50%}
+.mypile.away{opacity:0;transition:none}
+.top .mbtn{position:absolute;right:8px;top:4px;width:62px;height:62px;border-radius:16px;font-size:32px;z-index:31}
+.top .mapt{left:150px;right:150px}
 
 @media (max-width:560px){.cardsbtn .cl{display:none}.mapt{display:none}.top .chip{font-size:15px;padding:5px 10px}}
 .fab{position:absolute;z-index:30;background:#0a1229cc}
@@ -1759,7 +1766,7 @@ const Bots = (() => {
     const sp = E.parseSpecial(c.special);
     const rows = c.moves.map((m, i) => [m, i]).reverse().map(([m, i]) => `<div class="f${m ? '' : ' blank'}${o.face === i + 1 && !o.sp ? ' hot' : ''}${o.pf === i + 1 && o.face !== i + 1 ? ' pick' : ''}"><span class="pip">${i + 1}</span><span class="mt">${m ? short(m) : '—'}</span></div>`).join('');
     return `<div class="card${u.sh ? ' shiny' : ''}${o.foe ? ' foe' : ''}${o.ko ? ' ko' : ''}${o.sel ? ' sel' : ''}${o.die != null ? ' has-die' : ''}${o.cls ? ' ' + o.cls : ''}" style="--cw:${cw}px;--bg:${e.bg};--c:${e.color}" ${o.attr || ''}>
-      ${D.elements[c.weak] ? `<div class="wkt" style="--wc:${el(c.weak).color}">weak · ${el(c.weak).icon} ${esc(c.weak)}</div>` : ''}
+      ${D.elements[c.weak] ? `<div class="wkt" style="--wc:${el(c.weak).color}">weak: ${el(c.weak).icon} ${esc(c.weak)}</div>` : ''}
       <div class="nmrow"><div class="nm">${esc(c.name)}${u.sh ? ' ✨' : ''}</div></div>
       <div class="top2"><div class="art"><img src="${art(u.id, u.sh)}" alt="${esc(c.name)}">${u.sh ? sparkles() : ''}${o.mark ? `<div class="mark">${o.mark}</div>` : ''}${o.die != null ? `<div class="dbadge${o.heroDie ? ' hero' : ''}${o.land ? ' land' : ''}${o.dieCol ? ' colored' : ''}" ${o.dieAttr || ''}${o.dieCol ? ` style="background:${o.dieCol}"` : ''}>${o.die}${o.dieBonus ? '<small>+1</small>' : ''}</div>` : ''}</div>
         <div class="inf"><div class="lv">Lv ${c.level}</div><div class="hprow"><div class="hpc${lvl}">♥ <span class="hpn">${Math.max(0, hp)}</span><small>/${mx}</small></div>${o.chg ? `<span class="hpchg${o.chg.heal ? ' up' : ''}">${o.chg.heal ? '+' : '−'}${o.chg.n}${o.chg.weak ? ' <b>×2</b>' : ''}</span>` : ''}</div>${o.shield ? `<div class="shd">🛡 ${o.shield}</div>` : ''}</div></div>
@@ -1773,7 +1780,7 @@ const Bots = (() => {
   }
   const back = cw => `<div class="back" style="--cw:${cw}px">❓</div>`;
   const dieCol = t => { const e = t && D.elements[t[0].toUpperCase() + t.slice(1)]; return e ? e.color : null; };
-  const dieHtml = (v, o) => `<div class="die${o && o.sel ? ' sel' : ''}${o && o.used ? ' used' : ''}${o && o.foe ? ' foe' : ''}${o && o.tumble ? ' tumble' : ''}${o && o.locked ? ' lockd' : ''}${o && o.color ? ' colored' : ''}" ${o && o.attr || ''}${o && o.color ? ` style="background:${o.color}"` : ''}>${v}${o && o.badge ? `<small>${o.badge}</small>` : ''}</div>`;
+  const dieHtml = (v, o) => `<div class="die${o && o.sel ? ' sel' : ''}${o && o.used ? ' used' : ''}${o && o.foe ? ' foe' : ''}${o && o.tumble ? ' tumble' : ''}${o && o.color ? ' colored' : ''}" ${o && o.attr || ''}${o && o.color ? ` style="background:${o.color}"` : ''}>${v}${o && o.badge ? `<small>${o.badge}</small>` : ''}</div>`;
 
   // ---------------------------------------------------------------- the places, drawn as little scenes (160 x 120)
   const tree = (x, y, s) => `<rect x="${x - 3 * s}" y="${y}" width="${6 * s}" height="${22 * s}" fill="#6d4c41"/><circle cx="${x}" cy="${y - 4 * s}" r="${20 * s}" fill="#2e7d32"/><circle cx="${x - 11 * s}" cy="${y + 4 * s}" r="${14 * s}" fill="#388e3c"/><circle cx="${x + 12 * s}" cy="${y + 2 * s}" r="${13 * s}" fill="#1b5e20"/>`;
@@ -1967,27 +1974,36 @@ const Bots = (() => {
   }
   const cardEl = uid => document.querySelector('.card[data-uid="' + uid + '"]');
   const ctr = el => { const r = el.getBoundingClientRect(); return [r.left + r.width / 2, r.top + r.height / 2, r]; };
-  function clearFx() { document.querySelectorAll('.fx,.orb,.mvbub').forEach(x => x.remove()); document.querySelectorAll('.lunge2').forEach(x => x.classList.remove('lunge2')); }
+  function clearFx() { document.querySelectorAll('.fx,.orb,.mvbub').forEach(x => x.remove()); document.querySelectorAll('.fx-actor,.fx-target,.fx-heal').forEach(x => x.classList.remove('fx-actor', 'fx-target', 'fx-heal')); document.querySelectorAll('.lunge2').forEach(x => x.classList.remove('lunge2')); }
   const iconOf = uid => { const x = E.U(G.battle, uid); const t = E.typeOf(x); return (D.elements[t[0].toUpperCase() + t.slice(1)] || D.elements.Normal).icon; };
   function drawFx(beat) {
     const a = beat.actor != null && cardEl(beat.actor); if (!a) return; const p = ui.play;
     const [ax, ay, ar] = ctr(a);
     const tids = (beat.to || []).filter(t => t !== beat.actor).concat(beat.kind === 'heal' ? beat.evs.filter(e => e.t === 'heal' && e.u !== beat.actor).map(e => e.u) : []).filter((t, i, arr) => arr.indexOf(t) === i);
-    // the move being used, named above the card that uses it
-    const mv = p.moves[beat.actor], au = E.U(G.battle, beat.actor);
-    const bub = document.createElement('div'); bub.className = 'mvbub';
-    bub.innerHTML = `<img class="pix" src="${art(au.id, au.sh)}" alt=""><span>${beat.kind === 'special' ? '<b class="capx" style="color:#c1121f">SPECIAL!</b> ' : ''}${mv ? short(mv) : (beat.kind === 'guard' ? '🛡 Guard' : '')}</span>`;
-    bub.style.left = ax + 'px'; bub.style.top = Math.max(60, ar.top - 6) + 'px'; document.body.appendChild(bub);
+    // the move being used, in a solid panel across the middle of the table (never over a card's own text); the user of the move is outlined in gold, the cards it reaches in red (green for healing)
+    const mv = p.moves[beat.actor], au = E.U(G.battle, beat.actor), heal = beat.kind === 'heal', kind = beat.kind === 'special' ? 'special' : beat.kind === 'guard' ? 'guard' : heal ? 'heal' : 'attack';
+    a.classList.add('fx-actor'); tids.forEach(t => { const e2 = cardEl(t); if (e2) e2.classList.add(heal ? 'fx-heal' : 'fx-target'); });
+    const bd = document.querySelector('.board'), br = bd ? bd.getBoundingClientRect() : { left: 0, width: innerWidth, top: 0, height: innerHeight };
+    const tn = tids.length ? tids.map(t => C[E.U(G.battle, t).id].name).join(', ') : '';
+    const bub = document.createElement('div'); bub.className = 'mvbub ' + kind;
+    bub.innerHTML = `<img class="pix" src="${art(au.id, au.sh)}" alt=""><span class="who">${esc(C[au.id].name)}</span><span class="mvt">${beat.kind === 'special' ? '<b>SPECIAL!</b> ' : ''}${mv ? short(mv) : (beat.kind === 'guard' ? '🛡 Guard' : '')}</span>${tn ? `<span class="arr">${heal ? '✚' : '➜'}</span><span class="who">${esc(tn)}</span>` : ''}`;
+    bub.style.left = Math.max(br.left + 150, Math.min(br.left + br.width - 150, br.left + br.width / 2)) + 'px'; bub.style.top = (br.top + br.height / 2) + 'px'; document.body.appendChild(bub);
     if (tids.length) {
       const te = cardEl(tids[0]), [tx, ty] = ctr(te), dx = tx - ax, dy = ty - ay, d = Math.hypot(dx, dy) || 1;
       a.style.setProperty('--dx', (dx / d * 40) + 'px'); a.style.setProperty('--dy', (dy / d * 40) + 'px'); a.classList.add('lunge2');
-      let svg = '<defs><marker id="ah" viewBox="0 0 10 10" refX="7" refY="5" markerWidth="4" markerHeight="4" orient="auto-start-reverse"><path d="M0 0L10 5L0 10Z" fill="#ffd23f"/></marker><marker id="ahg" viewBox="0 0 10 10" refX="7" refY="5" markerWidth="4" markerHeight="4" orient="auto-start-reverse"><path d="M0 0L10 5L0 10Z" fill="#7dff9c"/></marker></defs>';
-      const heal = beat.kind === 'heal';
-      tids.forEach(t => { const e2 = cardEl(t); if (!e2) return; const [x2, y2] = ctr(e2); svg += `<path class="fxl" d="M${ax} ${ay} L${x2} ${y2}" stroke="${heal ? '#7dff9c' : '#ffd23f'}" stroke-width="6" stroke-linecap="round" fill="none" marker-end="url(#${heal ? 'ahg' : 'ah'})"/>`; });
+      const edge = (r, x0, y0, ux, uy) => { const tx2 = ux ? Math.min((r.right - x0) / ux, (r.left - x0) / ux) : 1e9, ty2 = uy ? Math.max(Math.min((r.bottom - y0) / uy, (r.top - y0) / uy), -1e9) : 1e9; return Math.max(0, Math.min(Math.abs(tx2) , Math.abs(ty2))); };
+      let svg = '<defs>' + [['ah', '#ffd23f'], ['ahg', '#4cd964']].map(([id, c]) => `<marker id="${id}" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="3.2" markerHeight="3.2" orient="auto-start-reverse"><path d="M0 0L10 5L0 10Z" fill="${c}" stroke="#14110f" stroke-width="1.4"/></marker>`).join('') + '</defs>';
+      tids.forEach(t => {
+        const e2 = cardEl(t); if (!e2) return; const [x2, y2, r2] = ctr(e2), vx = (x2 - ax) / (Math.hypot(x2 - ax, y2 - ay) || 1), vy = (y2 - ay) / (Math.hypot(x2 - ax, y2 - ay) || 1);
+        const s1 = edge(ar, ax, ay, vx, vy), s2 = edge(r2, x2, y2, -vx, -vy), len = Math.hypot(x2 - ax, y2 - ay) - s1 - s2;
+        if (len < 28) return;                                                                 // the cards are side by side: the outlines say it, and a line would only cross their text
+        const sx = ax + vx * s1, sy = ay + vy * s1, ex = x2 - vx * s2, ey = y2 - vy * s2;
+        svg += `<path d="M${sx} ${sy} L${ex} ${ey}" stroke="#14110f" stroke-width="13" stroke-linecap="round" fill="none"/><path class="fxl" d="M${sx} ${sy} L${ex} ${ey}" stroke="${heal ? '#4cd964' : '#ffd23f'}" stroke-width="7" stroke-linecap="round" fill="none" marker-end="url(#${heal ? 'ahg' : 'ah'})"/>`;
+      });
       const sv = document.createElementNS('http://www.w3.org/2000/svg', 'svg'); sv.setAttribute('class', 'fx'); sv.innerHTML = svg; document.body.appendChild(sv);
       setTimeout(() => {                                                                   // a projectile of the attacker's element flies across
         if (ui.play !== p || p.cur !== beat) return;
-        tids.forEach(t => { const e2 = cardEl(t); if (!e2) return; const [x2, y2] = ctr(e2), o = document.createElement('div'); o.className = 'orb'; o.textContent = heal ? '✚' : iconOf(beat.actor); o.style.color = heal ? '#7dff9c' : '#fff'; document.body.appendChild(o);
+        tids.forEach(t => { const e2 = cardEl(t); if (!e2) return; const [x2, y2] = ctr(e2), o = document.createElement('div'); o.className = 'orb'; o.textContent = heal ? '✚' : iconOf(beat.actor); o.style.color = heal ? '#4cd964' : '#fff'; document.body.appendChild(o);
           o.animate([{ transform: `translate(${ax - 24}px,${ay - 24}px) scale(.6)`, opacity: 1 }, { transform: `translate(${x2 - 24}px,${y2 - 24}px) scale(1.5)`, opacity: 1 }], { duration: 380, easing: 'ease-in', fill: 'forwards' }).onfinish = () => o.remove(); });
       }, 280);
     }
@@ -2000,7 +2016,7 @@ const Bots = (() => {
     const to = {};
     beat.evs.forEach(e => {
       const el = e.u != null && cardEl(e.u); if (!el) return;
-      if (e.t === 'dmg') { el.classList.add('hurt2'); add(el, 'pop', '-' + e.n); add(el, 'ring', ''); if (e.weak) add(el, 'weakb', 'WEAK ×2'); to[e.u] = e.hp; }
+      if (e.t === 'dmg') { el.classList.add('hurt2'); add(el, 'pop', '−' + e.n); if (e.weak) add(el, 'weakb', 'WEAK ×2'); to[e.u] = e.hp; }
       else if (e.t === 'heal') { el.classList.add('heal2'); add(el, 'pop heal', '+' + e.n); for (let i = 0; i < 6; i++) add(el, 'plus', '✚', `left:${10 + i * 15}%;animation-delay:${i * 0.07}s`); to[e.u] = e.hp; }
       else if (e.t === 'blocked') add(el, 'pop txt', e.n ? '🛡 −' + e.n : '🛡 Blocked');
       else if (e.t === 'dodge') add(el, 'pop txt', 'Dodged!');
@@ -2099,7 +2115,7 @@ const Bots = (() => {
   function mapScreen() {
     const vis = D.nodes.filter(shown), ids = new Set(vis.map(n => n.id));
     const stages = Math.max(...D.nodes.map(n => n.stage)) + 1, pitch = 178;          // the whole road is laid out from the start, so the game always runs left to right, with the rest still to be revealed
-    const availW = innerWidth, availH = viewH() - 52;
+    const availW = innerWidth, availH = viewH() - 60;
     const W0 = PADX * 2 + stages * pitch, sc = Math.min(availW / W0, 1);
     const H0 = availH / sc, lane = Math.max(214, (H0 - PADY * 2) / 3);
     const xy = n => [PADX + n.stage * pitch + pitch / 2, PADY + n.lane * lane + lane / 2];
@@ -2120,7 +2136,7 @@ const Bots = (() => {
         <svg viewBox="0 0 160 120" role="img" aria-label="${esc(n.name)}">${sceneOf(n)}</svg>${open ? '' : '<div class="lk">🔒</div>'}${done ? '<div class="ck">✔</div>' : ''}${n.kind === 'boss' ? `<div class="eye" data-act="eye" data-id="${n.id}" aria-label="How their team is made">i</div>` : ''}
         <div class="pl"><b>${esc(n.name)}</b><span>${sub}</span></div></button>`;
     }).join('');
-    return `<div class="top"><button class="ib" data-act="menu">☰</button><div class="t mapt">Kanto Map</div><span class="chip rt">🎲 ×${E.slots(G)} · ★ ${G.lv}</span><button class="mypile" data-act="coll" aria-label="Your cards">${myPile()}</button></div>
+    return `<div class="top"><span class="chip">🎲 ×${E.slots(G)} · ★ ${G.lv}</span><div class="t mapt">Kanto Map</div><button class="mypile${ui.coll ? ' away' : ''}" data-act="coll" aria-label="Your cards">${myPile()}</button><button class="ib mbtn" data-act="menu" aria-label="Menu">☰</button></div>
       <div class="mapwrap"><div class="mapin" style="width:${W0}px;height:${H0}px;transform:scale(${sc});margin-left:${Math.max(0, (availW - W0 * sc) / 2)}px"><svg class="mapsvg" width="${W0}" height="${H0}">${lines}</svg>${tiles}</div></div>`;
   }
 
@@ -2192,12 +2208,12 @@ const Bots = (() => {
     const heroTray = teamSort(E.handOf(b, 0), hc => hc.hid != null ? hc.hid : hc.uid).map(hc => { const k = hc.hid != null ? hc.hid : hc.uid; return card(hc, { cw: hcw, sel: k === selected, attr: `data-act="tray" data-uid="${k}"` }); }).join('');
     // the bay: your hand while you set the matchups, then the dice
     const hd = b.dice[0], used = E.assignedDice(b, 0);
-    const diceHtml = !waitRoll && (assign || done || p) && hd.length ? hd.map((v, i) => dieHtml(v, { sel: ui.die === i, used: used.has(i), tumble: rolling && (!ui.rerolled || ui.rerolled.indexOf(i) >= 0), locked: !!(b.locked && b.locked[0] && b.locked[0][i]), color: dieCol(b.dcol && b.dcol[0] && b.dcol[0][i]), attr: assign && !rolling ? `data-act="die" data-i="${i}"` : '' })).join('') : '';
+    const diceHtml = !waitRoll && (assign || done || p) && hd.length ? hd.map((v, i) => dieHtml(v, { sel: ui.die === i, used: used.has(i), tumble: rolling && (!ui.rerolled || ui.rerolled.indexOf(i) >= 0), color: dieCol(b.dcol && b.dcol[0] && b.dcol[0][i]), attr: assign && !rolling ? `data-act="die" data-i="${i}"` : '' })).join('') : '';
     let status = '', btns = '';
     const opt = yourPlace && b.pl.optional;
     if (placing) status = (b.sudden ? 'SUDDEN DEATH · ' : '') + (yourPlace ? (selected != null ? 'Now tap where it goes' : opt ? 'Bring another card (they will draw one more), or fight now' : 'Pick a Pokémon from your hand to put down') : 'They are putting a card down…');
     else if (waitRoll) status = '<span class="rollhint">🎲 Tap anywhere to roll</span>';
-    else if (assign) { const need = E.living(b, 0).filter(u => !u.skip && !b.asg[0][u.uid]).length; status = (b.sudden ? 'SUDDEN DEATH · ' : '') + (rolling ? 'Rolling…' : ui.die != null ? 'Tap a card to give it that ' + b.dice[0][ui.die] : (E.readyToGo(b, 0) ? 'Ready? Press Go!' : 'Drag a die onto a card (' + need + ' to go)')); }
+    else if (assign) { const need = E.living(b, 0).filter(u => !u.skip && !b.asg[0][u.uid]).length; status = (b.sudden ? 'SUDDEN DEATH · ' : '') + (rolling ? 'Rolling…' : ui.die != null ? 'Tap a card to give it that ' + b.dice[0][ui.die] : (E.readyToGo(b, 0) ? 'Ready? Press Resolve!' : 'Drag a die onto a card')); }
     else if (asking && b.ask.kind === 'yn') { status = `<b>${C[E.U(b, b.ask.uid).id].name}</b> is attacked by ${C[E.U(b, b.ask.by).id].name} for ${b.ask.n}. Dodge?`; btns = `<button class="btn big" data-act="decide" data-yes="1">Dodge!</button><button class="btn alt" data-act="decide" data-yes="0">Take it</button>`; }
     else if (asking) status = b.ask.what === 'ditto' ? `Tap whose move ${C[E.U(b, b.ask.uid).id].name} copies` : `Tap who ${C[E.U(b, b.ask.uid).id].name} ${b.ask.k === 'a' ? 'attacks' : b.ask.k === 'b' ? 'blocks for' : 'heals'}`;
     else if (p) status = p.bi < 0 ? 'Here is what everyone rolled…' : (p.wait ? '<span class="rollhint capnext">Tap ▶</span>' : '');
@@ -2206,8 +2222,8 @@ const Bots = (() => {
     if (assign && !waitRoll) {
       const lk = (b.locked && b.locked[0]) || {}, freeDice = hd.map((_, i) => i).filter(i => !used.has(i) && !lk[i]);
       const canRe = !rolling && b.rr[0] > 0 && freeDice.length > 0, canFree = !rolling && ui.die != null && !lk[ui.die] && b.rrFace[0].indexOf(hd[ui.die]) >= 0 && !b.rrUsed[0][ui.die];
-      btns = `${b.rr[0] > 0 ? `<button class="btn alt" data-act="reroll" ${canRe ? '' : 'disabled'}>🔄 Reroll the rest${b.rr[0] > 1 ? ' ×' + b.rr[0] : ''}</button>` : ''}${canFree ? '<button class="btn alt" data-act="rerollfree">🔄 Free reroll</button>' : ''}<button class="btn big" data-act="go" ${!rolling && E.readyToGo(b, 0) && b.gmReady ? '' : 'disabled'}>Go!</button>`;
-    } else if (p && !p.waiting) btns = `<button class="btn ghost" data-act="skip">Skip ▶▶</button>`;
+      btns = `${b.rr[0] > 0 ? `<button class="btn alt" data-act="reroll" ${canRe ? '' : 'disabled'}>🔄 Reroll</button>` : ''}${canFree ? '<button class="btn alt" data-act="rerollfree">🔄 Free reroll</button>' : ''}<button class="btn big" data-act="go" ${!rolling && E.readyToGo(b, 0) && b.gmReady ? '' : 'disabled'}>Resolve</button>`;
+    }
     const nodeB = E.node(b.node), pw = Math.max(64, Math.min(96, RW - 70));
     const pileHtml = placing && nodeB.kind === 'loc' ? `<div class="pilebay" style="--pw:${pw}px">${deckPile(nodeB.loc, { pw, count: E.deckSize(G, nodeB.loc) })}</div>` : '';
     const fight = opt ? '<button class="btn big" data-act="ready">Fight!</button>' : '';
@@ -2278,23 +2294,31 @@ const Bots = (() => {
     const list = collSorted(), n = list.length, cw = Math.max(110, Math.min(230, Math.floor(innerHeight * .6 / 1.9), Math.floor(innerWidth * .42)));
     const step = cw * .66;
     const cards = list.map((c, i) => { const a = Math.max(-11, Math.min(11, (i - (n - 1) / 2) * 2.4)), y = Math.round(Math.abs(a) * 2.2);
-      return `<div class="hc" data-rot="${a.toFixed(1)}" data-y="${y}" style="margin-left:${i ? Math.round(step - cw) : 0}px;transform:rotate(${a.toFixed(1)}deg) translateY(${y}px)">${card(c, { cw, attr: `data-act="zoom" data-uid="${c.uid}"` })}</div>`; }).join('');
+      return `<div class="hc" data-rot="${a.toFixed(1)}" data-y="${y}" style="margin-left:${i ? Math.round(step - cw) : 0}px;transform:rotate(${a.toFixed(1)}deg) translateY(${y}px)"><div class="hci">${card(c, { cw, attr: `data-act="zoom" data-uid="${c.uid}"` })}</div></div>`; }).join('');
     return `<div class="handov" data-act="handclose"><div class="handf" style="--cw:${cw}px">${cards}</div></div>`;
   }
+  // the cards are picked up from the pile in the corner and dealt out; each one starts exactly where the pile is (upright, pile-sized) and settles into its place in the fan
+  function handFly(cs, back) {
+    const pile = document.querySelector('.mypile'); if (!pile) return false; const pr = pile.getBoundingClientRect(), pcx = pr.left + pr.width / 2, pcy = pr.top + pr.height / 2, n = cs.length;
+    cs.forEach((c, i) => {
+      const inner = c.firstElementChild, r = inner.getBoundingClientRect(), rot = +c.dataset.rot, th = rot * Math.PI / 180, sx = pcx - (r.left + r.width / 2), sy = pcy - (r.top + r.height / 2);
+      const lx = sx * Math.cos(th) + sy * Math.sin(th), ly = -sx * Math.sin(th) + sy * Math.cos(th), s = pr.width / r.width;       // the pile's offset, in the rotated frame of the card's slot in the fan
+      const away = `translate(${lx}px,${ly}px) rotate(${-rot}deg) scale(${s})`;
+      inner.animate(back ? [{ transform: 'none' }, { transform: away }] : [{ transform: away }, { transform: 'none' }], back
+        ? { duration: 230, delay: (n - 1 - i) * 14, easing: 'cubic-bezier(.5,0,.8,.4)', fill: 'forwards' }
+        : { duration: 440, delay: i * 38, easing: 'cubic-bezier(.2,.85,.3,1.05)', fill: 'backwards' });
+    });
+    return true;
+  }
   function handOpen() {
-    const pile = document.querySelector('.mypile'), cs = [...document.querySelectorAll('.handf .hc')]; if (!pile || !cs.length || !cs[0].animate) return;
-    const pr = pile.getBoundingClientRect(), pcx = pr.left + pr.width / 2, pcy = pr.top + pr.height / 2;
+    const cs = [...document.querySelectorAll('.handf .hc')]; if (!cs.length || !cs[0].firstElementChild.animate) return;
     const ov = document.querySelector('.handov'); if (ov) ov.animate([{ background: 'rgba(0,0,0,0)' }, { background: 'rgba(0,0,0,.42)' }], { duration: 300, fill: 'backwards' });
-    cs.forEach((c, i) => { const r = c.getBoundingClientRect(), rot = c.dataset.rot, y = c.dataset.y, s = pr.width / r.width;
-      c.animate([{ transform: `translate(${pcx - (r.left + r.width / 2)}px,${pcy - (r.top + r.height / 2)}px) scale(${s}) rotate(0deg)`, opacity: .9 }, { transform: `rotate(${rot}deg) translateY(${y}px)`, opacity: 1 }], { duration: 420, delay: i * 38, easing: 'cubic-bezier(.2,.85,.3,1.05)', fill: 'backwards' }); });
+    handFly(cs, false);
   }
   function handClose(done) {
-    const pile = document.querySelector('.mypile'), cs = [...document.querySelectorAll('.handf .hc')]; if (!pile || !cs.length || !cs[0].animate) { done(); return; }
-    const pr = pile.getBoundingClientRect(), pcx = pr.left + pr.width / 2, pcy = pr.top + pr.height / 2, n = cs.length;
+    const cs = [...document.querySelectorAll('.handf .hc')]; if (!cs.length || !cs[0].firstElementChild.animate || !handFly(cs, true)) { done(); return; }
     const ov = document.querySelector('.handov'); if (ov) ov.animate([{ background: 'rgba(0,0,0,.42)' }, { background: 'rgba(0,0,0,0)' }], { duration: 240, fill: 'forwards' });
-    cs.forEach((c, i) => { const r = c.getBoundingClientRect(), rot = c.dataset.rot, y = c.dataset.y, s = pr.width / r.width;
-      c.animate([{ transform: `rotate(${rot}deg) translateY(${y}px)`, opacity: 1 }, { transform: `translate(${pcx - (r.left + r.width / 2)}px,${pcy - (r.top + r.height / 2)}px) scale(${s}) rotate(0deg)`, opacity: .9 }], { duration: 230, delay: (n - 1 - i) * 14, easing: 'cubic-bezier(.5,0,.8,.4)', fill: 'forwards' }); });
-    setTimeout(done, 230 + n * 14 + 30);
+    setTimeout(done, 230 + cs.length * 14 + 30);
   }
   // the eye on a gym leader: how their team came about
   // the info on a location: what is still in its deck, by type
