@@ -427,9 +427,9 @@ test('rules: you give out the dice you like, then reroll the rest together, once
   T.startRound(s); assert.equal(Object.keys(b.locked[0]).length, 0, 'a new round, a new reroll');
 });
 test('ai: Easy and Normal never reroll, Master rerolls the weak dice together before giving any out', (tc) => { E.faceOrder('top'); tc.after(() => E.faceOrder('sheet'));
-  const c = craft(['1.1', '7.1'], ['1.1', '7.1']); const { s, b } = c; b.dice[1] = [6, 6]; b.rr[1] = 1;
+  const c = craft(['1.1', '7.1'], ['1.1', '7.1']); const { s, b } = c; b.dice[1] = [2, 2]; b.rr[1] = 1;
   assert.equal(B.step(s, 'easy').t, 'gm'); assert.equal(B.step(s, 'normal').t, 'gm');
-  const m = B.step(s, 'master'); assert.equal(m.t, 'reroll', 'two dead 6s are worth throwing again'); assert.ok(m.dice.length >= 1 && m.dice.every(i => i >= 0 && i < 2));
+  const m = B.step(s, 'master'); assert.equal(m.t, 'reroll', 'two dead 2s are worth throwing again'); assert.ok(m.dice.length >= 1 && m.dice.every(i => i >= 0 && i < 2));
   assert.ok(E.apply(s, m).ok); assert.ok(b.locked[1][m.dice[0]]);
   assert.equal(B.step(s, 'master').t, 'gm', 'then it gives them out');
 });
