@@ -24,6 +24,7 @@ function play(c, dice, give) {
   });
   b.gmReady = true;
   const r = E.apply(s, { t: 'go2' }); assert.ok(r.ok, r.error);
+  while (b.ask) assert.ok(E.apply(s, { t: 'choose', tgt: E.autoChoice(b) }).ok);      // an "or" on your own card is asked when its turn comes
   return b;
 }
 const evs = (b, t) => b.events.filter(e => e.t === t);
@@ -99,7 +100,7 @@ test('rules: a block soaks damage, and the blocker takes whatever is left over',
   const b = play(c, { hero: [6, 1], gm: [1, 6] }, { hero: { 0: 0, 1: 1 }, gm: { 0: 0, 1: 1 } });
   assert.equal(c.h(0).hp, 4, 'Bulbasaur is untouched');
   assert.ok(evs(b, 'blocked').some(e => e.u === c.h(1).uid && e.for === c.h(0).uid && e.n === 3));
-  assert.equal(c.h(1).hp, 2, 'Metapod is weak to fire too: 2 doubled to 4, three soaked, one left over for the blocker');
+  assert.equal(c.h(1).hp, 3, 'Metapod is weak to fire too: 2 doubled to 4, three soaked, one left over for the blocker, and its own shield takes that one');
 });
 test('rules: a special move needs the right number of dice on the right number, and other cards then go without', () => {
   const c = craft(['6.5', '1.1'], ['16', '10']);        // Charizard: two 6s = 12a
@@ -125,6 +126,25 @@ test('abilities: immunity, thorns, shields and dodging', () => {
   assert.equal(c.g(0).hp, C['14'].hp - 1, '2 damage minus 1');
   c = craft(['1.1'], ['25.1']); play(c, { hero: [1], gm: [6] }, { hero: { 0: 0 }, gm: { 0: 0 } });           // Pikachu dodges the first attack of the match
   assert.equal(c.g(0).hp, 3); assert.ok(evs(c.b, 'dodge').length);
+});
+test('abilities: "-1d" is a shield of 1 for the whole round, for damage of any kind, even what a card does to itself (Metapod)', () => {
+  const c = craft(['11'], ['10']); play(c, { hero: [5], gm: [6] }, { hero: { 0: 0 }, gm: { 0: 0 } });     // Metapod on a 5: 2d to itself, minus 1
+  assert.equal(c.h(0).hp, C['11'].hp - 1, 'only 1 damage');
+  const k = craft(['1.1'], ['14']); play(k, { hero: [1], gm: [6] }, { hero: { 0: 0 }, gm: { 0: 0 } }); assert.equal(k.g(0).hp, C['14'].hp - 1, 'and an attack of 2 hurts it for 1');
+});
+test('choices: an "or" on your card is asked when that card\'s turn comes, not when the die is given; the computer decides its own', () => {
+  const c = craft(['5.3', '10', '10'], ['10', '16', '19']);          // Charmeleon: 3a <^ or >  (across, or one over)
+  c.b.dice = [[1, 6, 6], [6, 6, 6]]; c.b.asg = [{ [c.h(0).uid]: { dice: [0], tgt: null }, [c.h(1).uid]: { dice: [1], tgt: null }, [c.h(2).uid]: { dice: [2], tgt: null } }, {}]; c.b.gmReady = true;
+  assert.ok(E.apply(c.s, { t: 'go2' }).ok);
+  assert.equal(c.b.stage, 'resolving', 'the round stops at Charmeleon'); assert.ok(c.b.ask); assert.equal(c.b.ask.uid, c.h(0).uid);
+  assert.equal(c.g(1).hp, C['16'].hp, 'nothing has been hit yet');
+  assert.equal(E.apply(c.s, { t: 'choose', tgt: c.g(2).uid }).ok, false, 'only the cards it could reach');
+  assert.ok(E.apply(c.s, { t: 'choose', tgt: c.g(1).uid }).ok);
+  assert.equal(c.b.stage, 'resolved'); assert.ok(c.g(1).ko, 'Pidgey, the one chosen, took the hit'); assert.ok(!c.g(0).ko);
+});
+test('abilities: a shield soaks damage once a round, then it is used up', () => {
+  const c = craft(['1.1', '85'], ['14', '10']); play(c, { hero: [1, 1], gm: [6, 6] }, { hero: { 0: 0, 1: 1 }, gm: { 0: 0, 1: 1 } });
+  assert.equal(c.g(0).hp, C['14'].hp - 3, 'Bulbasaur 2 minus the 1 shield, then Dodrio 2 with the shield gone');
 });
 test('abilities: a card that loses its round gets no die next round (Caterpie)', () => {
   const c = craft(['4.1'], ['10']); play(c, { hero: [1], gm: [6] }, { hero: { 0: 0 }, gm: { 0: 0 } });      // Charmander knocks out Caterpie... which has no further effect on a dead target
@@ -172,20 +192,44 @@ test('rules: a fight that goes nowhere for six rounds is lost', () => {
   c.b.stall = 5; const b = play(c, { hero: [6], gm: [6] }, { hero: { 0: 0 }, gm: { 0: 0 } });
   assert.equal(b.out, 'gm');
 });
-test('placement: the computer puts down one card, then two at a time; columns never exceed the team size', () => {
-  const s = E.newGame({ seed: 5, starter: 'bulbasaur' }); s.done.rival1 = true; s.done.B1 = true; s.phase = 'map';
+test('placement: a gym fight starts from your whole hand; the computer puts down one card, then two at a time, and you put down only as many as they bring', () => {
+  const s = E.newGame({ seed: 5, starter: 'bulbasaur' }); s.done.B1 = true;
   s.coll.push({ uid: 5, id: '10', sh: 0 }, { uid: 6, id: '16', sh: 0 }, { uid: 7, id: '19', sh: 0 });
-  assert.ok(E.apply(s, { t: 'go', node: 'B2' }).ok); assert.ok(E.apply(s, { t: 'team', uids: s.coll.slice(0, 3).map(c => c.uid) }).ok);
-  const b = s.battle; assert.deepEqual(b.pl, { side: 1, left: 1 });
+  assert.ok(E.apply(s, { t: 'go', node: 'B2' }).ok); assert.equal(s.phase, 'battle', 'no team to pick: straight into the fight');
+  const b = s.battle; assert.equal(b.mode, 'fixed'); assert.deepEqual(b.need, [3, 3]); assert.equal(b.hand[0].length, 4, 'your whole collection is your hand'); assert.equal(b.hand[1].length, 3);
+  assert.deepEqual(b.pl, { side: 1, left: 1 });
   let g = B.step(s, 'medium'); assert.ok(E.apply(s, g).ok); assert.deepEqual(b.pl, { side: 0, left: 2 }, 'your turn for two cards');
   assert.equal(E.apply(s, { t: 'place', side: 1, uid: b.hand[1][0], at: 0 }).ok, false, 'not their turn');
   E.apply(s, { t: 'place', side: 0, uid: b.hand[0][0], at: 0 }); E.apply(s, { t: 'place', side: 0, uid: b.hand[0][0], at: 1 });
-  assert.ok(b.cols.length <= b.limit);
-  while ((g = B.step(s, 'medium')) || (b.stage === 'place' && b.pl.side === 0)) { if (g) E.apply(s, g); else { const sl = E.slotsFor(b, 0)[0]; E.apply(s, Object.assign({ t: 'place', side: 0, uid: b.hand[0][0] }, sl)); } }
+  while ((g = B.step(s, 'medium')) || (b.stage === 'place' && b.pl.side === 0)) { if (g) E.apply(s, g); else E.apply(s, Object.assign({ t: 'place', side: 0, uid: b.hand[0][0] }, E.slotsFor(b, 0)[0])); }
   assert.equal(b.stage, 'assign'); assert.ok(b.cols.length <= 3);
+  assert.equal(E.living(b, 0).length, 3, 'three of your four cards fight; the fourth stays in your hand'); assert.equal(E.living(b, 1).length, 3);
+});
+test('wild cards: one comes up, you put one down, and then you choose: fight it one on one, or bring more and they draw one more each time', () => {
+  const s = E.newGame({ seed: 21, starter: 'bulbasaur' }); s.done.B1 = true; s.done.B2 = true; s.done.B3 = true;            // four dice
+  ['74', '56', '100'].forEach((id, i) => s.coll.push({ uid: 10 + i, id, sh: 0 }));
+  assert.ok(E.apply(s, { t: 'go', node: 'L1' }).ok); const b = s.battle;
+  assert.equal(b.mode, 'wild'); assert.equal(b.cap, 4); assert.equal(b.hand[1].length, 1, 'one wild card has come up'); assert.deepEqual(b.pl, { side: 1, left: 1 });
+  assert.ok(E.apply(s, B.step(s, 'medium')).ok); assert.equal(b.placed[1], 1, 'they put it down');
+  assert.equal(E.apply(s, { t: 'ready' }).ok, false, 'you have not put one down yet');
+  assert.ok(E.apply(s, Object.assign({ t: 'place', side: 0, uid: b.hand[0][0] }, E.slotsFor(b, 0).find(x => x.join != null))).ok);
+  assert.equal(b.pl.optional, true, 'now you may bring more, or fight'); assert.equal(b.stage, 'place');
+  // bring a second: they draw one more and the computer puts it down
+  assert.ok(E.apply(s, Object.assign({ t: 'place', side: 0, uid: b.hand[0][0] }, E.slotsFor(b, 0).find(x => x.at != null))).ok);
+  assert.deepEqual(b.pl, { side: 1, left: 1 }); assert.equal(b.hand[1].length, 1, 'a second wild card was drawn');
+  assert.ok(E.apply(s, B.step(s, 'medium')).ok); assert.equal(b.cols.length <= 2, true); assert.equal(b.pl.optional, true);
+  assert.ok(E.apply(s, { t: 'ready' }).ok, 'fight with two'); assert.equal(b.stage, 'assign'); assert.equal(E.living(b, 0).length, 2); assert.equal(E.living(b, 1).length, 2);
+  // one on one: put one down and fight at once
+  const t = E.newGame({ seed: 22, starter: 'squirtle' }); t.done.B1 = true; t.coll.push({ uid: 9, id: '10', sh: 0 });
+  E.apply(t, { t: 'go', node: 'L2' }); E.apply(t, B.step(t, 'medium')); const tb = t.battle;
+  E.apply(t, Object.assign({ t: 'place', side: 0, uid: tb.hand[0][0] }, E.slotsFor(tb, 0).find(x => x.join != null)));
+  assert.ok(E.apply(t, { t: 'ready' }).ok); assert.equal(E.living(tb, 0).length, 1); assert.equal(E.living(tb, 1).length, 1);
+  // with one die there is nothing to choose
+  const one = E.newGame({ seed: 23, starter: 'pikachu' }); one.coll.push({ uid: 9, id: '10', sh: 0 }); E.apply(one, { t: 'go', node: 'L1' }); E.apply(one, B.step(one, 'medium'));
+  E.apply(one, Object.assign({ t: 'place', side: 0, uid: one.battle.hand[0][0] }, E.slotsFor(one.battle, 0).find(x => x.join != null))); assert.equal(one.battle.stage, 'assign', 'one die: the fight starts as soon as your card is down');
 });
 test('hidden information: the computer never sees your dice, and you never see theirs until the round is played', () => {
-  const s = E.newGame({ seed: 9, starter: 'charmander' }); E.apply(s, { t: 'go', node: 'L1', n: 1 }); E.apply(s, { t: 'team', uids: [s.coll[0].uid] });
+  const s = E.newGame({ seed: 9, starter: 'charmander' }); E.apply(s, { t: 'go', node: 'L1' });
   let g; while ((g = B.step(s)) || (s.battle.stage === 'place' && s.battle.pl.side === 0)) { if (g) E.apply(s, g); else E.apply(s, Object.assign({ t: 'place', side: 0, uid: s.battle.hand[0][0] }, E.slotsFor(s.battle, 0)[0])); }
   assert.equal(s.battle.stage, 'assign');
   const mine = E.viewFor(s, 0), theirs = E.viewFor(s, 1);
@@ -216,8 +260,8 @@ test('campaign: your rival picks the partner that beats yours', () => {
 test('campaign: you cannot challenge a place that is locked, or a boss twice, or with too many cards', () => {
   const s = E.newGame({ seed: 4, starter: 'squirtle' });
   assert.equal(E.apply(s, { t: 'go', node: 'B2' }).ok, false, 'locked');
-  s.done.rival1 = true; assert.equal(E.apply(s, { t: 'go', node: 'L1', n: 2 }).ok, false, 'one die, one card');
-  assert.ok(E.apply(s, { t: 'go', node: 'L1', n: 1 }).ok); assert.equal(E.apply(s, { t: 'team', uids: [999] }).ok, false);
+  s.done.B1 = true; assert.equal(E.apply(s, { t: 'go', node: 'B1' }).ok, false, 'you cannot fight a gym leader twice');
+  assert.ok(E.apply(s, { t: 'go', node: 'L1' }).ok);
 });
 test('shiny: about one wild draw in twenty is shiny, with a fresh chance every time', () => {
   const s = E.newGame({ seed: 77, starter: 'bulbasaur' }); let sh = 0, n = 0;
@@ -228,7 +272,7 @@ test('shiny: a card keeps its form once it is on a team, and a card given back t
   const s = E.newGame({ seed: 8, starter: 'bulbasaur' });
   const shinyBoss = [].concat(...Object.values(s.bosses)).filter(i => i.sh);
   const before = JSON.stringify(s.bosses); s.done.rival1 = true; s.done.B1 = true;
-  s.coll.push({ uid: 20, id: '10', sh: 1 }); E.apply(s, { t: 'go', node: 'B2' }); E.apply(s, { t: 'team', uids: [1, 20].filter(u => s.coll.some(c => c.uid === u)).concat(s.coll.length > 2 ? [s.coll[2].uid] : []).slice(0, E.heroCount(s, E.node('B2'), 0)) });
+  s.coll.push({ uid: 20, id: '10', sh: 1 }); E.apply(s, { t: 'go', node: 'B2' });
   if (s.battle) E.apply(s, { t: 'forfeit' });
   assert.equal(JSON.stringify(s.bosses), before, 'a boss team is the same after a fight, shiny or not');
   assert.equal(s.coll.find(c => c.uid === 20).sh, 1, 'your own shiny stays shiny');
@@ -242,14 +286,14 @@ test('legendaries: with two dice, a nine on two dice at the start of a turn spot
   let found = null;
   for (let seed = 1; seed < 3000 && !found; seed++) {
     const s = E.newGame({ seed, starter: 'bulbasaur' }); s.done.rival1 = true; s.done.B1 = true; s.coll.push({ uid: 9, id: '10', sh: 0 });
-    E.apply(s, { t: 'go', node: 'L1', n: 2 }); const pool = s.legend.slice(); E.apply(s, { t: 'team', uids: [s.coll[0].uid, 9] });
+    const pool = s.legend.slice(); E.apply(s, { t: 'go', node: 'L1' });
     if (s.notes.length) found = { s, pool };
   }
   assert.ok(found, 'a legendary shows up now and then');
   const id = found.s.notes[0].replace('legend:', ''); assert.ok(C[id].legend);
   assert.ok(!found.s.legend.includes(id), 'it leaves the waiting pile');
-  assert.ok(found.s.decks[C[id].loc].includes(id) || found.s.battle.units.some(u => u.id === id), 'it is in the deck of the place on its card');
-  const one = E.newGame({ seed: 1, starter: 'bulbasaur' }); one.done.rival1 = true; E.apply(one, { t: 'go', node: 'L1', n: 1 }); E.apply(one, { t: 'team', uids: [one.coll[0].uid] });
+  assert.ok(found.s.decks[C[id].loc].includes(id) || found.s.battle.hand[1].some(h => found.s.battle.hcards[h].id === id) || found.s.battle.units.some(u => u.id === id), 'it is in the deck of the place on its card');
+  const one = E.newGame({ seed: 1, starter: 'bulbasaur' }); E.apply(one, { t: 'go', node: 'L1' });
   assert.equal(one.notes.length, 0, 'no rolling for legendaries with only one die');
 });
 
