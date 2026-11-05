@@ -33,7 +33,7 @@ test('ui: menu, new game, map, and a whole first fight through real taps, with n
   const errs = []; p.on('pageerror', e => errs.push(e.message)); p.on('console', m => { if (m.type() === 'error') errs.push(m.text()); });
   try {
     await p.goto(URL);
-    assert.match(await p.innerText('.logo'), /ROLL!/); assert.ok(await p.locator('.sprites img').count() === 5, 'the five partners');
+    assert.match(await p.innerText('.logo'), /ROLL!/); await p.waitForSelector('.arena .toy', { timeout: 4000 }); assert.equal(await p.locator('.arena .toy.stand img').count(), 5, 'the five starters are on the toy table'); assert.equal(await p.locator('.arena .toy.cube').count(), 5, 'ROLL! is five blocks'); assert.equal(await p.locator('[data-act=help]').count(), 0, 'help lives under More'); assert.ok(await p.locator('[data-act=more]').count() === 1, 'a More button');
     await p.click('[data-act=new]'); assert.equal(await p.locator('[data-act=starter]').count(), 5);
     await p.click('[data-act=starter][data-k=charmander]');
     assert.equal(await p.locator('.place').count(), 6, 'what is open, and one step beyond it');
@@ -123,7 +123,7 @@ test('ui: How to Play is a few pictures with one line each, not a wall of text; 
   const b = await chromium.launch(), p = await b.newPage({ viewport: { width: 820, height: 1180 } });
   const errs = []; p.on('pageerror', e => errs.push(e.message));
   try {
-    await p.goto(URL); await p.click('[data-act=help]');
+    await p.goto(URL); await p.click('[data-act=more]'); await p.click('.sheet [data-act=help]');
     const pages = []; for (let i = 0; i < 7; i++) { pages.push({ nav: await p.evaluate(() => { const r = document.querySelector('.hnav [data-act=hnext]').getBoundingClientRect(); return Math.round(r.left) + ',' + Math.round(r.top); }), imgs: await p.locator('.hvis img, .hvis svg, .hvis .card, .hvis .die').count(), words: ((await p.innerText('.hbox h2')) + ' ' + ((await p.locator('.hcap').count()) ? await p.innerText('.hcap') : '')).split(/\s+/).length }); if (i < 6) await p.click('.hnav [data-act=hnext]'); }
     pages.slice(0, 6).forEach((g, i) => { assert.ok(g.imgs >= 1, 'page ' + (i + 1) + ' is a picture'); assert.ok(g.words < 40, 'page ' + (i + 1) + ' is a line or two: ' + g.words + ' words'); });
     assert.equal(new Set(pages.map(g => g.nav)).size, 1, 'the arrows are always in the same spot: ' + pages.map(g => g.nav).join(' | '));

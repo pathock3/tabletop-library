@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- **Pokémon Roll! — the map road, straightened:** Erika now follows Misty and Blaine follows Surge (they were crossed), so each road is a straight line; Erika or Blaine opens the last stage. Roads that would run behind a tile arc round it. Fixed the leftmost card in "Your cards" being clipped at the top-left corner. The main menu gets a **More** button (How to Play, Hall of Fame, Pokédex) and a toy table of dice, letter blocks and starters you can throw around.
+
 - **Pokémon Roll! — specials removed, dice can freeze:** the multi-dice special moves are gone from every card. Freezing now means what it says: a frozen die repeats its last number next time and cannot be rerolled (Jynx when it is knocked out freezes an ally's; ice attacks freeze what they hit) instead of making a card lose a round.
 
 - **Pokémon Roll! — one die per card, one column at a time:** every card has its own die. Going left to right you tap to roll the column's dice, keep the number or 🔄 reroll it (once per card; Master's computer does the same, unseen), and the number picks the move. The two cards in the column then battle (heals, blocks, attacks) and you find out what the other side chose; then the next column. A card at 0 still makes its move; a card with nobody across still rolls. Movement abilities (Kadabra, Celebi, Abra, pushers) happen before the first roll of a round. **Coloured dice are gone.** **Gyarados** now may swap places with any ally once, after the matchups are set. Starmie/Staryu change the die you have just rolled to 2. Multi-dice **specials** ("555") are parked until they get a rule that suits one die per card (`rules.specials`). Easy and Normal now differ only in how they place cards.
