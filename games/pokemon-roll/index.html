@@ -120,6 +120,9 @@ button{font:inherit;color:inherit;border:0;cursor:pointer}
 .slot{width:var(--cw);height:calc(var(--cw)*1.9);border:3px dashed #ffffff44;border-radius:calc(var(--cw)*.1);display:grid;place-items:center;font-size:calc(var(--cw)*.3);color:#ffffff66}
 .slot.ok{border-color:var(--gold);color:var(--gold);background:#ffd23f22;animation:pulse 1s infinite}
 .slot.ghost{visibility:hidden}
+.die.colored{color:#fff;text-shadow:0 2px 0 #000b;border-color:#14110f}
+.card .dbadge.colored{color:#fff;text-shadow:0 1px 0 #000b}
+.card .dbadge small{font-size:.55em;margin-left:2px;font-weight:900}
 .die.lockd::after{content:'🔒';position:absolute;right:-4px;top:-6px;font-size:calc(var(--dw,60px)*.32)}
 .die{position:relative}
 .col.insc{background:none}
@@ -321,6 +324,7 @@ const GAME_DATA = {
     maxRounds: 60, stallRounds: 6,   // a fight that goes nowhere is lost (a tie is a loss for the hero)
     suddenDeathTries: 3,
     perColumnLimit: 1,
+    colorBonus: 1,              // a die the colour of the move's element adds this to the move (coloured dice come from gym leaders: both sides use the leader's colour in that fight, and you keep it)
     baseRerolls: 1,             // every side may throw one die again each round (cards add more); Easy never uses it
     firstPlaceCount: 1, placeCount: 2,   // the first player puts down one card, then both put down two at a time
   },
@@ -363,20 +367,20 @@ const GAME_DATA = {
   // beating a boss lifts your starter to lvl+1. `draws`: [location, cards, extra cards in the long game].
   nodes: [
     { id: 'L1', kind: 'loc', loc: 1, name: 'Viridian Forest', stage: 0, lane: 0, needs: [] },
-    { id: 'B1', kind: 'boss', name: 'Brock', trainer: '🪨', color: '#8d6e63', stage: 0, lane: 1, needs: [], lvl: 2, size: [2, 2], draws: [[2, 1, 0], [1, 1, 0]] },
+    { id: 'B1', kind: 'boss', die: ['ground'], name: 'Brock', trainer: '🪨', color: '#8d6e63', stage: 0, lane: 1, needs: [], lvl: 2, size: [2, 2], draws: [[2, 1, 0], [1, 1, 0]] },
     { id: 'L2', kind: 'loc', loc: 2, name: 'Mt. Moon', stage: 0, lane: 2, needs: [] },
-    { id: 'B2', kind: 'boss', name: 'Misty', trainer: '🌊', color: '#29b6f6', stage: 1, lane: 0, needs: ['B1'], lvl: 3, size: [3, 3], draws: [[4, 2, 0], [1, 1, 0]] },
+    { id: 'B2', kind: 'boss', die: ['water'], name: 'Misty', trainer: '🌊', color: '#29b6f6', stage: 1, lane: 0, needs: ['B1'], lvl: 3, size: [3, 3], draws: [[4, 2, 0], [1, 1, 0]] },
     { id: 'L3', kind: 'loc', loc: 3, name: 'Power Plant', stage: 1, lane: 1, needs: ['B1'] },
-    { id: 'B3', kind: 'boss', name: 'Lt. Surge', trainer: '⚡', color: '#fdd835', stage: 1, lane: 2, needs: ['B1'], lvl: 3, size: [3, 3], draws: [[3, 2, 0], [2, 1, 0]] },
+    { id: 'B3', kind: 'boss', die: ['electric'], name: 'Lt. Surge', trainer: '⚡', color: '#fdd835', stage: 1, lane: 2, needs: ['B1'], lvl: 3, size: [3, 3], draws: [[3, 2, 0], [2, 1, 0]] },
     { id: 'L4', kind: 'loc', loc: 4, name: 'S.S. Anne', stage: 2, lane: 0, needs: ['B2'] },
     { id: 'L5', kind: 'loc', loc: 5, name: 'Pokemon Tower', stage: 2, lane: 2, needs: ['B3'] },
-    { id: 'B4', kind: 'boss', name: 'Blaine', trainer: '🔥', color: '#ef5350', stage: 3, lane: 0, needs: ['B2'], lvl: 4, size: [4, 5], draws: [[8, 2, 0], [5, 1, 0], [3, 1, 0], [4, 0, 1]] },
-    { id: 'B5', kind: 'boss', name: 'Erika', trainer: '🌿', color: '#66bb6a', stage: 3, lane: 2, needs: ['B3'], lvl: 4, size: [4, 5], draws: [[6, 2, 0], [5, 1, 1], [4, 1, 0]] },
+    { id: 'B4', kind: 'boss', die: ['fire'], name: 'Blaine', trainer: '🔥', color: '#ef5350', stage: 3, lane: 0, needs: ['B2'], lvl: 4, size: [4, 5], draws: [[8, 2, 0], [5, 1, 0], [3, 1, 0], [4, 0, 1]] },
+    { id: 'B5', kind: 'boss', die: ['grass'], name: 'Erika', trainer: '🌿', color: '#66bb6a', stage: 3, lane: 2, needs: ['B3'], lvl: 4, size: [4, 5], draws: [[6, 2, 0], [5, 1, 1], [4, 1, 0]] },
     { id: 'L6', kind: 'loc', loc: 6, name: 'Safari Zone', stage: 4, lane: 0, needs: ['B4', 'B5'] },
     { id: 'B6', kind: 'boss', name: 'Blue', trainer: '🎖️', color: '#3f51b5', stage: 4, lane: 1, needs: ['B4', 'B5'], lvl: 5, size: [5, 7], draws: [[9, 1, 0], [7, 1, 1], [8, 1, 0], [6, 1, 1], [5, 1, 0]] },
     { id: 'L7', kind: 'loc', loc: 8, name: 'Cinnabar Island', stage: 4, lane: 2, needs: ['B4', 'B5'] },
     { id: 'L8', kind: 'loc', loc: 7, name: 'Seafoam Islands', stage: 5, lane: 0, needs: ['B6'] },
-    { id: 'B7', kind: 'boss', finale: true, name: 'Lance', trainer: '🐉', color: '#5c6bc0', stage: 5, lane: 1, needs: ['B6'], lvl: 6, size: [6, 9], draws: [[9, 2, 1], [7, 1, 1], [8, 1, 1], [6, 1, 0]], legendary: 1 },
+    { id: 'B7', kind: 'boss', finale: true, die: ['fire', 'water', 'electric', 'grass', 'ground'], name: 'Lance', trainer: '🐉', color: '#5c6bc0', stage: 5, lane: 1, needs: ['B6'], lvl: 6, size: [6, 9], draws: [[9, 2, 1], [7, 1, 1], [8, 1, 1], [6, 1, 0]], legendary: 1 },
     { id: 'L9', kind: 'loc', loc: 9, name: 'Victory Road', stage: 5, lane: 2, needs: ['B6'] },
   ],
   // ability text on the card -> what the engine does (first match wins; "$1" is the first group). Several abilities on a card are separated by ";".
@@ -390,6 +394,7 @@ const GAME_DATA = {
     ['^-(\\d)d$', { t: 'shield', n: '$1' }],
     ['^When you take damage, attacker loses a round$', { t: 'hitSkip' }],
     ['^When you lose (\\d)\\+ damage, attacker takes (\\d)d$', { t: 'bigHit', min: '$1', n: '$2' }],
+    ['^\\+(\\d)a if given the blue die$', { t: 'dieBonus', color: 'water', n: '$1' }],
     ['^\\+(\\d) reroll$', { t: 'reroll', n: '$1' }],
     ['^You may always reroll (\\d)s$', { t: 'rerollFace', face: '$1' }],
     ['^Dodge one attack per match$', { t: 'dodgeMatch' }],
@@ -672,6 +677,7 @@ const Engine = (() => {
   function parseMove(str) {
     if (!str) return null; if (MV[str] !== undefined) return MV[str];
     const clauses = str.split(/ or (?=\+?\d)/).map(cl => cl.split(/\s*(?:,|&)\s*/).map(parseEffect).filter(Boolean)).filter(c => c.length);
+    clauses.forEach(cl => { const f = cl.find(x => !x.bonus && x.k !== 'd'); if (f) f.main = true; });         // the move's main effect is what a matching die colour adds to
     return (MV[str] = clauses.length ? { raw: str, clauses } : null);
   }
   const SP = {};
@@ -732,7 +738,7 @@ const Engine = (() => {
 
   function newGame(o) {
     o = o || {};
-    const s = { v: D.version, seed: o.seed != null ? o.seed : (Date.now() % 2147483647), size: o.size === 'long' ? 'long' : 'short', ai: ({ hard: 'master', medium: 'normal' })[o.ai] || o.ai || 'normal', phase: 'start', starter: null, rival: null, lv: 1, coll: [], decks: {}, discard: {}, bosses: {}, done: {}, bossTurns: {}, legend: [], nextUid: 1, turn: 0, pend: null, battle: null, res: null, notes: [] };
+    const s = { v: D.version, seed: o.seed != null ? o.seed : (Date.now() % 2147483647), size: o.size === 'long' ? 'long' : 'short', ai: ({ hard: 'master', medium: 'normal' })[o.ai] || o.ai || 'normal', cdice: [], phase: 'start', starter: null, rival: null, lv: 1, coll: [], decks: {}, discard: {}, bosses: {}, done: {}, bossTurns: {}, legend: [], nextUid: 1, turn: 0, pend: null, battle: null, res: null, notes: [] };
     s.rng = s.seed | 0;
     if (o.starter) chooseStarter(s, o.starter);
     return s;
@@ -845,6 +851,7 @@ const Engine = (() => {
     [0, 1].forEach(sd => {
       const n = living(b, sd).filter(u => !u.skip).length;
       b.dice[sd] = Array.from({ length: n }, () => die(s));
+      b.dcol = b.dcol || [[], []]; b.dcol[sd] = diceColors(s, b, sd).slice(0, n);
       b.rr[sd] = R.baseRerolls; b.rrFace[sd] = []; b.rrUsed[sd] = {}; (b.locked = b.locked || [{}, {}])[sd] = {};
       living(b, sd).forEach(u => tags(u).forEach(t => { if (t.t === 'reroll') b.rr[sd] += t.n; if (t.t === 'rerollFace' && b.rrFace[sd].indexOf(t.face) < 0) b.rrFace[sd].push(t.face); }));
     });
@@ -907,6 +914,18 @@ const Engine = (() => {
     }
     return { face, mv: parseMove(str), str: str || '' };
   }
+
+  // coloured dice: you own the colours you have won from gym leaders; in a gym fight both sides also use the leader's colour (Lance: one of each)
+  function diceColors(s, b, side) {
+    const nd = node(b.node), boss = nd && nd.kind === 'boss' ? (nd.die || []) : [], own = (s.cdice || []).concat(boss.filter(c => (s.cdice || []).indexOf(c) < 0));
+    return side === 0 ? own : boss.slice();
+  }
+  // a die the colour of the move's element adds to it (not to specials: they are not doubled)
+  function colorBonus(b, u) {
+    if (b.hypo && b.hypo.uid === u.uid) return b.hypo.bonus;
+    const a = b.asg && b.asg[u.side] && b.asg[u.side][u.uid]; if (!a || a.dice.length !== 1) return 0;
+    const col = b.dcol && b.dcol[u.side] && b.dcol[u.side][a.dice[0]]; return col && col === typeOf(u) ? R.colorBonus : 0;
+  }
   const weakMult = (a, t) => (lc(CARDS[t.id].weak) === typeOf(a) && !(typeOf(t) === 'fire' && noWeakOn(a.side === t.side ? a : t, t))) ? 2 : 1;
   const noWeakOn = (a, t) => (t && false) || false;
   const noFireBonus = b => b.units.some(u => !u.ko && has(u, 'noWeak'));
@@ -932,10 +951,11 @@ const Engine = (() => {
   }
   function soloElectric(b, u) { return !b.units.some(x => !x.ko && x !== u && typeOf(x) === 'electric'); }
   function amountOf(b, u, e) {
-    let n = e.n;
+    let n = e.n; if (e.main && !e.bonus) n += colorBonus(b, u);
     if (e.k === 'a') {
       n += auraBonus(b, u, 'a');
       tags(u).forEach(t => {
+        if (t.t === 'dieBonus') { const a = b.asg[u.side][u.uid], col = a && a.dice.length === 1 && b.dcol && b.dcol[u.side][a.dice[0]]; if (col === t.color) n += t.n; }
         if (t.t === 'perBlocked') n += u.lastBlk; else if (t.t === 'perHurt') n += u.lastHurt;
         else if (t.t === 'nido' && t.k === 'a') n += b.units.filter(x => !x.ko && x.side === u.side && x !== u && /^Nido/.test(CARDS[x.id].name)).length;
         else if (t.t === 'onceA' && !u.onceUsed && !e.bonus) n += t.n; else if (t.t === 'lowA' && u.hp < t.hp) n += t.n; else if (t.t === 'soloEl' && typeOf(u) === 'electric' && soloElectric(b, u)) n += t.n;
@@ -948,7 +968,7 @@ const Engine = (() => {
   // when a card is alone, some cards turn their healing into attacks
   function effectsOf(b, u, clause) {
     const t = tag(u, 'alone');
-    if (t && living(b, u.side).length === 1) return clause.map(e => e.k === 'h' ? { k: 'a', n: e.n, bonus: e.bonus, spec: t.sp || { opts: [[0]], spread: false, all: true } } : e);
+    if (t && living(b, u.side).length === 1) return clause.map(e => e.k === 'h' ? { k: 'a', n: e.n, bonus: e.bonus, main: e.main, spec: t.sp || { opts: [[0]], spread: false, all: true } } : e);
     return clause;
   }
   function hitValue(b, a, t, n) { if (t.hp <= 0) return 0; const m = n * wm(b, a, t); return Math.min(m, t.hp) + (m >= t.hp ? 3 : 0); }
@@ -983,7 +1003,8 @@ const Engine = (() => {
     return { clause: best, value: bv };
   }
   // a short reading of what a die does for a card (the board shows it)
-  function preview(b, u, face, dice) {
+  function preview(b, u, face, dice, di) {
+    if (di != null) { const col = b.dcol && b.dcol[u.side] && b.dcol[u.side][di]; b.hypo = { uid: u.uid, bonus: col && col === typeOf(u) ? R.colorBonus : 0 }; try { return preview(b, u, face, dice); } finally { b.hypo = null; } }
     const m = chosenMove(b, u, dice || [face]); if (!m) return { txt: u.skip ? 'loses a round' : '—', value: 0 };
     if (m.sp) { const v = m.sp.effs.reduce((t, e) => t + (e.k === 'a' ? e.n * (e.scope ? 2.2 : 1.4) : e.k === 'h' ? e.n * 0.8 : e.n * 0.5), 0); return { txt: 'Special ' + m.sp.raw.replace(/^\d+:\s*/, ''), value: v, special: true }; }
     const c = bestClause(b, u, m.mv); return { txt: m.str || '—', value: c ? c.value : 0, clause: c && c.clause };
@@ -1387,7 +1408,8 @@ const Engine = (() => {
       if (win) s.res.pick = gm; else gm.forEach(i => s.discard[CARDS[i.id].loc].push(i.id));      // what you dug goes to the discard pile; the draw pile is worked through once before it is shuffled again
       if (win && !gm.length) s.res.pick = [];
     } else if (win) {
-      s.done[nd.id] = true; s.bossTurns[nd.id] = s.turn;          // how many turns it took to get this far
+      s.done[nd.id] = true; s.bossTurns[nd.id] = s.turn;
+      if (nd.die && !nd.finale) { const gain = nd.die.filter(c => (s.cdice = s.cdice || []).indexOf(c) < 0); gain.forEach(c => s.cdice.push(c)); if (gain.length) s.res.dieGain = gain; }          // you keep the leader's colour          // how many turns it took to get this far
       if (nd.kind === 'boss') {
         const team = s.bosses[nd.id]; team.forEach(i => s.discard[CARDS[i.id].loc || 1].push(i.id));
         s.res.cleared = team;
@@ -1480,7 +1502,7 @@ const Engine = (() => {
     if (v.battle && v.battle.stage === 'assign') { const o = other(side); v.battle.dice[o] = v.battle.dice[o].map(() => 0); v.battle.asg[o] = {}; }
     return v;
   }
-  return { autoChoice, hauntAsk, blocksMove, _t: { startBattle, startRound, resolveRound, cleanUp, drawWild }, handOf, canExpand, apply, newGame, chooseStarter, viewFor, CARDS, parseMove, parseSpecial, tagsOf, tags, preview, bestClause, chosenMove, candidates, pickTargets, amountOf, slotsFor, readyToGo, assignedDice, living, colIdx, U, rnd, ri, shuffle, node, starterOf, rivalFor, slots, unlocked, deckSize, heroCount, gmCount, typeOf, wm, hitValue, parseSpec, clauseValue, effectsOf, D, R };
+  return { autoChoice, hauntAsk, blocksMove, colorBonus, _t: { startBattle, startRound, resolveRound, cleanUp, drawWild }, handOf, canExpand, apply, newGame, chooseStarter, viewFor, CARDS, parseMove, parseSpecial, tagsOf, tags, preview, bestClause, chosenMove, candidates, pickTargets, amountOf, slotsFor, readyToGo, assignedDice, living, colIdx, U, rnd, ri, shuffle, node, starterOf, rivalFor, slots, unlocked, deckSize, heroCount, gmCount, typeOf, wm, hitValue, parseSpec, clauseValue, effectsOf, D, R };
 })();
 
 </script>
@@ -1521,7 +1543,7 @@ const Bots = (() => {
   function assignment(s, side, level) {
     const b = s.battle, units = E.living(b, side).filter(u => !u.skip), n = b.dice[side].length;
     if (!units.length || !n) return [];
-    const vals = (u, di) => E.preview(b, u, b.dice[side][di]).value;
+    const vals = (u, di) => E.preview(b, u, b.dice[side][di], undefined, di).value;
     const dieIdx = Array.from({ length: n }, (_, i) => i);
     let perm = dieIdx.slice(); if (lv(level).random >= 1) for (let i = perm.length - 1; i > 0; i--) { const j = E.ri(s, i + 1); [perm[i], perm[j]] = [perm[j], perm[i]]; }   // perm[k] = the die that card k gets
     const total = p => units.reduce((t, u, k) => t + (p[k] != null ? vals(u, p[k]) : 0), 0);
@@ -1568,7 +1590,7 @@ const Bots = (() => {
     const b = s.battle, L = lv(level); if (L.rerolls === 'never' || b.rr[side] <= 0) return null;
     const dice = b.dice[side], units = E.living(b, side).filter(u => !u.skip); if (!dice.length || !units.length) return null;
     const cur = assignment(s, side, level), base = cur.score || 0, worth = new Array(dice.length).fill(0);
-    cur.forEach(x => x.dice.forEach(d => { worth[d] += E.preview(b, E.U(b, x.uid), dice[d], x.dice.map(i => dice[i])).value / x.dice.length; }));
+    cur.forEach(x => x.dice.forEach(d => { worth[d] += E.preview(b, E.U(b, x.uid), dice[d], x.dice.map(i => dice[i]), x.dice.length === 1 ? d : undefined).value / x.dice.length; }));
     const lk = (b.locked && b.locked[side]) || {}, order = dice.map((_, i) => i).filter(i => !lk[i]).sort((p, q) => worth[p] - worth[q]); if (!order.length) return null;
     let seed = (b.round * 7919 + side * 104729 + dice.reduce((t, v) => t * 7 + v, 3)) >>> 0; const rnd = () => (seed = (seed * 1664525 + 1013904223) >>> 0) / 4294967296;
     let best = null, bestGain = L.rerollMargin;
@@ -1725,7 +1747,7 @@ const Bots = (() => {
     return `<div class="card${u.sh ? ' shiny' : ''}${o.foe ? ' foe' : ''}${o.ko ? ' ko' : ''}${o.sel ? ' sel' : ''}${o.die != null ? ' has-die' : ''}${o.cls ? ' ' + o.cls : ''}" style="--cw:${cw}px;--bg:${e.bg};--c:${e.color}" ${o.attr || ''}>
       ${D.elements[c.weak] ? `<div class="wkt" style="--wc:${el(c.weak).color}">weak · ${el(c.weak).icon} ${esc(c.weak)}</div>` : ''}
       <div class="nmrow"><div class="nm">${esc(c.name)}${u.sh ? ' ✨' : ''}</div></div>
-      <div class="top2"><div class="art"><img src="${art(u.id, u.sh)}" alt="${esc(c.name)}">${u.sh ? sparkles() : ''}${o.mark ? `<div class="mark">${o.mark}</div>` : ''}${o.die != null ? `<div class="dbadge${o.heroDie ? ' hero' : ''}${o.land ? ' land' : ''}" ${o.dieAttr || ''}>${o.die}</div>` : ''}</div>
+      <div class="top2"><div class="art"><img src="${art(u.id, u.sh)}" alt="${esc(c.name)}">${u.sh ? sparkles() : ''}${o.mark ? `<div class="mark">${o.mark}</div>` : ''}${o.die != null ? `<div class="dbadge${o.heroDie ? ' hero' : ''}${o.land ? ' land' : ''}${o.dieCol ? ' colored' : ''}" ${o.dieAttr || ''}${o.dieCol ? ` style="background:${o.dieCol}"` : ''}>${o.die}${o.dieBonus ? '<small>+1</small>' : ''}</div>` : ''}</div>
         <div class="inf"><div class="lv">Lv ${c.level}</div><div class="hprow"><div class="hpc${lvl}">♥ <span class="hpn">${Math.max(0, hp)}</span><small>/${mx}</small></div>${o.chg ? `<span class="hpchg${o.chg.heal ? ' up' : ''}">${o.chg.heal ? '+' : '−'}${o.chg.n}${o.chg.weak ? ' <b>×2</b>' : ''}</span>` : ''}</div>${o.shield ? `<div class="shd">🛡 ${o.shield}</div>` : ''}</div></div>
       <div class="tagrow"><span class="tag">${e.icon} ${esc(c.type)}</span></div>
       <div class="ab">${c.ability ? abText(c.ability) : 'No ability'}</div>
@@ -1736,7 +1758,8 @@ const Bots = (() => {
     </div>`;
   }
   const back = cw => `<div class="back" style="--cw:${cw}px">❓</div>`;
-  const dieHtml = (v, o) => `<div class="die${o && o.sel ? ' sel' : ''}${o && o.used ? ' used' : ''}${o && o.foe ? ' foe' : ''}${o && o.tumble ? ' tumble' : ''}${o && o.locked ? ' lockd' : ''}" ${o && o.attr || ''}>${v}${o && o.badge ? `<small>${o.badge}</small>` : ''}</div>`;
+  const dieCol = t => { const e = t && D.elements[t[0].toUpperCase() + t.slice(1)]; return e ? e.color : null; };
+  const dieHtml = (v, o) => `<div class="die${o && o.sel ? ' sel' : ''}${o && o.used ? ' used' : ''}${o && o.foe ? ' foe' : ''}${o && o.tumble ? ' tumble' : ''}${o && o.locked ? ' lockd' : ''}${o && o.color ? ' colored' : ''}" ${o && o.attr || ''}${o && o.color ? ` style="background:${o.color}"` : ''}>${v}${o && o.badge ? `<small>${o.badge}</small>` : ''}</div>`;
 
   // ---------------------------------------------------------------- the places, drawn as little scenes (160 x 120)
   const tree = (x, y, s) => `<rect x="${x - 3 * s}" y="${y}" width="${6 * s}" height="${22 * s}" fill="#6d4c41"/><circle cx="${x}" cy="${y - 4 * s}" r="${20 * s}" fill="#2e7d32"/><circle cx="${x - 11 * s}" cy="${y + 4 * s}" r="${14 * s}" fill="#388e3c"/><circle cx="${x + 12 * s}" cy="${y + 2 * s}" r="${13 * s}" fill="#1b5e20"/>`;
@@ -2138,7 +2161,8 @@ const Bots = (() => {
       const mvb = canMv && E.tags(u).some(g => g.t === 'mover') && u.movedR !== b.round && b.cols.length > 1 ? `<div class="xb"><span data-act="mv" data-uid="${u.uid}" data-dir="-1" style="padding:8px 16px">◀</span> Move <span data-act="mv" data-uid="${u.uid}" data-dir="1" style="padding:8px 16px">▶</span></div>` : '';
       const swb = canMv && E.tags(u).some(g => g.t === 'swapper') && u.swapR !== b.round && E.living(b, 1).length > 1 ? `<div class="xb" data-act="swapstart" data-uid="${u.uid}">${ui.swap && ui.swap.uid === u.uid ? 'Tap two of theirs' : '⇄ Swap two'}</div>` : '';
       const pf = assign && !waitRoll && u.side === 0 && !ko && ui.die != null ? b.dice[0][ui.die] : 0;
-      return card(u, { cw, foe: u.side === 1, ko: koOf(u), hp: hpOf(u), shield: u.shield || 0, face, sp: spOn, pf, die, chg: chgOf(u), land: ui.landed === u.uid, heroDie: u.side === 0, dieAttr: u.side === 0 && assign ? `data-act="unmv" data-uid="${u.uid}"${info && info.die.length === 1 ? ` data-i="${info.die[0]}"` : ''}` : '', mark, extra: extra + mvb + swb, cls: clsOf(u) + (ui.swap && u.side === 1 && !ko ? (ui.swap.picks.indexOf(u.uid) >= 0 ? ' sel act' : ' sel') : ''), pop: popOf(u), attr: `data-act="unit" data-uid="${u.uid}"` });
+      const dcol1 = info && info.die.length === 1 && b.dcol && b.dcol[u.side] ? dieCol(b.dcol[u.side][info.die[0]]) : null, dbonus = info && !ko && E.colorBonus(b, u) > 0;
+      return card(u, { cw, dieCol: dcol1, dieBonus: dbonus, foe: u.side === 1, ko: koOf(u), hp: hpOf(u), shield: u.shield || 0, face, sp: spOn, pf, die, chg: chgOf(u), land: ui.landed === u.uid, heroDie: u.side === 0, dieAttr: u.side === 0 && assign ? `data-act="unmv" data-uid="${u.uid}"${info && info.die.length === 1 ? ` data-i="${info.die[0]}"` : ''}` : '', mark, extra: extra + mvb + swb, cls: clsOf(u) + (ui.swap && u.side === 1 && !ko ? (ui.swap.picks.indexOf(u.uid) >= 0 ? ' sel act' : ' sel') : ''), pop: popOf(u), attr: `data-act="unit" data-uid="${u.uid}"` });
     };
     const slotHtml = (ci, side) => {
       const uid = b.cols[ci][side];
@@ -2154,7 +2178,7 @@ const Bots = (() => {
     const heroTray = teamSort(E.handOf(b, 0), hc => hc.hid != null ? hc.hid : hc.uid).map(hc => { const k = hc.hid != null ? hc.hid : hc.uid; return card(hc, { cw: hcw, sel: k === selected, attr: `data-act="tray" data-uid="${k}"` }); }).join('');
     // the bay: your hand while you set the matchups, then the dice
     const hd = b.dice[0], used = E.assignedDice(b, 0);
-    const diceHtml = !waitRoll && (assign || done || p) && hd.length ? hd.map((v, i) => dieHtml(v, { sel: ui.die === i, used: used.has(i), tumble: rolling && (!ui.rerolled || ui.rerolled.indexOf(i) >= 0), locked: !!(b.locked && b.locked[0] && b.locked[0][i]), attr: assign && !rolling ? `data-act="die" data-i="${i}"` : '' })).join('') : '';
+    const diceHtml = !waitRoll && (assign || done || p) && hd.length ? hd.map((v, i) => dieHtml(v, { sel: ui.die === i, used: used.has(i), tumble: rolling && (!ui.rerolled || ui.rerolled.indexOf(i) >= 0), locked: !!(b.locked && b.locked[0] && b.locked[0][i]), color: dieCol(b.dcol && b.dcol[0] && b.dcol[0][i]), attr: assign && !rolling ? `data-act="die" data-i="${i}"` : '' })).join('') : '';
     let status = '', btns = '';
     const opt = yourPlace && b.pl.optional;
     if (placing) status = (b.sudden ? 'SUDDEN DEATH · ' : '') + (yourPlace ? (selected != null ? 'Now tap where it goes' : opt ? 'Bring another card (they will draw one more), or fight now' : 'Pick a Pokémon from your hand to put down') : 'They are putting a card down…');
@@ -2181,7 +2205,7 @@ const Bots = (() => {
     const r = G.res, nd = E.node(r.node), sdv = E.starterOf(G.starter), cw = 150;
     const take = r.pick ? `<div class="status">Choose one to join your team!</div><div class="hrow">${r.pick.map((i, k) => card(i, { cw, attr: `data-act="take" data-i="${k}"` })).join('')}</div>` : (r.took ? `<div class="status">You caught ${esc(C[r.took.id].name)}${r.took.sh ? ' ✨' : ''}!</div><div class="hrow">${card(r.took, { cw })}</div>` : '');
     const evo = r.evolve ? `<div class="status">${esc(C[sdv.levels[r.evolve - 1]].name)} is ready to evolve! Which will it be?</div><div class="hrow">${[[sdv.levels[r.evolve - 1], 0], [sdv.evolve[r.evolve], 1]].map(([id, y]) => card({ id, sh: 0 }, { cw, attr: `data-act="evolve" data-yes="${y}"` })).join('')}</div>` : '';
-    const lines = []; if (r.win && nd.kind === 'boss') lines.push(`You beat ${esc(nd.name)}! +1 die`); if (r.turns != null) lines.push(`${nd.finale ? 'You beat the game' : 'Beaten'} in <b>${r.turns} turn${r.turns === 1 ? '' : 's'}</b>${r.newBest ? ' <span class="nb">New best!</span>' : (r.best != null ? ` <span class="pb">(best ${r.best})</span>` : '')}`); if (r.levelUp) lines.push(`Your partner grew to level ${r.levelUp}!`); if (r.legend && r.win) lines.push(`${esc(C[r.legend.id].name)}${r.legend.sh ? ' ✨' : ''} joins your team!`);
+    const lines = []; if (r.win && nd.kind === 'boss') lines.push(`You beat ${esc(nd.name)}! +1 die`); if (r.dieGain) lines.push(`You keep ${r.dieGain.map(c => `<b style="color:${dieCol(c)}">${c}</b>`).join(', ')}: a die that adds +1 to a move of its colour`); if (r.turns != null) lines.push(`${nd.finale ? 'You beat the game' : 'Beaten'} in <b>${r.turns} turn${r.turns === 1 ? '' : 's'}</b>${r.newBest ? ' <span class="nb">New best!</span>' : (r.best != null ? ` <span class="pb">(best ${r.best})</span>` : '')}`); if (r.levelUp) lines.push(`Your partner grew to level ${r.levelUp}!`); if (r.legend && r.win) lines.push(`${esc(C[r.legend.id].name)}${r.legend.sh ? ' ✨' : ''} joins your team!`);
     return `<div class="scr" style="overflow:auto"><div class="center" style="justify-content:flex-start;padding-top:56px"><div class="banner">${r.win ? (nd.finale ? 'CHAMPION!' : 'Victory!') : 'Not this time'}</div>
       ${lines.map(l => `<div style="font:800 22px system-ui">${l}</div>`).join('')}
       ${r.win && r.levelUp && !r.evolve ? `<div class="hrow">${card({ id: G.coll.find(c => c.starter).id, sh: 0 }, { cw })}</div>` : ''}
@@ -2204,7 +2228,7 @@ const Bots = (() => {
     { t: 'Weakness hurts double', cap: 'The tab at the top shows what it fears.', vis: () => `<div class="hv"><div class="hs">${spr('4.2', 0)}<b>🔥 Fire</b></div><div class="boom">2 ➜ <span>4</span> 💥</div><div class="hs">${spr('1.2', 0)}<b>weak 🔥</b></div></div>` },
     { t: 'Win cards. Beat gym leaders.', cap: 'Every gym leader opens a new road.', vis: () => `<div class="hv">${['L1', 'B1', 'B2'].map((id, k) => `${k ? '<span class="arrow">➜</span>' : ''}<div class="hmap"><svg viewBox="0 0 160 120">${sceneOf(E.node(id))}</svg></div>`).join('')}</div>` },
     { t: 'Shinies and legendaries', cap: 'Shiny is a look. A 9 on two dice finds a legend.', vis: () => `<div class="hv"><div class="hs">${spr('6.5', 0)}</div><span class="arrow">➜</span><div class="hs shw">${spr('6.5', 1)}${sparkles()}</div><div class="boom">${dieHtml(4, {})}${dieHtml(5, {})}</div><div class="hs">${spr('249', 0)}</div></div>` },
-    { t: 'Good to know', cap: '', vis: () => `<ul class="hl"><li>🛡 A blocker takes what it can’t soak.</li><li>💥 A card at 0 is out right away.</li><li>🛡 A shield soaks damage once a round.</li><li>🔄 Once a round, give out the dice you like and throw the rest again. They are locked in after that.</li><li>🏃 Leave any fight. Nothing is lost.</li><li>🎲 Tap anywhere to roll again.</li></ul>` },
+    { t: 'Good to know', cap: '', vis: () => `<ul class="hl"><li>🛡 A blocker takes what it can’t soak.</li><li>💥 A card at 0 is out right away.</li><li>🛡 A shield soaks damage once a round.</li><li>🎨 A die the colour of a card's type adds +1 to its move. Beat a gym leader to keep their colour.</li><li>🔄 Once a round, give out the dice you like and throw the rest again. They are locked in after that.</li><li>🏃 Leave any fight. Nothing is lost.</li><li>🎲 Tap anywhere to roll again.</li></ul>` },
   ];
   const helpSheet = () => { const i = Math.max(0, Math.min(HELP.length - 1, ui.helpPage || 0)), pg = HELP[i]; return `<div class="sheet" data-act="closehelp"><div class="box hbox" data-stop="1"><div class="hvis" data-act="hnext">${pg.vis()}</div><h2>${pg.t}</h2>${pg.cap ? `<p class="hcap">${pg.cap}</p>` : ''}<div class="hnav"><button class="ib" data-act="hprev">◀</button><div class="dots">${HELP.map((_, k) => `<i class="${k === i ? 'on' : ''}"></i>`).join('')}</div><button class="ib" data-act="hnext">▶</button></div></div></div>`; };
   function menuSheet() {

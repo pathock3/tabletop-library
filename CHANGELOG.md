@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- **Pokémon Roll! — coloured dice:** beat a gym leader and you keep their colour die: Brock brown (Ground), Misty blue (Water), Lt. Surge yellow (Electric), Erika green (Grass), Blaine red (Fire). In a gym fight both sides also use that leader's colour (Lance: one of each). A die the colour of a card's type adds +1 to that card's move (a "+1" shows on the die on the card); specials are not doubled. Gyarados gets +1 attack from the blue die. The first die is always white.
+
 - **Pokémon Roll! — an "i" on every place:** the eyeball is now an "i" for information, and every open location has one too: tap it to see how many cards of each type are still in that deck (and how many are in its discard pile).
 
 - **Pokémon Roll! — you choose who a block protects, and Ditto's pick:** a block that says "itself or a neighbour" now protects ONE card, and when its turn comes you tap which one (it is no longer a blanket over everyone in reach). Ditto asks whose move it copies this round: the card across or one of that card's neighbours. Survival ("hangs on") stays automatic.

@@ -53,7 +53,7 @@ Sources (Patrick's Google Drive, folder "Pokémon Roll"): **Pokémon Roll! Ruleb
 - Beating Lance gives you his legendary.
 
 ## Abilities
-Every ability on the sheet is read from its text by the table in the data block. **Not in this version:** Jynx's "On KO, freeze an ally die" and Gyarados's "+1a if given the blue die" (colored dice are dropped; the paper rules describe them only loosely and the design doc leaves open whether a matching color adds +1 to ordinary moves). A test lists them so nothing is silently dropped.
+Every ability on the sheet is read from its text by the table in the data block. **Not in this version:** Jynx's "On KO, freeze an ally die" (Jynx's freeze is still unclear). A test lists them so nothing is silently dropped.
 - `RULING:` "Loses a round" (and "freeze") means that card gets no die next round. "Cannot attack next round" is the same.
 - `RULING:` "Attackers take 1d" hurts the attacker whenever it damages the card; "When KO'd, attacker takes 4d" is plain damage that nothing blocks.
 - `RULING:` Auras ("+1a <>") add to a neighbour's matching moves; they do not add to the card's own moves. "Neighbor moves +<" adds 1 to the card on its left, "+>" to the card on its right.
@@ -93,3 +93,7 @@ Every ability on the sheet is read from its text by the table in the data block.
 - `RULING:` A block (any block that can reach more than one card) protects exactly one card: the blocker or a neighbour the block can reach. You pick it on the blocker's turn (the round's attacks are already on show). The computer protects the card facing the biggest hit. A block that can only reach one card just applies.
 - `RULING:` **Ditto** ("May use moves on matchup's or neighbors' cards"): read as it uses the move printed on the card across from it, or on one of that card's neighbours (the opposing cards one column either side); you choose at the start of the round's resolution. If you are the computer or only one card is there it picks the best move. The sheet does not say whether "neighbors" means theirs or its own side, so this reading is open to change.
 - **Survival ("hangs on")** is automatic, never a question.
+
+## Coloured dice (owner: "matching die colour to a move counts as +1 to that move; remove the doubling of specials")
+- *(owner)* **A die the colour of a move's element adds +1 to that move.** No doubling for specials.
+- `RULING:` Where the colours come from (rulebook + design doc, Map 2): Brock brown = Ground, Misty blue = Water, Lt. Surge yellow = Electric, Erika green = Grass, Blaine red = Fire; Blue gives none; Lance uses one of each. Beating a leader (not Lance) keeps their colour for the rest of the game. In a gym fight both sides use the leader's colour (you even if you do not own it yet); wild fights are white for the computer. First dice are white (the starter does not give a colour; the paper game only uses coloured dice to pick starters). A coloured die takes the place of a white die (you still roll one die per card), so the first dice of your roll are the coloured ones. The +1 goes on the move's main effect (not on a "+2" bonus part). Gyarados's "+1a if given the blue die" is the same idea with a fixed colour.

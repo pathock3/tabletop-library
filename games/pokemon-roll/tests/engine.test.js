@@ -53,11 +53,11 @@ test('data: moves read the way the sheet means them', () => {
   const sp = E.parseSpecial('66: 12a'); assert.deepEqual([sp.face, sp.count, sp.effs[0].n], [6, 2, 12]);
   assert.equal(E.parseSpecial('4444: 10a all non-ground on both teams').effs[0].scope, 'non');
 });
-test('data: the only abilities not in this version are the Jynx KO freeze and the Gyarados blue die (colored dice are dropped for now)', () => {
+test('data: the only ability not in this version is the Jynx KO freeze', () => {
   const un = new Set();
   Object.values(C).forEach(c => c.ability.split(/;\s*/).forEach(p => { if (p && !E.tagsOf({ id: 'q' + c.id + p, ability: p }).length) un.add(p); }));
-  assert.equal(un.size, 2);
-  assert.ok([...un].every(p => /push|swap|redirect|change (column|position|a teammate)|move <>|enemy die|blue die|freeze an ally|reroll \^|Ally dragon|abilities to change|move/i.test(p)), [...un].join(' | '));
+  assert.equal(un.size, 1);
+  assert.ok([...un].every(p => /push|swap|redirect|change (column|position|a teammate)|move <>|enemy die|freeze an ally|reroll \^|Ally dragon|abilities to change|move/i.test(p)), [...un].join(' | '));
 });
 
 // ================================================================ a round of fighting
@@ -463,4 +463,18 @@ test('abilities: Ditto copies the move of the card across or of one of its neigh
   assert.ok(E.apply(s, { t: 'go2' }).ok); assert.equal(b.ask.what, 'ditto'); assert.deepEqual(b.ask.opts.flat().sort(), [b.units[2].uid, b.units[3].uid].sort(), 'the card across and its neighbour');
   assert.ok(E.apply(s, { t: 'choose', tgt: b.units[3].uid }).ok); assert.equal(b.dittoSrc[ditto.uid], b.units[3].uid);
   const mv = b.events.filter(e => e.t === 'move' && e.u === ditto.uid).pop(); assert.equal(mv.txt, C['7.1'].moves[0], 'Ditto uses Squirtle\'s move');
+});
+test('dice: a die the colour of the move adds +1 to it, a mismatch adds nothing, specials are not doubled', () => {
+  const c = craft(['4.1'], ['10']); const { s, b } = c, ch = b.units[0];                    // Charmander: fire; its 1 is "2a"
+  const dmg = col => { const t = craft(['4.1'], ['16']); t.b.units[1].hp = t.b.units[1].max = 30; t.b.dcol = [[col], []]; const r = play(t, { hero: [1], gm: [] }, { hero: { 0: 0 } }); return 30 - t.b.units[1].hp; };
+  const plain = dmg(null), fire = dmg('fire'), water = dmg('water'); assert.equal(fire, plain + 1, 'a fire die on a fire card is +1'); assert.equal(water, plain, 'a water die on a fire card does nothing');
+  assert.equal(E.colorBonus(b, ch), 0);
+});
+test('dice: beating a gym leader gives you their colour for good; in their fight both sides use it', () => {
+  const s = E.newGame({ seed: 5, starter: 'charmander' }); assert.deepEqual(s.cdice, []);
+  s.phase = 'battle'; const b = T.startBattle(s, 'boss', 'B1', [{ id: '4.2', sh: 0 }, { id: '1.1', sh: 0 }], [{ id: '74', sh: 0 }, { id: '10', sh: 0 }]); b.hand = [[], []]; b.cols = [[b.units[0].uid, b.units[2].uid], [b.units[1].uid, b.units[3].uid]]; T.startRound(s);
+  assert.equal(b.dcol[0][0], 'ground', 'you use Brock\'s colour in his fight'); assert.equal(b.dcol[1][0], 'ground', 'so does he'); assert.deepEqual(s.cdice, [], 'but you do not own it yet');
+  b.units[2].ko = true; b.units[3].ko = true; b.cols = [[b.units[0].uid, null], [b.units[1].uid, null]]; b.stage = 'resolved'; b.out = 'hero'; b.hand = [[], []];
+  assert.ok(E.apply(s, { t: 'next' }).ok); assert.deepEqual(s.cdice, ['ground']); assert.deepEqual(s.res.dieGain, ['ground']);
+  const w = craft(['4.1'], ['10']); assert.equal(w.b.dcol[1].length, 0, 'wild cards get no coloured dice');
 });
