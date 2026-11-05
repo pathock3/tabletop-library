@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- **Pokémon Roll! — back to the pool of dice, attacks before blocks:** each round everyone rolls a die per card together; you give out the dice you like, reroll the rest once, and give those out (one die per card, column by column is switched off). The computer never rerolls at any level; Easy gives out its dice at random. A round now plays heals, then every attack is declared, then blocks go up, then the damage lands. Starmie and Staryu change a die to 5 (it was 2).
+
 - **Pokémon Roll! — new card layout:** the picture is taller and sits on the right, the name runs across it in bold outlined type, and health, type and level stack down the left (type is now a small lozenge, no longer a whole row). Cards are a little shorter.
 
 - **Pokémon Roll! — shinies as a tiebreaker:** when a gym leader has to send cards back, the strongest stay; at the same level a shiny is kept first (a higher-level card still beats a shiny).

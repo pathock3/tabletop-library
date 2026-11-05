@@ -393,12 +393,10 @@ test('rules: you give out the dice you like, then reroll the rest together, once
   c.b.rr[0] = 5; assert.equal(E.apply(s, { t: 'reroll', side: 0, all: true }).ok, false, 'even with spare rerolls, locked dice do not move again');
   T.startRound(s); assert.equal(Object.keys(b.locked[0]).length, 0, 'a new round, a new reroll');
 });
-test('ai: Easy and Normal never reroll, Master rerolls the weak dice together before giving any out', (tc) => { E.faceOrder('top'); tc.after(() => E.faceOrder('sheet'));
+test('ai: the computer never rerolls at any level (only you do); Easy hands the dice out at random', (tc) => { E.faceOrder('top'); tc.after(() => E.faceOrder('sheet'));
   const c = craft(['1.1', '7.1'], ['1.1', '7.1']); const { s, b } = c; b.dice[1] = [2, 2]; b.rr[1] = 1;
-  assert.equal(B.step(s, 'easy').t, 'gm'); assert.equal(B.step(s, 'normal').t, 'gm');
-  const m = B.step(s, 'master'); assert.equal(m.t, 'reroll', 'two dead 2s are worth throwing again'); assert.ok(m.dice.length >= 1 && m.dice.every(i => i >= 0 && i < 2));
-  assert.ok(E.apply(s, m).ok); assert.ok(b.locked[1][m.dice[0]]);
-  assert.equal(B.step(s, 'master').t, 'gm', 'then it gives them out');
+  ['easy', 'normal', 'master'].forEach(l => assert.equal(B.step(s, l).t, 'gm', l + ' just gives the dice out'));
+  assert.equal(E.D.ai.easy.random, 1, 'Easy plays by chance'); assert.ok(['easy', 'normal', 'master'].every(l => E.D.ai[l].rerolls === 'never'));
 });
 test('decisions: when a card of yours may dodge, the game stops and asks you each time; the computer always dodges', () => {
   const c = craft(['25.3'], ['4.1']); const { s, b } = c;                               // Pikachu: dodge one attack per match
@@ -509,12 +507,12 @@ test('shiny: a shiny card has one more health than the same card that is not', (
   const n = E.newGame({ seed: 4, starter: 'bulbasaur' }); n.phase = 'battle'; const nb = T.startBattle(n, 'loc', 'L1', [{ id: '2.4', sh: 1 }], [{ id: '10', sh: 0 }]); assert.equal(nb.units[0].max, C['2.4'].hp + 1);
 });
 
-test('abilities: Starmie changes ANY one of your dice to 2 (not just the die on its card), every other round', () => {
+test('abilities: Starmie changes ANY one of your dice to 5 (not just the die on its card), every other round', () => {
   const c = craft(['121', '25.1'], ['19', '19']); const { s, b } = c; const st = c.h(0);
   b.dice[0] = [5, 6, 3]; b.asg[0] = {}; st.lastTweak = -9;
   assert.equal(E.apply(s, { t: 'tweak', side: 0, uid: st.uid }).ok, false, 'must say which die');
   assert.ok(E.apply(s, { t: 'tweak', side: 0, uid: st.uid, die: 1 }).ok);
-  assert.deepEqual(b.dice[0], [5, 2, 3]);
+  assert.deepEqual(b.dice[0], [5, 5, 3]);
   assert.equal(E.apply(s, { t: 'tweak', side: 0, uid: st.uid, die: 0 }).ok, false, 'not two rounds running');
 });
 
@@ -593,4 +591,11 @@ test('gym leaders: the strongest five stay; at the same level a shiny is kept fi
   assert.deepEqual(kept, ['11', '13', '18'], 'Pidgeot and Metapod (higher levels), then the shiny Weedle among the level 1s');
   assert.equal([].concat(...D.locations.map(l => s.decks[l.id])).length, before + 3, 'the other three went back to their places');
   const kept2 = T.keepStrongest(s, [mk('10', 1), mk('18', 0), mk('13', 0)], 1).map(i => i.id); assert.deepEqual(kept2, ['18'], 'a higher level is kept over a shiny');
+});
+
+test('resolution order: heals, then every attack is declared, then blocks go up, then the damage lands', (tc) => { E.faceOrder('top'); tc.after(() => E.faceOrder('sheet'));
+  const c = craft(['7.1'], ['19']); play(c, { hero: [6], gm: [6] }, { hero: { 0: 0 }, gm: { 0: 0 } });            // Squirtle blocks 2 (move 1); Rattata attacks 2
+  const kinds = c.b.events.map(e => e.t), iStrike = kinds.indexOf('strike'), iGuard = kinds.indexOf('guard'), iHit = kinds.findIndex((k, i) => i > iGuard && (k === 'blocked' || k === 'dmg'));
+  assert.ok(iStrike >= 0 && iGuard > iStrike, 'the attack is declared before the block is chosen'); assert.ok(iHit > iGuard, 'the damage (here soaked by the block) comes after both');
+  assert.equal(c.h(0).hp, C['7.1'].hp, 'the block took the whole attack');
 });

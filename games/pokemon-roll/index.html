@@ -388,7 +388,7 @@ const GAME_DATA = {
     levelLabels: [1, 10, 20, 30, 40, 50],   // what a card's level 1-6 is called on screen (the rules still count 1-6)
     startSlots: 1, startLevel: 2,   // you begin with your partner at level 2 (the level the first rival fight gave in the paper game)
                  // cards you may challenge a location with; each boss beaten adds one
-    columns: true,              // one die per card, one column at a time, left to right
+    columns: false,              // (a different way to roll, one die per card, one column at a time: switched off; the pool of dice is the game)
     locationMax: 5,             // never more than five cards a side (and five dice): the biggest fight is 5 on 5
     typeShield: 3,              // "Immune to ground" now means: takes 3 less damage from ground attacks
     maxLevel: 6,
@@ -404,8 +404,8 @@ const GAME_DATA = {
   // random = share of decisions made blindly · search = looks for swaps and specials · rerollBelow = rerolls a die only when nothing it could do is worth this much (Master compares against a fresh throw instead)
   ai: {
     easy:   { label: 'Easy',   random: 1,    search: false, specials: false, rerolls: 'never',  placeRandom: 1,    lookahead: false },
-    normal: { label: 'Normal', random: 0,    search: true,  specials: true,  rerolls: 'never',  placeRandom: 0,    lookahead: true },
-    master: { label: 'Master', random: 0,    search: true,  specials: true,  rerolls: 'expect', placeRandom: 0,    lookahead: true,  rerollMargin: 0.4 },
+    normal: { label: 'Normal', random: 0,    search: true,  specials: true,  rerolls: 'never',  placeRandom: 0,    lookahead: false },
+    master: { label: 'Master', random: 0,    search: true,  specials: true,  rerolls: 'never',  placeRandom: 0,    lookahead: true,  rerollMargin: 0.4 },
   },
   elements: {
     Grass:    { color: '#4caf50', bg: '#bfe8a5', icon: '🌿' },
@@ -506,7 +506,7 @@ const GAME_DATA = {
     ['^May use moves on matchup.s or neighbors. cards$', { t: 'ditto' }],
     ['^Once per round, increase own die by 1', { t: 'incDie', every: 1 }],
     ['^On non-consecutive rounds, increase own die by 1', { t: 'incDie', every: 2 }],
-    ['^On non-consecutive rounds, change your current die to 2$', { t: 'setDie', v: 2, every: 2 }],
+    ['^On non-consecutive rounds, change a die to 5$', { t: 'setDie', v: 5, every: 2 }],
     ['^When I damage matchup, they lose a round$', { t: 'hitMatchSkip' }],
     ['^(Team |All )?(\\w+) attacks grant (\\d)h$', { t: 'grant', scope: '$1', el: '$2', n: '$3' }],
     ['^When enemies enter this column, (\\d)d$', { t: 'enter', n: '$1' }],
@@ -664,8 +664,8 @@ Horsea|116|Water|Electric|1|4 S.S. Anne|1|Attack|+2a water <>|1a <^ or >|1b|1d v
 Seadra|117|Water|Electric|3|7 Seafoam Islands|5|Attack|+2a water <>|3a <^ or >|2a <^ or >|2h|1a|1d v||
 Goldeen|118|Water|Electric|2|6 Safari Zone|3|Attack|+1a <>|2a|2a|1b|1d v|||
 Seaking|119|Water|Electric|3|7 Seafoam Islands|5|Attack|+1a <>|3a|2a|2b|1d v|||
-Staryu|120|Water|Electric|2|4 S.S. Anne|3|Attack, heal|On non-consecutive rounds, change your current die to 2|2a|2h over <v>|2a|1d v|||
-Starmie|121|Water|Electric|4|4 S.S. Anne|6|Attack, heal|On non-consecutive rounds, change your current die to 2|3a < or >|3a|4h over <v>|2a|1d v||
+Staryu|120|Water|Electric|2|4 S.S. Anne|3|Attack, heal|On non-consecutive rounds, change a die to 5|2a|2h over <v>|2a|1d v|||
+Starmie|121|Water|Electric|4|4 S.S. Anne|6|Attack, heal|On non-consecutive rounds, change a die to 5|3a < or >|3a|4h over <v>|2a|1d v||
 Mr. Mime|122|Psychic|Dark|4|5 Pokemon Tower|6|Support|+1a psychic <<>>|7b over <v>|4a|4b over <>|1a|1d v||
 Scyther|123|Grass|Fire|5|6 Safari Zone|8|Attack|+2a grass <>|5a|4a|3a|2a|1d v||
 Jynx|124|Psychic|Ghost|4|7 Seafoam Islands|7|Attack, support|On KO, freeze an ally die; ice attacks freeze dice|5a|3a <^ or >|3a|1a|1d v||
@@ -1267,6 +1267,7 @@ const Engine = (() => {
   // one attack of n damage from A on T (off = how many columns across it came from)
   function hit(s, b, A, T, n, off) {
     if (T.ko || A.ko) return;
+    if (b.planning && !has(A, 'first')) { (b.pend = b.pend || []).push({ k: 'hit', A: A.uid, T: T.uid, n, off, dec: b.curDec }); return; }          // attacks are declared first; the damage lands after the blocks
     if (!b.redirecting && T.side !== A.side) {
       const z = b.units.find(x => !x.ko && x.side === T.side && has(x, 'redirect') && x.redirR !== b.round);
       if (z) {
@@ -1335,12 +1336,12 @@ const Engine = (() => {
       const amt = amountOf(b, u, e);
       if (!e.bonus && has(u, 'onceA') && !u.onceUsed) u.onceUsed = true;
       const T = pickTargets(b, u, e, amt, hint);
-      if (!T.length) { ev(b, { t: 'miss', u: u.uid }); if (has(u, 'missSelf')) dealDamage(s, b, u, amt, u, true); return; }
+      if (!T.length) { ev(b, { t: 'miss', u: u.uid }); if (has(u, 'missSelf')) { if (b.planning && !has(u, 'first')) b.pend.push({ k: 'raw', T: u.uid, n: amt, src: u.uid }); else dealDamage(s, b, u, amt, u, true); } return; }
       ev(b, { t: 'strike', u: u.uid, to: T.map(t => t.u.uid) });
       if (e.spec.spread) { const g = b.curAlloc ? T.map(t => b.curAlloc[t.u.uid] || 0) : spreadOut(amt, T, t => Math.ceil(t.u.hp / wm(b, u, t.u))); T.forEach((t, j) => { if (g[j] > 0) hit(s, b, u, t.u, g[j], t.off); }); }
       else T.forEach(t => hit(s, b, u, t.u, amt, t.off));
-      after(s, b, u, T, amt);
-    } else if (e.k === 'd') { ev(b, { t: 'strike', u: u.uid, to: [u.uid] }); dealDamage(s, b, u, e.n, u, true); }
+      if (b.planning && !has(u, 'first')) b.pend.push({ k: 'after', A: u.uid, T: T.map(t => ({ u: t.u.uid, off: t.off })), amt }); else after(s, b, u, T, amt);
+    } else if (e.k === 'd') { ev(b, { t: 'strike', u: u.uid, to: [u.uid] }); if (b.planning && !has(u, 'first')) b.pend.push({ k: 'raw', T: u.uid, n: e.n, src: u.uid }); else dealDamage(s, b, u, e.n, u, true); }
   }
   // the effects a card has this round (read again each time, so it plays out one card at a time)
   const effsFor = (b, u, act) => { const m = chosenMove(b, u, act.dice); if (!m || m.sp || !m.mv) return []; return effectsOf(b, u, m.mv.clauses[act.ci] || m.mv.clauses[0]); };
@@ -1356,7 +1357,9 @@ const Engine = (() => {
     const r = b.res; let best = null, bv = -1e9;
     cands.forEach(c => {
       const ci = colIdx(b, c.u.uid), fid = b.cols[ci] && b.cols[ci][other(c.u.side)], foe = fid != null ? U(b, fid) : null; let threat = 0;
-      if (foe && !foe.ko) { const act = r && r.acts.find(a => a.uid === foe.uid); if (act && !act.sp) effsFor(b, foe, act).forEach(f => { if (f.k === 'a') threat += amountOf(b, foe, f) * wm(b, foe, c.u); }); }
+      const pend = (b.pend || []).filter(x => x.k === 'hit' && x.T === c.u.uid);
+      if (pend.length) pend.forEach(x => { threat += x.n * wm(b, U(b, x.A), c.u); });
+      else if (foe && !foe.ko) { const act = r && r.acts.find(a => a.uid === foe.uid); if (act && !act.sp) effsFor(b, foe, act).forEach(f => { if (f.k === 'a') threat += amountOf(b, foe, f) * wm(b, foe, c.u); }); }
       const v = Math.min(threat, Math.max(c.u.hp, 0) + e.n) + (threat >= c.u.hp ? 2 : 0) + (c.off === 0 ? .01 : 0);
       if (v > bv) { bv = v; best = c; }
     });
@@ -1379,6 +1382,15 @@ const Engine = (() => {
   function dittoBest(b, u, act) {
     let best = null, bv = -1e9; dittoFoes(b, u).forEach(f => { const mv = parseMove(CARDS[f.id].moves[act.face - 1]), cl = mv && bestClause(b, u, mv, null), v = cl ? cl.value : -1; if (v > bv) { bv = v; best = f; } }); return best;
   }
+  // the last step of a round: every declared attack lands, in the order it was declared, against whatever blocks are up
+  function applyPending(s, b) {
+    b.planning = false; const list = b.pend || []; b.pend = [];
+    list.forEach(x => {
+      if (x.k === 'hit') { const A = U(b, x.A), T = U(b, x.T); b.curDec = x.dec || null; hit(s, b, A, T, x.n, x.off); b.curDec = null; }
+      else if (x.k === 'raw') { const T = U(b, x.T); if (!T.ko) dealDamage(s, b, T, x.n, U(b, x.src), true); }
+      else if (x.k === 'after') after(s, b, U(b, x.A), x.T.map(t => ({ u: U(b, t.u), off: t.off })), x.amt);
+    });
+  }
   function advance(s) {
     const b = s.battle, r = b.res;
     if (!r.dittoDone) {                                                   // Ditto: whose move does it copy this round?
@@ -1391,7 +1403,9 @@ const Engine = (() => {
       r.dittoDone = true;
     }
     while (r.phase !== 'done') {
-      if (r.i >= r.acts.length) { r.i = 0; r.ei = 0; r.main = false; r.phase = r.phase === 'heal' ? 'block' : r.phase === 'block' ? 'attack' : 'done'; continue; }
+      b.planning = r.phase === 'attack';                                            // attacks are only declared; the damage lands in the last step, after the blocks
+      if (r.phase === 'damage') { applyPending(s, b); r.phase = 'done'; continue; }
+      if (r.i >= r.acts.length) { r.i = 0; r.ei = 0; r.main = false; r.phase = r.phase === 'heal' ? 'attack' : r.phase === 'attack' ? 'block' : r.phase === 'block' ? 'damage' : 'done'; continue; }
       const act = r.acts[r.i], u = U(b, act.uid);
       if (u.ko) { r.i++; r.ei = 0; r.main = false; continue; }
       if (r.phase === 'attack' && act.sp) { doSpecial(s, b, u, parseSpecial(CARDS[u.id].special), null); r.i++; r.ei = 0; r.main = false; continue; }
@@ -1497,7 +1511,7 @@ const Engine = (() => {
     return list.filter(u => has(u, 'first')).concat(list.filter(u => !has(u, 'first')));
   }
   function resolveRound(s) {
-    const b = s.battle; b.events = []; b.pools = []; b.actType = {};
+    const b = s.battle; b.events = []; b.pools = []; b.actType = {}; b.pend = []; b.planning = false;
     if (!b.colMode) { b.before = {}; b.dealtRound = [0, 0]; b.units.forEach(u => { b.before[u.uid] = u.hp; }); }
     b.units.forEach(u => { u.attacked = false; });
     if (b.colMode) orderOf(b).forEach(u => { b.acted[u.uid] = 1; });
@@ -2285,9 +2299,9 @@ const Bots = (() => {
   // ---------------------------------------------------------------- tips (once per device)
   const TIPTEXT = {
     place: 'They put a card down. Pick one of your Pokémon, then tap where it goes. If you have dice to spare you can bring more cards (they draw one more each time), or press Fight!',
-    dice: 'Every card has its own die. We go one column at a time, left to right: tap to roll, then keep the number or 🔄 reroll it (once per card). The number picks what the card does, then the two cards in the column battle and you find out what the other side chose.',
+    dice: 'Everyone rolls one die per card. Tap a die, then tap the card that should use it (or drag it). Give out the dice you like, then 🔄 throws the rest again together, once a round: those stay as they land. Each card does something different on each number: the rows on the card show what.',
     shiny: 'A shiny! It looks different, but plays just the same.',
-    roll: 'Tap anywhere to roll for the next column.',
+    roll: 'Now tap anywhere to roll the dice for the next round.',
     end: 'Win by knocking out every card on their side. A card that reaches 0 health is out right away.',
   };
   function tipOnce(k, text) { if (!set.tips || tipsSeen[k] || ui.tip) return; tipsSeen[k] = 1; lsSet(TIPS, tipsSeen); ui.tip = { k, text: text || TIPTEXT[k] }; render(); }
@@ -2495,7 +2509,7 @@ const Bots = (() => {
       const mark = ko ? '✕' : (u.skip && (assign || p || done)) ? '💤' : '';
       const tw = E.tags(u).find(g => g.t === 'incDie' || g.t === 'setDie');
       const twOk = tw && u.side === 0 && assign && !ko && !waitRoll && !rolling && b.round - u.lastTweak >= tw.every && (tw.t === 'setDie' ? b.dice[0].length > 0 : info);
-      const extra = twOk ? `<div class="xb${ui.tweak === u.uid ? ' on' : ''}" data-act="tweak" data-uid="${u.uid}">${tw.t === 'setDie' ? '⚡ Make this die a ' + tw.v : '⚡ Use ability'}</div>` : '';
+      const extra = twOk ? `<div class="xb${ui.tweak === u.uid ? ' on' : ''}" data-act="tweak" data-uid="${u.uid}">${tw.t === 'setDie' ? '⚡ Change a die to ' + tw.v : '⚡ Use ability'}</div>` : '';
       const canMv = assign && (colM ? !b.rolled && !Object.keys(b.acted).length : !waitRoll && !rolling) && u.side === 0 && !ko && !u.skip && !E.blocksMove(b, 0);
       const mvb = canMv && E.tags(u).some(g => g.t === 'mover') && u.movedR !== b.round && b.cols.length > 1 ? `<div class="xb"><span data-act="mv" data-uid="${u.uid}" data-dir="-1" style="padding:8px 16px">◀</span> Move <span data-act="mv" data-uid="${u.uid}" data-dir="1" style="padding:8px 16px">▶</span></div>` : '';
       const swb = canMv && E.tags(u).some(g => g.t === 'swapper') && u.swapR !== b.round && E.living(b, 1).length > 1 ? `<div class="xb" data-act="swapstart" data-uid="${u.uid}">${ui.swap && ui.swap.uid === u.uid ? 'Tap two of theirs' : '⇄ Swap two'}</div>` : '';
@@ -2524,7 +2538,7 @@ const Bots = (() => {
     if (placing) status = (b.sudden ? 'SUDDEN DEATH · ' : '') + (yourPlace ? (selected != null ? 'Now tap where it goes' : opt ? 'Bring another card (they will draw one more), or fight now' : 'Pick a Pokémon from your hand to put down') : 'They are putting a card down…');
     else if (waitRoll) status = '<span class="rollhint">🎲 Tap anywhere to roll</span>';
     else if (assign && colM) { status = (b.sudden ? 'SUDDEN DEATH · ' : '') + (rolling ? 'Rolling…' : b.dice[0].length ? 'Keep it, or reroll?' : 'Nothing to roll for you here'); }
-    else if (assign) { const need = E.living(b, 0).filter(u => !u.skip && !b.asg[0][u.uid]).length; status = (b.sudden ? 'SUDDEN DEATH · ' : '') + (rolling ? 'Rolling…' : ui.tweak != null ? 'Tap the die to change to 2' : ui.die != null ? 'Tap a card to give it that ' + b.dice[0][ui.die] : (E.readyToGo(b, 0) ? 'Ready? Press Resolve!' : 'Drag a die onto a card')); }
+    else if (assign) { const need = E.living(b, 0).filter(u => !u.skip && !b.asg[0][u.uid]).length; status = (b.sudden ? 'SUDDEN DEATH · ' : '') + (rolling ? 'Rolling…' : ui.tweak != null ? 'Tap the die to change to ' + (E.tags(E.U(b, ui.tweak)).find(g => g.t === 'setDie') || {}).v : ui.die != null ? 'Tap a card to give it that ' + b.dice[0][ui.die] : (E.readyToGo(b, 0) ? 'Ready? Press Resolve!' : 'Drag a die onto a card')); }
     else if (asking && b.ask.kind === 'yn') { status = `<b>${C[E.U(b, b.ask.uid).id].name}</b> is attacked by ${C[E.U(b, b.ask.by).id].name} for ${b.ask.n}. Dodge?`; btns = `<button class="btn big" data-act="decide" data-yes="1">Dodge!</button><button class="btn alt" data-act="decide" data-yes="0">Take it</button>`; }
     else if (asking && b.ask.kind === 'alloc') { const left = b.ask.n - Object.values(b.ask.given).reduce((t, v) => t + v, 0); status = `Share ${left} ${b.ask.k === 'a' ? 'attack' : 'heal'} point${left === 1 ? '' : 's'} from <b>${C[E.U(b, b.ask.uid).id].name}</b>: tap a card for each` + (Object.keys(b.ask.given).length ? '<br>' + Object.keys(b.ask.given).map(k => `${C[E.U(b, +k).id].name} ${b.ask.given[k]}`).join(' · ') : ''); }
     else if (asking) status = b.ask.what === 'ditto' ? `Tap whose move ${C[E.U(b, b.ask.uid).id].name} copies` : `Tap who ${C[E.U(b, b.ask.uid).id].name} ${b.ask.k === 'a' ? 'attacks' : b.ask.k === 'b' ? 'blocks for' : 'heals'}`;
@@ -2570,12 +2584,12 @@ const Bots = (() => {
   const spr = (id, sh, px) => `<img class="pix" style="width:${px || 96}px;height:${px || 96}px" src="${art(id, sh)}" alt="">`;
   const HELP = [
     { t: 'Put your Pokémon down', cap: 'Take turns. Each card faces one foe.', vis: () => `<div class="hv col"><div class="hs">${spr('10', 0)}<b>Them</b></div><div class="vs">VS</div><div class="hs">${spr('4.2', 0)}<b>You</b></div></div>` },
-    { t: 'One die per card, one column at a time', cap: 'Roll, then keep it or reroll it once.', vis: () => `<div class="hv">${[3, 6, 1].map(n => dieHtml(n, {})).join('')}<span class="arrow">➜</span><div class="hs hsd">${spr('4.2', 0, 110)}<div class="die small">6</div></div></div>` },
+    { t: 'Roll, then give out the dice', cap: 'Drag each die onto a card.', vis: () => `<div class="hv">${[3, 6, 1].map(n => dieHtml(n, {})).join('')}<span class="arrow">➜</span><div class="hs hsd">${spr('4.2', 0, 110)}<div class="die small">6</div></div></div>` },
     { t: 'The die picks the move', cap: 'The lit row is what it does on that number.', vis: () => card({ id: '4.2', sh: 0 }, { cw: 200, face: 1 }) },
     { t: 'Weakness hurts double', cap: 'The tab at the top shows what it fears.', vis: () => `<div class="hv"><div class="hs">${spr('4.2', 0)}<b>🔥 Fire</b></div><div class="boom">2 ➜ <span>4</span> 💥</div><div class="hs">${spr('1.2', 0)}<b>weak 🔥</b></div></div>` },
     { t: 'Win cards. Beat gym leaders.', cap: 'Every gym leader opens a new road.', vis: () => `<div class="hv">${['L1', 'B1', 'B2'].map((id, k) => `${k ? '<span class="arrow">➜</span>' : ''}<div class="hmap"><svg viewBox="0 0 160 120">${sceneOf(E.node(id))}</svg></div>`).join('')}</div>` },
     { t: 'Shinies and legendaries', cap: 'Shiny is a look. A 9 on two dice finds a legend.', vis: () => `<div class="hv"><div class="hs">${spr('6.5', 0)}</div><span class="arrow">➜</span><div class="hs shw">${spr('6.5', 1)}${sparkles()}</div><div class="boom">${dieHtml(4, {})}${dieHtml(5, {})}</div><div class="hs">${spr('249', 0)}</div></div>` },
-    { t: 'Good to know', cap: '', vis: () => `<ul class="hl"><li>⚠️ <b>weak ×2</b>: a card takes double damage from attacks of the type on its top strip.</li><li>🛡 A blocker takes what it can’t soak.</li><li>💥 A card at 0 is out right away.</li><li>🛡 A shield soaks damage once a round.</li><li>🔄 Each card may reroll its die once. Then the column battles.</li><li>🏃 Leave any fight. Nothing is lost.</li><li>🎲 Tap anywhere to roll again.</li></ul>` },
+    { t: 'Good to know', cap: '', vis: () => `<ul class="hl"><li>⚠️ <b>weak ×2</b>: a card takes double damage from attacks of the type on its top strip.</li><li>🛡 A blocker takes what it can’t soak.</li><li>💥 A card at 0 is out right away.</li><li>🛡 A shield soaks damage once a round.</li><li>🔄 Once a round, give out the dice you like and throw the rest again. They are locked in after that.</li><li>🏃 Leave any fight. Nothing is lost.</li><li>🎲 Tap anywhere to roll again.</li></ul>` },
   ];
   const helpSheet = () => { const i = Math.max(0, Math.min(HELP.length - 1, ui.helpPage || 0)), pg = HELP[i]; return `<div class="sheet" data-act="closehelp"><div class="box hbox" data-stop="1"><div class="hvis" data-act="hnext">${pg.vis()}</div><h2>${pg.t}</h2>${pg.cap ? `<p class="hcap">${pg.cap}</p>` : ''}<div class="hnav"><button class="ib" data-act="hprev">◀</button><div class="dots">${HELP.map((_, k) => `<i class="${k === i ? 'on' : ''}"></i>`).join('')}</div><button class="ib" data-act="hnext">▶</button></div></div></div>`; };
   function menuSheet() {
