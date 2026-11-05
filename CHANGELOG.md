@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- **Pokémon Roll! — map and hand polish:** gym leaders on the map show just their name on one line (no element badge, no "Gym leader", "Locked" or "Beaten" — the lock, tick and ⓘ say it); Settings sits above Records in the menu; in "Your cards" the last card can always be scrolled fully into view, the cards fly back over the top bar, and the pile reappears as soon as the first card lands.
+
 - **Pokémon Roll! — slower map deal:** the cards dealing out onto the map now take about 2.5 seconds, left to right, so you can watch them land.
 
 - **Library — longer zoom into a game:** the box zoom now lasts up to 3 seconds (it still goes in as soon as the game has loaded), so a slow load never leaves the screen frozen on the dark.

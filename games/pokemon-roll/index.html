@@ -210,8 +210,8 @@ button{font:inherit;color:inherit;border:0;cursor:pointer}
 .place .pl b{font-size:19px}
 .place{position:absolute;width:160px;height:184px;padding:0;border:4px solid #14110f;border-radius:18px;background:#fffdf4;overflow:hidden;box-shadow:0 6px 0 #0008;display:flex;flex-direction:column;color:#14110f;text-align:center}
 .place svg{width:100%;height:auto;display:block;flex:none}
-.place .pl{flex:1;display:flex;flex-direction:column;justify-content:center;padding:2px 42px;background:#fffdf4}
-.place .pl b{font:900 17px/1.05 system-ui}.place .pl span{font:700 12px system-ui;opacity:.75}
+.place .pl{flex:1;display:flex;flex-direction:column;justify-content:flex-start;padding:6px 4px 2px;background:#fffdf4}
+.place .pl b{font:900 17px/1.05 system-ui;white-space:nowrap}.place .pl span{font:700 12px system-ui;opacity:.75}
 .place.gym{border-color:#8a0000;box-shadow:0 6px 0 #4a0000}
 .place.lock svg{filter:grayscale(.85) brightness(.65)}.place.lock{opacity:.85}
 .place .lk{position:absolute;top:26px;left:0;right:0;text-align:center;font-size:40px}
@@ -247,8 +247,10 @@ button{font:inherit;color:inherit;border:0;cursor:pointer}
 .mypile .mtop{position:absolute;inset:0;pointer-events:none}
 .mypile .pcount{right:-10px;bottom:-6px}
 .handov{position:fixed;inset:0;z-index:50;background:rgba(0,0,0,.42);display:flex;align-items:center}
-.handf{display:flex;align-items:center;overflow-x:auto;overflow-y:hidden;width:100%;padding:40px 36px;-webkit-overflow-scrolling:touch;scrollbar-width:none}
+.handf{display:flex;align-items:center;overflow-x:auto;overflow-y:hidden;width:100%;padding:40px 0;-webkit-overflow-scrolling:touch;scrollbar-width:none}
 .handf::-webkit-scrollbar{display:none}
+.handf::before,.handf::after{content:'';flex:none;width:44px}                 /* real end space: padding at the end of a scrolling row is dropped by Safari, which cut the last card */
+.handf.fly{overflow:visible}
 .hc{flex:none;transform-origin:50% 130%}
 .hci{transform-origin:50% 50%}
 .mypile.away{opacity:0;transition:none}
@@ -1857,8 +1859,7 @@ const Bots = (() => {
     return `<defs><linearGradient id="gs${n.id}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff" stop-opacity=".85"/><stop offset="1" stop-color="${col}" stop-opacity=".75"/></linearGradient></defs>
       <rect width="160" height="120" fill="${col}" opacity=".5"/><rect width="160" height="120" fill="url(#gs${n.id})"/><rect y="100" width="160" height="20" fill="#90a4ae" opacity=".8"/>
       <g opacity=".3"><path d="M26 50L80 22l54 28Z" fill="${col}" stroke="#14110f" stroke-width="3" stroke-linejoin="round"/><rect x="34" y="50" width="92" height="50" fill="#fff" stroke="#14110f" stroke-width="3"/></g>
-      ${trainerImg(n.id)}
-      <circle cx="140" cy="20" r="12" fill="#fff" stroke="#14110f" stroke-width="3"/><text x="140" y="26" text-anchor="middle" font-size="15">${n.trainer || '🏅'}</text>`;
+      ${trainerImg(n.id)}`;
   }
   const finaleScene = () => `<rect width="160" height="120" fill="#4527a0"/>${Array.from({ length: 12 }, (_, i) => { const a = i * Math.PI / 6; return `<path d="M80 62L${(80 + 90 * Math.cos(a - .1)).toFixed(0)} ${(62 + 90 * Math.sin(a - .1)).toFixed(0)} ${(80 + 90 * Math.cos(a + .1)).toFixed(0)} ${(62 + 90 * Math.sin(a + .1)).toFixed(0)}Z" fill="#7e57c2" opacity=".6"/>`; }).join('')}<text x="80" y="82" text-anchor="middle" font-size="66">🏆</text>`;
   const sceneOf = n => n.kind === 'loc' ? SCENE[n.loc]() : n.finale ? finaleScene() + trainerImg(n.id) : gymScene(n);
@@ -2192,14 +2193,14 @@ const Bots = (() => {
     const tiles = vis.map(n => {
       const open = E.unlocked(G, n), done = n.kind !== 'loc' && G.done[n.id], [cx, cy] = xy(n);
       const next = open && !done && n.kind === 'boss';
-      const sub = !open ? 'Locked' : n.kind === 'loc' ? E.deckSize(G, n.loc) + ' cards here' : n.kind === 'boss' ? (done ? 'Beaten!' : 'Gym leader') : (done ? 'Beaten!' : 'The final fight');
+      const sub = '';
       if (n.kind === 'loc') {
         const left = E.deckSize(G, n.loc);
         return `<button class="place deck${open ? '' : ' lock'}" style="left:${cx - 62}px;top:${cy - 87}px" data-act="node" data-id="${n.id}" data-id2="${n.id}" aria-label="${esc(n.name)}, ${left} cards">${deckPile(n.loc, { pw: 124 })}${open ? `<div class="eye" data-act="eye" data-id="${n.id}" aria-label="What is left in this deck">i</div>` : '<div class="lk">🔒</div>'}</button>`;
       }
       return `<button class="place${open ? '' : ' lock'}${done ? ' done' : ''}${next ? ' next' : ''}${n.kind === 'boss' ? ' gym' : ''}" style="left:${cx - TILE_W / 2}px;top:${cy - 92}px" data-act="node" data-id="${n.id}" data-id2="${n.id}">
         <svg viewBox="0 0 160 120" role="img" aria-label="${esc(n.name)}">${sceneOf(n)}</svg>${open ? '' : '<div class="lk">🔒</div>'}${done ? '<div class="ck">✔</div>' : ''}${n.kind === 'boss' ? `<div class="eye" data-act="eye" data-id="${n.id}" aria-label="How their team is made">i</div>` : ''}
-        <div class="pl"><b>${esc(n.name)}</b><span>${sub}</span></div></button>`;
+        <div class="pl"><b>${esc(n.name)}</b></div></button>`;
     }).join('');
     return `<div class="top"><button class="chip" data-act="chipinfo">🎲 ×${E.slots(G)} · ★ ${G.lv}</button><div class="t mapt">Kanto Map</div><button class="mypile${ui.coll ? ' away' : ''}" data-act="coll" aria-label="Your cards">${myPile()}</button><button class="ib mbtn" data-act="menu" aria-label="Menu">☰</button></div>
       <div class="mapwrap"><div class="mapin" style="width:${W0}px;height:${H0}px;transform:scale(${sc});margin-left:${Math.max(0, (availW - W0 * sc) / 2)}px"><svg class="mapsvg" width="${W0}" height="${H0}">${lines}</svg>${tiles}</div></div>`;
@@ -2331,7 +2332,7 @@ const Bots = (() => {
   function menuSheet() {
     const inB = !!G.battle;
     return `<div class="sheet" data-act="closemenu"><div class="box" data-stop="1" style="max-width:420px;display:flex;flex-direction:column;gap:12px"><h2>Menu</h2>
-      <button class="btn alt" data-act="help">How to Play</button>${inB ? '' : '<button class="btn alt" data-act="records">Records</button>'}<button class="btn alt" data-act="settings">Settings</button>
+      <button class="btn alt" data-act="help">How to Play</button><button class="btn alt" data-act="settings">Settings</button>${inB ? '' : '<button class="btn alt" data-act="records">Records</button>'}
       <button class="btn" data-act="menu0">Save &amp; main menu</button><button class="btn ghost" data-act="closemenu">Close</button></div></div>`;
   }
   const settingsSheet = () => `<div class="sheet" data-act="closesettings"><div class="box" data-stop="1" style="max-width:460px;display:flex;flex-direction:column;gap:16px"><h2>Settings</h2>
@@ -2366,14 +2367,17 @@ const Bots = (() => {
   }
   // the cards are picked up from the pile in the corner and dealt out; each one starts exactly where the pile is (upright, pile-sized) and settles into its place in the fan
   function handFly(cs, back) {
-    const pile = document.querySelector('.mypile'); if (!pile) return false; const pr = pile.getBoundingClientRect(), pcx = pr.left + pr.width / 2, pcy = pr.top + pr.height / 2, n = cs.length;
+    const pile = document.querySelector('.mypile'); if (!pile) return false;
+    const hf = document.querySelector('.handf'); if (hf) { const sl = hf.scrollLeft; hf.classList.add('fly'); hf.style.transform = sl ? `translateX(${-sl}px)` : ''; }      // let the cards fly over the whole screen, the top bar included (not clipped to the row)
+    const pr = pile.getBoundingClientRect(), pcx = pr.left + pr.width / 2, pcy = pr.top + pr.height / 2, n = cs.length;
     cs.forEach((c, i) => {
       const inner = c.firstElementChild, r = inner.getBoundingClientRect(), rot = +c.dataset.rot, th = rot * Math.PI / 180, sx = pcx - (r.left + r.width / 2), sy = pcy - (r.top + r.height / 2);
       const lx = sx * Math.cos(th) + sy * Math.sin(th), ly = -sx * Math.sin(th) + sy * Math.cos(th), s = pr.width / r.width;       // the pile's offset, in the rotated frame of the card's slot in the fan
       const away = `translate(${lx}px,${ly}px) rotate(${-rot}deg) scale(${s})`;
-      inner.animate(back ? [{ transform: 'none' }, { transform: away }] : [{ transform: away }, { transform: 'none' }], back
+      const an = inner.animate(back ? [{ transform: 'none' }, { transform: away }] : [{ transform: away }, { transform: 'none' }], back
         ? { duration: 230, delay: (n - 1 - i) * 14, easing: 'cubic-bezier(.5,0,.8,.4)', fill: 'forwards' }
         : { duration: 440, delay: i * 38, easing: 'cubic-bezier(.2,.85,.3,1.05)', fill: 'backwards' });
+      if (!back && i === n - 1) an.onfinish = () => { const hf = document.querySelector('.handf'); if (hf) { hf.classList.remove('fly'); hf.style.transform = ''; } };      // the last card has landed: the row scrolls again
     });
     return true;
   }
@@ -2385,6 +2389,7 @@ const Bots = (() => {
   function handClose(done) {
     const cs = [...document.querySelectorAll('.handf .hc')]; if (!cs.length || !cs[0].firstElementChild.animate || !handFly(cs, true)) { done(); return; }
     const ov = document.querySelector('.handov'); if (ov) ov.animate([{ background: 'rgba(0,0,0,.42)' }, { background: 'rgba(0,0,0,0)' }], { duration: 240, fill: 'forwards' });
+    setTimeout(() => { const p = document.querySelector('.mypile'); if (p) p.classList.remove('away'); }, 200);      // the pile is back as soon as the first card lands on it
     setTimeout(done, 230 + cs.length * 14 + 30);
   }
   // the eye on a gym leader: how their team came about
