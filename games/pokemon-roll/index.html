@@ -921,8 +921,13 @@ const Engine = (() => {
     const b = s.battle; if (b.stage !== 'assign') return 'not assigning now';
     const u = U(b, a.uid), t = u && (tag(u, 'incDie') || tag(u, 'setDie')); if (!t || u.ko) return 'no such power';
     if (b.round - u.lastTweak < t.every) return 'not this round';
+    if (t.t === 'setDie') {                                   // change ANY of your dice (not just the one on this card)
+      const i = a.die; if (i == null || b.dice[u.side][i] == null) return 'pick a die';
+      if (b.fixed && b.fixed[u.side] && b.fixed[u.side][i]) return 'that die is locked in after the reroll';
+      b.dice[u.side][i] = t.v; u.lastTweak = b.round; return null;
+    }
     const x = b.asg[u.side][u.uid]; if (!x) return 'give it a die first';
-    const i = x.dice[0], v = b.dice[u.side][i]; b.dice[u.side][i] = t.t === 'incDie' ? v % 6 + 1 : t.v; u.lastTweak = b.round; x.dice = [i]; return null;
+    const i = x.dice[0], v = b.dice[u.side][i]; b.dice[u.side][i] = v % 6 + 1; u.lastTweak = b.round; x.dice = [i]; return null;
   }
   function doAim(s, a) { const b = s.battle, x = b.asg[a.side][a.uid]; if (!x) return 'give it a die first'; x.tgt = a.tgt; return null; }
   function readyToGo(b, side) {
@@ -2235,7 +2240,8 @@ const Bots = (() => {
       if (info && reveal && info.m) { face = info.vals[0]; spOn = !!info.m.sp; die = info.vals.join('+'); }
       const mark = ko ? '✕' : (u.skip && (assign || p || done)) ? '💤' : '';
       const tw = E.tags(u).find(g => g.t === 'incDie' || g.t === 'setDie');
-      const extra = tw && u.side === 0 && assign && info && !ko && b.round - u.lastTweak >= tw.every ? `<div class="xb" data-act="tweak" data-uid="${u.uid}">⚡ Use ability</div>` : '';
+      const twOk = tw && u.side === 0 && assign && !ko && !waitRoll && !rolling && b.round - u.lastTweak >= tw.every && (tw.t === 'setDie' || info);
+      const extra = twOk ? `<div class="xb${ui.tweak === u.uid ? ' on' : ''}" data-act="tweak" data-uid="${u.uid}">${tw.t === 'setDie' ? '⚡ Change a die to ' + tw.v : '⚡ Use ability'}</div>` : '';
       const canMv = assign && !waitRoll && !rolling && u.side === 0 && !ko && !u.skip && !E.blocksMove(b, 0);
       const mvb = canMv && E.tags(u).some(g => g.t === 'mover') && u.movedR !== b.round && b.cols.length > 1 ? `<div class="xb"><span data-act="mv" data-uid="${u.uid}" data-dir="-1" style="padding:8px 16px">◀</span> Move <span data-act="mv" data-uid="${u.uid}" data-dir="1" style="padding:8px 16px">▶</span></div>` : '';
       const swb = canMv && E.tags(u).some(g => g.t === 'swapper') && u.swapR !== b.round && E.living(b, 1).length > 1 ? `<div class="xb" data-act="swapstart" data-uid="${u.uid}">${ui.swap && ui.swap.uid === u.uid ? 'Tap two of theirs' : '⇄ Swap two'}</div>` : '';
@@ -2262,7 +2268,7 @@ const Bots = (() => {
     const opt = yourPlace && b.pl.optional;
     if (placing) status = (b.sudden ? 'SUDDEN DEATH · ' : '') + (yourPlace ? (selected != null ? 'Now tap where it goes' : opt ? 'Bring another card (they will draw one more), or fight now' : 'Pick a Pokémon from your hand to put down') : 'They are putting a card down…');
     else if (waitRoll) status = '<span class="rollhint">🎲 Tap anywhere to roll</span>';
-    else if (assign) { const need = E.living(b, 0).filter(u => !u.skip && !b.asg[0][u.uid]).length; status = (b.sudden ? 'SUDDEN DEATH · ' : '') + (rolling ? 'Rolling…' : ui.die != null ? 'Tap a card to give it that ' + b.dice[0][ui.die] : (E.readyToGo(b, 0) ? 'Ready? Press Resolve!' : 'Drag a die onto a card')); }
+    else if (assign) { const need = E.living(b, 0).filter(u => !u.skip && !b.asg[0][u.uid]).length; status = (b.sudden ? 'SUDDEN DEATH · ' : '') + (rolling ? 'Rolling…' : ui.tweak != null ? 'Tap the die to change to 2' : ui.die != null ? 'Tap a card to give it that ' + b.dice[0][ui.die] : (E.readyToGo(b, 0) ? 'Ready? Press Resolve!' : 'Drag a die onto a card')); }
     else if (asking && b.ask.kind === 'yn') { status = `<b>${C[E.U(b, b.ask.uid).id].name}</b> is attacked by ${C[E.U(b, b.ask.by).id].name} for ${b.ask.n}. Dodge?`; btns = `<button class="btn big" data-act="decide" data-yes="1">Dodge!</button><button class="btn alt" data-act="decide" data-yes="0">Take it</button>`; }
     else if (asking && b.ask.kind === 'alloc') { const left = b.ask.n - Object.values(b.ask.given).reduce((t, v) => t + v, 0); status = `Share ${left} ${b.ask.k === 'a' ? 'attack' : 'heal'} point${left === 1 ? '' : 's'} from <b>${C[E.U(b, b.ask.uid).id].name}</b>: tap a card for each` + (Object.keys(b.ask.given).length ? '<br>' + Object.keys(b.ask.given).map(k => `${C[E.U(b, +k).id].name} ${b.ask.given[k]}`).join(' · ') : ''); }
     else if (asking) status = b.ask.what === 'ditto' ? `Tap whose move ${C[E.U(b, b.ask.uid).id].name} copies` : `Tap who ${C[E.U(b, b.ask.uid).id].name} ${b.ask.k === 'a' ? 'attacks' : b.ask.k === 'b' ? 'blocks for' : 'heals'}`;
@@ -2481,7 +2487,7 @@ const Bots = (() => {
     },
     join(el) { const uid = ui.sel; ui.sel = null; if (act({ t: 'place', side: 0, uid, join: +el.dataset.col })) { const u = E.U(G.battle, uid); if (u && u.sh) burst(uid); } },
     ins(el) { const uid = ui.sel; ui.sel = null; if (act({ t: 'place', side: 0, uid, at: +el.dataset.at })) { const u = E.U(G.battle, uid); if (u && u.sh) burst(uid); } },
-    die(el) { const i = +el.dataset.i; ui.die = ui.die === i ? null : i; render(); },
+    die(el) { const i = +el.dataset.i; if (ui.tweak != null) { const uid = ui.tweak; ui.tweak = null; act({ t: 'tweak', side: 0, uid, die: i }); return; } ui.die = ui.die === i ? null : i; render(); },
     unit(el) {
       const b = G.battle, u = E.U(b, +el.dataset.uid); if (!u) return;
       if (b.ask && b.ask.kind === 'yn') return;
@@ -2509,7 +2515,7 @@ const Bots = (() => {
       if (act({ t: 'reroll', side: 0, all: true })) { ui.rerolled = set; ui.die = null; ui.rolling = Date.now() + 800; setTimeout(() => { ui.rolling = 0; render(); }, 850); render(); }
     },
     rerollfree() { if (ui.die != null) act({ t: 'reroll', side: 0, die: ui.die }); },
-    tweak(el) { act({ t: 'tweak', side: 0, uid: +el.dataset.uid }); },
+    tweak(el) { const uid = +el.dataset.uid, u = E.U(G.battle, uid), g = u && E.tags(u).find(x => x.t === 'setDie'); if (g) { ui.tweak = ui.tweak === uid ? null : uid; render(); return; } act({ t: 'tweak', side: 0, uid }); },
     go() { ui.die = null; if (act({ t: 'go2' })) startPlay(); },
     skip() { skipPlay(); },
     next() { ui.die = null; act({ t: 'next' }); },
@@ -2549,7 +2555,7 @@ const Bots = (() => {
     else render();
   });
   document.addEventListener('pointercancel', endDrag);
-  function resetSel() { ui.sel = null; ui.die = null; ui.aim = null; ui.pick = []; ui.chooser = null; ui.play = null; ui.rolledFor = 0; ui.rollTap = null; ui.rolling = 0; ui.mapX = null; }
+  function resetSel() { ui.tweak = null; ui.sel = null; ui.die = null; ui.aim = null; ui.pick = []; ui.chooser = null; ui.play = null; ui.rolledFor = 0; ui.rollTap = null; ui.rolling = 0; ui.mapX = null; }
   document.addEventListener('click', ev => {
     if (ui.dragged && Date.now() - ui.dragged < 400) return;                 // that was the end of a drag, not a tap
     if (ui.rolling && Date.now() < ui.rolling) return;                       // the dice are still tumbling

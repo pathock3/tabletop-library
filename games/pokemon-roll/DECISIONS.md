@@ -105,3 +105,5 @@ Every ability on the sheet is read from its text by the table in the data block.
 
 ## Shinies (owner, later: "make shinies have one more health than usual")
 - *(owner)* A shiny card has **+1 health** (`rules.shinyHp`), on top of looking different and sparkling when it is played. This replaces "purely cosmetic".
+
+- `RULING:` **Starmie / Staryu** ("change a die to 2") — you pick ANY of your own dice (a ⚡ button on the card, then tap the die). Every other round; a die locked in by a reroll can't be changed.

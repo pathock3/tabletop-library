@@ -523,3 +523,12 @@ test('shiny: a shiny card has one more health than the same card that is not', (
   const [shiny, plain] = b.units; assert.equal(shiny.max, plain.max + D.rules.shinyHp); assert.equal(shiny.hp, shiny.max); assert.equal(D.rules.shinyHp, 1);
   const n = E.newGame({ seed: 4, starter: 'bulbasaur' }); n.phase = 'battle'; const nb = T.startBattle(n, 'loc', 'L1', [{ id: '2.4', sh: 1 }], [{ id: '10', sh: 0 }]); assert.equal(nb.units[0].max, C['2.4'].hp + 1);
 });
+
+test('abilities: Starmie changes ANY one of your dice to 2 (not just the die on its card), every other round', () => {
+  const c = craft(['121', '25.1'], ['19', '19']); const { s, b } = c; const st = c.h(0);
+  b.dice[0] = [5, 6, 3]; b.asg[0] = {}; st.lastTweak = -9;
+  assert.equal(E.apply(s, { t: 'tweak', side: 0, uid: st.uid }).ok, false, 'must say which die');
+  assert.ok(E.apply(s, { t: 'tweak', side: 0, uid: st.uid, die: 1 }).ok);
+  assert.deepEqual(b.dice[0], [5, 2, 3]);
+  assert.equal(E.apply(s, { t: 'tweak', side: 0, uid: st.uid, die: 0 }).ok, false, 'not two rounds running');
+});
