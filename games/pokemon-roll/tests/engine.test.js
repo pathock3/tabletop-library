@@ -258,7 +258,7 @@ test('campaign: places open when the earlier fight is won, and you start with on
   assert.deepEqual(open().sort(), ['B1', 'L1', 'L2'], 'no opening rival fight: three places are open from the start'); assert.equal(E.slots(s), 1); assert.equal(s.lv, 2, 'your partner starts at level 2');
   s.done.B1 = true; assert.ok(open().includes('L3') && open().includes('B2') && open().includes('B3')); assert.equal(E.slots(s), 2);
   assert.ok(!open().includes('L4') && !open().includes('B4')); s.done.B2 = true; s.done.B3 = true; assert.ok(open().includes('L4') && open().includes('L5') && open().includes('B4') && open().includes('B5'));
-  assert.ok(!open().includes('B6')); s.done.B4 = true; s.done.B5 = true; assert.ok(open().includes('B6') && open().includes('L6') && open().includes('L7'));
+  assert.ok(!open().includes('B6')); s.done.B4 = true; assert.ok(open().includes('B6') && open().includes('L6') && open().includes('L7'), 'either path (Blaine or Erika) opens the next stage'); delete s.done.B4; s.done.B5 = true; assert.ok(open().includes('B6'), 'Erika alone opens it too');
   s.done.B6 = true; assert.ok(open().includes('B7') && open().includes('L8') && open().includes('L9')); s.done.B7 = true; assert.ok(!D.nodes.some(n => n.kind === 'rival'), 'there is no rival in solo: Lance is the last fight');
 });
 test('campaign: your rival picks the partner that beats yours', () => {

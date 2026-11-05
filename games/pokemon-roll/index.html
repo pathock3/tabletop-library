@@ -384,11 +384,11 @@ const GAME_DATA = {
     { id: 'B3', kind: 'boss', die: ['electric'], name: 'Lt. Surge', trainer: '⚡', color: '#fdd835', stage: 1, lane: 2, needs: ['B1'], lvl: 3, size: [3, 3], draws: [[3, 2, 0], [2, 1, 0]] },
     { id: 'L4', kind: 'loc', loc: 4, name: 'S.S. Anne', stage: 2, lane: 0, needs: ['B2'] },
     { id: 'L5', kind: 'loc', loc: 5, name: 'Pokemon Tower', stage: 2, lane: 2, needs: ['B3'] },
-    { id: 'B4', kind: 'boss', die: ['fire'], name: 'Blaine', trainer: '🔥', color: '#ef5350', stage: 3, lane: 0, needs: ['B2'], lvl: 4, size: [4, 5], draws: [[8, 2, 0], [5, 1, 0], [3, 1, 0], [4, 0, 1]] },
-    { id: 'B5', kind: 'boss', die: ['grass'], name: 'Erika', trainer: '🌿', color: '#66bb6a', stage: 3, lane: 2, needs: ['B3'], lvl: 4, size: [4, 5], draws: [[6, 2, 0], [5, 1, 1], [4, 1, 0]] },
-    { id: 'L6', kind: 'loc', loc: 6, name: 'Safari Zone', stage: 4, lane: 0, needs: ['B4', 'B5'] },
-    { id: 'B6', kind: 'boss', name: 'Blue', trainer: '🎖️', color: '#3f51b5', stage: 4, lane: 1, needs: ['B4', 'B5'], lvl: 5, size: [5, 7], draws: [[9, 1, 0], [7, 1, 1], [8, 1, 0], [6, 1, 1], [5, 1, 0]] },
-    { id: 'L7', kind: 'loc', loc: 8, name: 'Cinnabar Island', stage: 4, lane: 2, needs: ['B4', 'B5'] },
+    { id: 'B4', kind: 'boss', die: ['fire'], name: 'Blaine', trainer: '🔥', color: '#ef5350', stage: 3, lane: 2, needs: ['B2'], lvl: 4, size: [4, 5], draws: [[8, 2, 0], [5, 1, 0], [3, 1, 0], [4, 0, 1]] },
+    { id: 'B5', kind: 'boss', die: ['grass'], name: 'Erika', trainer: '🌿', color: '#66bb6a', stage: 3, lane: 0, needs: ['B3'], lvl: 4, size: [4, 5], draws: [[6, 2, 0], [5, 1, 1], [4, 1, 0]] },
+    { id: 'L6', kind: 'loc', loc: 6, name: 'Safari Zone', stage: 4, lane: 0, needs: ['B4', 'B5'], any: true },
+    { id: 'B6', kind: 'boss', name: 'Blue', trainer: '🎖️', color: '#3f51b5', stage: 4, lane: 1, needs: ['B4', 'B5'], any: true, lvl: 5, size: [5, 7], draws: [[9, 1, 0], [7, 1, 1], [8, 1, 0], [6, 1, 1], [5, 1, 0]] },
+    { id: 'L7', kind: 'loc', loc: 8, name: 'Cinnabar Island', stage: 4, lane: 2, needs: ['B4', 'B5'], any: true },
     { id: 'L8', kind: 'loc', loc: 7, name: 'Seafoam Islands', stage: 5, lane: 0, needs: ['B6'] },
     { id: 'B7', kind: 'boss', finale: true, die: ['fire', 'water', 'electric', 'grass', 'ground'], name: 'Lance', trainer: '🐉', color: '#5c6bc0', stage: 5, lane: 1, needs: ['B6'], lvl: 6, size: [6, 9], draws: [[9, 2, 1], [7, 1, 1], [8, 1, 1], [6, 1, 0]], legendary: 1 },
     { id: 'L9', kind: 'loc', loc: 9, name: 'Victory Road', stage: 5, lane: 2, needs: ['B6'] },
@@ -756,7 +756,7 @@ const Engine = (() => {
   const rivalFor = key => { const mine = CARDS[starterOf(key).levels[0]].weak; return D.starters.find(x => CARDS[x.levels[0]].type === mine) || D.starters[0]; };
   const bossesBeaten = s => D.nodes.filter(n => n.kind === 'boss' && s.done[n.id]).length;
   const slots = s => Math.min(R.locationMax, R.startSlots + bossesBeaten(s));
-  const unlocked = (s, n) => n.needs.every(id => s.done[id]);
+  const unlocked = (s, n) => n.any ? n.needs.some(id => s.done[id]) : n.needs.every(id => s.done[id]);       // `any`: either of two paths opens it
   const inst = (s, id, sh) => ({ id, sh: sh ? 1 : 0 });
 
   function newGame(o) {
@@ -2490,7 +2490,7 @@ const Bots = (() => {
     coll() { ui.coll = true; ui.menu = false; ui.handOpen = true; render(); }, closecoll() { ui.coll = false; render(); },
     handclose() { if (ui.handClosing) return; ui.handClosing = true; handClose(() => { ui.handClosing = false; ui.coll = false; render(); }); },
     node(el) {
-      const n = E.node(el.dataset.id); if (!E.unlocked(G, n)) { const miss = n.needs.map(id => E.node(id)).filter(x => x.kind === 'boss' && !G.done[x.id]).map(x => x.name); return toast(miss.length ? 'Beat ' + miss.join(' and ') + ' first' : 'Beat the gym leader before it first'); }
+      const n = E.node(el.dataset.id); if (!E.unlocked(G, n)) { const miss = n.needs.map(id => E.node(id)).filter(x => x.kind === 'boss' && !G.done[x.id]).map(x => x.name); return toast(miss.length ? 'Beat ' + miss.join(n.any ? ' or ' : ' and ') + ' first' : 'Beat the gym leader before it first'); }
       if (n.kind !== 'loc' && G.done[n.id]) return toast('You already beat them!');
       if (ui.sweeping) return;
       if (n.kind === 'loc' && !E.deckSize(G, n.loc)) return toast('That deck is empty');
