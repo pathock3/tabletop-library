@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- **Pokémon Roll! — the map is dealt out:** every time you arrive on the map (Continue, or back from a fight) the piles of cards fly in from the left, one stage after another, in about half a second.
+
 - **Pokémon Roll! — everyone gets their move:** a card taken to 0 health stays in play until the end of the round and still makes its move; all cards at 0 fall together once everyone has moved. A card at 0 cannot be healed (not even by its own attack). Cards at 0 show greyed with a red edge.
 
 - **Pokémon Roll! — a wood table, and the cards fill the screen:** the whole game sits on a wooden table. In a fight there is no top bar and no bottom bar: the cards run the full height (the computer's cards flush with the top of the screen, yours at the bottom) and everything else lives in a column down the right: your hand while you set up the matchups (with the deck's pile), then the dice, the reroll and Go!. Menu is the button in the top right, with the leave-the-fight button next to it. Gym leaders on the map now show their Crystal art. Tap the eye on a gym leader you have already faced and it shows their whole team.

@@ -1714,6 +1714,15 @@ const Bots = (() => {
     el.animate([{ transform: 'none' }, { transform: 'translateY(-14px) scale(1.12)' }], { duration: 320, easing: 'ease-out', fill: 'forwards' });
     setTimeout(go, 600);
   }
+
+  // arriving on the map: the piles are dealt out from the left, quickly, one stage after another
+  function mapIntro() {
+    const tiles = [...document.querySelectorAll('.mapin .place')]; if (!tiles.length || !tiles[0].animate) return;
+    const xs = tiles.map(t => parseFloat(t.style.left) || 0), lo = Math.min(...xs), hi = Math.max(...xs, lo + 1), span = 330;
+    tiles.forEach((t, i) => t.animate([{ transform: 'translate(-90px,-26px) rotate(-16deg) scale(.45)', opacity: 0 }, { transform: 'translate(0,4px) rotate(2deg) scale(1.04)', opacity: 1, offset: .75 }, { transform: 'none', opacity: 1 }], { duration: 380, delay: (xs[i] - lo) / (hi - lo) * span + (parseFloat(t.style.top) || 0) % 40, easing: 'cubic-bezier(.2,.8,.3,1)', fill: 'backwards' }));
+    const sv = document.querySelector('.mapsvg'); if (sv) sv.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 300, delay: span, fill: 'backwards' });
+    const mp = document.querySelector('.mypile'); if (mp) mp.animate([{ transform: 'translate(40px,-30px) scale(.4)', opacity: 0 }, { transform: 'none', opacity: 1 }], { duration: 360, delay: 40, easing: 'cubic-bezier(.2,.8,.3,1)', fill: 'backwards' });
+  }
   // a card is drawn from the pile: it flies from the pile to its place, turning face up on the way
   function drawFly(uid) {
     const c = document.querySelector('.board .card[data-uid="' + uid + '"]'), pl = document.querySelector('.pilebay .pile'); if (!c || !pl || !c.animate) return;
@@ -2180,6 +2189,8 @@ const Bots = (() => {
       const gh = document.createElement('div'); gh.className = 'handghost hrow'; gh.style.cssText = `position:fixed;left:${oldRect.left}px;top:${oldRect.top}px;width:${oldRect.width}px;height:${oldRect.height}px;z-index:35;pointer-events:none`; gh.innerHTML = oldHtml; document.body.appendChild(gh);
       gh.animate([{ transform: 'translateX(0)', opacity: 1 }, { transform: 'translateX(70%)', opacity: 0 }], { duration: 550, easing: 'ease-in', fill: 'forwards' }).onfinish = () => gh.remove(); setTimeout(() => gh.remove(), 900);
     }
+    const mapNow = !!(G && ui.screen === 'play' && G.phase === 'map' && document.querySelector('.mapin'));
+    if (mapNow && !ui.wasMap) mapIntro(); ui.wasMap = mapNow;
     const oldPile = document.querySelector('.pilebay');
     if (ui.pileFrom && document.querySelector('.pilebay .pile')) {                      // the deck you picked glides from the map to its place on the table
       const pl = document.querySelector('.pilebay .pile'), r = pl.getBoundingClientRect(), f = ui.pileFrom; ui.pileFrom = null;

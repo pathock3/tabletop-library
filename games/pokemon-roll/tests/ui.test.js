@@ -314,3 +314,17 @@ test('ui: locations are decks of cards; picking one sweeps the map away, the pil
     assert.deepEqual(errs, []);
   } finally { await b.close(); }
 });
+test('ui: arriving on the map deals the piles out from the left, once, not on every redraw', { skip: !chromium }, async () => {
+  const b = await chromium.launch(), p = await b.newPage({ viewport: { width: 820, height: 1180 } });
+  const errs = []; p.on('pageerror', e => errs.push(e.message));
+  try {
+    await p.goto(URL); await p.evaluate(() => { localStorage.setItem('pokemon-roll-tips', JSON.stringify({ place: 1, dice: 1, roll: 1, end: 1, shiny: 1 })); }); await p.reload();
+    await p.evaluate(() => { const s = Engine.newGame({ seed: 12, starter: 'charmander', size: 'short', ai: 'normal' }); window.__pokemonRoll.setG(s); });
+    const n1 = await p.evaluate(() => document.getAnimations().filter(a => !(a instanceof CSSAnimation) && a.effect && a.effect.target && a.effect.target.classList && a.effect.target.classList.contains('place')).length);
+    assert.ok(n1 >= 3, 'the piles are dealt out: ' + n1);
+    await p.waitForTimeout(1200); await p.evaluate(() => window.__pokemonRoll.render());
+    const n2 = await p.evaluate(() => document.getAnimations().filter(a => !(a instanceof CSSAnimation) && a.effect && a.effect.target && a.effect.target.classList && a.effect.target.classList.contains('place')).length);
+    assert.equal(n2, 0, 'a redraw on the same map does not deal them again');
+    assert.deepEqual(errs, []);
+  } finally { await b.close(); }
+});
