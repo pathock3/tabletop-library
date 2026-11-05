@@ -2,6 +2,7 @@ const test = require('node:test');
 const assert = require('node:assert/strict');
 const { GAME_DATA: D, Engine: E, Bots: B } = require('./load.js');
 const C = E.CARDS, T = E._t;
+D.rules.columns = false; D.rules.specials = true;      // the older rule tests resolve a whole round at once; the column-by-column tests below switch it on for their own battles
 
 // ---- a hand-built battle: the i-th hero card faces the i-th computer card; then put numbers on the dice and give them out
 function craft(heroIds, gmIds, o) {
@@ -446,14 +447,6 @@ test('dice: a die the colour of the move adds +1 to it, a mismatch adds nothing,
   const plain = dmg(null), fire = dmg('fire'), water = dmg('water'); assert.equal(fire, plain + 1, 'a fire die on a fire card is +1'); assert.equal(water, plain, 'a water die on a fire card does nothing');
   assert.equal(E.colorBonus(b, ch), 0);
 });
-test('dice: beating a gym leader gives you their colour for good; in their fight both sides use it', () => {
-  const s = E.newGame({ seed: 5, starter: 'charmander' }); assert.deepEqual(s.cdice, []);
-  s.phase = 'battle'; const b = T.startBattle(s, 'boss', 'B1', [{ id: '4.2', sh: 0 }, { id: '1.1', sh: 0 }], [{ id: '74', sh: 0 }, { id: '10', sh: 0 }]); b.hand = [[], []]; b.cols = [[b.units[0].uid, b.units[2].uid], [b.units[1].uid, b.units[3].uid]]; T.startRound(s);
-  assert.equal(b.dcol[0][0], 'ground', 'you use Brock\'s colour in his fight'); assert.equal(b.dcol[1][0], 'ground', 'so does he'); assert.deepEqual(s.cdice, [], 'but you do not own it yet');
-  b.units[2].ko = true; b.units[3].ko = true; b.cols = [[b.units[0].uid, null], [b.units[1].uid, null]]; b.stage = 'resolved'; b.out = 'hero'; b.hand = [[], []];
-  assert.ok(E.apply(s, { t: 'next' }).ok); assert.deepEqual(s.cdice, ['ground']); assert.deepEqual(s.res.dieGain, ['ground']);
-  const w = craft(['4.1'], ['10']); assert.equal(w.b.dcol[1].length, 0, 'wild cards get no coloured dice');
-});
 test('rules: a card with nobody across from it is not put to sleep: it rolls, heals, hurts itself, and hits cards in other columns', () => {
   const c = craft(['1.2', '1.2', '4.2'], ['10']); const { s, b } = c;        // the second Bulbasaur and Charmander have nobody across
   assert.equal(b.dice[0].length, 3, 'a die for every card, matchless or not'); assert.ok(b.units.every(u => !u.skip));
@@ -555,4 +548,38 @@ test('legendaries: nothing is spotted until you have four dice; after that two u
     E.apply(s, { t: 'go', node: 'L1' }); if (s.notes.some(n => n.indexOf('legend:') === 0)) late++;
   }
   assert.equal(early, 0, 'no legendary with fewer than four dice'); assert.ok(late > 5 && late < 40, 'about one turn in nine spots one once you have four dice (' + late + ')');
+});
+
+// ================================================================ one die per card, one column at a time
+const colGame = (heroIds, gmIds) => { D.rules.columns = true; const c = craft(heroIds, gmIds); return c; };
+test('columns: every card has its own die, rolled when its column comes, left to right; the opponent is resolved with you', (tc) => { tc.after(() => { D.rules.columns = false; E.faceOrder('sheet'); }); E.faceOrder('top');
+  const c = colGame(['25.1', '1.1', '4.1'], ['19', '19', '19']); const { s, b } = c;
+  assert.equal(b.colMode, true); assert.equal(b.rolled, false); assert.deepEqual(b.dice, [[], []], 'nothing is rolled until you tap');
+  assert.ok(E.apply(s, { t: 'roll' }).ok); assert.equal(b.cur, 0); assert.equal(b.dice[0].length, 1); assert.equal(b.dice[1].length, 1, 'their card rolls too (you cannot see it)');
+  assert.equal(E.apply(s, { t: 'go2' }).ok, false, 'the other side is not ready yet'); assert.ok(E.apply(s, { t: 'gm', asg: [] }).ok);
+  assert.ok(E.apply(s, { t: 'go2' }).ok); assert.equal(b.stage === 'resolved' || b.stage === 'resolving', true);
+  while (b.ask) assert.ok(E.apply(s, { t: 'choose', tgt: E.autoChoice(b) }).ok);
+  assert.equal(b.more, true, 'two more columns to go'); assert.ok(b.acted[b.cols[0][0]] && b.acted[b.cols[0][1]] && !b.acted[b.cols[1][0]], 'only column one has acted');
+  assert.ok(E.apply(s, { t: 'next' }).ok); assert.equal(b.stage, 'assign'); assert.equal(b.rolled, false); assert.ok(E.apply(s, { t: 'roll' }).ok); assert.equal(b.cur, 1, 'now the second column');
+  assert.equal(E.apply(s, { t: 'assign', side: 0, uid: 1, die: 0 }).ok, false, 'there is nothing to assign: the die belongs to its card');
+});
+test('columns: one reroll per card; extra rerolls from abilities; a rerolled die is simply the new number', (tc) => { tc.after(() => { D.rules.columns = false; E.faceOrder('sheet'); }); E.faceOrder('top');
+  const c = colGame(['25.1'], ['19']); const { s, b } = c; assert.ok(E.apply(s, { t: 'roll' }).ok); assert.equal(b.rr[0], 1);
+  assert.ok(E.apply(s, { t: 'reroll', side: 0 }).ok); assert.equal(E.apply(s, { t: 'reroll', side: 0 }).ok, false, 'one reroll per card');
+  assert.ok(E.apply(s, { t: 'gm', asg: [] }).ok); assert.ok(E.apply(s, { t: 'go2' }).ok);
+});
+test('columns: a card at 0 still makes its move; a card with nobody across still rolls', (tc) => { tc.after(() => { D.rules.columns = false; E.faceOrder('sheet'); }); E.faceOrder('top');
+  const c = colGame(['25.1', '1.1'], ['19']); const { s, b } = c; // the second column has only your card
+  assert.ok(E.apply(s, { t: 'roll' }).ok); assert.ok(E.apply(s, { t: 'gm', asg: [] }).ok); assert.ok(E.apply(s, { t: 'go2' }).ok); while (b.ask) E.apply(s, { t: 'choose', tgt: E.autoChoice(b) });
+  assert.ok(E.apply(s, { t: 'next' }).ok); assert.ok(E.apply(s, { t: 'roll' }).ok); assert.equal(b.dice[0].length, 1, 'your card rolls'); assert.equal(b.dice[1].length, 0, 'nobody across');
+});
+test('columns: Gyarados may swap places with an ally once, after the matchups are set and before the first roll, and never again', (tc) => { tc.after(() => { D.rules.columns = false; E.faceOrder('sheet'); }); E.faceOrder('top');
+  const c = colGame(['130.5', '25.1'], ['19', '19']); const { s, b } = c; const gy = c.h(0), pk = c.h(1);
+  assert.ok(E.apply(s, { t: 'gswap', uid: gy.uid, with: pk.uid }).ok); assert.equal(b.cols[0][0], pk.uid); assert.equal(b.cols[1][0], gy.uid);
+  assert.equal(E.apply(s, { t: 'gswap', uid: gy.uid, with: pk.uid }).ok, false, 'only once');
+});
+test('columns: a whole campaign can be played by the computer in column mode', (tc) => { tc.after(() => { D.rules.columns = false; }); D.rules.columns = true;
+  const s = E.newGame({ seed: 7, starter: 'squirtle', ai: 'normal' }); let guard = 0;
+  while (s.phase !== 'won' && guard++ < 8000) { let g = B.step(s, 'normal'); if (g) { assert.ok(E.apply(s, g).ok); continue; } g = B.heroStep(s, 'master'); assert.ok(g, 'never stuck'); assert.ok(B.applyHero(s, g).ok, JSON.stringify(g)); }
+  assert.equal(s.phase, 'won');
 });

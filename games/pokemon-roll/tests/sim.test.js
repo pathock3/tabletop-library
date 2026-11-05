@@ -49,7 +49,7 @@ test('fuzz: forty computer-played campaigns, from the first rival to the champio
 
 test('ai: Easy never rerolls and plays blind; Master and Normal are real levers in the data; Master beats Normal beats Easy', (tc) => { E.faceOrder('top'); tc.after(() => E.faceOrder('sheet'));
   const B = Bots, ais = E.D.ai; assert.deepEqual(Object.keys(ais), ['easy', 'normal', 'master']);
-  const c = craft(['1.1'], ['10']); c.b.dice[1] = [1]; c.b.rr[1] = 3;
+  E.D.rules.columns = false; const c = craft(['1.1'], ['10']); E.D.rules.columns = true; c.b.dice[1] = [1]; c.b.rr[1] = 3;       // (the craft helper builds an old whole-round battle; the full games below use columns)
   for (let i = 0; i < 30; i++) assert.equal(B.step(c.s, 'easy').t, 'gm', 'Easy hands out dice without ever rerolling');
   const lose = { easy: [0, 0], normal: [0, 0], master: [0, 0] };       // [hero battles lost, played]
   for (let g = 0; g < 8; g++) ['easy', 'normal', 'master'].forEach(lvl => {
@@ -57,5 +57,5 @@ test('ai: Easy never rerolls and plays blind; Master and Normal are real levers 
     while (s.phase !== 'won' && s.phase !== 'lost' && n++ < 30000) { let a; while ((a = B.step(s))) E.apply(s, a); if (s.phase === 'result' && s.res) { lose[lvl][1]++; if (!s.res.win) lose[lvl][0]++; } const h = B.heroStep(s, 'master'); if (!h) break; B.applyHero(s, h); }
   });
   const rate = k => lose[k][0] / lose[k][1];
-  assert.ok(rate('easy') < rate('normal') && rate('normal') < rate('master') + 0.02, 'a stronger computer beats the same player more often: ' + JSON.stringify(lose));
+  assert.ok(rate('master') > rate('normal') + 0.05 && rate('master') > rate('easy') + 0.05, 'Master (the only one that rerolls) beats the same player more often; Easy and Normal now differ only in how they put cards down: ' + JSON.stringify(lose));
 });

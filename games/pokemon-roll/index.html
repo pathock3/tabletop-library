@@ -329,6 +329,11 @@ button{font:inherit;color:inherit;border:0;cursor:pointer}
 .hofr{background:#0003;border-radius:10px;padding:8px}.hofh{font:600 16px system-ui;margin-bottom:4px}
 .hofteam{display:flex;flex-wrap:wrap;gap:2px}.hofteam img{width:48px;height:48px;image-rendering:pixelated}
 </style>
+
+<style>
+.col.cur .card{box-shadow:0 0 0 4px #ffd24d,0 0 18px #ffd24d99,0 6px 14px #000a}
+.col.acted{opacity:.72}
+</style>
 <script id="data">
 /* Pokémon Roll! — every rule number, the map, the bosses, the card sheet and the art live here. The engine and bots read this and hard-code none of it. */
 const GAME_DATA = {
@@ -342,6 +347,8 @@ const GAME_DATA = {
     levelLabels: [1, 10, 20, 30, 40, 50],   // what a card's level 1-6 is called on screen (the rules still count 1-6)
     startSlots: 1, startLevel: 2,   // you begin with your partner at level 2 (the level the first rival fight gave in the paper game)
                  // cards you may challenge a location with; each boss beaten adds one
+    columns: true,              // one die per card, one column at a time, left to right
+    specials: false,           // multi-dice specials ("555") wait for a rule that suits one die per card
     locationMax: 5,             // never more than five cards a side (and five dice): the biggest fight is 5 on 5
     typeShield: 3,              // "Immune to ground" now means: takes 3 less damage from ground attacks
     maxLevel: 6,
@@ -420,7 +427,7 @@ const GAME_DATA = {
     ['^-(\\d)d$', { t: 'shield', n: '$1' }],
     ['^When you take damage, attacker loses a round$', { t: 'hitSkip' }],
     ['^When you lose (\\d)\\+ damage, attacker takes (\\d)d$', { t: 'bigHit', min: '$1', n: '$2' }],
-    ['^\\+(\\d)a if given the blue die$', { t: 'dieBonus', color: 'water', n: '$1' }],
+    ['^Once per battle, may swap places with any ally$', { t: 'swapOnce' }],
     ['^\\+(\\d) reroll$', { t: 'reroll', n: '$1' }],
     ['^You may always reroll (\\d)s$', { t: 'rerollFace', face: '$1' }],
     ['^Dodge one attack per match$', { t: 'dodgeMatch' }],
@@ -626,7 +633,7 @@ Magmar|126|Fire|Water|5|8 Cinnabar Island|8|Attack|Healed by fire attacks|4a, 3a
 Pinsir|127|Grass|Fire|5|6 Safari Zone|8|Attack|If below 4h, +2a|4a|4a|2a|1d v|||
 Tauros|128|Normal|Psychic|3|6 Safari Zone|6|Attack|If attack hits, cannot attack next round|3a <>|2a <>|2a <>|1a < or >|2b|1d v|
 Magikarp|129|Water|Electric|1|2 Mt. Moon|1|Support|If you have allies, -9d from matchup|1a|1d v|||||
-Gyarados|130.5|Water|Electric|5|7 Seafoam Islands|9|Attack|+1a if given the blue die|3a <^>|2a <^>|1a <^>|2a|1d v||2222: 10a to all non-water on both teams
+Gyarados|130.5|Water|Electric|5|7 Seafoam Islands|9|Attack|Once per battle, may swap places with any ally|3a <^>|2a <^>|1a <^>|2a|1d v||2222: 10a to all non-water on both teams
 Lapras|131|Water|Electric|5|8 Cinnabar Island|8|Balanced|Fire types for both teams receive no elemental bonuses; ice attacks freeze dice|2a <^>|1a <^ or >|2b <v or >|1d v|||
 Ditto|132|Normal|Fighting|4|8 Cinnabar Island|5|Variable|May use moves on matchup's or neighbors' cards|1d v||||||
 Eevee|133|Normal|Fighting|2|4 S.S. Anne|3|Support|+1 reroll|3a|2a|1d v||||
@@ -844,7 +851,7 @@ const Engine = (() => {
   // opt.lazy: your hand is your whole collection and a card becomes a unit when it is put down. opt.wild: { loc, cap }: the wild cards come up one at a time.
   function startBattle(s, kind, nodeId, heroI, gmI, opt) {
     opt = opt || {};
-    const b = s.battle = { kind, node: nodeId, units: [], cols: [], hand: [[], []], pl: null, stage: 'place', round: 0, nextUid: 1, limit: opt.need ? Math.max(opt.need[0], opt.need[1]) : Math.max(heroI.length, gmI.length), dice: [[], []], asg: [{}, {}], gmReady: false, events: [], before: {}, out: null, stall: 0, dealt: [0, 0], dealtRound: [0, 0], actType: {}, sudden: false, tries: 0, rr: [0, 0], rrFace: [[], []], rrUsed: [{}, {}], pools: [], firstChosen: false, hold: null, placed: [0, 0], need: opt.need || [heroI.length, gmI.length], mode: opt.wild ? 'wild' : 'fixed', cap: opt.wild ? opt.wild.cap : 0, loc: opt.wild ? opt.wild.loc : 0 };
+    const b = s.battle = { colMode: !!R.columns, kind, node: nodeId, units: [], cols: [], hand: [[], []], pl: null, stage: 'place', round: 0, nextUid: 1, limit: opt.need ? Math.max(opt.need[0], opt.need[1]) : Math.max(heroI.length, gmI.length), dice: [[], []], asg: [{}, {}], gmReady: false, events: [], before: {}, out: null, stall: 0, dealt: [0, 0], dealtRound: [0, 0], actType: {}, sudden: false, tries: 0, rr: [0, 0], rrFace: [[], []], rrUsed: [{}, {}], pools: [], firstChosen: false, hold: null, placed: [0, 0], need: opt.need || [heroI.length, gmI.length], mode: opt.wild ? 'wild' : 'fixed', cap: opt.wild ? opt.wild.cap : 0, loc: opt.wild ? opt.wild.loc : 0 };
     if (opt.lazy) { b.hcards = {}; b.nextH = 1; heroI.forEach(i => addHand(b, 0, i)); gmI.forEach(i => addHand(b, 1, i)); }
     else { heroI.forEach(i => b.hand[0].push(mkUnit(b, i, 0).uid)); gmI.forEach(i => b.hand[1].push(mkUnit(b, i, 1).uid)); nidoMax(b); }
     b.pl = { side: 1, left: R.firstPlaceCount };
@@ -902,6 +909,12 @@ const Engine = (() => {
     b.round++; b.stage = 'assign'; b.events = []; b.asg = [{}, {}]; b.gmReady = false; b.pools = []; b.out = null;
     b.units.forEach(u => { if (!u.ko) u.shield = shieldMax(b, u); });
     b.units.forEach(u => { if (u.ko) return; u.skip = u.skipNext; u.skipNext = false; u.lastHurt = u.hurt; u.hurt = 0; u.lastBlk = u.blk; u.blk = 0; u.hits = 0; u.dodgedRound = false; });
+    if (b.colMode) {                                             // one die per card, one column at a time, left to right: nothing is rolled until the column's turn
+      b.dice = [[], []]; b.dcol = [[], []]; b.locked = [{}, {}]; b.fixed = [{}, {}]; b.rr = [0, 0]; b.rrFace = [[], []]; b.rrUsed = [{}, {}]; b.bonus = [0, 0];
+      b.acted = {}; b.rolled = false; b.cur = -1; b.more = false; b.res = null; b.dealtRound = [0, 0]; b.healedRound = 0; b.before = {}; b.units.forEach(u => { b.before[u.uid] = u.hp; });
+      [0, 1].forEach(sd => living(b, sd).forEach(u => tags(u).forEach(t => { if (t.t === 'reroll') b.bonus[sd] += +t.n; })));
+      b.units.forEach(u => { u.elem = null; }); b.hold = null; return;
+    }
     [0, 1].forEach(sd => {
       const n = living(b, sd).filter(u => !u.skip).length;
       b.dice[sd] = Array.from({ length: n }, () => die(s));
@@ -912,6 +925,20 @@ const Engine = (() => {
     living(b, 0).concat(living(b, 1)).forEach(u => { if (has(u, 'dampReroll') && b.cols[colIdx(b, u.uid)] && b.cols[colIdx(b, u.uid)][other(u.side)] != null) b.rr[other(u.side)] = Math.max(0, b.rr[other(u.side)] - 1); });
     b.units.forEach(u => { u.elem = null; });
     b.hold = null;
+  }
+  // ---- column mode: the next column (left to right) that still has a card to act; its dice are rolled when the player taps
+  const pickColumn = b => b.cols.findIndex(c => [0, 1].some(sd => c[sd] != null && !b.acted[c[sd]] && !U(b, c[sd]).ko));
+  function doRoll(s) {
+    const b = s.battle; if (!b.colMode || b.stage !== 'assign' || b.rolled) return 'not now';
+    const ci = pickColumn(b); if (ci < 0) return 'nothing left to roll'; b.cur = ci; const c = b.cols[ci];
+    b.dice = [[], []]; b.asg = [{}, {}]; b.locked = [{}, {}]; b.fixed = [{}, {}]; b.dcol = [[], []]; b.rrUsed = [{}, {}]; b.rrFace = [[], []]; b.rr = [0, 0]; b.gmReady = false;
+    [0, 1].forEach(sd => {
+      const uid = c[sd]; if (uid == null) return; const u = U(b, uid); if (u.ko || u.skip) return;
+      b.dice[sd] = [die(s)]; b.asg[sd][uid] = { dice: [0], tgt: null }; b.rr[sd] = R.baseRerolls;
+      living(b, sd).forEach(x => tags(x).forEach(t => { if (t.t === 'rerollFace' && b.rrFace[sd].indexOf(+t.face) < 0) b.rrFace[sd].push(+t.face); }));
+      const foe = c[other(sd)] != null ? U(b, c[other(sd)]) : null; if (foe && !foe.ko && has(foe, 'dampReroll')) b.rr[sd] = Math.max(0, b.rr[sd] - 1);
+    });
+    b.rolled = true; return null;
   }
   function assignedDice(b, side) { const used = new Set(); Object.values(b.asg[side]).forEach(a => a.dice.forEach(i => used.add(i))); return used; }
   function doAssign(s, a) {
@@ -930,6 +957,11 @@ const Engine = (() => {
   // `all` = every die not on a card yet; `dice` = a chosen set (the computer decides before it gives any out); `die` = one die (a card that lets you reroll a face for free)
   function doReroll(s, a) {
     const b = s.battle; if (b.stage !== 'assign') return 'not assigning now';
+    if (b.colMode) {                                             // this card's die: one reroll of its own, then any the team's abilities add; a face a card lets you always reroll is free, once per die
+      if (!b.rolled || !b.dice[a.side].length) return 'roll first'; const side = a.side, v = b.dice[side][0];
+      if (b.rrFace[side].indexOf(v) >= 0 && !b.rrUsed[side][0]) b.rrUsed[side][0] = 1; else if (b.rr[side] > 0) b.rr[side]--; else if (b.bonus[side] > 0) b.bonus[side]--; else return 'no rerolls left';
+      b.dice[side][0] = die(s); return null;
+    }
     const side = a.side, locked = (b.locked = b.locked || [{}, {}])[side], used = assignedDice(b, side), n = b.dice[side].length;
     if (a.die != null) {
       const v = b.dice[side][a.die]; if (v == null) return 'no such die'; if (locked[a.die]) return 'that die is locked in';
@@ -948,6 +980,11 @@ const Engine = (() => {
     const b = s.battle; if (b.stage !== 'assign') return 'not assigning now';
     const u = U(b, a.uid), t = u && (tag(u, 'incDie') || tag(u, 'setDie')); if (!t || u.ko) return 'no such power';
     if (b.round - u.lastTweak < t.every) return 'not this round';
+    if (b.colMode) {
+      if (!b.rolled) return 'roll first';
+      if (t.t === 'setDie') { if (!b.dice[u.side].length) return 'no die to change'; b.dice[u.side][0] = t.v; u.lastTweak = b.round; return null; }
+      if (!b.asg[u.side][u.uid]) return 'only on its own turn'; b.dice[u.side][0] = b.dice[u.side][0] % 6 + 1; u.lastTweak = b.round; return null;
+    }
     if (t.t === 'setDie') {                                   // change ANY of your dice (not just the one on this card)
       const i = a.die; if (i == null || b.dice[u.side][i] == null) return 'pick a die';
       if (b.fixed && b.fixed[u.side] && b.fixed[u.side][i]) return 'that die is locked in after the reroll';
@@ -958,6 +995,7 @@ const Engine = (() => {
   }
   function doAim(s, a) { const b = s.battle, x = b.asg[a.side][a.uid]; if (!x) return 'give it a die first'; x.tgt = a.tgt; return null; }
   function readyToGo(b, side) {
+    if (b.colMode) return !!b.rolled;
     const free = b.dice[side].length - assignedDice(b, side).size;
     const bare = living(b, side).filter(u => !u.skip && !b.asg[side][u.uid]).length;
     return !(bare > 0 && free > 0);
@@ -967,7 +1005,7 @@ const Engine = (() => {
   function chosenMove(b, u, dice) {
     if (!dice || !dice.length || u.skip) return null;
     const face = dice[0], card = CARDS[u.id], sp = parseSpecial(card.special);
-    if (sp && dice.length === sp.count && face === sp.face) return { face, sp, str: card.special };
+    if (sp && R.specials && dice.length === sp.count && face === sp.face) return { face, sp, str: card.special };
     let str = card.moves[face - 1];
     if (has(u, 'ditto')) {                                   // Ditto uses the move printed on one of the cards facing it: the one across, or a neighbour of that one (chosen when its turn comes)
       const src = b.dittoSrc && b.dittoSrc[u.uid], ci = colIdx(b, u.uid); let f = null;
@@ -1106,6 +1144,14 @@ const Engine = (() => {
     if (u.movedR === b.round) return 'once a round'; if (blocksMove(b, u.side)) return 'something stops it moving';
     if (!shiftUnit(b, u, a.dir < 0 ? -1 : 1)) return 'no column that way';
     u.movedR = b.round; ev(b, { t: 'text', msg: CARDS[u.id].name + ' changes column' }); return null;
+  }
+  // Gyarados: once the matchups are set (before the first roll of the battle), swap places with any ally -- and that is all it ever does
+  function doGSwap(s, a) {
+    const b = s.battle; if (!b.colMode || b.stage !== 'assign' || b.rolled || Object.keys(b.acted).length || b.round !== 1) return 'only once the matchups are set, before the first roll';
+    const u = U(b, a.uid), z = U(b, a.with); if (!u || !z || u.side !== z.side || u === z || u.ko || z.ko || !has(u, 'swapOnce')) return 'cannot swap';
+    if (u.onceUsed) return 'already used'; if (blocksMove(b, u.side)) return 'a card here stops cards moving';
+    const ci = colIdx(b, u.uid), cj = colIdx(b, z.uid); b.cols[ci][u.side] = z.uid; b.cols[cj][u.side] = u.uid; u.onceUsed = true;
+    ev(b, { t: 'text', msg: CARDS[u.id].name + ' swaps places with ' + CARDS[z.id].name }); return null;
   }
   function doSwap(s, a) {
     const b = s.battle; if (b.stage !== 'assign') return 'not now';
@@ -1332,7 +1378,7 @@ const Engine = (() => {
     if (b.ask.what === 'ditto') { const act = b.res.acts.find(x => x.uid === b.ask.uid); return dittoBest(b, U(b, act.uid), act).uid; }
     const r = b.res, act = r.acts[r.i], u = U(b, act.uid), e = effsFor(b, u, act)[r.ei];
     if (e.k === 'b') return bestBlock(b, u, e, blockCands(b, u, e)).u.uid;
-    const T = pickTargets(b, u, e, amountOf(b, u, e), null); return T.length ? T[0].u.uid : b.ask.opts[0][0];
+    const T = pickTargets(b, u, e, amountOf(b, u, e), null), ok = T.find(t => b.ask.opts.some(o => o.indexOf(t.u.uid) >= 0)); return ok ? ok.u.uid : b.ask.opts[0][0];
   }
   function doDecide(s, a) {
     const b = s.battle; if (b.stage !== 'resolving' || !b.ask || b.ask.kind !== 'yn') return 'nothing to decide';
@@ -1400,13 +1446,15 @@ const Engine = (() => {
       }
     });
   }
-  function orderOf(b) {
-    const list = []; b.cols.forEach(c => [0, 1].forEach(sd => { if (c[sd] != null) { const u = U(b, c[sd]); if (!u.ko) list.push(u); } }));
+  function orderOf(b, all) {
+    const list = []; (b.colMode && !all && b.cur >= 0 ? [b.cols[b.cur] || []] : b.cols).forEach(c => [0, 1].forEach(sd => { if (c[sd] != null) { const u = U(b, c[sd]); if (!u.ko) list.push(u); } }));
     return list.filter(u => has(u, 'first')).concat(list.filter(u => !has(u, 'first')));
   }
   function resolveRound(s) {
-    const b = s.battle; b.events = []; b.before = {}; b.dealtRound = [0, 0]; b.pools = []; b.actType = {};
-    b.units.forEach(u => { b.before[u.uid] = u.hp; u.attacked = false; });
+    const b = s.battle; b.events = []; b.pools = []; b.actType = {};
+    if (!b.colMode) { b.before = {}; b.dealtRound = [0, 0]; b.units.forEach(u => { b.before[u.uid] = u.hp; }); }
+    b.units.forEach(u => { u.attacked = false; });
+    if (b.colMode) orderOf(b).forEach(u => { b.acted[u.uid] = 1; });
     orderOf(b).forEach(u => {                                    // Slowpoke and Slowbro: the card facing them rolls one lower (1 becomes 6)
       const t = tag(u, 'decEnemy'); if (!t || u.skip || b.round - u.lastTweak < t.every) return;
       const ci = colIdx(b, u.uid), fid = b.cols[ci] && b.cols[ci][other(u.side)]; if (fid == null) return;
@@ -1439,7 +1487,11 @@ const Engine = (() => {
   }
   function finishRound(s) {
     const b = s.battle;
-    orderOf(b).forEach(w => {                                    // Weezing: hands one of its damage to a healthier card facing it
+    if (b.colMode) {
+      b.healedRound += b.events.filter(e => e.t === 'heal').length; b.more = pickColumn(b) >= 0;
+      if (b.more) { b.stage = 'resolved'; b.out = null; return; }                 // another column still to play
+    }
+    orderOf(b, true).forEach(w => {                                    // Weezing: hands one of its damage to a healthier card facing it
       if (!has(w, 'giveDamage') || w.ko || w.hp <= 0 || w.hp >= w.max) return;
       const fid = b.cols[colIdx(b, w.uid)] && b.cols[colIdx(b, w.uid)][other(w.side)]; if (fid == null) return;
       const foe = U(b, fid); if (foe.ko || foe.hp <= w.hp) return;
@@ -1447,7 +1499,7 @@ const Engine = (() => {
     });
     settle(s, b);
     const h = living(b, 0).length, g = living(b, 1).length;
-    const moved = b.dealtRound[0] + b.dealtRound[1] + b.events.filter(e => e.t === 'heal').length;
+    const moved = b.dealtRound[0] + b.dealtRound[1] + (b.colMode ? b.healedRound : b.events.filter(e => e.t === 'heal').length);
     b.stall = moved ? 0 : b.stall + 1;
     b.stage = 'resolved';
     if (b.sudden) b.out = b.dealtRound[0] > b.dealtRound[1] ? 'hero' : b.dealtRound[1] > b.dealtRound[0] ? 'gm' : (b.tries >= R.suddenDeathTries ? 'gm' : 'sudden');
@@ -1492,7 +1544,7 @@ const Engine = (() => {
       if (win && !gm.length) s.res.pick = [];
     } else if (win) {
       const dice0 = slots(s); s.done[nd.id] = true; s.bossTurns[nd.id] = s.turn; if (nd.kind === 'boss' && !nd.finale && slots(s) > dice0) s.res.newDie = true;
-      if (nd.die && !nd.finale) { const gain = nd.die.filter(c => (s.cdice = s.cdice || []).indexOf(c) < 0); gain.forEach(c => s.cdice.push(c)); if (gain.length) s.res.dieGain = gain; }          // you keep the leader's colour          // how many turns it took to get this far
+      if (false && nd.die && !nd.finale) { const gain = nd.die.filter(c => (s.cdice = s.cdice || []).indexOf(c) < 0); gain.forEach(c => s.cdice.push(c)); if (gain.length) s.res.dieGain = gain; }          // you keep the leader's colour          // how many turns it took to get this far
       if (nd.kind === 'boss') {
         const team = s.bosses[nd.id], back = team.filter((i, k) => !(nd.legendary && k === team.length - 1)), locs = new Set();         // the beaten team goes back where it came from, shuffled into that place's draw pile (the legendary you win is not among them)
         back.forEach(i => { const loc = CARDS[i.id].loc || 1; s.decks[loc].push(i.id); locs.add(loc); }); locs.forEach(loc => { s.decks[loc] = shuffle(s, s.decks[loc]); });
@@ -1550,28 +1602,31 @@ const Engine = (() => {
       case 'ready': if (b.stage !== 'place' || b.mode !== 'wild' || !b.pl || !b.pl.optional || b.pl.side !== 0) return 'not now'; beginFight(s); return null;
       case 'first': if (b.stage !== 'place' || b.firstChosen || b.mode === 'wild') return 'too late'; b.pl = { side: a.side === 0 ? 0 : 1, left: R.firstPlaceCount }; return null;
       case 'place': return doPlace(s, a);
-      case 'assign': return doAssign(s, a);
-      case 'unassign': return doUnassign(s, a);
+      case 'roll': return doRoll(s);
+      case 'assign': if (b.colMode) return 'each card has its own die'; return doAssign(s, a);
+      case 'unassign': if (b.colMode) return 'each card has its own die'; return doUnassign(s, a);
       case 'reroll': return doReroll(s, a);
       case 'tweak': return doTweak(s, a);
       case 'aim': return doAim(s, a);
       case 'gm': {                                    // the computer's side: its dice go on its cards
-        if (b.stage !== 'assign') return 'not assigning now'; b.asg[1] = {};
+        if (b.stage !== 'assign') return 'not assigning now'; if (b.colMode) { if (!b.rolled) return 'not rolled'; b.gmReady = true; return null; } b.asg[1] = {};
         (a.asg || []).forEach(x => { if (x.uid != null && x.dice && x.dice.every(i => b.dice[1][i] != null)) b.asg[1][x.uid] = { dice: x.dice.slice(), tgt: x.tgt == null ? null : x.tgt }; });
         b.gmReady = true; return null;
       }
       case 'go2': {
-        if (b.stage !== 'assign') return 'not assigning now'; if (!b.gmReady) return 'the other side is not ready'; if (!readyToGo(b, 0)) return 'give every card a die';
+        if (b.stage !== 'assign') return 'not assigning now'; if (!b.gmReady) return 'the other side is not ready'; if (!readyToGo(b, 0)) return b.colMode ? 'roll first' : 'give every card a die';
         resolveRound(s); return null;
       }
       case 'choose': return doChoose(s, a);
       case 'decide': return doDecide(s, a);
       case 'alloc': return doAlloc(s, a);
-      case 'move': return doMove(s, a);
-      case 'swap': return doSwap(s, a);
+      case 'gswap': return doGSwap(s, a);
+      case 'move': if (b.colMode && (b.rolled || Object.keys(b.acted).length)) return 'only before the first roll of a round'; return doMove(s, a);
+      case 'swap': if (b.colMode && (b.rolled || Object.keys(b.acted).length)) return 'only before the first roll of a round'; return doSwap(s, a);
       case 'haunt': return doHaunt(s, a);
       case 'next': {
         if (b.stage !== 'resolved') return 'not yet';
+        if (b.colMode && b.more) { b.stage = 'assign'; b.rolled = false; b.cur = -1; b.more = false; b.dice = [[], []]; b.asg = [{}, {}]; b.gmReady = false; b.events = []; b.res = null; return null; }
         if (hauntAsk(b)) return 'Haunter may keep an ability first'; b.haunt = null;
         if (b.out === 'hero' || b.out === 'gm') { cleanUp(s); endBattle(s, b.out === 'hero'); return null; }
         if (b.out === 'sudden') { suddenDeath(s); return null; }
@@ -1710,10 +1765,24 @@ const Bots = (() => {
     });
     put(orig); return best;
   }
+  // one die for one card: Master throws it again when the face it shows is worth less than an average face would be (Normal and Easy never reroll)
+  function colReroll(s, side, level) {
+    const b = s.battle, L = lv(level); if (L.rerolls === 'never' || !b.rolled || !b.dice[side].length) return null;
+    const v = b.dice[side][0], free = b.rrFace[side].indexOf(v) >= 0 && !b.rrUsed[side][0];
+    if (!free && b.rr[side] <= 0 && b.bonus[side] <= 0) return null;
+    const uid = b.cols[b.cur][side]; if (uid == null) return null; const u = E.U(b, uid);
+    const val = f => E.preview(b, u, f, [f]).value, cur = val(v); let avg = 0; for (let f = 1; f <= 6; f++) avg += val(f) / 6;
+    return cur < avg - 0.01 ? { t: 'reroll', side } : null;
+  }
   // the next thing the computer's side does, or null if it is the player's move
   function step(s, level) {
     const b = s.battle; if (!b) return null; level = level || s.ai || 'normal';
     if (b.stage === 'place' && b.pl && b.pl.side === 1) return placement(s, 1, level);
+    if (b.colMode && b.stage === 'assign') {
+      if (!b.rolled) { const m = b.round === 1 || !Object.keys(b.acted).length ? movements(s, 1, level) : null; return m || null; }      // its dice wait for your roll
+      if (!b.gmReady) { const rr = colReroll(s, 1, level); if (rr && (b.gmRe = (b.gmRe || 0) + 1) <= 3) return rr; b.gmRe = 0; return { t: 'gm', asg: [] }; }
+      return null;
+    }
     if (b.stage === 'assign' && !b.gmReady) {
       const m = movements(s, 1, level); if (m) return m;
       const rr = rerollPlan(s, 1, level); if (rr) return rr;
@@ -1745,6 +1814,11 @@ const Bots = (() => {
     if (b.stage === 'place') {
       if (b.pl.side === 0) return placement(s, 0, level);
       return null;
+    }
+    if (b.colMode && b.stage === 'assign') {
+      if (!b.rolled) { if (!b.hero && !Object.keys(b.acted).length) { const m = movements(s, 0, level); if (m) return m; } return { t: 'roll' }; }
+      const rr = colReroll(s, 0, level); if (rr && (b.heroRe = (b.heroRe || 0) + 1) <= 3) return rr; b.heroRe = 0;
+      return b.gmReady ? { t: 'go2' } : null;
     }
     if (b.stage === 'assign') {
       if (!b.hero) { const m = movements(s, 0, level); if (m) return m; const rr = rerollPlan(s, 0, level); if (rr) return rr; }
@@ -1853,7 +1927,7 @@ const Bots = (() => {
       <div class="tagrow"><span class="tag">${e.icon} ${esc(c.type)}</span></div>
       <div class="ab">${c.ability ? abText(c.ability) : 'No ability'}</div>
       <div class="faces">${rows}</div>
-      ${sp ? `<div class="sp${o.sp ? ' hot' : ''}"><i>${String(sp.face).repeat(sp.count).split('').join(' ')}</i><span>${short(c.special.replace(/^\d+:\s*/, ''))}</span></div>` : ''}
+      ${sp && D.rules.specials ? `<div class="sp${o.sp ? ' hot' : ''}"><i>${String(sp.face).repeat(sp.count).split('').join(' ')}</i><span>${short(c.special.replace(/^\d+:\s*/, ''))}</span></div>` : ''}
       ${o.extra || ''}
       ${o.pop ? `<div class="pop ${o.pop.cls || ''}">${o.pop.txt}</div>` : ''}
     </div>`;
@@ -2159,16 +2233,16 @@ const Bots = (() => {
   // ---------------------------------------------------------------- tips (once per device)
   const TIPTEXT = {
     place: 'They put a card down. Pick one of your Pokémon, then tap where it goes. If you have dice to spare you can bring more cards (they draw one more each time), or press Fight!',
-    dice: 'Everyone rolls one die per card. Tap a die, then tap the card that should use it (or drag it). Give out the dice you like, then 🔄 throws the rest again together, once a round: those stay as they land. Each card does something different on each number: the rows on the card show what.',
+    dice: 'Every card has its own die. We go one column at a time, left to right: tap to roll, then keep the number or 🔄 reroll it (once per card). The number picks what the card does, then the two cards in the column battle and you find out what the other side chose.',
     shiny: 'A shiny! It looks different, but plays just the same.',
-    roll: 'Now tap anywhere to roll the dice for the next round.',
+    roll: 'Tap anywhere to roll for the next column.',
     end: 'Win by knocking out every card on their side. A card that reaches 0 health is out right away.',
   };
   function tipOnce(k, text) { if (!set.tips || tipsSeen[k] || ui.tip) return; tipsSeen[k] = 1; lsSet(TIPS, tipsSeen); ui.tip = { k, text: text || TIPTEXT[k] }; render(); }
   function maybeTips() {
     const b = G && G.battle; if (!b) return;
     if (b.stage === 'place' && b.pl && b.pl.side === 0) tipOnce('place');
-    if (b.stage === 'assign' && (b.round > 1 || ui.rollTap === G.turn)) tipOnce('dice');
+    if (b.stage === 'assign' && (b.colMode ? b.rolled : (b.round > 1 || ui.rollTap === G.turn))) tipOnce('dice');
   }
 
   // ---------------------------------------------------------------- screens
@@ -2263,8 +2337,10 @@ const Bots = (() => {
     const cwW = Math.floor((W - 8 - (m + 1) * 4 - m * 6) / m), cwH = Math.floor((H - 10 - 2) / 2 / 1.9);
     const cw = Math.max(insAts.length ? 90 : 120, Math.min(320, cwW, cwH)), hcw = Math.max(80, Math.min(180, RW - 30));
     if (ui.lastTurn === G.turn && ui.lastCw && ui.lastCw !== cw) ui.zoomFrom = ui.lastCw / cw; ui.lastCw = cw; ui.lastTurn = G.turn;       // if the board changes size, it zooms rather than jumps
-    const waitRoll = assign && b.round === 1 && ui.rollTap !== G.turn;                       // the first roll of a fight is a tap, too
-    if (assign && !waitRoll && ui.rolledFor !== b.round) { ui.rolledFor = b.round; ui.rerolled = null; ui.rolling = Date.now() + 950; setTimeout(() => { ui.rolling = 0; render(); }, 1000); }
+    const colM = !!b.colMode, waitRoll = assign && (colM ? !b.rolled : b.round === 1 && ui.rollTap !== G.turn);                       // every card's roll is a tap
+    const rollKey = colM ? b.round + ':' + b.cur : b.round;
+    const curCol = colM ? (assign && !b.rolled ? b.cols.findIndex(c => [0, 1].some(sd => c[sd] != null && !b.acted[c[sd]] && !E.U(b, c[sd]).ko)) : b.cur) : -1;
+    if (assign && !waitRoll && ui.rolledFor !== rollKey) { ui.rolledFor = rollKey; ui.rerolled = null; ui.rolling = Date.now() + 950; setTimeout(() => { ui.rolling = 0; render(); }, 1000); }
     const rolling = ui.rolling && Date.now() < ui.rolling;
     const asking = b.stage === 'resolving' && b.ask && (!p || p.waiting);
     const hpOf = u => p ? (p.hp[u.uid] != null ? p.hp[u.uid] : u.hp) : u.hp;
@@ -2288,14 +2364,15 @@ const Bots = (() => {
       if (info && reveal && info.m) { face = info.vals[0]; spOn = !!info.m.sp; die = info.vals.join('+'); }
       const mark = ko ? '✕' : (u.skip && (assign || p || done)) ? '💤' : '';
       const tw = E.tags(u).find(g => g.t === 'incDie' || g.t === 'setDie');
-      const twOk = tw && u.side === 0 && assign && !ko && !waitRoll && !rolling && b.round - u.lastTweak >= tw.every && (tw.t === 'setDie' || info);
-      const extra = twOk ? `<div class="xb${ui.tweak === u.uid ? ' on' : ''}" data-act="tweak" data-uid="${u.uid}">${tw.t === 'setDie' ? '⚡ Change a die to ' + tw.v : '⚡ Use ability'}</div>` : '';
-      const canMv = assign && !waitRoll && !rolling && u.side === 0 && !ko && !u.skip && !E.blocksMove(b, 0);
+      const twOk = tw && u.side === 0 && assign && !ko && !waitRoll && !rolling && b.round - u.lastTweak >= tw.every && (tw.t === 'setDie' ? b.dice[0].length > 0 : info);
+      const extra = twOk ? `<div class="xb${ui.tweak === u.uid ? ' on' : ''}" data-act="tweak" data-uid="${u.uid}">${tw.t === 'setDie' ? '⚡ Make this die a ' + tw.v : '⚡ Use ability'}</div>` : '';
+      const canMv = assign && (colM ? !b.rolled && !Object.keys(b.acted).length : !waitRoll && !rolling) && u.side === 0 && !ko && !u.skip && !E.blocksMove(b, 0);
       const mvb = canMv && E.tags(u).some(g => g.t === 'mover') && u.movedR !== b.round && b.cols.length > 1 ? `<div class="xb"><span data-act="mv" data-uid="${u.uid}" data-dir="-1" style="padding:8px 16px">◀</span> Move <span data-act="mv" data-uid="${u.uid}" data-dir="1" style="padding:8px 16px">▶</span></div>` : '';
       const swb = canMv && E.tags(u).some(g => g.t === 'swapper') && u.swapR !== b.round && E.living(b, 1).length > 1 ? `<div class="xb" data-act="swapstart" data-uid="${u.uid}">${ui.swap && ui.swap.uid === u.uid ? 'Tap two of theirs' : '⇄ Swap two'}</div>` : '';
+      const gyb = canMv && E.tags(u).some(g => g.t === 'swapOnce') && !u.onceUsed && b.round === 1 && b.cols.length > 1 ? `<div class="xb${ui.gsw === u.uid ? ' on' : ''}" data-act="gswstart" data-uid="${u.uid}">${ui.gsw === u.uid ? 'Tap an ally' : '⇄ Swap places'}</div>` : '';
       const pf = assign && !waitRoll && u.side === 0 && !ko && ui.die != null ? b.dice[0][ui.die] : 0;
-      const dcol1 = info && info.die.length === 1 && b.dcol && b.dcol[u.side] ? dieCol(b.dcol[u.side][info.die[0]]) : null, dbonus = info && !ko && E.colorBonus(b, u) > 0;
-      return card(u, { cw, dieCol: dcol1, dieBonus: dbonus, foe: u.side === 1, ko: koOf(u), hp: hpOf(u), shield: u.shield || 0, face, sp: spOn, pf, die, chg: chgOf(u), land: ui.landed === u.uid, heroDie: u.side === 0, dieAttr: u.side === 0 && assign && !(info && b.fixed && b.fixed[0] && info.die.some(i => b.fixed[0][i])) ? `data-act="unmv" data-uid="${u.uid}"${info && info.die.length === 1 ? ` data-i="${info.die[0]}"` : ''}` : '', mark, extra: extra + mvb + swb, cls: clsOf(u) + (ui.swap && u.side === 1 && !ko ? (ui.swap.picks.indexOf(u.uid) >= 0 ? ' sel act' : ' sel') : ''), pop: popOf(u), attr: `data-act="unit" data-uid="${u.uid}"` });
+      const dcol1 = null, dbonus = false;
+      return card(u, { cw, dieCol: dcol1, dieBonus: dbonus, foe: u.side === 1, ko: koOf(u), hp: hpOf(u), shield: u.shield || 0, face, sp: spOn, pf, die, chg: chgOf(u), land: ui.landed === u.uid, heroDie: u.side === 0, dieAttr: !colM && u.side === 0 && assign && !(info && b.fixed && b.fixed[0] && info.die.some(i => b.fixed[0][i])) ? `data-act="unmv" data-uid="${u.uid}"${info && info.die.length === 1 ? ` data-i="${info.die[0]}"` : ''}` : '', mark, extra: extra + mvb + swb + gyb, cls: clsOf(u) + (ui.swap && u.side === 1 && !ko ? (ui.swap.picks.indexOf(u.uid) >= 0 ? ' sel act' : ' sel') : ''), pop: popOf(u), attr: `data-act="unit" data-uid="${u.uid}"` });
     };
     const slotHtml = (ci, side) => {
       const uid = b.cols[ci][side];
@@ -2306,16 +2383,17 @@ const Bots = (() => {
     const canIns = insAts.length > 0;
     const ins = at => canIns && insAts.indexOf(at) >= 0 ? `<div class="col insc" style="--cw:${cw}px"><div class="slot ghost"></div><div class="slot ok" data-act="ins" data-at="${at}">＋</div></div>` : '';
     let cols = ins(0);
-    b.cols.forEach((c, i) => { cols += `<div class="col" style="--cw:${cw}px">${slotHtml(i, 1)}${slotHtml(i, 0)}</div>` + ins(i + 1); });
+    b.cols.forEach((c, i) => { cols += `<div class="col${i === curCol ? ' cur' : ''}${colM && !placing && [0, 1].every(sd => c[sd] == null || b.acted[c[sd]]) && b.round ? ' acted' : ''}" style="--cw:${cw}px">${slotHtml(i, 1)}${slotHtml(i, 0)}</div>` + ins(i + 1); });
     if (!b.cols.length && !canIns) cols = `<div class="vsl">${placing ? 'Cards go here' : ''}</div>`;
     const heroTray = teamSort(E.handOf(b, 0), hc => hc.hid != null ? hc.hid : hc.uid).map(hc => { const k = hc.hid != null ? hc.hid : hc.uid; return card(hc, { cw: hcw, sel: k === selected, attr: `data-act="tray" data-uid="${k}"` }); }).join('');
     // the bay: your hand while you set the matchups, then the dice
     const hd = b.dice[0], used = E.assignedDice(b, 0);
-    const diceHtml = !waitRoll && (assign || done || p) && hd.length ? hd.map((v, i) => dieHtml(v, { sel: ui.die === i, used: used.has(i), tumble: rolling && (!ui.rerolled || ui.rerolled.indexOf(i) >= 0), color: dieCol(b.dcol && b.dcol[0] && b.dcol[0][i]), attr: assign && !rolling && !(b.fixed && b.fixed[0] && b.fixed[0][i]) ? `data-act="die" data-i="${i}"` : '' })).join('') : '';
+    const diceHtml = !waitRoll && (assign || done || p) && hd.length ? hd.map((v, i) => dieHtml(v, { sel: ui.die === i, used: !colM && used.has(i), tumble: rolling && (!ui.rerolled || ui.rerolled.indexOf(i) >= 0), color: dieCol(b.dcol && b.dcol[0] && b.dcol[0][i]), attr: !colM && assign && !rolling && !(b.fixed && b.fixed[0] && b.fixed[0][i]) ? `data-act="die" data-i="${i}"` : '' })).join('') : '';
     let status = '', btns = '';
     const opt = yourPlace && b.pl.optional;
     if (placing) status = (b.sudden ? 'SUDDEN DEATH · ' : '') + (yourPlace ? (selected != null ? 'Now tap where it goes' : opt ? 'Bring another card (they will draw one more), or fight now' : 'Pick a Pokémon from your hand to put down') : 'They are putting a card down…');
     else if (waitRoll) status = '<span class="rollhint">🎲 Tap anywhere to roll</span>';
+    else if (assign && colM) { status = (b.sudden ? 'SUDDEN DEATH · ' : '') + (rolling ? 'Rolling…' : b.dice[0].length ? 'Keep it, or reroll?' : 'Nothing to roll for you here'); }
     else if (assign) { const need = E.living(b, 0).filter(u => !u.skip && !b.asg[0][u.uid]).length; status = (b.sudden ? 'SUDDEN DEATH · ' : '') + (rolling ? 'Rolling…' : ui.tweak != null ? 'Tap the die to change to 2' : ui.die != null ? 'Tap a card to give it that ' + b.dice[0][ui.die] : (E.readyToGo(b, 0) ? 'Ready? Press Resolve!' : 'Drag a die onto a card')); }
     else if (asking && b.ask.kind === 'yn') { status = `<b>${C[E.U(b, b.ask.uid).id].name}</b> is attacked by ${C[E.U(b, b.ask.by).id].name} for ${b.ask.n}. Dodge?`; btns = `<button class="btn big" data-act="decide" data-yes="1">Dodge!</button><button class="btn alt" data-act="decide" data-yes="0">Take it</button>`; }
     else if (asking && b.ask.kind === 'alloc') { const left = b.ask.n - Object.values(b.ask.given).reduce((t, v) => t + v, 0); status = `Share ${left} ${b.ask.k === 'a' ? 'attack' : 'heal'} point${left === 1 ? '' : 's'} from <b>${C[E.U(b, b.ask.uid).id].name}</b>: tap a card for each` + (Object.keys(b.ask.given).length ? '<br>' + Object.keys(b.ask.given).map(k => `${C[E.U(b, +k).id].name} ${b.ask.given[k]}`).join(' · ') : ''); }
@@ -2323,7 +2401,10 @@ const Bots = (() => {
     else if (p) status = p.bi < 0 ? 'Here is what everyone rolled…' : (p.wait ? '<span class="rollhint capnext">Tap ▶</span>' : '');
     else if (done && E.hauntAsk(b)) { const k = E.hauntAsk(b); status = `<b>${C[E.U(b, k.hid).id].name}</b> can keep an ability — tap one`; btns = k.opts.map(id => `<button class="btn alt" data-act="haunt" data-uid="${id}">Keep ${C[E.U(b, id).id].name}</button>`).join('') + `<button class="btn ghost" data-act="haunt">No thanks</button>`; }
     else if (done) status = `<span class="rollhint">${b.out === 'hero' ? '🏆 You win! Tap anywhere to continue' : b.out === 'gm' ? 'You lose this one. Tap anywhere to continue' : b.out === 'sudden' ? 'Everyone fell! Tap anywhere for sudden death' : '🎲 Tap anywhere to roll'}</span>`;
-    if (assign && !waitRoll) {
+    if (assign && colM && !waitRoll) {
+      const v0 = b.dice[0][0], canRe = !rolling && v0 != null && (b.rr[0] > 0 || b.bonus[0] > 0 || (b.rrFace[0].indexOf(v0) >= 0 && !b.rrUsed[0][0]));
+      btns = `${v0 != null && (b.rr[0] > 0 || b.bonus[0] > 0 || b.rrFace[0].length) ? `<button class="btn alt" data-act="reroll" ${canRe ? '' : 'disabled'}>🔄 Reroll</button>` : ''}<button class="btn big" data-act="go" ${!rolling && b.gmReady ? '' : 'disabled'}>Resolve</button>`;
+    } else if (assign && !waitRoll) {
       const lk = (b.locked && b.locked[0]) || {}, freeDice = hd.map((_, i) => i).filter(i => !used.has(i) && !lk[i]);
       const canRe = !rolling && b.rr[0] > 0 && freeDice.length > 0, canFree = !rolling && ui.die != null && !lk[ui.die] && b.rrFace[0].indexOf(hd[ui.die]) >= 0 && !b.rrUsed[0][ui.die];
       btns = `${b.rr[0] > 0 ? `<button class="btn alt" data-act="reroll" ${canRe ? '' : 'disabled'}>🔄 Reroll</button>` : ''}${canFree ? '<button class="btn alt" data-act="rerollfree">🔄 Free reroll</button>' : ''}<button class="btn big" data-act="go" ${!rolling && E.readyToGo(b, 0) && b.gmReady ? '' : 'disabled'}>Resolve</button>`;
@@ -2357,12 +2438,12 @@ const Bots = (() => {
   const spr = (id, sh, px) => `<img class="pix" style="width:${px || 96}px;height:${px || 96}px" src="${art(id, sh)}" alt="">`;
   const HELP = [
     { t: 'Put your Pokémon down', cap: 'Take turns. Each card faces one foe.', vis: () => `<div class="hv col"><div class="hs">${spr('10', 0)}<b>Them</b></div><div class="vs">VS</div><div class="hs">${spr('4.2', 0)}<b>You</b></div></div>` },
-    { t: 'Roll, then give out the dice', cap: 'Drag each die onto a card.', vis: () => `<div class="hv">${[3, 6, 1].map(n => dieHtml(n, {})).join('')}<span class="arrow">➜</span><div class="hs hsd">${spr('4.2', 0, 110)}<div class="die small">6</div></div></div>` },
+    { t: 'One die per card, one column at a time', cap: 'Roll, then keep it or reroll it once.', vis: () => `<div class="hv">${[3, 6, 1].map(n => dieHtml(n, {})).join('')}<span class="arrow">➜</span><div class="hs hsd">${spr('4.2', 0, 110)}<div class="die small">6</div></div></div>` },
     { t: 'The die picks the move', cap: 'The lit row is what it does on that number.', vis: () => card({ id: '4.2', sh: 0 }, { cw: 200, face: 1 }) },
     { t: 'Weakness hurts double', cap: 'The tab at the top shows what it fears.', vis: () => `<div class="hv"><div class="hs">${spr('4.2', 0)}<b>🔥 Fire</b></div><div class="boom">2 ➜ <span>4</span> 💥</div><div class="hs">${spr('1.2', 0)}<b>weak 🔥</b></div></div>` },
     { t: 'Win cards. Beat gym leaders.', cap: 'Every gym leader opens a new road.', vis: () => `<div class="hv">${['L1', 'B1', 'B2'].map((id, k) => `${k ? '<span class="arrow">➜</span>' : ''}<div class="hmap"><svg viewBox="0 0 160 120">${sceneOf(E.node(id))}</svg></div>`).join('')}</div>` },
     { t: 'Shinies and legendaries', cap: 'Shiny is a look. A 9 on two dice finds a legend.', vis: () => `<div class="hv"><div class="hs">${spr('6.5', 0)}</div><span class="arrow">➜</span><div class="hs shw">${spr('6.5', 1)}${sparkles()}</div><div class="boom">${dieHtml(4, {})}${dieHtml(5, {})}</div><div class="hs">${spr('249', 0)}</div></div>` },
-    { t: 'Good to know', cap: '', vis: () => `<ul class="hl"><li>⚠️ <b>weak ×2</b>: a card takes double damage from attacks of the type on its top strip.</li><li>🛡 A blocker takes what it can’t soak.</li><li>💥 A card at 0 is out right away.</li><li>🛡 A shield soaks damage once a round.</li><li>🎨 A die the colour of a card's type adds +1 to its move. Beat a gym leader to keep their colour.</li><li>🔄 Once a round, give out the dice you like and throw the rest again. They are locked in after that.</li><li>🏃 Leave any fight. Nothing is lost.</li><li>🎲 Tap anywhere to roll again.</li></ul>` },
+    { t: 'Good to know', cap: '', vis: () => `<ul class="hl"><li>⚠️ <b>weak ×2</b>: a card takes double damage from attacks of the type on its top strip.</li><li>🛡 A blocker takes what it can’t soak.</li><li>💥 A card at 0 is out right away.</li><li>🛡 A shield soaks damage once a round.</li><li>🔄 Each card may reroll its die once. Then the column battles.</li><li>🏃 Leave any fight. Nothing is lost.</li><li>🎲 Tap anywhere to roll again.</li></ul>` },
   ];
   const helpSheet = () => { const i = Math.max(0, Math.min(HELP.length - 1, ui.helpPage || 0)), pg = HELP[i]; return `<div class="sheet" data-act="closehelp"><div class="box hbox" data-stop="1"><div class="hvis" data-act="hnext">${pg.vis()}</div><h2>${pg.t}</h2>${pg.cap ? `<p class="hcap">${pg.cap}</p>` : ''}<div class="hnav"><button class="ib" data-act="hprev">◀</button><div class="dots">${HELP.map((_, k) => `<i class="${k === i ? 'on' : ''}"></i>`).join('')}</div><button class="ib" data-act="hnext">▶</button></div></div></div>`; };
   function menuSheet() {
@@ -2570,6 +2651,7 @@ const Bots = (() => {
         if (b.ask.opts.some(o => o.indexOf(u.uid) >= 0) && act({ t: 'choose', tgt: u.uid })) { const p = ui.play; if (p) { absorbEvents(); p.waiting = false; nextBeat(); } else startPlay(); }
         return;
       }
+      if (ui.gsw != null && b.stage === 'assign' && u.side === 0 && u.uid !== ui.gsw && !u.ko) { const g0 = ui.gsw; ui.gsw = null; act({ t: 'gswap', uid: g0, with: u.uid }); return; }
       if (ui.swap && b.stage === 'assign' && u.side === 1 && !u.ko) {                  // Abra: tap two of theirs
         const sw = ui.swap, i = sw.picks.indexOf(u.uid); if (i >= 0) sw.picks.splice(i, 1); else sw.picks.push(u.uid);
         if (sw.picks.length === 2) { ui.swap = null; act({ t: 'swap', side: 0, uid: sw.uid, a: sw.picks[0], b: sw.picks[1] }); } else render();
@@ -2584,12 +2666,15 @@ const Bots = (() => {
     mv(el) { act({ t: 'move', side: 0, uid: +el.dataset.uid, dir: +el.dataset.dir }); },
     swapstart(el) { const k = +el.dataset.uid; ui.swap = ui.swap && ui.swap.uid === k ? null : { uid: k, picks: [] }; render(); },
     haunt(el) { act({ t: 'haunt', uid: el.dataset.uid == null ? null : +el.dataset.uid }); },
-    reroll() {                                     // every die not on a card yet is thrown again, together; they are locked in after that
+    gswstart(el) { const k = +el.dataset.uid; ui.gsw = ui.gsw === k ? null : k; render(); },
+    reroll() {
+      const b0 = G.battle; if (b0.colMode) { if (act({ t: 'reroll', side: 0 })) { ui.rerolled = [0]; ui.rolling = Date.now() + 800; setTimeout(() => { ui.rolling = 0; render(); }, 850); render(); } return; }
+      // every die not on a card yet is thrown again, together; they are locked in after that
       const b = G.battle, used = E.assignedDice(b, 0), lk = (b.locked && b.locked[0]) || {}, set = b.dice[0].map((_, i) => i).filter(i => !used.has(i) && !lk[i]);
       if (act({ t: 'reroll', side: 0, all: true })) { ui.rerolled = set; ui.die = null; ui.rolling = Date.now() + 800; setTimeout(() => { ui.rolling = 0; render(); }, 850); render(); }
     },
     rerollfree() { if (ui.die != null) act({ t: 'reroll', side: 0, die: ui.die }); },
-    tweak(el) { const uid = +el.dataset.uid, u = E.U(G.battle, uid), g = u && E.tags(u).find(x => x.t === 'setDie'); if (g) { ui.tweak = ui.tweak === uid ? null : uid; render(); return; } act({ t: 'tweak', side: 0, uid }); },
+    tweak(el) { const uid = +el.dataset.uid, u = E.U(G.battle, uid), g = u && E.tags(u).find(x => x.t === 'setDie'); if (g && !G.battle.colMode) { ui.tweak = ui.tweak === uid ? null : uid; render(); return; } act({ t: 'tweak', side: 0, uid }); },
     go() { ui.die = null; if (act({ t: 'go2' })) startPlay(); },
     skip() { skipPlay(); },
     next() { ui.die = null; act({ t: 'next' }); },
@@ -2629,13 +2714,14 @@ const Bots = (() => {
     else render();
   });
   document.addEventListener('pointercancel', endDrag);
-  function resetSel() { ui.chip = false; ui.tweak = null; ui.sel = null; ui.die = null; ui.aim = null; ui.pick = []; ui.chooser = null; ui.play = null; ui.rolledFor = 0; ui.rollTap = null; ui.rolling = 0; ui.mapX = null; }
+  function resetSel() { ui.gsw = null; ui.chip = false; ui.tweak = null; ui.sel = null; ui.die = null; ui.aim = null; ui.pick = []; ui.chooser = null; ui.play = null; ui.rolledFor = 0; ui.rollTap = null; ui.rolling = 0; ui.mapX = null; }
   document.addEventListener('click', ev => {
     if (ui.dragged && Date.now() - ui.dragged < 400) return;                 // that was the end of a drag, not a tap
     if (ui.rolling && Date.now() < ui.rolling) return;                       // the dice are still tumbling
     const t = ev.target.closest('[data-act]');
     if (ui.play && !ui.play.waiting) { const ac = t && t.dataset.act; if (ac === 'skip') { skipPlay(); return; } if (!(ac === 'menu' || ac === 'tipok' || ac === 'leave')) { advancePlay(); return; } }      // a tap shows the next card
-    if (G && G.phase === 'battle' && G.battle && G.battle.stage === 'assign' && G.battle.round === 1 && ui.rollTap !== G.turn && !ui.play && !ui.menu && !ui.help && !ui.coll && !ui.tip && !ui.settings && !(t && (t.dataset.act === 'menu' || t.dataset.act === 'tipok' || t.dataset.act === 'leave'))) { ui.rollTap = G.turn; render(); setTimeout(maybeTips, 1100); return; }      // tap anywhere to roll the first dice
+    if (G && G.phase === 'battle' && G.battle && G.battle.colMode && G.battle.stage === 'assign' && !G.battle.rolled && !ui.play && !ui.menu && !ui.help && !ui.coll && !ui.tip && !ui.settings && ui.gsw == null && !ui.swap && !(t && t.dataset.act === 'unit' && (ui.gsw != null || ui.swap) || t && ['menu', 'tipok', 'leave', 'mv', 'swapstart', 'gswstart', 'tweak'].indexOf(t.dataset.act) >= 0)) { act({ t: 'roll' }); setTimeout(maybeTips, 1100); return; }      // tap anywhere to roll this column's dice
+    if (G && G.phase === 'battle' && G.battle && !G.battle.colMode && G.battle.stage === 'assign' && G.battle.round === 1 && ui.rollTap !== G.turn && !ui.play && !ui.menu && !ui.help && !ui.coll && !ui.tip && !ui.settings && !(t && (t.dataset.act === 'menu' || t.dataset.act === 'tipok' || t.dataset.act === 'leave'))) { ui.rollTap = G.turn; render(); setTimeout(maybeTips, 1100); return; }      // tap anywhere to roll the first dice
     // after a round: tap anywhere to roll the next one (the menu button and open sheets still work)
     if (G && G.phase === 'battle' && G.battle && G.battle.stage === 'resolved' && !E.hauntAsk(G.battle) && !ui.play && !ui.menu && !ui.help && !ui.coll && !ui.tip && !(t && (t.dataset.act === 'menu' || t.dataset.act === 'tipok'))) { A.next(); return; }
     if (!t) return;

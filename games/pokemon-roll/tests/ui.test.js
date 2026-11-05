@@ -118,33 +118,6 @@ test('ui: the game is saved, and Continue brings it back', { skip: !chromium }, 
   } finally { await b.close(); }
 });
 
-test('ui: a die is dragged onto a card and lands in its art area (and a tap still works)', { skip: !chromium }, async () => {
-  const b = await chromium.launch(), p = await b.newPage({ viewport: { width: 820, height: 1180 } });
-  const errs = []; p.on('pageerror', e => errs.push(e.message));
-  try {
-    await p.goto(URL);
-    await p.evaluate(() => {
-      const s = Engine.newGame({ seed: 3, starter: 'bulbasaur' }); s.done.B1 = true; s.coll.push({ uid: 9, id: '10', sh: 0 });
-      const R = window.__pokemonRoll; R.setG(s); R.act({ t: 'go', node: 'L1' });
-      const G = R.G; let g; while ((g = Bots.step(G))) Engine.apply(G, g);
-      Engine.apply(G, Object.assign({ t: 'place', side: 0, uid: G.battle.hand[0][0] }, Engine.slotsFor(G.battle, 0).find(x => x.join != null)));
-      Engine.apply(G, Object.assign({ t: 'place', side: 0, uid: G.battle.hand[0][0] }, Engine.slotsFor(G.battle, 0).find(x => x.at != null)));   // bring a second card: they draw one more
-      while ((g = Bots.step(G))) Engine.apply(G, g);
-      Engine.apply(G, { t: 'ready' }); R.render();
-    });
-    await p.locator('.rollhint').click({ timeout: 4000 }); await p.waitForSelector('.die[data-act=die]', { timeout: 5000 }); await p.waitForTimeout(1200);
-    await p.locator('[data-act=tipok]').click({ timeout: 300 }).catch(() => {});
-    const dr = await p.locator('.die[data-act=die]').first().boundingBox(), cr = await p.locator('.col .card:not(.foe)').first().boundingBox();
-    await p.mouse.move(dr.x + dr.width / 2, dr.y + dr.height / 2); await p.mouse.down();
-    await p.mouse.move(dr.x + 20, dr.y - 60, { steps: 4 }); await p.mouse.move(cr.x + cr.width / 2, cr.y + 60, { steps: 6 });
-    assert.equal(await p.locator('.die.ghost').count(), 1, 'the die follows the finger');
-    await p.mouse.up();
-    assert.equal(await p.evaluate(() => Object.keys(window.__pokemonRoll.G.battle.asg[0]).length), 1, 'the die was given to the card');
-    assert.equal(await p.locator('.col .card:not(.foe) .art .dbadge').count(), 1, 'it sits in the art area of the card');
-    assert.equal(await p.locator('.die.ghost').count(), 0);
-    assert.deepEqual(errs, []);
-  } finally { await b.close(); }
-});
 
 test('ui: How to Play is a few pictures with one line each, not a wall of text; the map is titled Kanto Map and centered', { skip: !chromium }, async () => {
   const b = await chromium.launch(), p = await b.newPage({ viewport: { width: 820, height: 1180 } });
@@ -194,11 +167,11 @@ test('ui: you only choose when there is a choice for where a card goes, but dice
     await p.waitForSelector('[data-id=L1]'); await p.waitForTimeout(800); await p.locator('[data-act=tipok]').click({ timeout: 300 }).catch(() => {}); await p.click('[data-id=L1]', { timeout: 5000 });
     await p.waitForFunction(() => { const g = window.__pokemonRoll.G.battle; return g && g.stage === 'assign'; }, null, { timeout: 6000 });
     assert.equal(await p.evaluate(() => window.__pokemonRoll.G.battle.cols.length), 1, 'your only card is across from theirs: no tap needed');
-    // dice are never given out for you: the first roll is a tap, and you drag the die onto your card
+    // each card's roll is a tap; the die then belongs to its card, and nothing plays until you press Resolve
     assert.equal(await p.locator('.die').count(), 0, 'no dice until you tap'); assert.ok(await p.locator('.rollhint').count() >= 1, 'Tap anywhere to roll');
-    await p.locator('.rollhint').click(); await p.waitForSelector('.die[data-act=die]', { timeout: 4000 }); await p.waitForTimeout(1100);
-    assert.equal(await p.evaluate(() => Object.keys(window.__pokemonRoll.G.battle.asg[0]).length), 0, 'the die is not on the card until you put it there');
-    assert.equal(await p.evaluate(() => window.__pokemonRoll.G.battle.stage), 'assign', 'and the round does not play by itself');
+    await p.locator('.rollhint').click(); await p.waitForSelector('.rail .die', { timeout: 4000 }); await p.waitForTimeout(1100);
+    assert.equal(await p.evaluate(() => Object.keys(window.__pokemonRoll.G.battle.asg[0]).length), 1, 'the die is already on the card: one die per card');
+    assert.equal(await p.evaluate(() => window.__pokemonRoll.G.battle.stage), 'assign', 'and the column does not play by itself'); assert.ok(await p.locator('[data-act=reroll]').count() === 1 && await p.locator('[data-act=go]').count() === 1, 'reroll or resolve');
     // several cards but only one spot: tapping the card is enough
     await p.evaluate(() => { const s = Engine.newGame({ seed: 4, starter: 'squirtle' }); s.coll.push({ uid: 8, id: '10', sh: 0 }, { uid: 9, id: '16', sh: 0 }); window.__pokemonRoll.setG(s); });
     await p.waitForTimeout(500); await p.locator('[data-act=tipok]').click({ timeout: 300 }).catch(() => {}); await p.click('[data-id=L1]', { timeout: 5000 }); await p.waitForFunction(() => { const g = window.__pokemonRoll.G.battle; return g && g.stage === 'place' && g.pl.side === 0; }, null, { timeout: 6000 });
@@ -273,7 +246,7 @@ test('ui: Kadabra can change column and Abra can swap two of theirs, right on th
       R.render();
     });
     await p.waitForFunction(() => window.__pokemonRoll.G.battle.stage === 'assign', null, { timeout: 8000 });
-    await p.locator('.rollhint').click(); await p.waitForTimeout(1400);
+    await p.waitForTimeout(600);       // (cards move before anything is rolled)
     const mine = () => p.evaluate(() => window.__pokemonRoll.G.battle.cols.map(c => c[0]));
     const before = await mine(); await p.locator('[data-act=mv][data-dir="1"]').click(); const after = await mine();
     assert.notDeepEqual(after, before, 'Kadabra changed column: ' + before + ' -> ' + after); assert.equal(await p.locator('[data-act=mv]').count(), 0, 'once a round');
@@ -337,32 +310,6 @@ test('ui: arriving on the map deals the piles out from the left, once, not on ev
     assert.deepEqual(errs, []);
   } finally { await b.close(); }
 });
-test('ui: a die on a card can be dragged to another card, or back to the tray', { skip: !chromium }, async () => {
-  const b = await chromium.launch(), p = await b.newPage({ viewport: { width: 820, height: 1180 } });
-  const errs = []; p.on('pageerror', e => errs.push(e.message));
-  try {
-    await p.goto(URL); await p.evaluate(() => { localStorage.setItem('pokemon-roll-tips', JSON.stringify({ place: 1, dice: 1, roll: 1, end: 1, shiny: 1 })); }); await p.reload();
-    await p.evaluate(() => {
-      const s = Engine.newGame({ seed: 12, starter: 'charmander', size: 'short', ai: 'normal' }); s.done.B1 = true; s.lv = 3; s.coll.push({ uid: 10, id: '1.2', sh: 0 });
-      const R = window.__pokemonRoll; R.setG(s); R.act({ t: 'go', node: 'B2' }); const G = R.G; let g; while ((g = Bots.step(G))) Engine.apply(G, g);
-      for (let i = 0; i < 8 && G.battle.stage === 'place'; i++) { if (G.battle.pl.side === 0 && G.battle.hand[0].length) Engine.apply(G, Object.assign({ t: 'place', side: 0, uid: G.battle.hand[0][0] }, Engine.slotsFor(G.battle, 0).find(x => x.join != null) || Engine.slotsFor(G.battle, 0)[0])); while ((g = Bots.step(G))) Engine.apply(G, g); }
-      R.render();
-    });
-    await p.waitForFunction(() => window.__pokemonRoll.G.battle.stage === 'assign', null, { timeout: 8000 }); await p.locator('.rollhint').click(); await p.waitForTimeout(1500);
-    const asg = () => p.evaluate(() => { const a = window.__pokemonRoll.G.battle.asg[0]; return Object.keys(a).map(k => k + ':' + a[k].dice.join()).sort().join('|'); });
-    const box = async sel => { const r = await p.locator(sel).first().boundingBox(); return [r.x + r.width / 2, r.y + r.height / 2]; };
-    const drag = async (from, to) => { await p.mouse.move(from[0], from[1]); await p.mouse.down(); await p.mouse.move(from[0] + 20, from[1] + 20, { steps: 3 }); await p.mouse.move(to[0], to[1], { steps: 8 }); await p.mouse.up(); await p.waitForTimeout(300); };
-    const cards = await p.locator('.board .card:not(.foe)').count(); assert.ok(cards >= 2, 'two of your cards');
-    await drag(await box('.die[data-act=die]'), await box('.board .card:not(.foe) >> nth=0'));
-    const one = await asg(); assert.equal(one.split('|').length, 1, 'a die is on a card: ' + one);
-    assert.notEqual(await p.locator('.dbadge.hero').first().evaluate(e => getComputedStyle(e).backgroundColor), 'rgb(255, 228, 107)', 'the die on a card is the die (white, or its own colour), not a yellow highlight');
-    await drag(await box('.dbadge.hero'), await box('.board .card:not(.foe) >> nth=1'));
-    const two = await asg(); assert.equal(two.split('|').length, 1, 'still one die on a card'); assert.notEqual(two.split(':')[0], one.split(':')[0], 'it moved to the other card: ' + one + ' -> ' + two);
-    await drag(await box('.dbadge.hero'), await box('.rail .dice'));
-    assert.equal(await asg(), '', 'dropped anywhere but a card, it goes back to the tray');
-    assert.deepEqual(errs, []);
-  } finally { await b.close(); }
-});
 
 test('ui: a card lists its moves from 6 at the top down to 1 at the bottom', { skip: !chromium }, async () => {
   const b = await chromium.launch(), p = await b.newPage({ viewport: { width: 820, height: 1180 } });
@@ -370,5 +317,29 @@ test('ui: a card lists its moves from 6 at the top down to 1 at the bottom', { s
     await p.goto(URL); await p.click('[data-act=new]'); await p.click('[data-act=starter][data-k=pikachu]'); await p.click('.mypile'); await p.waitForSelector('.handf .card');
     const pips = await p.locator('.handf .card').first().locator('.pip').allInnerTexts(); assert.deepEqual(pips, ['6', '5', '4', '3', '2', '1'], 'best on top');
     const rows = await p.locator('.handf .card').first().locator('.f .mt').allInnerTexts(); assert.match(rows[0], /Attack/, 'move 1 is on the 6'); assert.match(rows[5], /Damage/, 'the damage to itself is on the 1');
+  } finally { await b.close(); }
+});
+
+test('ui: one column at a time: tap to roll, keep or reroll once, resolve, then the next column rolls', { skip: !chromium }, async () => {
+  const b = await chromium.launch(), p = await b.newPage({ viewport: { width: 820, height: 1180 } });
+  const errs = []; p.on('pageerror', e => errs.push(e.message));
+  try {
+    await p.goto(URL); await p.evaluate(() => { localStorage.setItem('pokemon-roll-tips', JSON.stringify({ place: 1, dice: 1, roll: 1, end: 1, shiny: 1 })); }); await p.reload();
+    await p.evaluate(() => {
+      const T = Engine._t, s = Engine.newGame({ seed: 3, starter: 'charmander' }); s.phase = 'battle';
+      const bt = T.startBattle(s, 'loc', 'L1', [{ id: '25.3', sh: 0 }, { id: '6.5', sh: 0 }], [{ id: '19', sh: 0 }, { id: '16', sh: 0 }]);
+      bt.hand = [[], []]; bt.cols = [[bt.units[0].uid, bt.units[2].uid], [bt.units[1].uid, bt.units[3].uid]]; T.startRound(s); window.__pokemonRoll.setG(s);
+    });
+    const st = () => p.evaluate(() => { const g = window.__pokemonRoll.G.battle; return { rolled: g.rolled, cur: g.cur, stage: g.stage, more: g.more }; });
+    assert.equal((await st()).rolled, false); assert.equal(await p.locator('.col.cur').count(), 1, 'the current column is marked');
+    await p.mouse.click(300, 500); await p.waitForTimeout(1300);
+    let s1 = await st(); assert.equal(s1.rolled, true); assert.equal(s1.cur, 0);
+    await p.locator('[data-act=reroll]').click(); await p.waitForTimeout(1000); assert.equal(await p.locator('[data-act=reroll]:not([disabled])').count(), 0, 'one reroll per card');
+    await p.locator('[data-act=go]').click(); await p.waitForFunction(() => { const g = window.__pokemonRoll.G.battle; return g.stage !== 'assign'; }, null, { timeout: 5000 });
+    for (let i = 0; i < 30; i++) { const g = await st(); if (g.stage === 'resolved') break; await p.mouse.click(300, 500); await p.waitForTimeout(250); }
+    assert.equal((await st()).more, true, 'the second column is still to come');
+    for (let i = 0; i < 6 && (await st()).cur !== 1; i++) { await p.mouse.click(300, 500); await p.waitForTimeout(500); }
+    await p.waitForTimeout(800); const s2 = await st(); assert.equal(s2.cur, 1, 'tapping carried on to the second column, rolled');
+    assert.deepEqual(errs, []);
   } finally { await b.close(); }
 });
