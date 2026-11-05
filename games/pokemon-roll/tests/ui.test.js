@@ -38,7 +38,7 @@ test('ui: menu, new game, map, and a whole first fight through real taps, with n
     await p.click('[data-act=starter][data-k=charmander]');
     assert.equal(await p.locator('.place').count(), 6, 'what is open, and one step beyond it');
     assert.equal(await p.locator('.place:not(.lock)').count(), 3, 'Viridian Forest, Brock and Mt. Moon are open from the start');
-    assert.equal(await p.locator('.place svg').count(), 6, 'each place is drawn as a picture');
+    assert.equal(await p.locator('.place > svg, .place .ptop > svg').count(), 6, 'each place is drawn as a picture (a gym, or the back of a deck)');
     assert.ok(await p.evaluate(() => { const w = document.querySelector('.mapwrap'); return w.scrollWidth <= w.clientWidth + 1 && w.scrollHeight <= w.clientHeight + 1; }), 'the map fills the screen without scrolling');
     assert.equal(await p.locator('.dock').count(), 0, 'no bar along the bottom'); assert.ok(await p.locator('.top [data-act=coll]').count() === 1, 'Your cards is in the top bar');
     assert.equal(await p.locator('[data-act=auto]').count(), 0, 'no Suggest button');
@@ -283,5 +283,30 @@ test('ui: beating Lance records the whole-game best (and Lance\'s own), and the 
     });
     assert.equal(sc.short.game, 31, 'the whole-game record'); assert.equal(sc.short.B7, 31, 'and Lance');
     assert.match(await p.evaluate(() => document.body.innerHTML), /reroll|🔄/, 'the help or the screen says you can reroll');
+  } finally { await b.close(); }
+});
+test('ui: locations are decks of cards; picking one sweeps the map away, the pile sits on the table, cards are drawn from it, and it flies away when drawing is done', { skip: !chromium }, async () => {
+  const b = await chromium.launch(), p = await b.newPage({ viewport: { width: 820, height: 1180 } });
+  const errs = []; p.on('pageerror', e => errs.push(e.message));
+  try {
+    await p.goto(URL); await p.evaluate(() => { localStorage.setItem('pokemon-roll-tips', JSON.stringify({ place: 1, dice: 1, roll: 1, end: 1, shiny: 1 })); }); await p.reload();
+    await p.evaluate(() => { const s = Engine.newGame({ seed: 12, starter: 'charmander', size: 'short', ai: 'normal' }); s.done.B1 = true; s.coll.push({ uid: 10, id: '1.2', sh: 0 }, { uid: 11, id: '7.2', sh: 0 }); s.lv = 3; window.__pokemonRoll.setG(s); });
+    assert.ok(await p.locator('.place.deck .pile .ptop svg').count() >= 3, 'locations are decks with a card back');
+    assert.equal(await p.locator('.mypile').count(), 1, 'your cards are a pile');
+    await p.click('[data-id=L1]');
+    await p.waitForFunction(() => window.__pokemonRoll.G.battle && window.__pokemonRoll.G.battle.stage === 'place', null, { timeout: 5000 });
+    await p.waitForSelector('.pilebay .pile', { timeout: 3000 });
+    const n0 = Number(await p.locator('.pilebay .pcount').innerText());
+    for (let i = 0; i < 40 && !(await p.evaluate(() => window.__pokemonRoll.G.battle.stage !== 'place')); i++) {
+      await p.locator('[data-act=tipok]').click({ timeout: 200 }).catch(() => {});
+      if (await p.evaluate(() => { const g = window.__pokemonRoll.G.battle; return g.stage === 'place' && g.pl.side === 0; })) {
+        await p.locator('[data-act=tray]').first().click({ timeout: 1500 }).catch(() => {}); const j = p.locator('[data-act=join]'); if (await j.count()) await j.first().click({ timeout: 1500 }).catch(() => {}); else await p.locator('[data-act=ins]').first().click({ timeout: 1500 }).catch(() => {});
+        if (await p.locator('[data-act=ready]').count()) { await p.waitForTimeout(900); await p.click('[data-act=ready]', { timeout: 1500 }).catch(() => {}); }
+      } else await p.waitForTimeout(300);
+    }
+    const left = await p.evaluate(() => window.__pokemonRoll.G.battle.stage);
+    assert.notEqual(left, 'place', 'placing is over'); await p.waitForTimeout(1100);
+    assert.equal(await p.locator('.pilebay').count(), 0, 'the pile has flown away');
+    assert.deepEqual(errs, []);
   } finally { await b.close(); }
 });

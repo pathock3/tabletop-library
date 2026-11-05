@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- **Pokémon Roll! — locations are decks of cards:** each location on the map is now a pile of cards with its own card back (an arched window onto the place, a name banner, gold trim) and the number of cards left. Tap one and everything else on the map is swept away, the deck glides to the table, and the computer's cards are drawn from it one at a time, turning face up as they land; when you start the fight the pile flies away with the rest of your hand. "Your cards" is now a pile too, with your partner on top: tap it to turn them all face up. The card backs are drawn in the game (no fan art), so it stays one offline file.
+
 - **Pokémon Roll! — their cards face you the right way up:** the computer's cards are no longer turned upside down, so every card on the table reads the same.
 
 - **Pokémon Roll! — cards that move cards, and Haunter:** Kadabra and Celebi change column (◀ ▶ on the card), Abra swaps two of their cards, the Machop line pushes what a Fighting attack hits, Rhyhorn and Rhydon slide a whole line, Golbat and Tangela stop the other side moving, Alakazam sends a hit to a healthier ally, and Haunter can keep a fallen friend's ability once per battle. The game now ends when you beat Lance: there is no rival in solo. Colored dice stay out for now.

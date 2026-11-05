@@ -207,6 +207,26 @@ button{font:inherit;color:inherit;border:0;cursor:pointer}
 .place.next{animation:pulse2 1.4s infinite}
 .top .rt{margin-left:auto}
 .cardsbtn{min-height:44px;font-size:18px;cursor:pointer}
+/* a location is a deck of cards */
+.pile{position:relative;width:var(--pw);aspect-ratio:5/7;filter:drop-shadow(0 6px 6px #0008)}
+.pile i{position:absolute;inset:0;border-radius:calc(var(--pw)*.08);border:2px solid #ffd96a88}
+.pile .pl1{transform:translate(3px,4px) rotate(1.6deg)}.pile .pl2{transform:translate(6px,8px) rotate(-1.2deg)}.pile .pl3{transform:translate(9px,12px) rotate(2.2deg)}
+.pile .ptop{position:absolute;inset:0;border-radius:calc(var(--pw)*.08);overflow:hidden}
+.pile .ptop svg{width:100%;height:100%;display:block}
+.pile .pcount,.mypile .pcount{position:absolute;right:-8px;bottom:-8px;min-width:30px;height:30px;padding:0 6px;border-radius:15px;background:#fff;color:#14110f;border:3px solid #14110f;display:grid;place-items:center;font:900 16px system-ui;z-index:3;box-shadow:0 2px 0 #0007}
+.place.deck{width:124px;height:174px;border:0;background:none;box-shadow:none;border-radius:0;overflow:visible;display:block;transition:transform .15s}
+.place.deck:active{transform:translateY(-4px)}
+.place.deck.lock .pile{filter:grayscale(.85) brightness(.6) drop-shadow(0 6px 6px #0008)}
+.place.deck .lk{top:60px}
+.pilebay{position:fixed;right:20px;bottom:16px;z-index:26;pointer-events:none}
+.dbackov{position:absolute;inset:0;border-radius:inherit;background-size:100% 100%;z-index:30;pointer-events:none}
+.mypile{position:absolute;right:12px;top:4px;width:50px;height:70px;z-index:30;background:none;border:0;padding:0}
+.mypile i{position:absolute;inset:0;border-radius:7px;background:#16233f;border:2px solid #ffffff55}
+.mypile .m2{transform:translate(2px,3px) rotate(3deg)}.mypile .m3{transform:translate(4px,6px) rotate(-3deg)}
+.mypile .mtop{position:absolute;inset:0;border-radius:7px;border:3px solid;overflow:hidden;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;box-shadow:0 3px 0 #0008;color:#14110f}
+.mypile .mtop{justify-content:center}.mypile .mtop img{width:100%;image-rendering:pixelated}
+.top .rt{margin-right:60px}
+
 @media (max-width:560px){.cardsbtn .cl{display:none}.mapt{display:none}.top .chip{font-size:15px;padding:5px 10px}}
 .fab{position:absolute;z-index:30;background:#0a1229cc}
 .board{display:flex;align-items:center;gap:6px;position:relative;overflow-x:auto;overflow-y:hidden;flex:none;padding:44px 4px 4px;transform-origin:center}
@@ -1625,6 +1645,60 @@ const Bots = (() => {
   const finaleScene = () => `<rect width="160" height="120" fill="#4527a0"/>${Array.from({ length: 12 }, (_, i) => { const a = i * Math.PI / 6; return `<path d="M80 62L${(80 + 90 * Math.cos(a - .1)).toFixed(0)} ${(62 + 90 * Math.sin(a - .1)).toFixed(0)} ${(80 + 90 * Math.cos(a + .1)).toFixed(0)} ${(62 + 90 * Math.sin(a + .1)).toFixed(0)}Z" fill="#7e57c2" opacity=".6"/>`; }).join('')}<text x="80" y="82" text-anchor="middle" font-size="66">🏆</text>`;
   const sceneOf = n => n.kind === 'loc' ? SCENE[n.loc]() : n.finale ? finaleScene() : gymScene(n);
 
+  // ---------------------------------------------------------------- a location is a deck of cards: this is its back
+  const DECKC = { green: ['#0c4a26', '#2f9d55', '#c4f3cf'], brown: ['#46291a', '#a9693a', '#f4d9b4'], yellow: ['#6e4f00', '#eeb11a', '#fff2ae'], blue: ['#0a2c66', '#2d7de0', '#c6e4ff'], purple: ['#38106b', '#8a4fd0', '#e6d2ff'], red: ['#650d0d', '#df452d', '#ffd0c0'] };
+  const deckBack = loc => {
+    const L = D.locations.find(x => x.id === loc), [dk, md, lt] = DECKC[L.color] || DECKC.blue, k = 'db' + loc, gold = '#ffd96a';
+    const dia = [[24, 26], [176, 26], [24, 254], [176, 254]].map(([x, y]) => `<path d="M${x} ${y - 9}L${x + 7} ${y} ${x} ${y + 9} ${x - 7} ${y}Z" fill="${gold}" stroke="#6b4a00" stroke-width="1.5"/>`).join('');
+    const nm = L.name, tl = Math.min(122, nm.length * 9.4);
+    return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 280" preserveAspectRatio="none" role="img" aria-label="${esc(nm)} deck"><defs>
+      <linearGradient id="${k}g" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="${md}"/><stop offset="1" stop-color="${dk}"/></linearGradient>
+      <pattern id="${k}p" width="18" height="18" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><path d="M0 9H18M9 0V18" stroke="${lt}" stroke-opacity=".16" stroke-width="1.2"/><circle cx="9" cy="9" r="1.7" fill="${lt}" fill-opacity=".34"/></pattern>
+      <clipPath id="${k}c"><path d="M30 192V96a70 70 0 0 1 140 0V192Z"/></clipPath><clipPath id="${k}r"><rect x="2" y="2" width="196" height="276" rx="16"/></clipPath>
+      <radialGradient id="${k}v" cx=".5" cy=".4" r=".7"><stop offset=".6" stop-color="#000" stop-opacity="0"/><stop offset="1" stop-color="#000" stop-opacity=".45"/></radialGradient></defs>
+      <rect x="2" y="2" width="196" height="276" rx="16" fill="#14110f"/>
+      <rect x="6" y="6" width="188" height="268" rx="13" fill="url(#${k}g)"/><rect x="6" y="6" width="188" height="268" rx="13" fill="url(#${k}p)"/>
+      <rect x="6" y="6" width="188" height="268" rx="13" fill="none" stroke="${gold}" stroke-width="3"/><rect x="14" y="14" width="172" height="252" rx="9" fill="none" stroke="${gold}" stroke-opacity=".85" stroke-width="1.5"/>
+      ${dia}
+      <path d="M25 196V96a75 75 0 0 1 150 0V196Z" fill="#14110f"/><path d="M30 192V96a70 70 0 0 1 140 0V192Z" fill="${lt}"/>
+      <g clip-path="url(#${k}c)"><svg x="30" y="26" width="140" height="166" viewBox="12 0 136 120" preserveAspectRatio="xMidYMid slice">${SCENE[loc]()}</svg><rect x="30" y="26" width="140" height="166" fill="url(#${k}v)"/></g>
+      <path d="M30 192V96a70 70 0 0 1 140 0V192Z" fill="none" stroke="${gold}" stroke-width="3"/>
+      <path d="M18 208h164l-10 16 10 16H18l10-16Z" fill="#14110f"/><path d="M22 210h156l-9 14 9 14H22l9-14Z" fill="${dk}" stroke="${gold}" stroke-width="2.5"/>
+      <text x="100" y="230" text-anchor="middle" font-family="Georgia,'Times New Roman',serif" font-weight="900" font-size="15" fill="#fff6d6" textLength="${tl}" lengthAdjust="spacingAndGlyphs">${esc(nm)}</text>
+      <g fill="${gold}" stroke="#6b4a00" stroke-width="1">${[80, 100, 120].map((x, i) => `<path d="M${x} ${i === 1 ? 247 : 250}l2.4 5 5.6.8-4 4 1 5.6-5-2.7-5 2.7 1-5.6-4-4 5.6-.8z"/>`).join('')}</g>
+      <path d="M-30 0L90 0 -10 280-130 280Z" transform="translate(50 0)" fill="#fff" fill-opacity=".09" clip-path="url(#${k}r)"/></svg>`;
+  };
+  const deckUri = loc => 'url("data:image/svg+xml;utf8,' + encodeURIComponent(deckBack(loc)).replace(/"/g, '%22') + '")';
+  // the deck as a pile: a few cards stacked under the top one, and how many are left
+  const deckPile = (loc, o) => {
+    o = o || {}; const n = o.count, layers = n == null ? 3 : Math.max(0, Math.min(3, n - 1)), L = D.locations.find(x => x.id === loc), dk = (DECKC[L.color] || DECKC.blue)[0];
+    return `<div class="pile${o.cls ? ' ' + o.cls : ''}" style="--pw:${o.pw}px">${[3, 2, 1].filter(i => i <= layers).map(i => `<i class="pl${i}" style="background:${dk}"></i>`).join('')}<div class="ptop">${deckBack(loc)}</div>${n != null ? `<span class="pcount">${n}</span>` : ''}</div>`;
+  };
+
+
+  // you picked a place: everything else on the map is swept away, and the one you chose rises
+  function sweepAway(el, go) {
+    const pr = el.getBoundingClientRect(), pcx = pr.left + pr.width / 2, pcy = pr.top + pr.height / 2; ui.sweeping = true; ui.pileFrom = el.classList.contains('deck') ? pr : null;
+    if (!el.animate) { go(); return; }
+    document.querySelectorAll('.place').forEach(t => {
+      if (t === el) return; const r = t.getBoundingClientRect(), dx = r.left + r.width / 2 - pcx, dy = r.top + r.height / 2 - pcy, d = Math.hypot(dx, dy) || 1, k = 1500 / d;
+      t.animate([{ transform: 'none', opacity: 1 }, { transform: `translate(${dx * k * .5}px,${dy * k * .5}px) rotate(${dx >= 0 ? 24 : -24}deg) scale(.55)`, opacity: 0 }], { duration: 560, easing: 'cubic-bezier(.55,0,.9,.55)', fill: 'forwards' });
+    });
+    document.querySelectorAll('.mapsvg,.top > *,.mypile').forEach(t => t.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 420, fill: 'forwards' }));
+    el.animate([{ transform: 'none' }, { transform: 'translateY(-14px) scale(1.12)' }], { duration: 320, easing: 'ease-out', fill: 'forwards' });
+    setTimeout(go, 600);
+  }
+  // a card is drawn from the pile: it flies from the pile to its place, turning face up on the way
+  function drawFly(uid) {
+    const c = document.querySelector('.board .card[data-uid="' + uid + '"]'), pl = document.querySelector('.pilebay .pile'); if (!c || !pl || !c.animate) return;
+    const cr = c.getBoundingClientRect(), pr = pl.getBoundingClientRect(), dx = pr.left + pr.width / 2 - (cr.left + cr.width / 2), dy = pr.top + pr.height / 2 - (cr.top + cr.height / 2), s = pr.width / cr.width;
+    const dur = 560; c.style.zIndex = 40;
+    c.animate([{ transform: `translate(${dx}px,${dy}px) scale(${s}) rotate(-10deg)` }, { transform: 'translate(0,0) scale(1.06)', offset: .72 }, { transform: 'none' }], { duration: dur, easing: 'cubic-bezier(.22,.8,.3,1)' }).onfinish = () => { c.style.zIndex = ''; };
+    const bk = document.createElement('div'); bk.className = 'dbackov'; bk.style.backgroundImage = deckUri(E.node(G.battle.node).loc); c.appendChild(bk);
+    bk.animate([{ opacity: 1 }, { opacity: 1, offset: .45 }, { opacity: 0 }], { duration: dur, fill: 'forwards' }).onfinish = () => bk.remove(); setTimeout(() => bk.remove(), dur + 200);
+    pl.animate([{ transform: 'none' }, { transform: 'translate(-3px,-5px) rotate(-2deg)', offset: .3 }, { transform: 'none' }], { duration: 300 });
+  }
+
   // ---------------------------------------------------------------- the game loop
   function toast(t) { ui.toast = t; render(); setTimeout(() => { if (ui.toast === t) { ui.toast = ''; const x = document.querySelector('.toast'); if (x) x.remove(); } }, 2400); }
   function act(a) {
@@ -1643,7 +1717,7 @@ const Bots = (() => {
       ui.busy = true; render();
       setTimeout(() => {
         const g = B.step(G, set.ai); if (!g) { ui.busy = false; render(); return; }
-        const placed = g.uid; E.apply(G, g); const u = E.U(G.battle, placed); if (u && u.sh) burst(u.uid);
+        const placed = g.uid; E.apply(G, g); const u = E.U(G.battle, placed); if (u && u.sh) burst(u.uid); if (u && G.battle.kind === 'loc') ui.drawFly = u.uid;
         save(); ui.busy = false; drive();
       }, 650);
       return;
@@ -1848,6 +1922,11 @@ const Bots = (() => {
   // ---- the map: left to right, only what is open and one step beyond it; scaled to fill the screen, never scrolled
   const TILE_W = 160, PADX = 20, PADY = 16;
   const shown = n => E.unlocked(G, n) || n.needs.every(id => E.unlocked(G, E.node(id)));
+  // "Your cards" is a pile with your partner on top; tap it to turn them all face up
+  function myPile() {
+    const st = G.coll.find(c => c.starter) || G.coll[0], c = C[st.id], e = el(c.type), n = G.coll.length;
+    return `<i class="m3"></i><i class="m2"></i><div class="mtop" style="background:${e.bg};border-color:${e.color}"><img src="${art(st.id, st.sh)}" alt=""></div><span class="pcount">${n}</span>`;
+  }
   function mapScreen() {
     const vis = D.nodes.filter(shown), ids = new Set(vis.map(n => n.id));
     const stages = Math.max(...vis.map(n => n.stage)) + 1, pitch = stages > 4 ? 178 : 210;
@@ -1857,17 +1936,22 @@ const Bots = (() => {
     const xy = n => [PADX + n.stage * pitch + pitch / 2, PADY + n.lane * lane + lane / 2];
     const lines = vis.map(n => n.needs.filter(id => ids.has(id)).map(id => {
       const a = E.node(id), [x1, y1] = xy(a), [x2, y2] = xy(n), done = G.done[id], mx = (x1 + x2) / 2;
-      return `<path d="M${x1 + 76} ${y1}C${mx} ${y1} ${mx} ${y2} ${x2 - 76} ${y2}" fill="none" stroke="${done ? '#ffd23f' : '#ffffff77'}" stroke-width="${done ? 8 : 5}" stroke-linecap="round" ${done ? '' : 'stroke-dasharray="2 12"'}/>`;
+      const hw = q => q.kind === 'loc' ? 64 : 76;
+      return `<path d="M${x1 + hw(a)} ${y1}C${mx} ${y1} ${mx} ${y2} ${x2 - hw(n)} ${y2}" fill="none" stroke="${done ? '#ffd23f' : '#ffffff77'}" stroke-width="${done ? 8 : 5}" stroke-linecap="round" ${done ? '' : 'stroke-dasharray="2 12"'}/>`;
     }).join('')).join('');
     const tiles = vis.map(n => {
       const open = E.unlocked(G, n), done = n.kind !== 'loc' && G.done[n.id], [cx, cy] = xy(n);
       const next = open && !done && n.kind === 'boss';
       const sub = !open ? 'Locked' : n.kind === 'loc' ? E.deckSize(G, n.loc) + ' cards here' : n.kind === 'boss' ? (done ? 'Beaten!' : 'Gym leader') : (done ? 'Beaten!' : 'The final fight');
+      if (n.kind === 'loc') {
+        const left = E.deckSize(G, n.loc);
+        return `<button class="place deck${open ? '' : ' lock'}" style="left:${cx - 62}px;top:${cy - 87}px" data-act="node" data-id="${n.id}" data-id2="${n.id}" aria-label="${esc(n.name)}, ${left} cards">${deckPile(n.loc, { pw: 124, count: open ? left : null })}${open ? '' : '<div class="lk">🔒</div>'}</button>`;
+      }
       return `<button class="place${open ? '' : ' lock'}${done ? ' done' : ''}${next ? ' next' : ''}${n.kind === 'boss' ? ' gym' : ''}" style="left:${cx - TILE_W / 2}px;top:${cy - 92}px" data-act="node" data-id="${n.id}" data-id2="${n.id}">
         <svg viewBox="0 0 160 120" role="img" aria-label="${esc(n.name)}">${sceneOf(n)}</svg>${open ? '' : '<div class="lk">🔒</div>'}${done ? '<div class="ck">✔</div>' : ''}${n.kind === 'boss' ? `<div class="eye" data-act="eye" data-id="${n.id}" aria-label="How their team is made">👁</div>` : ''}
         <div class="pl"><b>${esc(n.name)}</b><span>${sub}</span></div></button>`;
     }).join('');
-    return `<div class="top"><button class="ib" data-act="menu">☰</button><div class="t mapt">Kanto Map</div><span class="chip rt">🎲 ×${E.slots(G)} · ★ ${G.lv}</span><button class="chip cardsbtn" data-act="coll">🃏 <span class="cl">Your cards </span>${G.coll.length}</button></div>
+    return `<div class="top"><button class="ib" data-act="menu">☰</button><div class="t mapt">Kanto Map</div><span class="chip rt">🎲 ×${E.slots(G)} · ★ ${G.lv}</span><button class="mypile" data-act="coll" aria-label="Your cards">${myPile()}</button></div>
       <div class="mapwrap"><div class="mapin" style="width:${W0}px;height:${H0}px;transform:scale(${sc});margin-left:${Math.max(0, (availW - W0 * sc) / 2)}px"><svg class="mapsvg" width="${W0}" height="${H0}">${lines}</svg>${tiles}</div></div>`;
   }
 
@@ -1937,6 +2021,7 @@ const Bots = (() => {
     // the bay: your hand while you set the matchups, then the dice
     const hd = b.dice[0], used = E.assignedDice(b, 0);
     const diceHtml = !waitRoll && (assign || done || p) && hd.length ? hd.map((v, i) => dieHtml(v, { sel: ui.die === i, used: used.has(i), tumble: rolling, attr: assign && !rolling ? `data-act="die" data-i="${i}"` : '' })).join('') : '';
+    const nodeIsLoc = E.node(b.node).kind === 'loc';
     let status = '', btns = '';
     const opt = yourPlace && b.pl.optional;
     if (placing) status = (b.sudden ? 'SUDDEN DEATH · ' : '') + (yourPlace ? (selected != null ? 'Now tap where it goes' : opt ? 'Bring another card (they will draw one more), or fight now' : 'Pick a Pokémon from your hand to put down') : 'They are putting a card down…');
@@ -1950,10 +2035,12 @@ const Bots = (() => {
       const canRe = !rolling && ui.die != null && (b.rr[0] > 0 || (b.rrFace[0].indexOf(hd[ui.die]) >= 0 && !b.rrUsed[0][ui.die]));
       btns = `${canRe ? `<button class="btn alt" data-act="reroll">🔄 ${b.rr[0] || 'Free'}</button>` : ''}<button class="btn big" data-act="go" ${!rolling && E.readyToGo(b, 0) && b.gmReady ? '' : 'disabled'}>Go!</button>`;
     } else if (p && !p.waiting) btns = `<button class="btn ghost" data-act="skip">Skip ▶▶</button>`;
-    const bayIn = placing ? `<div class="hrow handrow">${heroTray}</div>` : `<div class="status">${status}</div><div class="dockrow"><div class="dice">${diceHtml}</div><div class="acts">${btns}</div></div>`;
+    const bayIn = placing ? `<div class="hrow handrow" ${nodeIsLoc ? `style="padding-right:${Math.round(Math.max(64, Math.min(104, BAYP * .3))) + 28}px"` : ''}>${heroTray}</div>` : `<div class="status">${status}</div><div class="dockrow"><div class="dice">${diceHtml}</div><div class="acts">${btns}</div></div>`;
+    const nodeB = E.node(b.node), pw = Math.round(Math.max(64, Math.min(104, BAYP * .3)));
+    const pileHtml = placing && nodeB.kind === 'loc' ? `<div class="pilebay" style="--pw:${pw}px">${deckPile(nodeB.loc, { pw, count: E.deckSize(G, nodeB.loc) })}</div>` : '';
     return `<button class="ib fab" data-act="menu" style="left:6px;top:6px" aria-label="Menu">☰</button><button class="ib fab" data-act="leave" style="left:6px;top:56px;${ui.leaveAsk ? 'width:auto;padding:0 12px;font-size:16px;font-weight:800' : ''}" aria-label="Leave">${ui.leaveAsk ? 'Sure? Leave' : '🏃'}</button>
       ${placing ? `<div class="plbar"><span class="pill">${status}</span>${opt ? '<button class="btn big" data-act="ready">Fight!</button>' : ''}</div>` : ''}
-      <div class="bt"><div class="board" style="height:${boardH}px">${cols}</div><div class="bay" style="height:${BAY}px">${bayIn}</div></div>`;
+      <div class="bt"><div class="board" style="height:${boardH}px">${cols}</div><div class="bay" style="height:${BAY}px">${bayIn}</div></div>${pileHtml}`;
   }
   function resultScreen() {
     const r = G.res, nd = E.node(r.node), sdv = E.starterOf(G.starter), cw = 150;
@@ -2052,11 +2139,22 @@ const Bots = (() => {
     if (ui.tip) h += `<div class="tip">${esc(ui.tip.text)}<br><button class="btn" data-act="tipok">OK</button></div>`;
     if (ui.toast) h += `<div class="toast">${esc(ui.toast)}</div>`;
     const oldHand = document.querySelector('.handrow'), oldRect = oldHand && oldHand.getBoundingClientRect(), oldHtml = oldHand && oldHand.innerHTML;
+    const oldPileEl = document.querySelector('.pilebay'), oldPileRect = oldPileEl && oldPileEl.getBoundingClientRect(), oldPileHtml = oldPileEl && oldPileEl.outerHTML;
     $app.innerHTML = h; flicker();
+    if (oldPileEl && !document.querySelector('.pilebay') && G && G.battle && G.battle.stage !== 'place') {        // done drawing: the pile flies away with the rest of your hand
+      const pg = document.createElement('div'); pg.innerHTML = oldPileHtml; const pe = pg.firstChild; pe.style.cssText += `;position:fixed;left:${oldPileRect.left}px;top:${oldPileRect.top}px;width:${oldPileRect.width}px;z-index:36;pointer-events:none;right:auto;bottom:auto`; document.body.appendChild(pe);
+      pe.animate([{ transform: 'none', opacity: 1 }, { transform: 'translate(60vw,40vh) rotate(24deg) scale(.5)', opacity: 0 }], { duration: 650, easing: 'cubic-bezier(.5,0,.9,.5)', fill: 'forwards' }).onfinish = () => pe.remove(); setTimeout(() => pe.remove(), 1000);
+    }
     if (oldHand && !document.querySelector('.handrow') && G && G.battle && G.battle.stage !== 'place') {        // the rest of your hand flies away
       const gh = document.createElement('div'); gh.className = 'handghost hrow'; gh.style.cssText = `position:fixed;left:${oldRect.left}px;top:${oldRect.top}px;width:${oldRect.width}px;height:${oldRect.height}px;z-index:35;pointer-events:none`; gh.innerHTML = oldHtml; document.body.appendChild(gh);
       gh.animate([{ transform: 'translateY(0)', opacity: 1 }, { transform: 'translateY(60%)', opacity: 0 }], { duration: 550, easing: 'ease-in', fill: 'forwards' }).onfinish = () => gh.remove(); setTimeout(() => gh.remove(), 900);
     }
+    const oldPile = document.querySelector('.pilebay');
+    if (ui.pileFrom && document.querySelector('.pilebay .pile')) {                      // the deck you picked glides from the map to its place on the table
+      const pl = document.querySelector('.pilebay .pile'), r = pl.getBoundingClientRect(), f = ui.pileFrom; ui.pileFrom = null;
+      pl.animate([{ transform: `translate(${f.left + f.width / 2 - (r.left + r.width / 2)}px,${f.top + f.height / 2 - (r.top + r.height / 2)}px) scale(${f.width / r.width})` }, { transform: 'none' }], { duration: 620, easing: 'cubic-bezier(.2,.8,.2,1)' });
+    }
+    if (ui.drawFly != null) { const k = ui.drawFly; ui.drawFly = null; drawFly(k); }
     if (ui.zoomFrom) { const bd = document.querySelector('.board'); if (bd) bd.animate([{ transform: 'scale(' + ui.zoomFrom + ')' }, { transform: 'scale(1)' }], { duration: 500, easing: 'ease-out' }); ui.zoomFrom = null; }
   }
 
@@ -2085,7 +2183,9 @@ const Bots = (() => {
     node(el) {
       const n = E.node(el.dataset.id); if (!E.unlocked(G, n)) return toast('Beat the gym leader before it first');
       if (n.kind !== 'loc' && G.done[n.id]) return toast('You already beat them!');
-      if (act({ t: 'go', node: n.id })) { resetSel(); }
+      if (ui.sweeping) return;
+      if (n.kind === 'loc' && !E.deckSize(G, n.loc)) return toast('That deck is empty');
+      sweepAway(el, () => { ui.sweeping = false; if (act({ t: 'go', node: n.id })) resetSel(); });
     },
     ready() { act({ t: 'ready' }); },
     leave() { if (!ui.leaveAsk) { ui.leaveAsk = true; render(); setTimeout(() => { if (ui.leaveAsk) { ui.leaveAsk = false; render(); } }, 3000); return; } ui.leaveAsk = false; act({ t: 'forfeit' }); },
@@ -2166,7 +2266,7 @@ const Bots = (() => {
   document.addEventListener('contextmenu', e => e.preventDefault());
   let rz = null; window.addEventListener('resize', () => { clearTimeout(rz); rz = setTimeout(() => { if (G && ui.screen === 'play' && G.phase === 'map') render(); }, 120); });
   render();
-  window.__pokemonRoll = { recordResult, get G() { return G; }, setG(x) { G = x; ui.screen = 'play'; resetSel(); save(); drive(); }, ui, A, render, act, get set() { return set; } };
+  window.__deckPile = (l, w) => deckPile(l, { pw: w, count: 9 }); window.__pokemonRoll = { recordResult, get G() { return G; }, setG(x) { G = x; ui.screen = 'play'; resetSel(); save(); drive(); }, ui, A, render, act, get set() { return set; } };
 })();
 
 </script>
