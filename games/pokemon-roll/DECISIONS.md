@@ -8,7 +8,7 @@ Sources (Patrick's Google Drive, folder "Pokémon Roll"): **Pokémon Roll! Ruleb
 - *(owner)* **Legendaries are in.** The nine level-6 cards that are not starters: Articuno, Zapdos, Moltres, Dragonite, Mewtwo, Suicune, Lugia, Ho-oh, Celebi. Once you have two dice, a 9 on two dice at the start of a turn spots one: it is shuffled into the place on its card (with that place's discard pile). Lance holds one, drawn at the start of the game.
 - *(owner)* **A blocker takes the leftover.** If a block cannot soak the whole attack, the blocker takes what is left.
 - *(owner)* **A card is out the moment it reaches 0 health.**
-- *(owner)* **Bosses get a random team** from the places on their boss card (short or long game).
+- *(owner)* **Bosses get a random team** from the places on their boss card (Regular or Extra Long game).
 - *(owner)* **Art:** Crystal sprites, shown as big as the card allows. A card drawn from the wild has a fresh **5% chance to be shiny** each time; a card on your team or on a boss's team keeps its form for good. Shiny is **purely cosmetic**, with a sparkle when it comes into play.
 - *(owner)* **Card design:** the weakness is a tab flush with the top of the card.
 
@@ -45,7 +45,7 @@ Sources (Patrick's Google Drive, folder "Pokémon Roll"): **Pokémon Roll! Ruleb
 
 ## The campaign (the design doc's Map 2)
 - You start with **one die** (one card per challenge). Each gym leader you beat is another die (up to six). Challenge a place with as many cards as you have dice; it brings the same number. Win and you keep one of theirs (the rest go to the place's discard pile); lose and they go back to the deck.
-- Gym leaders: Brock 2, Misty 3, Lt. Surge 3, Blaine 4/5, Erika 4/5, Blue 5/7, Lance 6/9 (short/long), drawn from the places on the boss card. `RULING:` you take as many cards as you have (up to the boss's number): an outnumbered fight is allowed, as the rulebook says.
+- Gym leaders: Brock 2, Misty 3, Lt. Surge 3, Blaine 4/5, Erika 4/5, Blue 5/7, Lance 6/9 (Regular/Extra Long), drawn from the places on the boss card. `RULING:` you take as many cards as you have (up to the boss's number): an outnumbered fight is allowed, as the rulebook says.
 - `RULING:` The map opens like the design doc's list: Viridian Forest, Mt. Moon, Brock → Power Plant, Misty, Surge → S.S. Anne / Pokemon Tower, Blaine / Erika → Safari Zone, Cinnabar Island, Blue (needs both Blaine and Erika) → Seafoam, Victory Road, Lance → the final rival fight.
 - Your partner starts at level 2 and levels to one above the level on the boss's card when you beat them. Pikachu may evolve into Raichu at level 5 (you choose once; Raichu then goes on to level 6).
 - Your rival picks the partner whose element beats yours. In the last fight the rival brings their level 6 partner and five other cards (levels 4–5).

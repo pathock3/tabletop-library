@@ -1653,7 +1653,7 @@ const Bots = (() => {
       <div class="scr"><div class="center" style="padding-top:12px">
         <div style="display:flex;flex-wrap:wrap;gap:14px;justify-content:center">${D.starters.map(st => { const c = C[st.levels[0]], e = el(c.type); return `<button data-act="starter" data-k="${st.key}" style="background:${e.bg};color:#14110f;border:4px solid #14110f;border-radius:18px;padding:10px 14px 12px;width:150px;box-shadow:0 6px 0 #0008"><img class="pix" width="112" height="112" src="${art(st.levels[0], 0)}" alt=""><div style="font:900 20px system-ui">${st.name}</div><div style="font:800 14px system-ui;opacity:.75">${e.icon} ${c.type}</div></button>`; }).join('')}</div>
         <div style="display:flex;gap:8px;flex-wrap:wrap;justify-content:center;align-items:center"><b>Computer:</b>${['easy', 'medium', 'hard'].map(x => `<button class="chip${set.ai === x ? ' on' : ''}" data-act="ai" data-v="${x}">${x[0].toUpperCase() + x.slice(1)}</button>`).join('')}</div>
-        <div style="display:flex;gap:8px;flex-wrap:wrap;justify-content:center;align-items:center"><b>Bosses:</b>${[['short', 'Shorter game'], ['long', 'Longer game']].map(([x, l]) => `<button class="chip${set.size === x ? ' on' : ''}" data-act="size" data-v="${x}">${l}</button>`).join('')}</div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;justify-content:center;align-items:center"><b>Game length:</b>${[['short', 'Regular'], ['long', 'Extra Long']].map(([x, l]) => `<button class="chip${set.size === x ? ' on' : ''}" data-act="size" data-v="${x}">${l}</button>`).join('')}</div>
       </div></div>`;
   }
 
