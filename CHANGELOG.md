@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- **Pokémon Roll! — map and card fixes:** tap the 🎲 ×N · ★ N chip on the map to see what it means (tap anywhere to close); places beyond a gym you haven't beaten show as locked, and tapping one says which leaders to beat first (Blaine alone doesn't open the next stage — Erika is needed too); a card's writing shrinks so all its moves fit when the ability or special is long; Starmie/Staryu let you choose which die becomes 2; "partner" now says "starter".
+
 - **Pokémon Roll! — shinies are tougher:** a shiny card has one more health than the same card that is not.
 
 - **Pokémon Roll! — arrows say what they mean, splits are yours, gym hands, and where cards go:** a move's arrows now read "◀ and ▲ and ▶" (all of them) or "◀ or ▲ or ▶" (you pick one); with "split" you tap cards to share the points out yourself (Jolteon's 4 attack, healing split between cards); and the game never asks about a heal when only one card is hurt. Against a gym leader their hand shows as card backs with a count, and each card they play is drawn from it like a deck. A beaten leader's cards go back to the places they came from, shuffled into the draw pile (the legendary you win from Lance is no longer also put back in the wild).

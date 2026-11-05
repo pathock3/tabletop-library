@@ -65,9 +65,9 @@ button{font:inherit;color:inherit;border:0;cursor:pointer}
 .card .hpc.mid{background:#f08a00}.card .hpc.lo{background:#a4001b}
 .card .hpc small{font-size:.62em;font-weight:800;opacity:.9}
 .card .shd{align-self:flex-start;background:#1457b8;color:#fff;border:max(1px,calc(var(--cw)*.011)) solid var(--ink);border-radius:99px;font-weight:900;font-size:calc(var(--cw)*.07);padding:0 calc(var(--cw)*.04)}
-.card .ab{flex:none;margin:calc(var(--cw)*.03) calc(var(--cw)*.04) 0;padding:calc(var(--cw)*.012) calc(var(--cw)*.035);border-radius:calc(var(--cw)*.035);background:#fffc;border:max(1px,calc(var(--cw)*.011)) solid var(--ink);font-weight:700;font-size:calc(var(--cw)*.064);line-height:1.12;min-height:calc(var(--cw)*.17);display:flex;align-items:center}
+.card .ab{flex:none;--fk:var(--k,1);margin:calc(var(--cw)*.03) calc(var(--cw)*.04) 0;padding:calc(var(--cw)*.012) calc(var(--cw)*.035);border-radius:calc(var(--cw)*.035);background:#fffc;border:max(1px,calc(var(--cw)*.011)) solid var(--ink);font-weight:700;font-size:calc(var(--cw)*.064*var(--k,1));line-height:1.12;min-height:calc(var(--cw)*.17*var(--k,1));display:flex;align-items:center}
 .card .faces{margin:calc(var(--cw)*.03) calc(var(--cw)*.04) 0;display:grid;grid-auto-rows:minmax(min-content,1fr);gap:calc(var(--cw)*.01);flex:1;min-height:0}
-.card .f{overflow:hidden;display:flex;align-items:center;gap:calc(var(--cw)*.03);background:#fffd;border:max(1px,calc(var(--cw)*.011)) solid var(--ink);border-radius:calc(var(--cw)*.03);padding:0 calc(var(--cw)*.025);font-weight:800;font-size:calc(var(--cw)*.078);min-height:0;line-height:1.05}
+.card .f{overflow:hidden;display:flex;align-items:center;gap:calc(var(--cw)*.03);background:#fffd;border:max(1px,calc(var(--cw)*.011)) solid var(--ink);border-radius:calc(var(--cw)*.03);padding:0 calc(var(--cw)*.025);font-weight:800;font-size:calc(var(--cw)*.078*var(--k,1));min-height:0;line-height:1.05}
 .card .f .mt{flex:1;min-width:0}
 .card .f small{font-size:.78em;opacity:.85;font-weight:700}
 .card .f.hot{background:#ffe46b;box-shadow:0 0 0 2px #fff,0 0 10px #ffd000;z-index:1}
@@ -76,7 +76,7 @@ button{font:inherit;color:inherit;border:0;cursor:pointer}
 .card .f.blank{opacity:.45}
 .card .pip{width:calc(var(--cw)*.085);height:calc(var(--cw)*.085);border-radius:calc(var(--cw)*.025);background:#fff;border:max(1px,calc(var(--cw)*.011)) solid var(--ink);display:grid;place-items:center;font-weight:900;font-size:calc(var(--cw)*.065);flex:none}
 .mA{color:#c1121f}.mB{color:#1457b8}.mH{color:#17803d}.mD{color:#6b6b6b}
-.card .sp{margin:calc(var(--cw)*.025) calc(var(--cw)*.04) 0;padding:0 calc(var(--cw)*.03);border-radius:calc(var(--cw)*.035);background:var(--ink);color:#ffe46b;font-weight:800;font-size:calc(var(--cw)*.07);display:flex;gap:6px;align-items:center;min-height:calc(var(--cw)*.1)}
+.card .sp{margin:calc(var(--cw)*.025) calc(var(--cw)*.04) 0;padding:0 calc(var(--cw)*.03);border-radius:calc(var(--cw)*.035);background:var(--ink);color:#ffe46b;font-weight:800;font-size:calc(var(--cw)*.07*var(--k,1));display:flex;gap:6px;align-items:center;min-height:calc(var(--cw)*.1*var(--k,1));line-height:1.05}
 .card .sp i{font-style:normal;background:#ffe46b;color:var(--ink);border-radius:5px;padding:0 5px;white-space:nowrap}
 .card .sp.hot{box-shadow:0 0 0 2px #fff,0 0 12px #ffd000}
 .card .xb{position:absolute;left:4%;right:4%;bottom:1.5%;z-index:6;margin:0;box-shadow:0 2px 0 #0007;padding:2px;border-radius:calc(var(--cw)*.035);background:#ffb703;color:#14110f;font-weight:900;font-size:calc(var(--cw)*.07);text-align:center;border:max(1px,calc(var(--cw)*.011)) solid var(--ink)}
@@ -1821,6 +1821,17 @@ const Bots = (() => {
       ${o.pop ? `<div class="pop ${o.pop.cls || ''}">${o.pop.txt}</div>` : ''}
     </div>`;
   }
+
+  // cards with a long ability or special: shrink the writing (never the rows) until every move fits
+  function fitCards() {
+    document.querySelectorAll('.card').forEach(c => {
+      const fa = c.querySelector('.faces'); if (!fa || !fa.clientHeight) return;
+      const bad = () => fa.scrollHeight > fa.clientHeight + 1 || [...fa.children].some(f => f.scrollHeight > f.clientHeight + 1 || f.scrollWidth > f.clientWidth + 1);
+      let k = 1; c.style.removeProperty('--k');
+      while (bad() && k > .5) { k = Math.round((k - .05) * 100) / 100; c.style.setProperty('--k', k); }
+    });
+  }
+  let fitQ = 0; new MutationObserver(() => { if (!fitQ) fitQ = requestAnimationFrame(() => { fitQ = 0; fitCards(); }); }).observe(document.body, { childList: true, subtree: true });
   const back = cw => `<div class="back" style="--cw:${cw}px">❓</div>`;
   const dieCol = t => { const e = t && D.elements[t[0].toUpperCase() + t.slice(1)]; return e ? e.color : null; };
   const dieHtml = (v, o) => `<div class="die${o && o.sel ? ' sel' : ''}${o && o.used ? ' used' : ''}${o && o.foe ? ' foe' : ''}${o && o.tumble ? ' tumble' : ''}${o && o.color ? ' colored' : ''}" ${o && o.attr || ''}${o && o.color ? ` style="background:${o.color}"` : ''}>${v}${o && o.badge ? `<small>${o.badge}</small>` : ''}</div>`;
@@ -2152,7 +2163,7 @@ const Bots = (() => {
 
   // ---- the map: left to right, only what is open and one step beyond it; scaled to fill the screen, never scrolled
   const TILE_W = 160, PADX = 20, PADY = 16;
-  const shown = n => E.unlocked(G, n) || n.needs.every(id => E.unlocked(G, E.node(id)));
+  const shown = n => E.unlocked(G, n) || n.needs.some(id => E.unlocked(G, E.node(id)));
   // "Your cards" is a pile with your starter on top; tap it to turn them all face up
   function myPile() {
     const st = G.coll.find(c => c.starter) || G.coll[0], n = G.coll.length;
@@ -2190,7 +2201,7 @@ const Bots = (() => {
         <svg viewBox="0 0 160 120" role="img" aria-label="${esc(n.name)}">${sceneOf(n)}</svg>${open ? '' : '<div class="lk">🔒</div>'}${done ? '<div class="ck">✔</div>' : ''}${n.kind === 'boss' ? `<div class="eye" data-act="eye" data-id="${n.id}" aria-label="How their team is made">i</div>` : ''}
         <div class="pl"><b>${esc(n.name)}</b><span>${sub}</span></div></button>`;
     }).join('');
-    return `<div class="top"><span class="chip">🎲 ×${E.slots(G)} · ★ ${G.lv}</span><div class="t mapt">Kanto Map</div><button class="mypile${ui.coll ? ' away' : ''}" data-act="coll" aria-label="Your cards">${myPile()}</button><button class="ib mbtn" data-act="menu" aria-label="Menu">☰</button></div>
+    return `<div class="top"><button class="chip" data-act="chipinfo">🎲 ×${E.slots(G)} · ★ ${G.lv}</button><div class="t mapt">Kanto Map</div><button class="mypile${ui.coll ? ' away' : ''}" data-act="coll" aria-label="Your cards">${myPile()}</button><button class="ib mbtn" data-act="menu" aria-label="Menu">☰</button></div>
       <div class="mapwrap"><div class="mapin" style="width:${W0}px;height:${H0}px;transform:scale(${sc});margin-left:${Math.max(0, (availW - W0 * sc) / 2)}px"><svg class="mapsvg" width="${W0}" height="${H0}">${lines}</svg>${tiles}</div></div>`;
   }
 
@@ -2395,6 +2406,13 @@ const Bots = (() => {
       : `<p class="hcap" style="font-size:19px">A random team, drawn from these places before your game began. Face ${esc(n.name)} once and you will see the whole team here.</p><div class="eyelist">${rows.join('')}</div>`;
     return `<div class="sheet" data-act="closeeye"><div class="box hbox" data-stop="1" style="height:auto;max-height:88vh;${team ? 'max-width:760px;overflow:auto' : ''}"><div class="infoi">i</div><h2>${esc(n.name)}'s team</h2>${body}<button class="btn" data-act="closeeye">Got it</button></div></div>`;
   }
+  function chipSheet() {
+    const n = E.slots(G), mx = D.rules.locationMax;
+    return `<div class="sheet" data-act="closechip"><div class="box hbox" style="height:auto;max-width:560px"><div class="infoi">i</div><h2>Your table</h2>
+      <p class="hcap" style="font-size:20px"><b>🎲 ×${n}</b> — you roll <b>${n}</b> ${n === 1 ? 'die' : 'dice'} each round, and you can put out up to <b>${n}</b> ${n === 1 ? 'card' : 'cards'} at a time at a place. Beat a gym leader to get one more (never more than ${mx}).</p>
+      <p class="hcap" style="font-size:20px"><b>★ ${G.lv}</b> — the level of your starter. It levels up by winning fights (and evolves), so it grows with you.</p>
+      <p class="hcap" style="font-size:16px;opacity:.7">Tap anywhere to close.</p></div></div>`;
+  }
   function legendSheet() {
     const n = G.notes[0]; if (!n || n.indexOf('legend:') !== 0) return '';
     const id = n.slice(7), c = C[id];
@@ -2418,6 +2436,7 @@ const Bots = (() => {
     if (ui.coll) h += collSheet();
     if (ui.zoom != null) h += zoomSheet();
     if (ui.eye) h += eyeSheet();
+    if (ui.chip && ui.screen === 'play' && G && G.phase === 'map') h += chipSheet();
     if (ui.records) h += recordsSheet();
     if (ui.menu) h += menuSheet();
     if (ui.settings) h += settingsSheet();
@@ -2463,7 +2482,7 @@ const Bots = (() => {
     settings() { ui.settings = true; ui.menu = false; render(); }, closesettings() { ui.settings = false; render(); },
     starter(el) { G = E.newGame({ starter: el.dataset.k, size: set.size, ai: set.ai }); ui.screen = 'play'; resetSel(); save(); render(); },
     records() { ui.records = true; ui.menu = false; render(); }, closerec() { ui.records = false; render(); }, recsize(el) { ui.recSize = el.dataset.v; render(); },
-    eye(el) { ui.eye = el.dataset.id; render(); }, closeeye() { ui.eye = null; render(); },
+    eye(el) { ui.eye = el.dataset.id; render(); }, closeeye() { ui.eye = null; render(); }, chipinfo() { ui.chip = true; render(); }, closechip() { ui.chip = false; render(); },
     zoom(el) { ui.zoom = +el.dataset.uid; render(); }, closezoom() { ui.zoom = null; render(); },
     zprev() { const l = collSorted(), i = l.findIndex(c => c.uid === ui.zoom); ui.zoom = l[(i + l.length - 1) % l.length].uid; render(); },
     znext() { const l = collSorted(), i = l.findIndex(c => c.uid === ui.zoom); ui.zoom = l[(i + 1) % l.length].uid; render(); },
@@ -2471,7 +2490,7 @@ const Bots = (() => {
     coll() { ui.coll = true; ui.menu = false; ui.handOpen = true; render(); }, closecoll() { ui.coll = false; render(); },
     handclose() { if (ui.handClosing) return; ui.handClosing = true; handClose(() => { ui.handClosing = false; ui.coll = false; render(); }); },
     node(el) {
-      const n = E.node(el.dataset.id); if (!E.unlocked(G, n)) return toast('Beat the gym leader before it first');
+      const n = E.node(el.dataset.id); if (!E.unlocked(G, n)) { const miss = n.needs.map(id => E.node(id)).filter(x => x.kind === 'boss' && !G.done[x.id]).map(x => x.name); return toast(miss.length ? 'Beat ' + miss.join(' and ') + ' first' : 'Beat the gym leader before it first'); }
       if (n.kind !== 'loc' && G.done[n.id]) return toast('You already beat them!');
       if (ui.sweeping) return;
       if (n.kind === 'loc' && !E.deckSize(G, n.loc)) return toast('That deck is empty');
@@ -2555,7 +2574,7 @@ const Bots = (() => {
     else render();
   });
   document.addEventListener('pointercancel', endDrag);
-  function resetSel() { ui.tweak = null; ui.sel = null; ui.die = null; ui.aim = null; ui.pick = []; ui.chooser = null; ui.play = null; ui.rolledFor = 0; ui.rollTap = null; ui.rolling = 0; ui.mapX = null; }
+  function resetSel() { ui.chip = false; ui.tweak = null; ui.sel = null; ui.die = null; ui.aim = null; ui.pick = []; ui.chooser = null; ui.play = null; ui.rolledFor = 0; ui.rollTap = null; ui.rolling = 0; ui.mapX = null; }
   document.addEventListener('click', ev => {
     if (ui.dragged && Date.now() - ui.dragged < 400) return;                 // that was the end of a drag, not a tap
     if (ui.rolling && Date.now() < ui.rolling) return;                       // the dice are still tumbling
@@ -2577,7 +2596,7 @@ const Bots = (() => {
   document.addEventListener('contextmenu', e => e.preventDefault());
   let rz = null; window.addEventListener('resize', () => { clearTimeout(rz); rz = setTimeout(() => { if (G && ui.screen === 'play' && G.phase === 'map') render(); }, 120); });
   render();
-  window.__deckPile = (l, w) => deckPile(l, { pw: w, count: 9 }); window.__pokemonRoll = { recordResult, get G() { return G; }, setG(x) { G = x; ui.screen = 'play'; resetSel(); save(); drive(); }, ui, A, render, act, get set() { return set; } };
+  window.__deckPile = (l, w) => deckPile(l, { pw: w, count: 9 }); window.__pokemonRoll = { card, fitCards, recordResult, get G() { return G; }, setG(x) { G = x; ui.screen = 'play'; resetSel(); save(); drive(); }, ui, A, render, act, get set() { return set; } };
 })();
 
 </script>
