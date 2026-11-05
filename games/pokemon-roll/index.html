@@ -210,14 +210,15 @@ button{font:inherit;color:inherit;border:0;cursor:pointer}
 .place .pl b{font-size:19px}
 .place{position:absolute;width:160px;height:184px;padding:0;border:4px solid #14110f;border-radius:18px;background:#fffdf4;overflow:hidden;box-shadow:0 6px 0 #0008;display:flex;flex-direction:column;color:#14110f;text-align:center}
 .place svg{width:100%;height:auto;display:block;flex:none}
-.place .pl{flex:1;display:flex;flex-direction:column;justify-content:center;padding:2px 4px;background:#fffdf4}
+.place .pl{flex:1;display:flex;flex-direction:column;justify-content:center;padding:2px 42px;background:#fffdf4}
 .place .pl b{font:900 17px/1.05 system-ui}.place .pl span{font:700 12px system-ui;opacity:.75}
 .place.gym{border-color:#8a0000;box-shadow:0 6px 0 #4a0000}
 .place.lock svg{filter:grayscale(.85) brightness(.65)}.place.lock{opacity:.85}
 .place .lk{position:absolute;top:26px;left:0;right:0;text-align:center;font-size:40px}
-.place .eye{position:absolute;top:5px;right:5px;width:38px;height:38px;border-radius:50%;background:#fff;color:#14110f;border:3px solid #14110f;display:grid;place-items:center;font:900 24px/1 Georgia,'Times New Roman',serif;z-index:3;box-shadow:0 2px 0 #0006}
+.place .eye{position:absolute;bottom:6px;right:6px;width:38px;height:38px;border-radius:50%;background:#fff;color:#14110f;border:3px solid #14110f;display:grid;place-items:center;font:900 24px/1 Georgia,'Times New Roman',serif;z-index:3;box-shadow:0 2px 0 #0006}
 .place.gym .ck{left:6px;right:auto}
-.place.deck .eye{top:4px;right:16px}
+.place.deck .eye{bottom:-6px;right:-6px}
+.piles{display:flex;gap:12px;width:100%}.pbox{flex:1;background:#ffffff14;border-radius:14px;padding:8px 6px;display:flex;flex-direction:column;align-items:center}.pbox b{font:900 38px/1 system-ui}.pbox span{font:700 16px system-ui;opacity:.85}
 .infoi{width:64px;height:64px;border-radius:50%;background:#fff;color:#14110f;border:4px solid #14110f;display:grid;place-items:center;font:900 44px/1 Georgia,serif}
 .tyb{width:44px;height:44px;border-radius:50%;display:grid;place-items:center;font-size:24px;border:3px solid #14110f;flex:none}
 .tycount{margin-left:auto;font:900 30px system-ui;min-width:44px;text-align:right}
@@ -2130,7 +2131,7 @@ const Bots = (() => {
       const sub = !open ? 'Locked' : n.kind === 'loc' ? E.deckSize(G, n.loc) + ' cards here' : n.kind === 'boss' ? (done ? 'Beaten!' : 'Gym leader') : (done ? 'Beaten!' : 'The final fight');
       if (n.kind === 'loc') {
         const left = E.deckSize(G, n.loc);
-        return `<button class="place deck${open ? '' : ' lock'}" style="left:${cx - 62}px;top:${cy - 87}px" data-act="node" data-id="${n.id}" data-id2="${n.id}" aria-label="${esc(n.name)}, ${left} cards">${deckPile(n.loc, { pw: 124, count: open ? left : null })}${open ? `<div class="eye" data-act="eye" data-id="${n.id}" aria-label="What is left in this deck">i</div>` : '<div class="lk">🔒</div>'}</button>`;
+        return `<button class="place deck${open ? '' : ' lock'}" style="left:${cx - 62}px;top:${cy - 87}px" data-act="node" data-id="${n.id}" data-id2="${n.id}" aria-label="${esc(n.name)}, ${left} cards">${deckPile(n.loc, { pw: 124 })}${open ? `<div class="eye" data-act="eye" data-id="${n.id}" aria-label="What is left in this deck">i</div>` : '<div class="lk">🔒</div>'}</button>`;
       }
       return `<button class="place${open ? '' : ' lock'}${done ? ' done' : ''}${next ? ' next' : ''}${n.kind === 'boss' ? ' gym' : ''}" style="left:${cx - TILE_W / 2}px;top:${cy - 92}px" data-act="node" data-id="${n.id}" data-id2="${n.id}">
         <svg viewBox="0 0 160 120" role="img" aria-label="${esc(n.name)}">${sceneOf(n)}</svg>${open ? '' : '<div class="lk">🔒</div>'}${done ? '<div class="ck">✔</div>' : ''}${n.kind === 'boss' ? `<div class="eye" data-act="eye" data-id="${n.id}" aria-label="How their team is made">i</div>` : ''}
@@ -2323,10 +2324,11 @@ const Bots = (() => {
   // the eye on a gym leader: how their team came about
   // the info on a location: what is still in its deck, by type
   function deckInfoSheet(n) {
-    const ids = G.decks[n.loc] || [], by = {}; ids.forEach(id => { const t = C[id].type; by[t] = (by[t] || 0) + 1; });
+    const draw = G.decks[n.loc] || [], disc = G.discard[n.loc] || [], by = {}; draw.concat(disc).forEach(id => { const t = C[id].type; by[t] = (by[t] || 0) + 1; });
     const rows = Object.keys(by).sort((a, b) => by[b] - by[a] || (a < b ? -1 : 1)).map(t => { const e = el(t); return `<div class="eyerow" style="--c:${e.color}"><div class="tyb" style="background:${e.color}">${e.icon}</div><div><b>${esc(t)}</b></div><div class="tycount">${by[t]}</div></div>`; }).join('');
-    const out = (G.discard[n.loc] || []).length;
-    return `<div class="sheet" data-act="closeeye"><div class="box hbox" data-stop="1" style="height:auto;max-height:88vh"><div class="infoi">i</div><h2>${esc(n.name)}</h2><p class="hcap" style="font-size:19px">${ids.length} card${ids.length === 1 ? '' : 's'} left in the deck${out ? `, ${out} in the discard pile` : ''}</p><div class="eyelist" style="overflow:auto">${rows || '<div class="hcap">Nothing left here.</div>'}</div></div></div>`;
+    return `<div class="sheet" data-act="closeeye"><div class="box hbox" data-stop="1" style="height:auto;max-height:88vh"><div class="infoi">i</div><h2>${esc(n.name)}</h2>
+      <div class="piles"><div class="pbox"><b>${draw.length}</b><span>in the draw pile</span></div><div class="pbox"><b>${disc.length}</b><span>in the discard pile</span></div></div>
+      <p class="hcap" style="font-size:17px">When the draw pile runs out, the discard pile is shuffled back in.</p><div class="hcap" style="font-size:18px">Every card here, by type</div><div class="eyelist" style="overflow:auto">${rows || '<div class="hcap">Nothing left here.</div>'}</div></div></div>`;
   }
   function eyeSheet() {
     const n = E.node(ui.eye), long = G.size === 'long'; if (n.kind === 'loc') return deckInfoSheet(n);

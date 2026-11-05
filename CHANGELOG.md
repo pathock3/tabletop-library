@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- **Pokémon Roll! — the i holds the details:** the number on each location's deck is gone; tap its i (now in the bottom-right corner of every place, gym leaders too, so it no longer covers their art) to see how many cards are in the draw pile and in the discard pile (the discard pile is shuffled back in when the draw pile runs out) and how many cards of each type the place holds in all.
+
 - **Pokémon Roll! — clearer fights, and the map menu in the corner:** what is happening in a battle is now its own layer: a solid dark panel across the middle of the table says who uses what on whom ("Dugtrio  4 Attack → Squirtle"), the card using the move is outlined in gold and the card it hits in red (green when it heals), damage and healing numbers are solid badges, and a line is only drawn where it would not cross a card's text. There is no Skip button: you tap through. The map's menu button is big and always in the top right, like in a fight; the dice/level chip is on the left and your cards pile sits beside the menu. When you open your cards, they fly out of the pile in the corner (which empties while they are out) and fly back into it when you put them away.
 
 - **Pokémon Roll! — quieter dice area:** the hint just says "Drag a die onto a card", the button just says "🔄 Reroll", and rerolled dice no longer get a lock icon (they still can't be rerolled again).

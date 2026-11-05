@@ -215,9 +215,9 @@ test('ui: a gym leader has an eye that explains how their team was made; dice ca
     assert.equal(await p.locator('.place.gym .eye').count(), await p.locator('.place.gym').count(), 'every gym leader has an eye');
     assert.equal(await p.locator('.place.deck:not(.lock) .eye').count(), await p.locator('.place.deck:not(.lock)').count(), 'every open location has the info button too');
     assert.equal((await p.locator('.place[data-id=B1] .eye').innerText()).trim(), 'i', 'an i for information, not an eyeball');
-    await p.click('.place.deck[data-id=L1] .eye'); const total = await p.evaluate(() => window.__pokemonRoll.G.decks[1].length);
-    const counts = await p.locator('.sheet .tycount').allInnerTexts(); assert.equal(counts.map(Number).reduce((a, b) => a + b, 0), total, 'the types add up to what is left in the deck: ' + counts);
-    assert.match(await p.innerText('.hbox'), new RegExp(total + ' cards? left')); await p.mouse.click(8, 8); assert.equal(await p.locator('.sheet').count(), 0);
+    await p.click('.place.deck[data-id=L1] .eye'); const total = await p.evaluate(() => window.__pokemonRoll.G.decks[1].length + window.__pokemonRoll.G.discard[1].length);
+    const counts = await p.locator('.sheet .tycount').allInnerTexts(); assert.equal(counts.map(Number).reduce((a, b) => a + b, 0), total, 'the types add up to every card in that place (draw and discard piles): ' + counts);
+    assert.match(await p.innerText('.hbox'), /in the draw pile[\s\S]*in the discard pile/); assert.equal(await p.locator('.place.deck .pcount').count(), 0, 'no card count on the map decks any more: it is all in the i'); await p.mouse.click(8, 8); assert.equal(await p.locator('.sheet').count(), 0);
     await p.click('.place[data-id=B1] .eye');
     assert.equal(await p.locator('[data-act=closeeye]').count() >= 1, true); const txt = await p.innerText('.hbox');
     assert.match(txt, /random team/i); assert.match(txt, /before your game began/i); assert.match(txt, /Mt\. Moon/); assert.match(txt, /Viridian Forest/);
