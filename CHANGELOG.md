@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- **Pokémon Roll! — cards run edge to edge:** health and type are flat on the left with a round right end, the level is smaller, the name is a little smaller, move numbers sit flush on the left and the move text is bigger, the ability runs the full width and sits right under the picture, and cards are shorter. An ability you can use (Starmie, Kadabra, Abra, Gyarados) is the ability box itself: lit when you can use it, greyed when you cannot. Arrows read simply: ◀▲▶ all together, "◀ or ▲ or ▶" for a choice, no parentheses.
+
 - **Pokémon Roll! — back to the pool of dice, attacks before blocks:** each round everyone rolls a die per card together; you give out the dice you like, reroll the rest once, and give those out (one die per card, column by column is switched off). The computer never rerolls at any level; Easy gives out its dice at random. A round now plays heals, then every attack is declared, then blocks go up, then the damage lands. Starmie and Staryu change a die to 5 (it was 2).
 
 - **Pokémon Roll! — new card layout:** the picture is taller and sits on the right, the name runs across it in bold outlined type, and health, type and level stack down the left (type is now a small lozenge, no longer a whole row). Cards are a little shorter.

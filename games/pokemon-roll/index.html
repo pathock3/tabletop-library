@@ -51,7 +51,7 @@ button{font:inherit;color:inherit;border:0;cursor:pointer}
 .card.zero{filter:saturate(.55) brightness(.9);outline:3px solid #e5383b88;outline-offset:-2px}
 .card.foe{--ink:#2a0e0e}                 /* their cards face up to you, the right way round, so every card reads the same */
 .card .wkt{position:absolute;top:0;left:0;right:0;z-index:4;background:var(--wc,#fff);color:#fff;text-shadow:0 1px 0 #0009;border-bottom:max(1px,calc(var(--cw)*.011)) solid var(--ink);padding:calc(var(--cw)*.008) 0 calc(var(--cw)*.014);text-align:center;font-weight:900;font-size:calc(var(--cw)*.066);letter-spacing:.04em;white-space:nowrap;line-height:1.1}
-.card{height:calc(var(--cw)*1.72);min-height:0}
+.card{height:calc(var(--cw)*1.58);min-height:0}
 .card .nmrow{padding:calc(var(--cw)*.09) calc(var(--cw)*.04) 0}
 .card .top2{display:flex;gap:calc(var(--cw)*.04);padding:calc(var(--cw)*.02) calc(var(--cw)*.04) 0}
 .card .art{width:calc(var(--cw)*.42);height:calc(var(--cw)*.42);flex:none;padding:3%;border:max(1px,calc(var(--cw)*.011)) solid var(--ink);border-radius:calc(var(--cw)*.05);background:radial-gradient(circle at 50% 40%,#fff9,var(--c) 78%);display:grid;place-items:center;position:relative;overflow:hidden}
@@ -117,7 +117,7 @@ button{font:inherit;color:inherit;border:0;cursor:pointer}
 .board{flex:1;min-height:0;display:flex;align-items:center;gap:6px;position:relative;overflow:auto;padding:4px}
 .board::before,.board::after{content:'';margin:auto}
 .col{display:flex;flex-direction:column;gap:10px;align-items:center;position:relative;padding:6px 3px;border-radius:14px;background:#ffffff0d}
-.slot{width:var(--cw);height:calc(var(--cw)*1.72);border:3px dashed #ffffff44;border-radius:calc(var(--cw)*.1);display:grid;place-items:center;font-size:calc(var(--cw)*.3);color:#ffffff66}
+.slot{width:var(--cw);height:calc(var(--cw)*1.58);border:3px dashed #ffffff44;border-radius:calc(var(--cw)*.1);display:grid;place-items:center;font-size:calc(var(--cw)*.3);color:#ffffff66}
 .slot.ok{border-color:var(--gold);color:var(--gold);background:#ffd23f22;animation:pulse 1s infinite}
 .slot.ghost{visibility:hidden}
 .die.colored{color:#fff;text-shadow:0 2px 0 #000b;border-color:#14110f}
@@ -374,6 +374,28 @@ button{font:inherit;color:inherit;border:0;cursor:pointer}
 .card .tagl{background:var(--c);border:max(1px,calc(var(--cw)*.011)) solid var(--ink);border-radius:99px;color:#fff;text-shadow:0 1px 0 #0008;font-weight:900;font-size:calc(var(--cw)*.07);padding:0 calc(var(--cw)*.04);line-height:1.3;white-space:nowrap;box-shadow:inset 0 -3px 0 #0003}
 .card .side .lv{font-weight:900;font-size:calc(var(--cw)*.085);color:#14110fcc;padding-left:calc(var(--cw)*.015)}
 .card .hprow{margin:0}
+</style>
+
+<style>
+/* v3 card: everything runs edge to edge; no dead space */
+.card{padding-bottom:0}
+.card .cbox{margin:0;height:calc(var(--cw)*.64);padding-top:calc(var(--cw)*.085)}
+.card .art{right:calc(var(--cw)*.03);width:calc(var(--cw)*.57);border-bottom-width:0;border-radius:calc(var(--cw)*.05) calc(var(--cw)*.05) 0 0}
+.card .nm{left:calc(var(--cw)*.035);top:calc(var(--cw)*.098);font-size:calc(var(--cw)*.128);-webkit-text-stroke:calc(var(--cw)*.018) #fff}
+.card .side{left:0;top:calc(var(--cw)*.24);width:calc(var(--cw)*.43);gap:calc(var(--cw)*.03)}
+.card .side .hpc,.card .side .tagl,.card .side .shd{border-left:0;border-radius:0 99px 99px 0;padding-left:calc(var(--cw)*.035);margin-left:0}
+.card .side .lv{font-size:calc(var(--cw)*.062);padding-left:calc(var(--cw)*.035);color:#14110fb0}
+.card .ab{margin:0;border-radius:0;border-left:0;border-right:0;border-top-width:max(1px,calc(var(--cw)*.011));padding:calc(var(--cw)*.015) calc(var(--cw)*.035);font-size:calc(var(--cw)*.066*var(--k,1))}
+.card .ab.ready{background:#ffe46b;box-shadow:inset 0 0 0 calc(var(--cw)*.012) #fff,0 0 12px #ffd000;animation:abp 1.2s ease-in-out infinite;cursor:pointer;position:relative;z-index:2}
+.card .ab.ready.on{background:#ffb703;animation:none}
+.card .ab.off{opacity:.42;filter:grayscale(1)}
+@keyframes abp{50%{box-shadow:inset 0 0 0 calc(var(--cw)*.012) #fff,0 0 20px #ffd000}}
+.card .ab .mvbtn{display:inline-block;margin-left:calc(var(--cw)*.03);padding:calc(var(--cw)*.01) calc(var(--cw)*.045);border:2px solid var(--ink);border-radius:8px;background:#fff;font-size:1.1em}
+.card .faces{margin:0 calc(var(--cw)*.03) 0 0;gap:0}
+.card .f{border-left:0;border-radius:0 calc(var(--cw)*.03) calc(var(--cw)*.03) 0;padding:0 calc(var(--cw)*.025) 0 0;gap:calc(var(--cw)*.03);font-size:calc(var(--cw)*.09*var(--k,1));margin-top:max(1px,calc(var(--cw)*.008))}
+.card .f:first-child{margin-top:calc(var(--cw)*.012)}
+.card .f:last-child{border-bottom-width:0;border-radius:0 calc(var(--cw)*.03) 0 0}
+.card .pip{align-self:stretch;width:calc(var(--cw)*.1);height:auto;border-radius:0;border-width:0 max(1px,calc(var(--cw)*.011)) 0 0;font-size:calc(var(--cw)*.075)}
 </style>
 <script id="data">
 /* Pokémon Roll! — every rule number, the map, the bosses, the card sheet and the art live here. The engine and bots read this and hard-code none of it. */
@@ -1954,8 +1976,8 @@ const Bots = (() => {
     const t = s.trim(), sp = E.parseSpec(t), pre = sp.spread ? 'split ' : '', self = /v/.test(t.replace(/\bover\b/g, '')) && !/\^/.test(t) ? '▼' : '▲';
     if (/and\/or/.test(t)) return pre + (t.replace(/\bover\b/g, '').match(/<+|>+|\^|v/g) || []).map(g => GL[g[0]].repeat(g.length)).join(' and/or ');
     const show = o => { const l = Math.max(0, ...o.map(x => -x)), r = Math.max(0, ...o.map(x => x)), p = []; if (l) p.push('◀'.repeat(l)); if (o.indexOf(0) >= 0) p.push(self); if (r) p.push('▶'.repeat(r)); return p; };
-    const opts = sp.opts.map(show), many = opts.length > 1;
-    return pre + opts.map(p => many && p.length > 1 ? '(' + p.join(' and ') + ')' : p.join(' and ')).join(' or ');
+    const opts = sp.opts.map(show);
+    return pre + opts.map(p => p.join('')).join(' or ');          // glanceable: arrows side by side are all hit, "or" between the alternatives, no parentheses
   };
   const short = str => {
     if (!str) return '';
@@ -1972,7 +1994,7 @@ const Bots = (() => {
     .replace(/max h\b/g, 'max health').replace(/\b(at|below) (\d+)h\b/g, '$1 $2 health')
     .replace(/(\d+)a\b/g, '$1 attack').replace(/(\d+)b\b/g, '$1 block').replace(/(\d+)h\b/g, '$1 heal').replace(/(\d+)d\b/g, '$1 💥')
     .replace(/[<>^]+/g, m => m.replace(/</g, '◀').replace(/>/g, '▶').replace(/\^/g, '▲')).replace(/\bv\b/g, '▼'));
-  const CH = 1.72;          // a card is this many card-widths tall
+  const CH = 1.58;          // a card is this many card-widths tall
   const lvName = n => (D.rules.levelLabels || [])[n - 1] || n;
   const lvRange = loc => { const ls = Object.values(C).filter(c => c.loc === loc && !c.legend).map(c => c.level); if (!ls.length) return ''; const a = lvName(Math.min(...ls)), b = lvName(Math.max(...ls)); return a === b ? 'Level ' + a : 'Levels ' + a + '–' + b; };
   const stars = lv => '★'.repeat(lv) + '☆'.repeat(Math.max(0, 6 - lv));
@@ -1991,7 +2013,7 @@ const Bots = (() => {
         <div class="nm">${esc(c.name)}${u.sh ? ' ✨' : ''}</div>
         <div class="side"><div class="hprow"><div class="hpc${lvl}">♥ <span class="hpn">${Math.max(0, hp)}</span><small>/${mx}</small></div>${o.chg ? `<span class="hpchg${o.chg.heal ? ' up' : ''}">${o.chg.heal ? '+' : '−'}${o.chg.n}${o.chg.weak ? ' <b>×2</b>' : ''}</span>` : ''}</div>${o.shield ? `<div class="shd">🛡 ${o.shield}</div>` : ''}<div class="tagl">${e.icon} ${esc(c.type)}</div><div class="lv">Lv ${lvName(c.level)}</div></div>
       </div>
-      <div class="ab">${c.ability ? abText(c.ability) : 'No ability'}</div>
+      <div class="ab${o.ab ? ' ' + o.ab.state + (o.ab.on ? ' on' : '') : ''}" ${o.ab && o.ab.state === 'ready' && o.ab.attr ? o.ab.attr : ''}>${c.ability ? abText(c.ability) : 'No ability'}${o.ab && o.ab.html ? o.ab.html : ''}</div>
       <div class="faces">${rows}</div>
       ${sp && D.rules.specials ? `<div class="sp${o.sp ? ' hot' : ''}"><i>${String(sp.face).repeat(sp.count).split('').join(' ')}</i><span>${short(c.special.replace(/^\d+:\s*/, ''))}</span></div>` : ''}
       ${o.extra || ''}
@@ -2003,7 +2025,7 @@ const Bots = (() => {
   function fitCards() {
     document.querySelectorAll('.card').forEach(c => {
       const fa = c.querySelector('.faces'); if (!fa || !fa.clientHeight) return;
-      const bad = () => fa.scrollHeight > fa.clientHeight + 1 || [...fa.children].some(f => f.scrollHeight > f.clientHeight + 1 || f.scrollWidth > f.clientWidth + 1);
+      const bad = () => fa.getBoundingClientRect().bottom > c.getBoundingClientRect().bottom - (parseFloat(getComputedStyle(c).borderBottomWidth) || 0) + 1 || fa.scrollHeight > fa.clientHeight + 1 || [...fa.children].some(f => f.scrollHeight > f.clientHeight + 1 || f.scrollWidth > f.clientWidth + 1);
       let k = 1; c.style.removeProperty('--k');
       while (bad() && k > .5) { k = Math.round((k - .05) * 100) / 100; c.style.setProperty('--k', k); }
     });
@@ -2509,14 +2531,18 @@ const Bots = (() => {
       const mark = ko ? '✕' : (u.skip && (assign || p || done)) ? '💤' : '';
       const tw = E.tags(u).find(g => g.t === 'incDie' || g.t === 'setDie');
       const twOk = tw && u.side === 0 && assign && !ko && !waitRoll && !rolling && b.round - u.lastTweak >= tw.every && (tw.t === 'setDie' ? b.dice[0].length > 0 : info);
-      const extra = twOk ? `<div class="xb${ui.tweak === u.uid ? ' on' : ''}" data-act="tweak" data-uid="${u.uid}">${tw.t === 'setDie' ? '⚡ Change a die to ' + tw.v : '⚡ Use ability'}</div>` : '';
       const canMv = assign && (colM ? !b.rolled && !Object.keys(b.acted).length : !waitRoll && !rolling) && u.side === 0 && !ko && !u.skip && !E.blocksMove(b, 0);
-      const mvb = canMv && E.tags(u).some(g => g.t === 'mover') && u.movedR !== b.round && b.cols.length > 1 ? `<div class="xb"><span data-act="mv" data-uid="${u.uid}" data-dir="-1" style="padding:8px 16px">◀</span> Move <span data-act="mv" data-uid="${u.uid}" data-dir="1" style="padding:8px 16px">▶</span></div>` : '';
-      const swb = canMv && E.tags(u).some(g => g.t === 'swapper') && u.swapR !== b.round && E.living(b, 1).length > 1 ? `<div class="xb" data-act="swapstart" data-uid="${u.uid}">${ui.swap && ui.swap.uid === u.uid ? 'Tap two of theirs' : '⇄ Swap two'}</div>` : '';
-      const gyb = canMv && E.tags(u).some(g => g.t === 'swapOnce') && !u.onceUsed && b.round === 1 && b.cols.length > 1 ? `<div class="xb${ui.gsw === u.uid ? ' on' : ''}" data-act="gswstart" data-uid="${u.uid}">${ui.gsw === u.uid ? 'Tap an ally' : '⇄ Swap places'}</div>` : '';
+      // an ability you can use is the ability box itself: lit when you can use it now, greyed when you cannot
+      const tg = E.tags(u); let abil = null;
+      if (assign && u.side === 0 && !ko) {
+        if (tw) abil = { state: twOk ? 'ready' : 'off', on: ui.tweak === u.uid, attr: `data-act="tweak" data-uid="${u.uid}"` };
+        else if (tg.some(g => g.t === 'swapOnce')) abil = { state: canMv && !u.onceUsed && b.round === 1 && b.cols.length > 1 ? 'ready' : 'off', on: ui.gsw === u.uid, attr: `data-act="gswstart" data-uid="${u.uid}"` };
+        else if (tg.some(g => g.t === 'swapper')) abil = { state: canMv && u.swapR !== b.round && E.living(b, 1).length > 1 ? 'ready' : 'off', on: !!(ui.swap && ui.swap.uid === u.uid), attr: `data-act="swapstart" data-uid="${u.uid}"` };
+        else if (tg.some(g => g.t === 'mover')) { const ok = canMv && u.movedR !== b.round && b.cols.length > 1; abil = { state: ok ? 'ready' : 'off', html: ok ? `<span class="mvbtn" data-act="mv" data-uid="${u.uid}" data-dir="-1">◀</span><span class="mvbtn" data-act="mv" data-uid="${u.uid}" data-dir="1">▶</span>` : '' }; }
+      }
       const pf = assign && !waitRoll && u.side === 0 && !ko && ui.die != null ? b.dice[0][ui.die] : 0;
       const dcol1 = null, dbonus = false;
-      return card(u, { cw, dieCol: dcol1, dieBonus: dbonus, foe: u.side === 1, ko: koOf(u), hp: hpOf(u), shield: u.shield || 0, face, sp: spOn, pf, die, chg: chgOf(u), land: ui.landed === u.uid, heroDie: u.side === 0, dieAttr: !colM && u.side === 0 && assign && !(info && b.fixed && b.fixed[0] && info.die.some(i => b.fixed[0][i])) ? `data-act="unmv" data-uid="${u.uid}"${info && info.die.length === 1 ? ` data-i="${info.die[0]}"` : ''}` : '', mark, extra: extra + mvb + swb + gyb, cls: clsOf(u) + (ui.swap && u.side === 1 && !ko ? (ui.swap.picks.indexOf(u.uid) >= 0 ? ' sel act' : ' sel') : ''), pop: popOf(u), attr: `data-act="unit" data-uid="${u.uid}"` });
+      return card(u, { cw, dieCol: dcol1, dieBonus: dbonus, foe: u.side === 1, ko: koOf(u), hp: hpOf(u), shield: u.shield || 0, face, sp: spOn, pf, die, chg: chgOf(u), land: ui.landed === u.uid, heroDie: u.side === 0, dieAttr: !colM && u.side === 0 && assign && !(info && b.fixed && b.fixed[0] && info.die.some(i => b.fixed[0][i])) ? `data-act="unmv" data-uid="${u.uid}"${info && info.die.length === 1 ? ` data-i="${info.die[0]}"` : ''}` : '', mark, ab: abil, cls: clsOf(u) + (ui.swap && u.side === 1 && !ko ? (ui.swap.picks.indexOf(u.uid) >= 0 ? ' sel act' : ' sel') : ''), pop: popOf(u), attr: `data-act="unit" data-uid="${u.uid}"` });
     };
     const slotHtml = (ci, side) => {
       const uid = b.cols[ci][side];
