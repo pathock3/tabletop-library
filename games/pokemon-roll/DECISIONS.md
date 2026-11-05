@@ -1,0 +1,5 @@
+
+- `RULING:` **5 on 5 maximum.** `rules.locationMax` is 5 (cards a side and dice). Leaders field at most five (`size` is `[5, 5]` for Blue and Lance; Lance's legendary counts as one of his five). A leader that draws more keeps the highest-level cards (ties at random, seeded) and the rest are shuffled back into their own place's draw pile at the start of the game; a beaten leader's team goes back the same way as before.
+- `RULING:` **Dice by stage.** You start with one die and gain one for each *stage* of the road you have beaten a leader in (Brock; Misty or Surge; Blaine or Erika; Blue). Leaders side by side are equals: the second one gives nothing.
+- `RULING:` **"Immune to <type>"** (13 cards) is now "takes 3 less damage from <type> attacks" (`rules.typeShield`), applied after weakness. "Can't be hit by < or > attacks" (Pidgeotto, Pidgeot) is unchanged.
+- `RULING:` **Legendaries** are spotted by two unseen dice (a 9) as you leave the map for a place, only once you have four dice (`rules.legendaryFromSlots`); the legendary is shuffled into its home place's draw pile.

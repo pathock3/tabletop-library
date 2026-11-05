@@ -125,7 +125,7 @@ test('rules: a card with no card facing it still acts, and a move at an empty co
 });
 test('abilities: immunity, thorns, shields and dodging', () => {
   let c = craft(['50'], ['21']); play(c, { hero: [1], gm: [6] }, { hero: { 0: 0 }, gm: { 0: 0 } });        // Diglett (ground) attacks Spearow (immune to ground)
-  assert.equal(c.g(0).hp, C['21'].hp, 'immune to ground'); assert.ok(evs(c.b, 'immune').length);
+  assert.equal(c.g(0).hp, C['21'].hp, 'a 1-damage ground hit is soaked entirely by "takes 3 less from ground"'); assert.ok(evs(c.b, 'blocked').length);
   c = craft(['4.1'], ['27']); play(c, { hero: [1], gm: [6] }, { hero: { 0: 0 }, gm: { 0: 0 } });             // Sandshrew: attackers take 1d
   assert.equal(c.h(0).hp, 3, 'the attacker took 1');
   c = craft(['1.1'], ['10']); play(c, { hero: [1], gm: [6] }, { hero: { 0: 0 }, gm: { 0: 0 } });             // Bulbasaur: grass attacks grant 1h
@@ -214,7 +214,7 @@ test('placement: a gym fight starts from your whole hand; the computer puts down
   assert.equal(E.living(b, 0).length, 3, 'three of your four cards fight; the fourth stays in your hand'); assert.equal(E.living(b, 1).length, 3);
 });
 test('wild cards: one comes up, you put one down, and then you choose: fight it one on one, or bring more and they draw one more each time', (tc) => { E.faceOrder('top'); tc.after(() => E.faceOrder('sheet'));
-  const s = E.newGame({ seed: 21, starter: 'bulbasaur' }); s.done.B1 = true; s.done.B2 = true; s.done.B3 = true;            // four dice
+  const s = E.newGame({ seed: 21, starter: 'bulbasaur' }); s.done.B1 = true; s.done.B2 = true; s.done.B3 = true; s.done.B4 = true;            // four dice (one for each stage of the road beaten)
   ['74', '56', '100'].forEach((id, i) => s.coll.push({ uid: 10 + i, id, sh: 0 }));
   assert.ok(E.apply(s, { t: 'go', node: 'L1' }).ok); const b = s.battle;
   assert.equal(b.mode, 'wild'); assert.equal(b.cap, 4); assert.equal(b.hand[1].length, 1, 'one wild card has come up'); assert.deepEqual(b.pl, { side: 1, left: 1 });
@@ -248,8 +248,8 @@ test('hidden information: the computer never sees your dice, and you never see t
 // ================================================================ the campaign
 test('campaign: bosses bring the right number of cards, more in the longer game', () => {
   const short = E.newGame({ seed: 3, starter: 'bulbasaur', size: 'short' }), long = E.newGame({ seed: 3, starter: 'bulbasaur', size: 'long' });
-  assert.deepEqual(D.nodes.filter(n => n.kind === 'boss').map(n => short.bosses[n.id].length), [2, 3, 3, 4, 4, 5, 6]);
-  assert.deepEqual(D.nodes.filter(n => n.kind === 'boss').map(n => long.bosses[n.id].length), [2, 3, 3, 5, 5, 7, 9]);
+  assert.deepEqual(D.nodes.filter(n => n.kind === 'boss').map(n => short.bosses[n.id].length), [2, 3, 3, 4, 4, 5, 5]);
+  assert.deepEqual(D.nodes.filter(n => n.kind === 'boss').map(n => long.bosses[n.id].length), [2, 3, 3, 5, 5, 5, 5]);
   assert.ok(short.bosses.B7.some(i => C[i.id].legend), 'Lance holds a legendary');
 });
 test('campaign: places open when the earlier fight is won, and you start with one die and four more for the five gym leaders', () => {
@@ -257,9 +257,9 @@ test('campaign: places open when the earlier fight is won, and you start with on
   const open = () => D.nodes.filter(n => E.unlocked(s, n)).map(n => n.id);
   assert.deepEqual(open().sort(), ['B1', 'L1', 'L2'], 'no opening rival fight: three places are open from the start'); assert.equal(E.slots(s), 1); assert.equal(s.lv, 2, 'your partner starts at level 2');
   s.done.B1 = true; assert.ok(open().includes('L3') && open().includes('B2') && open().includes('B3')); assert.equal(E.slots(s), 2);
-  assert.ok(!open().includes('L4') && !open().includes('B4')); s.done.B2 = true; s.done.B3 = true; assert.ok(open().includes('L4') && open().includes('L5') && open().includes('B4') && open().includes('B5'));
-  assert.ok(!open().includes('B6')); s.done.B4 = true; assert.ok(open().includes('B6') && open().includes('L6') && open().includes('L7'), 'either path (Blaine or Erika) opens the next stage'); delete s.done.B4; s.done.B5 = true; assert.ok(open().includes('B6'), 'Erika alone opens it too');
-  s.done.B6 = true; assert.ok(open().includes('B7') && open().includes('L8') && open().includes('L9')); s.done.B7 = true; assert.ok(!D.nodes.some(n => n.kind === 'rival'), 'there is no rival in solo: Lance is the last fight');
+  assert.ok(!open().includes('L4') && !open().includes('B4')); s.done.B2 = true; assert.equal(E.slots(s), 3); s.done.B3 = true; assert.equal(E.slots(s), 3, 'Surge stands beside Misty: an equal, so no new die'); assert.ok(open().includes('L4') && open().includes('L5') && open().includes('B4') && open().includes('B5'));
+  assert.ok(!open().includes('B6')); s.done.B4 = true; assert.equal(E.slots(s), 4); assert.ok(open().includes('B6') && open().includes('L6') && open().includes('L7'), 'either path (Blaine or Erika) opens the next stage'); delete s.done.B4; s.done.B5 = true; assert.ok(open().includes('B6'), 'Erika alone opens it too');
+  s.done.B6 = true; assert.equal(E.slots(s), 5, 'never more than five'); assert.ok(open().includes('B7') && open().includes('L8') && open().includes('L9')); s.done.B7 = true; assert.ok(!D.nodes.some(n => n.kind === 'rival'), 'there is no rival in solo: Lance is the last fight');
 });
 test('campaign: your rival picks the partner that beats yours', () => {
   const beats = { bulbasaur: 'charmander', charmander: 'squirtle', squirtle: 'pikachu', pikachu: 'larvitar', larvitar: 'bulbasaur' };
@@ -317,10 +317,10 @@ test('shiny: a card keeps its form once it is on a team, and a card given back t
   assert.ok(typeof shinyBoss.length === 'number');
 });
 const CARDS_LOC = id => C[id].loc;
-test('legendaries: with two dice, a nine on two dice at the start of a turn spots one, and it joins its place', () => {
+test('legendaries: with four dice, a nine on two dice at the start of a turn spots one, and it joins its place', () => {
   let found = null;
   for (let seed = 1; seed < 3000 && !found; seed++) {
-    const s = E.newGame({ seed, starter: 'bulbasaur' }); s.done.rival1 = true; s.done.B1 = true; s.coll.push({ uid: 9, id: '10', sh: 0 });
+    const s = E.newGame({ seed, starter: 'bulbasaur' }); s.done.rival1 = true; s.done.B1 = true; s.done.B2 = true; s.done.B4 = true; s.coll.push({ uid: 9, id: '10', sh: 0 });
     D.locations.forEach(l => { s.discard[l.id].push(s.decks[l.id].pop()); });                 // something already faced in every place
     const pool = s.legend.slice(), dis = D.locations.map(l => s.discard[l.id].length); E.apply(s, { t: 'go', node: 'L1' });
     if (s.notes.length) found = { s, pool, dis };
@@ -531,4 +531,28 @@ test('abilities: Starmie changes ANY one of your dice to 2 (not just the die on 
   assert.ok(E.apply(s, { t: 'tweak', side: 0, uid: st.uid, die: 1 }).ok);
   assert.deepEqual(b.dice[0], [5, 2, 3]);
   assert.equal(E.apply(s, { t: 'tweak', side: 0, uid: st.uid, die: 0 }).ok, false, 'not two rounds running');
+});
+
+test('rules: "immune" is now three less damage from that type; leaders field their strongest five and send the weakest back to their places', () => {
+  assert.equal(D.rules.typeShield, 3); assert.equal(D.rules.locationMax, 5);
+  const c = craft(['21'], ['74']); play(c, { hero: [1], gm: [6] }, { hero: { 0: 0 }, gm: { 0: 0 } });       // Geodude (ground) hits Spearow: 2 less than 3, nothing gets through
+  assert.equal(c.h(0).hp, C['21'].hp);
+  [11, 12, 13].forEach(seed => {
+    const s = E.newGame({ seed, starter: 'bulbasaur', size: 'long' });
+    D.nodes.filter(n => n.kind === 'boss').forEach(n => assert.ok(s.bosses[n.id].length <= 5, n.name + ' fields at most five'));
+    const all = D.locations.reduce((a, l) => a + s.decks[l.id].length, 0) + D.nodes.filter(n => n.kind === 'boss').reduce((a, n) => a + s.bosses[n.id].filter(i => !C[i.id].legend).length, 0);
+    assert.ok(all > 0);
+  });
+});
+
+test('legendaries: nothing is spotted until you have four dice; after that two unseen dice making 9 spot one', () => {
+  assert.equal(D.rules.legendaryFromSlots, 4);
+  let early = 0, late = 0;
+  for (let seed = 1; seed <= 160; seed++) {
+    let s = E.newGame({ seed, starter: 'bulbasaur' }); s.done.B1 = true; s.done.B2 = true;           // three dice
+    E.apply(s, { t: 'go', node: 'L1' }); if (s.notes.some(n => n.indexOf('legend:') === 0)) early++;
+    s = E.newGame({ seed, starter: 'bulbasaur' }); s.done.B1 = true; s.done.B2 = true; s.done.B4 = true;           // four dice
+    E.apply(s, { t: 'go', node: 'L1' }); if (s.notes.some(n => n.indexOf('legend:') === 0)) late++;
+  }
+  assert.equal(early, 0, 'no legendary with fewer than four dice'); assert.ok(late > 5 && late < 40, 'about one turn in nine spots one once you have four dice (' + late + ')');
 });

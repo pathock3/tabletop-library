@@ -220,7 +220,7 @@ test('ui: a gym leader has an eye that explains how their team was made; dice ca
     assert.match(await p.innerText('.hbox'), /in the draw pile[\s\S]*in the discard pile/); assert.equal(await p.locator('.place.deck .pcount').count(), 0, 'no card count on the map decks any more: it is all in the i'); await p.mouse.click(8, 8); assert.equal(await p.locator('.sheet').count(), 0);
     await p.click('.place[data-id=B1] .eye');
     assert.equal(await p.locator('[data-act=closeeye]').count() >= 1, true); const txt = await p.innerText('.hbox');
-    assert.match(txt, /random team/i); assert.match(txt, /before your game began/i); assert.match(txt, /Mt\. Moon/); assert.match(txt, /Viridian Forest/);
+    assert.match(txt, /team/i); assert.match(txt, /before your game began/i); assert.match(txt, /Mt\. Moon/); assert.match(txt, /Viridian Forest/);
     assert.equal(await p.locator('.sheet .eyerow').count(), 2, 'Brock draws from two places');
     await p.click('.hbox .btn'); assert.equal(await p.locator('.sheet').count(), 0);
     // once you have faced a gym leader, the eye shows their whole team

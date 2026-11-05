@@ -338,11 +338,12 @@ const GAME_DATA = {
   rules: {
     shinyHp: 1,                 // a shiny card has this much more health than the same card that is not
     shinyChance: 0.10,          // each card is rolled once, before anything is dealt, and keeps its form for the whole game (a partner keeps its form through every level and evolution)
-    legendaryDice: 2, legendarySum: 9, legendaryFromSlots: 2,   // roll two dice at the start of a turn once you have a second die: a 9 spots a legendary
+    legendaryDice: 2, legendarySum: 9, legendaryFromSlots: 4,   // roll two dice (unseen) at the start of a turn once you have four dice: a 9 spots a legendary
     levelLabels: [1, 10, 20, 30, 40, 50],   // what a card's level 1-6 is called on screen (the rules still count 1-6)
     startSlots: 1, startLevel: 2,   // you begin with your partner at level 2 (the level the first rival fight gave in the paper game)
                  // cards you may challenge a location with; each boss beaten adds one
-    locationMax: 6,             // never more than six cards at a time
+    locationMax: 5,             // never more than five cards a side (and five dice): the biggest fight is 5 on 5
+    typeShield: 3,              // "Immune to ground" now means: takes 3 less damage from ground attacks
     maxLevel: 6,
     maxRounds: 60, stallRounds: 6,   // a fight that goes nowhere is lost (a tie is a loss for the hero)
     suddenDeathTries: 3,
@@ -389,27 +390,28 @@ const GAME_DATA = {
   ],
   // Map 2 from the design doc. A node opens when everything in `needs` is beaten. `lvl` is the level your starter should have;
   // beating a boss lifts your starter to lvl+1. `draws`: [location, cards, extra cards in the long game].
+  dieLine: 'Congratulations, you earned this die.',           // said by the leader who hands you a new die
   nodes: [
     { id: 'L1', kind: 'loc', loc: 1, name: 'Viridian Forest', stage: 0, lane: 0, needs: [] },
-    { id: 'B1', kind: 'boss', die: ['ground'], name: 'Brock', trainer: '🪨', color: '#8d6e63', stage: 0, lane: 1, needs: [], lvl: 2, size: [2, 2], draws: [[2, 1, 0], [1, 1, 0]] },
+    { id: 'B1', kind: 'boss', die: ['ground'], name: 'Brock', say: "Your Pokémon are tougher than my rocks. Well fought!", trainer: '🪨', color: '#8d6e63', stage: 0, lane: 1, needs: [], lvl: 2, size: [2, 2], draws: [[2, 1, 0], [1, 1, 0]] },
     { id: 'L2', kind: 'loc', loc: 2, name: 'Mt. Moon', stage: 0, lane: 2, needs: [] },
-    { id: 'B2', kind: 'boss', die: ['water'], name: 'Misty', trainer: '🌊', color: '#29b6f6', stage: 1, lane: 0, needs: ['B1'], lvl: 3, size: [3, 3], draws: [[4, 2, 0], [1, 1, 0]] },
+    { id: 'B2', kind: 'boss', die: ['water'], name: 'Misty', say: "Wow, you really know how to ride a wave. Nicely done!", trainer: '🌊', color: '#29b6f6', stage: 1, lane: 0, needs: ['B1'], lvl: 3, size: [3, 3], draws: [[4, 2, 0], [1, 1, 0]] },
     { id: 'L3', kind: 'loc', loc: 3, name: 'Power Plant', stage: 1, lane: 1, needs: ['B1'] },
-    { id: 'B3', kind: 'boss', die: ['electric'], name: 'Lt. Surge', trainer: '⚡', color: '#fdd835', stage: 1, lane: 2, needs: ['B1'], lvl: 3, size: [3, 3], draws: [[3, 2, 0], [2, 1, 0]] },
+    { id: 'B3', kind: 'boss', die: ['electric'], name: 'Lt. Surge', say: "Hey, you're electric, kid! That was shocking!", trainer: '⚡', color: '#fdd835', stage: 1, lane: 2, needs: ['B1'], lvl: 3, size: [3, 3], draws: [[3, 2, 0], [2, 1, 0]] },
     { id: 'L4', kind: 'loc', loc: 4, name: 'S.S. Anne', stage: 2, lane: 0, needs: ['B2'] },
     { id: 'L5', kind: 'loc', loc: 5, name: 'Pokemon Tower', stage: 2, lane: 2, needs: ['B3'] },
-    { id: 'B4', kind: 'boss', die: ['fire'], name: 'Blaine', trainer: '🔥', color: '#ef5350', stage: 3, lane: 2, needs: ['B2'], lvl: 4, size: [4, 5], draws: [[8, 2, 0], [5, 1, 0], [3, 1, 0], [4, 0, 1]] },
-    { id: 'B5', kind: 'boss', die: ['grass'], name: 'Erika', trainer: '🌿', color: '#66bb6a', stage: 3, lane: 0, needs: ['B3'], lvl: 4, size: [4, 5], draws: [[6, 2, 0], [5, 1, 1], [4, 1, 0]] },
+    { id: 'B4', kind: 'boss', die: ['fire'], name: 'Blaine', say: "Hah! You've got more fire than my Pokémon. Impressive!", trainer: '🔥', color: '#ef5350', stage: 3, lane: 2, needs: ['B2'], lvl: 4, size: [4, 5], draws: [[8, 2, 0], [5, 1, 0], [3, 1, 0], [4, 0, 1]] },
+    { id: 'B5', kind: 'boss', die: ['grass'], name: 'Erika', say: "Oh my... you've blossomed beautifully. Well played.", trainer: '🌿', color: '#66bb6a', stage: 3, lane: 0, needs: ['B3'], lvl: 4, size: [4, 5], draws: [[6, 2, 0], [5, 1, 1], [4, 1, 0]] },
     { id: 'L6', kind: 'loc', loc: 6, name: 'Safari Zone', stage: 4, lane: 0, needs: ['B4', 'B5'], any: true },
-    { id: 'B6', kind: 'boss', name: 'Blue', trainer: '🎖️', color: '#3f51b5', stage: 4, lane: 1, needs: ['B4', 'B5'], any: true, lvl: 5, size: [5, 7], draws: [[9, 1, 0], [7, 1, 1], [8, 1, 0], [6, 1, 1], [5, 1, 0]] },
+    { id: 'B6', kind: 'boss', name: 'Blue', say: "Tch. Fine. You beat me. Don't get used to it, though.", trainer: '🎖️', color: '#3f51b5', stage: 4, lane: 1, needs: ['B4', 'B5'], any: true, lvl: 5, size: [5, 5], draws: [[9, 1, 0], [7, 1, 1], [8, 1, 0], [6, 1, 1], [5, 1, 0]] },
     { id: 'L7', kind: 'loc', loc: 8, name: 'Cinnabar Island', stage: 4, lane: 2, needs: ['B4', 'B5'], any: true },
     { id: 'L8', kind: 'loc', loc: 7, name: 'Seafoam Islands', stage: 5, lane: 0, needs: ['B6'] },
-    { id: 'B7', kind: 'boss', finale: true, die: ['fire', 'water', 'electric', 'grass', 'ground'], name: 'Lance', trainer: '🐉', color: '#5c6bc0', stage: 5, lane: 1, needs: ['B6'], lvl: 6, size: [6, 9], draws: [[9, 2, 1], [7, 1, 1], [8, 1, 1], [6, 1, 0]], legendary: 1 },
+    { id: 'B7', kind: 'boss', finale: true, die: ['fire', 'water', 'electric', 'grass', 'ground'], name: 'Lance', say: "Magnificent! You are a true Champion. I am proud to have faced you!", trainer: '🐉', color: '#5c6bc0', stage: 5, lane: 1, needs: ['B6'], lvl: 6, size: [5, 5], draws: [[9, 2, 1], [7, 1, 1], [8, 1, 1], [6, 1, 0]], legendary: 1 },
     { id: 'L9', kind: 'loc', loc: 9, name: 'Victory Road', stage: 5, lane: 2, needs: ['B6'] },
   ],
   // ability text on the card -> what the engine does (first match wins; "$1" is the first group). Several abilities on a card are separated by ";".
   abilities: [
-    ['^Immune to (.+)$', { t: 'immune', types: '$1' }],
+    ['^Immune to (.+)$', { t: 'typeShield', types: '$1' }],           // was total immunity; now a flat cut (rules.typeShield) so a weak card cannot be untouchable
     ['^Can.t be hit by < or > attacks$', { t: 'noSide' }],
     ['^Attackers take (\\d)d$', { t: 'thorns', n: '$1' }],
     ["^When KO'd, attacker takes (\\d)[ad]$", { t: 'koThorn', n: '$1' }],
@@ -742,7 +744,7 @@ const Engine = (() => {
       for (const [re, tag] of AB) {
         const m = re.exec(part); if (!m) continue;
         const t = {}; for (const k in tag) { let v = tag[k]; if (typeof v === 'string' && /\$\d/.test(v)) { v = v.replace(/\$(\d)/g, (_, i) => m[+i] || ''); if (/^\d+$/.test(v)) v = +v; } t[k] = v; }
-        if (t.t === 'immune') t.types = String(t.types).toLowerCase().split(/,| and | or /).map(x => x.trim()).filter(Boolean);
+        if (t.t === 'immune' || t.t === 'typeShield') t.types = String(t.types).toLowerCase().split(/,| and | or /).map(x => x.trim()).filter(Boolean);
         if (t.t === 'aura' && typeof t.range === 'string') t.range = (t.range.match(/</g) || []).length || 1;
         if (t.t === 'aura' && !t.kind) t.kind = 'any'; if (t.t === 'aura' && t.el) t.el = lc(t.el);
         if (t.t === 'noHeal') t.offs = runs(t.spec); if (t.t === 'alone' && t.spec) t.sp = parseSpec(t.spec);
@@ -769,7 +771,9 @@ const Engine = (() => {
   const starterOf = key => D.starters.find(x => x.key === key);
   const rivalFor = key => { const mine = CARDS[starterOf(key).levels[0]].weak; return D.starters.find(x => CARDS[x.levels[0]].type === mine) || D.starters[0]; };
   const bossesBeaten = s => D.nodes.filter(n => n.kind === 'boss' && s.done[n.id]).length;
-  const slots = s => Math.min(R.locationMax, R.startSlots + bossesBeaten(s));
+  // a new die for each gym leader further along the road than any you have beaten: leaders side by side (same stage) are equals, so only the first of them counts
+  const stagesBeaten = s => new Set(D.nodes.filter(n => n.kind === 'boss' && s.done[n.id]).map(n => n.stage)).size;
+  const slots = s => Math.min(R.locationMax, R.startSlots + stagesBeaten(s));
   const unlocked = (s, n) => n.any ? n.needs.some(id => s.done[id]) : n.needs.every(id => s.done[id]);       // `any`: either of two paths opens it
   const inst = (s, id, sh) => ({ id, sh: sh ? 1 : 0 });
 
@@ -795,6 +799,15 @@ const Engine = (() => {
     D.nodes.filter(n => n.kind === 'boss').forEach(n => {
       const team = [];
       n.draws.forEach(([loc, k, x]) => { const cnt = k + (s.size === 'long' ? x : 0); for (let i = 0; i < cnt; i++) { const id = s.decks[loc].shift(); if (id) team.push(inst(s, id, s.sh[id])); } });
+      // a leader fields at most five: the strongest. The weakest (ties broken at random) go back into their own place's draw pile before the game starts
+      const room = R.locationMax - (n.legendary ? 1 : 0);
+      if (team.length > room) {
+        const order = shuffle(s, team.map((t, i) => i)).sort((p, q) => CARDS[team[q].id].level - CARDS[team[p].id].level);          // shuffled first, so equal levels are picked at random
+        const keep = new Set(order.slice(0, room)), back = new Set();
+        team.forEach((t, i) => { if (!keep.has(i)) { const loc = CARDS[t.id].loc; s.decks[loc].push(t.id); back.add(loc); } });
+        back.forEach(loc => { s.decks[loc] = shuffle(s, s.decks[loc]); });
+        team.splice(0, team.length, ...team.filter((t, i) => keep.has(i)));
+      }
       if (n.legendary) { const lid = leg.shift(); team.push(inst(s, lid, s.sh[lid])); }
       s.bosses[n.id] = team;
     });
@@ -1171,7 +1184,6 @@ const Engine = (() => {
       }
     }
     const ta = tags(T), at = typeOf(A);
-    if (ta.some(g => g.t === 'immune' && g.types.indexOf(at) >= 0)) { ev(b, { t: 'immune', u: T.uid }); return; }
     if (off !== 0 && ta.some(g => g.t === 'noSide')) { ev(b, { t: 'immune', u: T.uid }); return; }
     if (ta.some(g => g.t === 'nullLevels' && CARDS[A.id].level >= g.min)) { ev(b, { t: 'immune', u: T.uid }); return; }
     const ab = ta.find(g => g.t === 'absorb' && g.el === at); if (ab) { healUnit(b, T, n, T); return; }
@@ -1183,6 +1195,7 @@ const Engine = (() => {
       if (want) { dodgeSpend(b, T); ev(b, { t: 'dodge', u: T.uid }); return; }
     }
     const raw = n, m = wm(b, A, T); n *= m; const weak = m === 2;
+    const sh = ta.find(g => g.t === 'typeShield' && g.types.indexOf(at) >= 0); if (sh) n = Math.max(0, n - R.typeShield);          // "Immune to ground": three less from that type
     const ms = ta.find(g => g.t === 'matchShield');
     if (ms && living(b, T.side).length > 1 && colIdx(b, A.uid) === colIdx(b, T.uid)) n = Math.max(0, n - ms.n);
     if (n <= 0) { ev(b, { t: 'blocked', u: T.uid, n: 0 }); return; }
@@ -1307,7 +1320,7 @@ const Engine = (() => {
       if (e.k === 'a') {                                                          // does one of the player's cards get to decide something about this attack?
         const dk = act.uid + ':' + r.ei, dm = (r.dec[dk] = r.dec[dk] || {}), amt = amountOf(b, u, e);
         const T = pickTargets(b, u, e, amt, chosen == null ? null : chosen);
-        for (const t of T) { const x = t.u; if (amt > 0 && x.side === 0 && dm[x.uid] == null && dodgeAvail(b, x, false) && !tags(x).some(g => g.t === 'immune' && g.types.indexOf(typeOf(u)) >= 0)) { b.ask = { kind: 'yn', what: 'dodge', uid: x.uid, by: u.uid, key: dk, n: amt }; b.stage = 'resolving'; return; } }
+        for (const t of T) { const x = t.u; if (amt > 0 && x.side === 0 && dm[x.uid] == null && dodgeAvail(b, x, false)) { b.ask = { kind: 'yn', what: 'dodge', uid: x.uid, by: u.uid, key: dk, n: amt }; b.stage = 'resolving'; return; } }
       }
       b.curDec = r.dec[act.uid + ':' + r.ei] || null; b.curAlloc = r.alloc[act.uid + ':' + r.ei] || null; execEffect(s, b, u, e, chosen == null ? null : chosen); b.curDec = null; b.curAlloc = null; r.main = true; r.ei++;
     }
@@ -1478,7 +1491,7 @@ const Engine = (() => {
       if (win) s.res.pick = gm; else gm.forEach(i => s.discard[CARDS[i.id].loc].push(i.id));      // what you dug goes to the discard pile; the draw pile is worked through once before it is shuffled again
       if (win && !gm.length) s.res.pick = [];
     } else if (win) {
-      s.done[nd.id] = true; s.bossTurns[nd.id] = s.turn;
+      const dice0 = slots(s); s.done[nd.id] = true; s.bossTurns[nd.id] = s.turn; if (nd.kind === 'boss' && !nd.finale && slots(s) > dice0) s.res.newDie = true;
       if (nd.die && !nd.finale) { const gain = nd.die.filter(c => (s.cdice = s.cdice || []).indexOf(c) < 0); gain.forEach(c => s.cdice.push(c)); if (gain.length) s.res.dieGain = gain; }          // you keep the leader's colour          // how many turns it took to get this far
       if (nd.kind === 'boss') {
         const team = s.bosses[nd.id], back = team.filter((i, k) => !(nd.legendary && k === team.length - 1)), locs = new Set();         // the beaten team goes back where it came from, shuffled into that place's draw pile (the legendary you win is not among them)
@@ -1815,6 +1828,7 @@ const Bots = (() => {
   };
   // an ability in plain words: "-1d" is "-1 damage", "2h" is "2 heal", the arrows become ◀ ▲ ▶
   const abText = t => esc(String(t)
+    .replace(/^Immune to (.+)$/, (m, x) => 'Takes ' + D.rules.typeShield + ' less damage from ' + x + ' attacks')
     .replace(/When enemies enter this column, (\d+)d/g, 'When enemies enter this column: ➜ them $1 💥')
     .replace(/-(\d+)d from matchup/g, 'takes $1 less damage from the card across').replace(/-(\d+)d\b/g, '$1 shield')
     .replace(/max h\b/g, 'max health').replace(/\b(at|below) (\d+)h\b/g, '$1 $2 health')
@@ -2325,7 +2339,7 @@ const Bots = (() => {
     const r = G.res, nd = E.node(r.node), sdv = E.starterOf(G.starter), cw = 150;
     const take = r.pick ? `<div class="status">Choose one to join your team!</div><div class="hrow">${r.pick.map((i, k) => card(i, { cw, attr: `data-act="take" data-i="${k}"` })).join('')}</div>` : (r.took ? `<div class="status">You caught ${esc(C[r.took.id].name)}${r.took.sh ? ' ✨' : ''}!</div><div class="hrow">${card(r.took, { cw })}</div>` : '');
     const evo = r.evolve ? `<div class="status">${esc(C[sdv.levels[r.evolve - 1]].name)} is ready to evolve! Which will it be?</div><div class="hrow">${[[sdv.levels[r.evolve - 1], 0], [sdv.evolve[r.evolve], 1]].map(([id, y]) => card({ id, sh: 0 }, { cw, attr: `data-act="evolve" data-yes="${y}"` })).join('')}</div>` : '';
-    const lines = []; if (r.win && nd.kind === 'boss') lines.push(`You beat ${esc(nd.name)}! +1 die`); if (r.dieGain) lines.push(`You keep ${r.dieGain.map(c => `<b style="color:${dieCol(c)}">${c}</b>`).join(', ')}: a die that adds +1 to a move of its colour`); if (r.turns != null) lines.push(`${nd.finale ? 'You beat the game' : 'Beaten'} in <b>${r.turns} turn${r.turns === 1 ? '' : 's'}</b>${r.newBest ? ' <span class="nb">New best!</span>' : (r.best != null ? ` <span class="pb">(best ${r.best})</span>` : '')}`); if (r.levelUp) lines.push(`Your starter grew to level ${lvName(r.levelUp)}!`); if (r.legend && r.win) lines.push(`${esc(C[r.legend.id].name)}${r.legend.sh ? ' ✨' : ''} joins your team!`);
+    const lines = []; if (r.win && nd.kind === 'boss') { lines.push(`<b>${esc(nd.name)}:</b> “${esc(nd.say || 'Well fought!')}”`); if (r.newDie) lines.push(`${esc(nd.name)} hands you a die. <i>“${esc(D.dieLine)}”</i>`); } if (r.dieGain) lines.push(`You keep ${r.dieGain.map(c => `<b style="color:${dieCol(c)}">${c}</b>`).join(', ')}: a die that adds +1 to a move of its colour`); if (r.turns != null) lines.push(`${nd.finale ? 'You beat the game' : 'Beaten'} in <b>${r.turns} turn${r.turns === 1 ? '' : 's'}</b>${r.newBest ? ' <span class="nb">New best!</span>' : (r.best != null ? ` <span class="pb">(best ${r.best})</span>` : '')}`); if (r.levelUp) lines.push(`Your starter grew to level ${lvName(r.levelUp)}!`); if (r.legend && r.win) lines.push(`${esc(C[r.legend.id].name)}${r.legend.sh ? ' ✨' : ''} joins your team!`);
     return `<div class="scr" style="overflow:auto"><div class="center" style="justify-content:flex-start;padding-top:56px"><div class="banner">${r.win ? (nd.finale ? 'CHAMPION!' : 'Victory!') : 'Not this time'}</div>
       ${lines.map(l => `<div style="font:800 22px system-ui">${l}</div>`).join('')}
       ${r.win && r.levelUp && !r.evolve ? `<div class="hrow">${card({ id: G.coll.find(c => c.starter).id, sh: 0 }, { cw })}</div>` : ''}
@@ -2436,18 +2450,19 @@ const Bots = (() => {
   }
   function eyeSheet() {
     const n = E.node(ui.eye), long = G.size === 'long'; if (n.kind === 'loc') return deckInfoSheet(n);
-    const rows = n.draws.map(([loc, k, x]) => [loc, k + (long ? x : 0)]).filter(r => r[1] > 0).map(([loc, k]) => { const ln = E.node(D.nodes.find(q => q.loc === loc).id); return `<div class="eyerow"><div class="hmap" style="width:92px"><svg viewBox="0 0 160 120">${SCENE[loc]()}</svg></div><div><b>${esc(ln.name)}</b><div class="eyen">${k} card${k === 1 ? '' : 's'} · ${lvRange(loc)}</div></div></div>`; });
+    const tm = G.bosses[n.id] || [], cnt = {}; tm.forEach(i => { const l = C[i.id].legend ? 'L' : C[i.id].loc; cnt[l] = (cnt[l] || 0) + 1; });
+    const rows = Object.keys(cnt).filter(l => l !== 'L').map(Number).sort((a, b) => cnt[b] - cnt[a] || a - b).map(loc => { const ln = E.node(D.nodes.find(q => q.loc === loc).id), k = cnt[loc]; return `<div class="eyerow"><div class="hmap" style="width:92px"><svg viewBox="0 0 160 120">${SCENE[loc]()}</svg></div><div><b>${esc(ln.name)}</b><div class="eyen">${k} card${k === 1 ? '' : 's'} · ${lvRange(loc)}</div></div></div>`; });
     if (n.legendary) rows.push(`<div class="eyerow"><div class="hmap" style="width:92px;display:grid;place-items:center;font-size:46px;background:#4527a0">🌟</div><div><b>A legendary</b><div class="eyen">1 card</div></div></div>`);
     const team = G.seen && G.seen[n.id] && G.bosses[n.id];
     const body = team
       ? `<p class="hcap" style="font-size:19px">You have faced ${esc(n.name)}, so you know the whole team.</p><div class="eyecards">${cardGrid(team.map(i => ({ id: i.id, sh: i.sh })), { max: 150 })}</div>`
-      : `<p class="hcap" style="font-size:19px">A random team, drawn from these places before your game began. Face ${esc(n.name)} once and you will see the whole team here.</p><div class="eyelist">${rows.join('')}</div>`;
+      : `<p class="hcap" style="font-size:19px">A team drawn from these places before your game began (their strongest cards; the weakest went back). Face ${esc(n.name)} once and you will see the whole team here.</p><div class="eyelist">${rows.join('')}</div>`;
     return `<div class="sheet" data-act="closeeye"><div class="box hbox" data-stop="1" style="height:auto;max-height:88vh;${team ? 'max-width:760px;overflow:auto' : ''}"><div class="infoi">i</div><h2>${esc(n.name)}'s team</h2>${body}<button class="btn" data-act="closeeye">Got it</button></div></div>`;
   }
   function chipSheet() {
     const n = E.slots(G), mx = D.rules.locationMax;
     return `<div class="sheet" data-act="closechip"><div class="box hbox" style="height:auto;max-width:560px"><div class="infoi">i</div><h2>Your table</h2>
-      <p class="hcap" style="font-size:20px"><b>🎲 ×${n}</b> — you roll <b>${n}</b> ${n === 1 ? 'die' : 'dice'} each round, and you can put out up to <b>${n}</b> ${n === 1 ? 'card' : 'cards'} at a time at a place. Beat a gym leader to get one more (never more than ${mx}).</p>
+      <p class="hcap" style="font-size:20px"><b>🎲 ×${n}</b> — you roll <b>${n}</b> ${n === 1 ? 'die' : 'dice'} each round, and you can put out up to <b>${n}</b> ${n === 1 ? 'card' : 'cards'} at a time at a place. Each gym leader further along the road than any you have beaten hands you one more (two leaders side by side count once). Never more than ${mx}.</p>
       <p class="hcap" style="font-size:20px"><b>★ ${lvName(G.lv)}</b> — the level of your starter. It levels up by winning fights (and evolves), so it grows with you.</p>
       <p class="hcap" style="font-size:16px;opacity:.7">Tap anywhere to close.</p></div></div>`;
   }
