@@ -17,9 +17,9 @@
 :root{--ink:#14110f;--navy:#0e1a33;--panel:#17264a;--gold:#ffd23f;--red:#e5383b;--green:#2fa35b;--blue:#2a6fdb;--card:#fffdf4}
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent;-webkit-touch-callout:none;user-select:none}
 html,body{margin:0;height:100%;overflow:hidden;overscroll-behavior:none;color:#fff;font-family:system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;touch-action:manipulation}
-html{background-color:#8c5d31;background-image:url("data:image/svg+xml;utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='380' height='380'%3E%3Cfilter id='w' x='0' y='0' width='100%25' height='100%25'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.05 0.0035' numOctaves='5' seed='11' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .22  0 0 0 0 .10  0 0 0 0 .03  0 0 0 1.5 -.32'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url%28%23w%29'/%3E%3C/svg%3E");background-size:380px 380px}
+html{min-height:100lvh;background-attachment:fixed;background-color:#8c5d31;background-image:url("data:image/svg+xml;utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='380' height='380'%3E%3Cfilter id='w' x='0' y='0' width='100%25' height='100%25'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.05 0.0035' numOctaves='5' seed='11' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .22  0 0 0 0 .10  0 0 0 0 .03  0 0 0 1.5 -.32'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url%28%23w%29'/%3E%3C/svg%3E");background-size:380px 380px}
 body{background:transparent}
-#app{position:fixed;inset:0;padding:env(safe-area-inset-top) 0 0;display:flex;flex-direction:column}
+#app{position:fixed;top:0;left:0;right:0;height:100vh;height:100lvh;height:var(--appH,100lvh);padding:env(safe-area-inset-top) 0 0;display:flex;flex-direction:column}
 button{font:inherit;color:inherit;border:0;cursor:pointer}
 .btn{min-height:56px;padding:10px 26px;border-radius:16px;font-weight:900;font-size:22px;background:linear-gradient(#ffe066,#ffb703);color:#3a2600;border:3px solid #14110f;box-shadow:0 5px 0 #14110f;letter-spacing:.02em}
 .btn:active{transform:translateY(3px);box-shadow:0 2px 0 #14110f}
@@ -2112,7 +2112,13 @@ const Bots = (() => {
     return `<i class="m3"></i><i class="m2"></i><div class="mtop">${card(st, { cw: 46 })}</div><span class="pcount">${n}</span>`;
   }
   // the height the game really has: the screen less the strip the status bar and home indicator take
-  const viewH = () => { const cs = getComputedStyle($app); return innerHeight - (parseFloat(cs.paddingTop) || 0) - (parseFloat(cs.paddingBottom) || 0); };
+  const viewH = () => { const cs = getComputedStyle($app); return $app.clientHeight - (parseFloat(cs.paddingTop) || 0) - (parseFloat(cs.paddingBottom) || 0); };
+  // a home-screen app can report a window a little shorter than the real screen (the strip under it stays bare): in that case the app is sized to the whole screen
+  const fitScreen = () => {
+    const st = navigator.standalone || (matchMedia && matchMedia('(display-mode: standalone)').matches), land = innerWidth > innerHeight, sh = land ? Math.min(screen.width, screen.height) : Math.max(screen.width, screen.height);
+    document.documentElement.style.setProperty('--appH', (st && sh > innerHeight && sh - innerHeight < 120 ? sh : innerHeight) + 'px');
+  };
+  fitScreen(); addEventListener('resize', () => { fitScreen(); }); addEventListener('orientationchange', () => setTimeout(fitScreen, 120));
   function mapScreen() {
     const vis = D.nodes.filter(shown), ids = new Set(vis.map(n => n.id));
     const stages = Math.max(...D.nodes.map(n => n.stage)) + 1, pitch = 178;          // the whole road is laid out from the start, so the game always runs left to right, with the rest still to be revealed
