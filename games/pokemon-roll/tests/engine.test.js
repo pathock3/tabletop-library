@@ -71,7 +71,7 @@ test('rules: one roll, and one reroll each round; cards add more', () => {
   const plain = craft(['1.1'], ['10']);
   assert.equal(plain.b.rr[0], 1); assert.ok(E.apply(plain.s, { t: 'reroll', side: 0, die: 0 }).ok, 'the one reroll'); assert.equal(E.apply(plain.s, { t: 'reroll', side: 0, die: 0 }).ok, false, 'and no second');
   const vulpix = craft(['37'], ['10']); assert.equal(vulpix.b.rr[0], 2, '+1 reroll on top of the one you always have');
-  vulpix.b.dice[0] = [3]; assert.ok(E.apply(vulpix.s, { t: 'reroll', side: 0, die: 0 }).ok); assert.ok(E.apply(vulpix.s, { t: 'reroll', side: 0, die: 0 }).ok); assert.equal(vulpix.b.rr[0], 0); assert.equal(E.apply(vulpix.s, { t: 'reroll', side: 0, die: 0 }).ok, false);
+  vulpix.b.dice[0] = [3]; assert.ok(E.apply(vulpix.s, { t: 'reroll', side: 0, die: 0 }).ok); assert.equal(E.apply(vulpix.s, { t: 'reroll', side: 0, die: 0 }).ok, false, 'a rerolled die is locked in'); assert.equal(vulpix.b.rr[0], 1);
   const rat = craft(['19'], ['10']); rat.b.rr[0] = 0; rat.b.dice[0] = [1]; assert.ok(E.apply(rat.s, { t: 'reroll', side: 0, die: 0 }).ok, 'a free reroll of a 1'); rat.b.dice[0] = [4]; assert.equal(E.apply(rat.s, { t: 'reroll', side: 0, die: 0 }).ok, false, 'but not of a 4');
 });
 test('rules: a die gives each card the move on that number, and the move shows up in the round', () => {
@@ -412,4 +412,35 @@ test('campaign: nobody has a rival at the end; beating Lance wins the game', () 
 test('campaign: a gym leader you have faced is no longer a secret', () => {
   const s = E.newGame({ seed: 4, starter: 'charmander' }); s.done.B1 = true; assert.ok(!(s.seen && s.seen.B2));
   assert.ok(E.apply(s, { t: 'go', node: 'B2' }).ok); assert.ok(s.seen.B2, 'facing them is what reveals the team');
+});
+
+test('rules: you give out the dice you like, then reroll the rest together, once; rerolled dice are locked in', () => {
+  const c = craft(['1.1', '1.2', '7.1'], ['10', '10', '10']); const { s, b } = c; b.dice[0] = [3, 4, 5];
+  assert.ok(E.apply(s, { t: 'assign', side: 0, uid: b.units[0].uid, die: 0 }).ok);
+  assert.ok(E.apply(s, { t: 'reroll', side: 0, all: true }).ok);
+  assert.equal(b.dice[0][0], 3, 'the die on a card is kept'); assert.ok(b.locked[0][1] && b.locked[0][2] && !b.locked[0][0], 'the other two are locked in');
+  const after = b.dice[0].slice(); assert.equal(E.apply(s, { t: 'reroll', side: 0, all: true }).ok, false, 'only once');
+  assert.deepEqual(b.dice[0], after, 'nothing changed');
+  c.b.rr[0] = 5; assert.equal(E.apply(s, { t: 'reroll', side: 0, all: true }).ok, false, 'even with spare rerolls, locked dice do not move again');
+  T.startRound(s); assert.equal(Object.keys(b.locked[0]).length, 0, 'a new round, a new reroll');
+});
+test('ai: Easy and Normal never reroll, Master rerolls the weak dice together before giving any out', () => {
+  const c = craft(['1.1', '7.1'], ['1.1', '7.1']); const { s, b } = c; b.dice[1] = [6, 6]; b.rr[1] = 1;
+  assert.equal(B.step(s, 'easy').t, 'gm'); assert.equal(B.step(s, 'normal').t, 'gm');
+  const m = B.step(s, 'master'); assert.equal(m.t, 'reroll', 'two dead 6s are worth throwing again'); assert.ok(m.dice.length >= 1 && m.dice.every(i => i >= 0 && i < 2));
+  assert.ok(E.apply(s, m).ok); assert.ok(b.locked[1][m.dice[0]]);
+  assert.equal(B.step(s, 'master').t, 'gm', 'then it gives them out');
+});
+test('decisions: when a card of yours may dodge, the game stops and asks you each time; the computer always dodges', () => {
+  const c = craft(['25.3'], ['4.1']); const { s, b } = c;                               // Pikachu: dodge one attack per match
+  b.dice = [[1], [1]]; b.asg = [{ [b.units[0].uid]: { dice: [0], tgt: null } }, { [b.units[1].uid]: { dice: [0], tgt: null } }]; b.gmReady = true;
+  assert.ok(E.apply(s, { t: 'go2' }).ok); assert.equal(b.stage, 'resolving'); assert.equal(b.ask.kind, 'yn', 'asked'); assert.equal(b.ask.uid, b.units[0].uid);
+  assert.equal(E.apply(s, { t: 'choose', tgt: 1 }).ok, false, 'a choice of target is not a yes or no');
+  const hp = b.units[0].hp; assert.ok(E.apply(s, { t: 'decide', yes: false }).ok);
+  assert.ok(b.units[0].hp < hp, 'declined: it takes the hit'); assert.ok(!b.units[0].dodgeUsed, 'and the dodge is still there for later');
+  const d = craft(['25.3'], ['4.1']); d.b.dice = [[1], [1]]; d.b.asg = [{ [d.b.units[0].uid]: { dice: [0], tgt: null } }, { [d.b.units[1].uid]: { dice: [0], tgt: null } }]; d.b.gmReady = true;
+  E.apply(d.s, { t: 'go2' }); const hp2 = d.b.units[0].hp; assert.ok(E.apply(d.s, { t: 'decide', yes: true }).ok);
+  assert.equal(d.b.units[0].hp, hp2, 'dodged: no damage'); assert.ok(d.b.units[0].dodgeUsed, 'used for this match');
+  const g = craft(['4.1'], ['25.3']); g.b.dice = [[1], [1]]; g.b.asg = [{ [g.b.units[0].uid]: { dice: [0], tgt: null } }, { [g.b.units[1].uid]: { dice: [0], tgt: null } }]; g.b.gmReady = true;
+  E.apply(g.s, { t: 'go2' }); assert.ok(!g.b.ask, 'the computer is never asked'); assert.ok(evs(g.b, 'dodge').length >= 1, 'it dodged');
 });

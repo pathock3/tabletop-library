@@ -10,13 +10,13 @@
 <meta name="build" content="__BUILD__">
 <link rel="icon" type="image/png" href="../../assets/favicon.png">
 <link rel="apple-touch-icon" href="../../assets/apple-touch-icon.png">
-<meta name="theme-color" content="#0e1a33">
+<meta name="theme-color" content="#6a4423">
 <title>Pokémon Roll!</title>
 <meta name="description" content="Roll the dice, build your team, beat the gym leaders.">
 <style>
 :root{--ink:#14110f;--navy:#0e1a33;--panel:#17264a;--gold:#ffd23f;--red:#e5383b;--green:#2fa35b;--blue:#2a6fdb;--card:#fffdf4}
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent;-webkit-touch-callout:none;user-select:none}
-html,body{margin:0;height:100%;overflow:hidden;overscroll-behavior:none;background:var(--navy);color:#fff;font-family:system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;touch-action:manipulation}
+html,body{margin:0;height:100%;overflow:hidden;overscroll-behavior:none;background:#6a4423;color:#fff;font-family:system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;touch-action:manipulation}
 #app{position:fixed;inset:0;padding:env(safe-area-inset-top) 0 env(safe-area-inset-bottom);display:flex;flex-direction:column;background:radial-gradient(130% 95% at 50% 42%,transparent 50%,#1c0e0594 100%),url("data:image/svg+xml;utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='380' height='380'%3E%3Cfilter id='w' x='0' y='0' width='100%25' height='100%25'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.045 0.0035' numOctaves='5' seed='11'/%3E%3CfeColorMatrix values='0 0 0 0 .20  0 0 0 0 .09  0 0 0 0 .03  0 0 0 1.6 -.35'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url%28%23w%29'/%3E%3C/svg%3E"),repeating-linear-gradient(90deg,#9a6a3a 0 173px,#2a160a 173px 176px,#8b5c30 176px 349px,#2a160a 349px 352px,#a2723f 352px 525px,#2a160a 525px 528px,#865830 528px 701px,#2a160a 701px 704px),#8b5c30;background-size:auto,380px 380px,704px 100%,auto}
 button{font:inherit;color:inherit;border:0;cursor:pointer}
 .btn{min-height:56px;padding:10px 26px;border-radius:16px;font-weight:900;font-size:22px;background:linear-gradient(#ffe066,#ffb703);color:#3a2600;border:3px solid #14110f;box-shadow:0 5px 0 #14110f;letter-spacing:.02em}
@@ -48,18 +48,18 @@ button{font:inherit;color:inherit;border:0;cursor:pointer}
 .card{--cw:190px;--ink:#14110f;width:var(--cw);flex:none;position:relative;color:var(--ink);background:var(--bg);border:calc(var(--cw)*.022 + 1px) solid var(--ink);border-radius:calc(var(--cw)*.07);overflow:hidden;box-shadow:0 5px 12px #0008;display:flex;flex-direction:column;transition:transform .15s,filter .3s,opacity .3s;text-align:left;padding-bottom:calc(var(--cw)*.03)}
 .card.zero{filter:saturate(.55) brightness(.9);outline:3px solid #e5383b88;outline-offset:-2px}
 .card.foe{--ink:#2a0e0e}                 /* their cards face up to you, the right way round, so every card reads the same */
-.card .wkt{position:absolute;top:0;left:50%;transform:translateX(-50%);z-index:4;background:#fff;border:0 solid var(--ink);border-width:0 2px 2px;border-radius:0 0 calc(var(--cw)*.05) calc(var(--cw)*.05);padding:0 calc(var(--cw)*.06) 1px;font-weight:800;font-size:calc(var(--cw)*.065);letter-spacing:.03em;white-space:nowrap}
+.card .wkt{position:absolute;top:0;left:0;right:0;z-index:4;background:var(--wc,#fff);color:#fff;text-shadow:0 1px 0 #0009;border-bottom:max(1px,calc(var(--cw)*.011)) solid var(--ink);padding:calc(var(--cw)*.008) 0 calc(var(--cw)*.014);text-align:center;font-weight:900;font-size:calc(var(--cw)*.066);letter-spacing:.04em;white-space:nowrap;line-height:1.1}
 .card{height:calc(var(--cw)*1.9);min-height:0}
-.card .nmrow{padding:calc(var(--cw)*.1) calc(var(--cw)*.04) 0}
+.card .nmrow{padding:calc(var(--cw)*.095) calc(var(--cw)*.04) 0}
 .card .top2{display:flex;gap:calc(var(--cw)*.04);padding:calc(var(--cw)*.02) calc(var(--cw)*.04) 0}
-.card .art{width:calc(var(--cw)*.4);height:calc(var(--cw)*.4);flex:none;padding:3%;border:max(1px,calc(var(--cw)*.011)) solid var(--ink);border-radius:calc(var(--cw)*.05);background:radial-gradient(circle at 50% 40%,#fff9,var(--c) 78%);display:grid;place-items:center;position:relative;overflow:hidden}
+.card .art{width:calc(var(--cw)*.44);height:calc(var(--cw)*.44);flex:none;padding:3%;border:max(1px,calc(var(--cw)*.011)) solid var(--ink);border-radius:calc(var(--cw)*.05);background:radial-gradient(circle at 50% 40%,#fff9,var(--c) 78%);display:grid;place-items:center;position:relative;overflow:hidden}
 .card .art img{width:100%;height:100%;object-fit:contain;image-rendering:pixelated;filter:drop-shadow(0 3px 0 #0003)}
 .card .inf{flex:1;min-width:0;display:flex;flex-direction:column;justify-content:space-between;gap:calc(var(--cw)*.01)}
 .card .nm{font-weight:900;font-size:calc(var(--cw)*.125);line-height:1.05;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .card .lv{font-weight:800;font-size:calc(var(--cw)*.064);color:#000b;white-space:nowrap}
 .card .tagrow{margin:calc(var(--cw)*.025) calc(var(--cw)*.04) 0;display:flex}
 .card .tag{flex:1;text-align:center;background:var(--c);border:max(1px,calc(var(--cw)*.011)) solid var(--ink);border-radius:99px;padding:0 calc(var(--cw)*.03);font-weight:800;font-size:calc(var(--cw)*.07);color:#fff;text-shadow:0 1px 0 #0008;white-space:nowrap}
-.card .hpc{align-self:flex-start;background:#e23a3a;border:max(1px,calc(var(--cw)*.011)) solid var(--ink);border-radius:99px;color:#fff;font-weight:900;font-size:calc(var(--cw)*.12);padding:0 calc(var(--cw)*.05);display:inline-flex;align-items:baseline;gap:calc(var(--cw)*.01);line-height:1.15;box-shadow:inset 0 -3px 0 #0003}
+.card .hpc{align-self:flex-start;background:#e23a3a;border:max(1px,calc(var(--cw)*.011)) solid var(--ink);border-radius:99px;color:#fff;font-weight:900;font-size:calc(var(--cw)*.105);padding:0 calc(var(--cw)*.04);display:inline-flex;align-items:baseline;gap:calc(var(--cw)*.01);line-height:1.15;box-shadow:inset 0 -3px 0 #0003}
 .card .hpc.mid{background:#f08a00}.card .hpc.lo{background:#a4001b}
 .card .hpc small{font-size:.62em;font-weight:800;opacity:.9}
 .card .shd{align-self:flex-start;background:#1457b8;color:#fff;border:max(1px,calc(var(--cw)*.011)) solid var(--ink);border-radius:99px;font-weight:900;font-size:calc(var(--cw)*.07);padding:0 calc(var(--cw)*.04)}
@@ -116,6 +116,10 @@ button{font:inherit;color:inherit;border:0;cursor:pointer}
 .col{display:flex;flex-direction:column;gap:10px;align-items:center;position:relative;padding:6px 3px;border-radius:14px;background:#ffffff0d}
 .slot{width:var(--cw);height:calc(var(--cw)*1.9);border:3px dashed #ffffff44;border-radius:calc(var(--cw)*.1);display:grid;place-items:center;font-size:calc(var(--cw)*.3);color:#ffffff66}
 .slot.ok{border-color:var(--gold);color:var(--gold);background:#ffd23f22;animation:pulse 1s infinite}
+.slot.ghost{visibility:hidden}
+.die.lockd::after{content:'🔒';position:absolute;right:-4px;top:-6px;font-size:calc(var(--dw,60px)*.32)}
+.die{position:relative}
+.col.insc{background:none}
 .ins{width:calc(var(--cw)*.28);align-self:stretch;border:3px dashed var(--gold);border-radius:12px;display:grid;place-items:center;color:var(--gold);font:900 calc(var(--cw)*.25) system-ui;background:#ffd23f1a;animation:pulse 1s infinite}
 @keyframes pulse{50%{background:#ffd23f44}}
 .vsl{font:900 14px system-ui;letter-spacing:.2em;color:#ffffff88;text-align:center;padding:2px}
@@ -175,7 +179,7 @@ button{font:inherit;color:inherit;border:0;cursor:pointer}
 @keyframes pulse2{50%{box-shadow:0 0 0 6px #ffd23faa,0 5px 0 #0007}}
 .empty{visibility:hidden}
 /* ---- how to play: pictures ---- */
-.hbox{text-align:center;max-width:600px;display:flex;flex-direction:column;align-items:center;gap:8px}
+.hbox{text-align:center;max-width:600px;display:flex;flex-direction:column;align-items:center;gap:8px;height:min(88vh,760px);overflow:hidden}
 .hbox h2{margin:4px 0 0;font-size:28px}.hcap{margin:0;font-size:21px;font-weight:700;opacity:.92}
 .hvis{min-height:290px;display:flex;align-items:center;justify-content:center;gap:16px;flex-wrap:wrap;width:100%}
 .hv{display:flex;align-items:center;justify-content:center;gap:14px;flex-wrap:wrap}.hv.col{flex-direction:column;gap:8px}
@@ -186,7 +190,8 @@ button{font:inherit;color:inherit;border:0;cursor:pointer}
 .boom{font:900 40px system-ui;display:flex;align-items:center;gap:8px}.boom span{color:#ff6b6b;font-size:58px}
 .hmap{width:130px;border:4px solid #14110f;border-radius:14px;overflow:hidden;background:#fff;box-shadow:0 5px 0 #0008}.hmap svg{display:block;width:100%}
 .hl{list-style:none;margin:0;padding:0;font-size:24px;font-weight:700;text-align:left;display:grid;gap:14px}
-.hnav{display:flex;align-items:center;gap:14px;margin:6px 0}
+.hnav{display:flex;align-items:center;gap:14px;margin:auto 0 6px}
+.hnav .ib{width:64px;height:64px;font-size:28px}
 .dots i{display:inline-block;width:12px;height:12px;border-radius:50%;background:#ffffff44;margin:0 4px}.dots i.on{background:var(--gold)}
 /* ---- the map: left to right, each place drawn as a little scene ---- */
 .mapwrap{flex:1;min-height:0;overflow:hidden;position:relative}
@@ -221,11 +226,15 @@ button{font:inherit;color:inherit;border:0;cursor:pointer}
 .place.deck .lk{top:60px}
 .pilebay{position:fixed;right:20px;bottom:16px;z-index:26;pointer-events:none}
 .dbackov{position:absolute;inset:0;border-radius:inherit;background-size:100% 100%;z-index:30;pointer-events:none}
-.mypile{position:absolute;right:12px;top:4px;width:50px;height:70px;z-index:30;background:none;border:0;padding:0}
-.mypile i{position:absolute;inset:0;border-radius:7px;background:#16233f;border:2px solid #ffffff55}
+.mypile{position:absolute;right:12px;top:4px;width:46px;height:87px;z-index:30;background:none;border:0;padding:0;filter:drop-shadow(0 4px 4px #0008)}
+.mypile i{position:absolute;inset:0;border-radius:6px;background:#16233f;border:2px solid #ffffff55}
 .mypile .m2{transform:translate(2px,3px) rotate(3deg)}.mypile .m3{transform:translate(4px,6px) rotate(-3deg)}
-.mypile .mtop{position:absolute;inset:0;border-radius:7px;border:3px solid;overflow:hidden;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;box-shadow:0 3px 0 #0008;color:#14110f}
-.mypile .mtop{justify-content:center}.mypile .mtop img{width:100%;image-rendering:pixelated}
+.mypile .mtop{position:absolute;inset:0;pointer-events:none}
+.mypile .pcount{right:-10px;bottom:-6px}
+.handov{position:fixed;inset:0;z-index:50;background:rgba(0,0,0,.42);display:flex;align-items:center}
+.handf{display:flex;align-items:center;overflow-x:auto;overflow-y:hidden;width:100%;padding:40px 36px;-webkit-overflow-scrolling:touch;scrollbar-width:none}
+.handf::-webkit-scrollbar{display:none}
+.hc{flex:none;transform-origin:50% 130%}
 .top .rt{margin-right:60px}
 
 @media (max-width:560px){.cardsbtn .cl{display:none}.mapt{display:none}.top .chip{font-size:15px;padding:5px 10px}}
@@ -244,12 +253,14 @@ button{font:inherit;color:inherit;border:0;cursor:pointer}
 .board{flex:1;min-width:0;height:100%;align-items:stretch;overflow-x:auto;overflow-y:hidden;padding:0 4px;gap:6px}
 .board .col{justify-content:space-between;padding:0 3px;gap:10px}
 .rail{flex:none;height:100%;display:flex;flex-direction:column;align-items:center;gap:8px;padding:6px 6px 8px;border-left:3px solid #1c0e05;background:linear-gradient(#3a2412f2,#26150af2);box-shadow:-6px 0 14px #0006;overflow:hidden}
-.rail .rtop{display:flex;gap:8px;justify-content:flex-end;width:100%}
+.rail .rtop{display:flex;gap:10px;justify-content:flex-end;width:100%}
+.rail .rtop .ib{width:60px;height:60px;border-radius:16px;font-size:30px}
+.rail .rmid{flex:1;min-height:0;display:flex;flex-direction:column;justify-content:center;align-items:center;gap:16px;width:100%}
 .rail .status{font-size:18px;min-height:0;padding:2px 2px;line-height:1.15}
 .rail .hrow.hcol{flex-direction:column;flex:1;min-height:0;width:100%;overflow-x:hidden;overflow-y:auto;align-items:center;padding:4px 0}
 .rail .dice{flex-direction:row;flex-wrap:wrap;justify-content:center;gap:10px;min-height:0}
 .rail .die{width:var(--dw);height:var(--dw);font-size:calc(var(--dw)*.6);border-radius:calc(var(--dw)*.24)}
-.rail .acts{flex-direction:column;width:100%;margin-top:auto;gap:8px}
+.rail .acts{flex-direction:column;width:100%;gap:8px}
 .rail .btn{width:100%}
 .rail .btn.big{min-height:72px;font-size:28px;padding:10px 6px}
 .rail .btn.alt{min-height:56px}
@@ -827,7 +838,7 @@ const Engine = (() => {
     [0, 1].forEach(sd => {
       const n = living(b, sd).filter(u => !u.skip).length;
       b.dice[sd] = Array.from({ length: n }, () => die(s));
-      b.rr[sd] = R.baseRerolls; b.rrFace[sd] = []; b.rrUsed[sd] = {};
+      b.rr[sd] = R.baseRerolls; b.rrFace[sd] = []; b.rrUsed[sd] = {}; (b.locked = b.locked || [{}, {}])[sd] = {};
       living(b, sd).forEach(u => tags(u).forEach(t => { if (t.t === 'reroll') b.rr[sd] += t.n; if (t.t === 'rerollFace' && b.rrFace[sd].indexOf(t.face) < 0) b.rrFace[sd].push(t.face); }));
     });
     living(b, 0).concat(living(b, 1)).forEach(u => { if (has(u, 'dampReroll') && b.cols[colIdx(b, u.uid)] && b.cols[colIdx(b, u.uid)][other(u.side)] != null) b.rr[other(u.side)] = Math.max(0, b.rr[other(u.side)] - 1); });
@@ -846,12 +857,21 @@ const Engine = (() => {
     return null;
   }
   function doUnassign(s, a) { const b = s.battle; if (b.stage !== 'assign') return 'not assigning now'; delete b.asg[a.side][a.uid]; return null; }
+  // a reroll: throw the dice you have not given out again, together, once. They are locked in after that.
+  // `all` = every die not on a card yet; `dice` = a chosen set (the computer decides before it gives any out); `die` = one die (a card that lets you reroll a face for free)
   function doReroll(s, a) {
     const b = s.battle; if (b.stage !== 'assign') return 'not assigning now';
-    const side = a.side, v = b.dice[side][a.die]; if (v == null) return 'no such die';
-    const free = b.rrFace[side].indexOf(v) >= 0 && !b.rrUsed[side][a.die];
-    if (free) b.rrUsed[side][a.die] = 1; else if (b.rr[side] > 0) b.rr[side]--; else return 'no rerolls left';
-    b.dice[side][a.die] = die(s); return null;
+    const side = a.side, locked = (b.locked = b.locked || [{}, {}])[side], used = assignedDice(b, side), n = b.dice[side].length;
+    if (a.die != null) {
+      const v = b.dice[side][a.die]; if (v == null) return 'no such die'; if (locked[a.die]) return 'that die is locked in';
+      const free = b.rrFace[side].indexOf(v) >= 0 && !b.rrUsed[side][a.die];
+      if (free) b.rrUsed[side][a.die] = 1; else if (b.rr[side] > 0) { b.rr[side]--; locked[a.die] = 1; } else return 'no rerolls left';
+      b.dice[side][a.die] = die(s); return null;
+    }
+    const set = (a.all ? Array.from({ length: n }, (_, i) => i) : (a.dice || [])).filter(i => b.dice[side][i] != null && !locked[i] && !used.has(i));
+    if (!set.length) return 'nothing to reroll: dice you have given out, or already rerolled, stay as they are';
+    if (b.rr[side] <= 0) return 'no rerolls left';
+    b.rr[side]--; set.forEach(i => { b.dice[side][i] = die(s); locked[i] = 1; }); return null;
   }
   function doTweak(s, a) {
     const b = s.battle; if (b.stage !== 'assign') return 'not assigning now';
@@ -1045,6 +1065,19 @@ const Engine = (() => {
     }
     return n;
   }
+
+  // dodging: which of a card's dodge abilities could be used right now (`inHit` = the hit has already been counted against it)
+  function dodgeAvail(b, T, inHit) {
+    const ta = tags(T); if (T.ko) return false;
+    if (ta.some(g => g.t === 'dodgeMatch') && !T.dodgeUsed) return true;
+    if (ta.some(g => g.t === 'dodgeAfterFirst') && T.hits > (inHit ? 1 : 0)) return true;
+    const dg = ta.find(g => g.t === 'dodgeIfType'); return !!(dg && !T.dodgedRound && b.actType && b.actType[T.uid] === dg.el);
+  }
+  function dodgeSpend(b, T) {
+    const ta = tags(T); if (ta.some(g => g.t === 'dodgeMatch') && !T.dodgeUsed) { T.dodgeUsed = true; return; }
+    if (ta.some(g => g.t === 'dodgeAfterFirst') && T.hits > 1) return;
+    if (ta.some(g => g.t === 'dodgeIfType')) T.dodgedRound = true;
+  }
   // one attack of n damage from A on T (off = how many columns across it came from)
   function hit(s, b, A, T, n, off) {
     if (T.ko || A.ko) return;
@@ -1064,9 +1097,10 @@ const Engine = (() => {
     if (has(A, 'distFall')) n = Math.max(0, n - Math.abs(off));
     if (n <= 0) return;
     T.hits++;
-    if (ta.some(g => g.t === 'dodgeMatch') && !T.dodgeUsed) { T.dodgeUsed = true; ev(b, { t: 'dodge', u: T.uid }); return; }
-    if (ta.some(g => g.t === 'dodgeAfterFirst') && T.hits > 1) { ev(b, { t: 'dodge', u: T.uid }); return; }
-    const dg = ta.find(g => g.t === 'dodgeIfType'); if (dg && !T.dodgedRound && b.actType && b.actType[T.uid] === dg.el) { T.dodgedRound = true; ev(b, { t: 'dodge', u: T.uid }); return; }
+    if (dodgeAvail(b, T, true)) {                                  // a card that may dodge: the player has been asked about their own cards (the computer always dodges)
+      const want = b.curDec && b.curDec[T.uid] != null ? b.curDec[T.uid] : true;
+      if (want) { dodgeSpend(b, T); ev(b, { t: 'dodge', u: T.uid }); return; }
+    }
     const raw = n, m = wm(b, A, T); n *= m; const weak = m === 2;
     const ms = ta.find(g => g.t === 'matchShield');
     if (ms && living(b, T.side).length > 1 && colIdx(b, A.uid) === colIdx(b, T.uid)) n = Math.max(0, n - ms.n);
@@ -1142,17 +1176,27 @@ const Engine = (() => {
       if (!mine || (e.bonus && !r.main)) { r.ei++; continue; }
       const key = act.uid + ':' + r.ei, chosen = r.ch[key];
       if (chosen == null) { const opts = choiceOf(b, u, e); if (opts) { b.ask = { uid: u.uid, ei: r.ei, k: e.k, opts }; b.stage = 'resolving'; return; } }
-      execEffect(s, b, u, e, chosen == null ? null : chosen); r.main = true; r.ei++;
+      if (e.k === 'a') {                                                          // does one of the player's cards get to decide something about this attack?
+        const dk = act.uid + ':' + r.ei, dm = (r.dec[dk] = r.dec[dk] || {}), amt = amountOf(b, u, e);
+        const T = pickTargets(b, u, e, amt, chosen == null ? null : chosen);
+        for (const t of T) { const x = t.u; if (amt > 0 && x.side === 0 && dm[x.uid] == null && dodgeAvail(b, x, false) && !tags(x).some(g => g.t === 'immune' && g.types.indexOf(typeOf(u)) >= 0)) { b.ask = { kind: 'yn', what: 'dodge', uid: x.uid, by: u.uid, key: dk, n: amt }; b.stage = 'resolving'; return; } }
+      }
+      b.curDec = r.dec[act.uid + ':' + r.ei] || null; execEffect(s, b, u, e, chosen == null ? null : chosen); b.curDec = null; r.main = true; r.ei++;
     }
     finishRound(s);
   }
   // for the computer playing the player's side: the choice the game would make
   function autoChoice(b) {
+    if (b.ask && b.ask.kind === 'yn') return null;
     const r = b.res, act = r.acts[r.i], u = U(b, act.uid), e = effsFor(b, u, act)[r.ei];
     const T = pickTargets(b, u, e, amountOf(b, u, e), null); return T.length ? T[0].u.uid : b.ask.opts[0][0];
   }
+  function doDecide(s, a) {
+    const b = s.battle; if (b.stage !== 'resolving' || !b.ask || b.ask.kind !== 'yn') return 'nothing to decide';
+    (b.res.dec[b.ask.key] = b.res.dec[b.ask.key] || {})[b.ask.uid] = !!a.yes; b.ask = null; b.stage = 'resolving'; advance(s); return null;
+  }
   function doChoose(s, a) {
-    const b = s.battle; if (b.stage !== 'resolving' || !b.ask) return 'nothing to choose';
+    const b = s.battle; if (b.stage !== 'resolving' || !b.ask || b.ask.kind === 'yn') return 'nothing to choose';
     if (!b.ask.opts.some(o => o.indexOf(a.tgt) >= 0)) return 'choose one of the highlighted cards';
     b.res.ch[b.ask.uid + ':' + b.ask.ei] = a.tgt; b.ask = null; b.stage = 'resolving'; advance(s); return null;
   }
@@ -1230,7 +1274,7 @@ const Engine = (() => {
     acts.forEach(a => ev(b, { t: 'move', u: a.u.uid, f: a.face, txt: a.m ? (a.m.sp ? 'Special' : a.m.str) : (a.u.skip ? 'loses a round' : '—'), sp: !!(a.m && a.m.sp) }));
     acts.forEach(a => { const t = tag(a.u, 'tireOn'); if (t && a.m && a.face && (a.face === t.a || a.face === t.b)) a.u.skipNext = true; });
     b.ask = null;
-    b.res = { phase: 'heal', i: 0, ei: 0, main: false, ch: {}, acts: acts.map(a => {
+    b.res = { phase: 'heal', i: 0, ei: 0, main: false, ch: {}, dec: {}, acts: acts.map(a => {
       const dice = (b.asg[a.u.side][a.u.uid] || { dice: [] }).dice.map(i => b.dice[a.u.side][i]);
       let ci = 0; if (a.m && a.m.mv && !a.m.sp) { const c = bestClause(b, a.u, a.m.mv, null); ci = Math.max(0, a.m.mv.clauses.indexOf(c && c.clause)); }
       return { uid: a.u.uid, dice, ci, sp: !!(a.m && a.m.sp), face: a.face };
@@ -1363,6 +1407,7 @@ const Engine = (() => {
         resolveRound(s); return null;
       }
       case 'choose': return doChoose(s, a);
+      case 'decide': return doDecide(s, a);
       case 'move': return doMove(s, a);
       case 'swap': return doSwap(s, a);
       case 'haunt': return doHaunt(s, a);
@@ -1465,27 +1510,24 @@ const Bots = (() => {
     out.score = score;
     return out;
   }
-  // should a die be thrown again? Master compares the best plan it has with the average plan after a fresh throw of each die;
-  // Normal only throws a die back when nothing it could do with it is worth much; Easy never does.
-  function rerollWorth(s, side, level) {
-    const b = s.battle, L = lv(level); if (L.rerolls === 'never') return null;
-    const units = E.living(b, side).filter(u => !u.skip), dice = b.dice[side];
-    const can = d => (b.rrFace[side].indexOf(dice[d]) >= 0 && !b.rrUsed[side][d]) || b.rr[side] > 0;
-    if (L.rerolls === 'poor') {
-      for (let d = 0; d < dice.length; d++) { if (!can(d)) continue; if (Math.max(...units.map(u => E.preview(b, u, dice[d]).value)) < L.rerollBelow) return d; }
-      return null;
+  // which dice to throw again, all together and once: Master tries throwing away its weakest 1..n dice and compares the average plan with the one it has;
+  // Normal and Easy never reroll. (A small fixed random stream is used so thinking about it never disturbs the game's own dice.)
+  function rerollPlan(s, side, level) {
+    const b = s.battle, L = lv(level); if (L.rerolls === 'never' || b.rr[side] <= 0) return null;
+    const dice = b.dice[side], units = E.living(b, side).filter(u => !u.skip); if (!dice.length || !units.length) return null;
+    const cur = assignment(s, side, level), base = cur.score || 0, worth = new Array(dice.length).fill(0);
+    cur.forEach(x => x.dice.forEach(d => { worth[d] += E.preview(b, E.U(b, x.uid), dice[d], x.dice.map(i => dice[i])).value / x.dice.length; }));
+    const lk = (b.locked && b.locked[side]) || {}, order = dice.map((_, i) => i).filter(i => !lk[i]).sort((p, q) => worth[p] - worth[q]); if (!order.length) return null;
+    let seed = (b.round * 7919 + side * 104729 + dice.reduce((t, v) => t * 7 + v, 3)) >>> 0; const rnd = () => (seed = (seed * 1664525 + 1013904223) >>> 0) / 4294967296;
+    let best = null, bestGain = L.rerollMargin;
+    for (let k = 1; k <= order.length; k++) {
+      const R = order.slice(0, k), keep = R.map(i => dice[i]); let sum = 0; const N = 18;
+      for (let t = 0; t < N; t++) { R.forEach(i => { dice[i] = 1 + Math.floor(rnd() * 6); }); sum += assignment(s, side, level).score || 0; }
+      R.forEach((i, j) => { dice[i] = keep[j]; });
+      const gain = sum / N - base; if (gain > bestGain) { bestGain = gain; best = R.slice().sort((p, q) => p - q); }
     }
-    const base = assignment(s, side, level).score || 0; let bestD = null, bestGain = L.rerollMargin;
-    for (let d = 0; d < dice.length; d++) {
-      if (!can(d)) continue;
-      const keep = dice[d]; let sum = 0;
-      for (let f = 1; f <= 6; f++) { dice[d] = f; sum += assignment(s, side, level).score || 0; }
-      dice[d] = keep;
-      const gain = sum / 6 - base; if (gain > bestGain) { bestGain = gain; bestD = d; }
-    }
-    return bestD;
+    return best ? { t: 'reroll', side, dice: best } : null;
   }
-
   // cards that can change columns: try each way and keep the one that makes the dice worth the most
   function movements(s, side, level) {
     const b = s.battle, L = lv(level); if (!L.lookahead || E.blocksMove(b, side)) return null;
@@ -1515,7 +1557,7 @@ const Bots = (() => {
     if (b.stage === 'place' && b.pl && b.pl.side === 1) return placement(s, 1, level);
     if (b.stage === 'assign' && !b.gmReady) {
       const m = movements(s, 1, level); if (m) return m;
-      const d = rerollWorth(s, 1, level); if (d != null) return { t: 'reroll', side: 1, die: d };
+      const rr = rerollPlan(s, 1, level); if (rr) return rr;
       return { t: 'gm', asg: assignment(s, 1, level) };
     }
     return null;
@@ -1546,7 +1588,7 @@ const Bots = (() => {
       return null;
     }
     if (b.stage === 'assign') {
-      if (!b.hero) { const m = movements(s, 0, level); if (m) return m; const d = rerollWorth(s, 0, level); if (d != null) return { t: 'reroll', side: 0, die: d }; }
+      if (!b.hero) { const m = movements(s, 0, level); if (m) return m; const rr = rerollPlan(s, 0, level); if (rr) return rr; }
       const need = !E.readyToGo(b, 0) || (Object.keys(b.asg[0]).length === 0 && b.dice[0].length > 0);
       if (need) {
         const list = assignment(s, 0, level);
@@ -1554,7 +1596,7 @@ const Bots = (() => {
       }
       return { t: 'go2' };
     }
-    if (b.stage === 'resolving') return b.ask ? { t: 'choose', tgt: E.autoChoice(b) } : null;
+    if (b.stage === 'resolving') return b.ask ? (b.ask.kind === 'yn' ? { t: 'decide', yes: true } : { t: 'choose', tgt: E.autoChoice(b) }) : null;
     if (b.stage === 'resolved') { const k = E.hauntAsk(b); return k ? { t: 'haunt', uid: k.opts[0] } : { t: 'next' }; }
     return null;
   }
@@ -1629,7 +1671,7 @@ const Bots = (() => {
     const sp = E.parseSpecial(c.special);
     const rows = c.moves.map((m, i) => `<div class="f${m ? '' : ' blank'}${o.face === i + 1 && !o.sp ? ' hot' : ''}${o.pf === i + 1 && o.face !== i + 1 ? ' pick' : ''}"><span class="pip">${i + 1}</span><span class="mt">${m ? short(m) : '—'}</span></div>`).join('');
     return `<div class="card${u.sh ? ' shiny' : ''}${o.foe ? ' foe' : ''}${o.ko ? ' ko' : ''}${o.sel ? ' sel' : ''}${o.die != null ? ' has-die' : ''}${o.cls ? ' ' + o.cls : ''}" style="--cw:${cw}px;--bg:${e.bg};--c:${e.color}" ${o.attr || ''}>
-      ${D.elements[c.weak] ? `<div class="wkt">weak ${el(c.weak).icon}</div>` : ''}
+      ${D.elements[c.weak] ? `<div class="wkt" style="--wc:${el(c.weak).color}">weak · ${el(c.weak).icon} ${esc(c.weak)}</div>` : ''}
       <div class="nmrow"><div class="nm">${esc(c.name)}${u.sh ? ' ✨' : ''}</div></div>
       <div class="top2"><div class="art"><img src="${art(u.id, u.sh)}" alt="${esc(c.name)}">${u.sh ? sparkles() : ''}${o.mark ? `<div class="mark">${o.mark}</div>` : ''}${o.die != null ? `<div class="dbadge${o.heroDie ? ' hero' : ''}${o.land ? ' land' : ''}" ${o.dieAttr || ''}>${o.die}</div>` : ''}</div>
         <div class="inf"><div class="lv">Lv ${c.level}</div><div class="hprow"><div class="hpc${lvl}">♥ <span class="hpn">${Math.max(0, hp)}</span><small>/${mx}</small></div>${o.chg ? `<span class="hpchg${o.chg.heal ? ' up' : ''}">${o.chg.heal ? '+' : '−'}${o.chg.n}${o.chg.weak ? ' <b>×2</b>' : ''}</span>` : ''}</div>${o.shield ? `<div class="shd">🛡 ${o.shield}</div>` : ''}</div></div>
@@ -1642,7 +1684,7 @@ const Bots = (() => {
     </div>`;
   }
   const back = cw => `<div class="back" style="--cw:${cw}px">❓</div>`;
-  const dieHtml = (v, o) => `<div class="die${o && o.sel ? ' sel' : ''}${o && o.used ? ' used' : ''}${o && o.foe ? ' foe' : ''}${o && o.tumble ? ' tumble' : ''}" ${o && o.attr || ''}>${v}${o && o.badge ? `<small>${o.badge}</small>` : ''}</div>`;
+  const dieHtml = (v, o) => `<div class="die${o && o.sel ? ' sel' : ''}${o && o.used ? ' used' : ''}${o && o.foe ? ' foe' : ''}${o && o.tumble ? ' tumble' : ''}${o && o.locked ? ' lockd' : ''}" ${o && o.attr || ''}>${v}${o && o.badge ? `<small>${o.badge}</small>` : ''}</div>`;
 
   // ---------------------------------------------------------------- the places, drawn as little scenes (160 x 120)
   const tree = (x, y, s) => `<rect x="${x - 3 * s}" y="${y}" width="${6 * s}" height="${22 * s}" fill="#6d4c41"/><circle cx="${x}" cy="${y - 4 * s}" r="${20 * s}" fill="#2e7d32"/><circle cx="${x - 11 * s}" cy="${y + 4 * s}" r="${14 * s}" fill="#388e3c"/><circle cx="${x + 12 * s}" cy="${y + 2 * s}" r="${13 * s}" fill="#1b5e20"/>`;
@@ -1917,7 +1959,7 @@ const Bots = (() => {
   // ---------------------------------------------------------------- tips (once per device)
   const TIPTEXT = {
     place: 'They put a card down. Pick one of your Pokémon, then tap where it goes. If you have dice to spare you can bring more cards (they draw one more each time), or press Fight!',
-    dice: 'Everyone rolls one die per card. Tap a die, then tap the card that should use it (or drag it). You may throw one die again each round: tap it, then 🔄. Each card does something different on each number: the rows on the card show what.',
+    dice: 'Everyone rolls one die per card. Tap a die, then tap the card that should use it (or drag it). Give out the dice you like, then 🔄 throws the rest again together, once a round: those stay as they land. Each card does something different on each number: the rows on the card show what.',
     shiny: 'A shiny! It looks different, but plays just the same.',
     roll: 'Now tap anywhere to roll the dice for the next round.',
     end: 'Win by knocking out every card on their side. A card that reaches 0 health is out right away.',
@@ -1960,14 +2002,16 @@ const Bots = (() => {
   const shown = n => E.unlocked(G, n) || n.needs.every(id => E.unlocked(G, E.node(id)));
   // "Your cards" is a pile with your partner on top; tap it to turn them all face up
   function myPile() {
-    const st = G.coll.find(c => c.starter) || G.coll[0], c = C[st.id], e = el(c.type), n = G.coll.length;
-    return `<i class="m3"></i><i class="m2"></i><div class="mtop" style="background:${e.bg};border-color:${e.color}"><img src="${art(st.id, st.sh)}" alt=""></div><span class="pcount">${n}</span>`;
+    const st = G.coll.find(c => c.starter) || G.coll[0], n = G.coll.length;
+    return `<i class="m3"></i><i class="m2"></i><div class="mtop">${card(st, { cw: 46 })}</div><span class="pcount">${n}</span>`;
   }
+  // the height the game really has: the screen less the strip the status bar and home indicator take
+  const viewH = () => { const cs = getComputedStyle($app); return innerHeight - (parseFloat(cs.paddingTop) || 0) - (parseFloat(cs.paddingBottom) || 0); };
   function mapScreen() {
     const vis = D.nodes.filter(shown), ids = new Set(vis.map(n => n.id));
-    const stages = Math.max(...vis.map(n => n.stage)) + 1, pitch = stages > 4 ? 178 : 210;
-    const availW = innerWidth, availH = innerHeight - 52;
-    const W0 = PADX * 2 + stages * pitch, sc = Math.min(availW / W0, 1.45);
+    const stages = Math.max(...D.nodes.map(n => n.stage)) + 1, pitch = 178;          // the whole road is laid out from the start, so the game always runs left to right, with the rest still to be revealed
+    const availW = innerWidth, availH = viewH() - 52;
+    const W0 = PADX * 2 + stages * pitch, sc = Math.min(availW / W0, 1);
     const H0 = availH / sc, lane = Math.max(214, (H0 - PADY * 2) / 3);
     const xy = n => [PADX + n.stage * pitch + pitch / 2, PADY + n.lane * lane + lane / 2];
     const lines = vis.map(n => n.needs.filter(id => ids.has(id)).map(id => {
@@ -2004,15 +2048,16 @@ const Bots = (() => {
   function battleScreen() {
     const b = G.battle, p = ui.play, placing = b.stage === 'place', assign = b.stage === 'assign', done = b.stage === 'resolved' && !p;
     // one screen: the cards fill it top to bottom, and everything else (your hand, the dice, the buttons) lives in a column down the right
-    const H = innerHeight, RW = innerWidth >= 1000 ? 212 : innerWidth >= 700 ? 176 : innerWidth >= 500 ? 150 : 118, W = Math.min(innerWidth, 1000 + RW) - RW;
-    const m = Math.max(1, b.cols.length, b.mode === 'wild' ? b.cap : Math.max(b.need[0], b.need[1]));
-    const cwW = Math.floor((W - 8 - (m + 1) * 6 - m * 14) / m), cwH = Math.floor((H - 12 - 10 - 2) / 2 / 1.9);
-    const cw = Math.max(120, Math.min(320, cwW, cwH)), hcw = Math.max(80, Math.min(180, RW - 30));
-    if (ui.lastTurn === G.turn && ui.lastCw && ui.lastCw !== cw) ui.zoomFrom = ui.lastCw / cw; ui.lastCw = cw; ui.lastTurn = G.turn;       // if the board changes size, it zooms rather than jumps
+    const H = viewH(), RW = innerWidth >= 1000 ? 212 : innerWidth >= 700 ? 176 : innerWidth >= 500 ? 150 : 118, W = Math.min(innerWidth, 1000 + RW) - RW;
     const selected = ui.sel != null && b.hand[0].indexOf(ui.sel) >= 0 ? ui.sel : null;
     const yourPlace = placing && b.pl.side === 0;
+    const insAts = yourPlace && selected != null ? E.slotsFor(b, 0).filter(sl => sl.at != null).map(sl => sl.at) : [];       // where a new column could go: each one is shown as a spot the size of a card
+    const m = Math.max(1, b.cols.length + insAts.length, b.mode === 'wild' ? b.cap : Math.max(b.need[0], b.need[1]));
+    const cwW = Math.floor((W - 8 - (m + 1) * 6 - m * 14) / m), cwH = Math.floor((H - 12 - 10 - 2) / 2 / 1.9);
+    const cw = Math.max(insAts.length ? 90 : 120, Math.min(320, cwW, cwH)), hcw = Math.max(80, Math.min(180, RW - 30));
+    if (ui.lastTurn === G.turn && ui.lastCw && ui.lastCw !== cw) ui.zoomFrom = ui.lastCw / cw; ui.lastCw = cw; ui.lastTurn = G.turn;       // if the board changes size, it zooms rather than jumps
     const waitRoll = assign && b.round === 1 && ui.rollTap !== G.turn;                       // the first roll of a fight is a tap, too
-    if (assign && !waitRoll && ui.rolledFor !== b.round) { ui.rolledFor = b.round; ui.rolling = Date.now() + 950; setTimeout(() => { ui.rolling = 0; render(); }, 1000); }
+    if (assign && !waitRoll && ui.rolledFor !== b.round) { ui.rolledFor = b.round; ui.rerolled = null; ui.rolling = Date.now() + 950; setTimeout(() => { ui.rolling = 0; render(); }, 1000); }
     const rolling = ui.rolling && Date.now() < ui.rolling;
     const asking = b.stage === 'resolving' && b.ask && (!p || p.waiting);
     const hpOf = u => p ? (p.hp[u.uid] != null ? p.hp[u.uid] : u.hp) : u.hp;
@@ -2022,7 +2067,7 @@ const Bots = (() => {
       let c = ''; const cur = p && p.cur;
       if (cur && cur.kind !== 'misc') { const inv = u.uid === cur.actor || (cur.to || []).indexOf(u.uid) >= 0 || cur.evs.some(e => e.u === u.uid); if (!inv) c += ' dim'; }      // spotlight
       if (ui.burst === u.uid) c += ' burst'; if (hpOf(u) <= 0 && !koOf(u)) c += ' zero';
-      if (asking && b.ask.opts.some(o => o.indexOf(u.uid) >= 0)) c += ' sel'; if (asking && b.ask.uid === u.uid) c += ' act'; return c;
+      if (asking && b.ask.opts && b.ask.opts.some(o => o.indexOf(u.uid) >= 0)) c += ' sel'; if (asking && b.ask.uid === u.uid) c += ' act'; return c;
     };
     // what happened to a card in the beat on show: shown on the card itself (−3, ×2 for a weakness), next to its HP
     const chgOf = u => {
@@ -2049,34 +2094,36 @@ const Bots = (() => {
       const ok = yourPlace && selected != null && side === 0 && E.slotsFor(b, 0).some(s => s.join === ci);
       return `<div class="slot${ok ? ' ok' : ''}" style="--cw:${cw}px" ${ok ? `data-act="join" data-col="${ci}"` : ''}>${ok ? '＋' : ''}</div>`;
     };
-    const canIns = yourPlace && selected != null && E.slotsFor(b, 0).some(sl => sl.at != null);
-    const ins = at => canIns ? `<div class="ins" style="--cw:${cw}px" data-act="ins" data-at="${at}">+</div>` : '';
+    const canIns = insAts.length > 0;
+    const ins = at => canIns && insAts.indexOf(at) >= 0 ? `<div class="col insc" style="--cw:${cw}px"><div class="slot ghost"></div><div class="slot ok" data-act="ins" data-at="${at}">＋</div></div>` : '';
     let cols = ins(0);
     b.cols.forEach((c, i) => { cols += `<div class="col" style="--cw:${cw}px">${slotHtml(i, 1)}${slotHtml(i, 0)}</div>` + ins(i + 1); });
     if (!b.cols.length && !canIns) cols = `<div class="vsl">${placing ? 'Cards go here' : ''}</div>`;
     const heroTray = teamSort(E.handOf(b, 0), hc => hc.hid != null ? hc.hid : hc.uid).map(hc => { const k = hc.hid != null ? hc.hid : hc.uid; return card(hc, { cw: hcw, sel: k === selected, attr: `data-act="tray" data-uid="${k}"` }); }).join('');
     // the bay: your hand while you set the matchups, then the dice
     const hd = b.dice[0], used = E.assignedDice(b, 0);
-    const diceHtml = !waitRoll && (assign || done || p) && hd.length ? hd.map((v, i) => dieHtml(v, { sel: ui.die === i, used: used.has(i), tumble: rolling, attr: assign && !rolling ? `data-act="die" data-i="${i}"` : '' })).join('') : '';
+    const diceHtml = !waitRoll && (assign || done || p) && hd.length ? hd.map((v, i) => dieHtml(v, { sel: ui.die === i, used: used.has(i), tumble: rolling && (!ui.rerolled || ui.rerolled.indexOf(i) >= 0), locked: !!(b.locked && b.locked[0] && b.locked[0][i]), attr: assign && !rolling ? `data-act="die" data-i="${i}"` : '' })).join('') : '';
     let status = '', btns = '';
     const opt = yourPlace && b.pl.optional;
     if (placing) status = (b.sudden ? 'SUDDEN DEATH · ' : '') + (yourPlace ? (selected != null ? 'Now tap where it goes' : opt ? 'Bring another card (they will draw one more), or fight now' : 'Pick a Pokémon from your hand to put down') : 'They are putting a card down…');
     else if (waitRoll) status = '<span class="rollhint">🎲 Tap anywhere to roll</span>';
     else if (assign) { const need = E.living(b, 0).filter(u => !u.skip && !b.asg[0][u.uid]).length; status = (b.sudden ? 'SUDDEN DEATH · ' : '') + (rolling ? 'Rolling…' : ui.die != null ? 'Tap a card to give it that ' + b.dice[0][ui.die] : (E.readyToGo(b, 0) ? 'Ready? Press Go!' : 'Drag a die onto a card (' + need + ' to go)')); }
+    else if (asking && b.ask.kind === 'yn') { status = `<b>${C[E.U(b, b.ask.uid).id].name}</b> is attacked by ${C[E.U(b, b.ask.by).id].name} for ${b.ask.n}. Dodge?`; btns = `<button class="btn big" data-act="decide" data-yes="1">Dodge!</button><button class="btn alt" data-act="decide" data-yes="0">Take it</button>`; }
     else if (asking) status = `Tap who ${C[E.U(b, b.ask.uid).id].name} ${b.ask.k === 'a' ? 'attacks' : 'heals'}`;
     else if (p) status = p.bi < 0 ? 'Here is what everyone rolled…' : (p.wait ? '<span class="rollhint capnext">Tap ▶</span>' : '');
     else if (done && E.hauntAsk(b)) { const k = E.hauntAsk(b); status = `<b>${C[E.U(b, k.hid).id].name}</b> can keep an ability — tap one`; btns = k.opts.map(id => `<button class="btn alt" data-act="haunt" data-uid="${id}">Keep ${C[E.U(b, id).id].name}</button>`).join('') + `<button class="btn ghost" data-act="haunt">No thanks</button>`; }
     else if (done) status = `<span class="rollhint">${b.out === 'hero' ? '🏆 You win! Tap anywhere to continue' : b.out === 'gm' ? 'You lose this one. Tap anywhere to continue' : b.out === 'sudden' ? 'Everyone fell! Tap anywhere for sudden death' : '🎲 Tap anywhere to roll'}</span>`;
     if (assign && !waitRoll) {
-      const canRe = !rolling && ui.die != null && (b.rr[0] > 0 || (b.rrFace[0].indexOf(hd[ui.die]) >= 0 && !b.rrUsed[0][ui.die]));
-      btns = `${canRe ? `<button class="btn alt" data-act="reroll">🔄 ${b.rr[0] || 'Free'}</button>` : ''}<button class="btn big" data-act="go" ${!rolling && E.readyToGo(b, 0) && b.gmReady ? '' : 'disabled'}>Go!</button>`;
+      const lk = (b.locked && b.locked[0]) || {}, freeDice = hd.map((_, i) => i).filter(i => !used.has(i) && !lk[i]);
+      const canRe = !rolling && b.rr[0] > 0 && freeDice.length > 0, canFree = !rolling && ui.die != null && !lk[ui.die] && b.rrFace[0].indexOf(hd[ui.die]) >= 0 && !b.rrUsed[0][ui.die];
+      btns = `${b.rr[0] > 0 ? `<button class="btn alt" data-act="reroll" ${canRe ? '' : 'disabled'}>🔄 Reroll the rest${b.rr[0] > 1 ? ' ×' + b.rr[0] : ''}</button>` : ''}${canFree ? '<button class="btn alt" data-act="rerollfree">🔄 Free reroll</button>' : ''}<button class="btn big" data-act="go" ${!rolling && E.readyToGo(b, 0) && b.gmReady ? '' : 'disabled'}>Go!</button>`;
     } else if (p && !p.waiting) btns = `<button class="btn ghost" data-act="skip">Skip ▶▶</button>`;
     const nodeB = E.node(b.node), pw = Math.max(64, Math.min(96, RW - 70));
     const pileHtml = placing && nodeB.kind === 'loc' ? `<div class="pilebay" style="--pw:${pw}px">${deckPile(nodeB.loc, { pw, count: E.deckSize(G, nodeB.loc) })}</div>` : '';
     const fight = opt ? '<button class="btn big" data-act="ready">Fight!</button>' : '';
-    const railIn = placing ? `<div class="status">${status}</div>${fight}<div class="hrow handrow hcol">${heroTray}</div>${pileHtml}` : `<div class="status">${status}</div><div class="dice">${diceHtml}</div><div class="acts">${btns}</div>`;
+    const railIn = placing ? `<div class="status">${status}</div>${fight}<div class="hrow handrow hcol">${heroTray}</div>${pileHtml}` : `<div class="rmid"><div class="status">${status}</div><div class="dice">${diceHtml}</div></div><div class="acts">${btns}</div>`;
     const dw = RW >= 200 ? 78 : RW >= 170 ? 70 : RW >= 140 ? 62 : 46;
-    return `<div class="bt"><div class="board">${cols}</div><div class="rail" style="width:${RW}px;--dw:${dw}px"><div class="rtop"><button class="ib" data-act="leave" style="${ui.leaveAsk ? 'width:auto;padding:0 12px;font-size:16px;font-weight:800' : ''}" aria-label="Leave">${ui.leaveAsk ? 'Sure? Leave' : '🏃'}</button><button class="ib" data-act="menu" aria-label="Menu">☰</button></div>${railIn}</div></div>`;
+    return `<div class="bt"><div class="board">${cols}</div><div class="rail" style="width:${RW}px;--dw:${dw}px"><div class="rtop"><button class="ib" data-act="leave" style="${ui.leaveAsk ? 'width:auto;padding:0 12px;font-size:16px;font-weight:800' : ''}" aria-label="Leave">${ui.leaveAsk ? 'Flee?' : '🏃'}</button><button class="ib" data-act="menu" aria-label="Menu">☰</button></div>${railIn}</div></div>`;
   }
   function resultScreen() {
     const r = G.res, nd = E.node(r.node), sdv = E.starterOf(G.starter), cw = 150;
@@ -2105,14 +2152,13 @@ const Bots = (() => {
     { t: 'Weakness hurts double', cap: 'The tab at the top shows what it fears.', vis: () => `<div class="hv"><div class="hs">${spr('4.2', 0)}<b>🔥 Fire</b></div><div class="boom">2 ➜ <span>4</span> 💥</div><div class="hs">${spr('1.2', 0)}<b>weak 🔥</b></div></div>` },
     { t: 'Win cards. Beat gym leaders.', cap: 'Every gym leader opens a new road.', vis: () => `<div class="hv">${['L1', 'B1', 'B2'].map((id, k) => `${k ? '<span class="arrow">➜</span>' : ''}<div class="hmap"><svg viewBox="0 0 160 120">${sceneOf(E.node(id))}</svg></div>`).join('')}</div>` },
     { t: 'Shinies and legendaries', cap: 'Shiny is a look. A 9 on two dice finds a legend.', vis: () => `<div class="hv"><div class="hs">${spr('6.5', 0)}</div><span class="arrow">➜</span><div class="hs shw">${spr('6.5', 1)}${sparkles()}</div><div class="boom">${dieHtml(4, {})}${dieHtml(5, {})}</div><div class="hs">${spr('249', 0)}</div></div>` },
-    { t: 'Good to know', cap: '', vis: () => `<ul class="hl"><li>🛡 A blocker takes what it can’t soak.</li><li>💥 A card at 0 is out right away.</li><li>🛡 A shield soaks damage once a round.</li><li>🔄 One reroll a round: tap a die, then 🔄.</li><li>🏃 Leave any fight. Nothing is lost.</li><li>🎲 Tap anywhere to roll again.</li></ul>` },
+    { t: 'Good to know', cap: '', vis: () => `<ul class="hl"><li>🛡 A blocker takes what it can’t soak.</li><li>💥 A card at 0 is out right away.</li><li>🛡 A shield soaks damage once a round.</li><li>🔄 Once a round, give out the dice you like and throw the rest again. They are locked in after that.</li><li>🏃 Leave any fight. Nothing is lost.</li><li>🎲 Tap anywhere to roll again.</li></ul>` },
   ];
-  const helpSheet = () => { const i = Math.max(0, Math.min(HELP.length - 1, ui.helpPage || 0)), pg = HELP[i]; return `<div class="sheet" data-act="closehelp"><div class="box hbox" data-stop="1"><div class="hvis" data-act="hnext">${pg.vis()}</div><h2>${pg.t}</h2>${pg.cap ? `<p class="hcap">${pg.cap}</p>` : ''}<div class="hnav"><button class="ib" data-act="hprev">◀</button><div class="dots">${HELP.map((_, k) => `<i class="${k === i ? 'on' : ''}"></i>`).join('')}</div><button class="ib" data-act="hnext">▶</button></div><button class="btn" data-act="closehelp">${i === HELP.length - 1 ? 'Got it' : 'Skip'}</button></div></div>`; };
+  const helpSheet = () => { const i = Math.max(0, Math.min(HELP.length - 1, ui.helpPage || 0)), pg = HELP[i]; return `<div class="sheet" data-act="closehelp"><div class="box hbox" data-stop="1"><div class="hvis" data-act="hnext">${pg.vis()}</div><h2>${pg.t}</h2>${pg.cap ? `<p class="hcap">${pg.cap}</p>` : ''}<div class="hnav"><button class="ib" data-act="hprev">◀</button><div class="dots">${HELP.map((_, k) => `<i class="${k === i ? 'on' : ''}"></i>`).join('')}</div><button class="ib" data-act="hnext">▶</button></div></div></div>`; };
   function menuSheet() {
     const inB = !!G.battle;
     return `<div class="sheet" data-act="closemenu"><div class="box" data-stop="1" style="max-width:420px;display:flex;flex-direction:column;gap:12px"><h2>Menu</h2>
-      <button class="btn alt" data-act="help">How to Play</button><button class="btn alt" data-act="records">Records</button><button class="btn alt" data-act="settings">Settings</button>
-      ${inB ? '<button class="btn red" data-act="forfeit">Give up this fight</button>' : ''}
+      <button class="btn alt" data-act="help">How to Play</button>${inB ? '' : '<button class="btn alt" data-act="records">Records</button>'}<button class="btn alt" data-act="settings">Settings</button>
       <button class="btn" data-act="menu0">Save &amp; main menu</button><button class="btn ghost" data-act="closemenu">Close</button></div></div>`;
   }
   const settingsSheet = () => `<div class="sheet" data-act="closesettings"><div class="box" data-stop="1" style="max-width:460px;display:flex;flex-direction:column;gap:16px"><h2>Settings</h2>
@@ -2137,7 +2183,29 @@ const Bots = (() => {
     const cw = Math.max(200, Math.min(760, innerWidth - 24, Math.floor((innerHeight - 130) / 1.9)));
     return `<div class="sheet" style="z-index:60" data-act="closezoom">${card(c, { cw })}<div class="hnav"><button class="ib" data-act="zprev">◀</button><button class="btn" data-act="closezoom">Close</button><button class="ib" data-act="znext">▶</button></div></div>`;
   }
-  const collSheet = () => `<div class="sheet" style="justify-content:flex-start"><div class="top" style="width:100%"><div class="t">Your cards (${G.coll.length})</div><button class="ib" data-act="closecoll">✕</button></div><div style="flex:1;min-height:0;width:100%;display:flex;flex-direction:column">${cardGrid(collSorted(), { max: 200, attr: c => `data-act="zoom" data-uid="${c.uid}"` })}</div></div>`;
+  // your cards: picked up from the pile and splayed across the table like a hand; tap one to see it big, tap the table to put them back
+  function collSheet() {
+    const list = collSorted(), n = list.length, cw = Math.max(110, Math.min(230, Math.floor(innerHeight * .6 / 1.9), Math.floor(innerWidth * .42)));
+    const step = cw * .66;
+    const cards = list.map((c, i) => { const a = Math.max(-11, Math.min(11, (i - (n - 1) / 2) * 2.4)), y = Math.round(Math.abs(a) * 2.2);
+      return `<div class="hc" data-rot="${a.toFixed(1)}" data-y="${y}" style="margin-left:${i ? Math.round(step - cw) : 0}px;transform:rotate(${a.toFixed(1)}deg) translateY(${y}px)">${card(c, { cw, attr: `data-act="zoom" data-uid="${c.uid}"` })}</div>`; }).join('');
+    return `<div class="handov" data-act="handclose"><div class="handf" style="--cw:${cw}px">${cards}</div></div>`;
+  }
+  function handOpen() {
+    const pile = document.querySelector('.mypile'), cs = [...document.querySelectorAll('.handf .hc')]; if (!pile || !cs.length || !cs[0].animate) return;
+    const pr = pile.getBoundingClientRect(), pcx = pr.left + pr.width / 2, pcy = pr.top + pr.height / 2;
+    const ov = document.querySelector('.handov'); if (ov) ov.animate([{ background: 'rgba(0,0,0,0)' }, { background: 'rgba(0,0,0,.42)' }], { duration: 300, fill: 'backwards' });
+    cs.forEach((c, i) => { const r = c.getBoundingClientRect(), rot = c.dataset.rot, y = c.dataset.y, s = pr.width / r.width;
+      c.animate([{ transform: `translate(${pcx - (r.left + r.width / 2)}px,${pcy - (r.top + r.height / 2)}px) scale(${s}) rotate(0deg)`, opacity: .9 }, { transform: `rotate(${rot}deg) translateY(${y}px)`, opacity: 1 }], { duration: 420, delay: i * 38, easing: 'cubic-bezier(.2,.85,.3,1.05)', fill: 'backwards' }); });
+  }
+  function handClose(done) {
+    const pile = document.querySelector('.mypile'), cs = [...document.querySelectorAll('.handf .hc')]; if (!pile || !cs.length || !cs[0].animate) { done(); return; }
+    const pr = pile.getBoundingClientRect(), pcx = pr.left + pr.width / 2, pcy = pr.top + pr.height / 2, n = cs.length;
+    const ov = document.querySelector('.handov'); if (ov) ov.animate([{ background: 'rgba(0,0,0,.42)' }, { background: 'rgba(0,0,0,0)' }], { duration: 240, fill: 'forwards' });
+    cs.forEach((c, i) => { const r = c.getBoundingClientRect(), rot = c.dataset.rot, y = c.dataset.y, s = pr.width / r.width;
+      c.animate([{ transform: `rotate(${rot}deg) translateY(${y}px)`, opacity: 1 }, { transform: `translate(${pcx - (r.left + r.width / 2)}px,${pcy - (r.top + r.height / 2)}px) scale(${s}) rotate(0deg)`, opacity: .9 }], { duration: 230, delay: (n - 1 - i) * 14, easing: 'cubic-bezier(.5,0,.8,.4)', fill: 'forwards' }); });
+    setTimeout(done, 230 + n * 14 + 30);
+  }
   // the eye on a gym leader: how their team came about
   function eyeSheet() {
     const n = E.node(ui.eye), long = G.size === 'long';
@@ -2189,6 +2257,7 @@ const Bots = (() => {
       const gh = document.createElement('div'); gh.className = 'handghost hrow'; gh.style.cssText = `position:fixed;left:${oldRect.left}px;top:${oldRect.top}px;width:${oldRect.width}px;height:${oldRect.height}px;z-index:35;pointer-events:none`; gh.innerHTML = oldHtml; document.body.appendChild(gh);
       gh.animate([{ transform: 'translateX(0)', opacity: 1 }, { transform: 'translateX(70%)', opacity: 0 }], { duration: 550, easing: 'ease-in', fill: 'forwards' }).onfinish = () => gh.remove(); setTimeout(() => gh.remove(), 900);
     }
+    if (ui.handOpen) { ui.handOpen = false; handOpen(); }
     const mapNow = !!(G && ui.screen === 'play' && G.phase === 'map' && document.querySelector('.mapin'));
     if (mapNow && !ui.wasMap) mapIntro(); ui.wasMap = mapNow;
     const oldPile = document.querySelector('.pilebay');
@@ -2221,7 +2290,8 @@ const Bots = (() => {
     zprev() { const l = collSorted(), i = l.findIndex(c => c.uid === ui.zoom); ui.zoom = l[(i + l.length - 1) % l.length].uid; render(); },
     znext() { const l = collSorted(), i = l.findIndex(c => c.uid === ui.zoom); ui.zoom = l[(i + 1) % l.length].uid; render(); },
     menu() { ui.menu = true; render(); }, closemenu() { ui.menu = false; render(); },
-    coll() { ui.coll = true; ui.menu = false; render(); }, closecoll() { ui.coll = false; render(); },
+    coll() { ui.coll = true; ui.menu = false; ui.handOpen = true; render(); }, closecoll() { ui.coll = false; render(); },
+    handclose() { if (ui.handClosing) return; ui.handClosing = true; handClose(() => { ui.handClosing = false; ui.coll = false; render(); }); },
     node(el) {
       const n = E.node(el.dataset.id); if (!E.unlocked(G, n)) return toast('Beat the gym leader before it first');
       if (n.kind !== 'loc' && G.done[n.id]) return toast('You already beat them!');
@@ -2242,6 +2312,7 @@ const Bots = (() => {
     die(el) { const i = +el.dataset.i; ui.die = ui.die === i ? null : i; render(); },
     unit(el) {
       const b = G.battle, u = E.U(b, +el.dataset.uid); if (!u) return;
+      if (b.ask && b.ask.kind === 'yn') return;
       if (b.ask && (!ui.play || ui.play.waiting)) {                                 // an "or": settled on this card's turn
         if (b.ask.opts.some(o => o.indexOf(u.uid) >= 0) && act({ t: 'choose', tgt: u.uid })) { const p = ui.play; if (p) { absorbEvents(); p.waiting = false; nextBeat(); } else startPlay(); }
         return;
@@ -2256,10 +2327,15 @@ const Bots = (() => {
       }
     },
     unmv(el) { const b = G.battle; if (b.stage === 'assign') act({ t: 'unassign', side: 0, uid: +el.dataset.uid }); },
+    decide(el) { if (act({ t: 'decide', yes: el.dataset.yes === '1' })) { const p = ui.play; if (p) { absorbEvents(); p.waiting = false; nextBeat(); } else startPlay(); } },
     mv(el) { act({ t: 'move', side: 0, uid: +el.dataset.uid, dir: +el.dataset.dir }); },
     swapstart(el) { const k = +el.dataset.uid; ui.swap = ui.swap && ui.swap.uid === k ? null : { uid: k, picks: [] }; render(); },
     haunt(el) { act({ t: 'haunt', uid: el.dataset.uid == null ? null : +el.dataset.uid }); },
-    reroll() { if (ui.die != null) act({ t: 'reroll', side: 0, die: ui.die }); },
+    reroll() {                                     // every die not on a card yet is thrown again, together; they are locked in after that
+      const b = G.battle, used = E.assignedDice(b, 0), lk = (b.locked && b.locked[0]) || {}, set = b.dice[0].map((_, i) => i).filter(i => !used.has(i) && !lk[i]);
+      if (act({ t: 'reroll', side: 0, all: true })) { ui.rerolled = set; ui.die = null; ui.rolling = Date.now() + 800; setTimeout(() => { ui.rolling = 0; render(); }, 850); render(); }
+    },
+    rerollfree() { if (ui.die != null) act({ t: 'reroll', side: 0, die: ui.die }); },
     tweak(el) { act({ t: 'tweak', side: 0, uid: +el.dataset.uid }); },
     go() { ui.die = null; if (act({ t: 'go2' })) startPlay(); },
     skip() { skipPlay(); },
@@ -2304,6 +2380,13 @@ const Bots = (() => {
     if (G && G.phase === 'battle' && G.battle && G.battle.stage === 'resolved' && !E.hauntAsk(G.battle) && !ui.play && !ui.menu && !ui.help && !ui.coll && !ui.tip && !(t && (t.dataset.act === 'menu' || t.dataset.act === 'tipok'))) { A.next(); return; }
     if (!t) return;
     const f = A[t.dataset.act]; if (f) { ev.stopPropagation(); f(t); }
+  });
+  // swipe between your cards when one is big
+  let sw0 = null;
+  document.addEventListener('pointerdown', ev => { sw0 = ui.zoom != null ? { x: ev.clientX, y: ev.clientY } : null; });
+  document.addEventListener('pointerup', ev => {
+    if (!sw0 || ui.zoom == null) { sw0 = null; return; } const dx = ev.clientX - sw0.x, dy = ev.clientY - sw0.y; sw0 = null;
+    if (Math.abs(dx) > 50 && Math.abs(dx) > Math.abs(dy) * 1.4) { ui.dragged = Date.now(); dx < 0 ? A.znext() : A.zprev(); }
   });
   document.addEventListener('contextmenu', e => e.preventDefault());
   let rz = null; window.addEventListener('resize', () => { clearTimeout(rz); rz = setTimeout(() => { if (G && ui.screen === 'play' && G.phase === 'map') render(); }, 120); });

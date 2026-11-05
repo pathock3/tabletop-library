@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- **Pokémon Roll! — rerolls the real way, and decisions are yours:** each round you give out the dice you like, then 🔄 **Reroll the rest** throws every die not on a card together, once; rerolled dice are locked in (🔒). You and Master get it; Normal and Easy never reroll. Abilities that are a choice now stop and ask: when Pikachu (or any dodger) is attacked you pick **Dodge!** or **Take it** each time (the computer always dodges). The card's weakness is a full-width strip in the weakness's colour (Fire's blue strip says Water), and the art is bigger. Spots for new cards are card-sized dashed spaces in the row where the card would go. "Your cards" is a pile with your real starter card; tap it and the cards are dealt out in a splayed hand, tap one to see it big (swipe or arrows to move between them), tap the table to put them back. The map is smaller, always runs left to right, and the table reaches the very bottom of the screen. The menu and flee buttons are bigger (flee asks "Flee?"); the fight menu no longer has Records or Give up. How to Play keeps its arrows in one spot, has no Skip, and closes when you tap outside it. Dice and text sit in the middle of the right-hand column.
+
 - **Pokémon Roll! — the map is dealt out:** every time you arrive on the map (Continue, or back from a fight) the piles of cards fly in from the left, one stage after another, in about half a second.
 
 - **Pokémon Roll! — everyone gets their move:** a card taken to 0 health stays in play until the end of the round and still makes its move; all cards at 0 fall together once everyone has moved. A card at 0 cannot be healed (not even by its own attack). Cards at 0 show greyed with a red edge.

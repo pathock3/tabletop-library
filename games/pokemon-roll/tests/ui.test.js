@@ -151,9 +151,10 @@ test('ui: How to Play is a few pictures with one line each, not a wall of text; 
   const errs = []; p.on('pageerror', e => errs.push(e.message));
   try {
     await p.goto(URL); await p.click('[data-act=help]');
-    const pages = []; for (let i = 0; i < 7; i++) { pages.push({ imgs: await p.locator('.hvis img, .hvis svg, .hvis .card, .hvis .die').count(), words: ((await p.innerText('.hbox h2')) + ' ' + ((await p.locator('.hcap').count()) ? await p.innerText('.hcap') : '')).split(/\s+/).length }); if (i < 6) await p.click('.hnav [data-act=hnext]'); }
+    const pages = []; for (let i = 0; i < 7; i++) { pages.push({ nav: await p.evaluate(() => { const r = document.querySelector('.hnav [data-act=hnext]').getBoundingClientRect(); return Math.round(r.left) + ',' + Math.round(r.top); }), imgs: await p.locator('.hvis img, .hvis svg, .hvis .card, .hvis .die').count(), words: ((await p.innerText('.hbox h2')) + ' ' + ((await p.locator('.hcap').count()) ? await p.innerText('.hcap') : '')).split(/\s+/).length }); if (i < 6) await p.click('.hnav [data-act=hnext]'); }
     pages.slice(0, 6).forEach((g, i) => { assert.ok(g.imgs >= 1, 'page ' + (i + 1) + ' is a picture'); assert.ok(g.words < 40, 'page ' + (i + 1) + ' is a line or two: ' + g.words + ' words'); });
-    await p.click('.hbox .btn'); await p.click('[data-act=new]'); await p.click('[data-act=starter][data-k=squirtle]');
+    assert.equal(new Set(pages.map(g => g.nav)).size, 1, 'the arrows are always in the same spot: ' + pages.map(g => g.nav).join(' | '));
+    assert.equal(await p.locator('.hbox .btn').count(), 0, 'no Skip button'); await p.mouse.click(8, 8); assert.equal(await p.locator('.sheet').count(), 0, 'a tap outside closes it'); await p.click('[data-act=new]'); await p.click('[data-act=starter][data-k=squirtle]');
     const t = await p.evaluate(() => { const e = document.querySelector('.top .t'), r = e.getBoundingClientRect(); return { text: e.textContent, mid: Math.round(r.left + r.width / 2) }; });
     assert.equal(t.text, 'Kanto Map'); assert.ok(Math.abs(t.mid - 410) <= 2, 'centered on the screen: ' + t.mid);
     assert.deepEqual(errs, []);
