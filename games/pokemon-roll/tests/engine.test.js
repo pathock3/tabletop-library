@@ -478,3 +478,14 @@ test('dice: beating a gym leader gives you their colour for good; in their fight
   assert.ok(E.apply(s, { t: 'next' }).ok); assert.deepEqual(s.cdice, ['ground']); assert.deepEqual(s.res.dieGain, ['ground']);
   const w = craft(['4.1'], ['10']); assert.equal(w.b.dcol[1].length, 0, 'wild cards get no coloured dice');
 });
+test('rules: a card with nobody across from it is not put to sleep: it rolls, heals, hurts itself, and hits cards in other columns', () => {
+  const c = craft(['1.2', '1.2', '4.2'], ['10']); const { s, b } = c;        // the second Bulbasaur and Charmander have nobody across
+  assert.equal(b.dice[0].length, 3, 'a die for every card, matchless or not'); assert.ok(b.units.every(u => !u.skip));
+  const [h0, h1, h2] = E.living(b, 0); h1.hp = 1; b.dice = [[3, 3, 1], [6]]; b.asg = [{ [h0.uid]: { dice: [0] }, [h1.uid]: { dice: [1] }, [h2.uid]: { dice: [2] } }, {}]; b.gmReady = true;
+  assert.ok(E.apply(s, { t: 'go2' }).ok); while (b.ask) assert.ok(E.apply(s, { t: 'choose', tgt: E.autoChoice(b) }).ok);
+  assert.ok(h1.hp > 1, 'the card with nobody across healed itself'); assert.ok(evs(b, 'miss').some(e => e.u === h2.uid), 'and a straight attack into an empty column just misses');
+  const d = craft(['4.2', '5.3'], ['10', '10']); d.b.cols = [[d.b.units[0].uid, d.b.units[2].uid], [d.b.units[1].uid, null]];
+  d.b.dice = [[1, 1], [6]]; d.b.asg = [{ [d.b.units[0].uid]: { dice: [0] }, [d.b.units[1].uid]: { dice: [1] } }, {}]; d.b.gmReady = true; assert.ok(E.apply(d.s, { t: 'go2' }).ok); while (d.b.ask) assert.ok(E.apply(d.s, { t: 'choose', tgt: E.autoChoice(d.b) }).ok);
+  assert.ok(evs(d.b, 'strike').some(e => e.u === d.b.units[1].uid && e.to.indexOf(d.b.units[2].uid) >= 0), 'Charmeleon, with nobody across, hits the card in the next column over');
+  const v = craft(['1.1'], ['10']); v.b.units[0].hp = 3; const sd = craft(['25.3'], ['10', '10']); assert.ok(sd.b.dice[0].length === 1);
+});
