@@ -321,12 +321,14 @@ test('legendaries: with two dice, a nine on two dice at the start of a turn spot
   let found = null;
   for (let seed = 1; seed < 3000 && !found; seed++) {
     const s = E.newGame({ seed, starter: 'bulbasaur' }); s.done.rival1 = true; s.done.B1 = true; s.coll.push({ uid: 9, id: '10', sh: 0 });
-    const pool = s.legend.slice(); E.apply(s, { t: 'go', node: 'L1' });
-    if (s.notes.length) found = { s, pool };
+    D.locations.forEach(l => { s.discard[l.id].push(s.decks[l.id].pop()); });                 // something already faced in every place
+    const pool = s.legend.slice(), dis = D.locations.map(l => s.discard[l.id].length); E.apply(s, { t: 'go', node: 'L1' });
+    if (s.notes.length) found = { s, pool, dis };
   }
   assert.ok(found, 'a legendary shows up now and then');
   const id = found.s.notes[0].replace('legend:', ''); assert.ok(C[id].legend);
   assert.ok(!found.s.legend.includes(id), 'it leaves the waiting pile');
+  assert.deepEqual(D.locations.map(l => found.s.discard[l.id].length), found.dis, 'a legendary joins the draw pile only: the discard pile is not shuffled back in early');
   assert.ok(found.s.decks[C[id].loc].includes(id) || found.s.battle.hand[1].some(h => found.s.battle.hcards[h].id === id) || found.s.battle.units.some(u => u.id === id), 'it is in the deck of the place on its card');
   const one = E.newGame({ seed: 1, starter: 'bulbasaur' }); E.apply(one, { t: 'go', node: 'L1' });
   assert.equal(one.notes.length, 0, 'no rolling for legendaries with only one die');
@@ -502,4 +504,10 @@ test('dice faces: move 1 is rolled on a 6, move 2 on a 5 and so on; a move that 
   Object.values(E.CARDS).forEach(c => { assert.equal(c.moves.length, 6); assert.equal(c.moves.filter(Boolean).length, c.sheet.filter(Boolean).length, c.name + ' keeps all its moves'); });
   const c = craft(['25.3'], ['16']); c.b.units[1].hp = c.b.units[1].max = 30; play(c, { hero: [6], gm: [] }, { hero: { 0: 0 } });
   assert.ok(c.b.units[1].hp < 30, 'a 6 on Pikachu is its 3 Attack'); const e = craft(['25.3'], ['16']); const hp = e.b.units[0].hp; play(e, { hero: [1], gm: [] }, { hero: { 0: 0 } }); assert.equal(e.b.units[0].hp, hp - 1, 'a 1 on Pikachu hurts itself');
+});
+
+test('draw pile: with a pile of one left and more cards wanted, the last unseen card comes first, then the discards are shuffled into a new pile', () => {
+  const s = E.newGame({ seed: 41, starter: 'bulbasaur' }); const all = s.decks[2].slice(); s.decks[2] = [all[0]]; s.discard[2] = all.slice(1, 4);
+  const d = T.drawWild(s, 2, 3).map(i => i.id); assert.equal(d[0], all[0], 'the unseen card first'); assert.ok(d.slice(1).every(x => [all[1], all[2], all[3]].includes(x)), 'then cards from the discard pile');
+  assert.equal(new Set(d).size, 3, 'no card twice'); assert.equal(s.discard[2].length, 0, 'the discard pile became the new draw pile'); assert.equal(s.decks[2].length, 1);
 });

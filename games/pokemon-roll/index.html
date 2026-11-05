@@ -786,9 +786,13 @@ const Engine = (() => {
     s.legend = leg; s.phase = 'map';
     return true;
   }
+  // you meet every card of a place once before any is met twice: cards come off the draw pile one at a time, and only when the whole draw pile is gone is the discard pile shuffled into a new one
   function drawWild(s, loc, n) {
-    if (s.decks[loc].length < n) { s.decks[loc] = shuffle(s, s.decks[loc].concat(s.discard[loc])); s.discard[loc] = []; }
-    const out = []; for (let i = 0; i < n && s.decks[loc].length; i++) { const id = s.decks[loc].shift(); out.push(inst(s, id, s.sh[id])); }
+    const out = [];
+    while (out.length < n) {
+      if (!s.decks[loc].length) { if (!s.discard[loc].length) break; s.decks[loc] = shuffle(s, s.discard[loc].slice()); s.discard[loc] = []; }
+      const id = s.decks[loc].shift(); out.push(inst(s, id, s.sh[id]));
+    }
     return out;
   }
   const deckSize = (s, loc) => s.decks[loc].length + s.discard[loc].length;
@@ -1463,7 +1467,7 @@ const Engine = (() => {
         s.turn++; if (nd.kind === 'boss') (s.seen = s.seen || {})[nd.id] = true;                  // once you have faced a gym leader their team is no longer a secret
         if (slots(s) >= R.legendaryFromSlots && s.legend.length) {                       // the start of a turn: two dice, a 9 spots a legendary
           let sum = 0; for (let i = 0; i < R.legendaryDice; i++) sum += die(s);
-          if (sum === R.legendarySum) { const id = s.legend.shift(), loc = CARDS[id].loc; s.decks[loc] = shuffle(s, s.decks[loc].concat(s.discard[loc], [id])); s.discard[loc] = []; s.notes.push('legend:' + id); }
+          if (sum === R.legendarySum) { const id = s.legend.shift(), loc = CARDS[id].loc; s.decks[loc] = shuffle(s, s.decks[loc].concat([id])); s.notes.push('legend:' + id); }
         }
         const hero = s.coll.map(c => ({ id: c.id, sh: c.sh })); s.phase = 'battle';
         if (nd.kind === 'loc') startBattle(s, 'loc', nd.id, hero, [], { lazy: true, wild: { loc: nd.loc, cap: Math.min(slots(s), s.coll.length, deckSize(s, nd.loc)) }, need: [0, 0] });

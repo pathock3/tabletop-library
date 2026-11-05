@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- **Pokémon Roll! — no card twice before you have seen them all:** the cards of a place now come off the draw pile one at a time and everything you face goes to the discard pile (what you do not take, and everything if you lose); only when the whole draw pile has been used is the discard pile shuffled into a new one. Two leaks are closed: a legendary turning up used to shuffle the discard pile back in early, and a draw that needed more cards than were left reshuffled the discards before the unseen ones.
+
 - **Pokémon Roll! — the whole screen:** the game is sized to the full screen height (large viewport, and the real screen size when it runs as a home-screen app), so the wood and the whole interface reach the very bottom edge of the iPad.
 
 - **Pokémon Roll! — the i holds the details:** the number on each location's deck is gone; tap its i (now in the bottom-right corner of every place, gym leaders too, so it no longer covers their art) to see how many cards are in the draw pile and in the discard pile (the discard pile is shuffled back in when the draw pile runs out) and how many cards of each type the place holds in all.
