@@ -12,6 +12,11 @@ Sources (Patrick's Google Drive, folder "Pokémon Roll"): **Pokémon Roll! Ruleb
 - *(owner)* **Art:** Crystal sprites, shown as big as the card allows. A card drawn from the wild has a fresh **5% chance to be shiny** each time; a card on your team or on a boss's team keeps its form for good. Shiny is **purely cosmetic**, with a sparkle when it comes into play.
 - *(owner)* **Card design:** the weakness is a tab flush with the top of the card.
 
+- *(owner)* **No opening rival fight.** In the paper game it only decides who goes first, so it is gone. `RULING:` your partner starts at level 2 (the level that fight gave), and Viridian Forest, Mt. Moon and Brock are open from the start. The final fight against your rival after Lance is still there (one line in the data to remove it).
+- *(owner)* **One card design, always whole.** The same card (name, level, HP, weakness tab, sprite, element, role, ability, all six faces, special move) is used on the table, in your hand, in the picker and in your collection. There is no tap-to-enlarge version. The row for the die you pick lights up on every card, and the row a card is using this round is lit. Cards are as big as the table allows (at least 150 wide); a very wide team scrolls sideways.
+- *(owner)* **Tap anywhere to roll** after a round; there is no Next button. The dice tumble when they are rolled. There is no Suggest button.
+- *(owner)* **The map** runs left to right, each place drawn as a little scene. It shows what is open and one step beyond it (so the two paths after Brock show as a fork until they meet at Blue).
+
 ## Reading the sheet
 - `RULING:` **Move 1–6 are the six faces of the die.** A card with fewer than six moves has blank faces (a blank is a die with nothing to do). The sheet lists the moves strongest first, and the design doc says blanks exist.
 - `RULING:` **Arrows.** `<` the column to the left, `^` the card facing it, `>` the column to the right, `v` itself, `<<` two columns. `<^>` is all of them at once; `<^ or >` is a choice of one of them; `and/or` takes everything that is there. `<<<<^ or ^>>>>` is one side or the other. For an attack `^` is the matchup; for a heal or block `v` is the card itself and `<`/`>` are its neighbours.
@@ -32,8 +37,8 @@ Sources (Patrick's Google Drive, folder "Pokémon Roll"): **Pokémon Roll! Ruleb
 ## The campaign (the design doc's Map 2)
 - You start with **one die** (one card per challenge). Each gym leader you beat is another die (up to six). Challenge a place with as many cards as you have dice; it brings the same number. Win and you keep one of theirs (the rest go to the place's discard pile); lose and they go back to the deck.
 - Gym leaders: Brock 2, Misty 3, Lt. Surge 3, Blaine 4/5, Erika 4/5, Blue 5/7, Lance 6/9 (short/long), drawn from the places on the boss card. `RULING:` you take as many cards as you have (up to the boss's number): an outnumbered fight is allowed, as the rulebook says.
-- `RULING:` The map opens like the design doc's list: rival → Viridian Forest, Mt. Moon, Brock → Power Plant, Misty, Surge → S.S. Anne / Pokemon Tower, Blaine / Erika → Safari Zone, Cinnabar Island, Blue (needs both Blaine and Erika) → Seafoam, Victory Road, Lance → the final rival fight.
-- Your partner levels to one above the level on the boss's card when you beat them (the first rival fight takes it to 2). Pikachu may evolve into Raichu at level 5 (you choose once; Raichu then goes on to level 6).
+- `RULING:` The map opens like the design doc's list: Viridian Forest, Mt. Moon, Brock → Power Plant, Misty, Surge → S.S. Anne / Pokemon Tower, Blaine / Erika → Safari Zone, Cinnabar Island, Blue (needs both Blaine and Erika) → Seafoam, Victory Road, Lance → the final rival fight.
+- Your partner starts at level 2 and levels to one above the level on the boss's card when you beat them. Pikachu may evolve into Raichu at level 5 (you choose once; Raichu then goes on to level 6).
 - Your rival picks the partner whose element beats yours. In the last fight the rival brings their level 6 partner and five other cards (levels 4–5).
 - When a place's deck runs out it is refilled from its discard pile. After beating a gym leader, their team goes to the discard piles of the places it came from.
 - Beating Lance gives you his legendary.

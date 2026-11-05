@@ -185,7 +185,7 @@ test('placement: the computer puts down one card, then two at a time; columns ne
   assert.equal(b.stage, 'assign'); assert.ok(b.cols.length <= 3);
 });
 test('hidden information: the computer never sees your dice, and you never see theirs until the round is played', () => {
-  const s = E.newGame({ seed: 9, starter: 'charmander' }); E.apply(s, { t: 'go', node: 'rival1' }); E.apply(s, { t: 'team', uids: [s.coll[0].uid] });
+  const s = E.newGame({ seed: 9, starter: 'charmander' }); E.apply(s, { t: 'go', node: 'L1', n: 1 }); E.apply(s, { t: 'team', uids: [s.coll[0].uid] });
   let g; while ((g = B.step(s)) || (s.battle.stage === 'place' && s.battle.pl.side === 0)) { if (g) E.apply(s, g); else E.apply(s, Object.assign({ t: 'place', side: 0, uid: s.battle.hand[0][0] }, E.slotsFor(s.battle, 0)[0])); }
   assert.equal(s.battle.stage, 'assign');
   const mine = E.viewFor(s, 0), theirs = E.viewFor(s, 1);
@@ -203,8 +203,7 @@ test('campaign: bosses bring the right number of cards, more in the longer game'
 test('campaign: places open when the earlier fight is won, and you start with one die and four more for the five gym leaders', () => {
   const s = E.newGame({ seed: 4, starter: 'squirtle' });
   const open = () => D.nodes.filter(n => E.unlocked(s, n)).map(n => n.id);
-  assert.deepEqual(open(), ['rival1']); s.done.rival1 = true;
-  assert.deepEqual(open().sort(), ['B1', 'L1', 'L2', 'rival1'].sort()); assert.equal(E.slots(s), 1);
+  assert.deepEqual(open().sort(), ['B1', 'L1', 'L2'], 'no opening rival fight: three places are open from the start'); assert.equal(E.slots(s), 1); assert.equal(s.lv, 2, 'your partner starts at level 2');
   s.done.B1 = true; assert.ok(open().includes('L3') && open().includes('B2') && open().includes('B3')); assert.equal(E.slots(s), 2);
   assert.ok(!open().includes('L4') && !open().includes('B4')); s.done.B2 = true; s.done.B3 = true; assert.ok(open().includes('L4') && open().includes('L5') && open().includes('B4') && open().includes('B5'));
   assert.ok(!open().includes('B6')); s.done.B4 = true; s.done.B5 = true; assert.ok(open().includes('B6') && open().includes('L6') && open().includes('L7'));
@@ -216,7 +215,7 @@ test('campaign: your rival picks the partner that beats yours', () => {
 });
 test('campaign: you cannot challenge a place that is locked, or a boss twice, or with too many cards', () => {
   const s = E.newGame({ seed: 4, starter: 'squirtle' });
-  assert.equal(E.apply(s, { t: 'go', node: 'B1' }).ok, false, 'locked');
+  assert.equal(E.apply(s, { t: 'go', node: 'B2' }).ok, false, 'locked');
   s.done.rival1 = true; assert.equal(E.apply(s, { t: 'go', node: 'L1', n: 2 }).ok, false, 'one die, one card');
   assert.ok(E.apply(s, { t: 'go', node: 'L1', n: 1 }).ok); assert.equal(E.apply(s, { t: 'team', uids: [999] }).ok, false);
 });

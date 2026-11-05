@@ -43,66 +43,66 @@ button{font:inherit;color:inherit;border:0;cursor:pointer}
 .menu{display:flex;flex-direction:column;gap:14px;width:min(420px,86vw)}
 .foot{font-size:14px;opacity:.65;padding:10px;text-align:center}
 .foot a{color:inherit}
-/* ---- cards ---- */
-.card{width:300px;border-radius:18px;border:5px solid var(--ink);background:var(--bg);overflow:hidden;position:relative;color:var(--ink);box-shadow:0 8px 20px #0008}
-.card .hd{display:flex;align-items:center;justify-content:space-between;padding:22px 10px 4px;background:linear-gradient(#fff9,#fff3)}
-.card .nm{font:900 25px/1 system-ui}
-.card .lv{font:700 13px system-ui;letter-spacing:.08em;color:#0009;margin-top:3px}
-.hpc{width:56px;height:56px;border-radius:50%;background:#e23a3a;border:3px solid var(--ink);display:grid;place-items:center;color:#fff;font:900 28px/1 system-ui;box-shadow:inset 0 -6px 0 #0003;text-align:center}
-.hpc small{display:block;font-size:9px;letter-spacing:.1em;margin-top:-5px}
-.wkt{position:absolute;top:0;left:50%;transform:translateX(-50%);z-index:2;background:#fff;border:0 solid var(--ink);border-width:0 3px 3px;border-radius:0 0 12px 12px;padding:1px 14px 2px;font:800 13px system-ui;letter-spacing:.04em;color:var(--ink);white-space:nowrap}
-.art{height:236px;margin:0 10px;border:3px solid var(--ink);border-radius:12px;background:radial-gradient(circle at 50% 40%,#fff9,var(--c) 75%);display:grid;place-items:center;position:relative;overflow:hidden}
-.art img{width:224px;height:224px;image-rendering:pixelated;filter:drop-shadow(0 4px 0 #0003)}
-.art .tag{position:absolute;left:6px;bottom:6px;background:var(--c);border:2px solid var(--ink);border-radius:20px;padding:1px 10px;font:800 13px system-ui;color:#fff;text-shadow:0 1px 0 #0008}
-.art .role{position:absolute;left:6px;top:6px;font:700 11px system-ui;background:#0008;color:#fff;border-radius:10px;padding:2px 8px}
-.ab{margin:8px 10px 0;padding:5px 8px;border-radius:8px;background:#fffc;border:2px solid var(--ink);font:700 14px/1.2 system-ui}
-.faces{margin:8px 10px 0;display:grid;gap:3px}
-.f{display:flex;align-items:center;gap:8px;background:#fffd;border:2px solid var(--ink);border-radius:8px;padding:2px 6px;font:800 17px system-ui;min-height:30px}
-.f.hot{background:#ffe46b;box-shadow:0 0 0 3px #fff,0 0 12px #ffd000}
-.f.blank{opacity:.45}
-.f small{font:700 13px system-ui;opacity:.8}
-.pip{width:26px;height:26px;border-radius:6px;background:#fff;border:2px solid var(--ink);display:grid;place-items:center;font:900 15px system-ui;flex:none}
+/* ---- the card: ONE design at every size (--cw is its width; the whole card is always on show) ---- */
+.card{--cw:190px;--ink:#14110f;width:var(--cw);flex:none;position:relative;color:var(--ink);background:var(--bg);border:calc(var(--cw)*.022 + 1px) solid var(--ink);border-radius:calc(var(--cw)*.075);overflow:hidden;box-shadow:0 5px 12px #0008;display:flex;flex-direction:column;transition:transform .15s,filter .3s,opacity .3s;text-align:left}
+.card.foe{--ink:#2a0e0e}
+.card .wkt{position:absolute;top:0;left:50%;transform:translateX(-50%);z-index:2;background:#fff;border:0 solid var(--ink);border-width:0 2px 2px;border-radius:0 0 calc(var(--cw)*.05) calc(var(--cw)*.05);padding:0 calc(var(--cw)*.06) 1px;font-weight:800;font-size:max(10px,calc(var(--cw)*.062));letter-spacing:.03em;white-space:nowrap}
+.card .hd{display:flex;align-items:center;justify-content:space-between;gap:4px;padding:calc(var(--cw)*.105) calc(var(--cw)*.04) calc(var(--cw)*.012);background:linear-gradient(#fff9,#fff3)}
+.card .nmw{min-width:0}
+.card .nm{font-weight:900;font-size:max(13px,calc(var(--cw)*.105));line-height:1.05;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.card .lv{font-weight:700;font-size:max(9px,calc(var(--cw)*.05));letter-spacing:.05em;color:#000a;margin-top:1px;white-space:nowrap}
+.card .hpc{flex:none;width:calc(var(--cw)*.21);height:calc(var(--cw)*.21);min-width:34px;min-height:34px;border-radius:50%;background:#e23a3a;border:2px solid var(--ink);display:grid;place-content:center;color:#fff;font-weight:900;line-height:1;text-align:center;box-shadow:inset 0 -4px 0 #0003}
+.card .hpc.mid{background:#f08a00}.card .hpc.lo{background:#a4001b}
+.card .hpc b{font-size:max(15px,calc(var(--cw)*.11))}.card .hpc small{font-size:max(8px,calc(var(--cw)*.042));font-weight:800;opacity:.9}
+.card .art{height:calc(var(--cw)*.5);margin:calc(var(--cw)*.02) calc(var(--cw)*.04);border:2px solid var(--ink);border-radius:calc(var(--cw)*.05);background:radial-gradient(circle at 50% 40%,#fff9,var(--c) 75%);display:grid;place-items:center;position:relative;overflow:hidden}
+.card .art img{height:92%;aspect-ratio:1;image-rendering:pixelated;filter:drop-shadow(0 3px 0 #0003)}
+.card .tag{position:absolute;left:4px;bottom:4px;background:var(--c);border:2px solid var(--ink);border-radius:99px;padding:0 calc(var(--cw)*.045);font-weight:800;font-size:max(9px,calc(var(--cw)*.055));color:#fff;text-shadow:0 1px 0 #0008;white-space:nowrap}
+.card .role{position:absolute;left:4px;top:4px;font-weight:700;font-size:max(8px,calc(var(--cw)*.05));background:#000a;color:#fff;border-radius:99px;padding:0 calc(var(--cw)*.045);white-space:nowrap}
+.card .ab{margin:0 calc(var(--cw)*.04);padding:calc(var(--cw)*.015) calc(var(--cw)*.03);border-radius:calc(var(--cw)*.035);background:#fffc;border:2px solid var(--ink);font-weight:700;font-size:max(10px,calc(var(--cw)*.058));line-height:1.14;min-height:calc(var(--cw)*.19);display:flex;align-items:center}
+.card .faces{margin:calc(var(--cw)*.02) calc(var(--cw)*.04) 0;display:grid;gap:2px}
+.card .f{display:flex;align-items:center;gap:calc(var(--cw)*.03);background:#fffd;border:2px solid var(--ink);border-radius:calc(var(--cw)*.03);padding:1px calc(var(--cw)*.025);font-weight:800;font-size:max(11px,calc(var(--cw)*.075));min-height:calc(var(--cw)*.108);line-height:1.08}
+.card .f .mt{flex:1;min-width:0}
+.card .f small{font-size:.78em;opacity:.85;font-weight:700}
+.card .f.hot{background:#ffe46b;box-shadow:0 0 0 2px #fff,0 0 10px #ffd000;transform:scale(1.03);z-index:1}
+.card .f.hot .pip{background:var(--ink);color:#fff}
+.card .f.pick{outline:3px dashed #ffb703;outline-offset:-1px;background:#fff7cf;animation:pulse2 1s infinite}
+.card .f.blank{opacity:.45}
+.card .pip{width:calc(var(--cw)*.085);height:calc(var(--cw)*.085);min-width:16px;min-height:16px;border-radius:calc(var(--cw)*.025);background:#fff;border:2px solid var(--ink);display:grid;place-items:center;font-weight:900;font-size:max(10px,calc(var(--cw)*.06));flex:none}
 .mA{color:#c1121f}.mB{color:#1457b8}.mH{color:#17803d}.mD{color:#6b6b6b}
-.sp{margin:8px 10px 10px;padding:5px 8px;border-radius:8px;background:var(--ink);color:#ffe46b;font:800 15px system-ui;display:flex;gap:8px;align-items:center}
-.sp i{font-style:normal;background:#ffe46b;color:var(--ink);border-radius:5px;padding:0 6px}
-.pad{height:10px}
-.card.shiny{box-shadow:0 0 0 3px #ffe46b,0 0 26px 6px #ffd23faa}
-.card.shiny .art::after,.mini.shiny .art2::after{content:'';position:absolute;inset:0;background:linear-gradient(115deg,transparent 35%,#fff9 50%,transparent 65%);background-size:250% 100%;animation:glint 2.6s linear infinite;pointer-events:none}
+.card .sp{margin:calc(var(--cw)*.02) calc(var(--cw)*.04) 0;padding:1px calc(var(--cw)*.03);border-radius:calc(var(--cw)*.035);background:var(--ink);color:#ffe46b;font-weight:800;font-size:max(10px,calc(var(--cw)*.065));display:flex;gap:6px;align-items:center;min-height:calc(var(--cw)*.105)}
+.card .sp i{font-style:normal;background:#ffe46b;color:var(--ink);border-radius:5px;padding:0 5px;white-space:nowrap}
+.card .sp.hot{box-shadow:0 0 0 2px #fff,0 0 12px #ffd000}
+.card .st{margin:calc(var(--cw)*.025) calc(var(--cw)*.04) calc(var(--cw)*.04);padding:2px calc(var(--cw)*.03);border-radius:calc(var(--cw)*.035);background:var(--ink);color:#fff;font-weight:900;font-size:max(11px,calc(var(--cw)*.072));display:flex;align-items:center;justify-content:center;gap:6px;min-height:calc(var(--cw)*.13);text-align:center}
+.card .st.dash{background:#fff6;color:var(--ink);border:2px dashed var(--ink)}
+.card .st.go{background:#ffb703;color:#14110f}
+.card .pad{height:calc(var(--cw)*.04)}
+.card.shiny{box-shadow:0 0 0 3px #ffe46b,0 0 22px 5px #ffd23faa}
+.card.shiny .art::after{content:'';position:absolute;inset:0;background:linear-gradient(115deg,transparent 35%,#fff9 50%,transparent 65%);background-size:250% 100%;animation:glint 2.6s linear infinite;pointer-events:none}
 @keyframes glint{from{background-position:150% 0}to{background-position:-100% 0}}
 .star{position:absolute;color:#fff6a8;text-shadow:0 0 6px #ffd23f,0 0 12px #ffb703;animation:tw 1.6s ease-in-out infinite;pointer-events:none}
 @keyframes tw{0%,100%{opacity:.2;transform:scale(.5) rotate(0)}50%{opacity:1;transform:scale(1.1) rotate(25deg)}}
-/* ---- small cards (the table and the picker) ---- */
-.mini{--cw:120px;width:var(--cw);border-radius:calc(var(--cw)*.1);border:calc(var(--cw)*.03 + 1px) solid var(--ink);background:var(--bg);color:var(--ink);box-shadow:0 5px 12px #0008;overflow:hidden;position:relative;flex:none;transition:transform .15s,filter .3s,opacity .3s}
-.mini.foe{--ink:#2a0e0e}
-.mini .nm{font:900 calc(var(--cw)*.125)/1.1 system-ui;padding:calc(var(--cw)*.05) calc(var(--cw)*.04) 0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;text-align:center}
-.mini .wk{position:absolute;top:0;left:50%;transform:translateX(-50%);background:#fff;border:0 solid var(--ink);border-width:0 2px 2px;border-radius:0 0 8px 8px;padding:0 calc(var(--cw)*.06);font:800 calc(var(--cw)*.085) system-ui;z-index:2;white-space:nowrap}
-.mini .art2{height:calc(var(--cw)*.64);margin:calc(var(--cw)*.03) calc(var(--cw)*.04);border:2px solid var(--ink);border-radius:calc(var(--cw)*.06);background:radial-gradient(circle at 50% 40%,#fff9,var(--c) 75%);display:grid;place-items:center;position:relative;overflow:hidden}
-.mini .art2 img{width:calc(var(--cw)*.6);height:calc(var(--cw)*.6);image-rendering:pixelated}
-.bar{margin:0 calc(var(--cw)*.04);height:calc(var(--cw)*.14);border:2px solid var(--ink);border-radius:99px;background:#0003;position:relative;overflow:hidden}
-.bar i{position:absolute;inset:0 auto 0 0;background:linear-gradient(#ff8a8a,#d62828);transition:width .35s}
-.bar.mid i{background:linear-gradient(#ffd166,#f4a300)}.bar.lo i{background:linear-gradient(#ff6b6b,#b00020)}
-.bar b{position:absolute;inset:0;text-align:center;font:900 calc(var(--cw)*.105)/calc(var(--cw)*.1) system-ui;color:#fff;text-shadow:0 1px 0 #000,0 0 3px #000}
-.mv{margin:calc(var(--cw)*.04);border-radius:calc(var(--cw)*.06);background:#fffd;border:2px solid var(--ink);padding:2px calc(var(--cw)*.04);display:flex;align-items:center;gap:calc(var(--cw)*.04);font:900 calc(var(--cw)*.14) system-ui;min-height:calc(var(--cw)*.26);white-space:nowrap;overflow:hidden}
-.mv.dash{border-style:dashed;background:#fff6;font-size:calc(var(--cw)*.1)}
-.dchip{width:calc(var(--cw)*.2);height:calc(var(--cw)*.2);min-width:22px;min-height:22px;border-radius:6px;background:#fff;border:2px solid var(--ink);display:grid;place-items:center;font:900 calc(var(--cw)*.13) system-ui;flex:none;color:var(--ink)}
-.mini.ko{opacity:.35;filter:grayscale(1)}
-.mini.sel{transform:translateY(-8px);box-shadow:0 0 0 4px var(--gold),0 8px 18px #000a}
-.mini.act{animation:lunge .5s}.mini.hurt{animation:shake .4s}
-@keyframes lunge{40%{transform:translateY(-16px) scale(1.07)}}
+.card.ko{opacity:.35;filter:grayscale(1)}
+.card.sel{transform:translateY(-8px);box-shadow:0 0 0 4px var(--gold),0 8px 18px #000a}
+.card.act{animation:lunge .5s}.card.hurt{animation:shake .4s}
+@keyframes lunge{40%{transform:translateY(-16px) scale(1.05)}}
 @keyframes shake{20%,60%{transform:translateX(-7px)}40%,80%{transform:translateX(7px)}}
-.mini.burst::before{content:'✨';position:absolute;inset:0;z-index:5;display:grid;place-items:center;font-size:calc(var(--cw)*.7);animation:burst .9s ease-out forwards;pointer-events:none}
+.card.burst::before{content:'✨';position:absolute;inset:0;z-index:5;display:grid;place-items:center;font-size:calc(var(--cw)*.7);animation:burst .9s ease-out forwards;pointer-events:none}
 @keyframes burst{0%{transform:scale(.2) rotate(-30deg);opacity:0}30%{opacity:1}100%{transform:scale(1.7) rotate(40deg);opacity:0}}
-.pop{position:absolute;left:0;right:0;top:30%;text-align:center;z-index:6;font:900 calc(var(--cw)*.3) system-ui;color:#fff;text-shadow:0 0 4px #000,0 3px 0 #000,2px 2px 0 #000,-2px 2px 0 #000;animation:rise .9s ease-out forwards;pointer-events:none}
-.pop.heal{color:#7dff9c}.pop.txt{font-size:calc(var(--cw)*.17);color:#ffe46b}
+.pop{position:absolute;left:0;right:0;top:28%;text-align:center;z-index:6;font:900 calc(var(--cw)*.3) system-ui;color:#fff;text-shadow:0 0 4px #000,0 3px 0 #000,2px 2px 0 #000,-2px 2px 0 #000;animation:rise .9s ease-out forwards;pointer-events:none}
+.pop.heal{color:#7dff9c}.pop.txt{font-size:calc(var(--cw)*.15);color:#ffe46b}
 @keyframes rise{from{transform:translateY(8px) scale(.6);opacity:0}25%{opacity:1;transform:translateY(0) scale(1.15)}to{transform:translateY(-34px);opacity:0}}
 .back{width:var(--cw);aspect-ratio:3/4;border-radius:calc(var(--cw)*.1);border:3px solid #2a0e0e;background:repeating-linear-gradient(45deg,#7b1e1e,#7b1e1e 10px,#8e2a2a 10px,#8e2a2a 20px);display:grid;place-items:center;font-size:calc(var(--cw)*.4);flex:none;box-shadow:0 5px 12px #0008}
+.hrow{display:flex;gap:10px;align-items:flex-start;overflow-x:auto;overflow-y:hidden;max-width:100%;padding:6px 8px 10px;-webkit-overflow-scrolling:touch}
+.hrow::before,.hrow::after{content:'';margin:auto}
+.cgrid{display:flex;flex-wrap:wrap;gap:12px;justify-content:center;align-content:flex-start;overflow:auto;padding:10px;flex:1;min-height:0}
 /* ---- the table ---- */
 .table{flex:1;min-height:0;display:flex;flex-direction:column;padding:6px 8px 0}
 .row{display:flex;justify-content:center;align-items:flex-end;gap:8px;min-height:0}
 .tray{display:flex;justify-content:center;gap:8px;padding:6px 4px;min-height:44px;flex-wrap:nowrap;overflow:hidden}
-.board{flex:1;min-height:0;display:flex;align-items:center;justify-content:center;gap:6px;position:relative}
+.board{flex:1;min-height:0;display:flex;align-items:center;gap:6px;position:relative;overflow:auto;padding:4px}
+.board::before,.board::after{content:'';margin:auto}
 .col{display:flex;flex-direction:column;gap:10px;align-items:center;position:relative;padding:6px 3px;border-radius:14px;background:#ffffff0d}
-.slot{width:var(--cw);aspect-ratio:3/4;border:3px dashed #ffffff44;border-radius:calc(var(--cw)*.1);display:grid;place-items:center;font-size:calc(var(--cw)*.3);color:#ffffff66}
+.slot{width:var(--cw);min-height:calc(var(--cw)*2);border:3px dashed #ffffff44;border-radius:calc(var(--cw)*.1);display:grid;place-items:center;font-size:calc(var(--cw)*.3);color:#ffffff66}
 .slot.ok{border-color:var(--gold);color:var(--gold);background:#ffd23f22;animation:pulse 1s infinite}
 .ins{width:calc(var(--cw)*.28);align-self:stretch;border:3px dashed var(--gold);border-radius:12px;display:grid;place-items:center;color:var(--gold);font:900 calc(var(--cw)*.25) system-ui;background:#ffd23f1a;animation:pulse 1s infinite}
 @keyframes pulse{50%{background:#ffd23f44}}
@@ -110,12 +110,14 @@ button{font:inherit;color:inherit;border:0;cursor:pointer}
 .status{padding:6px 14px;text-align:center;font-weight:800;font-size:19px;min-height:38px}
 .dock{padding:6px 10px 10px;display:flex;flex-direction:column;gap:8px;background:#0a1229cc;border-top:2px solid #ffffff22}
 .dice{display:flex;gap:10px;justify-content:center;align-items:center;flex-wrap:wrap;min-height:70px}
-.die{width:64px;height:64px;border-radius:16px;background:#fff;color:var(--ink);border:4px solid var(--ink);display:grid;place-items:center;font:900 38px/1 system-ui;box-shadow:0 5px 0 #0006;position:relative;transition:transform .12s}
+.die{width:70px;height:70px;border-radius:16px;background:#fff;color:var(--ink);border:4px solid var(--ink);display:grid;place-items:center;font:900 38px/1 system-ui;box-shadow:0 5px 0 #0006;position:relative;transition:transform .12s}
 .die.sel{transform:translateY(-10px) scale(1.1);box-shadow:0 0 0 5px var(--gold),0 12px 0 #0006}
 .die.used{opacity:.4}
 .die.foe{background:#7b1e1e;color:#fff;border-color:#2a0e0e}
-.die.roll{animation:rolling .5s}
-@keyframes rolling{0%{transform:rotate(-200deg) scale(.3);opacity:0}100%{transform:none;opacity:1}}
+.die.tumble{animation:tumble .9s cubic-bezier(.3,.7,.4,1)}
+@keyframes tumble{0%{transform:translateY(-90px) rotate(0) scale(.5);opacity:0}25%{opacity:1}50%{transform:translateY(0) rotate(400deg) scale(1.15)}65%{transform:translateY(-26px) rotate(520deg) scale(1.05)}82%{transform:translateY(0) rotate(680deg)}92%{transform:translateY(-6px) rotate(715deg)}100%{transform:none}}
+.rollhint{animation:blink 1.2s ease-in-out infinite}
+@keyframes blink{50%{opacity:.45}}
 .die small{position:absolute;bottom:-4px;right:-4px;font:800 12px system-ui;background:var(--gold);border-radius:8px;padding:0 5px;border:2px solid var(--ink)}
 .acts{display:flex;gap:12px;justify-content:center;align-items:center}
 /* ---- map ---- */
@@ -129,6 +131,20 @@ button{font:inherit;color:inherit;border:0;cursor:pointer}
 .nd.next{animation:pulse2 1.4s infinite}
 @keyframes pulse2{50%{box-shadow:0 0 0 6px #ffd23faa,0 5px 0 #0007}}
 .empty{visibility:hidden}
+/* ---- the map: left to right, each place drawn as a little scene ---- */
+.mapwrap{flex:1;min-height:0;overflow:auto;-webkit-overflow-scrolling:touch;display:flex}
+.mapin{position:relative;flex:none;margin:auto}
+.mapsvg{position:absolute;left:0;top:0;pointer-events:none}
+.place{position:absolute;width:160px;height:184px;padding:0;border:4px solid #14110f;border-radius:18px;background:#fffdf4;overflow:hidden;box-shadow:0 6px 0 #0008;display:flex;flex-direction:column;color:#14110f;text-align:center}
+.place svg{width:100%;height:auto;display:block;flex:none}
+.place .pl{flex:1;display:flex;flex-direction:column;justify-content:center;padding:2px 4px;background:#fffdf4}
+.place .pl b{font:900 17px/1.05 system-ui}.place .pl span{font:700 12px system-ui;opacity:.75}
+.place.gym{border-color:#8a0000;box-shadow:0 6px 0 #4a0000}
+.place.lock svg{filter:grayscale(.85) brightness(.65)}.place.lock{opacity:.85}
+.place .lk{position:absolute;top:26px;left:0;right:0;text-align:center;font-size:40px}
+.place .ck{position:absolute;top:6px;right:6px;width:30px;height:30px;border-radius:50%;background:#2fa35b;color:#fff;border:3px solid #14110f;display:grid;place-items:center;font-weight:900}
+.place.done svg{filter:saturate(.75)}
+.place.next{animation:pulse2 1.4s infinite}
 /* ---- sheets and overlays ---- */
 .sheet{position:fixed;inset:0;background:#000b;z-index:50;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;padding:calc(12px + env(safe-area-inset-top)) 12px calc(12px + env(safe-area-inset-bottom))}
 .sheet .box{background:#17264a;border:3px solid #ffffff44;border-radius:20px;padding:18px;max-width:min(680px,94vw);max-height:84vh;overflow:auto;width:100%}
@@ -141,7 +157,8 @@ button{font:inherit;color:inherit;border:0;cursor:pointer}
 .tip{position:fixed;left:50%;top:calc(74px + env(safe-area-inset-top));transform:translateX(-50%);width:min(560px,92vw);background:#fffbe0;color:#14110f;border:4px solid var(--ink);border-radius:18px;padding:14px 16px;z-index:70;font-size:19px;font-weight:700;box-shadow:0 8px 0 #0008}
 .tip button{margin-top:8px}
 .big-sp{image-rendering:pixelated;width:112px;height:112px}
-@media (max-height:760px){.logo{font-size:42px}.logo small{font-size:20px}.sprites img{width:64px;height:64px}.d6{width:44px;height:44px;font-size:26px}.center{gap:10px}.btn.big{min-height:60px;font-size:24px}.card{transform:scale(.8);transform-origin:top center}}
+@media (max-height:600px){.center{gap:8px}}
+@media (max-height:760px){.logo{font-size:42px}.logo small{font-size:20px}.sprites img{width:64px;height:64px}.d6{width:44px;height:44px;font-size:26px}.center{gap:10px}.btn.big{min-height:60px;font-size:24px}}
 .libback{position:absolute;z-index:3;left:calc(env(safe-area-inset-left) + 12px);top:calc(env(safe-area-inset-top) + 8px);display:inline-flex;align-items:center;gap:8px;padding:10px 16px 10px 12px;min-height:44px;border-radius:99px;background:#0a1229d9;border:2px solid var(--gold);color:#fff;font-size:16px;font-weight:800;text-decoration:none}
 .libback span{font-size:22px;line-height:1;color:var(--gold)}
 </style>
@@ -157,7 +174,8 @@ const GAME_DATA = {
   rules: {
     shinyChance: 0.05,          // every draw from the wild; a card on your team or a boss's team keeps its form
     legendaryDice: 2, legendarySum: 9, legendaryFromSlots: 2,   // roll two dice at the start of a turn once you have a second die: a 9 spots a legendary
-    startSlots: 1,              // cards you may challenge a location with; each boss beaten adds one
+    startSlots: 1, startLevel: 2,   // you begin with your partner at level 2 (the level the first rival fight gave in the paper game)
+                 // cards you may challenge a location with; each boss beaten adds one
     locationMax: 6,             // never more than six cards at a time
     maxLevel: 6,
     maxRounds: 60, stallRounds: 6,   // a fight that goes nowhere is lost (a tie is a loss for the hero)
@@ -196,24 +214,23 @@ const GAME_DATA = {
   // Map 2 from the design doc. A node opens when everything in `needs` is beaten. `lvl` is the level your starter should have;
   // beating a boss lifts your starter to lvl+1. `draws`: [location, cards, extra cards in the long game].
   nodes: [
-    { id: 'rival1', kind: 'rival', name: 'Your rival', row: 0, col: 1, needs: [], size: [1, 1], lvl: 1, rivalLevel: 1 },
-    { id: 'L1', kind: 'loc', loc: 1, name: 'Viridian Forest', row: 1, col: 0, needs: ['rival1'] },
-    { id: 'B1', kind: 'boss', name: 'Brock', trainer: '🪨', row: 1, col: 1, needs: ['rival1'], lvl: 2, size: [2, 2], draws: [[2, 1, 0], [1, 1, 0]] },
-    { id: 'L2', kind: 'loc', loc: 2, name: 'Mt. Moon', row: 1, col: 2, needs: ['rival1'] },
-    { id: 'B2', kind: 'boss', name: 'Misty', trainer: '🌊', row: 2, col: 0, needs: ['B1'], lvl: 3, size: [3, 3], draws: [[4, 2, 0], [1, 1, 0]] },
-    { id: 'L3', kind: 'loc', loc: 3, name: 'Power Plant', row: 2, col: 1, needs: ['B1'] },
-    { id: 'B3', kind: 'boss', name: 'Lt. Surge', trainer: '⚡', row: 2, col: 2, needs: ['B1'], lvl: 3, size: [3, 3], draws: [[3, 2, 0], [2, 1, 0]] },
-    { id: 'L4', kind: 'loc', loc: 4, name: 'S.S. Anne', row: 3, col: 0, needs: ['B2'] },
-    { id: 'L5', kind: 'loc', loc: 5, name: 'Pokemon Tower', row: 3, col: 2, needs: ['B3'] },
-    { id: 'B4', kind: 'boss', name: 'Blaine', trainer: '🔥', row: 4, col: 0, needs: ['B2'], lvl: 4, size: [4, 5], draws: [[8, 2, 0], [5, 1, 0], [3, 1, 0], [4, 0, 1]] },
-    { id: 'B5', kind: 'boss', name: 'Erika', trainer: '🌿', row: 4, col: 2, needs: ['B3'], lvl: 4, size: [4, 5], draws: [[6, 2, 0], [5, 1, 1], [4, 1, 0]] },
-    { id: 'L6', kind: 'loc', loc: 6, name: 'Safari Zone', row: 5, col: 0, needs: ['B4', 'B5'] },
-    { id: 'B6', kind: 'boss', name: 'Blue', trainer: '🎖️', row: 5, col: 1, needs: ['B4', 'B5'], lvl: 5, size: [5, 7], draws: [[9, 1, 0], [7, 1, 1], [8, 1, 0], [6, 1, 1], [5, 1, 0]] },
-    { id: 'L7', kind: 'loc', loc: 8, name: 'Cinnabar Island', row: 5, col: 2, needs: ['B4', 'B5'] },
-    { id: 'L8', kind: 'loc', loc: 7, name: 'Seafoam Islands', row: 6, col: 0, needs: ['B6'] },
-    { id: 'L9', kind: 'loc', loc: 9, name: 'Victory Road', row: 6, col: 2, needs: ['B6'] },
-    { id: 'B7', kind: 'boss', name: 'Lance', trainer: '🐉', row: 7, col: 1, needs: ['B6'], lvl: 6, size: [6, 9], draws: [[9, 2, 1], [7, 1, 1], [8, 1, 1], [6, 1, 0]], legendary: 1 },
-    { id: 'rival2', kind: 'rival', name: 'Final rival battle', row: 8, col: 1, needs: ['B7'], size: [6, 6], lvl: 6, rivalLevel: 6, finale: true },
+    { id: 'L1', kind: 'loc', loc: 1, name: 'Viridian Forest', stage: 0, lane: 0, needs: [] },
+    { id: 'B1', kind: 'boss', name: 'Brock', trainer: '🪨', color: '#8d6e63', stage: 0, lane: 1, needs: [], lvl: 2, size: [2, 2], draws: [[2, 1, 0], [1, 1, 0]] },
+    { id: 'L2', kind: 'loc', loc: 2, name: 'Mt. Moon', stage: 0, lane: 2, needs: [] },
+    { id: 'B2', kind: 'boss', name: 'Misty', trainer: '🌊', color: '#29b6f6', stage: 1, lane: 0, needs: ['B1'], lvl: 3, size: [3, 3], draws: [[4, 2, 0], [1, 1, 0]] },
+    { id: 'L3', kind: 'loc', loc: 3, name: 'Power Plant', stage: 1, lane: 1, needs: ['B1'] },
+    { id: 'B3', kind: 'boss', name: 'Lt. Surge', trainer: '⚡', color: '#fdd835', stage: 1, lane: 2, needs: ['B1'], lvl: 3, size: [3, 3], draws: [[3, 2, 0], [2, 1, 0]] },
+    { id: 'L4', kind: 'loc', loc: 4, name: 'S.S. Anne', stage: 2, lane: 0, needs: ['B2'] },
+    { id: 'L5', kind: 'loc', loc: 5, name: 'Pokemon Tower', stage: 2, lane: 2, needs: ['B3'] },
+    { id: 'B4', kind: 'boss', name: 'Blaine', trainer: '🔥', color: '#ef5350', stage: 3, lane: 0, needs: ['B2'], lvl: 4, size: [4, 5], draws: [[8, 2, 0], [5, 1, 0], [3, 1, 0], [4, 0, 1]] },
+    { id: 'B5', kind: 'boss', name: 'Erika', trainer: '🌿', color: '#66bb6a', stage: 3, lane: 2, needs: ['B3'], lvl: 4, size: [4, 5], draws: [[6, 2, 0], [5, 1, 1], [4, 1, 0]] },
+    { id: 'L6', kind: 'loc', loc: 6, name: 'Safari Zone', stage: 4, lane: 0, needs: ['B4', 'B5'] },
+    { id: 'B6', kind: 'boss', name: 'Blue', trainer: '🎖️', color: '#3f51b5', stage: 4, lane: 1, needs: ['B4', 'B5'], lvl: 5, size: [5, 7], draws: [[9, 1, 0], [7, 1, 1], [8, 1, 0], [6, 1, 1], [5, 1, 0]] },
+    { id: 'L7', kind: 'loc', loc: 8, name: 'Cinnabar Island', stage: 4, lane: 2, needs: ['B4', 'B5'] },
+    { id: 'L8', kind: 'loc', loc: 7, name: 'Seafoam Islands', stage: 5, lane: 0, needs: ['B6'] },
+    { id: 'B7', kind: 'boss', name: 'Lance', trainer: '🐉', color: '#5c6bc0', stage: 5, lane: 1, needs: ['B6'], lvl: 6, size: [6, 9], draws: [[9, 2, 1], [7, 1, 1], [8, 1, 1], [6, 1, 0]], legendary: 1 },
+    { id: 'L9', kind: 'loc', loc: 9, name: 'Victory Road', stage: 5, lane: 2, needs: ['B6'] },
+    { id: 'rival2', kind: 'rival', name: 'Your rival', stage: 6, lane: 1, needs: ['B7'], size: [6, 6], lvl: 6, rivalLevel: 6, finale: true },
   ],
   rivalFinalExtra: { count: 5, minLevel: 4, maxLevel: 5 },       // the rival's other cards in the last fight
   // ability text on the card -> what the engine does (first match wins; "$1" is the first group). Several abilities on a card are separated by ";".
@@ -565,8 +582,8 @@ const Engine = (() => {
   }
   function chooseStarter(s, key) {
     const st = starterOf(key); if (!st) return false;
-    s.starter = key; s.rival = rivalFor(key).key; s.lv = 1;
-    s.coll = [{ uid: s.nextUid++, id: st.levels[0], sh: 0, starter: 1 }];
+    s.starter = key; s.rival = rivalFor(key).key; s.lv = R.startLevel;
+    s.coll = [{ uid: s.nextUid++, id: st.levels[R.startLevel - 1], sh: 0, starter: 1 }];
     const mine = new Set(st.levels.concat(st.evolve ? Object.values(st.evolve) : [])), startersAll = new Set(D.starters.flatMap(x => x.levels));
     D.locations.forEach(l => { s.decks[l.id] = []; s.discard[l.id] = []; });
     Object.values(CARDS).forEach(c => { if (c.legend || c.loc === 0 || mine.has(c.id)) return; s.decks[c.loc].push(c.id); });
@@ -1266,10 +1283,10 @@ const Bots = (() => {
 
 </script>
 <script id="ui">
-/* Pokémon Roll! screens. Everything is a tap on the table; the computer's side plays itself and you watch. */
+/* Pokémon Roll! screens. Everything is a tap on the table; the computer's side plays itself and you watch. One card design everywhere, always shown whole. */
 (() => {
   'use strict';
-  const E = Engine, B = Bots, D = GAME_DATA, C = E.CARDS, R = D.rules;
+  const E = Engine, B = Bots, D = GAME_DATA, C = E.CARDS;
   const $app = document.getElementById('app');
   const KEY = 'pokemon-roll-save', TIPS = 'pokemon-roll-tips', SET = 'pokemon-roll-set';
   const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
@@ -1279,7 +1296,7 @@ const Bots = (() => {
 
   let G = null;
   const set = Object.assign({ ai: 'medium', size: 'short', tips: true }, lsGet(SET) || {});
-  const ui = { screen: 'menu', sel: null, die: null, aim: null, inspect: null, menu: false, play: null, pick: [], chooser: null, tip: null, burst: null, busy: false, toast: '', help: false, coll: false, shown: {} };
+  const ui = { screen: 'menu', sel: null, die: null, aim: null, menu: false, play: null, pick: [], chooser: null, tip: null, burst: null, busy: false, toast: '', help: false, coll: false, rolling: 0, rolledFor: 0, mapX: null };
   const saved = () => { const s = lsGet(KEY); return s && s.v === D.version && s.phase !== 'start' ? s : null; };
   const save = () => { if (G) lsSet(KEY, G); };
   const tipsSeen = lsGet(TIPS) || {};
@@ -1291,58 +1308,69 @@ const Bots = (() => {
   const ICON = { a: '⚔', b: '🛡', h: '✚', d: '💥' }, KLS = { a: 'mA', b: 'mB', h: 'mH', d: 'mD' };
   // "3a <^ or >" -> ⚔3 ◀▲ or ▶   (a short, readable move)
   const arrows = s => s.replace(/\bover\b/g, 'split').replace(/</g, '◀').replace(/>/g, '▶').replace(/\^/g, '▲').replace(/\bv\b/g, '▼').replace(/\s+/g, ' ').trim();
-  const short = (str, plain) => {
+  const short = str => {
     if (!str) return '';
     return str.replace(/(\+?)(\d+)([abhd])(\s+(?:over\s+)?[<>^v][<>^v ]*(?:(?:or|and\/or|and)\s*[<>^v ]*)*)?/g, (m, plus, n, k, sp) => {
-      const t = `${plus}${ICON[k]}${n}`; const arr = k === 'd' ? '' : (sp ? ' ' + arrows(sp) : '');
-      return plain ? t + arr : `<span class="${KLS[k]}">${t}</span><small>${arr}</small>`;
+      const arr = k === 'd' ? '' : (sp ? ' ' + arrows(sp) : '');
+      return `<span class="${KLS[k]}">${plus}${ICON[k]}${n}</span><small>${arr}</small>`;
     }).replace(/,\s*/g, ' · ');
   };
   const stars = lv => '★'.repeat(lv) + '☆'.repeat(Math.max(0, 6 - lv));
-  const sparkles = () => [[8, 10], [86, 14], [14, 78], [80, 70], [48, 40]].map(([x, y], i) => `<span class="star" style="left:${x}%;top:${y}%;font-size:${14 + (i % 3) * 4}px;animation-delay:${i * 0.3}s">✦</span>`).join('');
+  const sparkles = () => [[8, 12], [86, 16], [14, 76], [82, 70], [50, 40]].map(([x, y], i) => `<span class="star" style="left:${x}%;top:${y}%;font-size:${12 + (i % 3) * 4}px;animation-delay:${i * 0.3}s">✦</span>`).join('');
 
-  // the big card: the approved design (weakness tab flush with the top edge, big sprite, six faces, special strip)
-  function fullCard(id, sh, o) {
-    o = o || {}; const c = C[id], e = el(c.type), face = o.face || 0, sp = E.parseSpecial(c.special);
-    const faces = c.moves.map((m, i) => `<div class="f${m ? '' : ' blank'}${face === i + 1 ? ' hot' : ''}"><span class="pip">${i + 1}</span>${m ? short(m) : '—'}</div>`).join('');
-    const hp = o.hp != null ? o.hp : c.hp;
-    return `<div class="card${sh ? ' shiny' : ''}" style="--bg:${e.bg};--c:${e.color}">
-      ${C[id].weak && D.elements[c.weak] ? `<div class="wkt">weak ${el(c.weak).icon}</div>` : ''}
-      <div class="hd"><div><div class="nm">${esc(c.name)}${sh ? ' ✨' : ''}</div><div class="lv">LEVEL ${c.level} · ${stars(c.level)}</div></div><div class="hpc"><div>${hp}<small>HP</small></div></div></div>
-      <div class="art"><span class="role">${esc(c.role)}</span><img src="${art(id, sh)}" alt="${esc(c.name)}">${sh ? sparkles() : ''}<span class="tag">${e.icon} ${c.type.toUpperCase()}</span></div>
-      <div class="ab">${c.ability ? esc(c.ability) : 'No ability'}</div>
-      <div class="faces">${faces}</div>
-      ${sp ? `<div class="sp"><i>${String(sp.face).repeat(sp.count).split('').join(' ')}</i> Special: ${short(c.special.replace(/^\d+:\s*/, ''))}</div>` : '<div class="pad"></div>'}
-    </div>`;
-  }
-  // a small card (the table, the picker). u is a battle unit or a {id, sh}
-  function mini(u, o) {
-    o = o || {}; const c = C[u.id], e = el(c.type), cw = o.cw || 110, hp = o.hp != null ? o.hp : (u.hp != null ? u.hp : c.hp), mx = u.max || c.hp;
+  // THE card: one design at every size. o: cw, face (the number highlighted), pf (a number being offered), sp (special in use), st (the strip at the bottom), pop, hp, ko, foe, sel, cls, attr
+  function card(u, o) {
+    o = o || {}; const c = C[u.id], e = el(c.type), cw = o.cw || 180, mx = u.max || c.hp, hp = o.hp != null ? o.hp : (u.hp != null ? u.hp : c.hp);
     const pct = Math.max(0, Math.min(100, hp / mx * 100)), lvl = pct <= 33 ? ' lo' : pct <= 66 ? ' mid' : '';
-    return `<div class="mini${u.sh ? ' shiny' : ''}${o.foe ? ' foe' : ''}${o.ko ? ' ko' : ''}${o.sel ? ' sel' : ''}${o.cls ? ' ' + o.cls : ''}" style="--cw:${cw}px;--bg:${e.bg};--c:${e.color}" ${o.attr || ''}>
-      ${D.elements[c.weak] ? `<div class="wk">weak ${el(c.weak).icon}</div>` : ''}
-      <div class="nm" style="padding-top:${Math.round(cw * .1)}px">${esc(c.name)}</div>
-      <div class="art2"><img src="${art(u.id, u.sh)}" alt="">${u.sh ? sparkles() : ''}</div>
-      <div class="bar${lvl}"><i style="width:${pct}%"></i><b>${Math.max(0, hp)} / ${mx}</b></div>
-      ${o.mv != null ? `<div class="mv${o.mvDash ? ' dash' : ''}" ${o.mvAttr || ''}>${o.mv}</div>` : '<div style="height:' + Math.round(cw * .05) + 'px"></div>'}
+    const sp = E.parseSpecial(c.special);
+    const rows = c.moves.map((m, i) => `<div class="f${m ? '' : ' blank'}${o.face === i + 1 && !o.sp ? ' hot' : ''}${o.pf === i + 1 && o.face !== i + 1 ? ' pick' : ''}"><span class="pip">${i + 1}</span><span class="mt">${m ? short(m) : '—'}</span></div>`).join('');
+    return `<div class="card${u.sh ? ' shiny' : ''}${o.foe ? ' foe' : ''}${o.ko ? ' ko' : ''}${o.sel ? ' sel' : ''}${o.cls ? ' ' + o.cls : ''}" style="--cw:${cw}px;--bg:${e.bg};--c:${e.color}" ${o.attr || ''}>
+      ${D.elements[c.weak] ? `<div class="wkt">weak ${el(c.weak).icon}</div>` : ''}
+      <div class="hd"><div class="nmw"><div class="nm">${esc(c.name)}${u.sh ? ' ✨' : ''}</div><div class="lv">LV ${c.level} ${stars(c.level)}</div></div><div class="hpc${lvl}"><b>${Math.max(0, hp)}</b><small>/ ${mx}</small></div></div>
+      <div class="art"><span class="role">${esc(c.role)}</span><img src="${art(u.id, u.sh)}" alt="${esc(c.name)}">${u.sh ? sparkles() : ''}<span class="tag">${e.icon} ${esc(c.type)}</span></div>
+      <div class="ab">${c.ability ? esc(c.ability) : 'No ability'}</div>
+      <div class="faces">${rows}</div>
+      ${sp ? `<div class="sp${o.sp ? ' hot' : ''}"><i>${String(sp.face).repeat(sp.count).split('').join(' ')}</i><span>${short(c.special.replace(/^\d+:\s*/, ''))}</span></div>` : ''}
+      ${o.st || '<div class="pad"></div>'}
       ${o.pop ? `<div class="pop ${o.pop.cls || ''}">${o.pop.txt}</div>` : ''}
     </div>`;
   }
   const back = cw => `<div class="back" style="--cw:${cw}px">❓</div>`;
-  const dieHtml = (v, o) => `<div class="die${o && o.sel ? ' sel' : ''}${o && o.used ? ' used' : ''}${o && o.foe ? ' foe' : ''}${o && o.roll ? ' roll' : ''}" ${o && o.attr || ''}>${v}${o && o.badge ? `<small>${o.badge}</small>` : ''}</div>`;
+  const dieHtml = (v, o) => `<div class="die${o && o.sel ? ' sel' : ''}${o && o.used ? ' used' : ''}${o && o.foe ? ' foe' : ''}${o && o.tumble ? ' tumble' : ''}" ${o && o.attr || ''}>${v}${o && o.badge ? `<small>${o.badge}</small>` : ''}</div>`;
+
+  // ---------------------------------------------------------------- the places, drawn as little scenes (160 x 120)
+  const tree = (x, y, s) => `<rect x="${x - 3 * s}" y="${y}" width="${6 * s}" height="${22 * s}" fill="#6d4c41"/><circle cx="${x}" cy="${y - 4 * s}" r="${20 * s}" fill="#2e7d32"/><circle cx="${x - 11 * s}" cy="${y + 4 * s}" r="${14 * s}" fill="#388e3c"/><circle cx="${x + 12 * s}" cy="${y + 2 * s}" r="${13 * s}" fill="#1b5e20"/>`;
+  const spark = (x, y, r, f) => `<path d="M${x} ${y - r}L${x + r * .3} ${y - r * .3} ${x + r} ${y} ${x + r * .3} ${y + r * .3} ${x} ${y + r} ${x - r * .3} ${y + r * .3} ${x - r} ${y} ${x - r * .3} ${y - r * .3}Z" fill="${f || '#fff'}"/>`;
+  const SCENE = {
+    1: () => `<rect width="160" height="120" fill="#a5d6a7"/><circle cx="132" cy="22" r="13" fill="#fff59d" opacity=".9"/><rect y="80" width="160" height="40" fill="#43a047"/><path d="M70 120C74 104 90 98 86 84L98 84C104 100 96 108 112 120Z" fill="#c5e1a5"/>${tree(30, 62, 1)}${tree(92, 50, 1.2)}${tree(140, 68, .9)}${tree(58, 78, .7)}`,
+    2: () => `<rect width="160" height="120" fill="#1a237e"/>${spark(20, 20, 4)}${spark(52, 12, 3)}${spark(96, 24, 3)}${spark(146, 56, 3)}<circle cx="124" cy="30" r="15" fill="#fff59d"/><circle cx="131" cy="26" r="13" fill="#1a237e"/><path d="M0 120V84l34-34 26 26 36-40 34 40 30-18v62Z" fill="#546e7a"/><path d="M84 50l12-14 12 14-8-3-4 6-4-6Z" fill="#eceff1"/><path d="M26 58l8-8 8 8-5-2-3 4-3-4Z" fill="#eceff1"/><path d="M52 120V104a16 16 0 0 1 32 0V120Z" fill="#0d1b2a"/>`,
+    3: () => `<rect width="160" height="120" fill="#fff59d"/><rect y="92" width="160" height="28" fill="#9e9e9e"/><rect x="26" y="44" width="76" height="52" fill="#cfd8dc" stroke="#455a64" stroke-width="3"/><rect x="34" y="22" width="14" height="26" fill="#90a4ae" stroke="#455a64" stroke-width="3"/><rect x="78" y="26" width="14" height="22" fill="#90a4ae" stroke="#455a64" stroke-width="3"/><circle cx="42" cy="14" r="8" fill="#fff" opacity=".8"/><circle cx="52" cy="8" r="6" fill="#fff" opacity=".7"/>${[0, 1, 2].map(i => `<rect x="${36 + i * 22}" y="58" width="14" height="14" fill="#fff59d" stroke="#455a64" stroke-width="2"/>`).join('')}<rect x="54" y="76" width="20" height="20" fill="#455a64"/><path d="M128 14l-18 40h14l-10 42 34-50h-16l12-32Z" fill="#ffd600" stroke="#5d4037" stroke-width="3" stroke-linejoin="round"/>`,
+    4: () => `<rect width="160" height="120" fill="#81d4fa"/><circle cx="130" cy="24" r="12" fill="#fff59d"/><rect y="74" width="160" height="46" fill="#0277bd"/><path d="M0 84q10-8 20 0t20 0 20 0 20 0 20 0 20 0 20 0 20 0" fill="none" stroke="#4fc3f7" stroke-width="3"/><path d="M24 70h112l-14 24H40Z" fill="#fff" stroke="#14110f" stroke-width="3" stroke-linejoin="round"/><path d="M30 80h100" stroke="#1565c0" stroke-width="5"/><rect x="52" y="48" width="56" height="22" fill="#eceff1" stroke="#14110f" stroke-width="3"/><rect x="68" y="26" width="16" height="24" fill="#e53935" stroke="#14110f" stroke-width="3"/><rect x="68" y="26" width="16" height="6" fill="#14110f"/>${[0, 1, 2, 3].map(i => `<circle cx="${60 + i * 14}" cy="59" r="3.5" fill="#29b6f6" stroke="#14110f" stroke-width="1.5"/>`).join('')}<circle cx="82" cy="14" r="7" fill="#fff" opacity=".8"/><circle cx="94" cy="8" r="5" fill="#fff" opacity=".7"/>`,
+    5: () => `<rect width="160" height="120" fill="#4a148c"/>${spark(24, 22, 4)}${spark(140, 18, 3)}${spark(120, 60, 2)}<circle cx="34" cy="34" r="13" fill="#e1bee7"/><path d="M58 120V54l22-26 22 26v66Z" fill="#9575cd" stroke="#1a0033" stroke-width="3" stroke-linejoin="round"/><path d="M58 70h44M58 90h44" stroke="#1a0033" stroke-width="2"/><path d="M72 46a8 8 0 0 1 16 0v10H72Zm0 30a8 8 0 0 1 16 0v10H72Z" fill="#311b92"/><rect x="70" y="100" width="20" height="20" rx="10" fill="#1a0033"/><path d="M118 108c-6-8-4-26 10-26s16 18 10 26l-5-5-5 5-5-5Z" fill="#fff" opacity=".95"/><circle cx="123" cy="92" r="2.4" fill="#4a148c"/><circle cx="132" cy="92" r="2.4" fill="#4a148c"/>`,
+    6: () => `<rect width="160" height="120" fill="#ffe082"/><circle cx="118" cy="38" r="20" fill="#ff9800"/><rect y="82" width="160" height="38" fill="#c8a45a"/><path d="M40 90V60M40 66q-14-6-18-14M40 62q10-8 20-8" stroke="#6d4c41" stroke-width="5" fill="none" stroke-linecap="round"/><ellipse cx="40" cy="48" rx="30" ry="9" fill="#558b2f"/><ellipse cx="36" cy="44" rx="20" ry="6" fill="#7cb342"/>${[0, 1, 2, 3].map(i => `<rect x="${86 + i * 18}" y="${72 - i % 2 * 3}" width="6" height="26" fill="#6d4c41"/>`).join('')}<path d="M86 82h60M86 92h60" stroke="#8d6e63" stroke-width="3"/><path d="M118 112q4-6 8 0" stroke="#8d6e63" stroke-width="2.5" fill="none"/>`,
+    7: () => `<rect width="160" height="120" fill="#e1f5fe"/><rect y="62" width="160" height="58" fill="#4fc3f7"/><path d="M0 76q10-7 20 0t20 0 20 0 20 0 20 0 20 0 20 0 20 0" fill="none" stroke="#b3e5fc" stroke-width="3"/><path d="M14 96l16-22 18 22Z" fill="#fff" stroke="#81d4fa" stroke-width="2"/><path d="M70 108l22-34 24 34Z" fill="#fff" stroke="#81d4fa" stroke-width="2"/><path d="M104 68L88 30l-22 40Z" fill="#78909c" stroke="#455a64" stroke-width="3" stroke-linejoin="round"/><path d="M76 52l12-22 11 22-6-4-5 8-5-8Z" fill="#fff"/><path d="M120 84l14-18 14 18Z" fill="#e1f5fe" stroke="#81d4fa" stroke-width="2"/>${spark(30, 24, 4, '#81d4fa')}${spark(130, 30, 3, '#81d4fa')}`,
+    8: () => `<rect width="160" height="120" fill="#ffab91"/><circle cx="26" cy="26" r="12" fill="#fff59d"/><rect y="88" width="160" height="32" fill="#1565c0"/><path d="M0 98q10-7 20 0t20 0 20 0 20 0 20 0 20 0 20 0 20 0" fill="none" stroke="#42a5f5" stroke-width="3"/><path d="M30 94l12-12h80l10 12Z" fill="#8d6e63"/><path d="M52 86l24-52h22l24 52Z" fill="#5d4037" stroke="#3e2723" stroke-width="3" stroke-linejoin="round"/><path d="M76 34h22l-3 8H79Z" fill="#ff5722"/><path d="M80 42l-4 14M92 42l5 16" stroke="#ff7043" stroke-width="3"/><circle cx="90" cy="22" r="9" fill="#b0bec5" opacity=".85"/><circle cx="102" cy="12" r="7" fill="#cfd8dc" opacity=".8"/><rect x="34" y="72" width="22" height="14" fill="#fff" stroke="#14110f" stroke-width="2"/><path d="M32 72l13-9 13 9Z" fill="#e53935"/>`,
+    9: () => `<rect width="160" height="120" fill="#ffb74d"/><circle cx="80" cy="34" r="22" fill="#ffe0b2" opacity=".8"/><path d="M0 120V74l26-30 22 24 32-44 34 44 20-16 26 28v40Z" fill="#8d6e63"/><path d="M0 120V92l30-18 32 20 30-26 38 30v22Z" fill="#6d4c41"/><path d="M58 120V84h44v36Z" fill="#bcaaa4" stroke="#3e2723" stroke-width="3"/><path d="M66 120V92a14 14 0 0 1 28 0v28Z" fill="#3e2723"/><path d="M72 120l-8 0 12-16h8l12 16Z" fill="#d7ccc8"/><path d="M80 84V62" stroke="#3e2723" stroke-width="3"/><path d="M80 62l18 6-18 7Z" fill="#e53935"/>`,
+  };
+  function gymScene(n) {
+    const col = n.color || '#78909c';
+    return `<rect width="160" height="120" fill="${col}" opacity=".35"/><rect width="160" height="120" fill="#eceff1" opacity=".55"/><rect y="94" width="160" height="26" fill="#90a4ae"/>
+      <path d="M26 50L80 22l54 28Z" fill="${col}" stroke="#14110f" stroke-width="3" stroke-linejoin="round"/>
+      <rect x="34" y="50" width="92" height="50" fill="#fff" stroke="#14110f" stroke-width="3"/>
+      ${[0, 1, 2].map(i => `<rect x="${42 + i * 30}" y="54" width="8" height="42" fill="#cfd8dc" stroke="#14110f" stroke-width="2"/>`).join('')}
+      <rect x="66" y="70" width="28" height="30" fill="#455a64" stroke="#14110f" stroke-width="2"/>
+      <circle cx="80" cy="36" r="13" fill="#fff" stroke="#14110f" stroke-width="3"/><text x="80" y="43" text-anchor="middle" font-size="18">${n.trainer || '🏅'}</text>`;
+  }
+  const finaleScene = () => `<rect width="160" height="120" fill="#4527a0"/>${Array.from({ length: 12 }, (_, i) => { const a = i * Math.PI / 6; return `<path d="M80 62L${(80 + 90 * Math.cos(a - .1)).toFixed(0)} ${(62 + 90 * Math.sin(a - .1)).toFixed(0)} ${(80 + 90 * Math.cos(a + .1)).toFixed(0)} ${(62 + 90 * Math.sin(a + .1)).toFixed(0)}Z" fill="#7e57c2" opacity=".6"/>`; }).join('')}<text x="80" y="82" text-anchor="middle" font-size="66">🏆</text>`;
+  const sceneOf = n => n.kind === 'loc' ? SCENE[n.loc]() : n.finale ? finaleScene() : gymScene(n);
 
   // ---------------------------------------------------------------- the game loop
   function toast(t) { ui.toast = t; render(); setTimeout(() => { if (ui.toast === t) { ui.toast = ''; const x = document.querySelector('.toast'); if (x) x.remove(); } }, 2400); }
   function act(a) {
-    const before = G.battle ? G.battle.units.map(u => u.uid) : [];
     const r = E.apply(G, a); if (!r.ok) { toast(r.error); return false; }
-    save(); noteBursts(before); drive(); return true;
+    save(); drive(); return true;
   }
-  function noteBursts(before) {
-    const b = G.battle; if (!b) return;
-    b.units.forEach(u => { if (u.sh && before.indexOf(u.uid) < 0) {} });
-  }
-  // the computer's turn to place or assign: one card at a time so you can watch it happen
+  // the computer's turn to place: one card at a time so you can watch it happen
   function drive() {
     const b = G.battle;
     if (b && b.stage === 'place' && b.pl && b.pl.side === 1) {
@@ -1388,16 +1416,15 @@ const Bots = (() => {
   function skipPlay() { if (!ui.play) return; clearTimeout(ui.pt); ui.play = null; render(); afterRound(); }
   function afterRound() {
     const b = G.battle; if (!b) return;
-    if (b.out === 'hero' || b.out === 'gm') tipOnce('end', 'Win by knocking out every card on their side. A card that reaches 0 health is out right away.');
+    if (b.out === 'hero' || b.out === 'gm') tipOnce('end'); else tipOnce('roll');
   }
 
   // ---------------------------------------------------------------- tips (once per device)
   const TIPTEXT = {
-    place: 'Take turns putting cards down. Tap one of your cards, then tap where it goes: next to a card to fight it, or in a new column.',
-    dice: 'Everyone rolls one die per card. Tap a die, then tap the card that should use it. Each card does a different thing on each number!',
-    weak: 'A card hit by its weakness (the tab at the top of the card) takes double damage.',
+    place: 'Take turns putting cards down. Tap one of your cards, then tap where it goes: across from a card to fight it, or in a new column.',
+    dice: 'Everyone rolls one die per card. Tap a die, then tap the card that should use it. Each card does something different on each number: the rows on the card show what.',
     shiny: 'A shiny! It looks different, but plays just the same.',
-    block: 'A blocker soaks up damage for itself or a neighbour. If it can’t soak it all, it takes the rest.',
+    roll: 'Now tap anywhere to roll the dice for the next round.',
     end: 'Win by knocking out every card on their side. A card that reaches 0 health is out right away.',
   };
   function tipOnce(k, text) { if (!set.tips || tipsSeen[k] || ui.tip) return; tipsSeen[k] = 1; lsSet(TIPS, tipsSeen); ui.tip = { k, text: text || TIPTEXT[k] }; render(); }
@@ -1425,40 +1452,54 @@ const Bots = (() => {
   }
   function newScreen() {
     return `<div class="top"><button class="ib" data-act="menu0">←</button><div class="t">Choose your partner</div><div style="width:52px"></div></div>
-      <div class="scr"><div class="center">
+      <div class="scr"><div class="center" style="padding-top:12px">
         <div style="display:flex;flex-wrap:wrap;gap:14px;justify-content:center">${D.starters.map(st => { const c = C[st.levels[0]], e = el(c.type); return `<button data-act="starter" data-k="${st.key}" style="background:${e.bg};color:#14110f;border:4px solid #14110f;border-radius:18px;padding:10px 14px 12px;width:150px;box-shadow:0 6px 0 #0008"><img class="pix" width="112" height="112" src="${art(st.levels[0], 0)}" alt=""><div style="font:900 20px system-ui">${st.name}</div><div style="font:800 14px system-ui;opacity:.75">${e.icon} ${c.type}</div></button>`; }).join('')}</div>
         <div style="display:flex;gap:8px;flex-wrap:wrap;justify-content:center;align-items:center"><b>Computer:</b>${['easy', 'medium', 'hard'].map(x => `<button class="chip${set.ai === x ? ' on' : ''}" data-act="ai" data-v="${x}">${x[0].toUpperCase() + x.slice(1)}</button>`).join('')}</div>
         <div style="display:flex;gap:8px;flex-wrap:wrap;justify-content:center;align-items:center"><b>Bosses:</b>${[['short', 'Shorter game'], ['long', 'Longer game']].map(([x, l]) => `<button class="chip${set.size === x ? ' on' : ''}" data-act="size" data-v="${x}">${l}</button>`).join('')}</div>
-        <div style="opacity:.8;font-size:16px">Your rival will pick the partner that beats yours.</div>
       </div></div>`;
   }
-  const nodeCls = (n) => { const open = E.unlocked(G, n), done = (n.kind !== 'loc') && G.done[n.id]; return { open, done }; };
+
+  // ---- the map: left to right; only what is open, and one step beyond it (so the two paths show up as a fork)
+  const TW = 210, TH = 214, PADX = 24, PADY = 20;
+  const shown = n => E.unlocked(G, n) || n.needs.every(id => E.unlocked(G, E.node(id)));
+  const nodeXY = n => [PADX + n.stage * TW + TW / 2, PADY + n.lane * TH + TH / 2];
   function mapScreen() {
-    const rows = {}; D.nodes.forEach(n => { (rows[n.row] = rows[n.row] || [])[n.col] = n; });
-    const tiles = [];
-    for (let r = 0; r <= 8; r++) for (let c = 0; c < 3; c++) {
-      const n = rows[r] && rows[r][c]; if (!n) { tiles.push('<div class="empty"></div>'); continue; }
-      const { open, done } = nodeCls(n); let bg = '#fff', em = '', sub = '';
-      if (n.kind === 'loc') { const lc = { green: '#bfe8a5', brown: '#d9c7b4', yellow: '#ffe9a0', blue: '#b7dcff', purple: '#e3c9ff', red: '#ffc79a' }[D.locations.find(l => l.id === n.loc).color]; bg = lc; em = '🗺️'; sub = open ? E.deckSize(G, n.loc) + ' cards' : ''; }
-      else if (n.kind === 'boss') { bg = '#ffd9d9'; em = n.trainer; sub = 'Gym leader · ' + (G.bosses[n.id].length) + ' cards'; }
-      else { bg = '#e8dcff'; em = n.finale ? '🏆' : '⚔️'; sub = n.finale ? 'The final fight' : '1 card'; }
-      const next = open && !done && n.kind !== 'loc';
-      tiles.push(`<button class="nd ${n.kind === 'boss' ? 'boss' : ''}${open ? '' : ' lock'}${done ? ' done' : ''}${next ? ' next' : ''}" style="--bg:${bg}" data-act="node" data-id="${n.id}"><div class="em">${open ? (done ? '✅' : em) : '🔒'}</div><b>${esc(n.name)}</b><span>${open ? sub : ''}</span></button>`);
-    }
+    const vis = D.nodes.filter(shown), ids = new Set(vis.map(n => n.id));
+    const maxStage = Math.max(...vis.map(n => n.stage)), W = PADX * 2 + (maxStage + 1) * TW, H = PADY * 2 + 3 * TH;
+    const lines = vis.map(n => n.needs.filter(id => ids.has(id)).map(id => {
+      const a = E.node(id), [x1, y1] = nodeXY(a), [x2, y2] = nodeXY(n), done = G.done[id], mx = (x1 + x2) / 2;
+      return `<path d="M${x1 + 78} ${y1}C${mx} ${y1} ${mx} ${y2} ${x2 - 78} ${y2}" fill="none" stroke="${done ? '#ffd23f' : '#ffffff77'}" stroke-width="${done ? 8 : 5}" stroke-linecap="round" ${done ? '' : 'stroke-dasharray="2 12"'}/>`;
+    }).join('')).join('');
+    const tiles = vis.map(n => {
+      const open = E.unlocked(G, n), done = n.kind !== 'loc' && G.done[n.id], [cx, cy] = nodeXY(n);
+      const next = open && !done && n.kind === 'boss';
+      const sub = !open ? 'Locked' : n.kind === 'loc' ? E.deckSize(G, n.loc) + ' cards here' : n.kind === 'boss' ? (done ? 'Beaten!' : 'Gym leader · ' + G.bosses[n.id].length + ' cards') : (done ? 'Beaten!' : 'The final fight');
+      return `<button class="place${open ? '' : ' lock'}${done ? ' done' : ''}${next ? ' next' : ''}${n.kind === 'boss' ? ' gym' : ''}" style="left:${cx - 80}px;top:${cy - 92}px" data-act="node" data-id="${n.id}">
+        <svg viewBox="0 0 160 120" role="img" aria-label="${esc(n.name)}">${sceneOf(n)}</svg>${open ? '' : '<div class="lk">🔒</div>'}${done ? '<div class="ck">✔</div>' : ''}
+        <div class="pl"><b>${esc(n.name)}</b><span>${sub}</span></div></button>`;
+    }).join('');
     const sl = E.slots(G);
     return `<div class="top"><button class="ib" data-act="menu">☰</button><div class="t">Kanto &amp; Johto</div><span class="chip">🎲 ×${sl}</span><span class="chip">★ Lv ${G.lv}</span></div>
-      <div class="map">${tiles.join('')}</div>
+      <div class="mapwrap"><div class="mapin" style="width:${W}px;height:${H}px"><svg class="mapsvg" width="${W}" height="${H}">${lines}</svg>${tiles}</div></div>
       <div class="dock" style="flex-direction:row;justify-content:center"><button class="btn alt" data-act="coll">Your cards (${G.coll.length})</button></div>`;
   }
+  function frontierX() {
+    const vis = D.nodes.filter(n => E.unlocked(G, n) && !(n.kind !== 'loc' && G.done[n.id])), st = vis.length ? Math.max(...vis.map(n => n.stage)) : 0;
+    return Math.max(0, PADX + st * TW + TW / 2 - innerWidth / 2);
+  }
+
+  // a wrapping grid of whole cards, as big as the screen allows
+  function cardGrid(list, o) {
+    o = o || {}; const W = Math.min(innerWidth, 860), per = innerWidth >= 700 ? 4 : 2, cw = Math.min(o.max || 210, Math.floor((W - 24 - 12 * (per - 1)) / per));
+    return `<div class="cgrid">${list.map(c => card(c, { cw, sel: o.sel && o.sel(c), attr: o.attr ? o.attr(c) : '' })).join('')}</div>`;
+  }
   function pickScreen() {
-    const p = G.pend, nd = E.node(p.node), need = p.need;
-    const opp = nd.kind === 'boss' ? G.bosses[nd.id] : null;
-    const cw = Math.max(86, Math.min(190, Math.floor((Math.min(innerWidth, 860) - 40) / Math.min(5, Math.max(3, G.coll.length)) - 10)));
-    const gmRow = opp ? `<div class="row" style="padding:4px">${opp.map(i => mini(i, { cw: 72, foe: 1 })).join('')}</div>` : `<div class="row" style="padding:4px">${Array.from({ length: p.gm }, () => back(60)).join('')}</div>`;
+    const p = G.pend, nd = E.node(p.node), need = p.need, opp = nd.kind === 'boss' ? G.bosses[nd.id] : null;
+    const theirs = opp ? `<div class="hrow">${opp.map(i => card(i, { cw: 150, foe: 1 })).join('')}</div>` : `<div class="hrow" style="justify-content:center">${Array.from({ length: p.gm }, () => back(54)).join('')}</div>`;
     return `<div class="top"><button class="ib" data-act="pickback">←</button><div class="t">${esc(nd.name)}</div><span class="chip">${ui.pick.length} / ${need}</span></div>
-      <div class="scr"><div class="status">${opp ? 'They will bring these cards.' : nd.kind === 'rival' ? 'Your rival is ready.' : 'Wild cards are hiding here.'}</div>${gmRow}
-      <div class="status" style="opacity:.9">Choose ${need} card${need === 1 ? '' : 's'} for your team.</div>
-      <div class="grid">${G.coll.map(c => mini(c, { cw, sel: ui.pick.indexOf(c.uid) >= 0, attr: `data-act="pickc" data-uid="${c.uid}"` })).join('')}</div></div>
+      <div class="scr"><div class="status">${opp ? 'They will bring these cards.' : nd.kind === 'rival' ? 'Your rival is ready.' : 'Wild cards are hiding here.'}</div>${theirs}
+      <div class="status">Choose ${need} card${need === 1 ? '' : 's'} for your team.</div>
+      ${cardGrid(G.coll, { sel: c => ui.pick.indexOf(c.uid) >= 0, attr: c => `data-act="pickc" data-uid="${c.uid}"` })}</div>
       <div class="dock" style="flex-direction:row;justify-content:center"><button class="btn big" data-act="fight" ${ui.pick.length === need ? '' : 'disabled'}>Fight!</button></div>`;
   }
 
@@ -1467,41 +1508,46 @@ const Bots = (() => {
     const a = b.asg[u.side][u.uid]; if (!a) return null;
     const vals = a.dice.map(i => b.dice[u.side][i]); return { vals, m: E.chosenMove(b, u, vals), die: a.dice };
   }
+  const aimable = (b, u) => {
+    const a = b.asg[u.side][u.uid]; if (!a) return []; const m = E.chosenMove(b, u, a.dice.map(i => b.dice[u.side][i])); if (!m || !m.mv) return [];
+    const c = E.bestClause(b, u, m.mv); if (!c) return []; const out = [];
+    E.effectsOf(b, u, c.clause).forEach(e => { if (e.k === 'a') { const cs = E.candidates(b, u, e); if (cs.length > 1 && !e.spec.all) cs.forEach(x => x.forEach(t => out.push(t.u.uid))); } });
+    return out;
+  };
   function battleScreen() {
     const b = G.battle, p = ui.play, nd = E.node(b.node), placing = b.stage === 'place', assign = b.stage === 'assign', done = b.stage === 'resolved' && !p;
     const m = Math.max(1, b.limit), W = Math.min(innerWidth, 860), H = innerHeight;
-    const cw = Math.max(58, Math.min(220, Math.floor((W - 16 - (m + 1) * 8) / m), Math.floor((H - 470) / 3.0)));
-    const hand = side => b.hand[side];
+    const trayN = placing ? b.hand[0].length : 0;
+    const rows = trayN ? 3 : 2, chrome = placing ? 160 : 330;
+    const cwW = Math.floor((W - 16 - (m + 1) * 6 - m * 14) / m), cwH = Math.floor((H - chrome) / rows / 2.0);
+    const cw = Math.max(150, Math.min(250, cwW, cwH));
     const selected = ui.sel != null && b.hand[0].indexOf(ui.sel) >= 0 ? ui.sel : null;
     const yourPlace = placing && b.pl.side === 0;
+    if (assign && ui.rolledFor !== b.round) { ui.rolledFor = b.round; ui.rolling = Date.now() + 950; setTimeout(() => { ui.rolling = 0; render(); }, 1000); }
+    const rolling = ui.rolling && Date.now() < ui.rolling;
     const hpOf = u => p ? (p.hp[u.uid] != null ? p.hp[u.uid] : u.hp) : u.hp;
     const koOf = u => p ? !!p.ko[u.uid] : u.ko;
-    const mvHtml = u => {
-      if (u.ko || koOf(u)) return { mv: '✕', dash: 0 };
-      const info = unitMove(b, u);
-      if (u.skip && (assign || p || done)) return { mv: '<span style="font-size:.8em">💤 loses a round</span>', dash: 1 };
-      if (u.side === 1) {
-        if (assign || placing) return { mv: info ? '<span class="dchip" style="background:#7b1e1e;color:#fff">?</span> ready' : '…', dash: 1 };
-        if (p && !p.revealed[u.uid]) return { mv: '<span class="dchip" style="background:#7b1e1e;color:#fff">?</span>', dash: 1 };
-        if (!info) return { mv: '—', dash: 0 };
-        return { mv: `<span class="dchip">${info.vals[0]}</span>${info.m && info.m.sp ? '<span class="mA">SPECIAL</span>' : short(info.m ? info.m.str : '')}`, dash: 0 };
-      }
-      if (info) return { mv: `<span class="dchip">${info.vals.join('+')}</span>${info.m && info.m.sp ? '<span class="mA">SPECIAL</span>' : (info.m && info.m.str ? short(info.m.str) : '—')}`, dash: 0, attr: `data-act="unmv" data-uid="${u.uid}"` };
-      if (assign) return { mv: ui.die != null ? 'tap to use ' + b.dice[0][ui.die] : 'needs a die', dash: 1 };
-      return { mv: '—', dash: 0 };
-    };
     const popOf = u => p && p.pop[u.uid];
     const clsOf = u => {
       let c = ''; const cur = p && p.cur;
       if (cur && cur.t === 'strike' && cur.u === u.uid) c += ' act'; if (cur && cur.t === 'strike' && cur.to.indexOf(u.uid) >= 0 && cur.u !== u.uid) c += ' hurt';
       if (cur && cur.t === 'move' && cur.u === u.uid && cur.txt && cur.txt !== '—') c += ' act';
-      if (ui.burst === u.uid) c += ' burst'; if (ui.aim && E.U(b, ui.aim) && aimable(b, E.U(b, ui.aim)).indexOf(u.uid) >= 0) c += ' sel'; return c;
+      if (ui.burst === u.uid) c += ' burst';
+      if (ui.aim && E.U(b, ui.aim) && aimable(b, E.U(b, ui.aim)).indexOf(u.uid) >= 0) c += ' sel'; return c;
     };
     const unitCard = u => {
-      const mvH = mvHtml(u), ko = u.ko || koOf(u);
-      if (ko && !(p && !p.ko[u.uid] && !u.ko) && u.ko && !p) return `<div style="width:${cw}px"></div>`;
-      const sel = u.side === 0 && assign && ui.die != null;
-      return mini(u, { cw, foe: u.side === 1, ko: koOf(u), hp: hpOf(u), mv: mvH.mv, mvDash: mvH.dash, mvAttr: mvH.attr, cls: clsOf(u), pop: popOf(u), attr: `data-act="unit" data-uid="${u.uid}"` });
+      const info = unitMove(b, u), ko = u.ko || koOf(u); let st = '', face = 0, spOn = false;
+      const reveal = u.side === 0 || done || (p && p.revealed[u.uid]);
+      if (info && reveal && info.m) { face = info.vals[0]; spOn = !!info.m.sp; }
+      if (ko) st = '<div class="st dash">✕ out</div>';
+      else if (u.skip && (assign || p || done)) st = '<div class="st dash">💤 loses a round</div>';
+      else if (u.side === 1) st = reveal ? (info ? `<div class="st">🎲 ${info.vals.join('+')}${spOn ? ' · SPECIAL' : ''}</div>` : '<div class="st dash">no die</div>') : (assign || p ? '<div class="st">🎲 ? ' + (info ? '· ready' : '') + '</div>' : '<div class="st dash">…</div>');
+      else if (info) st = `<div class="st go" ${assign ? `data-act="unmv" data-uid="${u.uid}"` : ''}>🎲 ${info.vals.join('+')}${spOn ? ' · SPECIAL' : ''}${assign ? ' ✕' : ''}</div>`;
+      else st = `<div class="st dash">${assign ? (ui.die != null ? 'tap to use the ' + b.dice[0][ui.die] : 'needs a die') : 'no die'}</div>`;
+      const tw = E.tags(u).find(g => g.t === 'incDie' || g.t === 'setDie');
+      if (tw && u.side === 0 && assign && info && !ko && b.round - u.lastTweak >= tw.every) st += `<div class="st go" data-act="tweak" data-uid="${u.uid}">⚡ Use ability on its die</div>`;
+      const pf = assign && u.side === 0 && !ko && ui.die != null ? b.dice[0][ui.die] : 0;
+      return card(u, { cw, foe: u.side === 1, ko: koOf(u), hp: hpOf(u), face, sp: spOn, pf, st, cls: clsOf(u), pop: popOf(u), attr: `data-act="unit" data-uid="${u.uid}"` });
     };
     const slotHtml = (ci, side) => {
       const uid = b.cols[ci][side];
@@ -1514,76 +1560,64 @@ const Bots = (() => {
     let cols = ins(0);
     b.cols.forEach((c, i) => { cols += `<div class="col" style="--cw:${cw}px">${slotHtml(i, 1)}${slotHtml(i, 0)}</div>` + ins(i + 1); });
     if (!b.cols.length && !canIns) cols = `<div class="vsl">${placing ? 'Cards go here' : ''}</div>`;
-    // trays
-    const trayCw = Math.max(56, Math.min(96, Math.floor((W - 24 - 8 * Math.max(1, hand(0).length)) / Math.max(1, hand(0).length))));
-    const foeTray = hand(1).length ? hand(1).map(() => back(Math.max(36, trayCw * .6))).join('') : '';
-    const heroTray = hand(0).map(uid => { const u = E.U(b, uid); return mini(u, { cw: trayCw, sel: uid === selected, attr: `data-act="tray" data-uid="${uid}"` }); }).join('');
+    const foeTray = b.hand[1].length ? b.hand[1].map(() => back(40)).join('') : '';
+    const heroTray = b.hand[0].map(uid => card(E.U(b, uid), { cw, sel: uid === selected, attr: `data-act="tray" data-uid="${uid}"` })).join('');
     // dice
     const hd = b.dice[0], used = E.assignedDice(b, 0);
     const owner = {}; Object.keys(b.asg[0]).forEach(k => b.asg[0][k].dice.forEach(i => { owner[i] = +k; }));
-    const diceHtml = (assign || done || p) && hd.length ? hd.map((v, i) => dieHtml(v, { sel: ui.die === i, used: used.has(i), attr: assign ? `data-act="die" data-i="${i}"` : '', badge: owner[i] != null ? (C[E.U(b, owner[i]).id].name.slice(0, 3)) : '', roll: assign && ui.rolledFor !== b.round })).join('') : '';
-    const foeDice = (assign || placing || p || done) && b.dice[1].length ? b.dice[1].map((v, i) => dieHtml(assign && !p ? '?' : v, { foe: 1 })).join('') : '';
-    if (assign) ui.rolledFor = b.round; else if (placing) ui.rolledFor = 0;
+    const diceHtml = (assign || done || p) && hd.length ? hd.map((v, i) => dieHtml(v, { sel: ui.die === i, used: used.has(i), tumble: rolling, attr: assign && !rolling ? `data-act="die" data-i="${i}"` : '', badge: owner[i] != null ? (C[E.U(b, owner[i]).id].name.slice(0, 3)) : '' })).join('') : '';
+    const foeDice = (assign || p || done) && b.dice[1].length ? b.dice[1].map((v, i) => dieHtml(assign && !p ? '?' : v, { foe: 1, tumble: rolling })).join('') : '';
     let status = '', btns = '';
     if (placing) status = yourPlace ? (selected != null ? 'Now tap where it goes' : 'Your turn: pick a card to put down (' + b.pl.left + ' left)') : 'They are choosing…';
-    else if (assign) { const need = E.living(b, 0).filter(u => !u.skip && !b.asg[0][u.uid]).length; status = ui.die != null ? 'Tap a card to give it that ' + b.dice[0][ui.die] : (E.readyToGo(b, 0) ? 'Ready? Press Go!' : 'Tap a die, then a card (' + need + ' to go)'); }
+    else if (assign) { const need = E.living(b, 0).filter(u => !u.skip && !b.asg[0][u.uid]).length; status = rolling ? 'Rolling…' : ui.die != null ? 'Tap a card to give it that ' + b.dice[0][ui.die] : (E.readyToGo(b, 0) ? 'Ready? Press Go!' : 'Tap a die, then a card (' + need + ' to go)'); }
     else if (p) status = 'Watch…';
-    else if (done) status = b.out === 'hero' ? '🏆 You win!' : b.out === 'gm' ? 'You lose this one' : b.out === 'sudden' ? 'Everyone fell! Sudden death…' : 'Round over';
+    else if (done) status = `<span class="rollhint">${b.out === 'hero' ? '🏆 You win! Tap anywhere to continue' : b.out === 'gm' ? 'You lose this one. Tap anywhere to continue' : b.out === 'sudden' ? 'Everyone fell! Tap anywhere for sudden death' : '🎲 Tap anywhere to roll'}</span>`;
     if (assign) {
-      const canRe = ui.die != null && (b.rr[0] > 0 || (b.rrFace[0].indexOf(hd[ui.die]) >= 0 && !b.rrUsed[0][ui.die]));
-      btns = `${canRe ? `<button class="btn alt" data-act="reroll">🔄 Reroll${b.rr[0] ? ' (' + b.rr[0] + ')' : ''}</button>` : ''}<button class="btn ghost" data-act="auto">Suggest</button><button class="btn big" data-act="go" ${E.readyToGo(b, 0) && b.gmReady ? '' : 'disabled'}>Go!</button>`;
-    } else if (done) btns = `<button class="btn big" data-act="next">${b.out === 'hero' || b.out === 'gm' ? 'Continue' : b.out === 'sudden' ? 'Sudden death' : 'Next round'}</button>`;
-    else if (p) btns = `<button class="btn ghost" data-act="skip">Skip ▶▶</button>`;
+      const canRe = !rolling && ui.die != null && (b.rr[0] > 0 || (b.rrFace[0].indexOf(hd[ui.die]) >= 0 && !b.rrUsed[0][ui.die]));
+      btns = `${canRe ? `<button class="btn alt" data-act="reroll">🔄 Reroll${b.rr[0] ? ' (' + b.rr[0] + ')' : ''}</button>` : ''}<button class="btn big" data-act="go" ${!rolling && E.readyToGo(b, 0) && b.gmReady ? '' : 'disabled'}>Go!</button>`;
+    } else if (p) btns = `<button class="btn ghost" data-act="skip">Skip ▶▶</button>`;
+    const living = s => E.living(b, s).length;
+    const dock = placing ? '' : `<div class="dock"><div class="dice" style="min-height:0;transform:scale(.62);margin:-10px 0">${foeDice}</div><div class="dice">${diceHtml}</div><div class="acts">${btns}</div></div>`;
     return `<div class="top"><button class="ib" data-act="menu">☰</button><div class="t">${esc(nd.name)}${b.round ? ' · Round ' + b.round : ''}${b.sudden ? ' · SUDDEN DEATH' : ''}</div><span class="chip">${living(0)} vs ${living(1)}</span></div>
       <div class="table">
-        <div class="tray" style="min-height:${Math.round(trayCw * .8)}px">${foeTray}</div>
+        ${foeTray ? `<div class="tray" style="min-height:0">${foeTray}</div>` : ''}
         <div class="board">${cols}</div>
-        <div class="tray">${heroTray}</div>
+        ${trayN ? `<div class="hrow">${heroTray}</div>` : ''}
       </div>
-      <div class="status">${status}</div>
-      <div class="dock"><div class="dice">${foeDice ? `<div class="dice" style="min-height:0;transform:scale(.7)">${foeDice}</div>` : ''}</div><div class="dice">${diceHtml}</div><div class="acts">${btns}</div></div>`;
-    function living(s) { return E.living(b, s).length; }
+      <div class="status">${status}</div>${dock}`;
   }
-  const aimable = (b, u) => {
-    const a = b.asg[u.side][u.uid]; if (!a) return []; const m = E.chosenMove(b, u, a.dice.map(i => b.dice[u.side][i])); if (!m || !m.mv) return [];
-    const c = E.bestClause(b, u, m.mv); if (!c) return []; const out = [];
-    E.effectsOf(b, u, c.clause).forEach(e => { if (e.k === 'a') { const cs = E.candidates(b, u, e); if (cs.length > 1 && !e.spec.all) cs.forEach(x => x.forEach(t => out.push(t.u.uid))); } });
-    return out;
-  };
-
   function resultScreen() {
-    const r = G.res, nd = E.node(r.node);
-    const take = r.pick ? `<div class="status">Choose one to join your team!</div><div class="grid" style="flex:none">${r.pick.map((i, k) => mini(i, { cw: Math.min(130, Math.floor((Math.min(innerWidth, 860) - 30) / Math.max(2, r.pick.length)) - 10), attr: `data-act="take" data-i="${k}"` })).join('')}</div>` : (r.took ? `<div class="status">You caught ${esc(C[r.took.id].name)}${r.took.sh ? ' ✨' : ''}!</div><div class="row">${mini(r.took, { cw: 130 })}</div>` : '');
-    const sdv = E.starterOf(G.starter), evo = r.evolve ? `<div class="status">${esc(C[sdv.levels[r.evolve - 1]].name)} is ready to evolve! Which will it be?</div><div class="row" style="gap:16px">${[[sdv.levels[r.evolve - 1], 0], [sdv.evolve[r.evolve], 1]].map(([id, y]) => mini({ id, sh: 0 }, { cw: 140, attr: `data-act="evolve" data-yes="${y}"` })).join('')}</div>` : '';
+    const r = G.res, nd = E.node(r.node), sdv = E.starterOf(G.starter), cw = 150;
+    const take = r.pick ? `<div class="status">Choose one to join your team!</div><div class="hrow">${r.pick.map((i, k) => card(i, { cw, attr: `data-act="take" data-i="${k}"` })).join('')}</div>` : (r.took ? `<div class="status">You caught ${esc(C[r.took.id].name)}${r.took.sh ? ' ✨' : ''}!</div><div class="hrow">${card(r.took, { cw })}</div>` : '');
+    const evo = r.evolve ? `<div class="status">${esc(C[sdv.levels[r.evolve - 1]].name)} is ready to evolve! Which will it be?</div><div class="hrow">${[[sdv.levels[r.evolve - 1], 0], [sdv.evolve[r.evolve], 1]].map(([id, y]) => card({ id, sh: 0 }, { cw, attr: `data-act="evolve" data-yes="${y}"` })).join('')}</div>` : '';
     const lines = []; if (r.win && nd.kind === 'boss') lines.push(`You beat ${esc(nd.name)}! +1 die`); if (r.levelUp) lines.push(`Your partner grew to level ${r.levelUp}!`); if (r.legend && r.win) lines.push(`${esc(C[r.legend.id].name)}${r.legend.sh ? ' ✨' : ''} joins your team!`);
-    return `<div class="center" style="justify-content:flex-start;padding-top:24px"><div class="banner">${r.win ? (nd.finale ? 'CHAMPION!' : 'Victory!') : 'Not this time'}</div>
+    return `<div class="scr" style="overflow:auto"><div class="center" style="justify-content:flex-start;padding-top:56px"><div class="banner">${r.win ? (nd.finale ? 'CHAMPION!' : 'Victory!') : 'Not this time'}</div>
       ${lines.map(l => `<div style="font:800 22px system-ui">${l}</div>`).join('')}
-      ${r.win && r.levelUp ? `<div class="row">${mini({ id: G.coll.find(c => c.starter).id, sh: 0 }, { cw: 130 })}</div>` : ''}
-      ${r.win && r.legend ? `<div class="row">${mini(r.legend, { cw: 130 })}</div>` : ''}
+      ${r.win && r.levelUp && !r.evolve ? `<div class="hrow">${card({ id: G.coll.find(c => c.starter).id, sh: 0 }, { cw })}</div>` : ''}
+      ${r.win && r.legend ? `<div class="hrow">${card(r.legend, { cw })}</div>` : ''}
       ${evo}${take}
-      ${r.pick || r.evolve ? '' : `<button class="btn big" data-act="done">${G.phase === 'won' ? 'Hall of Fame' : 'Continue'}</button>`}</div>`;
+      ${r.pick || r.evolve ? '' : `<button class="btn big" data-act="done">${G.phase === 'won' ? 'Hall of Fame' : 'Continue'}</button>`}</div></div>`;
   }
   function wonScreen() {
-    return `<div class="center"><div class="banner" style="font-size:54px">CHAMPION!</div><div style="font:800 22px system-ui">You beat the gym leaders, Lance and your rival in ${G.turn} turns.</div>
-      <div class="grid" style="flex:none;max-height:44vh">${G.coll.map(c => mini(c, { cw: 84 })).join('')}</div>
-      <button class="btn big" data-act="menu0">Main menu</button></div>`;
+    return `<div class="scr"><div class="center" style="flex:none;padding-top:56px"><div class="banner" style="font-size:54px">CHAMPION!</div><div style="font:800 22px system-ui">You beat the gym leaders, Lance and your rival in ${G.turn} turns.</div></div>
+      ${cardGrid(G.coll, { max: 170 })}<div class="dock" style="flex-direction:row;justify-content:center"><button class="btn big" data-act="menu0">Main menu</button></div></div>`;
   }
 
   // ---- overlays
   const helpText = [
     '<b>The goal.</b> Collect creature cards, beat the gym leaders to open new places, then beat Lance and your rival.',
-    '<b>On the map.</b> Tap a place. In a <b>location</b> you fight wild cards: you bring as many cards as you have dice (🎲), they bring the same number. Win, and you keep one of their cards. Lose, and nothing is lost. A <b>gym leader</b> has a fixed team; beat them to level up your partner and earn another die.',
+    '<b>On the map.</b> Tap a place. In a <b>location</b> you fight wild cards: you bring as many cards as you have dice (🎲), they bring the same number. Win, and you keep one of their cards. Lose, and nothing is lost. A <b>gym leader</b> has a fixed team; beat them to level up your partner and earn another die. The road forks after Brock: take either path first, they meet again at Blue.',
     '<b>A fight.</b> Cards stand in columns, each facing one opponent. Take turns putting cards down (two at a time after the first), then every card gets a die.',
-    '<b>Every round.</b> Each side rolls one die per card (no rerolls unless a card says so). Tap a die, then tap the card that should use it. Each card does something different on each number 1–6: attack ⚔, block 🛡, heal ✚, or hurt itself 💥. When you are ready, press Go!',
+    '<b>Every round.</b> Each side rolls one die per card (no rerolls unless a card says so). Tap a die, then tap the card that should use it. The six rows on a card show what it does on each number: attack ⚔, block 🛡, heal ✚, or hurt itself 💥. The row for the die you picked lights up. When you are ready, press Go! After the round, tap anywhere to roll again.',
     '<b>Resolving.</b> Healing happens first. Then cards act from left to right, your card first in each column. A card at 0 health is out immediately. The arrows show who a move can reach: ◀ left, ▲ the card facing it, ▶ right, ▼ itself.',
     '<b>Elements.</b> A card hit by the element on its weakness tab takes double damage.',
     '<b>Blocking.</b> A block soaks up damage for the card or its neighbours. If it can’t soak it all, the blocker takes what is left.',
-    '<b>Special moves.</b> Put two or three dice showing the same number on one card to use its special. The cards without a die sit that round out.',
+    '<b>Special moves.</b> Put two or three dice showing the same number on one card to use its special (the strip at the bottom of the card). The cards without a die sit that round out.',
     '<b>Shinies.</b> Every card drawn from a place has a 1-in-20 chance to be shiny. Shiny is just for looks. A card on a team keeps its shine for good.',
     '<b>Legendaries.</b> Once you have two dice, a 9 on two dice at the start of a turn means a legendary was spotted!',
-    '<b>Choices I made</b> (the rulebook is a draft): you may put your cards down first or second (the computer goes first); a blocker takes what is left over; a card at 0 health is out at once; when matchups break up, the side with fewer cards moves to find a partner; a fight that goes nowhere for six rounds is a loss; abilities that push or swap cards between columns are not in this version.',
+    '<b>Choices I made</b> (the rulebook is a draft): your partner starts at level 2; you may put your cards down first or second (the computer goes first); a blocker takes what is left over; a card at 0 health is out at once; when matchups break up, the side with fewer cards moves to find a partner; a fight that goes nowhere for six rounds is a loss.',
   ];
-  function helpSheet() { return `<div class="sheet" data-act="closehelp"><div class="box help" data-stop="1"><h2>How to Play</h2>${helpText.map(t => `<p>${t}</p>`).join('')}<button class="btn" data-act="closehelp">Got it</button></div></div>`; }
+  const helpSheet = () => `<div class="sheet" data-act="closehelp"><div class="box help" data-stop="1"><h2>How to Play</h2>${helpText.map(t => `<p>${t}</p>`).join('')}<button class="btn" data-act="closehelp">Got it</button></div></div>`;
   function menuSheet() {
     const inB = !!G.battle;
     return `<div class="sheet" data-act="closemenu"><div class="box" data-stop="1" style="max-width:420px;display:flex;flex-direction:column;gap:12px"><h2>Menu</h2>
@@ -1592,20 +1626,11 @@ const Bots = (() => {
       ${inB ? '<button class="btn red" data-act="forfeit">Give up this fight</button>' : ''}
       <button class="btn" data-act="menu0">Save &amp; main menu</button><button class="btn ghost" data-act="closemenu">Close</button></div></div>`;
   }
-  function collSheet() {
-    return `<div class="sheet"><div class="top" style="width:100%"><div class="t">Your cards (${G.coll.length})</div><button class="ib" data-act="closecoll">✕</button></div><div class="grid" style="width:100%">${G.coll.slice().sort((a, b) => C[b.id].level - C[a.id].level).map(c => mini(c, { cw: 112, attr: `data-act="inscard" data-uid="${c.uid}"` })).join('')}</div></div>`;
-  }
-  function inspectSheet() {
-    const x = ui.inspect, b = G.battle; let id, sh, face = 0, hp, extra = '';
-    if (x.uid != null && b) { const u = E.U(b, x.uid); if (!u) return ''; id = u.id; sh = u.sh; hp = u.hp; const a = b.asg[u.side][u.uid]; if (a && (u.side === 0 || b.stage === 'resolved')) face = b.dice[u.side][a.dice[0]];
-      const t = E.tags(u).find(g => g.t === 'incDie' || g.t === 'setDie'); if (t && u.side === 0 && b.stage === 'assign' && a && b.round - u.lastTweak >= t.every) extra = `<button class="btn alt" data-act="tweak" data-uid="${u.uid}">⚡ Use ability on its die</button>`; }
-    else { const c = G.coll.find(c => c.uid === x.cu); if (!c) return ''; id = c.id; sh = c.sh; }
-    return `<div class="sheet" data-act="closeins">${fullCard(id, sh, { face, hp })}${extra}<button class="btn ghost" data-act="closeins">Close</button></div>`;
-  }
+  const collSheet = () => `<div class="sheet" style="justify-content:flex-start"><div class="top" style="width:100%"><div class="t">Your cards (${G.coll.length})</div><button class="ib" data-act="closecoll">✕</button></div><div style="flex:1;min-height:0;width:100%;display:flex;flex-direction:column">${cardGrid(G.coll.slice().sort((a, b) => C[b.id].level - C[a.id].level), { max: 200 })}</div></div>`;
   function legendSheet() {
     const n = G.notes[0]; if (!n || n.indexOf('legend:') !== 0) return '';
     const id = n.slice(7), c = C[id];
-    return `<div class="sheet" data-act="clearnote"><div class="banner">A legendary was spotted!</div><img class="big-sp pix" style="width:224px;height:224px" src="${art(id, 0)}"><div style="font:800 24px system-ui">${esc(c.name)} is hiding at ${esc(D.locations.find(l => l.id === c.loc).name)}</div><button class="btn big" data-act="clearnote">Go find it!</button></div>`;
+    return `<div class="sheet" data-act="clearnote"><div class="banner">A legendary was spotted!</div><img class="pix" style="width:224px;height:224px" src="${art(id, 0)}" alt=""><div style="font:800 24px system-ui">${esc(c.name)} is hiding at ${esc(D.locations.find(l => l.id === c.loc).name)}</div><button class="btn big" data-act="clearnote">Go find it!</button></div>`;
   }
   function chooserSheet() {
     const nd = E.node(ui.chooser), mx = Math.min(E.slots(G), G.coll.length, E.deckSize(G, nd.loc));
@@ -1613,8 +1638,13 @@ const Bots = (() => {
   }
 
   // ---------------------------------------------------------------- render
+  function flicker() {                                    // the dice tumble, their faces flickering until they settle
+    const els = [...document.querySelectorAll('.die.tumble')]; if (!els.length) return;
+    const iv = setInterval(() => { if (!ui.rolling || Date.now() > ui.rolling) { clearInterval(iv); return; } els.forEach(x => { if (x.firstChild) x.firstChild.textContent = 1 + Math.floor(Math.random() * 6); }); }, 70);
+  }
   function render() {
     if (!$app) return;
+    const mw0 = document.querySelector('.mapwrap'); if (mw0) ui.mapX = mw0.scrollLeft;
     let h = '';
     if (ui.screen === 'new') h = newScreen();
     else if (!G || ui.screen === 'menu') h = menuScreen();
@@ -1623,15 +1653,15 @@ const Bots = (() => {
     else if (G.phase === 'battle') h = battleScreen();
     else if (G.phase === 'result') h = resultScreen();
     else if (G.phase === 'won') h = wonScreen();
-    if (G && G.notes.length && ui.screen === 'play' && (G.phase === 'map')) h += legendSheet();
+    if (G && G.notes.length && ui.screen === 'play' && G.phase === 'map') h += legendSheet();
     if (ui.chooser) h += chooserSheet();
-    if (ui.inspect) h += inspectSheet();
     if (ui.coll) h += collSheet();
     if (ui.menu) h += menuSheet();
     if (ui.help) h += helpSheet();
     if (ui.tip) h += `<div class="tip">${esc(ui.tip.text)}<br><button class="btn" data-act="tipok">OK</button></div>`;
     if (ui.toast) h += `<div class="toast">${esc(ui.toast)}</div>`;
-    $app.innerHTML = h;
+    $app.innerHTML = h; flicker();
+    const mw = document.querySelector('.mapwrap'); if (mw) mw.scrollLeft = ui.mapX != null ? ui.mapX : frontierX();
   }
 
   // ---------------------------------------------------------------- taps
@@ -1640,16 +1670,14 @@ const Bots = (() => {
     new() { ui.screen = 'new'; render(); },
     menu0() { ui.menu = false; ui.screen = 'menu'; render(); },
     help() { ui.help = true; ui.menu = false; render(); }, closehelp() { ui.help = false; render(); },
-    library() { location.href = '../../index.html'; },
     ai(el) { set.ai = el.dataset.v; lsSet(SET, set); if (G) G.ai = set.ai; render(); },
     size(el) { set.size = el.dataset.v; lsSet(SET, set); render(); },
     tips() { set.tips = !set.tips; lsSet(SET, set); render(); },
     starter(el) { G = E.newGame({ starter: el.dataset.k, size: set.size, ai: set.ai }); ui.screen = 'play'; resetSel(); save(); render(); },
     menu() { ui.menu = true; render(); }, closemenu() { ui.menu = false; render(); },
     coll() { ui.coll = true; ui.menu = false; render(); }, closecoll() { ui.coll = false; render(); },
-    inscard(el) { ui.inspect = { cu: +el.dataset.uid }; render(); }, closeins() { ui.inspect = null; render(); },
     node(el) {
-      const n = E.node(el.dataset.id); if (!E.unlocked(G, n)) return toast('Beat the earlier gym leader first');
+      const n = E.node(el.dataset.id); if (!E.unlocked(G, n)) return toast('Beat the gym leader before it first');
       if (n.kind !== 'loc' && G.done[n.id]) return toast('You already beat them!');
       if (n.kind === 'loc') { const mx = Math.min(E.slots(G), G.coll.length, E.deckSize(G, n.loc)); if (mx > 1) { ui.chooser = n.id; return render(); } if (act({ t: 'go', node: n.id, n: 1 })) { ui.pick = []; render(); } return; }
       if (act({ t: 'go', node: n.id })) { ui.pick = []; render(); }
@@ -1657,40 +1685,40 @@ const Bots = (() => {
     loc(el) { const id = ui.chooser; ui.chooser = null; if (act({ t: 'go', node: id, n: +el.dataset.n })) { ui.pick = []; render(); } }, closechooser() { ui.chooser = null; render(); },
     pickback() { act({ t: 'back' }); },
     pickc(el) { const u = +el.dataset.uid, i = ui.pick.indexOf(u); if (i >= 0) ui.pick.splice(i, 1); else if (ui.pick.length < G.pend.need) ui.pick.push(u); else { ui.pick.shift(); ui.pick.push(u); } render(); },
-    fight() { const uids = ui.pick.slice(); const before = null; if (act({ t: 'team', uids })) { ui.pick = []; resetSel(); G.battle.units.filter(u => u.sh).length && tipOnce('shiny'); } },
+    fight() { const uids = ui.pick.slice(); if (act({ t: 'team', uids })) { ui.pick = []; resetSel(); if (G.battle && G.battle.units.some(u => u.sh)) tipOnce('shiny'); } },
     tray(el) { ui.sel = ui.sel === +el.dataset.uid ? null : +el.dataset.uid; render(); },
-    join(el) { const uid = ui.sel; ui.sel = null; const ok = act({ t: 'place', side: 0, uid, join: +el.dataset.col }); if (ok) { const u = E.U(G.battle, uid); if (u && u.sh) burst(uid); } },
-    ins(el) { const uid = ui.sel; ui.sel = null; const ok = act({ t: 'place', side: 0, uid, at: +el.dataset.at }); if (ok) { const u = E.U(G.battle, uid); if (u && u.sh) burst(uid); } },
+    join(el) { const uid = ui.sel; ui.sel = null; if (act({ t: 'place', side: 0, uid, join: +el.dataset.col })) { const u = E.U(G.battle, uid); if (u && u.sh) burst(uid); } },
+    ins(el) { const uid = ui.sel; ui.sel = null; if (act({ t: 'place', side: 0, uid, at: +el.dataset.at })) { const u = E.U(G.battle, uid); if (u && u.sh) burst(uid); } },
     die(el) { const i = +el.dataset.i; ui.die = ui.die === i ? null : i; render(); },
     unit(el) {
       const b = G.battle, u = E.U(b, +el.dataset.uid); if (!u) return;
       if (ui.play) return skipPlay();
       if (b.stage === 'assign' && u.side === 0 && ui.die != null && !u.ko) {
-        if (act({ t: 'assign', side: 0, uid: u.uid, die: ui.die })) { ui.die = null; const am = aimable(b, u); ui.aim = am.length ? u.uid : null; const v = b.dice[0][b.asg[0][u.uid].dice[0]]; if (am.length) toast('Tap an enemy to aim, or leave it'); }
+        if (act({ t: 'assign', side: 0, uid: u.uid, die: ui.die })) { ui.die = null; const am = aimable(b, u); ui.aim = am.length ? u.uid : null; if (am.length) toast('Tap an enemy to aim, or leave it'); }
         return;
       }
-      if (b.stage === 'assign' && u.side === 1 && ui.aim) { const ids = aimable(b, E.U(b, ui.aim)); if (ids.indexOf(u.uid) >= 0) { act({ t: 'aim', side: 0, uid: ui.aim, tgt: u.uid }); ui.aim = null; return; } }
-      ui.inspect = { uid: u.uid }; render();
+      if (b.stage === 'assign' && u.side === 1 && ui.aim) { const ids = aimable(b, E.U(b, ui.aim)); if (ids.indexOf(u.uid) >= 0) { act({ t: 'aim', side: 0, uid: ui.aim, tgt: u.uid }); ui.aim = null; } }
     },
-    unmv(el) { const b = G.battle; if (b.stage === 'assign') { act({ t: 'unassign', side: 0, uid: +el.dataset.uid }); } },
-    reroll() { const b = G.battle; if (ui.die == null) return; const ok = act({ t: 'reroll', side: 0, die: ui.die }); },
-    auto() { const b = G.battle; Object.keys(b.asg[0]).forEach(k => E.apply(G, { t: 'unassign', side: 0, uid: +k })); B.assignment(G, 0, 'hard').forEach(x => x.dice.forEach(d => E.apply(G, { t: 'assign', side: 0, uid: x.uid, die: d }))); ui.die = null; ui.aim = null; save(); render(); },
-    tweak(el) { act({ t: 'tweak', side: 0, uid: +el.dataset.uid }); ui.inspect = null; render(); },
+    unmv(el) { const b = G.battle; if (b.stage === 'assign') act({ t: 'unassign', side: 0, uid: +el.dataset.uid }); },
+    reroll() { if (ui.die != null) act({ t: 'reroll', side: 0, die: ui.die }); },
+    tweak(el) { act({ t: 'tweak', side: 0, uid: +el.dataset.uid }); },
     go() { ui.die = null; ui.aim = null; if (act({ t: 'go2' })) startPlay(); },
     skip() { skipPlay(); },
-    next() { const b = G.battle; ui.die = null; const out = b.out; if (act({ t: 'next' })) {  } },
+    next() { ui.die = null; act({ t: 'next' }); },
     take(el) { act({ t: 'take', i: +el.dataset.i }); },
     evolve(el) { act({ t: 'evolve', yes: el.dataset.yes === '1' }); },
-    done() { if (act({ t: 'done' })) { ui.shown = {}; render(); } },
+    done() { ui.mapX = null; if (act({ t: 'done' })) render(); },
     forfeit() { ui.menu = false; act({ t: 'forfeit' }); },
     tipok() { ui.tip = null; render(); },
     clearnote() { G.notes.shift(); save(); render(); },
-    closeins2() { },
   };
-  function resetSel() { ui.sel = null; ui.die = null; ui.aim = null; ui.inspect = null; ui.pick = []; ui.chooser = null; ui.play = null; }
+  function resetSel() { ui.sel = null; ui.die = null; ui.aim = null; ui.pick = []; ui.chooser = null; ui.play = null; ui.rolledFor = 0; ui.rolling = 0; ui.mapX = null; }
   document.addEventListener('click', ev => {
-    const t = ev.target.closest('[data-act]'); if (!t) { if (ui.play) skipPlay(); return; }
-    if (ev.target.closest('[data-stop]') && !ev.target.closest('[data-act]')) return;
+    if (ui.rolling && Date.now() < ui.rolling) return;                       // the dice are still tumbling
+    const t = ev.target.closest('[data-act]');
+    // after a round: tap anywhere to roll the next one (the menu button and open sheets still work)
+    if (G && G.phase === 'battle' && G.battle && G.battle.stage === 'resolved' && !ui.play && !ui.menu && !ui.help && !ui.coll && !ui.tip && !(t && (t.dataset.act === 'menu' || t.dataset.act === 'tipok'))) { A.next(); return; }
+    if (!t) { if (ui.play) skipPlay(); return; }
     const f = A[t.dataset.act]; if (f) { ev.stopPropagation(); f(t); }
   });
   document.addEventListener('contextmenu', e => e.preventDefault());
