@@ -8,4 +8,5 @@
 - `RULING:` **Coloured dice are removed** (no colours from gym leaders, no +1 for a matching colour).
 - `RULING:` **Gyarados**: "Once per battle, may swap places with any ally" — once the matchups are set, before the first roll of the battle; after that it only battles.
 - `RULING:` **Starmie / Staryu** ("on non-consecutive rounds, change a die to 2"): during any of your columns, after rolling, make the current die a 2. **Rattata line** ("always reroll 1s"): a 1 may be rerolled for free, once per die.
-- `OPEN:` **Specials** ("555: 6h, +4b") needed several matching dice on one card; with one die per card they are switched off (`rules.specials: false`, hidden on cards) until a rule is chosen.
+- `RULING:` **Special moves are removed** (owner's call): the multi-dice specials ("555: 6h…") no longer exist; the cards and the sheet's V3 tab have none.
+- `RULING:` **Freezing a die** (Jynx "On KO, freeze an ally die"; "ice attacks freeze dice"): the card's next roll repeats the number it last had, and that die cannot be rerolled or changed (one roll). Jynx picks the ally whose last number was best (automatic); an ice attack freezes whatever it hits. Before this, ice attacks made the card lose a round.

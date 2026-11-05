@@ -2,7 +2,7 @@ const test = require('node:test');
 const assert = require('node:assert/strict');
 const { GAME_DATA: D, Engine: E, Bots: B } = require('./load.js');
 const C = E.CARDS, T = E._t;
-D.rules.columns = false; D.rules.specials = true;      // the older rule tests resolve a whole round at once; the column-by-column tests below switch it on for their own battles
+D.rules.columns = false;      // the older rule tests resolve a whole round at once; the column-by-column tests below switch it on for their own battles
 
 // ---- a hand-built battle: the i-th hero card faces the i-th computer card; then put numbers on the dice and give them out
 function craft(heroIds, gmIds, o) {
@@ -56,11 +56,11 @@ test('data: moves read the way the sheet means them', () => {
   const sp = E.parseSpecial('66: 12a'); assert.deepEqual([sp.face, sp.count, sp.effs[0].n], [6, 2, 12]);
   assert.equal(E.parseSpecial('4444: 10a all non-ground on both teams').effs[0].scope, 'non');
 });
-test('data: the only ability not in this version is the Jynx KO freeze', () => {
+test('data: every ability on every card is understood by the game', () => {
   const un = new Set();
   Object.values(C).forEach(c => c.ability.split(/;\s*/).forEach(p => { if (p && !E.tagsOf({ id: 'q' + c.id + p, ability: p }).length) un.add(p); }));
-  assert.equal(un.size, 1);
-  assert.ok([...un].every(p => /push|swap|redirect|change (column|position|a teammate)|move <>|enemy die|freeze an ally|reroll \^|Ally dragon|abilities to change|move/i.test(p)), [...un].join(' | '));
+  assert.deepEqual([...un], []);
+  assert.ok(Object.values(C).every(c => !c.special), 'the multi-dice specials are gone');
 });
 
 // ================================================================ a round of fighting
@@ -110,14 +110,6 @@ test('rules: a block soaks damage, and the blocker takes whatever is left over',
   assert.equal(c.h(0).hp, 4, 'Bulbasaur is untouched');
   assert.ok(evs(b, 'blocked').some(e => e.u === c.h(1).uid && e.for === c.h(0).uid && e.n === 3));
   assert.equal(c.h(1).hp, 3, 'Metapod is weak to fire too: 2 doubled to 4, three soaked, one left over for the blocker, and its own shield takes that one');
-});
-test('rules: a special move needs the right number of dice on the right number, and other cards then go without', () => {
-  const c = craft(['6.5', '1.1'], ['16', '10']);        // Charizard: two 6s = 12a
-  const b = play(c, { hero: [6, 6], gm: [1, 1] }, { hero: { 0: [0, 1] }, gm: { 0: 0, 1: 1 } });
-  assert.ok(evs(b, 'special').length === 1); assert.ok(c.g(0).ko, '12 damage');
-  const d = craft(['6.5', '1.1'], ['16', '10']); d.b.dice = [[5, 6], [1, 1]];
-  assert.ok(E.apply(d.s, { t: 'assign', side: 0, uid: d.h(0).uid, die: 0 }).ok); E.apply(d.s, { t: 'assign', side: 0, uid: d.h(0).uid, die: 1 });
-  assert.equal(d.b.asg[0][d.h(0).uid].dice.length, 1, 'a 5 and a 6 are not a special');
 });
 test('rules: a card with no card facing it still acts, and a move at an empty column misses', () => {
   const c = craft(['4.1', '1.1'], ['10']);
@@ -582,4 +574,12 @@ test('columns: a whole campaign can be played by the computer in column mode', (
   const s = E.newGame({ seed: 7, starter: 'squirtle', ai: 'normal' }); let guard = 0;
   while (s.phase !== 'won' && guard++ < 8000) { let g = B.step(s, 'normal'); if (g) { assert.ok(E.apply(s, g).ok); continue; } g = B.heroStep(s, 'master'); assert.ok(g, 'never stuck'); assert.ok(B.applyHero(s, g).ok, JSON.stringify(g)); }
   assert.equal(s.phase, 'won');
+});
+
+test('abilities: a frozen die is repeated next time, and cannot be rerolled or changed (Jynx on KO, ice attacks)', (tc) => { tc.after(() => { D.rules.columns = false; E.faceOrder('sheet'); }); E.faceOrder('top');
+  const c = colGame(['25.1', '124'], ['19', '19']); const { s, b } = c, pk = c.h(0), jy = c.h(1);
+  assert.ok(E.apply(s, { t: 'roll' }).ok); assert.ok(E.apply(s, { t: 'gm', asg: [] }).ok); assert.ok(E.apply(s, { t: 'go2' }).ok); while (b.ask) E.apply(s, { t: 'choose', tgt: E.autoChoice(b) });
+  assert.equal(pk.lastDie, b.dice[0][0], 'the die a card played is remembered');
+  const had = pk.lastDie; pk.frozen = had; b.round = 1; b.rolled = false; b.stage = 'assign'; b.acted = {}; b.more = false;
+  assert.ok(E.apply(s, { t: 'roll' }).ok); assert.equal(b.dice[0][0], had, 'the frozen die is the same number again'); assert.equal(E.apply(s, { t: 'reroll', side: 0 }).ok, false, 'and cannot be rerolled'); assert.equal(pk.frozen, null, 'it lasts one roll');
 });
