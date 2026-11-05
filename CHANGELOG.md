@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- **Library — longer zoom into a game:** the box zoom now lasts up to 3 seconds (it still goes in as soon as the game has loaded), so a slow load never leaves the screen frozen on the dark.
+
 - **Pokémon Roll! — paths are a choice:** beating Blaine *or* Erika now opens the next stage (it used to need both). Erika sits above Blaine on the map, Misty above Lt. Surge.
 
 - **Pokémon Roll! — map and card fixes:** tap the 🎲 ×N · ★ N chip on the map to see what it means (tap anywhere to close); places beyond a gym you haven't beaten show as locked, and tapping one says which leaders to beat first (Blaine alone doesn't open the next stage — Erika is needed too); a card's writing shrinks so all its moves fit when the ability or special is long; Starmie/Staryu let you choose which die becomes 2; "partner" now says "starter".
