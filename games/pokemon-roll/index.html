@@ -1543,7 +1543,7 @@ const Bots = (() => {
   function assignment(s, side, level) {
     const b = s.battle, units = E.living(b, side).filter(u => !u.skip), n = b.dice[side].length;
     if (!units.length || !n) return [];
-    const vals = (u, di) => E.preview(b, u, b.dice[side][di], undefined, di).value;
+    const memo = new Map(), vals = (u, di) => { const key = u.uid * 64 + di; let v = memo.get(key); if (v === undefined) { v = E.preview(b, u, b.dice[side][di], undefined, di).value; memo.set(key, v); } return v; };
     const dieIdx = Array.from({ length: n }, (_, i) => i);
     let perm = dieIdx.slice(); if (lv(level).random >= 1) for (let i = perm.length - 1; i > 0; i--) { const j = E.ri(s, i + 1); [perm[i], perm[j]] = [perm[j], perm[i]]; }   // perm[k] = the die that card k gets
     const total = p => units.reduce((t, u, k) => t + (p[k] != null ? vals(u, p[k]) : 0), 0);
@@ -1552,7 +1552,7 @@ const Bots = (() => {
       // start greedy: biggest gain first, then swap pairs until nothing improves
       const free = new Set(dieIdx), p = [];
       units.map((u, k) => ({ u, k })).forEach(() => {});
-      const order = units.map((u, k) => k).sort((x, y) => Math.max(...dieIdx.map(d => vals(units[y], d))) - Math.max(...dieIdx.map(d => vals(units[x], d))));
+      const bestOf = units.map(u => Math.max(...dieIdx.map(d => vals(u, d)))), order = units.map((u, k) => k).sort((x, y) => bestOf[y] - bestOf[x]);
       order.forEach(k => { let bd = -1, bv = -1e9; if (chance(s, L.random)) { bd = pick(s, Array.from(free)); } else free.forEach(d => { const v = vals(units[k], d); if (v > bv) { bv = v; bd = d; } }); if (bd >= 0) { p[k] = bd; free.delete(bd); } });
       perm = p;
       if (L.search) {
@@ -1594,8 +1594,8 @@ const Bots = (() => {
     const lk = (b.locked && b.locked[side]) || {}, order = dice.map((_, i) => i).filter(i => !lk[i]).sort((p, q) => worth[p] - worth[q]); if (!order.length) return null;
     let seed = (b.round * 7919 + side * 104729 + dice.reduce((t, v) => t * 7 + v, 3)) >>> 0; const rnd = () => (seed = (seed * 1664525 + 1013904223) >>> 0) / 4294967296;
     let best = null, bestGain = L.rerollMargin;
-    for (let k = 1; k <= order.length; k++) {
-      const R = order.slice(0, k), keep = R.map(i => dice[i]); let sum = 0; const N = 18;
+    for (let k = 1; k <= Math.min(order.length, 4); k++) {
+      const R = order.slice(0, k), keep = R.map(i => dice[i]); let sum = 0; const N = 10;
       for (let t = 0; t < N; t++) { R.forEach(i => { dice[i] = 1 + Math.floor(rnd() * 6); }); sum += assignment(s, side, level).score || 0; }
       R.forEach((i, j) => { dice[i] = keep[j]; });
       const gain = sum / N - base; if (gain > bestGain) { bestGain = gain; best = R.slice().sort((p, q) => p - q); }
