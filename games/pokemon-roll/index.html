@@ -1837,10 +1837,11 @@ const Bots = (() => {
 
   // dice -> cards. `side` is whose dice; the view hides the other side's dice, which is all this needs.
   function assignment(s, side, level) {
-    const b = s.battle, units = E.living(b, side).filter(u => !u.skip), n = b.dice[side].length;
+    const b = s.battle, fx = (b.fixed && b.fixed[side]) || {}, held = new Set(Object.keys(b.asg[side]).filter(k => b.asg[side][k].dice.some(i => fx[i])).map(Number));       // a frozen die stays where it is
+    const units = E.living(b, side).filter(u => !u.skip && !held.has(u.uid)), n = b.dice[side].length;
     if (!units.length || !n) return [];
     const memo = new Map(), vals = (u, di) => { const key = u.uid * 64 + di; let v = memo.get(key); if (v === undefined) { v = E.preview(b, u, b.dice[side][di], undefined, di).value; memo.set(key, v); } return v; };
-    const dieIdx = Array.from({ length: n }, (_, i) => i);
+    const dieIdx = Array.from({ length: n }, (_, i) => i).filter(i => !fx[i]);
     let perm = dieIdx.slice(); if (lv(level).random >= 1) for (let i = perm.length - 1; i > 0; i--) { const j = E.ri(s, i + 1); [perm[i], perm[j]] = [perm[j], perm[i]]; }   // perm[k] = the die that card k gets
     const total = p => units.reduce((t, u, k) => t + (p[k] != null ? vals(u, p[k]) : 0), 0);
     const L = lv(level);
@@ -2000,7 +2001,10 @@ const Bots = (() => {
   }
   // apply a bot-decided action to the state (a convenience for tests and the player's "auto" button)
   function applyHero(s, a) {
-    if (a.t === '_heroAssign') { let r = { ok: true }; const b = s.battle; Object.keys(b.asg[0]).forEach(k => E.apply(s, { t: 'unassign', side: 0, uid: +k })); a.list.forEach(x => x.dice.forEach(d => { r = E.apply(s, { t: 'assign', side: 0, uid: x.uid, die: d }); })); return r; }
+    if (a.t === '_heroAssign') {
+      let r = { ok: true }; const b = s.battle, fx = (b.fixed && b.fixed[0]) || {}, held = new Set(Object.keys(b.asg[0]).filter(k => b.asg[0][k].dice.some(i => fx[i])).map(Number));      // a frozen die stays on its card
+      Object.keys(b.asg[0]).forEach(k => { if (!held.has(+k)) E.apply(s, { t: 'unassign', side: 0, uid: +k }); });
+      a.list.forEach(x => { if (held.has(x.uid)) return; x.dice.forEach(d => { if (fx[d]) return; r = E.apply(s, { t: 'assign', side: 0, uid: x.uid, die: d }); }); }); return r; }
     return E.apply(s, a);
   }
   return { step, heroStep, applyHero, assignment, placement, matchScore };
