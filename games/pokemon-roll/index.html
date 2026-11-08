@@ -471,6 +471,10 @@ button{font:inherit;color:inherit;border:0;cursor:pointer}
 <style>.mm2 .mhead{padding-top:calc(env(safe-area-inset-top) + 62px)}@media (max-height:760px){.mm2 .mhead{padding-top:calc(env(safe-area-inset-top) + 56px)}}</style>
 <style>.dxvs{display:flex;flex-wrap:wrap;gap:14px 12px;justify-content:center;align-items:flex-start;max-width:96vw}.dxv{display:flex;flex-direction:column;align-items:center;gap:8px}.dxv .dexwhere{font-size:16px;padding:6px 12px;max-width:100%}.card.sil{filter:brightness(0);opacity:.6}</style>
 <style>.place.visitor{background:#e8eaf6;border:4px solid #3949ab;border-radius:14px;width:160px;height:184px;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;padding:6px;box-shadow:0 6px 0 #1a237e,0 0 0 0 #ffd23f;animation:pulse2 1.4s infinite}.vsc{flex:1;display:grid;place-items:center;width:100%}.vsc img{height:128px;width:128px;image-rendering:pixelated}.vbang{position:absolute;right:-10px;top:-14px;width:46px;height:46px;border-radius:50%;background:#ffd23f;border:4px solid #14110f;font:900 30px/38px system-ui;text-align:center;color:#c0392b}</style>
+<style>.grp{position:absolute;border-radius:26px;pointer-events:auto}.grp.open{background:#ffffff14;border:3px dashed #ffffff55}.grp.lock{background:#0000003d;border:3px solid #00000066;box-shadow:inset 0 0 0 3px #ffffff1a}.gtab{position:absolute;left:18px;top:-17px;background:#14110f;color:#fff;font:800 20px/1 system-ui;padding:7px 14px;border-radius:99px;white-space:nowrap;border:2px solid #ffffff55}.grp.open .gtab:empty{display:none}.grp.lock .gtab{background:#3a2a1a;color:#ffd23f;border-color:#ffd23f88}.place{z-index:1}</style>
+<style>.gtab{white-space:normal;max-width:calc(100% - 28px);line-height:1.15;font-size:18px;top:-30px;padding:6px 12px;border-radius:16px}.grp{z-index:0}</style>
+<style>.gtab{top:8px;left:10px}</style>
+<style>.gtab{font-size:17px}</style>
 <script id="data">
 /* Pokémon Roll! — every rule number, the map, the bosses, the card sheet and the art live here. The engine and bots read this and hard-code none of it. */
 const GAME_DATA = {
@@ -944,7 +948,7 @@ const Engine = (() => {
   // a new die for each gym leader further along the road than any you have beaten: leaders side by side (same stage) are equals, so only the first of them counts
   const stagesBeaten = s => new Set(D.nodes.filter(n => n.kind === 'boss' && s.done[n.id]).map(n => n.stage)).size;
   const slots = s => Math.min(R.locationMax, R.startSlots + stagesBeaten(s));
-  const unlocked = (s, n) => n.any ? n.needs.some(id => s.done[id]) : n.needs.every(id => s.done[id]);       // `any`: either of two paths opens it
+  const unlocked = (s, n) => (!n.dice || slots(s) >= n.dice) && (n.any ? n.needs.some(id => s.done[id]) : n.needs.every(id => s.done[id]));       // `any`: either of two paths opens it; `dice`: you also need this many dice
   const inst = (s, id, sh) => ({ id, sh: sh ? 1 : 0 });
 
   // the strongest `room` cards of a team: highest level first; at the same level a shiny is kept before the others; any other tie is random. The rest are shuffled back into their own places' draw piles.
@@ -2652,13 +2656,13 @@ const Bots = (() => {
     const W0 = PADX * 2 + stages * pitch, sc = Math.min(availW / W0, 1);
     const H0 = availH / sc, lane = Math.max(214, (H0 - PADY * 2) / 3);
     const xy = n => [PADX + n.stage * pitch + pitch / 2, PADY + n.lane * lane + lane / 2];
-    const lines = vis.map(n => n.needs.filter(id => ids.has(id)).map(id => {
-      const a = E.node(id), [x1, y1] = xy(a), [x2, y2] = xy(n), done = G.done[id], mx = (x1 + x2) / 2;
-      const hw = q => q.kind === 'loc' ? 64 : 76;
-      const skip = n.stage - a.stage > 1 && a.lane === n.lane, off = skip ? (a.lane === 2 ? -150 : 150) : 0;          // a road that runs behind a tile arcs round it instead
-      const c1x = skip ? x1 + hw(a) + 70 : mx, c2x = skip ? x2 - hw(n) - 70 : mx;
-      return `<path d="M${x1 + hw(a)} ${y1}C${c1x} ${y1 + off} ${c2x} ${y2 + off} ${x2 - hw(n)} ${y2}" fill="none" stroke="${done ? '#ffd23f' : '#ffffff77'}" stroke-width="${done ? 8 : 5}" stroke-linecap="round" ${done ? '' : 'stroke-dasharray="2 12"'}/>`;
-    }).join('')).join('');
+    // places that open together are one block: every group of places with the same requirement is drawn inside one frame that says what opens it
+    const reqText = n => [n.needs.length ? 'Beat ' + n.needs.map(id => E.node(id).name).join(n.any ? ' or ' : ' and ') : '', n.dice ? '🎲 ×' + n.dice : ''].filter(Boolean).join(' · ');
+    const groups = {}; vis.forEach(n => { const k = (n.any ? 'any ' : 'all ') + n.needs.slice().sort().join('+') + '|' + (n.dice || 0); (groups[k] = groups[k] || []).push(n); });
+    const lines = Object.values(groups).map(g => {
+      const open = E.unlocked(G, g[0]), r = reqText(g[0]), st = g.map(n => n.stage), ln = g.map(n => n.lane), x0 = PADX + Math.min(...st) * pitch + 5, x1 = PADX + (Math.max(...st) + 1) * pitch - 5, y0 = PADY + Math.min(...ln) * lane + lane / 2 - 150, y1 = PADY + Math.max(...ln) * lane + lane / 2 + 112;
+      return `<div class="grp ${open ? 'open' : 'lock'}" style="left:${x0}px;top:${y0}px;width:${x1 - x0}px;height:${y1 - y0}px" data-act="grp" data-req="${esc(r || 'Open from the start')}"><span class="gtab">${open ? '' : '🔒 '}${esc((r || 'Open').replace(/^Beat /, ''))}</span></div>`;
+    }).join('');
     const visitors = (G.visitors || []).map(id => E.visitorNode(id)).filter(Boolean);          // special visitors (Bill) stand on the map until you meet them
     const tiles = vis.concat(visitors).map(n => {
       if (n.kind === 'visitor') { const [vx, vy] = xy(n); return `<button class="place visitor next" style="left:${vx - TILE_W / 2}px;top:${vy - 92}px" data-act="node" data-id="${n.id}"><div class="vsc"><img class="pix" src="data:image/png;base64,${D.trainerArt[n.art]}" alt="${esc(n.name)}"></div><div class="vbang">!</div><div class="pl"><b>${esc(n.name)}</b></div></button>`; }
@@ -2674,7 +2678,7 @@ const Bots = (() => {
         <div class="pl"><b>${esc(n.name)}</b></div></button>`;
     }).join('');
     return `${menu ? '' : `<div class="top maptop"><div class="topl"></div><div class="t mapt">Kanto Map</div><div class="topr"><button class="chip" data-act="chipinfo" aria-label="Your dice">🎲 ×${E.slots(G)}</button><button class="mypile${ui.coll ? ' away' : ''}" data-act="coll" aria-label="Your cards">${myPile()}</button><button class="ib mbtn" data-act="menu" aria-label="Menu">☰</button></div></div>`}
-      <div class="mapwrap${menu ? ' mmapbox' : ''}"${menu ? ` style="height:${availH}px"` : ''}><div class="mapin" style="width:${W0}px;height:${H0}px;transform:scale(${sc});margin-left:${Math.max(0, (availW - W0 * sc) / 2)}px"><svg class="mapsvg" width="${W0}" height="${H0}">${lines}</svg>${tiles}</div></div>`;
+      <div class="mapwrap${menu ? ' mmapbox' : ''}"${menu ? ` style="height:${availH}px"` : ''}><div class="mapin" style="width:${W0}px;height:${H0}px;transform:scale(${sc});margin-left:${Math.max(0, (availW - W0 * sc) / 2)}px"><svg class="mapsvg" width="${W0}" height="${H0}"></svg>${lines}${tiles}</div></div>`;
   }
 
   // a wrapping grid of whole cards, as big as the screen allows
@@ -3019,8 +3023,9 @@ const Bots = (() => {
     menu() { ui.menu = true; render(); }, closemenu() { ui.menu = false; render(); },
     coll() { ui.coll = true; ui.menu = false; ui.handOpen = true; render(); }, closecoll() { ui.coll = false; render(); },
     handclose() { if (ui.handClosing) return; ui.handClosing = true; handClose(() => { ui.handClosing = false; ui.coll = false; render(); }); },
+    grp(el) { toast(el.dataset.req); },
     node(el) {
-      const n = E.node(el.dataset.id); if (!E.unlocked(G, n)) { const miss = n.needs.map(id => E.node(id)).filter(x => x.kind === 'boss' && !G.done[x.id]).map(x => x.name); return toast(miss.length ? 'Beat ' + miss.join(n.any ? ' or ' : ' and ') + ' first' : 'Beat the gym leader before it first'); }
+      const n = E.node(el.dataset.id); if (!E.unlocked(G, n)) { return toast((n.needs.length ? 'Beat ' + n.needs.map(id => E.node(id).name).join(n.any ? ' or ' : ' and ') : '') + (n.dice ? (n.needs.length ? ' and have ' : 'Have ') + n.dice + ' dice' : '') + ' first'); }
       if (n.kind !== 'loc' && n.kind !== 'visitor' && G.done[n.id]) return toast('You already beat them!');
       if (ui.sweeping) return;
       if (n.kind === 'loc' && !E.deckSize(G, n.loc)) return toast('That deck is empty');

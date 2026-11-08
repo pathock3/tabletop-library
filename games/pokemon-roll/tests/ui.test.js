@@ -419,3 +419,15 @@ test('ui: Bill stands on the map after a special event and can be tapped; the Po
     assert.deepEqual(errs, []);
   } finally { await b.close(); }
 });
+
+test('ui: places that open together are one block with their requirement on it (no road lines); tapping a locked block says what opens it', { skip: !chromium }, async () => {
+  const b = await chromium.launch(), p = await b.newPage({ viewport: { width: 820, height: 1180 } });
+  const errs = []; p.on('pageerror', e => errs.push(e.message));
+  try {
+    await p.goto(URL); await p.click('[data-act=new]'); await p.click('[data-act=starter][data-k=pikachu]');
+    assert.equal(await p.locator('.mapin .grp').count(), 6, 'six blocks'); assert.equal(await p.locator('.mapin .grp.open').count(), 1, 'only the first block is open'); assert.equal(await p.locator('.mapsvg path').count(), 0, 'no lines');
+    const tabs = await p.locator('.grp.lock .gtab').allInnerTexts(); assert.ok(tabs.every(t => t.includes('🔒')), 'each locked block says it is locked'); assert.ok(tabs.some(t => /Brock/.test(t)), 'and by what');
+    await p.locator('.grp.lock').first().click({ position: { x: 20, y: 400 }, force: true }); assert.match(await p.innerText('.toast'), /Brock/);
+    assert.deepEqual(errs, []);
+  } finally { await b.close(); }
+});
