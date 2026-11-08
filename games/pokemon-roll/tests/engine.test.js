@@ -634,3 +634,9 @@ test('cards: Chansey has 10 health; Snorlax says plainly that its Heal moves bec
   const s = E.newGame({ seed: 21, starter: 'bulbasaur' }); s.done.B1 = s.done.B2 = true; ['74', '56', '100'].forEach((id, i) => s.coll.push({ uid: 10 + i, id, sh: 0 }));
   E.apply(s, { t: 'go', node: 'L1' }); assert.equal(E.apply(s, { t: 'drawwild' }).ok, false, 'not while the place is putting its card down or you have not played yet');
 });
+
+test('recall: only before the dice are rolled (afterwards a returned card would leave a spare die)', () => {
+  const c = craft(['1.1', '4.1'], ['10', '13']), { s, b } = c;
+  assert.ok(E.apply(s, { t: 'rollseen' }).ok); assert.equal(E.apply(s, { t: 'recall', uid: c.h(0).uid }).ok, false, 'after the roll: no');
+  const d = craft(['1.1', '4.1'], ['10', '13']); d.b.round = 2; assert.equal(E.apply(d.s, { t: 'recall', uid: d.h(0).uid }).ok, false, 'and not in later rounds');
+});

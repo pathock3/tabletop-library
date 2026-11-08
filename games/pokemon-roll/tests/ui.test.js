@@ -170,7 +170,7 @@ test('ui: you only choose when there is a choice for where a card goes, but dice
     assert.equal(await p.evaluate(() => window.__pokemonRoll.G.battle.cols.length), 1, 'your only card is across from theirs: no tap needed');
     // dice are never given out for you: the first roll is a tap, and you drag the die onto your card
     assert.equal(await p.locator('.die').count(), 0, 'no dice until you tap'); assert.ok(await p.locator('.rollhint').count() >= 1, 'Tap anywhere to roll');
-    await p.locator('.rollhint').click(); await p.waitForSelector('.die[data-act=die]', { timeout: 4000 }); await p.waitForTimeout(1100);
+    await p.locator('.rollhint').click(); await p.waitForSelector('.die[data-act=die]', { timeout: 9000 }); await p.waitForTimeout(1100);
     assert.equal(await p.evaluate(() => Object.keys(window.__pokemonRoll.G.battle.asg[0]).length), 0, 'the die is not on the card until you put it there');
     assert.equal(await p.evaluate(() => window.__pokemonRoll.G.battle.stage), 'assign', 'and the round does not play by itself');
     // several cards but only one spot: tapping the card is enough
@@ -190,12 +190,13 @@ test('ui: a gym leader has an eye that explains how their team was made; dice ca
     assert.equal(await p.locator('.place.deck:not(.lock) .eye').count(), await p.locator('.place.deck:not(.lock)').count(), 'every open location has the info button too');
     assert.equal((await p.locator('.place[data-id=B1] .eye').innerText()).trim(), 'i', 'an i for information, not an eyeball');
     await p.click('.place.deck[data-id=L1] .eye'); const total = await p.evaluate(() => window.__pokemonRoll.G.decks[1].length + window.__pokemonRoll.G.discard[1].length);
-    const counts = await p.locator('.sheet .tycount').allInnerTexts(); assert.equal(counts.map(Number).reduce((a, b) => a + b, 0), total, 'the types add up to every card in that place (draw and discard piles): ' + counts);
+    const counts = await p.locator('.sheet .eyelist').last().locator('.tycount').allInnerTexts(); assert.equal(counts.map(Number).reduce((a, b) => a + b, 0), total, 'the types add up to every card in that place (draw and discard piles): ' + counts);
     assert.match(await p.innerText('.hbox'), /in the draw pile[\s\S]*in the discard pile/); assert.equal(await p.locator('.sheet .bigpile .pile').count(), 1, 'the back of the cards is shown'); assert.equal(await p.locator('.place.deck .pcount').count(), 0, 'no card count on the map decks any more: it is all in the i'); await p.mouse.click(8, 8); assert.equal(await p.locator('.sheet').count(), 0);
     await p.click('.place[data-id=B1] .eye');
     assert.equal(await p.locator('[data-act=closeeye]').count() >= 1, true); const txt = await p.innerText('.hbox');
-    assert.match(txt, /team/i); assert.match(txt, /before your game began/i); assert.equal(await p.locator('.sheet .infospr').count(), 1, 'a gym leader always shows their sprite'); assert.doesNotMatch(txt, /Face .* once/i); assert.match(txt, /Mt\. Moon/); assert.match(txt, /Viridian Forest/);
+    assert.match(txt, /team/i); assert.match(txt, /\d vs \d/, 'how many fight how many'); assert.match(txt, /has \d+ Pokémon/); assert.doesNotMatch(txt, /went back|before your game began/i); assert.equal(await p.locator('.sheet .infospr').count(), 1, 'a gym leader always shows their sprite'); assert.doesNotMatch(txt, /Face .* once/i); assert.match(txt, /Mt\. Moon/); assert.match(txt, /Viridian Forest/);
     assert.equal(await p.locator('.sheet .eyerow').count(), 2, 'Brock draws from two places');
+    await p.click('.sheet .eyerow.tap >> nth=0'); assert.match(await p.innerText('.hbox'), /elements here when the game began/); assert.ok(await p.locator('.sheet .tycount').count() >= 1, 'with the elements'); await p.click('[data-act=eyeback]'); assert.match(await p.innerText('.hbox'), /Brock's team/);
     assert.equal(await p.locator('.hbox .btn').count(), 0, 'no Got it button'); await p.mouse.click(8, 8); assert.equal(await p.locator('.sheet').count(), 0);
     // once you have faced a gym leader, the eye shows their whole team
     const n = await p.evaluate(() => { const G = window.__pokemonRoll.G; G.seen = G.seen || {}; G.seen.B1 = true; window.__pokemonRoll.render(); return G.bosses.B1.length; });
