@@ -518,18 +518,19 @@ test('rules: "immune" is now three less damage from that type; leaders field the
   });
 });
 
-test('legendaries: from three dice, each battle at a place has a 10% chance one turns up, shuffled into that place\'s draw pile together with its discard pile', () => {
-  assert.equal(D.rules.legendaryFromSlots, 3); assert.equal(D.rules.legendaryChance, 0.1);
-  let early = 0, late = 0, shuffled = 0;
-  for (let seed = 1; seed <= 300; seed++) {
-    let s = E.newGame({ seed, starter: 'bulbasaur' }); s.done.B1 = true;           // two dice: never
-    const before1 = s.legend.length; E.apply(s, { t: 'go', node: 'L1' }); if (s.legend.length < before1) early++;
-    s = E.newGame({ seed, starter: 'bulbasaur' }); s.done.B1 = true; s.done.B2 = true;           // three dice
-    s.discard[1] = ['10', '13']; const n0 = s.decks[1].length, legs = s.legend.length;
-    E.apply(s, { t: 'go', node: 'L1' });
-    if (s.legend.length < legs) { late++; if (s.discard[1].length === 0) shuffled++; }
+test('special events: 10% after a battle that started with three dice; the first is Bill on the map, then a random legendary every time, shuffled into its place\'s piles', () => {
+  const SP = D.specials; assert.equal(SP.chance, 0.1); assert.equal(SP.fromSlots, 3); assert.deepEqual(SP.order, ['bill']); assert.equal(SP.then, 'legendary');
+  const play1 = (seed, dice, setup) => { const s = E.newGame({ seed, starter: 'bulbasaur' }); for (let i = 0; i < dice - 1; i++) s.done['B' + [1, 2, 4, 5][i]] = true; s.slotsAtGo = E.slots ? E.slots(s) : dice; if (setup) setup(s); s.phase = 'result'; s.res = { win: true, node: 'L1', kind: 'loc' }; assert.ok(E.apply(s, { t: 'done' }).ok); return s; };
+  let few = 0, enough = 0, first = null;
+  for (let seed = 1; seed <= 400; seed++) {
+    const a = play1(seed, 2); if (a.visitors.length || a.notes.length) few++;
+    const s = play1(seed, 3); if (s.visitors.length || s.notes.length) { enough++; if (!first) first = s; }
   }
-  assert.equal(early, 0, 'no legendary with fewer than three dice'); assert.ok(late > 10 && late < 60, 'about one battle in ten (' + late + ')'); assert.equal(shuffled, late, 'the discard pile went into the new draw pile');
+  assert.equal(few, 0, 'nothing special before the first battle with three dice'); assert.ok(enough > 15 && enough < 70, 'about one battle in ten (' + enough + ')');
+  assert.deepEqual(first.visitors, ['bill']); assert.equal(first.specialsSeen, 1); assert.ok(first.notes[0].startsWith('visitor:'), 'the first one is Bill, standing on the map');
+  // after Bill: a random legendary each time; its place's draw and discard piles are shuffled together with it
+  let leg = null; for (let seed = 1; seed < 400 && !leg; seed++) { const s = play1(seed, 3, g => { g.specialsSeen = 1; g.discard[1] = ['10', '13']; g.discard[2] = ['16']; }); if (s.notes.some(n => n.startsWith('legend:'))) leg = s; }
+  assert.ok(leg, 'then a legendary'); const id = leg.notes[0].slice(7), loc = C[id].loc; assert.ok(C[id].legend); assert.ok(leg.decks[loc].includes(id), 'it is in the new draw pile'); assert.equal(leg.discard[loc].length, 0, 'the discard pile went into it'); assert.ok(!leg.legend.includes(id));
 });
 
 // ================================================================ one die per card, one column at a time
@@ -603,15 +604,16 @@ test('Psyduck: no damage from cards of levels 30-50 (the old levels 4-6)', () =>
   const hit = (a) => { const f = C[a.id].moves.findIndex(m => /^\d+a\b/.test(m)) + 1, k = craft([a.id], ['54']), b = play(k, { hero: [f], gm: [1] }, { hero: { 0: 0 }, gm: {} }); return evs(b, 'immune').length > 0; };
   assert.equal(hit(hi), true, 'a level 30 card does nothing to Psyduck'); assert.equal(hit(lo), false, 'a level 20 card does');
 });
-test('Bill: once he turns up with Vaporeon, Jolteon and Flareon, you keep one and all three leave the pool', () => {
-  assert.equal(D.rules.bill.join(), 'Vaporeon,Jolteon,Flareon');
-  let s = null;
-  for (let seed = 1; seed < 400 && !s; seed++) { const g = E.newGame({ seed, starter: 'bulbasaur' }); g.done.B1 = g.done.B2 = g.done.B4 = true; g.done.B3 = true; ['10', '13', '16', '74'].forEach((id, i) => g.coll.push({ uid: 30 + i, id, sh: 0 })); E.apply(g, { t: 'go', node: 'L1' }); if (g.battle.isBill) s = g; else if (g.battle.stage) { /* not Bill this time */ } }
-  assert.ok(s, 'Bill turns up now and then'); const ids = D.rules.bill.map(n => Object.values(C).find(c => c.name === n).id), b = s.battle;
-  assert.equal(b.mode, 'wild'); assert.ok(b.hand[1].every(h => ids.includes(b.hcards[h].id)), 'his first card is one of the three');
-  s.battle = null; s.phase = 'result'; s.res = { win: true, node: 'L1', kind: 'loc', bill: true, pick: ids.map(id => ({ id, sh: 0 })) };
-  const had = ids.map(id => Object.values(s.decks).some(d => d.includes(id)));
+test('Bill: tap him on the map (no other requirement), beat Vaporeon, Jolteon and Flareon, keep one: only that card leaves the wild; the visitor leaves', () => {
+  assert.equal(E.visitorNode('bill').art, 'BILL'); assert.deepEqual(D.specials.defs.bill.cards, ['Vaporeon', 'Jolteon', 'Flareon']);
+  const s = E.newGame({ seed: 4, starter: 'bulbasaur' }); s.visitors = ['bill']; ['10', '13'].forEach((id, i) => s.coll.push({ uid: 30 + i, id, sh: 0 }));
+  assert.equal(E.apply(E.newGame({ seed: 4, starter: 'bulbasaur' }), { t: 'go', node: 'V_bill' }).ok, false, 'nobody is there until he turns up');
+  assert.ok(E.apply(s, { t: 'go', node: 'V_bill' }).ok); const b = s.battle; assert.equal(b.mode, 'wild'); assert.equal(b.isBill, true);
+  const ids = D.specials.defs.bill.cards.map(n => Object.values(C).find(c => c.name === n).id); assert.ok(b.hand[1].every(h => ids.includes(b.hcards[h].id)), 'his first card is one of the three');
+  const wildHad = ids.map(id => Object.values(s.decks).some(d => d.includes(id)));
+  s.battle = null; s.phase = 'result'; s.res = { win: true, node: 'V_bill', kind: 'loc', bill: true, visitor: 'bill', pick: ids.map(id => ({ id, sh: 0 })) };
   assert.ok(E.apply(s, { t: 'take', i: 1 }).ok); assert.ok(s.coll.some(c => c.id === ids[1]), 'the one you chose is yours');
-  Object.values(s.decks).concat(Object.values(s.discard)).forEach(d => ids.forEach(id => assert.ok(!d.includes(id), 'gone from every pile'))); assert.ok(had.some(Boolean) || true);
-  assert.equal(s.billDone, true);
+  Object.values(s.decks).concat(Object.values(s.discard)).forEach(d => assert.ok(!d.includes(ids[1]), 'and out of the wild'));
+  ids.forEach((id, k) => { if (k !== 1) assert.equal(Object.values(s.decks).some(d => d.includes(id)), wildHad[k], 'the other two are where they were'); });
+  assert.deepEqual(s.visitors, [], 'Bill leaves');
 });

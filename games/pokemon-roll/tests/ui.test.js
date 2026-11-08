@@ -402,3 +402,20 @@ test('ui: a shiny brings Professor Oak with a message; there is no Resolve butto
     assert.deepEqual(errs, []);
   } finally { await b.close(); }
 });
+
+test('ui: Bill stands on the map after a special event and can be tapped; the Pokédex keeps what you met between games and shows every version of a card', { skip: !chromium }, async () => {
+  const b = await chromium.launch(), p = await b.newPage({ viewport: { width: 820, height: 1180 } });
+  const errs = []; p.on('pageerror', e => errs.push(e.message));
+  try {
+    await p.goto(URL);
+    await p.evaluate(() => { const s = Engine.newGame({ seed: 5, starter: 'charmander' }); s.visitors = ['bill']; s.notes.push('visitor:bill'); window.__pokemonRoll.setG(s); });
+    assert.match(await p.innerText('.sheet'), /Bill is here!/); await p.click('[data-act=clearnote]');
+    assert.equal(await p.locator('.place.visitor').count(), 1, 'Bill is on the map'); assert.equal(await p.locator('.place.visitor img').count(), 1, 'with his art');
+    await p.evaluate(() => { localStorage.setItem('pokemon-roll-dex', JSON.stringify({ 4: 1 })); localStorage.setItem('pokemon-roll-dexcards', JSON.stringify({ '4.1': 1 })); localStorage.setItem('pokemon-roll-dexfound2', JSON.stringify({})); });
+    await p.reload(); await p.click('[data-act=more]'); await p.click('.sheet [data-act=dex]'); await p.click('.dxc.got');
+    assert.equal(await p.locator('.dxv').count(), 2, 'both versions of the card'); assert.equal(await p.locator('.dxv .card.sil').count(), 1, 'the one you have never had is a silhouette');
+    const caps = await p.locator('.dxv .dexwhere').allInnerTexts(); assert.ok(caps.some(t => /Location unknown/.test(t)), 'a card never met in the wild: location unknown'); assert.ok(caps.some(t => /Starter only/.test(t)), 'a starter version says so');
+    await p.mouse.click(8, 8); await p.mouse.click(8, 8); await p.click('.place.visitor').catch(() => {});
+    assert.deepEqual(errs, []);
+  } finally { await b.close(); }
+});
