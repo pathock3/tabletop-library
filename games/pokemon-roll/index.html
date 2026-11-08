@@ -476,6 +476,7 @@ button{font:inherit;color:inherit;border:0;cursor:pointer}
 <style>.gtab{top:8px;left:10px}</style>
 <style>.gtab{font-size:17px}</style>
 <style>.card.owned{filter:grayscale(.7) brightness(.8)}.card.owned .mark{font-size:calc(var(--cw)*.12)}</style>
+<style>@media (max-width:600px){.maptop .t.mapt{display:none}}</style>
 <script id="data">
 /* Pokémon Roll! — every rule number, the map, the bosses, the card sheet and the art live here. The engine and bots read this and hard-code none of it. */
 const GAME_DATA = {
@@ -612,6 +613,7 @@ const GAME_DATA = {
     ['^Cannot heal (.+)$', { t: 'noHeal', spec: '$1' }],
     ['^If no allies, moves become a (.+)$', { t: 'alone', spec: '$1' }],
     ['^If no allies, h become a$', { t: 'alone', spec: '' }],
+    ['^If it has no allies, its Heal moves become Attack moves$', { t: 'alone', spec: '' }],
     ['^May use moves on matchup.s or neighbors. cards$', { t: 'ditto' }],
     ['^Once per round, increase own die by 1', { t: 'incDie', every: 1 }],
     ['^On non-consecutive rounds, increase own die by 1', { t: 'incDie', every: 2 }],
@@ -766,7 +768,7 @@ Koffing|109|Normal|Psychic|2|2 Mt. Moon|2|Attack|Ignore enemy blocks|3a <^ or >|
 Weezing|110|Normal|Psychic|3|5 Pokemon Tower|5|Attack|After each round, if matchup has more health than you, give them one of your damage|4a < or >|2a <>|1a|1d v||||,grass,,,,
 Rhyhorn|111|Ground|Grass|2|9 Victory Road|4|Attack, defend|Rhyhorn's ground attacks push all opposing cards to their left|3a|2b < or >|1a|1d v||||ground,ground,,,,
 Rhydon|112|Ground|Grass|4|9 Victory Road|8|Attack, defend|Rhydon's ground attacks push all opposing cards to their right|2a <^>|3a <^ or >|2b <v or >|2a|1d v|||ground,ground,ground,,,
-Chansey|113|Normal|Psychic|5|6 Safari Zone|12|Heal|If no allies, moves become a <^ or >|6h over <v>|4h over <v>|3h over <v>|2h <v or >|1h <v or >|1d v||,,,,,
+Chansey|113|Normal|Psychic|5|6 Safari Zone|10|Heal|If no allies, moves become a <^ or >|6h over <v>|4h over <v>|3h over <v>|2h <v or >|1h <v or >|1d v||,,,,,
 Tangela|114|Grass|Fire|2|7 Seafoam Islands|4|Support|Opponents cannot use abilities to change columns|2a <^|1a <^|1b|1d v||||grass,grass,,,,
 Kangaskhan|115|Normal|Psychic|5|6 Safari Zone|9|Attack|Cannot heal ^|4a <^|3a ^>|2a <>|2b|1d v|||,,ground,,,
 Horsea|116|Water|Electric|1|4 S.S. Anne|1|Attack|+2a water <>|1a <^ or >|1b|1d v|||||water,,,,,
@@ -796,7 +798,7 @@ Omastar|139|Water|Electric|4|8 Cinnabar Island|7|Defend, attack|Attackers take 1
 Kabuto|140|Ground|Grass|2|8 Cinnabar Island|4|Balanced|+1 ground moves <>|2b <v or >|1a|1a|1d v||||ground,ground,,,,
 Kabutops|141|Ground|Grass|4|8 Cinnabar Island|7|Balanced|+1 ground moves <>|3b <v or >|3a <>|3a < or >|1a|1d v|||ground,,water,ground,,
 Aerodactyl|142|Ground|Grass|5|8 Cinnabar Island|8|Attack|Immune to ground|3a <^>|3a <^ or >|3a <^ or >|3a|1a|1d v||ground,ground,,ground,,
-Snorlax|143|Normal|Psychic|5|5 Pokemon Tower|10|Defend|If no allies, h become a|7h|5h|3h|1h|2d v|||,,,,,
+Snorlax|143|Normal|Psychic|5|5 Pokemon Tower|10|Defend|If it has no allies, its Heal moves become Attack moves|7h|5h|3h|1h|2d v|||,,,,,
 Articuno|144|Ice|Fire|6|7 Seafoam Islands|10|Attack, support|Ice attacks freeze dice|3a <^ and/or >|5a <<^> or >|4a <<^> or >|3a <<^> or >|1a <^ or >|||ice,ice,ice,ice,,
 Zapdos|145|Electric|Ground|6|3 Power Plant|10|Attack|Electric attacks hit all opponents of target's element|7a|5a|3a|3a|1a|||electric,electric,electric,,,
 Moltres|146|Fire|Water|6|2 Mt. Moon|10|Attack|Immune to fire and ground|10a over <^>|7a over <^>|4a over <^>|3a over <^>|2a over <^>|||fire,fire,fire,,,
@@ -1823,7 +1825,7 @@ const Engine = (() => {
     if (!b) return 'no battle';
     switch (a.t) {
       case 'drawwild': {                                              // tap the deck: the next wild card comes up, the computer puts it down, and you must answer it
-        if (b.stage !== 'place' || b.mode !== 'wild' || !b.pl || !b.pl.optional || b.pl.side !== 0 || !canExpand(s)) return 'not now';
+        if (b.stage !== 'place' || b.mode !== 'wild' || !b.pl || !b.pl.optional || b.pl.side !== 0 || !canExpand(s)) return 'not now'; if (b.placed[0] < 1 || b.placed[0] !== b.placed[1]) return 'put your own card down first';
         const w = wildDraw(s, b, 1); if (!w.length) return 'the deck is empty'; addHand(b, 1, w[0]); b.pl = { side: 1, left: 1 }; return null;
       }
       case 'ready': if (b.stage !== 'place' || b.mode !== 'wild' || !b.pl || !b.pl.optional || b.pl.side !== 0) return 'not now'; beginFight(s); return null;
@@ -2180,7 +2182,7 @@ const Bots = (() => {
 
   // THE card: one design at every size, a standard portrait card. o: cw, face (the number lit), pf (a number on offer), sp (special in use), die (the die shown as a badge), dieAttr, heroDie, mark (a cover: out / loses a round), extra, pop, hp, ko, foe, sel, cls, attr
   function card(u, o) {
-    o = o || {}; const c = C[u.id], e = el(c.type), cw = o.cw || 180, mx = u.max || c.hp, hp = o.hp != null ? o.hp : (u.hp != null ? u.hp : c.hp);
+    o = o || {}; const c = C[u.id], e = el(c.type), cw = o.cw || 180, mx = u.max || c.hp + (u.sh ? D.rules.shinyHp : 0), hp = o.hp != null ? o.hp : (u.hp != null ? u.hp : mx);
     const pct = Math.max(0, Math.min(100, hp / mx * 100)), lvl = pct <= 33 ? ' lo' : pct <= 66 ? ' mid' : '';
     const sp = E.parseSpecial(c.special);
     const rows = c.moves.map((m, i) => [m, i]).reverse().map(([m, i]) => { const me = m && c.movEls && c.movEls[i] ? el(c.movEls[i][0].toUpperCase() + c.movEls[i].slice(1)) : null; return `<div class="f${m ? '' : ' blank'}${me ? ' elm' : ''}" ${me ? `style="--mc:${me.color};--mb:${me.bg}"` : ''}${o.face === i + 1 && !o.sp ? ' hot' : ''}${o.pf === i + 1 && o.face !== i + 1 ? ' pick' : ''}"><span class="pip">${i + 1}</span><span class="mt">${m ? short(m) : '—'}</span>${me ? `<span class="me">${me.icon}</span>` : ''}</div>`; }).join('');
@@ -2342,11 +2344,13 @@ const Bots = (() => {
     ui.busy = false; if (!autoPlace()) maybeTips(); render();
   }
   // only ask for a choice when there is one: a lone card with a lone spot goes down by itself; a lone card with several spots is already picked
+  // would this card (in the tray) be put against a card whose element it is weak to?
+  const weakVs = (uid, col) => { const b0 = G.battle, foe = b0 && b0.cols[col] && b0.cols[col][1] != null ? E.U(b0, b0.cols[col][1]) : null, hid = b0 && b0.hcards && b0.hcards[uid] ? b0.hcards[uid].id : (E.U(b0, uid) || {}).id; return foe && hid && String(C[hid].weak).toLowerCase() === C[foe.id].type.toLowerCase() ? { foe, hid } : null; };
   function autoPlace() {
     const b = G.battle; if (!b || b.stage !== 'place' || !b.pl || b.pl.side !== 0 || b.pl.optional) return false;
     const hand = E.handOf(b, 0); if (hand.length !== 1) return false;
     const k = hand[0].hid != null ? hand[0].hid : hand[0].uid, slots = E.slotsFor(b, 0);
-    if (slots.length !== 1) { ui.sel = k; return false; }
+    if (slots.length !== 1 || (slots[0].join != null && weakVs(k, slots[0].join))) { ui.sel = k; return false; }          // a lone card with a lone spot goes down by itself, unless it is weak to what it would face
     setTimeout(() => {
       const c = G && G.battle; if (!c || c.stage !== 'place' || !c.pl || c.pl.side !== 0 || c.hand[0].indexOf(k) < 0) return;
       const u0 = c.hcards && c.hcards[k]; if (act(Object.assign({ t: 'place', side: 0, uid: k }, E.slotsFor(c, 0)[0]))) { const b2 = G.battle; if (u0 && u0.sh && b2) { const pu = b2.units.find(x => x.side === 0 && x.sh && x.id === u0.id && !x.ko); if (pu) burst(pu.uid); } }
@@ -2364,7 +2368,7 @@ const Bots = (() => {
     const open = (kind, actor) => { cur = { kind, actor, evs: [], auto: false, ph }; beats.push(cur); return cur; };
     evs.forEach(e => {
       if (e.t === 'phase') { ph = p.ph = e.p; cur = null; return; }
-      if (e.t === 'move') { p.revealed[e.u] = true; p.moves[e.u] = e.txt; return; }
+      if (e.t === 'move') { p.moves[e.u] = e.txt; return; }          // what a card rolled stays hidden until its turn comes (nextBeat)
       if (e.t === 'strike') { if (!(cur && cur.kind === 'special' && cur.actor === e.u && !cur.struck)) open('strike', e.u); cur.struck = true; cur.to = e.to; }
       else if (e.t === 'special') open('special', e.u);
       else if (e.t === 'guard') { open('guard', e.u).auto = true; }
@@ -2486,7 +2490,7 @@ const Bots = (() => {
   function nextBeat() {
     clearTimeout(ui.pt); const p = ui.play; if (!p) return; clearFx();
     if (p.bi + 1 >= p.beats.length) { if (G.battle.ask) { p.waiting = true; p.cur = null; p.wait = false; render(); return; } finishPlay(); return; }
-    p.bi++; const beat = p.beats[p.bi]; p.cur = beat; p.wait = false; p.pop = {};
+    p.bi++; const beat = p.beats[p.bi]; p.cur = beat; p.wait = false; p.pop = {}; (beat.actors || [beat.actor]).forEach(a => { if (a != null) p.revealed[a] = true; });
     const actor = beat.actor != null ? E.U(G.battle, beat.actor) : null; if (actor && actor.sh) ui.burst = actor.uid;
     render(); drawFx(beat);
     ui.pt = setTimeout(() => endBeat(beat), beat.ph === 'damage' ? 1050 : beat.ph === 'block' ? 650 : 900);
@@ -2511,14 +2515,29 @@ const Bots = (() => {
   function afterRound() {
     const b = G.battle; if (!b) return;
     if (b.out === 'hero' || b.out === 'gm') tipOnce('end'); else tipOnce('roll');
+    scheduleNext();
   }
+  // a battle plays like a cut scene: when a round has played out, the next one starts by itself (it waits only where you have something to decide)
+  function scheduleNext() {
+    clearTimeout(ui.nt);
+    ui.nt = setTimeout(() => { const b = G && G.battle; if (!b || b.stage !== 'resolved' || ui.play || ui.tip || ui.menu || ui.help || ui.coll || ui.settings || E.hauntAsk(b)) return; A.next(); }, 1300);
+  }
+  // nothing to decide: every die shows the same number, there are enough dice for every card, and there are no rerolls or abilities to use: then it does not matter who gets which die
+  function noDecision(b) {
+    if (!b || b.colMode || b.stage !== 'assign') return false; const hd = b.dice[0], us = E.living(b, 0).filter(x => !x.skip);
+    if (!hd.length || !us.length || hd.some(v => v !== hd[0]) || hd.length < us.length) return false;
+    if (b.rr[0] > 0 || (b.bonus && b.bonus[0] > 0) || ((b.rrFace || [])[0] || []).indexOf(hd[0]) >= 0) return false;
+    if (us.some(x => E.tags(x).some(g => ['mover', 'swapper', 'setDie', 'incDie', 'swapOnce', 'ditto'].indexOf(g.t) >= 0))) return false;
+    return true;
+  }
+  function autoAssign() { const b = G.battle, us = E.living(b, 0).filter(x => !x.skip); us.forEach((x, k) => { if (!b.asg[0][x.uid]) E.apply(G, { t: 'assign', side: 0, uid: x.uid, die: k }); }); }
 
   // ---------------------------------------------------------------- tips (once per device)
   const TIPTEXT = {
     place: 'They put a card down. Pick one of your Pokémon, then tap where it goes. If you have dice to spare you can bring more cards (they draw one more each time), or press Fight!',
     dice: 'Everyone rolls one die per card. Tap a die, then tap the card that should use it (or drag it). Give out the dice you like, then 🔄 throws the rest again together, once a round: those stay as they land. Each card does something different on each number: the rows on the card show what.',
     shiny: 'A shiny! Shinies have +1 heart more than usual.',
-    bill: 'Bill is here! He brought three evolutions. Beat them all and you may keep one. The others leave the game for good.',
+    bill: 'Bill is here! He brought three evolutions. Beat them all and you may keep one you do not have yet.',
     roll: 'Now tap anywhere to roll the dice for the next round.',
     end: 'Win by knocking out every card on their side. A card that reaches 0 health is out right away.',
   };
@@ -2664,13 +2683,13 @@ const Bots = (() => {
     const stages = Math.max(...D.nodes.map(n => n.stage)) + 1, pitch = 178;          // the whole road is laid out from the start, so the game always runs left to right, with the rest still to be revealed
     const availW = innerWidth, availH = viewH() - 60;
     const W0 = PADX * 2 + stages * pitch, sc = Math.min(availW / W0, 1);
-    const H0 = availH / sc, lane = Math.max(214, (H0 - PADY * 2) / 3);
-    const xy = n => [PADX + n.stage * pitch + pitch / 2, PADY + n.lane * lane + lane / 2];
+    const H0 = availH / sc, c0 = 14 + 150, c2 = H0 - 112 - 10, gap = Math.max(214, (c2 - c0) / 2);          // the first row starts right under the top bar (nothing wasted above it); the last ends at the bottom edge
+    const xy = n => [PADX + n.stage * pitch + pitch / 2, c0 + n.lane * gap];
     // places that open together are one block: every group of places with the same requirement is drawn inside one frame that says what opens it
     const reqText = n => [n.needs.length ? 'Beat ' + n.needs.map(id => E.node(id).name).join(n.any ? ' or ' : ' and ') : '', n.dice ? '🎲 ×' + n.dice : ''].filter(Boolean).join(' · ');
     const groups = {}; vis.forEach(n => { const k = (n.any ? 'any ' : 'all ') + n.needs.slice().sort().join('+') + '|' + (n.dice || 0); (groups[k] = groups[k] || []).push(n); });
     const lines = Object.values(groups).map(g => {
-      const open = E.unlocked(G, g[0]), r = reqText(g[0]), st = g.map(n => n.stage), ln = g.map(n => n.lane), x0 = PADX + Math.min(...st) * pitch + 5, x1 = PADX + (Math.max(...st) + 1) * pitch - 5, y0 = PADY + Math.min(...ln) * lane + lane / 2 - 150, y1 = PADY + Math.max(...ln) * lane + lane / 2 + 112;
+      const open = E.unlocked(G, g[0]), r = reqText(g[0]), st = g.map(n => n.stage), ln = g.map(n => n.lane), x0 = PADX + Math.min(...st) * pitch + 5, x1 = PADX + (Math.max(...st) + 1) * pitch - 5, y0 = c0 + Math.min(...ln) * gap - 150, y1 = c0 + Math.max(...ln) * gap + 112;
       return `<div class="grp ${open ? 'open' : 'lock'}" style="left:${x0}px;top:${y0}px;width:${x1 - x0}px;height:${y1 - y0}px" data-act="grp" data-req="${esc(r || 'Open from the start')}"><span class="gtab">${open ? '' : '🔒 '}${esc((r || 'Open').replace(/^Beat /, ''))}</span></div>`;
     }).join('');
     const visitors = (G.visitors || []).map(id => E.visitorNode(id)).filter(Boolean);          // special visitors (Bill) stand on the map until you meet them
@@ -2767,14 +2786,14 @@ const Bots = (() => {
     const heroTray = teamSort(E.handOf(b, 0), hc => hc.hid != null ? hc.hid : hc.uid).map(hc => { const k = hc.hid != null ? hc.hid : hc.uid; return card(hc, { cw: hcw, sel: k === selected, attr: `data-act="tray" data-uid="${k}"` }); }).join('');
     // the bay: your hand while you set the matchups, then the dice
     const hd = b.dice[0], used = E.assignedDice(b, 0);
-    const diceHtml = !waitRoll && (assign || done || p) && hd.length ? hd.map((v, i) => [v, i]).sort((x, y) => y[0] - x[0] || x[1] - y[1]).map(([v, i]) => dieHtml(v, { sel: ui.die === i, used: !colM && used.has(i), tumble: rolling && (!ui.rerolled || ui.rerolled.indexOf(i) >= 0), attr: !colM && assign && !rolling && !(b.fixed && b.fixed[0] && b.fixed[0][i]) ? `data-act="die" data-i="${i}"` : '' })).join('') : '';
+    const diceHtml = !waitRoll && (assign || done || p) && hd.length ? hd.map((v, i) => [v, i]).sort((x, y) => rolling ? x[1] - y[1] : y[0] - x[0] || x[1] - y[1]).map(([v, i]) => { const tum = rolling && (!ui.rerolled || ui.rerolled.indexOf(i) >= 0); return dieHtml(tum ? 1 + Math.floor(Math.random() * 6) : v, { sel: ui.die === i, used: !colM && used.has(i), tumble: tum, attr: !colM && assign && !rolling && !(b.fixed && b.fixed[0] && b.fixed[0][i]) ? `data-act="die" data-i="${i}"` : '' }); }).join('') : '';
     let status = '', btns = '';
     const opt = yourPlace && b.pl.optional;
     if (placing) status = (b.sudden ? 'SUDDEN DEATH · ' : '') + (yourPlace ? (selected != null ? 'Now tap where it goes' : opt ? 'Put down another card, tap the deck for them to bring one first, or Fight!' : 'Pick a Pokémon from your hand to put down') : 'They are putting a card down…');
     else if (waitRoll) status = '<span class="rollhint">🎲 Tap anywhere to roll</span>';
     else if (assign && colM) { status = (b.sudden ? 'SUDDEN DEATH · ' : '') + (rolling ? 'Rolling…' : b.dice[0].length ? 'Keep it, or reroll?' : 'Nothing to roll for you here'); }
     else if (assign && ui.slide) { status = 'Slide a neighbour over to face the opponent? Tap it.'; btns = `<button class="btn alt" data-act="slideno">Leave it empty</button>`; }
-    else if (assign) { const need = E.living(b, 0).filter(u => !u.skip && !b.asg[0][u.uid]).length; status = (b.sudden ? 'SUDDEN DEATH · ' : '') + (rolling ? 'Rolling…' : ui.tweak != null ? 'Tap the die to change to ' + (E.tags(E.U(b, ui.tweak)).find(g => g.t === 'setDie') || {}).v : ui.die != null ? 'Tap a card to give it that ' + b.dice[0][ui.die] : (E.readyToGo(b, 0) ? '✅ All set!<br>Tap here to play the round' : 'Drag a die onto a card')); }
+    else if (assign) { const need = E.living(b, 0).filter(u => !u.skip && !b.asg[0][u.uid]).length; status = (b.sudden ? 'SUDDEN DEATH · ' : '') + (rolling ? 'Rolling…' : ui.tweak != null ? 'Tap the die to change to ' + (E.tags(E.U(b, ui.tweak)).find(g => g.t === 'setDie') || {}).v : ui.die != null ? 'Tap a card to give it that ' + b.dice[0][ui.die] : (E.readyToGo(b, 0) ? '✅ All set!<br>Tap here to play the round' : noDecision(b) ? '✅ Nothing to decide!<br>Tap here to play the round' : 'Drag a die onto a card')); }
     else if (asking && b.ask.kind === 'yn') { status = `<b>${C[E.U(b, b.ask.uid).id].name}</b> is attacked by ${C[E.U(b, b.ask.by).id].name} for ${b.ask.n}. Dodge?`; btns = `<button class="btn big" data-act="decide" data-yes="1">Dodge!</button><button class="btn alt" data-act="decide" data-yes="0">Take it</button>`; }
     else if (asking && b.ask.kind === 'alloc') { const left = b.ask.n - Object.values(b.ask.given).reduce((t, v) => t + v, 0); status = `Share ${left} ${b.ask.k === 'a' ? 'attack' : 'heal'} point${left === 1 ? '' : 's'} from <b>${C[E.U(b, b.ask.uid).id].name}</b>: tap a card for each` + (Object.keys(b.ask.given).length ? '<br>' + Object.keys(b.ask.given).map(k => `${C[E.U(b, +k).id].name} ${b.ask.given[k]}`).join(' · ') : ''); }
     else if (asking) status = b.ask.what === 'ditto' ? `Tap whose move ${C[E.U(b, b.ask.uid).id].name} copies` : `Tap who ${C[E.U(b, b.ask.uid).id].name} ${b.ask.k === 'a' ? 'attacks' : b.ask.k === 'b' ? 'blocks for' : 'heals'}`;
@@ -2791,7 +2810,7 @@ const Bots = (() => {
     }
     const nodeB = E.node(b.node), pw = Math.max(64, Math.min(96, RW - 70));
     const pileHtml = placing && nodeB.kind === 'visitor' ? `<div class="pilebay${opt ? ' tappable' : ''}" style="--pw:${pw}px" ${opt ? 'data-act="drawdeck"' : ''}>${deckPile(null, { pw, count: b.bill ? b.bill.length : 0, svg: `<svg viewBox="0 0 100 140" width="100%" height="100%"><rect width="100" height="140" fill="#3949ab"/><image href="data:image/png;base64,${D.trainerArt[nodeB.art]}" x="8" y="30" width="84" height="84" style="image-rendering:pixelated"/></svg>`, dk: '#283593' })}</div>` : placing && nodeB.kind === 'loc' ? `<div class="pilebay${opt ? ' tappable' : ''}" style="--pw:${pw}px" ${opt ? 'data-act="drawdeck"' : ''}>${deckPile(nodeB.loc, { pw, count: E.deckSize(G, nodeB.loc) })}</div>` : placing && nodeB.kind === 'boss' ? `<div class="pilebay" style="--pw:${pw}px">${deckPile(null, { pw, count: b.hand[1].length, svg: gymBack(nodeB), dk: gymPal(nodeB)[0] })}</div>` : '';
-    const goReady = assign && !waitRoll && !rolling && !ui.slide && !asking && (colM ? b.gmReady : E.readyToGo(b, 0) && b.gmReady);
+    const autoOk = assign && !colM && b.gmReady && !E.readyToGo(b, 0) && noDecision(b), goReady = assign && !waitRoll && !rolling && !ui.slide && !asking && (colM ? b.gmReady : (E.readyToGo(b, 0) || autoOk) && b.gmReady);
     const fight = opt ? '<button class="btn big" data-act="ready">Fight!</button>' : '';
     const trainerHtml = nodeB.kind !== 'loc' && D.trainerArt && D.trainerArt[nodeB.art || nodeB.id] ? `<div class="trainer"><img class="pix" src="data:image/png;base64,${D.trainerArt[nodeB.art || nodeB.id]}" alt="${esc(nodeB.name)}"><b>${esc(nodeB.name)}</b></div>` : '';
     const railIn = placing ? `<div class="status">${status}</div>${fight}<div class="hrow handrow hcol">${heroTray}</div>${pileHtml}` : `<div class="rmid"><div class="status">${status}</div><div class="dice">${diceHtml}</div></div><div class="acts">${btns}</div>`;
@@ -2809,18 +2828,25 @@ const Bots = (() => {
     const r = G.res, nd = E.node(r.node), sdv = E.starterOf(G.starter);
     // the cards you choose between are as big as they can be while ALL of them fit on the screen at once (no scrolling, nothing cut off)
     const fitCw = (n, w, h) => { let best = 120; for (let rows = 1; rows <= 3; rows++) { const per = Math.ceil(n / rows), c = Math.min(Math.floor((w - (per - 1) * 12) / per), Math.floor((h - (rows - 1) * 12) / rows / CH)); if (c > best * (rows > 1 ? 1.12 : 1)) best = c; } return Math.min(best, 420); };          // more rows only when that makes the cards clearly bigger
-    const pickN = r.pick ? r.pick.length : r.evolve ? 2 : 0, cw = pickN ? fitCw(pickN, innerWidth - 84, viewH() - 400) : 230;
+    const pickN = r.pick ? r.pick.length : r.evolve ? 2 : 0, cw = pickN ? fitCw(pickN, innerWidth - 84, viewH() - (r.pick ? 400 : 230)) : 230;
     const take = r.pick ? `<div class="status">Choose one to join your team!</div><div class="hrow" style="flex-wrap:wrap;justify-content:center;overflow:visible;gap:12px">${r.pick.map((i, k) => card(i, { cw, sel: ui.pickSel === k, mark: r.have && r.have.indexOf(i.id) >= 0 ? 'You have it' : '', cls: r.have && r.have.indexOf(i.id) >= 0 ? 'owned' : '', attr: r.have && r.have.indexOf(i.id) >= 0 ? '' : `data-act="pickcard" data-i="${k}"` })).join('')}</div>${pickBar(r)}` : (r.took ? `<div class="status">You caught ${esc(C[r.took.id].name)}${r.took.sh ? ' ✨' : ''}!</div><div class="hrow">${card(r.took, { cw })}</div>` : '');
     const evo = r.evolve ? `<div class="status">${esc(C[sdv.levels[r.evolve - 1]].name)} is ready to evolve! Which will it be?</div><div class="hrow">${[[sdv.levels[r.evolve - 1], 0], [sdv.evolve[r.evolve], 1]].map(([id, y]) => card({ id, sh: 0 }, { cw, attr: `data-act="evolve" data-yes="${y}"` })).join('')}</div>` : '';
-    const lines = []; const lead = r.win && nd.kind === 'visitor' ? `<div class="leadtalk"><img class="pix leadimg" src="data:image/png;base64,${D.trainerArt[nd.art]}" alt="${esc(nd.name)}"><div class="bubble"><b class="who">${esc(nd.name)}</b><p>${r.allHave ? '“Wow, you already have all the evolutions!”' : r.fallback ? '“You have all three already! Here, take an Eevee.”' : '“Take your pick! You can only keep one you do not have yet.”'}</p></div></div>` : r.win && nd.kind === 'boss' ? `<div class="leadtalk">${D.trainerArt && D.trainerArt[nd.id] ? `<img class="pix leadimg" src="data:image/png;base64,${D.trainerArt[nd.id]}" alt="${esc(nd.name)}">` : ''}<div class="bubble"><b class="who">${esc(nd.name)}</b><p>“${esc(nd.say || 'Well fought!')}”</p>${r.newDie ? `<div class="gift">${dieHtml(6, {})}<span>${esc(nd.name)} hands you a die. <i>“${esc(D.dieLine)}”</i></span></div>` : ''}</div></div>` : ''; if (r.dieGain) lines.push(`You keep ${r.dieGain.map(c => `<b style="color:${dieCol(c)}">${c}</b>`).join(', ')}: a die that adds +1 to a move of its colour`); if (r.turns != null) lines.push(`${nd.finale ? 'You beat the game' : 'Beaten'} in <b>${r.turns} turn${r.turns === 1 ? '' : 's'}</b>${r.newBest ? ' <span class="nb">New best!</span>' : (r.best != null ? ` <span class="pb">(best ${r.best})</span>` : '')}`); if (r.levelUp) lines.push(`Your starter grew to level ${lvName(r.levelUp)}!`); if (r.legend && r.win) lines.push(`${esc(C[r.legend.id].name)}${r.legend.sh ? ' ✨' : ''} joins your team!`);
+    const lead = r.win && nd.kind === 'visitor' ? `<div class="leadtalk"><img class="pix leadimg" src="data:image/png;base64,${D.trainerArt[nd.art]}" alt="${esc(nd.name)}"><div class="bubble"><b class="who">${esc(nd.name)}</b><p>${r.allHave ? '“Wow, you already have all the evolutions!”' : r.fallback ? '“You have all three already! Here, take an Eevee.”' : '“Take your pick! You can only keep one you do not have yet.”'}</p></div></div>` : r.win && nd.kind === 'boss' ? `<div class="leadtalk">${D.trainerArt && D.trainerArt[nd.id] ? `<img class="pix leadimg" src="data:image/png;base64,${D.trainerArt[nd.id]}" alt="${esc(nd.name)}">` : ''}<div class="bubble"><b class="who">${esc(nd.name)}</b><p>“${esc(nd.say || 'Well fought!')}”</p>${r.newDie ? `<div class="gift">${dieHtml(6, {})}<span>${esc(nd.name)} hands you a die. <i>“${esc(D.dieLine)}”</i></span></div>` : ''}</div></div>` : '';
     if (!r.win) { const st = G.coll.find(c => c.starter) || G.coll[0]; return `<div class="scr kos" data-act="done"><div class="kobox"><div class="kopic"><img class="pix" src="${art(st.id, st.sh)}" alt=""><i>✦</i><i>✦</i><i>✦</i></div><div class="kotxt">You are KO'd!</div><div class="kotap">Tap anywhere to continue</div></div></div>`; }
-    return `<div class="scr" style="overflow:auto"><div class="center" style="justify-content:flex-start;padding-top:56px"><div class="banner">${nd.finale ? 'CHAMPION!' : 'Victory!'}</div>
-      ${lead}
-      ${lines.map(l => `<div style="font:800 22px system-ui">${l}</div>`).join('')}
-      ${r.win && r.levelUp && !r.evolve ? `<div class="hrow">${card({ id: G.coll.find(c => c.starter).id, sh: 0 }, { cw })}</div>` : ''}
-      ${r.win && r.legend ? `<div class="hrow">${card(r.legend, { cw })}</div>` : ''}
-      ${evo}${take}
-      ${r.pick || r.evolve ? '' : `<button class="btn big" data-act="done">${G.phase === 'won' ? 'Hall of Fame' : 'Continue'}</button>`}</div></div>`;
+    const turnsLine = r.turns != null ? `${nd.finale ? 'You beat the game' : 'You beat ' + esc(nd.name)} in <b>${r.turns} turn${r.turns === 1 ? '' : 's'}</b>${r.newBest ? ' <span class="nb">New best!</span>' : (r.best != null ? ` <span class="pb">(best ${r.best})</span>` : '')}` : '';
+    // two screens: first the leader's thanks (what they hand you, how long you took); then what it did for your team (the starter, a new card, a legendary)
+    const hasTeam = !!(r.win && (r.levelUp || r.evolve || r.legend || r.pick || r.took));
+    const leadFirst = r.win && nd.kind === 'boss';
+    if (ui.resFor !== G.turn + ':' + r.node) { ui.resFor = G.turn + ':' + r.node; ui.resStep = leadFirst ? 0 : 1; }
+    const dest = G.phase === 'won' ? 'Hall of Fame' : 'Continue';
+    if (ui.resStep === 0 && leadFirst) return `<div class="scr" style="overflow:auto"><div class="center" style="justify-content:flex-start;padding-top:56px"><div class="banner">${nd.finale ? 'CHAMPION!' : 'Victory!'}</div>${lead}${turnsLine ? `<div style="font:800 24px system-ui">${turnsLine}</div>` : ''}<button class="btn big" data-act="${hasTeam ? 'resnext' : 'done'}">${hasTeam ? 'Continue' : dest}</button></div></div>`;
+    const st = G.coll.find(c => c.starter), room = viewH() - 250;
+    const one = (c, txt, attr) => `<div class="status">${txt}</div><div class="hrow" style="justify-content:center">${card(c, { cw: Math.max(140, Math.min(360, Math.floor(room / CH), innerWidth - 60)), attr: attr || '' })}</div>`;
+    const lvTxt = r.win && r.levelUp && !r.evolve ? one({ id: st.id, sh: st.sh }, `Your starter grew to level ${lvName(r.levelUp)}! <small>(tap the card to see it bigger)</small>`, `data-act="zoom" data-uid="${st.uid}"`) : '';
+    const legTxt = r.win && r.legend ? one(r.legend, `${esc(C[r.legend.id].name)}${r.legend.sh ? ' ✨' : ''} joins your team!`) : '';
+    return `<div class="scr" style="overflow:auto"><div class="center" style="justify-content:flex-start;padding-top:56px"><div class="banner">${r.pick ? 'Choose a card' : r.evolve ? 'Evolution!' : r.levelUp ? 'Level up!' : nd.finale ? 'CHAMPION!' : 'Victory!'}</div>
+      ${nd.kind === 'visitor' ? lead : ''}${lvTxt}${legTxt}${evo}${take}
+      ${r.pick || r.evolve ? '' : `<button class="btn big" data-act="done">${dest}</button>`}</div></div>`;
   }
   function wonScreen() {
     return `<div class="scr"><div class="center" style="flex:none;padding-top:56px"><div class="banner" style="font-size:54px">CHAMPION!</div><div style="font:800 22px system-ui">You beat the gym leaders and Lance in <b>${G.turn} turns</b>.${(scores()[G.size] || {}).game != null ? ` <span class="pb">Best: ${(scores()[G.size] || {}).game}</span>` : ''}</div></div>
@@ -3049,10 +3075,15 @@ const Bots = (() => {
     tray(el) {
       if (!(G.battle && G.battle.pl && G.battle.pl.side === 0)) return;                 // not your turn yet
       const k = +el.dataset.uid; ui.sel = ui.sel === k ? null : k;
-      if (ui.sel != null) { const sl = E.slotsFor(G.battle, 0); if (sl.length === 1) { ui.sel = null; act(Object.assign({ t: 'place', side: 0, uid: k }, sl[0])); return; } }     // one spot: no need to tap it
+      if (ui.sel != null) { const sl = E.slotsFor(G.battle, 0); if (sl.length === 1 && !(sl[0].join != null && weakVs(k, sl[0].join))) { ui.sel = null; act(Object.assign({ t: 'place', side: 0, uid: k }, sl[0])); return; } }     // one spot: no need to tap it
       render();
     },
-    join(el) { const uid = ui.sel; ui.sel = null; if (act({ t: 'place', side: 0, uid, join: +el.dataset.col })) { const u = E.U(G.battle, uid); if (u && u.sh) burst(uid); } },
+    join(el) {
+      const uid = ui.sel, b0 = G.battle, col = +el.dataset.col, foeU = b0 && b0.cols[col] && b0.cols[col][1] != null ? E.U(b0, b0.cols[col][1]) : null, hid = b0 && b0.hcards && b0.hcards[uid] ? b0.hcards[uid].id : (E.U(b0, uid) || {}).id;
+      if (foeU && hid && !(ui.weakAsk && ui.weakAsk.uid === uid && ui.weakAsk.col === col) && String(C[hid].weak).toLowerCase() === C[foeU.id].type.toLowerCase()) {          // a card that is weak to the element of the card it would face: are you sure?
+        ui.weakAsk = { uid, col }; toast(`${C[hid].name} is weak to ${C[foeU.id].type} (${C[foeU.id].name} is ${C[foeU.id].type}). Are you sure? Tap the spot again, or pick another card.`); return;
+      }
+      ui.weakAsk = null; ui.sel = null; if (act({ t: 'place', side: 0, uid, join: col })) { const u = E.U(G.battle, uid); if (u && u.sh) burst(uid); } },
     ins(el) { const uid = ui.sel; ui.sel = null; if (act({ t: 'place', side: 0, uid, at: +el.dataset.at })) { const u = E.U(G.battle, uid); if (u && u.sh) burst(uid); } },
     die(el) { const i = +el.dataset.i; if (ui.tweak != null) { const uid = ui.tweak; ui.tweak = null; act({ t: 'tweak', side: 0, uid, die: i }); return; } ui.die = ui.die === i ? null : i; render(); },
     unit(el) {
@@ -3087,16 +3118,17 @@ const Bots = (() => {
     },
     rerollfree() { if (ui.die != null) act({ t: 'reroll', side: 0, die: ui.die }); },
     tweak(el) { const uid = +el.dataset.uid, u = E.U(G.battle, uid), g = u && E.tags(u).find(x => x.t === 'setDie'); if (g && !G.battle.colMode) { ui.tweak = ui.tweak === uid ? null : uid; render(); return; } act({ t: 'tweak', side: 0, uid }); },
-    go() { if (ui.die != null || ui.tweak != null) { ui.die = null; ui.tweak = null; render(); return; } if (act({ t: 'go2' })) startPlay(); },
+    go() { if (ui.die != null || ui.tweak != null) { ui.die = null; ui.tweak = null; render(); return; } if (G.battle && !E.readyToGo(G.battle, 0) && noDecision(G.battle)) autoAssign(); if (act({ t: 'go2' })) startPlay(); },
     skip() { skipPlay(); },
     next() { ui.die = null; act({ t: 'next' }); },
     pickcard(el) { const k = +el.dataset.i; if (ui.pickSel === k) { A.pickok(); return; } ui.pickSel = k; render(); }, pickno() { ui.pickSel = null; render(); }, pickok() { const k = ui.pickSel; ui.pickSel = null; if (k != null && act({ t: 'take', i: k }) && G.phase === 'result' && G.res && !G.res.evolve && !G.res.pick) { ui.mapX = null; act({ t: 'done' }); render(); } },
     take(el) { act({ t: 'take', i: +el.dataset.i }); },
     evolve(el) { act({ t: 'evolve', yes: el.dataset.yes === '1' }); },
     keepgoing() { G.phase = 'map'; G.res = null; G.battle = null; ui.mapX = null; save(); render(); },
+    resnext() { ui.resStep = 1; render(); },
     done() { ui.mapX = null; if (act({ t: 'done' })) render(); },
     forfeit() { ui.menu = false; act({ t: 'forfeit' }); },
-    tipok() { ui.tip = null; render(); },
+    tipok() { ui.tip = null; render(); if (G && G.battle && G.battle.stage === 'resolved') scheduleNext(); },
     clearnote() { G.notes.shift(); save(); render(); },
   };
   // dragging a die: it follows your finger, and drops into the art area of the card it lands on
@@ -3153,7 +3185,7 @@ const Bots = (() => {
   document.addEventListener('contextmenu', e => e.preventDefault());
   let rz = null; window.addEventListener('resize', () => { clearTimeout(rz); rz = setTimeout(() => { if (G && ui.screen === 'play' && G.phase === 'map') render(); }, 120); });
   render();
-  window.__deckPile = (l, w) => deckPile(l, { pw: w, count: 9 }); window.__pokemonRoll = { card, fitCards, short, abText, recordResult, get G() { return G; }, setG(x) { G = x; ui.screen = 'play'; resetSel(); save(); drive(); }, ui, A, render, act, get set() { return set; } };
+  window.__deckPile = (l, w) => deckPile(l, { pw: w, count: 9 }); window.__pokemonRoll = { card, noDecision, fitCards, short, abText, recordResult, get G() { return G; }, setG(x) { G = x; ui.screen = 'play'; resetSel(); save(); drive(); }, ui, A, render, act, get set() { return set; } };
 })();
 
 </script>

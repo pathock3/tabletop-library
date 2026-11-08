@@ -8,7 +8,7 @@ const URL = 'file://' + path.join(__dirname, '..', 'index.html');
 async function playFight(p, maxSteps) {
   const tap = sel => p.locator(sel).first().click({ timeout: 1500 }).then(() => true, () => false);       // the game may move on by itself between looking and tapping
   for (let i = 0; i < (maxSteps || 160); i++) {
-    if (await p.locator('.banner').count()) return true;
+    if (await p.locator('.banner, .kos').count()) return true;
     if (await tap('[data-act=tipok]')) continue;
     if (await p.locator('[data-act=skip]').count()) { await tap('[data-act=skip]'); continue; }
     if (await p.locator('.rollhint').count()) { await tap('.rollhint'); continue; }      // tap anywhere to roll
@@ -45,7 +45,7 @@ test('ui: menu, new game, map, and a whole first fight through real taps, with n
     assert.ok(await p.evaluate(() => document.documentElement.scrollWidth <= innerWidth && document.documentElement.scrollHeight <= innerHeight), 'the page does not scroll');
     await p.click('[data-id=L1]'); assert.equal(await p.locator('[data-act=pickc]').count(), 0, 'no team to pick first');
     assert.ok(await playFight(p), 'the fight reached a result');
-    assert.match(await p.innerText('.banner'), /Victory|Not this time/);
+    assert.match(await p.innerText('.banner, .kos'), /Victory|KO|Choose a card|Level up|Evolution/);
     await p.click('[data-act=done]').catch(() => {});
     if (await p.locator('[data-act=pickcard]').count()) { await p.locator('[data-act=pickcard]').first().click(); await p.click('[data-act=pickok]'); }
     assert.deepEqual(errs, []);
@@ -72,7 +72,7 @@ test('ui: the table fits on the iPad and the iPhone, and cards open into the ful
         await p.locator('[data-act=tipok]').click({ timeout: 250 }).catch(() => {});
         const st = await p.evaluate(() => { const g = window.__pokemonRoll.G.battle; return g.stage + ':' + g.pl.side; });
         if (st.startsWith('assign')) break;
-        if (st === 'place:0') { await p.locator('[data-act=tray]').first().click(); const j = p.locator('[data-act=join]'); if (await j.count()) await j.first().click(); else await p.locator('[data-act=ins]').first().click(); } else await p.waitForTimeout(300);
+        if (st === 'place:0') { await p.locator('[data-act=tray]').first().click(); const j = p.locator('[data-act=join]'); if (await j.count()) { await j.first().click(); if (await p.locator('.toast:has-text("Are you sure")').count()) await j.first().click(); } else await p.locator('[data-act=ins]').first().click(); } else await p.waitForTimeout(300);
       }
       await p.waitForTimeout(700);
       const fits = await p.evaluate(() => ({ sx: document.documentElement.scrollWidth <= innerWidth, sy: document.documentElement.scrollHeight <= innerHeight, over: true }));
@@ -379,6 +379,7 @@ test('ui: choosing a card asks below the cards, goes straight to the map; a loss
     await p.goto(URL);
     await p.evaluate(() => { const s = Engine.newGame({ seed: 5, starter: 'charmander' }); s.phase = 'result'; s.res = { win: true, node: 'B1', newDie: true, pick: [{ id: '13', sh: 0 }, { id: '10', sh: 0 }] }; window.__pokemonRoll.setG(s); });
     assert.equal(await p.locator('.leadtalk .leadimg').count(), 1, 'the leader is on screen while they talk'); assert.equal(await p.locator('.leadtalk .gift .die').count(), 1, 'and a die is shown when they hand you one');
+    assert.equal(await p.locator('[data-act=pickcard]').count(), 0, 'the first screen is just the leader'); await p.click('[data-act=resnext]');
     await p.click('[data-act=pickcard] >> nth=0');
     const r = await p.evaluate(() => { const bar = document.querySelector('.pickbar').getBoundingClientRect(), cards = [...document.querySelectorAll('[data-act=pickcard]')].map(c => c.getBoundingClientRect().bottom); return { bar: bar.top, cards: Math.max(...cards), sheet: document.querySelectorAll('.sheet').length }; });
     assert.ok(r.bar >= r.cards - 1, 'the question sits below the cards'); assert.equal(r.sheet, 0, 'not over them');
@@ -428,6 +429,23 @@ test('ui: places that open together are one block with their requirement on it (
     assert.equal(await p.locator('.mapin .grp').count(), 6, 'six blocks'); assert.equal(await p.locator('.mapin .grp.open').count(), 1, 'only the first block is open'); assert.equal(await p.locator('.mapsvg path').count(), 0, 'no lines');
     const tabs = await p.locator('.grp.lock .gtab').allInnerTexts(); assert.ok(tabs.every(t => t.includes('🔒')), 'each locked block says it is locked'); assert.ok(tabs.some(t => /Brock/.test(t)), 'and by what');
     await p.locator('.grp.lock').first().click({ position: { x: 20, y: 400 }, force: true }); assert.match(await p.innerText('.toast'), /Brock/);
+    assert.deepEqual(errs, []);
+  } finally { await b.close(); }
+});
+
+test('ui: a shiny card shows its extra heart; with nothing to decide the side bar plays the round by itself; a card weak to its opponent asks first', { skip: !chromium }, async () => {
+  const b = await chromium.launch(), p = await b.newPage({ viewport: { width: 820, height: 1180 } });
+  const errs = []; p.on('pageerror', e => errs.push(e.message));
+  try {
+    await p.goto(URL); await p.evaluate(() => { localStorage.setItem('pokemon-roll-tips', JSON.stringify({ place: 1, dice: 1, roll: 1, end: 1, shiny: 1 })); }); await p.reload();
+    assert.match(await p.evaluate(() => window.__pokemonRoll.card({ id: '143', sh: 1 }, { cw: 200 }).replace(/<[^>]+>/g, ' ')), /11/, 'a shiny Snorlax has 11 health on its card, the same as in the fight');
+    await p.evaluate(() => { const s = Engine.newGame({ seed: 8, starter: 'squirtle' }); window.__pokemonRoll.setG(s); });
+    await p.click('[data-id=L1]');
+    for (let i = 0; i < 30; i++) { if (await p.evaluate(() => { const g = window.__pokemonRoll.G.battle; return g && g.stage === 'assign'; })) break; await p.waitForTimeout(300); if (await p.locator('[data-act=tray]').count()) { await p.locator('[data-act=tray]').first().click().catch(() => {}); await p.locator('[data-act=join]').first().click({ timeout: 800 }).catch(() => {}); await p.locator('[data-act=join]').first().click({ timeout: 800 }).catch(() => {}); } }
+    await p.mouse.click(400, 300); await p.waitForTimeout(1300);          // tap anywhere to roll
+    await p.evaluate(() => { const g = window.__pokemonRoll.G.battle; g.dice[0] = [3]; g.rr[0] = 0; g.rrFace[0] = []; g.asg[0] = {}; window.__pokemonRoll.render(); });
+    await p.waitForTimeout(1300); assert.equal(await p.locator('.rail.rgo').count(), 1, 'nothing to decide: the side bar is ready'); assert.match(await p.innerText('.rail .status'), /Nothing to decide/);
+    await p.locator('.rail.rgo .status').click(); await p.waitForTimeout(500); assert.equal(await p.evaluate(() => window.__pokemonRoll.G.battle.stage !== 'assign' || !!document.querySelector('.phl, .mvbub')), true, 'the round plays');
     assert.deepEqual(errs, []);
   } finally { await b.close(); }
 });

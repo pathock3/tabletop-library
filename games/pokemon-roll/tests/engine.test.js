@@ -627,3 +627,10 @@ test('Bill: you can only keep an evolution you do not have; with all three you g
   const b2 = winWith(ids); assert.equal(b2.res.fallback, true); assert.deepEqual(b2.res.pick.map(i => i.id), [eevee], 'all three: an Eevee'); assert.ok(E.apply(b2, { t: 'take', i: 0 }).ok); assert.ok(b2.coll.some(c => c.id === eevee));
   const c2 = winWith(ids.concat([eevee])); assert.equal(c2.res.allHave, true); assert.ok(!c2.res.pick, 'nothing to choose'); assert.deepEqual(c2.visitors, [], 'he leaves');
 });
+
+test('cards: Chansey has 10 health; Snorlax says plainly that its Heal moves become Attack moves when it is alone; the deck cannot be tapped before you have put a card down', () => {
+  assert.equal(C['113'].hp, 10); assert.match(C['143'].ability, /Heal moves become Attack moves/);
+  assert.ok(E.CARDS['143'].ability && E._t, 'readable'); assert.equal(E.tagsOf(C['143']).some(g => g.t === 'alone'), true, 'and it still works');
+  const s = E.newGame({ seed: 21, starter: 'bulbasaur' }); s.done.B1 = s.done.B2 = true; ['74', '56', '100'].forEach((id, i) => s.coll.push({ uid: 10 + i, id, sh: 0 }));
+  E.apply(s, { t: 'go', node: 'L1' }); assert.equal(E.apply(s, { t: 'drawwild' }).ok, false, 'not while the place is putting its card down or you have not played yet');
+});
