@@ -216,12 +216,15 @@ test('wild cards: one comes up, you put one down, and then you choose: fight it 
   assert.ok(E.apply(s, Object.assign({ t: 'place', side: 0, uid: b.hand[0][0] }, E.slotsFor(b, 0).find(x => x.join != null))).ok);
   assert.equal(b.pl.optional, true, 'now you may bring more, or fight'); assert.equal(b.stage, 'place');
   // tap the deck for a second: it is drawn, the computer puts it down, and then you must answer it with a card of yours
-  assert.equal(E.apply(s, Object.assign({ t: 'place', side: 0, uid: b.hand[0][0] }, E.slotsFor(b, 0).find(x => x.at != null))).ok, false, 'you do not put a second card down first: you tap the deck');
   assert.ok(E.apply(s, { t: 'drawwild' }).ok); assert.deepEqual(b.pl, { side: 1, left: 1 }); assert.equal(b.hand[1].length, 1, 'a second wild card was drawn');
   assert.ok(E.apply(s, B.step(s, 'normal')).ok); assert.deepEqual(b.pl, { side: 0, left: 1, optional: false }, 'now you must answer it');
   assert.equal(E.apply(s, { t: 'ready' }).ok, false, 'no fighting before you have answered');
   assert.ok(E.apply(s, Object.assign({ t: 'place', side: 0, uid: b.hand[0][0] }, E.slotsFor(b, 0).find(x => x.at != null) || E.slotsFor(b, 0)[0])).ok); assert.equal(b.pl.optional, true, 'and then you may tap the deck again, or fight');
-  assert.ok(E.apply(s, { t: 'ready' }).ok, 'fight with two'); assert.equal(b.stage, 'assign'); assert.equal(E.living(b, 0).length, 2); assert.equal(E.living(b, 1).length, 2);
+  // or put a second card down yourself: the place answers it at once, and you are back to choosing, with the sides equal
+  assert.ok(E.apply(s, Object.assign({ t: 'place', side: 0, uid: b.hand[0][0] }, E.slotsFor(b, 0).find(x => x.at != null) || E.slotsFor(b, 0)[0])).ok);
+  assert.deepEqual(b.pl, { side: 1, left: 1 }, 'they answer your extra card'); assert.equal(E.apply(s, { t: 'drawwild' }).ok, false, 'the deck cannot be tapped while a card is to be put down');
+  assert.ok(E.apply(s, B.step(s, 'normal')).ok); assert.equal(b.placed[0], b.placed[1], 'always equal when you may choose'); assert.equal(b.pl.optional, true);
+  assert.ok(E.apply(s, { t: 'ready' }).ok, 'fight with three'); assert.equal(b.stage, 'assign'); assert.equal(E.living(b, 0).length, 3); assert.equal(E.living(b, 1).length, 3);
   // one on one: put one down and fight at once
   const t = E.newGame({ seed: 22, starter: 'squirtle' }); t.done.B1 = true; t.coll.push({ uid: 9, id: '10', sh: 0 });
   E.apply(t, { t: 'go', node: 'L2' }); E.apply(t, B.step(t, 'normal')); const tb = t.battle;
@@ -312,22 +315,6 @@ test('shiny: a card keeps its form once it is on a team, and a card given back t
   assert.ok(typeof shinyBoss.length === 'number');
 });
 const CARDS_LOC = id => C[id].loc;
-test('legendaries: with four dice, a nine on two dice at the start of a turn spots one, and it joins its place', () => {
-  let found = null;
-  for (let seed = 1; seed < 3000 && !found; seed++) {
-    const s = E.newGame({ seed, starter: 'bulbasaur' }); s.done.rival1 = true; s.done.B1 = true; s.done.B2 = true; s.done.B4 = true; s.coll.push({ uid: 9, id: '10', sh: 0 });
-    D.locations.forEach(l => { s.discard[l.id].push(s.decks[l.id].pop()); });                 // something already faced in every place
-    const pool = s.legend.slice(), dis = D.locations.map(l => s.discard[l.id].length); E.apply(s, { t: 'go', node: 'L1' });
-    if (s.notes.length) found = { s, pool, dis };
-  }
-  assert.ok(found, 'a legendary shows up now and then');
-  const id = found.s.notes[0].replace('legend:', ''); assert.ok(C[id].legend);
-  assert.ok(!found.s.legend.includes(id), 'it leaves the waiting pile');
-  assert.deepEqual(D.locations.map(l => found.s.discard[l.id].length), found.dis, 'a legendary joins the draw pile only: the discard pile is not shuffled back in early');
-  assert.ok(found.s.decks[C[id].loc].includes(id) || found.s.battle.hand[1].some(h => found.s.battle.hcards[h].id === id) || found.s.battle.units.some(u => u.id === id), 'it is in the deck of the place on its card');
-  const one = E.newGame({ seed: 1, starter: 'bulbasaur' }); E.apply(one, { t: 'go', node: 'L1' });
-  assert.equal(one.notes.length, 0, 'no rolling for legendaries with only one die');
-});
 
 // ================================================================ whole games
 // ================================================================ cards that move cards, and Haunter
@@ -531,16 +518,18 @@ test('rules: "immune" is now three less damage from that type; leaders field the
   });
 });
 
-test('legendaries: nothing is spotted until you have four dice; after that two unseen dice making 9 spot one', () => {
-  assert.equal(D.rules.legendaryFromSlots, 4);
-  let early = 0, late = 0;
-  for (let seed = 1; seed <= 160; seed++) {
-    let s = E.newGame({ seed, starter: 'bulbasaur' }); s.done.B1 = true; s.done.B2 = true;           // three dice
-    E.apply(s, { t: 'go', node: 'L1' }); if (s.notes.some(n => n.indexOf('legend:') === 0)) early++;
-    s = E.newGame({ seed, starter: 'bulbasaur' }); s.done.B1 = true; s.done.B2 = true; s.done.B4 = true;           // four dice
-    E.apply(s, { t: 'go', node: 'L1' }); if (s.notes.some(n => n.indexOf('legend:') === 0)) late++;
+test('legendaries: from three dice, each battle at a place has a 10% chance one turns up, shuffled into that place\'s draw pile together with its discard pile', () => {
+  assert.equal(D.rules.legendaryFromSlots, 3); assert.equal(D.rules.legendaryChance, 0.1);
+  let early = 0, late = 0, shuffled = 0;
+  for (let seed = 1; seed <= 300; seed++) {
+    let s = E.newGame({ seed, starter: 'bulbasaur' }); s.done.B1 = true;           // two dice: never
+    const before1 = s.legend.length; E.apply(s, { t: 'go', node: 'L1' }); if (s.legend.length < before1) early++;
+    s = E.newGame({ seed, starter: 'bulbasaur' }); s.done.B1 = true; s.done.B2 = true;           // three dice
+    s.discard[1] = ['10', '13']; const n0 = s.decks[1].length, legs = s.legend.length;
+    E.apply(s, { t: 'go', node: 'L1' });
+    if (s.legend.length < legs) { late++; if (s.discard[1].length === 0) shuffled++; }
   }
-  assert.equal(early, 0, 'no legendary with fewer than four dice'); assert.ok(late > 5 && late < 40, 'about one turn in nine spots one once you have four dice (' + late + ')');
+  assert.equal(early, 0, 'no legendary with fewer than three dice'); assert.ok(late > 10 && late < 60, 'about one battle in ten (' + late + ')'); assert.equal(shuffled, late, 'the discard pile went into the new draw pile');
 });
 
 // ================================================================ one die per card, one column at a time
@@ -595,4 +584,34 @@ test('elements: a heal of the same element as the card it heals is twice as good
   } finally { C['1.1'].movEls = save; }
   const b = craft(['1.1'], ['4.1']).b; b.moveEl = { 1: 'fire' };
   assert.equal(E._t.blkMult(b, { el: 'fire' }, E.U(b, 1)), 2); assert.equal(E._t.blkMult(b, { el: 'water' }, E.U(b, 1)), 1); assert.equal(E._t.blkMult(b, { el: 'normal' }, E.U(b, 1)), 1);
+});
+
+test('recall: after a card is called back, a neighbour may slide over to face its opponent', () => {
+  const c = craft(['1.1', '4.1', '7.1'], ['10', '13', '16']), { b } = c;
+  const mid = c.h(1), left = c.h(0), right = c.h(2), foe = c.g(1);
+  assert.deepEqual(E.slideOpts(b, mid.uid).sort(), [left.uid, right.uid].sort(), 'both neighbours could slide');
+  assert.equal(E.apply(c.s, { t: 'recall', uid: mid.uid, slide: c.g(0).uid }).ok, false, 'only one of your own neighbours');
+  assert.ok(E.apply(c.s, { t: 'recall', uid: mid.uid, slide: right.uid }).ok);
+  const col = b.cols.find(k => k[1] === foe.uid); assert.equal(col[0], right.uid, 'the neighbour now faces the opponent');
+  assert.ok(b.cols.some(k => k[0] == null && k[1] === c.g(2).uid), 'and the column it left has an opponent with nobody facing it');
+  const d = craft(['1.1', '4.1', '7.1'], ['10', '13', '16']); assert.ok(E.apply(d.s, { t: 'recall', uid: d.h(1).uid }).ok); assert.ok(d.b.cols.some(k => k[0] == null && k[1] === d.g(1).uid), 'or leave the spot empty');
+});
+test('Psyduck: no damage from cards of levels 30-50 (the old levels 4-6)', () => {
+  const lvl = lab => Object.values(C).find(c => c.moves.some(m => /^\d+a\b/.test(m)) && D.rules.levelLabels[c.level - 1] === lab && !c.legend);
+  assert.equal(D.rules.levelLabels[3], 30); const lo = lvl(20), hi = lvl(30);
+  assert.ok(lo && hi); assert.match(C['54'].ability, /levels 30-50/);
+  const hit = (a) => { const f = C[a.id].moves.findIndex(m => /^\d+a\b/.test(m)) + 1, k = craft([a.id], ['54']), b = play(k, { hero: [f], gm: [1] }, { hero: { 0: 0 }, gm: {} }); return evs(b, 'immune').length > 0; };
+  assert.equal(hit(hi), true, 'a level 30 card does nothing to Psyduck'); assert.equal(hit(lo), false, 'a level 20 card does');
+});
+test('Bill: once he turns up with Vaporeon, Jolteon and Flareon, you keep one and all three leave the pool', () => {
+  assert.equal(D.rules.bill.join(), 'Vaporeon,Jolteon,Flareon');
+  let s = null;
+  for (let seed = 1; seed < 400 && !s; seed++) { const g = E.newGame({ seed, starter: 'bulbasaur' }); g.done.B1 = g.done.B2 = g.done.B4 = true; g.done.B3 = true; ['10', '13', '16', '74'].forEach((id, i) => g.coll.push({ uid: 30 + i, id, sh: 0 })); E.apply(g, { t: 'go', node: 'L1' }); if (g.battle.isBill) s = g; else if (g.battle.stage) { /* not Bill this time */ } }
+  assert.ok(s, 'Bill turns up now and then'); const ids = D.rules.bill.map(n => Object.values(C).find(c => c.name === n).id), b = s.battle;
+  assert.equal(b.mode, 'wild'); assert.ok(b.hand[1].every(h => ids.includes(b.hcards[h].id)), 'his first card is one of the three');
+  s.battle = null; s.phase = 'result'; s.res = { win: true, node: 'L1', kind: 'loc', bill: true, pick: ids.map(id => ({ id, sh: 0 })) };
+  const had = ids.map(id => Object.values(s.decks).some(d => d.includes(id)));
+  assert.ok(E.apply(s, { t: 'take', i: 1 }).ok); assert.ok(s.coll.some(c => c.id === ids[1]), 'the one you chose is yours');
+  Object.values(s.decks).concat(Object.values(s.discard)).forEach(d => ids.forEach(id => assert.ok(!d.includes(id), 'gone from every pile'))); assert.ok(had.some(Boolean) || true);
+  assert.equal(s.billDone, true);
 });

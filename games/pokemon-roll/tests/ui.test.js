@@ -12,7 +12,7 @@ async function playFight(p, maxSteps) {
     if (await tap('[data-act=tipok]')) continue;
     if (await p.locator('[data-act=skip]').count()) { await tap('[data-act=skip]'); continue; }
     if (await p.locator('.rollhint').count()) { await tap('.rollhint'); continue; }      // tap anywhere to roll
-    if (await p.locator('[data-act=go]:not([disabled])').count()) { await tap('[data-act=go]'); await p.waitForTimeout(150); continue; }
+    if (await p.locator('.rail.rgo').count()) { await tap('.rail.rgo .status'); await p.waitForTimeout(150); continue; }          // all dice given out: a tap on the side bar plays the round
     if (await p.locator('[data-act=tray]').count()) {
       if (await p.locator('.card.sel').count() === 0) { if (await tap('[data-act=tray]')) continue; }
       if (await tap('[data-act=join]')) continue; if (await tap('[data-act=ins]')) continue;
@@ -33,7 +33,7 @@ test('ui: menu, new game, map, and a whole first fight through real taps, with n
   const errs = []; p.on('pageerror', e => errs.push(e.message)); p.on('console', m => { if (m.type() === 'error') errs.push(m.text()); });
   try {
     await p.goto(URL);
-    assert.match(await p.innerText('.logo'), /ROLL!/); assert.equal(await p.locator('.mm2 .mapin .place').count(), 16, 'the map is dealt out right on the menu'); assert.equal(await p.locator('.arena').count(), 0, 'no toy table'); assert.equal(await p.locator('[data-act=help]').count(), 0, 'help lives under More'); assert.ok(await p.locator('[data-act=more]').count() === 1, 'a More button');
+    assert.match(await p.innerText('.logo'), /Roll!/); assert.equal(await p.locator('.mm2 .mapin .place').count(), 16, 'the map is dealt out right on the menu'); assert.equal(await p.locator('.arena').count(), 0, 'no toy table'); assert.equal(await p.locator('[data-act=help]').count(), 0, 'help lives under More'); assert.ok(await p.locator('[data-act=more]').count() === 1, 'a More button');
     await p.click('[data-act=new]'); assert.equal(await p.locator('[data-act=starter]').count(), 5); assert.match(await p.innerText('.oakov .bubble'), /Professor Oak[\s\S]*level up and evolve[\s\S]*static cards/, 'Oak offers the starters and says only they evolve'); assert.equal(await p.locator('.oakov').count(), 1);
     await p.click('[data-act=starter][data-k=charmander]');
     assert.equal(await p.locator('.oakov').count(), 0, 'Oak goes away and you are back on the map'); assert.equal(await p.locator('.place').count(), 16, 'the whole road is on show from the start, locked places included');
@@ -119,15 +119,16 @@ test('ui: the game is saved, and Continue brings it back', { skip: !chromium }, 
 });
 
 
-test('ui: How to Play is a few pictures with one line each, not a wall of text; the map is titled Kanto Map and centered', { skip: !chromium }, async () => {
+test('ui: How to Play is a single screen with three steps and pictures; the map is titled Kanto Map and centered', { skip: !chromium }, async () => {
   const b = await chromium.launch(), p = await b.newPage({ viewport: { width: 820, height: 1180 } });
   const errs = []; p.on('pageerror', e => errs.push(e.message));
   try {
     await p.goto(URL); await p.click('[data-act=more]'); await p.click('.sheet [data-act=help]');
-    const pages = []; for (let i = 0; i < 7; i++) { pages.push({ nav: await p.evaluate(() => { const r = document.querySelector('.hnav [data-act=hnext]').getBoundingClientRect(); return Math.round(r.left) + ',' + Math.round(r.top); }), imgs: await p.locator('.hvis img, .hvis svg, .hvis .card, .hvis .die').count(), words: ((await p.innerText('.hbox h2')) + ' ' + ((await p.locator('.hcap').count()) ? await p.innerText('.hcap') : '')).split(/\s+/).length }); if (i < 6) await p.click('.hnav [data-act=hnext]'); }
-    pages.slice(0, 6).forEach((g, i) => { assert.ok(g.imgs >= 1, 'page ' + (i + 1) + ' is a picture'); assert.ok(g.words < 40, 'page ' + (i + 1) + ' is a line or two: ' + g.words + ' words'); });
-    assert.equal(new Set(pages.map(g => g.nav)).size, 1, 'the arrows are always in the same spot: ' + pages.map(g => g.nav).join(' | '));
-    assert.equal(await p.locator('.hbox .btn').count(), 0, 'no Skip button'); await p.mouse.click(8, 8); assert.equal(await p.locator('.sheet').count(), 0, 'a tap outside closes it'); await p.click('[data-act=new]'); await p.click('[data-act=starter][data-k=squirtle]');
+    assert.equal(await p.locator('.howto .hstep').count(), 3, 'three steps'); assert.equal(await p.locator('.howto .hstep .hvis img, .howto .hstep .hvis svg, .howto .hstep .hvis .die').count() >= 3, true, 'each with a picture');
+    assert.equal(await p.locator('[data-act=hnext]').count(), 0, 'no pages to turn');
+    assert.ok(await p.evaluate(() => { const r = document.querySelector('.howto').getBoundingClientRect(); return r.bottom <= innerHeight && r.top >= 0; }), 'it all fits on the screen');
+    await p.click('.howto [data-act=closehelp]'); assert.equal(await p.locator('.sheet').count(), 0);
+    await p.click('[data-act=more]'); await p.click('.sheet [data-act=help]'); await p.mouse.click(8, 8); assert.equal(await p.locator('.sheet').count(), 0, 'a tap outside closes it'); await p.click('[data-act=new]'); await p.click('[data-act=starter][data-k=squirtle]');
     const t = await p.evaluate(() => { const e = document.querySelector('.top .t'), r = e.getBoundingClientRect(); return { text: e.textContent, mid: Math.round(r.left + r.width / 2) }; });
     assert.equal(t.text, 'Kanto Map'); assert.ok(Math.abs(t.mid - 410) <= 2, 'centered on the screen: ' + t.mid);
     assert.deepEqual(errs, []);
@@ -190,16 +191,16 @@ test('ui: a gym leader has an eye that explains how their team was made; dice ca
     assert.equal((await p.locator('.place[data-id=B1] .eye').innerText()).trim(), 'i', 'an i for information, not an eyeball');
     await p.click('.place.deck[data-id=L1] .eye'); const total = await p.evaluate(() => window.__pokemonRoll.G.decks[1].length + window.__pokemonRoll.G.discard[1].length);
     const counts = await p.locator('.sheet .tycount').allInnerTexts(); assert.equal(counts.map(Number).reduce((a, b) => a + b, 0), total, 'the types add up to every card in that place (draw and discard piles): ' + counts);
-    assert.match(await p.innerText('.hbox'), /in the draw pile[\s\S]*in the discard pile/); assert.equal(await p.locator('.place.deck .pcount').count(), 0, 'no card count on the map decks any more: it is all in the i'); await p.mouse.click(8, 8); assert.equal(await p.locator('.sheet').count(), 0);
+    assert.match(await p.innerText('.hbox'), /in the draw pile[\s\S]*in the discard pile/); assert.equal(await p.locator('.sheet .bigpile .pile').count(), 1, 'the back of the cards is shown'); assert.equal(await p.locator('.place.deck .pcount').count(), 0, 'no card count on the map decks any more: it is all in the i'); await p.mouse.click(8, 8); assert.equal(await p.locator('.sheet').count(), 0);
     await p.click('.place[data-id=B1] .eye');
     assert.equal(await p.locator('[data-act=closeeye]').count() >= 1, true); const txt = await p.innerText('.hbox');
-    assert.match(txt, /team/i); assert.match(txt, /before your game began/i); assert.match(txt, /Mt\. Moon/); assert.match(txt, /Viridian Forest/);
+    assert.match(txt, /team/i); assert.match(txt, /before your game began/i); assert.equal(await p.locator('.sheet .infospr').count(), 1, 'a gym leader always shows their sprite'); assert.doesNotMatch(txt, /Face .* once/i); assert.match(txt, /Mt\. Moon/); assert.match(txt, /Viridian Forest/);
     assert.equal(await p.locator('.sheet .eyerow').count(), 2, 'Brock draws from two places');
-    await p.click('.hbox .btn'); assert.equal(await p.locator('.sheet').count(), 0);
+    assert.equal(await p.locator('.hbox .btn').count(), 0, 'no Got it button'); await p.mouse.click(8, 8); assert.equal(await p.locator('.sheet').count(), 0);
     // once you have faced a gym leader, the eye shows their whole team
     const n = await p.evaluate(() => { const G = window.__pokemonRoll.G; G.seen = G.seen || {}; G.seen.B1 = true; window.__pokemonRoll.render(); return G.bosses.B1.length; });
     await p.click('.place[data-id=B1] .eye'); assert.equal(await p.locator('.sheet .card').count(), n, 'every card of their team is on show');
-    assert.match(await p.innerText('.hbox'), /whole team/i);
+    assert.doesNotMatch(await p.innerText('.hbox'), /faced|know the whole team/i, 'nothing needs saying: the cards are right there');
   } finally { await b.close(); }
 });
 
@@ -367,6 +368,37 @@ test('ui: a die on a card can be dragged to another card, or back to the tray', 
     const two = await asg(); assert.equal(two.split('|').length, 1, 'still one die on a card'); assert.notEqual(two.split(':')[0], one.split(':')[0], 'it moved to the other card: ' + one + ' -> ' + two);
     await drag(await box('.dbadge.hero'), await box('.rail .dice'));
     assert.equal(await asg(), '', 'dropped anywhere but a card, it goes back to the tray');
+    assert.deepEqual(errs, []);
+  } finally { await b.close(); }
+});
+
+test('ui: choosing a card asks below the cards, goes straight to the map; a loss is a KO screen you tap to leave; a leader shows their sprite and the die', { skip: !chromium }, async () => {
+  const b = await chromium.launch(), p = await b.newPage({ viewport: { width: 820, height: 1180 } });
+  const errs = []; p.on('pageerror', e => errs.push(e.message));
+  try {
+    await p.goto(URL);
+    await p.evaluate(() => { const s = Engine.newGame({ seed: 5, starter: 'charmander' }); s.phase = 'result'; s.res = { win: true, node: 'B1', newDie: true, pick: [{ id: '13', sh: 0 }, { id: '10', sh: 0 }] }; window.__pokemonRoll.setG(s); });
+    assert.equal(await p.locator('.leadtalk .leadimg').count(), 1, 'the leader is on screen while they talk'); assert.equal(await p.locator('.leadtalk .gift .die').count(), 1, 'and a die is shown when they hand you one');
+    await p.click('[data-act=pickcard] >> nth=0');
+    const r = await p.evaluate(() => { const bar = document.querySelector('.pickbar').getBoundingClientRect(), cards = [...document.querySelectorAll('[data-act=pickcard]')].map(c => c.getBoundingClientRect().bottom); return { bar: bar.top, cards: Math.max(...cards), sheet: document.querySelectorAll('.sheet').length }; });
+    assert.ok(r.bar >= r.cards - 1, 'the question sits below the cards'); assert.equal(r.sheet, 0, 'not over them');
+    await p.click('[data-act=pickok]'); assert.equal(await p.locator('.top').count(), 1, 'straight back to the map'); assert.equal(await p.locator('.place').count(), 16);
+    await p.evaluate(() => { const s = Engine.newGame({ seed: 5, starter: 'charmander' }); s.phase = 'result'; s.res = { win: false, node: 'L1' }; window.__pokemonRoll.setG(s); });
+    assert.match(await p.innerText('.kos'), /You are KO'd!/); assert.match(await p.innerText('.kos'), /Tap anywhere to continue/);
+    await p.mouse.click(400, 600); assert.equal(await p.locator('.place').count(), 16, 'the map comes back');
+    assert.deepEqual(errs, []);
+  } finally { await b.close(); }
+});
+test('ui: a shiny brings Professor Oak with a message; there is no Resolve button, the side bar plays the round', { skip: !chromium }, async () => {
+  const b = await chromium.launch(), p = await b.newPage({ viewport: { width: 820, height: 1180 } });
+  const errs = []; p.on('pageerror', e => errs.push(e.message));
+  try {
+    await p.goto(URL); await p.evaluate(() => { localStorage.setItem('pokemon-roll-tips', JSON.stringify({ place: 1, dice: 1, roll: 1, end: 1 })); }); await p.reload();
+    await p.evaluate(() => { const s = Engine.newGame({ seed: 8, starter: 'squirtle' }); s.sh = {}; Object.keys(s.decks).forEach(l => s.decks[l].forEach(id => { s.sh[id] = 1; })); window.__pokemonRoll.setG(s); });
+    await p.click('[data-id=L1]');
+    await p.waitForSelector('.tipoak', { timeout: 6000 }); assert.match(await p.innerText('.tipoak'), /Professor Oak[\s\S]*A shiny! Shinies have \+1 heart more than usual/); assert.equal(await p.locator('.tipoak img.oak').count(), 1);
+    await p.click('[data-act=tipok]'); assert.equal(await p.locator('[data-act=go]').count(), 0, 'no Resolve button until every die is given out');
+    assert.equal(await p.locator('button:has-text("Resolve")').count(), 0);
     assert.deepEqual(errs, []);
   } finally { await b.close(); }
 });
