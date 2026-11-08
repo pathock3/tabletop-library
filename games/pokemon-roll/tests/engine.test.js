@@ -617,3 +617,13 @@ test('Bill: tap him on the map (no other requirement), beat Vaporeon, Jolteon an
   ids.forEach((id, k) => { if (k !== 1) assert.equal(Object.values(s.decks).some(d => d.includes(id)), wildHad[k], 'the other two are where they were'); });
   assert.deepEqual(s.visitors, [], 'Bill leaves');
 });
+
+test('Bill: you can only keep an evolution you do not have; with all three you get an Eevee; with all of them he just says so', () => {
+  const nm = n => Object.values(C).find(c => c.name === n).id, ids = ['Vaporeon', 'Jolteon', 'Flareon'].map(nm), eevee = nm('Eevee');
+  const run = own => { const s = E.newGame({ seed: 6, starter: 'bulbasaur' }); s.visitors = ['bill']; own.forEach((id, i) => s.coll.push({ uid: 50 + i, id, sh: 0 })); s.coll.push({ uid: 90, id: '10', sh: 0 }); E.apply(s, { t: 'go', node: 'V_bill' }); return s; };
+  // build the result through the engine's own win path
+  const winWith = own => { const s = run(own); const b = s.battle; b.units = b.units.filter(u => u.side === 0); ids.forEach(id => { b.units.push({ uid: 500 + b.units.length, id, sh: 0, side: 1, hp: 0, max: 4, ko: true }); }); b.hand[1] = []; E.endBattle(s, true); return s; };
+  const a = winWith([ids[2]]); assert.deepEqual(a.res.have, [ids[2]], 'Flareon is marked as already yours'); assert.equal(E.apply(a, { t: 'take', i: 2 }).ok, false, 'and cannot be taken'); assert.ok(E.apply(a, { t: 'take', i: 0 }).ok);
+  const b2 = winWith(ids); assert.equal(b2.res.fallback, true); assert.deepEqual(b2.res.pick.map(i => i.id), [eevee], 'all three: an Eevee'); assert.ok(E.apply(b2, { t: 'take', i: 0 }).ok); assert.ok(b2.coll.some(c => c.id === eevee));
+  const c2 = winWith(ids.concat([eevee])); assert.equal(c2.res.allHave, true); assert.ok(!c2.res.pick, 'nothing to choose'); assert.deepEqual(c2.visitors, [], 'he leaves');
+});

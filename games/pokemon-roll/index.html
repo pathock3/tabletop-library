@@ -475,6 +475,7 @@ button{font:inherit;color:inherit;border:0;cursor:pointer}
 <style>.gtab{white-space:normal;max-width:calc(100% - 28px);line-height:1.15;font-size:18px;top:-30px;padding:6px 12px;border-radius:16px}.grp{z-index:0}</style>
 <style>.gtab{top:8px;left:10px}</style>
 <style>.gtab{font-size:17px}</style>
+<style>.card.owned{filter:grayscale(.7) brightness(.8)}.card.owned .mark{font-size:calc(var(--cw)*.12)}</style>
 <script id="data">
 /* Pokémon Roll! — every rule number, the map, the bosses, the card sheet and the art live here. The engine and bots read this and hard-code none of it. */
 const GAME_DATA = {
@@ -532,7 +533,7 @@ const GAME_DATA = {
   specials: {
     chance: 0.1, fromSlots: 3, order: ['bill'], then: 'legendary',
     defs: {
-      bill: { kind: 'visitor', name: 'Bill', art: 'BILL', stage: 3, lane: 1, cards: ['Vaporeon', 'Jolteon', 'Flareon'], say: "Hi! I'm Bill. Beat my Eevee evolutions and take your pick of them to keep." },
+      bill: { kind: 'visitor', name: 'Bill', art: 'BILL', stage: 3, lane: 1, cards: ['Vaporeon', 'Jolteon', 'Flareon'], fallback: 'Eevee', say: "Hi! I'm Bill. Beat my Eevee evolutions and take your pick of them to keep." },
       legendary: { kind: 'legendary' },
     },
   },
@@ -1751,7 +1752,15 @@ const Engine = (() => {
     const b = s.battle, nd = node(b.node), gm = b.units.filter(u => u.side === 1).map(u => ({ id: u.id, sh: u.sh })).concat(b.hcards ? b.hand[1].map(h => ({ id: b.hcards[h].id, sh: b.hcards[h].sh })) : []);
     s.res = { win, node: b.node, kind: b.kind, gm, rounds: b.round, team: b.units.filter(u => u.side === 0).map(u => ({ id: u.id, sh: u.sh })) }; s.battle = null; s.phase = 'result';
     if (nd.kind === 'loc' || nd.kind === 'visitor') {
-      if (b.isBill) { s.res.bill = true; s.res.visitor = nd.special; if (win) s.res.pick = gm; }          // Bill's cards never go to a discard pile
+      if (b.isBill) {                                                                       // Bill's cards never go to a discard pile
+        s.res.bill = true; s.res.visitor = nd.special;
+        if (win) {                                                                          // you may only keep one you do not have yet: if you have all three, he gives you his fallback (Eevee); if you have that too, he just says so
+          const own = id => s.coll.some(c => c.id === id), d = spDef(nd.special), fb = d.fallback && Object.values(CARDS).find(c => c.name === d.fallback);
+          s.res.have = gm.filter(i => own(i.id)).map(i => i.id);
+          if (gm.every(i => own(i.id))) { if (fb && !own(fb.id)) { s.res.pick = [{ id: fb.id, sh: s.sh[fb.id] ? 1 : 0 }]; s.res.fallback = true; } else { s.res.allHave = true; s.visitors = (s.visitors || []).filter(v => v !== nd.special); } }
+          else s.res.pick = gm;
+        }
+      }
       else if (win) s.res.pick = gm; else gm.forEach(i => s.discard[CARDS[i.id].loc].push(i.id));      // what you dug goes to the discard pile; the draw pile is worked through once before it is shuffled again
       if (win && !gm.length) s.res.pick = [];
     } else if (win) {
@@ -1799,6 +1808,7 @@ const Engine = (() => {
       case 'take': {
         if (s.phase !== 'result' || !s.res || !s.res.pick) return 'nothing to take';
         const i = s.res.pick[a.i]; if (!i) return 'choose one of them';
+        if (s.res.have && s.res.have.indexOf(i.id) >= 0) return 'you already have ' + CARDS[i.id].name;
         s.coll.push({ uid: s.nextUid++, id: i.id, sh: i.sh });
         if (s.res.bill) { banPool(s, [i.id]); s.visitors = (s.visitors || []).filter(v => v !== s.res.visitor); }       // the one you keep is yours now: it is out of the wild (a gym leader holding it does not give it back); the visitor leaves; the other two stay where they were
         else s.res.pick.forEach((x, j) => { if (j !== a.i) s.discard[CARDS[x.id].loc].push(x.id); });
@@ -1871,7 +1881,7 @@ const Engine = (() => {
     if (v.battle && v.battle.stage === 'assign') { const o = other(side); v.battle.dice[o] = v.battle.dice[o].map(() => 0); v.battle.asg[o] = {}; }
     return v;
   }
-  return { visitorNode, slideOpts, autoChoice, hauntAsk, blocksMove, colorBonus, faceOrder: layMoves, _t: { blkMult, keepStrongest, startBattle, startRound, resolveRound, cleanUp, drawWild }, handOf, canExpand, apply, newGame, chooseStarter, viewFor, CARDS, parseMove, parseSpecial, tagsOf, tags, preview, bestClause, chosenMove, candidates, pickTargets, amountOf, slotsFor, readyToGo, assignedDice, living, colIdx, U, rnd, ri, shuffle, node, starterOf, rivalFor, slots, unlocked, deckSize, heroCount, gmCount, typeOf, wm, hitValue, parseSpec, clauseValue, effectsOf, D, R };
+  return { endBattle, visitorNode, slideOpts, autoChoice, hauntAsk, blocksMove, colorBonus, faceOrder: layMoves, _t: { blkMult, keepStrongest, startBattle, startRound, resolveRound, cleanUp, drawWild }, handOf, canExpand, apply, newGame, chooseStarter, viewFor, CARDS, parseMove, parseSpecial, tagsOf, tags, preview, bestClause, chosenMove, candidates, pickTargets, amountOf, slotsFor, readyToGo, assignedDice, living, colIdx, U, rnd, ri, shuffle, node, starterOf, rivalFor, slots, unlocked, deckSize, heroCount, gmCount, typeOf, wm, hitValue, parseSpec, clauseValue, effectsOf, D, R };
 })();
 
 </script>
@@ -2800,9 +2810,9 @@ const Bots = (() => {
     // the cards you choose between are as big as they can be while ALL of them fit on the screen at once (no scrolling, nothing cut off)
     const fitCw = (n, w, h) => { let best = 120; for (let rows = 1; rows <= 3; rows++) { const per = Math.ceil(n / rows), c = Math.min(Math.floor((w - (per - 1) * 12) / per), Math.floor((h - (rows - 1) * 12) / rows / CH)); if (c > best * (rows > 1 ? 1.12 : 1)) best = c; } return Math.min(best, 420); };          // more rows only when that makes the cards clearly bigger
     const pickN = r.pick ? r.pick.length : r.evolve ? 2 : 0, cw = pickN ? fitCw(pickN, innerWidth - 84, viewH() - 400) : 230;
-    const take = r.pick ? `<div class="status">Choose one to join your team!</div><div class="hrow" style="flex-wrap:wrap;justify-content:center;overflow:visible;gap:12px">${r.pick.map((i, k) => card(i, { cw, sel: ui.pickSel === k, attr: `data-act="pickcard" data-i="${k}"` })).join('')}</div>${pickBar(r)}` : (r.took ? `<div class="status">You caught ${esc(C[r.took.id].name)}${r.took.sh ? ' ✨' : ''}!</div><div class="hrow">${card(r.took, { cw })}</div>` : '');
+    const take = r.pick ? `<div class="status">Choose one to join your team!</div><div class="hrow" style="flex-wrap:wrap;justify-content:center;overflow:visible;gap:12px">${r.pick.map((i, k) => card(i, { cw, sel: ui.pickSel === k, mark: r.have && r.have.indexOf(i.id) >= 0 ? 'You have it' : '', cls: r.have && r.have.indexOf(i.id) >= 0 ? 'owned' : '', attr: r.have && r.have.indexOf(i.id) >= 0 ? '' : `data-act="pickcard" data-i="${k}"` })).join('')}</div>${pickBar(r)}` : (r.took ? `<div class="status">You caught ${esc(C[r.took.id].name)}${r.took.sh ? ' ✨' : ''}!</div><div class="hrow">${card(r.took, { cw })}</div>` : '');
     const evo = r.evolve ? `<div class="status">${esc(C[sdv.levels[r.evolve - 1]].name)} is ready to evolve! Which will it be?</div><div class="hrow">${[[sdv.levels[r.evolve - 1], 0], [sdv.evolve[r.evolve], 1]].map(([id, y]) => card({ id, sh: 0 }, { cw, attr: `data-act="evolve" data-yes="${y}"` })).join('')}</div>` : '';
-    const lines = []; const lead = r.win && nd.kind === 'visitor' ? `<div class="leadtalk"><img class="pix leadimg" src="data:image/png;base64,${D.trainerArt[nd.art]}" alt="${esc(nd.name)}"><div class="bubble"><b class="who">${esc(nd.name)}</b><p>“Take your pick! The one you keep is yours.”</p></div></div>` : r.win && nd.kind === 'boss' ? `<div class="leadtalk">${D.trainerArt && D.trainerArt[nd.id] ? `<img class="pix leadimg" src="data:image/png;base64,${D.trainerArt[nd.id]}" alt="${esc(nd.name)}">` : ''}<div class="bubble"><b class="who">${esc(nd.name)}</b><p>“${esc(nd.say || 'Well fought!')}”</p>${r.newDie ? `<div class="gift">${dieHtml(6, {})}<span>${esc(nd.name)} hands you a die. <i>“${esc(D.dieLine)}”</i></span></div>` : ''}</div></div>` : ''; if (r.dieGain) lines.push(`You keep ${r.dieGain.map(c => `<b style="color:${dieCol(c)}">${c}</b>`).join(', ')}: a die that adds +1 to a move of its colour`); if (r.turns != null) lines.push(`${nd.finale ? 'You beat the game' : 'Beaten'} in <b>${r.turns} turn${r.turns === 1 ? '' : 's'}</b>${r.newBest ? ' <span class="nb">New best!</span>' : (r.best != null ? ` <span class="pb">(best ${r.best})</span>` : '')}`); if (r.levelUp) lines.push(`Your starter grew to level ${lvName(r.levelUp)}!`); if (r.legend && r.win) lines.push(`${esc(C[r.legend.id].name)}${r.legend.sh ? ' ✨' : ''} joins your team!`);
+    const lines = []; const lead = r.win && nd.kind === 'visitor' ? `<div class="leadtalk"><img class="pix leadimg" src="data:image/png;base64,${D.trainerArt[nd.art]}" alt="${esc(nd.name)}"><div class="bubble"><b class="who">${esc(nd.name)}</b><p>${r.allHave ? '“Wow, you already have all the evolutions!”' : r.fallback ? '“You have all three already! Here, take an Eevee.”' : '“Take your pick! You can only keep one you do not have yet.”'}</p></div></div>` : r.win && nd.kind === 'boss' ? `<div class="leadtalk">${D.trainerArt && D.trainerArt[nd.id] ? `<img class="pix leadimg" src="data:image/png;base64,${D.trainerArt[nd.id]}" alt="${esc(nd.name)}">` : ''}<div class="bubble"><b class="who">${esc(nd.name)}</b><p>“${esc(nd.say || 'Well fought!')}”</p>${r.newDie ? `<div class="gift">${dieHtml(6, {})}<span>${esc(nd.name)} hands you a die. <i>“${esc(D.dieLine)}”</i></span></div>` : ''}</div></div>` : ''; if (r.dieGain) lines.push(`You keep ${r.dieGain.map(c => `<b style="color:${dieCol(c)}">${c}</b>`).join(', ')}: a die that adds +1 to a move of its colour`); if (r.turns != null) lines.push(`${nd.finale ? 'You beat the game' : 'Beaten'} in <b>${r.turns} turn${r.turns === 1 ? '' : 's'}</b>${r.newBest ? ' <span class="nb">New best!</span>' : (r.best != null ? ` <span class="pb">(best ${r.best})</span>` : '')}`); if (r.levelUp) lines.push(`Your starter grew to level ${lvName(r.levelUp)}!`); if (r.legend && r.win) lines.push(`${esc(C[r.legend.id].name)}${r.legend.sh ? ' ✨' : ''} joins your team!`);
     if (!r.win) { const st = G.coll.find(c => c.starter) || G.coll[0]; return `<div class="scr kos" data-act="done"><div class="kobox"><div class="kopic"><img class="pix" src="${art(st.id, st.sh)}" alt=""><i>✦</i><i>✦</i><i>✦</i></div><div class="kotxt">You are KO'd!</div><div class="kotap">Tap anywhere to continue</div></div></div>`; }
     return `<div class="scr" style="overflow:auto"><div class="center" style="justify-content:flex-start;padding-top:56px"><div class="banner">${nd.finale ? 'CHAMPION!' : 'Victory!'}</div>
       ${lead}
