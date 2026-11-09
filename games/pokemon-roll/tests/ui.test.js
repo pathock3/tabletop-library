@@ -170,7 +170,7 @@ test('ui: you only choose when there is a choice for where a card goes, but dice
     assert.equal(await p.evaluate(() => window.__pokemonRoll.G.battle.cols.length), 1, 'your only card is across from theirs: no tap needed');
     // dice are never given out for you: the first roll is a tap, and you drag the die onto your card
     assert.equal(await p.locator('.die').count(), 0, 'no dice until you tap'); assert.ok(await p.locator('.rollhint').count() >= 1, 'Tap anywhere to roll');
-    await p.locator('.rollhint').click(); await p.waitForSelector('.die[data-act=die]', { timeout: 9000 }); await p.waitForTimeout(1100);
+    await p.locator('[data-act=tipok]').click({ timeout: 500 }).catch(() => {}); await p.locator('.rollhint').click(); await p.waitForSelector('.die[data-act=die]', { timeout: 9000 }); await p.waitForTimeout(1100);
     assert.equal(await p.evaluate(() => Object.keys(window.__pokemonRoll.G.battle.asg[0]).length), 0, 'the die is not on the card until you put it there');
     assert.equal(await p.evaluate(() => window.__pokemonRoll.G.battle.stage), 'assign', 'and the round does not play by itself');
     // several cards but only one spot: tapping the card is enough
@@ -198,10 +198,9 @@ test('ui: a gym leader has an eye that explains how their team was made; dice ca
     assert.equal(await p.locator('.sheet .gback').count(), 2, 'one card back for each of their Pokémon'); assert.equal(await p.locator('.sheet .eyerow').count(), 0, 'no list of places below');
     await p.click('.sheet .gback.tap >> nth=0'); assert.ok(await p.locator('.sheet .tycount').count() >= 1, 'a place shows its elements and how many'); await p.click('[data-act=eyeback]'); assert.match(await p.innerText('.hbox'), /Brock's team/);
     assert.equal(await p.locator('.hbox .btn').count(), 0, 'no Got it button'); await p.mouse.click(8, 8); assert.equal(await p.locator('.sheet').count(), 0);
-    // once you have faced a gym leader, the eye shows their whole team
-    const n = await p.evaluate(() => { const G = window.__pokemonRoll.G; G.seen = G.seen || {}; G.seen.B1 = true; window.__pokemonRoll.render(); return G.bosses.B1.length; });
-    await p.click('.place[data-id=B1] .eye'); assert.equal(await p.locator('.sheet .card').count(), n, 'every card of their team is on show');
-    assert.doesNotMatch(await p.innerText('.hbox'), /faced|know the whole team/i, 'nothing needs saying: the cards are right there');
+    // only the cards you have actually seen them put down are shown face up; the rest stay card backs
+    const n = await p.evaluate(() => { const G = window.__pokemonRoll.G; G.seenCards = { B1: [{ id: G.bosses.B1[0].id, sh: G.bosses.B1[0].sh }] }; window.__pokemonRoll.render(); return G.bosses.B1.length; });
+    await p.click('.place[data-id=B1] .eye'); assert.equal(await p.locator('.sheet .card').count(), 1, 'one card seen, shown face up'); assert.equal(await p.locator('.sheet .gback').count(), n - 1, 'the others are still backs');
   } finally { await b.close(); }
 });
 

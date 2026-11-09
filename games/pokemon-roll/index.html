@@ -483,6 +483,7 @@ button{font:inherit;color:inherit;border:0;cursor:pointer}
 <style>.eyerow.tap{cursor:pointer}.eyerow .chev{margin-left:auto;font:900 34px system-ui;opacity:.6}.vsline{font:900 44px Georgia,serif;color:#ffd23f;text-shadow:0 3px 0 #14110f}.eyerow.tap:active{filter:brightness(1.2)}</style>
 <style>.gbacks{display:flex;flex-wrap:wrap;gap:14px;justify-content:center;padding:8px 0}.gback{--pw:104px;cursor:default}.gback.tap{cursor:pointer}.gback.tap:active{transform:translateY(-4px)}</style>
 <style>.place .ck,.place.gym .ck{background:transparent!important;color:#2fd16b!important;font-size:110px!important;text-shadow:0 0 0 #000,3px 3px 0 #0a3d1f,-3px 3px 0 #0a3d1f,3px -3px 0 #0a3d1f,-3px -3px 0 #0a3d1f,0 6px 10px #000a!important}</style>
+<style>.lvarrow{flex:none;font:900 54px system-ui;color:#ffd23f;text-shadow:0 4px 0 #14110f}.scr>.center{margin:auto}</style>
 <script id="data">
 /* Pokémon Roll! — every rule number, the map, the bosses, the card sheet and the art live here. The engine and bots read this and hard-code none of it. */
 const GAME_DATA = {
@@ -1082,6 +1083,7 @@ const Engine = (() => {
     else if (a.at != null) { if (b.cols.length >= colLimit(b, a.side) || a.at < 0 || a.at > b.cols.length) return 'no room for another column'; }
     else return 'choose a space';
     let uid = a.uid; if (b.hcards) { uid = mkUnit(b, b.hcards[a.uid], a.side).uid; delete b.hcards[a.uid]; }
+    if (a.side === 1) { const nd0 = node(b.node); if (nd0 && nd0.kind === 'boss') { const u1 = U(b, uid), seen = (s.seenCards = s.seenCards || {}); (seen[nd0.id] = seen[nd0.id] || []).push({ id: u1.id, sh: u1.sh }); } }          // a gym leader's card is only known once it has been put down in front of you
     let ci;
     if (a.join != null) { b.cols[a.join][a.side] = uid; ci = a.join; } else { const c = [null, null]; c[a.side] = uid; b.cols.splice(a.at, 0, c); ci = a.at; }
     b.hand[a.side].splice(b.hand[a.side].indexOf(a.uid), 1); b.pl.left--; b.firstChosen = true; b.placed[a.side]++;
@@ -2849,12 +2851,14 @@ const Bots = (() => {
     const leadFirst = r.win && nd.kind === 'boss';
     if (ui.resFor !== G.turn + ':' + r.node) { ui.resFor = G.turn + ':' + r.node; ui.resStep = leadFirst ? 0 : 1; }
     const dest = G.phase === 'won' ? 'Hall of Fame' : 'Continue';
-    if (ui.resStep === 0 && leadFirst) return `<div class="scr" style="overflow:auto"><div class="center" style="justify-content:flex-start;padding-top:56px"><div class="banner">${nd.finale ? 'CHAMPION!' : 'Victory!'}</div>${lead}${turnsLine ? `<div style="font:800 24px system-ui">${turnsLine}</div>` : ''}<button class="btn big" data-act="${hasTeam ? 'resnext' : 'done'}">${hasTeam ? 'Continue' : dest}</button></div></div>`;
-    const st = G.coll.find(c => c.starter), room = viewH() - 250;
+    if (ui.resStep === 0 && leadFirst) return `<div class="scr" style="overflow:auto"><div class="center" style="justify-content:center;min-height:100%;padding-top:20px"><div class="banner">${nd.finale ? 'CHAMPION!' : 'Victory!'}</div>${lead}${turnsLine ? `<div style="font:800 24px system-ui">${turnsLine}</div>` : ''}<button class="btn big" data-act="${hasTeam ? 'resnext' : 'done'}">${hasTeam ? 'Continue' : dest}</button></div></div>`;
+    const st = G.coll.find(c => c.starter), room = viewH() - 360;          // the banner, the line of text and the button all share the screen with the card
     const one = (c, txt, attr) => `<div class="status">${txt}</div><div class="hrow" style="justify-content:center">${card(c, { cw: Math.max(140, Math.min(360, Math.floor(room / CH), innerWidth - 60)), attr: attr || '' })}</div>`;
-    const lvTxt = r.win && r.levelUp && !r.evolve ? one({ id: st.id, sh: st.sh }, `Your starter grew to level ${lvName(r.levelUp)}! <small>(tap the card to see it bigger)</small>`, `data-act="zoom" data-uid="${st.uid}"`) : '';
+    const prevId = (() => { const sd = E.starterOf(G.starter), pl = r.levelUp - 1; return pl >= 1 ? (G.evolved && sd.evolve && sd.evolve[pl] ? sd.evolve[pl] : sd.levels[pl - 1]) : st.id; })();
+    const lcw = Math.max(110, Math.min(330, Math.floor(room / CH), Math.floor((innerWidth - 150) / 2)));          // old card, an arrow, the new card
+    const lvTxt = r.win && r.levelUp && !r.evolve ? `<div class="status">Your starter grew to level ${lvName(r.levelUp)}!</div><div class="hrow lvrow" style="justify-content:center;align-items:center;gap:16px;flex-wrap:nowrap">${card({ id: prevId, sh: st.sh }, { cw: lcw })}<span class="lvarrow">➜</span>${card({ id: st.id, sh: st.sh }, { cw: lcw, attr: `data-act="zoom" data-only="1" data-uid="${st.uid}"` })}</div>` : '';
     const legTxt = r.win && r.legend ? one(r.legend, `${esc(C[r.legend.id].name)}${r.legend.sh ? ' ✨' : ''} joins your team!`) : '';
-    return `<div class="scr" style="overflow:auto"><div class="center" style="justify-content:flex-start;padding-top:56px"><div class="banner">${r.pick ? 'Choose a card' : r.evolve ? 'Evolution!' : r.levelUp ? 'Level up!' : nd.finale ? 'CHAMPION!' : 'Victory!'}</div>
+    return `<div class="scr" style="overflow:auto"><div class="center" style="justify-content:center;min-height:100%;padding-top:20px"><div class="banner">${r.pick ? 'Choose a card' : r.evolve ? 'Evolution!' : r.levelUp ? 'Level up!' : nd.finale ? 'CHAMPION!' : 'Victory!'}</div>
       ${nd.kind === 'visitor' ? lead : ''}${lvTxt}${legTxt}${evo}${take}
       ${r.pick || r.evolve ? '' : `<button class="btn big" data-act="done">${dest}</button>`}</div></div>`;
   }
@@ -2922,7 +2926,7 @@ const Bots = (() => {
   function zoomSheet() {
     const list = collSorted(), c = list.find(x => x.uid === ui.zoom); if (!c) return '';
     const cw = Math.max(200, Math.min(760, innerWidth - 24, Math.floor((innerHeight - 130) / CH)));
-    return `<div class="sheet" style="z-index:60" data-act="closezoom">${card(c, { cw })}<div class="hnav"><button class="ib" data-act="zprev">◀</button><button class="btn" data-act="closezoom">Close</button><button class="ib" data-act="znext">▶</button></div></div>`;
+    return `<div class="sheet" style="z-index:60" data-act="closezoom">${card(c, { cw })}${ui.zoomOnly ? '' : `<div class="hnav"><button class="ib" data-act="zprev">◀</button><button class="btn" data-act="closezoom">Close</button><button class="ib" data-act="znext">▶</button></div>`}</div>`;
   }
   // your cards: picked up from the pile and splayed across the table like a hand; tap one to see it big, tap the table to put them back
   function collSheet() {
@@ -2971,13 +2975,13 @@ const Bots = (() => {
   }
   function eyeSheet() {
     const n = E.node(ui.eye); if (n.kind === 'loc') return deckInfoSheet(n);
-    const tm = G.bosses[n.id] || [], team = G.seen && G.seen[n.id] && G.bosses[n.id];
-    // one card back per Pokémon, showing the place it comes from: tap one to learn about that place
-    const backs = tm.slice().sort((p, q) => (C[q.id].legend ? 1 : 0) - (C[p.id].legend ? 1 : 0) || C[q.id].level - C[p.id].level).map(i => { const c = C[i.id]; if (c.legend) return `<div class="gback"><div class="pilebay" style="--pw:104px">${deckPile(null, { pw: 104, count: 1, nobadge: true, dk: '#4527a0', svg: '<svg viewBox="0 0 100 140" width="100%" height="100%"><rect width="100" height="140" fill="#4527a0"/><text x="50" y="86" text-anchor="middle" font-size="56">🌟</text></svg>' })}</div></div>`; const ln = D.nodes.find(q => q.loc === c.loc); return `<div class="gback tap" data-act="eyeloc" data-id="${ln.id}" aria-label="${esc(ln.name)}">${deckPile(c.loc, { pw: 104, count: 1, nobadge: true })}</div>`; }).join('');
-    const body = team
-      ? `<div class="gbacks">${backs}</div><div class="eyecards">${cardGrid(team.map(i => ({ id: i.id, sh: i.sh })).sort((p, q) => C[q.id].level - C[p.id].level || (q.sh ? 1 : 0) - (p.sh ? 1 : 0) || C[p.id].name.localeCompare(C[q.id].name)), { max: 150 })          /* highest level first, a shiny before the others of its level, then by name */}</div>`
-      : `<div class="gbacks">${backs}</div>`;
-    return `<div class="sheet" data-act="closeeye"><div class="box hbox" data-stop="1" style="height:auto;max-height:92vh;overflow:auto;${team ? 'width:fit-content;max-width:96vw;padding:12px 12px 14px' : ''}">${D.trainerArt && D.trainerArt[n.id] ? `<img class="pix infospr" src="data:image/png;base64,${D.trainerArt[n.id]}" alt="${esc(n.name)}">` : ''}<h2>${esc(n.name)}'s team</h2>${body}</div></div>`;
+    // their team: a card you have seen them put down is shown face up; every other card is the back of the place it comes from (tap one to learn about that place)
+    const tm = (G.bosses[n.id] || []).slice(), seen = ((G.seenCards || {})[n.id] || []).slice(), faces = [], unknown = [];
+    seen.forEach(c => { const k = tm.findIndex(x => x.id === c.id && !!x.sh === !!c.sh); if (k >= 0) { tm.splice(k, 1); faces.push(c); } });          // each card seen takes one place of the team
+    tm.forEach(i => unknown.push(i));
+    const backs = unknown.sort((p, q) => (C[q.id].legend ? 1 : 0) - (C[p.id].legend ? 1 : 0) || C[q.id].level - C[p.id].level).map(i => { const c = C[i.id]; if (c.legend) return `<div class="gback"><div class="pilebay" style="--pw:104px">${deckPile(null, { pw: 104, count: 1, nobadge: true, dk: '#4527a0', svg: '<svg viewBox="0 0 100 140" width="100%" height="100%"><rect width="100" height="140" fill="#4527a0"/><text x="50" y="86" text-anchor="middle" font-size="56">🌟</text></svg>' })}</div></div>`; const ln = D.nodes.find(q => q.loc === c.loc); return `<div class="gback tap" data-act="eyeloc" data-id="${ln.id}" aria-label="${esc(ln.name)}">${deckPile(c.loc, { pw: 104, count: 1, nobadge: true })}</div>`; }).join('');
+    const known = faces.length ? `<div class="eyecards">${cardGrid(faces.map(i => ({ id: i.id, sh: i.sh })).sort((p, q) => C[q.id].level - C[p.id].level || (q.sh ? 1 : 0) - (p.sh ? 1 : 0) || C[p.id].name.localeCompare(C[q.id].name)), { max: 150 })          /* highest level first, a shiny before the others of its level, then by name */}</div>` : '';
+    return `<div class="sheet" data-act="closeeye"><div class="box hbox" data-stop="1" style="height:auto;max-height:92vh;overflow:auto;${faces.length ? 'width:fit-content;max-width:96vw;padding:12px 12px 14px' : ''}">${D.trainerArt && D.trainerArt[n.id] ? `<img class="pix infospr" src="data:image/png;base64,${D.trainerArt[n.id]}" alt="${esc(n.name)}">` : ''}<h2>${esc(n.name)}'s team</h2>${known}${backs ? `<div class="gbacks">${backs}</div>` : ''}</div></div>`;
   }
   function chipSheet() {
     const n = E.slots(G);
@@ -3062,7 +3066,7 @@ const Bots = (() => {
     dex() { ui.dex = true; ui.more = false; ui.menu = false; render(); }, closedex() { ui.dex = false; ui.dexCard = null; render(); }, dexcard(el) { ui.dexCard = +el.dataset.dex; render(); }, closedexcard() { ui.dexCard = null; render(); },
     records() { ui.records = true; ui.more = false; ui.menu = false; render(); }, closerec() { ui.records = false; render(); }, recsize(el) { ui.recSize = el.dataset.v; render(); },
     eye(el) { ui.eye = el.dataset.id; render(); }, closeeye() { ui.eye = null; ui.eyeBack = null; render(); }, chipinfo() { ui.chip = true; render(); }, closechip() { ui.chip = false; render(); },
-    zoom(el) { ui.zoom = +el.dataset.uid; render(); }, closezoom() { ui.zoom = null; render(); },
+    zoom(el) { ui.zoom = +el.dataset.uid; ui.zoomOnly = !!el.dataset.only; render(); }, closezoom() { ui.zoom = null; ui.zoomOnly = false; render(); },
     zprev() { const l = collSorted(), i = l.findIndex(c => c.uid === ui.zoom); ui.zoom = l[(i + l.length - 1) % l.length].uid; render(); },
     znext() { const l = collSorted(), i = l.findIndex(c => c.uid === ui.zoom); ui.zoom = l[(i + 1) % l.length].uid; render(); },
     menu() { ui.menu = true; render(); }, closemenu() { ui.menu = false; render(); },
