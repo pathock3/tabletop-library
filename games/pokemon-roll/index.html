@@ -481,6 +481,8 @@ button{font:inherit;color:inherit;border:0;cursor:pointer}
 .place .ck{inset:0;top:0;right:0;left:0;width:auto;height:auto;border:0;border-radius:inherit;background:#1b8f4acc;font-size:92px;line-height:1;color:#fff;text-shadow:0 4px 0 #0a3d1f,0 0 18px #0a3d1f;pointer-events:none;z-index:3}.place.gym .ck{left:0}</style>
 <style>.place .ck,.place.gym .ck{left:0!important;right:0!important;top:0!important;bottom:0!important;width:auto!important;height:auto!important;border-radius:12px!important}</style>
 <style>.eyerow.tap{cursor:pointer}.eyerow .chev{margin-left:auto;font:900 34px system-ui;opacity:.6}.vsline{font:900 44px Georgia,serif;color:#ffd23f;text-shadow:0 3px 0 #14110f}.eyerow.tap:active{filter:brightness(1.2)}</style>
+<style>.gbacks{display:flex;flex-wrap:wrap;gap:14px;justify-content:center;padding:8px 0}.gback{--pw:104px;cursor:default}.gback.tap{cursor:pointer}.gback.tap:active{transform:translateY(-4px)}</style>
+<style>.place .ck,.place.gym .ck{background:transparent!important;color:#2fd16b!important;font-size:110px!important;text-shadow:0 0 0 #000,3px 3px 0 #0a3d1f,-3px 3px 0 #0a3d1f,3px -3px 0 #0a3d1f,-3px -3px 0 #0a3d1f,0 6px 10px #000a!important}</style>
 <script id="data">
 /* Pokémon Roll! — every rule number, the map, the bosses, the card sheet and the art live here. The engine and bots read this and hard-code none of it. */
 const GAME_DATA = {
@@ -2280,7 +2282,7 @@ const Bots = (() => {
   // the deck as a pile: a few cards stacked under the top one, and how many are left
   const deckPile = (loc, o) => {
     o = o || {}; const n = o.count, layers = n == null ? 3 : Math.max(0, Math.min(3, n - 1)), L = loc != null ? D.locations.find(x => x.id === loc) : null, dk = o.dk || (L ? (DECKC[L.color] || DECKC.blue)[0] : '#222');
-    return `<div class="pile${o.cls ? ' ' + o.cls : ''}" style="--pw:${o.pw}px">${[3, 2, 1].filter(i => i <= layers).map(i => `<i class="pl${i}" style="background:${dk}"></i>`).join('')}<div class="ptop">${o.svg || deckBack(loc)}</div>${n != null ? `<span class="pcount">${n}</span>` : ''}</div>`;
+    return `<div class="pile${o.cls ? ' ' + o.cls : ''}" style="--pw:${o.pw}px">${[3, 2, 1].filter(i => i <= layers).map(i => `<i class="pl${i}" style="background:${dk}"></i>`).join('')}<div class="ptop">${o.svg || deckBack(loc)}</div>${n != null && !o.nobadge ? `<span class="pcount">${n}</span>` : ''}</div>`;
   };
 
 
@@ -2960,29 +2962,22 @@ const Bots = (() => {
   // the eye on a gym leader: how their team came about
   // the info on a location: what is still in its deck, by type
   function deckInfoSheet(n) {
-    const draw = G.decks[n.loc] || [], disc = G.discard[n.loc] || [], by = {}; draw.concat(disc).forEach(id => { const t = C[id].type; by[t] = (by[t] || 0) + 1; });
-    const tyRows = m => Object.keys(m).sort((a, b) => m[b] - m[a] || (a < b ? -1 : 1)).map(t => { const e = el(t); return `<div class="eyerow" style="--c:${e.color}"><div class="tyb" style="background:${e.color}">${e.icon}</div><div><b>${esc(t)}</b></div><div class="tycount">${m[t]}</div></div>`; }).join('');
-    const rows = tyRows(by), startRows = tyRows((G.deck0 && G.deck0[n.loc]) || by);
-    return `<div class="sheet" data-act="closeeye"><div class="box hbox" data-stop="1" style="height:auto;max-height:92vh;overflow:auto"><div class="infoi">i</div><h2>${esc(n.name)}</h2>
-      <div class="bigpile">${deckPile(n.loc, { pw: 150, count: draw.length + disc.length })}</div>
-      <div class="piles"><div class="pbox"><b>${draw.length}</b><span>in the draw pile</span></div><div class="pbox"><b>${disc.length}</b><span>in the discard pile</span></div></div>
-      <p class="hcap" style="font-size:17px">When the draw pile runs out, the discard pile is shuffled back in.</p>
-      <div class="hcap" style="font-size:18px"><b>${lvRange(n.loc)}</b> · the elements here when the game began</div><div class="eyelist">${startRows || '<div class="hcap">Nothing here.</div>'}</div>
-      ${rows === startRows ? '' : `<div class="hcap" style="font-size:18px">Still here now: ${draw.length + disc.length} card${draw.length + disc.length === 1 ? '' : 's'}</div><div class="eyelist">${rows || '<div class="hcap">Nothing left here.</div>'}</div>`}${ui.eyeBack ? '<button class="btn alt" data-act="eyeback">‹ Back</button>' : ''}</div></div>`;
+    const by = {}; Object.keys((G.deck0 && G.deck0[n.loc]) || {}).forEach(t => { by[t] = G.deck0[n.loc][t]; });
+    if (!G.deck0) (G.decks[n.loc] || []).concat(G.discard[n.loc] || []).forEach(id => { const t = C[id].type; by[t] = (by[t] || 0) + 1; });
+    const rows = Object.keys(by).sort((a, b) => by[b] - by[a] || (a < b ? -1 : 1)).map(t => { const e = el(t); return `<div class="eyerow" style="--c:${e.color}"><div class="tyb" style="background:${e.color}">${e.icon}</div><div><b>${esc(t)}</b></div><div class="tycount">${by[t]}</div></div>`; }).join('');
+    return `<div class="sheet" data-act="closeeye"><div class="box hbox" data-stop="1" style="height:auto;max-height:92vh;overflow:auto"><h2>${esc(n.name)}</h2>
+      <div class="bigpile">${deckPile(n.loc, { pw: 120, count: 1, nobadge: true })}</div>
+      <div class="eyelist">${rows || '<div class="hcap">Nothing here.</div>'}</div>${ui.eyeBack ? '<button class="btn alt" data-act="eyeback">‹ Back</button>' : ''}</div></div>`;
   }
   function eyeSheet() {
     const n = E.node(ui.eye); if (n.kind === 'loc') return deckInfoSheet(n);
-    const tm = G.bosses[n.id] || [], cnt = {}; tm.forEach(i => { const l = C[i.id].legend ? 'L' : C[i.id].loc; cnt[l] = (cnt[l] || 0) + 1; });
-    const N = tm.length, mine = Math.min(N, G.coll.length);
-    // where their cards come from: tap a place to see what it is like (its elements at the start of the game)
-    const rows = Object.keys(cnt).filter(l => l !== 'L').map(Number).sort((a, b) => cnt[b] - cnt[a] || a - b).map(loc => { const ln = E.node(D.nodes.find(q => q.loc === loc).id), k = cnt[loc]; return `<div class="eyerow tap" data-act="eyeloc" data-id="${ln.id}"><div class="hmap" style="width:92px"><svg viewBox="0 0 160 120">${SCENE[loc]()}</svg></div><div><b>${esc(ln.name)}</b><div class="eyen">${k} card${k === 1 ? '' : 's'} · ${lvRange(loc)}</div></div><div class="chev">›</div></div>`; });
-    if (n.legendary) rows.push(`<div class="eyerow"><div class="hmap" style="width:92px;display:grid;place-items:center;font-size:46px;background:#4527a0">🌟</div><div><b>A legendary</b><div class="eyen">1 card</div></div></div>`);
-    const team = G.seen && G.seen[n.id] && G.bosses[n.id];
-    const head = `<div class="vsline"><b>${mine} vs ${N}</b></div><p class="hcap" style="font-size:20px">${esc(n.name)} has <b>${N}</b> Pokémon${team ? '' : ', from these places:'}</p>`;
+    const tm = G.bosses[n.id] || [], team = G.seen && G.seen[n.id] && G.bosses[n.id];
+    // one card back per Pokémon, showing the place it comes from: tap one to learn about that place
+    const backs = tm.slice().sort((p, q) => (C[q.id].legend ? 1 : 0) - (C[p.id].legend ? 1 : 0) || C[q.id].level - C[p.id].level).map(i => { const c = C[i.id]; if (c.legend) return `<div class="gback"><div class="pilebay" style="--pw:104px">${deckPile(null, { pw: 104, count: 1, nobadge: true, dk: '#4527a0', svg: '<svg viewBox="0 0 100 140" width="100%" height="100%"><rect width="100" height="140" fill="#4527a0"/><text x="50" y="86" text-anchor="middle" font-size="56">🌟</text></svg>' })}</div></div>`; const ln = D.nodes.find(q => q.loc === c.loc); return `<div class="gback tap" data-act="eyeloc" data-id="${ln.id}" aria-label="${esc(ln.name)}">${deckPile(c.loc, { pw: 104, count: 1, nobadge: true })}</div>`; }).join('');
     const body = team
-      ? `${head}<div class="eyecards">${cardGrid(team.map(i => ({ id: i.id, sh: i.sh })).sort((p, q) => C[q.id].level - C[p.id].level || (q.sh ? 1 : 0) - (p.sh ? 1 : 0) || C[p.id].name.localeCompare(C[q.id].name)), { max: 150 })          /* highest level first, a shiny before the others of its level, then by name */}</div><div class="eyelist">${rows.join('')}</div>`
-      : `${head}<div class="eyelist">${rows.join('')}</div>`;
-    return `<div class="sheet" data-act="closeeye"><div class="box hbox" data-stop="1" style="height:auto;max-height:92vh;overflow:auto;${team ? 'width:fit-content;max-width:96vw;padding:12px 12px 14px' : ''}"><div class="infoi">i</div>${D.trainerArt && D.trainerArt[n.id] ? `<img class="pix infospr" src="data:image/png;base64,${D.trainerArt[n.id]}" alt="${esc(n.name)}">` : ''}<h2>${esc(n.name)}'s team</h2>${body}</div></div>`;
+      ? `<div class="gbacks">${backs}</div><div class="eyecards">${cardGrid(team.map(i => ({ id: i.id, sh: i.sh })).sort((p, q) => C[q.id].level - C[p.id].level || (q.sh ? 1 : 0) - (p.sh ? 1 : 0) || C[p.id].name.localeCompare(C[q.id].name)), { max: 150 })          /* highest level first, a shiny before the others of its level, then by name */}</div>`
+      : `<div class="gbacks">${backs}</div>`;
+    return `<div class="sheet" data-act="closeeye"><div class="box hbox" data-stop="1" style="height:auto;max-height:92vh;overflow:auto;${team ? 'width:fit-content;max-width:96vw;padding:12px 12px 14px' : ''}">${D.trainerArt && D.trainerArt[n.id] ? `<img class="pix infospr" src="data:image/png;base64,${D.trainerArt[n.id]}" alt="${esc(n.name)}">` : ''}<h2>${esc(n.name)}'s team</h2>${body}</div></div>`;
   }
   function chipSheet() {
     const n = E.slots(G);
