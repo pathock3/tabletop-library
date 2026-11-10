@@ -487,11 +487,12 @@ test('ui: when every die still to give out shows the same number, an Auto-assign
   const errs = []; p.on('pageerror', e => errs.push(e.message));
   try {
     await p.goto(URL); await p.evaluate(() => { localStorage.setItem('pokemon-roll-tips', JSON.stringify({ place: 1, dice: 1, roll: 1, end: 1, shiny: 1 })); }); await p.reload();
-    await p.evaluate(() => { const E = Engine, T = E._t, s = E.newGame({ seed: 1, starter: 'bulbasaur' }); s.phase = 'battle'; const h = ['1.1', '4.1', '7.1', '10'], g = ['10', '13', '16', '19']; const b = T.startBattle(s, 'loc', 'L1', h.map(id => ({ id, sh: 0 })), g.map(id => ({ id, sh: 0 }))); b.hand = [[], []]; b.cols = [0, 1, 2, 3].map(i => [b.units[i].uid, b.units[4 + i].uid]); T.startRound(s); b.dice[0] = [6, 1, 1, 1]; b.rr[0] = 1; window.__pokemonRoll.setG(s); });
+    await p.evaluate(() => { const E = Engine, T = E._t, s = E.newGame({ seed: 1, starter: 'bulbasaur' }); s.phase = 'battle'; const h = ['1.1', '4.1', '7.1', '10'], g = ['10', '13', '16', '19']; const b = T.startBattle(s, 'loc', 'L1', h.map(id => ({ id, sh: 0 })), g.map(id => ({ id, sh: 0 }))); b.hand = [[], []]; b.cols = [0, 1, 2, 3].map(i => [b.units[i].uid, b.units[4 + i].uid]); T.startRound(s); b.dice[0] = [6, 1, 1, 1]; b.rr[0] = 0; window.__pokemonRoll.setG(s); });
     await p.mouse.click(300, 600); await p.waitForTimeout(1400);
     assert.equal(await p.locator('[data-act=autoassign]').count(), 0, 'not while the dice differ and nothing is given out');
     await p.evaluate(() => { const g = window.__pokemonRoll.G.battle; Engine.apply(window.__pokemonRoll.G, { t: 'assign', side: 0, uid: g.units[0].uid, die: 0 }); window.__pokemonRoll.render(); });
     assert.equal(await p.locator('[data-act=autoassign]').count(), 1, 'the 6 is given out, the three 1s are left: Auto-assign');
+    await p.evaluate(() => { window.__pokemonRoll.G.battle.rr[0] = 1; window.__pokemonRoll.render(); }); assert.equal(await p.locator('[data-act=autoassign]').count(), 0, 'not while a reroll is left'); await p.evaluate(() => { window.__pokemonRoll.G.battle.rr[0] = 0; window.__pokemonRoll.render(); });
     await p.click('[data-act=autoassign]'); assert.equal(await p.evaluate(() => Object.keys(window.__pokemonRoll.G.battle.asg[0]).length), 4, 'all handed out'); assert.equal(await p.evaluate(() => window.__pokemonRoll.G.battle.stage), 'assign', 'but not locked in');
     assert.equal(await p.locator('.rail.rgo').count(), 1, 'a tap on the side bar now plays the round');
     assert.deepEqual(errs, []);

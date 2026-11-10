@@ -2565,7 +2565,8 @@ const Bots = (() => {
   // the dice not on a card yet and the cards still without one
   function remaining(b) { const used = E.assignedDice(b, 0), free = b.dice[0].map((v, i) => i).filter(i => !used.has(i)), us = E.living(b, 0).filter(x => !x.skip && !b.asg[0][x.uid]); return { free, us }; }
   // every die still to give out shows the same number and there are enough of them: it does not matter who gets which, so one tap can hand them all out (it does not lock the round in)
-  function canAutoAssign(b) { if (!b || b.colMode || b.stage !== 'assign' || !b.gmReady) return false; const { free, us } = remaining(b); return us.length > 0 && free.length >= us.length && free.every(i => b.dice[0][i] === b.dice[0][free[0]]); }
+  // (with rerolls left the player may want to use one first, so no button then)
+  function canAutoAssign(b) { if (!b || b.colMode || b.stage !== 'assign' || !b.gmReady || b.rr[0] > 0) return false; const { free, us } = remaining(b); return us.length > 0 && free.length >= us.length && free.every(i => b.dice[0][i] === b.dice[0][free[0]]); }
   function autoAssign() { const b = G.battle, { free, us } = remaining(b); us.forEach((x, k) => { E.apply(G, { t: 'assign', side: 0, uid: x.uid, die: free[k] }); }); }
 
   // ---------------------------------------------------------------- tips (once per device)
