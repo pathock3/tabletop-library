@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- **Pokémon Roll! — Pokédex seen/caught:** "N of 157 seen" and "M of 157 caught" at the top, All/Seen/Caught filters, and three squares above each card: location found, caught, and the ✨ Shiny button.
 - **Pokémon Roll! — Pokédex:** arrows to the previous and next Pokémon; places shown as card backs with their names; shinies you have had are kept, with a ✨ Shiny button to switch to the shiny card and back. Fixed stretched pictures (Weedle, Diglett, Magnemite, Geodude and about 120 others were being squashed into squares).
 - **Pokémon Roll! — return, choosing, dice:** a Pokéball button in the side bar (before Flee and Menu, all bigger) returns a Pokémon before the roll: tap it, tap the Pokémon, choose who slides over; Cancel backs out. Choosing a card is tap, tap again to let go, OK, with the repeated wording gone. Dice thrown again no longer swap places with the ones you kept. An Auto-assign button appears when every die still to give out shows the same number.
 - **Pokémon Roll! — gym and place info:** a leader's info says their team consists of cards from these locations, with every card in one line at the same size (seen ones face up, the rest backs, staying in place). The full place info (piles and counts) is back when you tap a place on the map; the short version only shows inside a leader's info.

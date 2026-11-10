@@ -420,7 +420,7 @@ test('ui: Bill stands on the map after a special event and can be tapped; the Po
     assert.equal(await p.locator('[data-act=dexprev], [data-act=dexnext]').count(), 2, 'arrows to the Pokémon before and after');
     await p.evaluate(() => { localStorage.setItem('pokemon-roll-dexshiny', JSON.stringify({ '4.2': 1 })); localStorage.setItem('pokemon-roll-dexfound2', JSON.stringify({ '4.2': [5] })); localStorage.setItem('pokemon-roll-dexcards', JSON.stringify({ '4.1': 1, '4.2': 1 })); window.__pokemonRoll.render(); });
     assert.equal(await p.locator('.dxv .locchip .pile').count(), 1, 'a place is the back of its cards with its name under it'); assert.match(await p.innerText('.dxv .locchip'), /\S/);
-    assert.equal(await p.locator('.dxv .card.shiny').count(), 0, 'not shiny by default'); await p.click('[data-act=dexshiny]'); assert.equal(await p.locator('.dxv .card.shiny').count(), 1, 'the shiny one on request'); await p.click('[data-act=dexshiny]'); assert.equal(await p.locator('.dxv .card.shiny').count(), 0, 'and back');
+    assert.equal(await p.locator('.dxv .sq').count() >= 2, true, 'a square for the location and one for caught'); assert.equal(await p.locator('.dxv .shbtn').count() >= 1, true, 'and the shiny button'); assert.equal(await p.locator('.dxv .card.shiny').count(), 0, 'not shiny by default'); await p.click('[data-act=dexshiny]'); assert.equal(await p.locator('.dxv .card.shiny').count(), 1, 'the shiny one on request'); await p.click('[data-act=dexshiny]'); assert.equal(await p.locator('.dxv .card.shiny').count(), 0, 'and back');
     await p.mouse.click(8, 8); await p.mouse.click(8, 8); await p.click('.place.visitor').catch(() => {});
     assert.deepEqual(errs, []);
   } finally { await b.close(); }
@@ -504,5 +504,17 @@ test('ui: Pokémon pictures keep their shape (no stretching into squares)', { sk
     await p.goto(URL); await p.evaluate(() => { localStorage.setItem('pokemon-roll-dex', JSON.stringify({ 13: 1, 50: 1, 81: 1, 74: 1 })); }); await p.reload(); await p.click('[data-act=more]'); await p.click('.sheet [data-act=dex]');
     const bad = await p.evaluate(() => [...document.querySelectorAll('.dxc.got img')].map(i => ({ f: getComputedStyle(i).objectFit, ok: i.naturalWidth === i.naturalHeight || getComputedStyle(i).objectFit === 'contain' })).filter(x => !x.ok).length);
     assert.equal(bad, 0, 'a picture that is not square is drawn with object-fit contain');
+  } finally { await b.close(); }
+});
+
+test('ui: the Pokédex counts seen and caught (any version counts) and can be filtered', { skip: !chromium }, async () => {
+  const b = await chromium.launch(), p = await b.newPage({ viewport: { width: 820, height: 1180 } });
+  const errs = []; p.on('pageerror', e => errs.push(e.message));
+  try {
+    await p.goto(URL); await p.evaluate(() => { localStorage.setItem('pokemon-roll-dex', JSON.stringify({ 2: 1, 4: 1, 13: 1 })); localStorage.setItem('pokemon-roll-dexcaught', JSON.stringify({ '2.4': 1 })); }); await p.reload();
+    await p.click('[data-act=more]'); await p.click('.sheet [data-act=dex]');
+    assert.match(await p.innerText('.dxcount'), /3 of \d+ seen/); assert.match(await p.innerText('.dxcount'), /1 of \d+ caught/, 'one version of Ivysaur is enough');
+    await p.click('[data-act=dexfilter][data-v=seen]'); assert.equal(await p.locator('.dxc').count(), 3); await p.click('[data-act=dexfilter][data-v=caught]'); assert.equal(await p.locator('.dxc').count(), 1); await p.click('[data-act=dexfilter][data-v=all]'); assert.ok(await p.locator('.dxc').count() > 100);
+    assert.deepEqual(errs, []);
   } finally { await b.close(); }
 });
