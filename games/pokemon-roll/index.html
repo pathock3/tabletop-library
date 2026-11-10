@@ -489,6 +489,9 @@ button{font:inherit;color:inherit;border:0;cursor:pointer}
 <style>.rail .rtop{gap:12px}.rail .rtop .ib{width:68px;height:68px;border-radius:18px;font-size:34px}.rail .rtop .ib.pball{display:grid;place-items:center}.pball i{display:block;width:40px;height:40px;border-radius:50%;border:4px solid #14110f;background:linear-gradient(#e53935 0 46%,#14110f 46% 54%,#fff 54%);position:relative}.pball i::after{content:'';position:absolute;left:50%;top:50%;width:13px;height:13px;margin:-8px 0 0 -8px;border-radius:50%;background:#fff;border:3px solid #14110f}.pball.on{background:#ffd23f;box-shadow:0 0 0 4px #fff}
 .pickbar .btn[disabled]{opacity:.35}.pwarn{font:800 17px system-ui;color:#ffd23f}.pickbar{flex-direction:column;gap:8px}</style>
 <style>.rail .rtop{flex-wrap:wrap;gap:8px;justify-content:flex-end}.rail .rtop .ib{width:62px;height:62px}</style>
+<style>img{object-fit:contain}.dxc img{width:56px;height:56px}
+.locs{display:flex;gap:10px;justify-content:center;flex-wrap:wrap}.locchip{display:flex;flex-direction:column;align-items:center;gap:4px;font:800 14px system-ui;color:#fff;max-width:92px;text-align:center;min-height:90px}.locchip>div{min-height:62px}
+.shtog{min-height:44px;font-size:17px;padding:6px 18px}.shtog.on{background:#ffd23f;color:#14110f}</style>
 <script id="data">
 /* Pokémon Roll! — every rule number, the map, the bosses, the card sheet and the art live here. The engine and bots read this and hard-code none of it. */
 const GAME_DATA = {
@@ -2139,12 +2142,13 @@ const Bots = (() => {
   const save = () => { if (G) lsSet(KEY, G); };
   const tipsSeen = lsGet(TIPS) || {};
   // personal bests: the fewest turns to beat each gym leader, and the whole game, for each game length
-  const SCORES = 'pokemon-roll-scores', HOF = 'pokemon-roll-hof', DEX = 'pokemon-roll-dex', DEXF = 'pokemon-roll-dexfound2', DEXC = 'pokemon-roll-dexcards';          // kept between games: which cards you have met or owned, and where each was met in the wild
+  const SCORES = 'pokemon-roll-scores', HOF = 'pokemon-roll-hof', DEX = 'pokemon-roll-dex', DEXF = 'pokemon-roll-dexfound2', DEXC = 'pokemon-roll-dexcards', DEXS = 'pokemon-roll-dexshiny';          // kept between games: which cards you have met or owned, and where each was met in the wild
   const hofList = () => lsGet(HOF) || [], dexSeen = () => lsGet(DEX) || {};
   // the Pokédex fills in as you meet each Pokémon, in any game: your own cards and everything that stands across from you
   function markDex() {
     if (!G) return; const b0 = G.battle, seen = dexSeen(), cards = lsGet(DEXC) || {}; let add = 0, addC = 0;
     const ids = G.coll.map(c => c.id).concat(b0 && b0.units ? b0.units.map(x => x.id) : []);
+    { const sh = lsGet(DEXS) || {}; let ch = 0; G.coll.concat(b0 && b0.units ? b0.units : []).forEach(x => { if (x.sh && C[x.id] && !sh[x.id]) { sh[x.id] = 1; ch = 1; } }); if (ch) lsSet(DEXS, sh); }          // a shiny you have had or met is kept in the Pokédex
     ids.forEach(id => { const d = C[id] && C[id].dex; if (d && !seen[d]) { seen[d] = 1; add++; } if (C[id] && !cards[id]) { cards[id] = 1; addC++; } });
     if (add) lsSet(DEX, seen); if (addC) lsSet(DEXC, cards);
     if (b0 && b0.mode === 'wild' && b0.units && E.node(b0.node).kind === 'loc') {          // where a card turns up: only what came out of a place in the wild, never a gym team
@@ -2921,17 +2925,23 @@ const Bots = (() => {
     return runs.map(r => `<div class="hofr"><div class="hofh"><b>${new Date(r.t).toLocaleDateString()}</b> · <b>${r.turns}</b> turns · ${r.size === 'long' ? 'Extra Long' : 'Regular'}${r.ai ? ' · ' + esc(({ easy: 'Easy', normal: 'Normal', master: 'Master' })[r.ai] || r.ai) : ''}</div><div class="hofteam">${(r.team || []).map(m => C[m.id] ? `<img class="pix" src="${art(m.id, m.sh)}" alt="${esc(C[m.id].name)}" title="${esc(C[m.id].name)}">` : '').join('')}</div></div>`).join('');
   }
   // tapping a Pokémon: every version of its card side by side. The ordinary one is found in a place; the starter versions only come if you pick that Pokémon as your starter (or grow it). A version you have never had is a silhouette.
+  // the arrows in the Pokédex go through the Pokémon you have met, in order
+  function dexStep(dir) { const seen = dexSeen(), nums = [...new Set(Object.values(C).map(c => c.dex).filter(Boolean))].sort((a, b) => a - b).filter(d => seen[d]); const i = nums.indexOf(ui.dexCard); if (i < 0 || nums.length < 2) return; ui.dexCard = nums[(i + dir + nums.length) % nums.length]; render(); }
   function dexCardSheet() {
     const cs = Object.values(C).filter(c => c.dex === ui.dexCard).sort((a, b) => (a.loc === 0) - (b.loc === 0) || a.level - b.level); if (!cs.length) return '';
-    const own = lsGet(DEXC) || {}, fnd = lsGet(DEXF) || {}, n = cs.length, per = n <= 3 ? n : Math.ceil(n / 2), rows = Math.ceil(n / per);
-    const cw = Math.max(90, Math.min(300, Math.floor((innerWidth - 40 - (per - 1) * 12) / per), Math.floor((viewH() - 150 - (rows - 1) * 80) / rows / CH)));
+    const own = lsGet(DEXC) || {}, fnd = lsGet(DEXF) || {}, shs = lsGet(DEXS) || {}, n = cs.length, per = n <= 3 ? n : Math.ceil(n / 2), rows = Math.ceil(n / per);
+    const cw = Math.max(90, Math.min(300, Math.floor((innerWidth - 40 - (per - 1) * 12) / per), Math.floor((viewH() - 250 - (rows - 1) * 110) / rows / CH)));
     const legacy = !!dexSeen()[ui.dexCard] && !cs.some(c => own[c.id]);              // an older record without versions: show the ordinary card
+    ui.dexShiny = ui.dexShiny || {};
+    // a place is shown as the back of its cards with its name underneath
+    const loc = l => { const L = D.locations.find(x => x.id === l); return L ? `<div class="locchip"><div style="--pw:44px">${deckPile(l, { pw: 44, count: 1, nobadge: true })}</div><span>${esc(L.name)}</span></div>` : ''; };
     const one = c => {
-      const have = !!own[c.id] || (legacy && c.loc !== 0 && c === cs.find(x => x.loc !== 0));
-      const where = c.loc === 0 ? '⭐ Starter only' : (fnd[c.id] || []).length ? '📍 ' + fnd[c.id].map(l => (D.locations.find(x => x.id === l) || {}).name).filter(Boolean).join(', ') : '📍 Location unknown';
-      return `<div class="dxv">${card({ id: c.id, sh: 0 }, { cw, cls: have ? '' : 'sil' })}<div class="dexwhere">${where}</div></div>`;
+      const have = !!own[c.id] || (legacy && c.loc !== 0 && c === cs.find(x => x.loc !== 0)), sh = !!ui.dexShiny[c.id] && !!shs[c.id];
+      const where = c.loc === 0 ? '<div class="dexwhere">⭐ Starter only</div>' : (fnd[c.id] || []).length ? `<div class="locs">${fnd[c.id].map(loc).join('')}</div>` : '<div class="dexwhere">Location unknown</div>';
+      const tog = shs[c.id] ? `<button class="btn alt shtog${sh ? ' on' : ''}" data-act="dexshiny" data-id="${c.id}">${sh ? 'Normal' : '✨ Shiny'}</button>` : '';
+      return `<div class="dxv">${card({ id: c.id, sh: sh ? 1 : 0 }, { cw, cls: have ? '' : 'sil' })}${tog}${where}</div>`;
     };
-    return `<div class="sheet" style="z-index:70" data-act="closedexcard"><div class="dxvs">${cs.map(one).join('')}</div></div>`;
+    return `<div class="sheet" style="z-index:70;flex-direction:column;gap:10px" data-act="closedexcard"><div class="dxvs">${cs.map(one).join('')}</div><div class="hnav"><button class="ib" data-act="dexprev" aria-label="Previous">◀</button><button class="ib" data-act="dexnext" aria-label="Next">▶</button></div></div>`;
   }
   function recordsSheet() {
     const sz = ui.recSize || set.size, rec = scores()[sz] || {}, bosses = D.nodes.filter(n => n.kind === 'boss');
@@ -3095,7 +3105,8 @@ const Bots = (() => {
     tips(el) { set.tips = el && el.dataset.v ? el.dataset.v === 'true' : !set.tips; lsSet(SET, set); render(); },
     settings() { ui.settings = true; ui.menu = false; render(); }, closesettings() { ui.settings = false; render(); },
     starter(el) { G = E.newGame({ starter: el.dataset.k, size: set.size, ai: set.ai, seed: ui.seed }); ui.seed = null; ui.screen = 'play'; resetSel(); save(); render(); },
-    dex() { ui.dex = true; ui.more = false; ui.menu = false; render(); }, closedex() { ui.dex = false; ui.dexCard = null; render(); }, dexcard(el) { ui.dexCard = +el.dataset.dex; render(); }, closedexcard() { ui.dexCard = null; render(); },
+    dex() { ui.dex = true; ui.more = false; ui.menu = false; render(); }, closedex() { ui.dex = false; ui.dexCard = null; render(); }, dexcard(el) { ui.dexCard = +el.dataset.dex; render(); }, dexshiny(el) { ui.dexShiny = ui.dexShiny || {}; ui.dexShiny[el.dataset.id] = !ui.dexShiny[el.dataset.id]; render(); },
+    dexprev() { dexStep(-1); }, dexnext() { dexStep(1); }, closedexcard() { ui.dexCard = null; render(); },
     records() { ui.records = true; ui.more = false; ui.menu = false; render(); }, closerec() { ui.records = false; render(); }, recsize(el) { ui.recSize = el.dataset.v; render(); },
     eye(el) { ui.eye = el.dataset.id; render(); }, closeeye() { ui.eye = null; ui.eyeBack = null; render(); }, chipinfo() { ui.chip = true; render(); }, closechip() { ui.chip = false; render(); },
     zoom(el) { ui.zoom = +el.dataset.uid; ui.zoomOnly = !!el.dataset.only; render(); }, closezoom() { ui.zoom = null; ui.zoomOnly = false; render(); },

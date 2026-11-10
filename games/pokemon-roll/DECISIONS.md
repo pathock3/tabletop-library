@@ -61,3 +61,5 @@
 - `RULING:` **Choosing a card**: tap a card, tap it again to let go, then OK (OK stays dim until a card is chosen). No "Choose again", nothing said twice; a one-line warning only if the card is not the highest level.
 - `RULING:` **Dice thrown again** come after the dice you kept, each group highest first, so they never trade places with the kept ones.
 - `RULING:` **Auto-assign**: when every die still to be given out shows the same number (and there are enough for the cards still without one), an Auto-assign button hands them all out without locking the round in; then the side bar glows and a tap plays the round.
+- `RULING:` **Pokédex card view**: ◀ ▶ move to the Pokémon before and after (only ones you have met). A place is shown as the back of its cards with its name under it. A shiny you have had or met is kept (`pokemon-roll-dexshiny`): its card then has a ✨ Shiny button, and a Normal button to switch back; cards are normal by default.
+- `RULING:` **Stretched sprites**: most Pokémon sprites are not square (the Pokédex grid forced them into 56×56 squares: Weedle is 27×38). Every picture is now drawn with `object-fit: contain`, so none is stretched.

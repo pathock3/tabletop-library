@@ -417,6 +417,10 @@ test('ui: Bill stands on the map after a special event and can be tapped; the Po
     await p.reload(); await p.click('[data-act=more]'); await p.click('.sheet [data-act=dex]'); await p.click('.dxc.got');
     assert.equal(await p.locator('.dxv').count(), 2, 'both versions of the card'); assert.equal(await p.locator('.dxv .card.sil').count(), 1, 'the one you have never had is a silhouette');
     const caps = await p.locator('.dxv .dexwhere').allInnerTexts(); assert.ok(caps.some(t => /Location unknown/.test(t)), 'a card never met in the wild: location unknown'); assert.ok(caps.some(t => /Starter only/.test(t)), 'a starter version says so');
+    assert.equal(await p.locator('[data-act=dexprev], [data-act=dexnext]').count(), 2, 'arrows to the Pokémon before and after');
+    await p.evaluate(() => { localStorage.setItem('pokemon-roll-dexshiny', JSON.stringify({ '4.2': 1 })); localStorage.setItem('pokemon-roll-dexfound2', JSON.stringify({ '4.2': [5] })); localStorage.setItem('pokemon-roll-dexcards', JSON.stringify({ '4.1': 1, '4.2': 1 })); window.__pokemonRoll.render(); });
+    assert.equal(await p.locator('.dxv .locchip .pile').count(), 1, 'a place is the back of its cards with its name under it'); assert.match(await p.innerText('.dxv .locchip'), /\S/);
+    assert.equal(await p.locator('.dxv .card.shiny').count(), 0, 'not shiny by default'); await p.click('[data-act=dexshiny]'); assert.equal(await p.locator('.dxv .card.shiny').count(), 1, 'the shiny one on request'); await p.click('[data-act=dexshiny]'); assert.equal(await p.locator('.dxv .card.shiny').count(), 0, 'and back');
     await p.mouse.click(8, 8); await p.mouse.click(8, 8); await p.click('.place.visitor').catch(() => {});
     assert.deepEqual(errs, []);
   } finally { await b.close(); }
@@ -491,5 +495,14 @@ test('ui: when every die still to give out shows the same number, an Auto-assign
     await p.click('[data-act=autoassign]'); assert.equal(await p.evaluate(() => Object.keys(window.__pokemonRoll.G.battle.asg[0]).length), 4, 'all handed out'); assert.equal(await p.evaluate(() => window.__pokemonRoll.G.battle.stage), 'assign', 'but not locked in');
     assert.equal(await p.locator('.rail.rgo').count(), 1, 'a tap on the side bar now plays the round');
     assert.deepEqual(errs, []);
+  } finally { await b.close(); }
+});
+
+test('ui: Pokémon pictures keep their shape (no stretching into squares)', { skip: !chromium }, async () => {
+  const b = await chromium.launch(), p = await b.newPage({ viewport: { width: 820, height: 1180 } });
+  try {
+    await p.goto(URL); await p.evaluate(() => { localStorage.setItem('pokemon-roll-dex', JSON.stringify({ 13: 1, 50: 1, 81: 1, 74: 1 })); }); await p.reload(); await p.click('[data-act=more]'); await p.click('.sheet [data-act=dex]');
+    const bad = await p.evaluate(() => [...document.querySelectorAll('.dxc.got img')].map(i => ({ f: getComputedStyle(i).objectFit, ok: i.naturalWidth === i.naturalHeight || getComputedStyle(i).objectFit === 'contain' })).filter(x => !x.ok).length);
+    assert.equal(bad, 0, 'a picture that is not square is drawn with object-fit contain');
   } finally { await b.close(); }
 });
