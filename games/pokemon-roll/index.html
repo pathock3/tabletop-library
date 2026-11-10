@@ -485,6 +485,7 @@ button{font:inherit;color:inherit;border:0;cursor:pointer}
 <style>.place .ck,.place.gym .ck{background:transparent!important;color:#2fd16b!important;font-size:110px!important;text-shadow:0 0 0 #000,3px 3px 0 #0a3d1f,-3px 3px 0 #0a3d1f,3px -3px 0 #0a3d1f,-3px -3px 0 #0a3d1f,0 6px 10px #000a!important}</style>
 <style>.lvarrow{flex:none;font:900 54px system-ui;color:#ffd23f;text-shadow:0 4px 0 #14110f}.scr>.center{margin:auto}</style>
 <style>.respile{position:fixed;right:12px;top:calc(env(safe-area-inset-top) + 8px);z-index:20}</style>
+<style>.gline{display:flex;flex-wrap:nowrap;gap:10px;justify-content:center;align-items:flex-start;padding:8px 0}.gcell{flex:none;display:flex;justify-content:center}.gcell .card{flex:none}</style>
 <script id="data">
 /* Pokémon Roll! — every rule number, the map, the bosses, the card sheet and the art live here. The engine and bots read this and hard-code none of it. */
 const GAME_DATA = {
@@ -2974,23 +2975,33 @@ const Bots = (() => {
   }
   // the eye on a gym leader: how their team came about
   // the info on a location: what is still in its deck, by type
+  // the full info on a place (tapped on the map): its piles and everything still in it, by type. Inside a gym leader's info (ui.eyeBack) it is shorter: just the elements the place started with, and how many.
   function deckInfoSheet(n) {
-    const by = {}; Object.keys((G.deck0 && G.deck0[n.loc]) || {}).forEach(t => { by[t] = G.deck0[n.loc][t]; });
-    if (!G.deck0) (G.decks[n.loc] || []).concat(G.discard[n.loc] || []).forEach(id => { const t = C[id].type; by[t] = (by[t] || 0) + 1; });
-    const rows = Object.keys(by).sort((a, b) => by[b] - by[a] || (a < b ? -1 : 1)).map(t => { const e = el(t); return `<div class="eyerow" style="--c:${e.color}"><div class="tyb" style="background:${e.color}">${e.icon}</div><div><b>${esc(t)}</b></div><div class="tycount">${by[t]}</div></div>`; }).join('');
-    return `<div class="sheet" data-act="closeeye"><div class="box hbox" data-stop="1" style="height:auto;max-height:92vh;overflow:auto"><h2>${esc(n.name)}</h2>
-      <div class="bigpile">${deckPile(n.loc, { pw: 120, count: 1, nobadge: true })}</div>
-      <div class="eyelist">${rows || '<div class="hcap">Nothing here.</div>'}</div>${ui.eyeBack ? '<button class="btn alt" data-act="eyeback">‹ Back</button>' : ''}</div></div>`;
+    const draw = G.decks[n.loc] || [], disc = G.discard[n.loc] || [], by = {}; draw.concat(disc).forEach(id => { const t = C[id].type; by[t] = (by[t] || 0) + 1; });
+    const tyRows = m => Object.keys(m).sort((a, b) => m[b] - m[a] || (a < b ? -1 : 1)).map(t => { const e = el(t); return `<div class="eyerow" style="--c:${e.color}"><div class="tyb" style="background:${e.color}">${e.icon}</div><div><b>${esc(t)}</b></div><div class="tycount">${m[t]}</div></div>`; }).join('');
+    if (ui.eyeBack) {
+      const m0 = (G.deck0 && G.deck0[n.loc]) || by;
+      return `<div class="sheet" data-act="closeeye"><div class="box hbox" data-stop="1" style="height:auto;max-height:92vh;overflow:auto"><h2>${esc(n.name)}</h2>
+        <div class="bigpile">${deckPile(n.loc, { pw: 120, count: 1, nobadge: true })}</div>
+        <div class="eyelist">${tyRows(m0) || '<div class="hcap">Nothing here.</div>'}</div><button class="btn alt" data-act="eyeback">‹ Back</button></div></div>`;
+    }
+    return `<div class="sheet" data-act="closeeye"><div class="box hbox" data-stop="1" style="height:auto;max-height:88vh"><div class="infoi">i</div><h2>${esc(n.name)}</h2>
+      <div class="bigpile">${deckPile(n.loc, { pw: 150, count: draw.length + disc.length })}</div>
+      <div class="piles"><div class="pbox"><b>${draw.length}</b><span>in the draw pile</span></div><div class="pbox"><b>${disc.length}</b><span>in the discard pile</span></div></div>
+      <p class="hcap" style="font-size:17px">When the draw pile runs out, the discard pile is shuffled back in.</p><div class="hcap" style="font-size:18px"><b>${lvRange(n.loc)}</b> · every card here, by type</div><div class="eyelist" style="overflow:auto">${tyRows(by) || '<div class="hcap">Nothing left here.</div>'}</div></div></div>`;
   }
   function eyeSheet() {
     const n = E.node(ui.eye); if (n.kind === 'loc') return deckInfoSheet(n);
-    // their team: a card you have seen them put down is shown face up; every other card is the back of the place it comes from (tap one to learn about that place)
-    const tm = (G.bosses[n.id] || []).slice(), seen = ((G.seenCards || {})[n.id] || []).slice(), faces = [], unknown = [];
-    seen.forEach(c => { const k = tm.findIndex(x => x.id === c.id && !!x.sh === !!c.sh); if (k >= 0) { tm.splice(k, 1); faces.push(c); } });          // each card seen takes one place of the team
-    tm.forEach(i => unknown.push(i));
-    const backs = unknown.sort((p, q) => (C[q.id].legend ? 1 : 0) - (C[p.id].legend ? 1 : 0) || C[q.id].level - C[p.id].level).map(i => { const c = C[i.id]; if (c.legend) return `<div class="gback"><div class="pilebay" style="--pw:104px">${deckPile(null, { pw: 104, count: 1, nobadge: true, dk: '#4527a0', svg: '<svg viewBox="0 0 100 140" width="100%" height="100%"><rect width="100" height="140" fill="#4527a0"/><text x="50" y="86" text-anchor="middle" font-size="56">🌟</text></svg>' })}</div></div>`; const ln = D.nodes.find(q => q.loc === c.loc); return `<div class="gback tap" data-act="eyeloc" data-id="${ln.id}" aria-label="${esc(ln.name)}">${deckPile(c.loc, { pw: 104, count: 1, nobadge: true })}</div>`; }).join('');
-    const known = faces.length ? `<div class="eyecards">${cardGrid(faces.map(i => ({ id: i.id, sh: i.sh })).sort((p, q) => C[q.id].level - C[p.id].level || (q.sh ? 1 : 0) - (p.sh ? 1 : 0) || C[p.id].name.localeCompare(C[q.id].name)), { max: 150 })          /* highest level first, a shiny before the others of its level, then by name */}</div>` : '';
-    return `<div class="sheet" data-act="closeeye"><div class="box hbox" data-stop="1" style="height:auto;max-height:92vh;overflow:auto;${faces.length ? 'width:fit-content;max-width:96vw;padding:12px 12px 14px' : ''}">${D.trainerArt && D.trainerArt[n.id] ? `<img class="pix infospr" src="data:image/png;base64,${D.trainerArt[n.id]}" alt="${esc(n.name)}">` : ''}<h2>${esc(n.name)}'s team</h2>${known}${backs ? `<div class="gbacks">${backs}</div>` : ''}</div></div>`;
+    // their team in one line, in the order it was made: a card you have seen them put down is face up, every other one is the back of the place it comes from (tap a back to learn about that place). All the same size.
+    const team = (G.bosses[n.id] || []).slice(), pool = ((G.seenCards || {})[n.id] || []).slice(), slots = team.map(i => { const k = pool.findIndex(c => c.id === i.id && !!c.sh === !!i.sh); if (k >= 0) { pool.splice(k, 1); return { i, seen: true }; } return { i, seen: false }; });
+    const per = Math.max(1, slots.length), cellW = Math.max(66, Math.min(124, Math.floor((Math.min(innerWidth, 760) - 64 - (per - 1) * 10) / per))), cw = Math.floor(cellW / 1.128);          // a card back is wider for its height than a card: the cell is as wide as the back, the card sits in the middle, and both are the same height
+    const cells = slots.map(({ i, seen }) => {
+      const c = C[i.id];
+      if (seen) return `<div class="gcell" style="width:${cellW}px">${card({ id: i.id, sh: i.sh }, { cw })}</div>`;
+      if (c.legend) return `<div class="gcell" style="width:${cellW}px"><div class="gback"><div class="pilebay" style="--pw:${cellW}px">${deckPile(null, { pw: cellW, count: 1, nobadge: true, dk: '#4527a0', svg: '<svg viewBox="0 0 100 140" width="100%" height="100%"><rect width="100" height="140" fill="#4527a0"/><text x="50" y="86" text-anchor="middle" font-size="56">🌟</text></svg>' })}</div></div></div>`;
+      const ln = D.nodes.find(q => q.loc === c.loc); return `<div class="gcell" style="width:${cellW}px"><div class="gback tap" style="--pw:${cellW}px" data-act="eyeloc" data-id="${ln.id}" aria-label="${esc(ln.name)}">${deckPile(c.loc, { pw: cellW, count: 1, nobadge: true })}</div></div>`;
+    }).join('');
+    return `<div class="sheet" data-act="closeeye"><div class="box hbox" data-stop="1" style="height:auto;max-height:92vh;overflow:auto;max-width:96vw">${D.trainerArt && D.trainerArt[n.id] ? `<img class="pix infospr" src="data:image/png;base64,${D.trainerArt[n.id]}" alt="${esc(n.name)}">` : ''}<h2>${esc(n.name)}'s team</h2><p class="hcap" style="font-size:19px">${esc(n.name)}'s team consists of cards from these locations:</p><div class="gline">${cells}</div></div></div>`;
   }
   function chipSheet() {
     const n = E.slots(G);

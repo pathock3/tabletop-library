@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- **Pokémon Roll! — gym and place info:** a leader's info says their team consists of cards from these locations, with every card in one line at the same size (seen ones face up, the rest backs, staying in place). The full place info (piles and counts) is back when you tap a place on the map; the short version only shows inside a leader's info.
 - **Pokémon Roll! — choosing a card:** a small pile of your cards sits in the corner while you choose (or choose how to evolve): tap it to look at your hand, including after Bill. Bill no longer says you can only keep one you do not have yet.
 - **Pokémon Roll! — choosing a starter:** the five starter cards are shown as the real cards you would get, shiny ones included. There is a 10% chance that one starter (never more) is shiny, and then so are all its evolutions; starters are no longer rolled at the ordinary per-card rate.
 - **Pokémon Roll! — level-up screen:** old card, arrow, new card, all on screen with the Continue button; the victory screens are centred; tapping the new card shows just that card.
