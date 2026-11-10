@@ -424,7 +424,7 @@ test('ui: Bill stands on the map after a special event and can be tapped; the Po
     await p.evaluate(() => { localStorage.setItem('pokemon-roll-dex', JSON.stringify({ 4: 1 })); localStorage.setItem('pokemon-roll-dexcards', JSON.stringify({ '4.1': 1 })); localStorage.setItem('pokemon-roll-dexfound2', JSON.stringify({})); });
     await p.reload(); await p.click('[data-act=more]'); await p.click('.sheet [data-act=dex]'); await p.click('.dxc.got');
     assert.equal(await p.locator('.dxv').count(), 2, 'both versions of the card'); assert.equal(await p.locator('.dxv .card.sil').count(), 1, 'the one you have never had is a silhouette');
-    const caps = await p.locator('.dxv .dexwhere').allInnerTexts(); assert.ok(caps.some(t => /Location unknown/.test(t)), 'a card never met in the wild: location unknown'); assert.ok(caps.some(t => /Starter only/.test(t)), 'a starter version says so');
+    const caps = await p.locator('.dxv .stile.wide').allInnerTexts(); assert.ok(caps.some(t => /Unknown/.test(t)), 'a card never met in the wild: location unknown'); assert.ok(caps.some(t => /Starter only/.test(t)), 'a starter version says so');
     assert.equal(await p.locator('[data-act=dexprev], [data-act=dexnext]').count(), 2, 'arrows to the Pokémon before and after');
     await p.evaluate(() => { localStorage.setItem('pokemon-roll-dexshiny', JSON.stringify({ '4.2': 1 })); localStorage.setItem('pokemon-roll-dexfound2', JSON.stringify({ '4.2': [5] })); localStorage.setItem('pokemon-roll-dexcards', JSON.stringify({ '4.1': 1, '4.2': 1 })); window.__pokemonRoll.render(); });
     assert.equal(await p.locator('.dxv .locchip .pile').count(), 1, 'a place is the back of its cards with its name under it'); assert.match(await p.innerText('.dxv .locchip'), /\S/);
@@ -528,7 +528,7 @@ test('ui: the Pokédex counts seen and caught (any version counts) and can be fi
     await p.click('[data-act=dexfilter][data-v=seen]'); assert.equal(await p.locator('.dxc').count(), all); assert.equal(await p.locator('.dxc:not(.dim)').count(), 3, 'unseen ones are dimmed');
     await p.click('[data-act=dexfilter][data-v=caught]'); assert.equal(await p.locator('.dxc').count(), all); assert.equal(await p.locator('.dxc:not(.dim)').count(), 1); assert.equal(await p.locator('.dxc.grey').count(), 2, 'seen but not caught: greyscale');
     await p.click('[data-act=dexfilter][data-v=caught]'); assert.equal(await p.locator('.dxc.dim').count(), 0, 'tap again to clear the filter');
-    await p.click('.dxc.got'); assert.equal(await p.locator('.stile').count() >= 3, true); assert.match(await p.innerText('.stile >> nth=0'), /Found/); await p.click('.stile >> nth=1'); assert.match(await p.innerText('.sheet .sheet'), /Caught/); await p.click('[data-act=dextipx] >> nth=-1'); assert.equal(await p.locator('.sheet .sheet').count(), 0, 'OK closes the explanation');
+    await p.click('.dxc.got'); assert.equal(await p.locator('.stile').count() >= 3, true); assert.match(await p.innerText('.stile >> nth=0'), /Location/); await p.click('.stile >> nth=1'); assert.match(await p.innerText('.sheet .sheet'), /Caught/); await p.click('[data-act=dextipx] >> nth=-1'); assert.equal(await p.locator('.sheet .sheet').count(), 0, 'OK closes the explanation');
     assert.deepEqual(errs, []);
   } finally { await b.close(); }
 });

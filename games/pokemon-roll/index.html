@@ -504,6 +504,8 @@ button{font:inherit;color:inherit;border:0;cursor:pointer}
 .sqs{gap:10px!important}.stile{flex:1;min-width:0;max-width:150px;min-height:84px;padding:6px 4px;border-radius:14px;border:3px solid #ffffff44;background:#0007;color:#ffffffaa;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;font:inherit}.stile .si{font-size:26px;line-height:1}.stile b{font:900 17px system-ui}.stile small{font:700 13px system-ui;line-height:1.1;text-align:center}.stile.on{background:#fff;color:#14110f;border-color:#ffd23f}.stile .pbi{width:26px;height:26px}
 .locchip{display:flex;flex-direction:column;align-items:center;gap:4px;font:800 15px system-ui;text-align:center}.locs{display:flex;gap:12px;justify-content:center;flex-wrap:wrap}
 .dxvs~.hnav{margin:6px 0 0}
+.sqs{width:calc(var(--sw,300px));align-items:stretch!important}.stile{min-height:150px!important;max-width:none!important;gap:4px!important}.stile.wide{flex:1.5!important}.stile b{font-size:19px!important}.stile small{font-size:14px!important}.stile .si{font-size:34px!important}.stile .pbi{width:44px!important;height:44px!important}.stile .locchip{font-size:13px}.stile .locs{gap:6px}
+.sqs{flex-wrap:wrap}.stile{min-height:70px!important;flex:1 1 40%!important;flex-direction:row!important;gap:8px!important;padding:4px 6px!important}.stile.wide{flex:1 1 100%!important;min-height:104px!important;flex-direction:column!important}.stile:not(.wide) b{font-size:16px!important}.stile:not(.wide) small{font-size:13px!important}.stile:not(.wide) .si,.stile:not(.wide) .pbi{font-size:28px!important;width:32px!important;height:32px!important;flex:none}.stile:not(.wide){text-align:left}.stile .col{display:flex;flex-direction:column;align-items:flex-start}
 </style>
 <script id="data">
 /* Pokémon Roll! — every rule number, the map, the bosses, the card sheet and the art live here. The engine and bots read this and hard-code none of it. */
@@ -2972,12 +2974,13 @@ const Bots = (() => {
     const one = c => {
       const have = !!own[c.id] || (legacy && c.loc !== 0 && c === cs.find(x => x.loc !== 0)), sh = !!ui.dexShiny[c.id] && !!shs[c.id], found = (fnd[c.id] || []).length > 0, got = !!cg[c.id];
       // three big labelled tiles above the card: where it is found, caught, shiny. Tap one for a plain explanation; the shiny tile also switches the card.
-      const tile = (k, ic, name, st, on, act) => `<button class="stile${on ? ' on' : ''}" data-act="${act || 'dextip'}" data-t="${k}" data-id="${c.id}"><span class="si">${ic}</span><b>${name}</b><small>${st}</small></button>`;
-      const locSq = tile('loc', c.loc === 0 ? '⭐' : '📍', 'Found', c.loc === 0 ? 'Starter' : found ? 'Yes' : 'Not yet', found || c.loc === 0);
+      const tile = (k, ic, name, st, on, act) => `<button class="stile${on ? ' on' : ''}" data-act="${act || 'dextip'}" data-t="${k}" data-id="${c.id}"><span class="si">${ic}</span><span class="col"><b>${name}</b><small>${st}</small></span></button>`;
+      const fl = fnd[c.id] || [], pw = fl.length > 1 ? 54 : 84;
+      const locSq = `<button class="stile wide${found || c.loc === 0 ? ' on' : ''}" data-act="dextip" data-t="loc" data-id="${c.id}"><b>Location</b>${c.loc === 0 ? '<span class="si">⭐</span><small>Starter only</small>' : found ? `<span class="locs">${fl.map(l => { const L = D.locations.find(x => x.id === l); return L ? `<span class="locchip"><span style="--pw:${pw}px;display:block">${deckPile(l, { pw, count: 1, nobadge: true })}</span><small>${esc(L.name)}</small></span>` : ''; }).join('')}</span>` : '<span class="si" style="font-size:44px">?</span><small>Unknown</small>'}</button>`;
       const catSq = tile('cat', '<i class="pbi"></i>', 'Caught', got ? 'Yes' : 'Not yet', got);
       const shBtn = tile('shy', '✨', 'Shiny', shs[c.id] ? (sh ? 'Showing · tap for normal' : 'Had one · tap to view') : 'Not yet', !!shs[c.id], shs[c.id] ? 'dexshiny' : 'dextip');
-      const where = c.loc === 0 ? '<div class="dexwhere">Starter only</div>' : found ? `<div class="locs">${fnd[c.id].map(loc).join('')}</div>` : '<div class="dexwhere">Location unknown</div>';
-      return `<div class="dxv"><div class="sqs">${locSq}${catSq}${shBtn}</div>${card({ id: c.id, sh: sh ? 1 : 0 }, { cw, cls: have ? '' : 'sil' })}${where}</div>`;
+      const where = '';
+      return `<div class="dxv"><div class="sqs" style="--sw:${cw}px">${locSq}${catSq}${shBtn}</div>${card({ id: c.id, sh: sh ? 1 : 0 }, { cw, cls: have ? '' : 'sil' })}${where}</div>`;
     };
     return `<div class="sheet" style="z-index:70;flex-direction:column;gap:10px" data-act="closedexcard"><div class="dxvs">${cs.map(one).join('')}</div><div class="hnav"><button class="ib" data-act="dexprev" aria-label="Previous">◀</button><button class="ib" data-act="dexnext" aria-label="Next">▶</button></div>${ui.dexTip ? `<div class="sheet" style="z-index:80" data-act="dextipx"><div class="box" data-stop="1" style="max-width:420px;display:flex;flex-direction:column;gap:12px"><h2>${ui.dexTip.h}</h2><p class="hcap" style="font-size:20px">${ui.dexTip.p}</p><button class="btn" data-act="dextipx">OK</button></div></div>` : ''}</div>`;
   }
@@ -3142,7 +3145,7 @@ const Bots = (() => {
     continue() { const l = saves(); if (l.length > 1) { ui.slots = true; ui.delAsk = null; render(); return; } G = l[0]; ui.screen = 'play'; resetSel(); drive(); },
     load(el) { const g = saves().find(s => s.slot === +el.dataset.slot); if (!g) return; G = g; ui.slots = false; ui.screen = 'play'; resetSel(); drive(); },
     dextip(el) { const c = C[el.dataset.id], k = el.dataset.t, own = lsGet(DEXG) || {}, fnd = (lsGet(DEXF) || {})[c.id] || [], shs = lsGet(DEXS) || {};
-      ui.dexTip = k === 'loc' ? { h: '📍 Found', p: c.loc === 0 ? 'This version is a starter. It only comes to you if you choose it (or grow it) as your starter.' : fnd.length ? 'You have met this card in the wild at the places shown underneath.' : 'You have not met this card in the wild yet, so its place is still unknown.' }
+      ui.dexTip = k === 'loc' ? { h: '📍 Location', p: c.loc === 0 ? 'This version is a starter. It only comes to you if you choose it (or grow it) as your starter.' : fnd.length ? 'You have met this card in the wild at the places shown underneath.' : 'You have not met this card in the wild yet, so its place is still unknown.' }
         : k === 'cat' ? { h: 'Caught', p: own[c.id] ? 'This card has been in your collection.' : 'You have not had this card in your collection yet. Beating one in a fight only counts as seeing it.' }
         : { h: '✨ Shiny', p: shs[c.id] ? 'You have had a shiny one of these.' : 'You have never had a shiny version of this card. When you do, this tile lets you view it.' }; render(); },
     dextipx() { ui.dexTip = null; render(); },
