@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- **Pokémon Roll! — leader and location info:** tap a card in a gym leader's team to see it big, and close to return. The location info now uses the whole width: the pile and counts on the left, every type on the right, no scrolling on an iPad.
+
 - **Pokémon Roll! — five saved games, green checkmark:** you can keep up to five games at once (Continue lists them; tap one to play, the red cross deletes it with a second tap; New Game never overwrites). The Pokédex is shared by all of them. Beaten gym leaders now get a real green check (the old symbol turned into a grey emoji on iPad). The library box cover is redrawn, and "More" is the same size as "New Game".
 
 - **Pokémon Roll! — your cards on the map:** the fanned hand is never drawn smaller than a readable size (moves were tiny), has more room above and below so the bottom corners are not clipped, and every card keeps a little space under its last row.

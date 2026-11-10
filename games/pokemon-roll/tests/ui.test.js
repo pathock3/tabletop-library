@@ -206,6 +206,9 @@ test('ui: a gym leader has an eye that explains how their team was made; dice ca
     // only the cards you have actually seen them put down are shown face up; the rest stay card backs
     const n = await p.evaluate(() => { const G = window.__pokemonRoll.G; G.seenCards = { B1: [{ id: G.bosses.B1[0].id, sh: G.bosses.B1[0].sh }] }; window.__pokemonRoll.render(); return G.bosses.B1.length; });
     await p.click('.place[data-id=B1] .eye'); assert.equal(await p.locator('.sheet .card').count(), 1, 'one card seen, shown face up'); assert.equal(await p.locator('.sheet .gback').count(), n - 1, 'the others are still backs');
+    await p.click('.sheet .card'); assert.equal(await p.locator('.sheet .card').count(), 2, 'tap a seen card: it opens big (the team stays behind it)');
+    const big = await p.evaluate(() => [...document.querySelectorAll('.sheet .card')].map(c => c.getBoundingClientRect().width)); assert.ok(Math.max(...big) > 300, 'big');
+    await p.click('[data-act=gzclose] >> nth=-1'); assert.equal(await p.locator('.sheet .card').count(), 1, 'closing the big card returns to the team');
   } finally { await b.close(); }
 });
 
