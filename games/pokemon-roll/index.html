@@ -497,6 +497,8 @@ button{font:inherit;color:inherit;border:0;cursor:pointer}
 .sqs{display:flex;gap:8px;align-items:center;justify-content:center}.sq{width:46px;height:46px;border-radius:10px;display:grid;place-items:center;background:#0006;border:2px solid #ffffff33;font-size:24px;opacity:.5;color:#fff}.sq.on{opacity:1;background:#2fa35b55;border-color:#2fd16b}.sq .pbi{margin:0}.sq:not(.on) .pbi{filter:grayscale(1)}
 .shbtn{height:46px;padding:0 16px;border-radius:99px;border:3px solid #ffd23f;background:#ffd23f;color:#14110f;font:900 18px system-ui;box-shadow:0 4px 0 #8a6a00}.shbtn.on{background:#fff;border-color:#fff}.shbtn.off{background:none;border:3px dashed #ffffff44;color:#ffffff66;box-shadow:none;display:grid;place-items:center}/* the last row never touches the rounded bottom corners, and writing on a card never gets tiny */
 .card{padding-bottom:calc(var(--cw)*.04)}
+.slot{display:flex;gap:8px;align-items:stretch}.slotb{flex:1;display:flex;align-items:center;gap:12px;min-height:64px;padding:6px 12px;border:3px solid #14110f;border-radius:16px;background:#fff;text-align:left;font:inherit}.slotb img{width:52px;height:52px;object-fit:contain}.slotb span{display:flex;flex-direction:column}.slotb b{font:900 20px system-ui}.slotb small{font:600 14px system-ui;opacity:.75}.slotx{min-width:64px;border:3px solid #14110f;border-radius:16px;background:#ffb3a8;font:900 20px system-ui;color:#7a0d00}.slotx.ask{background:#e5383b;color:#fff;font-size:15px}
+.place .ck svg{width:78%;height:78%;filter:drop-shadow(0 5px 6px #000a)}
 </style>
 <script id="data">
 /* Pokémon Roll! — every rule number, the map, the bosses, the card sheet and the art live here. The engine and bots read this and hard-code none of it. */
@@ -2144,8 +2146,13 @@ const Bots = (() => {
   const set = Object.assign({ ai: 'normal', size: 'short', tips: true }, lsGet(SET) || {});
   set.ai = ({ medium: 'normal', hard: 'master' })[set.ai] || (D.ai[set.ai] ? set.ai : 'normal');
   const ui = { screen: 'menu', sel: null, die: null, aim: null, menu: false, play: null, pick: [], chooser: null, tip: null, burst: null, busy: false, toast: '', help: false, coll: false, rolling: 0, rolledFor: 0, rollTap: null, flash: {}, lastCw: 0, lastTurn: 0, zoomFrom: null, mapX: null, zoom: null, helpPage: 0, newAsk: false, settings: false, eye: null, records: false, recSize: null };
-  const saved = () => { const s = lsGet(KEY); return s && s.v === D.version && s.phase !== 'start' ? s : null; };
-  const save = () => { if (G) lsSet(KEY, G); };
+  // up to five games at once (slot 0 keeps the old single-save key); the Pokédex is shared by all of them
+  const SLOTS = 5, slotKey = i => i ? KEY + '-' + (i + 1) : KEY;
+  const saves = () => { const out = []; for (let i = 0; i < SLOTS; i++) { const s = lsGet(slotKey(i)); if (s && s.v === D.version && s.phase !== 'start') { s.slot = i; out.push(s); } } return out; };
+  const freeSlot = () => { for (let i = 0; i < SLOTS; i++) { const s = lsGet(slotKey(i)); if (!(s && s.v === D.version && s.phase !== 'start')) return i; } return -1; };
+  const saved = () => saves()[0] || null;
+  const save = () => { if (G) { if (G.slot == null) G.slot = Math.max(0, freeSlot()); G.at = Date.now(); lsSet(slotKey(G.slot), G); } };
+  const ago = t => { if (!t) return ''; const m = Math.round((Date.now() - t) / 60000); return m < 2 ? 'just now' : m < 60 ? m + ' min ago' : m < 1440 ? Math.round(m / 60) + ' h ago' : Math.round(m / 1440) + ' days ago'; };
   const tipsSeen = lsGet(TIPS) || {};
   // personal bests: the fewest turns to beat each gym leader, and the whole game, for each game length
   const SCORES = 'pokemon-roll-scores', HOF = 'pokemon-roll-hof', DEX = 'pokemon-roll-dex', DEXF = 'pokemon-roll-dexfound2', DEXC = 'pokemon-roll-dexcards', DEXS = 'pokemon-roll-dexshiny', DEXG = 'pokemon-roll-dexcaught';          // kept between games: which cards you have met or owned, and where each was met in the wild
@@ -2606,12 +2613,19 @@ const Bots = (() => {
       <div class="mhead"><div class="logo"><small>Pokémon</small><span class="rl">Roll!</span></div>
       <div class="mmenu">
         ${sv ? `<button class="tbtn go" data-act="continue">Continue</button>` : ''}
-        ${sv && ui.newAsk ? `<button class="tbtn red" data-act="new">This deletes your saved game.<br>Start over?</button>` : `<button class="tbtn ${sv ? 'alt' : 'go'}" data-act="new">New Game</button>`}
+        <button class="tbtn ${sv ? 'alt' : 'go'}" data-act="new">New Game</button>
         <button class="tbtn more" data-act="more">More</button>
       </div></div>
       ${map}
       <div class="foot">A game by Patrick Blim-Hockberger · Sprites © Nintendo / Game Freak / The Pokémon Company, for private play<br>build: ${esc(buildStamp())}</div>
     </div>${ui.screen === 'new' ? oakCard() : ''}`;
+  }
+  // the saved games: tap one to carry on; the red cross deletes it (tap twice)
+  function slotsSheet() {
+    const l = saves(), full = ui.full && freeSlot() < 0; if (!full) ui.full = false;
+    return `<div class="sheet" data-act="closeslots"><div class="box" data-stop="1" style="max-width:460px;display:flex;flex-direction:column;gap:10px"><h2>Saved games</h2>${full ? `<p style="margin:0;font-weight:700">All ${SLOTS} slots are full. Delete one to start a new game.</p>` : ''}
+      ${l.map(s => { const sd = D.starters.find(x => x.key === s.starter), cid = (s.coll.find(c => c.starter) || s.coll[0] || {}).id; return `<div class="slot"><button class="slotb" data-act="load" data-slot="${s.slot}">${cid ? `<img src="${art(cid, s.coll.some(c => c.starter && c.sh))}" alt="">` : ''}<span><b>${esc(sd ? sd.name || sd.key : 'Game')}</b><small>${(s.cdice || []).length} dice · ${esc((D.ai[s.ai] || {}).label || s.ai)} · ${esc(ago(s.at))}</small></span></button><button class="slotx${ui.delAsk === s.slot ? ' ask' : ''}" data-act="delslot" data-slot="${s.slot}" aria-label="Delete">${ui.delAsk === s.slot ? 'Delete?' : '✕'}</button></div>`; }).join('')}
+      <button class="btn ghost" data-act="closeslots">Close</button></div></div>`;
   }
   const moreSheet = () => `<div class="sheet" data-act="closemore"><div class="box" data-stop="1" style="max-width:420px;display:flex;flex-direction:column;gap:12px"><h2>More</h2>
     <button class="btn alt" data-act="help">How to Play</button><button class="btn alt" data-act="records">Hall of Fame</button><button class="btn alt" data-act="dex">Pokédex</button><button class="btn ghost" data-act="closemore">Close</button></div></div>`;
@@ -2741,9 +2755,9 @@ const Bots = (() => {
         const left = E.deckSize(G, n.loc);
         return `<button class="place deck${open ? '' : ' lock'}" style="left:${cx - 62}px;top:${cy - 87}px" data-act="node" data-id="${n.id}" data-id2="${n.id}" aria-label="${esc(n.name)}, ${left} cards">${deckPile(n.loc, { pw: 124 })}${open ? `<div class="eye" data-act="eye" data-id="${n.id}" aria-label="What is left in this deck">i</div>` : '<div class="lk">🔒</div>'}</button>`;
       }
-      if (n.kind === 'boss') return `<button class="place deck gym${open ? '' : ' lock'}${done ? ' done' : ''}${next ? ' next' : ''}" style="left:${cx - 62}px;top:${cy - 87}px" data-act="node" data-id="${n.id}" data-id2="${n.id}" aria-label="${esc(n.name)}">${deckPile(null, { pw: 124, svg: gymBack(n), dk: gymPal(n)[0] })}<div class="eye" data-act="eye" data-id="${n.id}" aria-label="Their team">i</div>${open ? '' : '<div class="lk">🔒</div>'}${done ? '<div class="ck">✔</div>' : ''}</button>`;
+      if (n.kind === 'boss') return `<button class="place deck gym${open ? '' : ' lock'}${done ? ' done' : ''}${next ? ' next' : ''}" style="left:${cx - 62}px;top:${cy - 87}px" data-act="node" data-id="${n.id}" data-id2="${n.id}" aria-label="${esc(n.name)}">${deckPile(null, { pw: 124, svg: gymBack(n), dk: gymPal(n)[0] })}<div class="eye" data-act="eye" data-id="${n.id}" aria-label="Their team">i</div>${open ? '' : '<div class="lk">🔒</div>'}${done ? '<div class="ck"><svg viewBox="0 0 100 100" aria-hidden="true"><path d="M18 54L40 76 84 24" fill="none" stroke="#0a3d1f" stroke-width="26" stroke-linecap="round" stroke-linejoin="round"/><path d="M18 54L40 76 84 24" fill="none" stroke="#2fd16b" stroke-width="16" stroke-linecap="round" stroke-linejoin="round"/></svg></div>' : ''}</button>`;
       return `<button class="place${open ? '' : ' lock'}${done ? ' done' : ''}${next ? ' next' : ''}${n.kind === 'boss' ? ' gym' : ''}" style="left:${cx - TILE_W / 2}px;top:${cy - 92}px" data-act="node" data-id="${n.id}" data-id2="${n.id}">
-        <svg viewBox="0 0 160 120" role="img" aria-label="${esc(n.name)}">${sceneOf(n)}</svg>${open ? '' : '<div class="lk">🔒</div>'}${done ? '<div class="ck">✔</div>' : ''}${n.kind === 'boss' ? `<div class="eye" data-act="eye" data-id="${n.id}" aria-label="How their team is made">i</div>` : ''}
+        <svg viewBox="0 0 160 120" role="img" aria-label="${esc(n.name)}">${sceneOf(n)}</svg>${open ? '' : '<div class="lk">🔒</div>'}${done ? '<div class="ck"><svg viewBox="0 0 100 100" aria-hidden="true"><path d="M18 54L40 76 84 24" fill="none" stroke="#0a3d1f" stroke-width="26" stroke-linecap="round" stroke-linejoin="round"/><path d="M18 54L40 76 84 24" fill="none" stroke="#2fd16b" stroke-width="16" stroke-linecap="round" stroke-linejoin="round"/></svg></div>' : ''}${n.kind === 'boss' ? `<div class="eye" data-act="eye" data-id="${n.id}" aria-label="How their team is made">i</div>` : ''}
         <div class="pl"><b>${esc(n.name)}</b></div></button>`;
     }).join('');
     return `${menu ? '' : `<div class="top maptop"><div class="topl"></div><div class="t mapt">Kanto Map</div><div class="topr"><button class="chip" data-act="chipinfo" aria-label="Your dice">🎲 ×${E.slots(G)}</button><button class="mypile${ui.coll ? ' away' : ''}" data-act="coll" aria-label="Your cards">${myPile()}</button><button class="ib mbtn" data-act="menu" aria-label="Menu">☰</button></div></div>`}
@@ -3077,6 +3091,7 @@ const Bots = (() => {
     if (ui.dex) h += dexSheet();
     if (ui.dex && ui.dexCard) h += dexCardSheet();
     if (ui.more) h += moreSheet();
+    if (ui.slots) h += slotsSheet();
     if (ui.menu) h += menuSheet();
     if (ui.settings) h += settingsSheet();
     if (ui.help) h += helpSheet();
@@ -3109,12 +3124,15 @@ const Bots = (() => {
 
   // ---------------------------------------------------------------- taps
   const A = {
-    continue() { G = saved(); ui.screen = 'play'; resetSel(); drive(); },
+    continue() { const l = saves(); if (l.length > 1) { ui.slots = true; ui.delAsk = null; render(); return; } G = l[0]; ui.screen = 'play'; resetSel(); drive(); },
+    load(el) { const g = saves().find(s => s.slot === +el.dataset.slot); if (!g) return; G = g; ui.slots = false; ui.screen = 'play'; resetSel(); drive(); },
+    closeslots() { ui.slots = false; ui.delAsk = null; render(); },
+    delslot(el) { const i = +el.dataset.slot; if (ui.delAsk !== i) { ui.delAsk = i; render(); return; } try { localStorage.removeItem(slotKey(i)); } catch (e) { /* nothing to remove */ } ui.delAsk = null; if (!saves().length) ui.slots = false; render(); },
     new() {
-      if (saved() && !ui.newAsk) { ui.newAsk = true; render(); setTimeout(() => { if (ui.newAsk) { ui.newAsk = false; if (ui.screen === 'menu') render(); } }, 4000); return; }
-      ui.newAsk = false; ui.seed = ui.seed || (Date.now() % 2147483647); ui.screen = 'new'; render();
+      if (freeSlot() < 0) { ui.slots = true; ui.full = true; ui.delAsk = null; render(); return; }
+      ui.seed = ui.seed || (Date.now() % 2147483647); ui.screen = 'new'; render();
     },
-    menu0() { ui.menu = false; ui.newAsk = false; ui.screen = 'menu'; render(); },
+    menu0() { ui.menu = false; ui.newAsk = false; ui.slots = false; ui.screen = 'menu'; render(); },
     more() { ui.more = true; render(); }, closemore() { ui.more = false; render(); },
     help() { ui.help = true; ui.more = false; ui.helpPage = 0; ui.menu = false; render(); }, closehelp() { ui.help = false; render(); },
     hnext() { ui.helpPage = Math.min(HELP.length - 1, (ui.helpPage || 0) + 1); render(); }, hprev() { ui.helpPage = Math.max(0, (ui.helpPage || 0) - 1); render(); },

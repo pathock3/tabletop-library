@@ -135,15 +135,20 @@ test('ui: How to Play is a single screen with three steps and pictures; the map 
   } finally { await b.close(); }
 });
 
-test('ui: New Game asks first when there is a saved game to lose', { skip: !chromium }, async () => {
+test('ui: up to five games are saved side by side; New Game never overwrites; Continue lists them', { skip: !chromium }, async () => {
   const b = await chromium.launch(), p = await b.newPage({ viewport: { width: 820, height: 1180 } });
   try {
     await p.goto(URL); await p.click('[data-act=new]'); assert.equal(await p.locator('[data-act=starter]').count(), 5, 'no save: straight to choosing a partner');
     await p.click('[data-act=starter][data-k=squirtle]'); await p.reload();
-    await p.click('[data-act=new]'); assert.equal(await p.locator('[data-act=starter]').count(), 0, 'the first tap does not start over');
-    assert.match(await p.innerText('[data-act=new]'), /deletes your saved game/i);
-    await p.click('[data-act=new]'); assert.equal(await p.locator('[data-act=starter]').count(), 5, 'the second tap does');
-    await p.evaluate(() => window.__pokemonRoll.A.menu0()); assert.equal(await p.locator('[data-act=continue]').count(), 1, 'the old game is still saved until a partner is chosen');
+    await p.click('[data-act=new]'); assert.equal(await p.locator('[data-act=starter]').count(), 5, 'a new game starts at once, the old one is kept');
+    await p.click('[data-act=starter][data-k=charmander]'); await p.reload();
+    await p.click('[data-act=continue]'); assert.equal(await p.locator('[data-act=load]').count(), 2, 'two saved games to choose from');
+    await p.click('[data-act=load][data-slot="1"]'); assert.equal(await p.evaluate(() => window.__pokemonRoll.G.starter), 'charmander');
+    for (let i = 0; i < 3; i++) { await p.evaluate(() => window.__pokemonRoll.A.menu0()); await p.click('[data-act=new]'); await p.click('[data-act=starter][data-k=bulbasaur]'); }
+    await p.evaluate(() => window.__pokemonRoll.A.menu0()); await p.click('[data-act=new]');
+    assert.equal(await p.locator('[data-act=starter]').count(), 0, 'five saves: no room'); assert.match(await p.innerText('.sheet'), /slots are full/i);
+    await p.click('[data-act=delslot][data-slot="0"]'); await p.click('[data-act=delslot][data-slot="0"]');
+    assert.equal(await p.locator('[data-act=load]').count(), 4, 'delete asks twice, then the slot is free');
   } finally { await b.close(); }
 });
 
