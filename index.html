@@ -268,22 +268,28 @@ const LIBRARY = {
     // Pokémon Roll!: a red-and-white ball with a die for a button, rolling dice around it
     'pokemon-roll': () => {
       const pip = (x, y) => `<circle cx="${x}" cy="${y}" r="5" fill="#14110f"/>`;
-      const die = (x, y, r, n) => { const P = { 1: [[0, 0]], 2: [[-9, -9], [9, 9]], 3: [[-9, -9], [0, 0], [9, 9]], 4: [[-9, -9], [9, -9], [-9, 9], [9, 9]], 5: [[-9, -9], [9, -9], [0, 0], [-9, 9], [9, 9]], 6: [[-9, -9], [9, -9], [-9, 0], [9, 0], [-9, 9], [9, 9]] }[n]; return `<g transform="translate(${x} ${y}) rotate(${r})"><rect x="-23" y="-23" width="46" height="46" rx="9" fill="#fff" stroke="#14110f" stroke-width="4"/>${P.map(([a, b]) => pip(a, b)).join('')}</g>`; };
+      const die = (x, y, r, n) => { const P = { 1: [[0, 0]], 2: [[-9, -9], [9, 9]], 3: [[-9, -9], [0, 0], [9, 9]], 4: [[-9, -9], [9, -9], [-9, 9], [9, 9]], 5: [[-9, -9], [9, -9], [0, 0], [-9, 9], [9, 9]], 6: [[-9, -9], [9, -9], [-9, 0], [9, 0], [-9, 9], [9, 9]] }; return `<g transform="translate(${x} ${y}) rotate(${r})"><rect x="-24" y="-24" width="48" height="48" rx="9" fill="#fff" stroke="#14110f" stroke-width="4"/>${P[n].map(([a, b]) => pip(a, b)).join('')}</g>`; };
+      // a tiny trading card: coloured frame, art window, two move bars
+      const tc = (x, y, r, c1, c2) => `<g transform="translate(${x} ${y}) rotate(${r})"><rect x="-38" y="-54" width="76" height="108" rx="8" fill="${c1}" stroke="#14110f" stroke-width="4"/><rect x="-30" y="-46" width="60" height="50" rx="5" fill="${c2}" stroke="#14110f" stroke-width="2.5"/><circle cx="0" cy="-21" r="14" fill="#fff" opacity=".85"/><rect x="-30" y="9" width="60" height="13" rx="4" fill="#fffd" stroke="#14110f" stroke-width="2"/><rect x="-30" y="26" width="60" height="13" rx="4" fill="#fffd" stroke="#14110f" stroke-width="2"/></g>`;
       return `<svg viewBox="0 0 300 380" role="img" aria-label="Pokémon Roll!"><defs>
-        <linearGradient id="prB" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#27478f"/><stop offset=".6" stop-color="#12234a"/><stop offset="1" stop-color="#0a1229"/></linearGradient>
-        <linearGradient id="prT" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff2a8"/><stop offset="1" stop-color="#ffb703"/></linearGradient>
-        <radialGradient id="prG" cx="50%" cy="50%" r="50%"><stop offset="0" stop-color="#ffd23f" stop-opacity=".55"/><stop offset="1" stop-color="#ffd23f" stop-opacity="0"/></radialGradient></defs>
-        <rect width="300" height="380" fill="url(#prB)"/><circle cx="150" cy="212" r="150" fill="url(#prG)"/>
-        ${[[30, 40, 3], [262, 66, 2], [44, 330, 1]].map(([x, y, r]) => `<path d="M${x} ${y - 9}L${x + 3} ${y - 3} ${x + 9} ${y} ${x + 3} ${y + 3} ${x} ${y + 9} ${x - 3} ${y + 3} ${x - 9} ${y} ${x - 3} ${y - 3}Z" fill="#fff6a8" opacity=".9"/>`).join('')}
-        <circle cx="150" cy="208" r="96" fill="#fff" stroke="#14110f" stroke-width="7"/>
-        <path d="M54 208a96 96 0 0 1 192 0Z" fill="#e5383b" stroke="#14110f" stroke-width="7" stroke-linejoin="round"/>
-        <path d="M70 160a86 86 0 0 1 40-40" fill="none" stroke="#fff" stroke-width="9" stroke-linecap="round" opacity=".6"/>
-        <rect x="50" y="201" width="200" height="14" fill="#14110f"/>
-        <circle cx="150" cy="208" r="31" fill="#fff" stroke="#14110f" stroke-width="7"/>
-        <circle cx="150" cy="208" r="14" fill="#fff" stroke="#14110f" stroke-width="4"/>
-        ${die(70, 296, -14, 6)}${die(150, 316, 8, 3)}${die(230, 292, 16, 5)}
-        <text x="150" y="52" text-anchor="middle" font-size="24" font-weight="900" letter-spacing="5" fill="#fff" stroke="#14110f" stroke-width="7" stroke-linejoin="round" paint-order="stroke">Pokémon</text>
-        <text x="150" y="100" text-anchor="middle" font-size="50" font-weight="900" fill="url(#prT)" stroke="#14110f" stroke-width="9" stroke-linejoin="round" paint-order="stroke">Roll!</text>
+        <linearGradient id="prB" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#3a63c4"/><stop offset=".55" stop-color="#15295c"/><stop offset="1" stop-color="#080e22"/></linearGradient>
+        <linearGradient id="prT" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff7b8"/><stop offset="1" stop-color="#ffb703"/></linearGradient>
+        <radialGradient id="prG" cx="50%" cy="50%" r="50%"><stop offset="0" stop-color="#ffe066" stop-opacity=".7"/><stop offset="1" stop-color="#ffe066" stop-opacity="0"/></radialGradient>
+        <radialGradient id="prS" cx="35%" cy="30%" r="80%"><stop offset="0" stop-color="#fff"/><stop offset="1" stop-color="#cfd8e6"/></radialGradient></defs>
+        <rect width="300" height="380" fill="url(#prB)"/>
+        ${Array.from({ length: 10 }, (_, i) => { const a = i * Math.PI / 5; return `<path d="M150 190L${(150 + 260 * Math.cos(a - .09)).toFixed(0)} ${(190 + 260 * Math.sin(a - .09)).toFixed(0)} ${(150 + 260 * Math.cos(a + .09)).toFixed(0)} ${(190 + 260 * Math.sin(a + .09)).toFixed(0)}Z" fill="#fff" opacity=".05"/>`; }).join('')}
+        <circle cx="150" cy="190" r="140" fill="url(#prG)"/>
+        ${[[28, 120, 3], [272, 150, 2], [40, 250, 2], [262, 262, 3]].map(([x, y]) => `<path d="M${x} ${y - 9}L${x + 3} ${y - 3} ${x + 9} ${y} ${x + 3} ${y + 3} ${x} ${y + 9} ${x - 3} ${y + 3} ${x - 9} ${y} ${x - 3} ${y - 3}Z" fill="#fff6a8" opacity=".9"/>`).join('')}
+        ${tc(70, 214, -20, '#ff8a3d', '#ffd9a8')}${tc(230, 214, 20, '#46b3ff', '#c9ecff')}${tc(150, 216, 0, '#7bd155', '#d8f5c6')}
+        <g transform="translate(150 128) scale(.8) translate(-150 -150)"><circle cx="150" cy="150" r="82" fill="url(#prS)" stroke="#14110f" stroke-width="7"/>
+        <path d="M68 150a82 82 0 0 1 164 0Z" fill="#e5383b" stroke="#14110f" stroke-width="7" stroke-linejoin="round"/>
+        <path d="M84 112a74 74 0 0 1 36-30" fill="none" stroke="#fff" stroke-width="9" stroke-linecap="round" opacity=".6"/>
+        <rect x="64" y="143" width="172" height="14" fill="#14110f"/>
+        <circle cx="150" cy="150" r="28" fill="#fff" stroke="#14110f" stroke-width="7"/>
+        <g transform="translate(150 150) scale(.5)"><rect x="-24" y="-24" width="48" height="48" rx="9" fill="#ffd23f" stroke="#14110f" stroke-width="5"/>${[[-9, -9], [9, -9], [0, 0], [-9, 9], [9, 9]].map(([a, b]) => pip(a, b)).join('')}</g></g>
+        ${die(52, 318, -14, 6)}${die(150, 346, 8, 3)}${die(248, 316, 16, 5)}
+        <text x="150" y="36" text-anchor="middle" font-size="25" font-weight="900" letter-spacing="6" fill="#fff" stroke="#14110f" stroke-width="7" stroke-linejoin="round" paint-order="stroke">Pokémon</text>
+        <text x="150" y="296" text-anchor="middle" font-size="58" font-weight="900" fill="url(#prT)" stroke="#14110f" stroke-width="10" stroke-linejoin="round" paint-order="stroke">Roll!</text>
         </svg>`;
     },
     // Stackjack: a green felt table, a fan of numbered cards (no suits) and a die
