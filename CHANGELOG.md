@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- **Pokémon Roll! — new game seed, bigger starters:** each time you open New Game (after Back) it rolls a fresh seed, so the 10% shiny-starter chance is new every time. The starter cards are bigger (three on the top row, two below).
+
 - **Pokémon Roll! — Pokédex:** every Pokémon is always shown; the two toggles, Seen and Caught, just dim the others (with Caught on, ones you have only seen turn greyscale). On a Pokémon, the three tiny icons are now big labelled tiles (Found / Caught / Shiny) saying Yes or Not yet; tap one for a plain explanation (the Shiny tile still switches the card). Places are shown larger under the card.
 
 - **Pokémon Roll! — leader and location info:** tap a card in a gym leader's team to see it big, and close to return. The location info now uses the whole width: the pile and counts on the left, every type on the right, no scrolling on an iPad.

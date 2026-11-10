@@ -2607,7 +2607,7 @@ const Bots = (() => {
   const oakImg = (cls) => `<img class="oak pix ${cls || ''}" src="data:image/png;base64,${D.trainerArt.OAK}" alt="Professor Oak">`;
   const oakCard = () => `<div class="oakov"><div class="oakbox" data-stop="1">
       <div class="oaktalk">${oakImg()}<div class="bubble"><b class="who">Professor Oak</b><p>This is the only Pokémon you will get that will <b>level up and evolve</b>. All the rest are static cards.</p><p>Choose a starter you want to evolve with you as you progress through the game.</p></div></div>
-      <div class="oakst">${(() => { const shk = E.starterShiny(ui.seed || 0), per = innerWidth >= 700 ? 5 : 3, cw = Math.max(96, Math.min(150, Math.floor((Math.min(innerWidth, 720) - 24 - (per - 1) * 10) / per))); return D.starters.map(st => card({ id: st.levels[D.rules.startLevel - 1], sh: shk === st.key ? 1 : 0 }, { cw, attr: `data-act="starter" data-k="${st.key}"` })).join(''); })()}</div>
+      <div class="oakst">${(() => { const shk = E.starterShiny(ui.seed || 0), per = 3, cw = Math.max(100, Math.min(225, Math.floor((Math.min(innerWidth, 760) - 40 - (per - 1) * 10) / per), Math.floor((viewH() - 440) / 2 / CH))); return D.starters.map(st => card({ id: st.levels[D.rules.startLevel - 1], sh: shk === st.key ? 1 : 0 }, { cw, attr: `data-act="starter" data-k="${st.key}"` })).join(''); })()}</div>
       <div class="oakopts"><span>Computer:</span>${['easy', 'normal', 'master'].map(x => `<button class="chip${set.ai === x ? ' on' : ''}" data-act="ai" data-v="${x}">${D.ai[x].label}</button>`).join('')}<span>Length:</span>${[['short', 'Regular'], ['long', 'Extra Long']].map(([x, l]) => `<button class="chip${set.size === x ? ' on' : ''}" data-act="size" data-v="${x}">${l}</button>`).join('')}</div>
       <button class="btn ghost" data-act="menu0">Back</button></div></div>`;
   // the main menu: the map itself, dealt out on the table, with the title and the buttons above it
@@ -3154,7 +3154,7 @@ const Bots = (() => {
       if (freeSlot() < 0) { ui.slots = true; ui.full = true; ui.delAsk = null; render(); return; }
       ui.seed = ui.seed || (Date.now() % 2147483647); ui.screen = 'new'; render();
     },
-    menu0() { ui.menu = false; ui.newAsk = false; ui.slots = false; ui.screen = 'menu'; render(); },
+    menu0() { ui.menu = false; ui.newAsk = false; ui.slots = false; ui.seed = null; ui.screen = 'menu'; render(); },
     more() { ui.more = true; render(); }, closemore() { ui.more = false; render(); },
     help() { ui.help = true; ui.more = false; ui.helpPage = 0; ui.menu = false; render(); }, closehelp() { ui.help = false; render(); },
     hnext() { ui.helpPage = Math.min(HELP.length - 1, (ui.helpPage || 0) + 1); render(); }, hprev() { ui.helpPage = Math.max(0, (ui.helpPage || 0) - 1); render(); },
