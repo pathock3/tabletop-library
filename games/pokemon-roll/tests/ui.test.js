@@ -381,7 +381,7 @@ test('ui: choosing a card asks below the cards, goes straight to the map; a loss
     assert.equal(await p.locator('.leadtalk .leadimg').count(), 1, 'the leader is on screen while they talk'); assert.equal(await p.locator('.leadtalk .gift .die').count(), 1, 'and a die is shown when they hand you one');
     assert.equal(await p.locator('[data-act=pickcard]').count(), 0, 'the first screen is just the leader'); await p.click('[data-act=resnext]');
     await p.click('.respile'); assert.ok(await p.locator('.handov').count() >= 1, 'while choosing, you can look at your hand'); await p.mouse.click(400, 1100); await p.waitForTimeout(500);
-    await p.click('[data-act=pickcard] >> nth=0');
+    await p.click('[data-act=pickcard] >> nth=0'); assert.equal(await p.locator('[data-act=pickok]:not([disabled])').count(), 1, 'a card chosen: OK is ready'); await p.click('[data-act=pickcard] >> nth=0'); assert.equal(await p.locator('[data-act=pickok][disabled]').count(), 1, 'tapping it again lets go'); assert.equal(await p.locator('[data-act=pickno]').count(), 0, 'no Choose again button'); assert.doesNotMatch(await p.innerText('.scr'), /Tap OK|Choose one to join/i, 'nothing said twice'); await p.click('[data-act=pickcard] >> nth=0');
     const r = await p.evaluate(() => { const bar = document.querySelector('.pickbar').getBoundingClientRect(), cards = [...document.querySelectorAll('[data-act=pickcard]')].map(c => c.getBoundingClientRect().bottom); return { bar: bar.top, cards: Math.max(...cards), sheet: document.querySelectorAll('.sheet').length }; });
     assert.ok(r.bar >= r.cards - 1, 'the question sits below the cards'); assert.equal(r.sheet, 0, 'not over them');
     await p.click('[data-act=pickok]'); assert.equal(await p.locator('.top').count(), 1, 'straight back to the map'); assert.equal(await p.locator('.place').count(), 16);
@@ -447,6 +447,49 @@ test('ui: a shiny card shows its extra heart; with nothing to decide the side ba
     await p.evaluate(() => { const g = window.__pokemonRoll.G.battle; g.dice[0] = [3]; g.rr[0] = 0; g.rrFace[0] = []; g.asg[0] = {}; window.__pokemonRoll.render(); });
     await p.waitForTimeout(1300); assert.equal(await p.locator('.rail.rgo').count(), 1, 'nothing to decide: the side bar is ready'); assert.match(await p.innerText('.rail .status'), /Nothing to decide/);
     await p.locator('.rail.rgo .status').click(); await p.waitForTimeout(500); assert.equal(await p.evaluate(() => window.__pokemonRoll.G.battle.stage !== 'assign' || !!document.querySelector('.phl, .mvbub')), true, 'the round plays');
+    assert.deepEqual(errs, []);
+  } finally { await b.close(); }
+});
+
+test('ui: the Pokéball in the side bar returns a Pokémon before the roll (tap it, tap a card, choose who slides over); it can be cancelled and is gone after the roll', { skip: !chromium }, async () => {
+  const b = await chromium.launch(), p = await b.newPage({ viewport: { width: 820, height: 1180 } });
+  const errs = []; p.on('pageerror', e => errs.push(e.message));
+  try {
+    await p.goto(URL); await p.evaluate(() => { localStorage.setItem('pokemon-roll-tips', JSON.stringify({ place: 1, dice: 1, roll: 1, end: 1, shiny: 1 })); }); await p.reload();
+    await p.evaluate(() => { const E = Engine, T = E._t, s = E.newGame({ seed: 1, starter: 'bulbasaur' }); s.phase = 'battle'; const h = ['1.1', '4.1', '7.1'], g = ['10', '13', '16']; const b = T.startBattle(s, 'loc', 'L1', h.map(id => ({ id, sh: 0 })), g.map(id => ({ id, sh: 0 }))); b.hand = [[], []]; b.cols = [0, 1, 2].map(i => [b.units[i].uid, b.units[3 + i].uid]); T.startRound(s); window.__pokemonRoll.setG(s); });
+    assert.equal(await p.locator('.rail .rtop .ib').count(), 3, 'return, flee and menu'); assert.equal(await p.locator('.card .rcl').count(), 0, 'nothing added to the cards');
+    await p.click('.pball', { force: true }); assert.match(await p.innerText('.rail .status'), /Tap the Pokémon to return/); await p.click('[data-act=retmode].btn', { force: true }); assert.equal(await p.locator('[data-act=recallpick]').count(), 0, 'cancelled');
+    await p.click('.pball', { force: true }); await p.locator('.card[data-act=recallpick]').nth(1).click(); assert.match(await p.innerText('.rail .status'), /Slide a neighbour/); await p.locator('.card[data-act=slide]').first().click();
+    assert.equal(await p.evaluate(() => window.__pokemonRoll.G.battle.cols.length), 3, 'a neighbour slid over to face the opponent'); assert.equal(await p.evaluate(() => window.__pokemonRoll.G.battle.units.filter(u => u.recalled).length), 1);
+    await p.mouse.click(300, 600); await p.waitForTimeout(1300); assert.equal(await p.locator('.pball').count(), 0, 'after the roll there is no way to return');
+    assert.deepEqual(errs, []);
+  } finally { await b.close(); }
+});
+
+test('ui: dice that were thrown again come after the ones you kept, each group highest first, so they never swap places with them', { skip: !chromium }, async () => {
+  const b = await chromium.launch(), p = await b.newPage({ viewport: { width: 820, height: 1180 } });
+  const errs = []; p.on('pageerror', e => errs.push(e.message));
+  try {
+    await p.goto(URL); await p.evaluate(() => { localStorage.setItem('pokemon-roll-tips', JSON.stringify({ place: 1, dice: 1, roll: 1, end: 1, shiny: 1 })); }); await p.reload();
+    await p.evaluate(() => { const E = Engine, T = E._t, s = E.newGame({ seed: 1, starter: 'bulbasaur' }); s.phase = 'battle'; const h = ['1.1', '4.1', '7.1', '10'], g = ['10', '13', '16', '19']; const b = T.startBattle(s, 'loc', 'L1', h.map(id => ({ id, sh: 0 })), g.map(id => ({ id, sh: 0 }))); b.hand = [[], []]; b.cols = [0, 1, 2, 3].map(i => [b.units[i].uid, b.units[4 + i].uid]); T.startRound(s); b.dice[0] = [3, 6, 1, 4]; b.locked[0] = { 1: 1 }; window.__pokemonRoll.setG(s); });
+    await p.mouse.click(300, 600); await p.waitForTimeout(1400);
+    assert.deepEqual(await p.locator('.rail .die').allInnerTexts(), ['4', '3', '1', '6'], 'kept dice first (highest first), then the ones thrown again');
+    assert.deepEqual(errs, []);
+  } finally { await b.close(); }
+});
+
+test('ui: when every die still to give out shows the same number, an Auto-assign button hands them all out without locking the round in', { skip: !chromium }, async () => {
+  const b = await chromium.launch(), p = await b.newPage({ viewport: { width: 820, height: 1180 } });
+  const errs = []; p.on('pageerror', e => errs.push(e.message));
+  try {
+    await p.goto(URL); await p.evaluate(() => { localStorage.setItem('pokemon-roll-tips', JSON.stringify({ place: 1, dice: 1, roll: 1, end: 1, shiny: 1 })); }); await p.reload();
+    await p.evaluate(() => { const E = Engine, T = E._t, s = E.newGame({ seed: 1, starter: 'bulbasaur' }); s.phase = 'battle'; const h = ['1.1', '4.1', '7.1', '10'], g = ['10', '13', '16', '19']; const b = T.startBattle(s, 'loc', 'L1', h.map(id => ({ id, sh: 0 })), g.map(id => ({ id, sh: 0 }))); b.hand = [[], []]; b.cols = [0, 1, 2, 3].map(i => [b.units[i].uid, b.units[4 + i].uid]); T.startRound(s); b.dice[0] = [6, 1, 1, 1]; b.rr[0] = 1; window.__pokemonRoll.setG(s); });
+    await p.mouse.click(300, 600); await p.waitForTimeout(1400);
+    assert.equal(await p.locator('[data-act=autoassign]').count(), 0, 'not while the dice differ and nothing is given out');
+    await p.evaluate(() => { const g = window.__pokemonRoll.G.battle; Engine.apply(window.__pokemonRoll.G, { t: 'assign', side: 0, uid: g.units[0].uid, die: 0 }); window.__pokemonRoll.render(); });
+    assert.equal(await p.locator('[data-act=autoassign]').count(), 1, 'the 6 is given out, the three 1s are left: Auto-assign');
+    await p.click('[data-act=autoassign]'); assert.equal(await p.evaluate(() => Object.keys(window.__pokemonRoll.G.battle.asg[0]).length), 4, 'all handed out'); assert.equal(await p.evaluate(() => window.__pokemonRoll.G.battle.stage), 'assign', 'but not locked in');
+    assert.equal(await p.locator('.rail.rgo').count(), 1, 'a tap on the side bar now plays the round');
     assert.deepEqual(errs, []);
   } finally { await b.close(); }
 });

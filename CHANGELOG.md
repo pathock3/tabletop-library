@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- **Pokémon Roll! — return, choosing, dice:** a Pokéball button in the side bar (before Flee and Menu, all bigger) returns a Pokémon before the roll: tap it, tap the Pokémon, choose who slides over; Cancel backs out. Choosing a card is tap, tap again to let go, OK, with the repeated wording gone. Dice thrown again no longer swap places with the ones you kept. An Auto-assign button appears when every die still to give out shows the same number.
 - **Pokémon Roll! — gym and place info:** a leader's info says their team consists of cards from these locations, with every card in one line at the same size (seen ones face up, the rest backs, staying in place). The full place info (piles and counts) is back when you tap a place on the map; the short version only shows inside a leader's info.
 - **Pokémon Roll! — choosing a card:** a small pile of your cards sits in the corner while you choose (or choose how to evolve): tap it to look at your hand, including after Bill. Bill no longer says you can only keep one you do not have yet.
 - **Pokémon Roll! — choosing a starter:** the five starter cards are shown as the real cards you would get, shiny ones included. There is a 10% chance that one starter (never more) is shiny, and then so are all its evolutions; starters are no longer rolled at the ordinary per-card rate.

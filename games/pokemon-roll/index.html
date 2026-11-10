@@ -486,6 +486,9 @@ button{font:inherit;color:inherit;border:0;cursor:pointer}
 <style>.lvarrow{flex:none;font:900 54px system-ui;color:#ffd23f;text-shadow:0 4px 0 #14110f}.scr>.center{margin:auto}</style>
 <style>.respile{position:fixed;right:12px;top:calc(env(safe-area-inset-top) + 8px);z-index:20}</style>
 <style>.gline{display:flex;flex-wrap:nowrap;gap:10px;justify-content:center;align-items:flex-start;padding:8px 0}.gcell{flex:none;display:flex;justify-content:center}.gcell .card{flex:none}</style>
+<style>.rail .rtop{gap:12px}.rail .rtop .ib{width:68px;height:68px;border-radius:18px;font-size:34px}.rail .rtop .ib.pball{display:grid;place-items:center}.pball i{display:block;width:40px;height:40px;border-radius:50%;border:4px solid #14110f;background:linear-gradient(#e53935 0 46%,#14110f 46% 54%,#fff 54%);position:relative}.pball i::after{content:'';position:absolute;left:50%;top:50%;width:13px;height:13px;margin:-8px 0 0 -8px;border-radius:50%;background:#fff;border:3px solid #14110f}.pball.on{background:#ffd23f;box-shadow:0 0 0 4px #fff}
+.pickbar .btn[disabled]{opacity:.35}.pwarn{font:800 17px system-ui;color:#ffd23f}.pickbar{flex-direction:column;gap:8px}</style>
+<style>.rail .rtop{flex-wrap:wrap;gap:8px;justify-content:flex-end}.rail .rtop .ib{width:62px;height:62px}</style>
 <script id="data">
 /* Pokémon Roll! — every rule number, the map, the bosses, the card sheet and the art live here. The engine and bots read this and hard-code none of it. */
 const GAME_DATA = {
@@ -2550,7 +2553,11 @@ const Bots = (() => {
     if (us.some(x => E.tags(x).some(g => ['mover', 'swapper', 'setDie', 'incDie', 'swapOnce', 'ditto'].indexOf(g.t) >= 0))) return false;
     return true;
   }
-  function autoAssign() { const b = G.battle, us = E.living(b, 0).filter(x => !x.skip); us.forEach((x, k) => { if (!b.asg[0][x.uid]) E.apply(G, { t: 'assign', side: 0, uid: x.uid, die: k }); }); }
+  // the dice not on a card yet and the cards still without one
+  function remaining(b) { const used = E.assignedDice(b, 0), free = b.dice[0].map((v, i) => i).filter(i => !used.has(i)), us = E.living(b, 0).filter(x => !x.skip && !b.asg[0][x.uid]); return { free, us }; }
+  // every die still to give out shows the same number and there are enough of them: it does not matter who gets which, so one tap can hand them all out (it does not lock the round in)
+  function canAutoAssign(b) { if (!b || b.colMode || b.stage !== 'assign' || !b.gmReady) return false; const { free, us } = remaining(b); return us.length > 0 && free.length >= us.length && free.every(i => b.dice[0][i] === b.dice[0][free[0]]); }
+  function autoAssign() { const b = G.battle, { free, us } = remaining(b); us.forEach((x, k) => { E.apply(G, { t: 'assign', side: 0, uid: x.uid, die: free[k] }); }); }
 
   // ---------------------------------------------------------------- tips (once per device)
   const TIPTEXT = {
@@ -2791,7 +2798,7 @@ const Bots = (() => {
       }
       const pf = assign && !waitRoll && u.side === 0 && !ko && ui.die != null ? b.dice[0][ui.die] : 0;
       const dcol1 = null, dbonus = false;
-      return card(u, { cw, dieCol: dcol1, dieBonus: dbonus, foe: u.side === 1, ko: koOf(u), hp: hpOf(u), start: (b.stage === 'assign' || b.stage === 'place') ? hpOf(u) : (b.before && b.before[u.uid] != null ? b.before[u.uid] : hpOf(u)), shield: u.shield || 0, face, sp: spOn, pf, die, chg: chgOf(u), land: ui.landed === u.uid, heroDie: u.side === 0, dieAttr: !colM && u.side === 0 && assign && !(info && b.fixed && b.fixed[0] && info.die.some(i => b.fixed[0][i])) ? `data-act="unmv" data-uid="${u.uid}"${info && info.die.length === 1 ? ` data-i="${info.die[0]}"` : ''}` : '', mark, ab: abil, recall: assign && !b.rolled && b.round === 1 && u.side === 0 && !ko && E.living(b, 0).length > 1 ? (ui.recall === u.uid ? 'sure' : 'ask') : '', cls: clsOf(u) + (ui.slide && ui.slide.opts.indexOf(u.uid) >= 0 ? ' sel act' : '') + (ui.swap && u.side === 1 && !ko ? (ui.swap.picks.indexOf(u.uid) >= 0 ? ' sel act' : ' sel') : ''), pop: popOf(u), attr: ui.slide && ui.slide.opts.indexOf(u.uid) >= 0 ? `data-act="slide" data-uid="${u.uid}"` : `data-act="unit" data-uid="${u.uid}"` });
+      return card(u, { cw, dieCol: dcol1, dieBonus: dbonus, foe: u.side === 1, ko: koOf(u), hp: hpOf(u), start: (b.stage === 'assign' || b.stage === 'place') ? hpOf(u) : (b.before && b.before[u.uid] != null ? b.before[u.uid] : hpOf(u)), shield: u.shield || 0, face, sp: spOn, pf, die, chg: chgOf(u), land: ui.landed === u.uid, heroDie: u.side === 0, dieAttr: !colM && u.side === 0 && assign && !(info && b.fixed && b.fixed[0] && info.die.some(i => b.fixed[0][i])) ? `data-act="unmv" data-uid="${u.uid}"${info && info.die.length === 1 ? ` data-i="${info.die[0]}"` : ''}` : '', mark, ab: abil, recall: '', cls: clsOf(u) + (ui.returning && u.side === 0 && !ko ? ' sel act' : '') + (ui.slide && ui.slide.opts.indexOf(u.uid) >= 0 ? ' sel act' : '') + (ui.swap && u.side === 1 && !ko ? (ui.swap.picks.indexOf(u.uid) >= 0 ? ' sel act' : ' sel') : ''), pop: popOf(u), attr: ui.returning && u.side === 0 && !ko ? `data-act="recallpick" data-uid="${u.uid}"` : ui.slide && ui.slide.opts.indexOf(u.uid) >= 0 ? `data-act="slide" data-uid="${u.uid}"` : `data-act="unit" data-uid="${u.uid}"` });
     };
     const slotHtml = (ci, side) => {
       const uid = b.cols[ci][side];
@@ -2807,12 +2814,16 @@ const Bots = (() => {
     const heroTray = teamSort(E.handOf(b, 0), hc => hc.hid != null ? hc.hid : hc.uid).map(hc => { const k = hc.hid != null ? hc.hid : hc.uid; return card(hc, { cw: hcw, sel: k === selected, attr: `data-act="tray" data-uid="${k}"` }); }).join('');
     // the bay: your hand while you set the matchups, then the dice
     const hd = b.dice[0], used = E.assignedDice(b, 0);
-    const diceHtml = !waitRoll && (assign || done || p) && hd.length ? hd.map((v, i) => [v, i]).sort((x, y) => rolling ? x[1] - y[1] : y[0] - x[0] || x[1] - y[1]).map(([v, i]) => { const tum = rolling && (!ui.rerolled || ui.rerolled.indexOf(i) >= 0); return dieHtml(tum ? 1 + Math.floor(Math.random() * 6) : v, { sel: ui.die === i, used: !colM && used.has(i), tumble: tum, attr: !colM && assign && !rolling && !(b.fixed && b.fixed[0] && b.fixed[0][i]) ? `data-act="die" data-i="${i}"` : '' }); }).join('') : '';
+    // dice that were thrown again come after the others (each group highest first), so they never trade places with the dice you kept
+    const diceHtml = !waitRoll && (assign || done || p) && hd.length ? hd.map((v, i) => [v, i]).sort((x, y) => { const lk = (b.locked && b.locked[0]) || {}; return rolling ? x[1] - y[1] : (lk[x[1]] ? 1 : 0) - (lk[y[1]] ? 1 : 0) || y[0] - x[0] || x[1] - y[1]; }).map(([v, i]) => { const tum = rolling && (!ui.rerolled || ui.rerolled.indexOf(i) >= 0); return dieHtml(tum ? 1 + Math.floor(Math.random() * 6) : v, { sel: ui.die === i, used: !colM && used.has(i), tumble: tum, attr: !colM && assign && !rolling && !(b.fixed && b.fixed[0] && b.fixed[0][i]) ? `data-act="die" data-i="${i}"` : '' }); }).join('') : '';
     let status = '', btns = '';
     const opt = yourPlace && b.pl.optional;
     if (placing) status = (b.sudden ? 'SUDDEN DEATH · ' : '') + (yourPlace ? (selected != null ? 'Now tap where it goes' : opt ? 'Put down another card, tap the deck for them to bring one first, or Fight!' : 'Pick a Pokémon from your hand to put down') : 'They are putting a card down…');
+    else if (assign && ui.returning) { status = 'Tap the Pokémon to return'; btns = `<button class="btn alt" data-act="retmode">Cancel</button>`; }
+    else if (assign && ui.slide) { status = 'Slide a neighbour over to face the opponent? Tap it.'; btns = `<button class="btn alt" data-act="slideno">Leave it empty</button>`; }
     else if (waitRoll) status = '<span class="rollhint">🎲 Tap anywhere to roll</span>';
     else if (assign && colM) { status = (b.sudden ? 'SUDDEN DEATH · ' : '') + (rolling ? 'Rolling…' : b.dice[0].length ? 'Keep it, or reroll?' : 'Nothing to roll for you here'); }
+    else if (assign && ui.returning) { status = 'Tap the Pokémon to return'; btns = `<button class="btn alt" data-act="retmode">Cancel</button>`; }
     else if (assign && ui.slide) { status = 'Slide a neighbour over to face the opponent? Tap it.'; btns = `<button class="btn alt" data-act="slideno">Leave it empty</button>`; }
     else if (assign) { const need = E.living(b, 0).filter(u => !u.skip && !b.asg[0][u.uid]).length; status = (b.sudden ? 'SUDDEN DEATH · ' : '') + (rolling ? 'Rolling…' : ui.tweak != null ? 'Tap the die to change to ' + (E.tags(E.U(b, ui.tweak)).find(g => g.t === 'setDie') || {}).v : ui.die != null ? 'Tap a card to give it that ' + b.dice[0][ui.die] : (E.readyToGo(b, 0) ? '✅ All set!<br>Tap here to play the round' : noDecision(b) ? '✅ Nothing to decide!<br>Tap here to play the round' : 'Drag a die onto a card')); }
     else if (asking && b.ask.kind === 'yn') { status = `<b>${C[E.U(b, b.ask.uid).id].name}</b> is attacked by ${C[E.U(b, b.ask.by).id].name} for ${b.ask.n}. Dodge?`; btns = `<button class="btn big" data-act="decide" data-yes="1">Dodge!</button><button class="btn alt" data-act="decide" data-yes="0">Take it</button>`; }
@@ -2827,30 +2838,31 @@ const Bots = (() => {
     } else if (assign && !waitRoll) {
       const lk = (b.locked && b.locked[0]) || {}, freeDice = hd.map((_, i) => i).filter(i => !used.has(i) && !lk[i]);
       const canRe = !rolling && b.rr[0] > 0 && freeDice.length > 0, canFree = !rolling && ui.die != null && !lk[ui.die] && b.rrFace[0].indexOf(hd[ui.die]) >= 0 && !b.rrUsed[0][ui.die];
-      btns = `${b.rr[0] > 0 ? `<button class="btn alt" data-act="reroll" ${canRe ? '' : 'disabled'}>🔄 Reroll</button>` : ''}${canFree ? '<button class="btn alt" data-act="rerollfree">🔄 Free reroll</button>' : ''}`;
+      btns = `${canAutoAssign(b) && !rolling ? '<button class="btn big" data-act="autoassign">Auto-assign</button>' : ''}${b.rr[0] > 0 ? `<button class="btn alt" data-act="reroll" ${canRe ? '' : 'disabled'}>🔄 Reroll</button>` : ''}${canFree ? '<button class="btn alt" data-act="rerollfree">🔄 Free reroll</button>' : ''}`;
     }
     const nodeB = E.node(b.node), pw = Math.max(64, Math.min(96, RW - 70));
     const pileHtml = placing && nodeB.kind === 'visitor' ? `<div class="pilebay${opt ? ' tappable' : ''}" style="--pw:${pw}px" ${opt ? 'data-act="drawdeck"' : ''}>${deckPile(null, { pw, count: b.bill ? b.bill.length : 0, svg: `<svg viewBox="0 0 100 140" width="100%" height="100%"><rect width="100" height="140" fill="#3949ab"/><image href="data:image/png;base64,${D.trainerArt[nodeB.art]}" x="8" y="30" width="84" height="84" style="image-rendering:pixelated"/></svg>`, dk: '#283593' })}</div>` : placing && nodeB.kind === 'loc' ? `<div class="pilebay${opt ? ' tappable' : ''}" style="--pw:${pw}px" ${opt ? 'data-act="drawdeck"' : ''}>${deckPile(nodeB.loc, { pw, count: E.deckSize(G, nodeB.loc) })}</div>` : placing && nodeB.kind === 'boss' ? `<div class="pilebay" style="--pw:${pw}px">${deckPile(null, { pw, count: b.hand[1].length, svg: gymBack(nodeB), dk: gymPal(nodeB)[0] })}</div>` : '';
     const autoOk = assign && !colM && b.gmReady && !E.readyToGo(b, 0) && noDecision(b), goReady = assign && !waitRoll && !rolling && !ui.slide && !asking && (colM ? b.gmReady : (E.readyToGo(b, 0) || autoOk) && b.gmReady);
+    const canReturn = assign && !colM && !b.rolled && b.round === 1 && E.living(b, 0).length > 1;
+    if (ui.returning && !canReturn) ui.returning = false;
     const fight = opt ? '<button class="btn big" data-act="ready">Fight!</button>' : '';
     const trainerHtml = nodeB.kind !== 'loc' && D.trainerArt && D.trainerArt[nodeB.art || nodeB.id] ? `<div class="trainer"><img class="pix" src="data:image/png;base64,${D.trainerArt[nodeB.art || nodeB.id]}" alt="${esc(nodeB.name)}"><b>${esc(nodeB.name)}</b></div>` : '';
     const railIn = placing ? `<div class="status">${status}</div>${fight}<div class="hrow handrow hcol">${heroTray}</div>${pileHtml}` : `<div class="rmid"><div class="status">${status}</div><div class="dice">${diceHtml}</div></div><div class="acts">${btns}</div>`;
     const dw = RW >= 200 ? 78 : RW >= 150 ? 62 : 46;
-    return `<div class="bt"><div class="board">${cols}</div><div class="rail${goReady ? ' rgo' : ''}" ${goReady ? 'data-act="go"' : ''} style="width:${RW}px;--dw:${dw}px"><div class="rtop"><button class="ib" data-act="leave" style="${ui.leaveAsk ? 'width:auto;padding:0 12px;font-size:16px;font-weight:800' : ''}" aria-label="Leave">${ui.leaveAsk ? 'Flee?' : '🏃'}</button><button class="ib" data-act="menu" aria-label="Menu">☰</button></div>${trainerHtml}${railIn}</div></div>`;
+    return `<div class="bt"><div class="board">${cols}</div><div class="rail${goReady ? ' rgo' : ''}" ${goReady ? 'data-act="go"' : ''} style="width:${RW}px;--dw:${dw}px"><div class="rtop">${canReturn ? `<button class="ib pball${ui.returning ? ' on' : ''}" data-act="retmode" aria-label="Return a Pokémon"><i></i></button>` : ''}<button class="ib" data-act="leave" style="${ui.leaveAsk ? 'width:auto;padding:0 12px;font-size:16px;font-weight:800' : ''}" aria-label="Leave">${ui.leaveAsk ? 'Flee?' : '🏃'}</button><button class="ib" data-act="menu" aria-label="Menu">☰</button></div>${trainerHtml}${railIn}</div></div>`;
   }
   // a card is picked in two steps so a quick tap can never choose one by accident: tap it, then OK in the middle of the screen (and a card that is not the strongest asks again)
-  // choosing a card to keep: the question sits under the cards (never over them)
+  // choosing a card to keep: tap a card, then OK (tap it again to let go). Under the cards, never over them.
   function pickBar(r) {
-    const k = ui.pickSel; if (k == null || !r.pick || !r.pick[k]) return `<div class="pickbar idle">Tap a card to choose it</div>`;
-    const top = Math.max(...r.pick.map(i => C[i.id].level)), weak = C[r.pick[k].id].level < top, nm = esc(C[r.pick[k].id].name);
-    return `<div class="pickbar"><div class="pq"><b>${weak ? 'Are you sure?' : 'Keep ' + nm + '?'}</b><span>${weak ? `${nm} is not the highest level you could take.` : 'Tap OK, or tap the card again.'}</span></div><button class="btn big" data-act="pickok">OK</button><button class="btn ghost" data-act="pickno">Choose again</button></div>`;
+    const k = ui.pickSel, ok = k != null && r.pick && r.pick[k], top = Math.max(...r.pick.map(i => C[i.id].level)), weak = ok && C[r.pick[k].id].level < top;
+    return `<div class="pickbar"><button class="btn big" data-act="pickok" ${ok ? '' : 'disabled'}>OK</button>${weak ? `<span class="pwarn">⚠ ${esc(C[r.pick[k].id].name)} is not the highest level here</span>` : ''}</div>`;
   }
   function resultScreen() {
     const r = G.res, nd = E.node(r.node), sdv = E.starterOf(G.starter);
     // the cards you choose between are as big as they can be while ALL of them fit on the screen at once (no scrolling, nothing cut off)
     const fitCw = (n, w, h) => { let best = 120; for (let rows = 1; rows <= 3; rows++) { const per = Math.ceil(n / rows), c = Math.min(Math.floor((w - (per - 1) * 12) / per), Math.floor((h - (rows - 1) * 12) / rows / CH)); if (c > best * (rows > 1 ? 1.12 : 1)) best = c; } return Math.min(best, 420); };          // more rows only when that makes the cards clearly bigger
-    const pickN = r.pick ? r.pick.length : r.evolve ? 2 : 0, cw = pickN ? fitCw(pickN, innerWidth - 84, viewH() - (r.pick ? 400 : 230)) : 230;
-    const take = r.pick ? `<div class="status">Choose one to join your team!</div><div class="hrow" style="flex-wrap:wrap;justify-content:center;overflow:visible;gap:12px">${r.pick.map((i, k) => card(i, { cw, sel: ui.pickSel === k, mark: r.have && r.have.indexOf(i.id) >= 0 ? 'You have it' : '', cls: r.have && r.have.indexOf(i.id) >= 0 ? 'owned' : '', attr: r.have && r.have.indexOf(i.id) >= 0 ? '' : `data-act="pickcard" data-i="${k}"` })).join('')}</div>${pickBar(r)}` : (r.took ? `<div class="status">You caught ${esc(C[r.took.id].name)}${r.took.sh ? ' ✨' : ''}!</div><div class="hrow">${card(r.took, { cw })}</div>` : '');
+    const pickN = r.pick ? r.pick.length : r.evolve ? 2 : 0, cw = pickN ? fitCw(pickN, innerWidth - 84, viewH() - (r.pick ? 340 : 230)) : 230;
+    const take = r.pick ? `<div class="hrow" style="flex-wrap:wrap;justify-content:center;overflow:visible;gap:12px">${r.pick.map((i, k) => card(i, { cw, sel: ui.pickSel === k, mark: r.have && r.have.indexOf(i.id) >= 0 ? 'You have it' : '', cls: r.have && r.have.indexOf(i.id) >= 0 ? 'owned' : '', attr: r.have && r.have.indexOf(i.id) >= 0 ? '' : `data-act="pickcard" data-i="${k}"` })).join('')}</div>${pickBar(r)}` : (r.took ? `<div class="status">You caught ${esc(C[r.took.id].name)}${r.took.sh ? ' ✨' : ''}!</div><div class="hrow">${card(r.took, { cw })}</div>` : '');
     const evo = r.evolve ? `<div class="status">${esc(C[sdv.levels[r.evolve - 1]].name)} is ready to evolve! Which will it be?</div><div class="hrow">${[[sdv.levels[r.evolve - 1], 0], [sdv.evolve[r.evolve], 1]].map(([id, y]) => card({ id, sh: 0 }, { cw, attr: `data-act="evolve" data-yes="${y}"` })).join('')}</div>` : '';
     const lead = r.win && nd.kind === 'visitor' ? `<div class="leadtalk"><img class="pix leadimg" src="data:image/png;base64,${D.trainerArt[nd.art]}" alt="${esc(nd.name)}"><div class="bubble"><b class="who">${esc(nd.name)}</b><p>${r.allHave ? '“Wow, you already have all the evolutions!”' : r.fallback ? '“You have all three already! Here, take an Eevee.”' : '“Take your pick!”'}</p></div></div>` : r.win && nd.kind === 'boss' ? `<div class="leadtalk">${D.trainerArt && D.trainerArt[nd.id] ? `<img class="pix leadimg" src="data:image/png;base64,${D.trainerArt[nd.id]}" alt="${esc(nd.name)}">` : ''}<div class="bubble"><b class="who">${esc(nd.name)}</b><p>“${esc(nd.say || 'Well fought!')}”</p>${r.newDie ? `<div class="gift">${dieHtml(6, {})}<span>${esc(nd.name)} hands you a die. <i>“${esc(D.dieLine)}”</i></span></div>` : ''}</div></div>` : '';
     if (!r.win) { const st = G.coll.find(c => c.starter) || G.coll[0]; return `<div class="scr kos" data-act="done"><div class="kobox"><div class="kopic"><img class="pix" src="${art(st.id, st.sh)}" alt=""><i>✦</i><i>✦</i><i>✦</i></div><div class="kotxt">You are KO'd!</div><div class="kotap">Tap anywhere to continue</div></div></div>`; }
@@ -3105,6 +3117,8 @@ const Bots = (() => {
     leave() { if (!ui.leaveAsk) { ui.leaveAsk = true; render(); setTimeout(() => { if (ui.leaveAsk) { ui.leaveAsk = false; render(); } }, 3000); return; } ui.leaveAsk = false; act({ t: 'forfeit' }); },
     drawdeck() { act({ t: 'drawwild' }); },
     recall(el) { const k = +el.dataset.uid; if (ui.recall === k) { ui.recall = null; const so = E.slideOpts(G.battle, k); if (so.length) { ui.slide = { uid: k, opts: so }; render(); } else act({ t: 'recall', uid: k }); } else { ui.recall = k; render(); } },
+    retmode() { ui.returning = !ui.returning; ui.slide = null; render(); },
+    recallpick(el) { const k = +el.dataset.uid; ui.returning = false; const so = E.slideOpts(G.battle, k); if (so.length) { ui.slide = { uid: k, opts: so }; render(); } else act({ t: 'recall', uid: k }); },
     slide(el) { const sl = ui.slide; ui.slide = null; if (sl) act({ t: 'recall', uid: sl.uid, slide: +el.dataset.uid }); }, slideno() { const sl = ui.slide; ui.slide = null; if (sl) act({ t: 'recall', uid: sl.uid }); },
     tray(el) {
       if (!(G.battle && G.battle.pl && G.battle.pl.side === 0)) return;                 // not your turn yet
@@ -3144,6 +3158,7 @@ const Bots = (() => {
     swapstart(el) { const k = +el.dataset.uid; ui.swap = ui.swap && ui.swap.uid === k ? null : { uid: k, picks: [] }; render(); },
     haunt(el) { act({ t: 'haunt', uid: el.dataset.uid == null ? null : +el.dataset.uid }); },
     gswstart(el) { const k = +el.dataset.uid; ui.gsw = ui.gsw === k ? null : k; render(); },
+    autoassign() { if (canAutoAssign(G.battle)) { ui.die = null; autoAssign(); save(); render(); } },
     reroll() {
       const b0 = G.battle; if (b0.colMode) { ui.rerolled = [0]; ui.rolling = Date.now() + 800; if (act({ t: 'reroll', side: 0 })) { setTimeout(() => { ui.rolling = 0; render(); }, 850); } else ui.rolling = 0; return; }
       // every die not on a card yet is thrown again, together; they are locked in after that
@@ -3156,7 +3171,7 @@ const Bots = (() => {
     go() { if (ui.die != null || ui.tweak != null) { ui.die = null; ui.tweak = null; render(); return; } if (G.battle && !E.readyToGo(G.battle, 0) && noDecision(G.battle)) autoAssign(); if (act({ t: 'go2' })) startPlay(); },
     skip() { skipPlay(); },
     next() { ui.die = null; act({ t: 'next' }); },
-    pickcard(el) { const k = +el.dataset.i; if (ui.pickSel === k) { A.pickok(); return; } ui.pickSel = k; render(); }, pickno() { ui.pickSel = null; render(); }, pickok() { const k = ui.pickSel; ui.pickSel = null; if (k != null && act({ t: 'take', i: k }) && G.phase === 'result' && G.res && !G.res.evolve && !G.res.pick) { ui.mapX = null; act({ t: 'done' }); render(); } },
+    pickcard(el) { const k = +el.dataset.i; ui.pickSel = ui.pickSel === k ? null : k; render(); }, pickok() { const k = ui.pickSel; ui.pickSel = null; if (k != null && act({ t: 'take', i: k }) && G.phase === 'result' && G.res && !G.res.evolve && !G.res.pick) { ui.mapX = null; act({ t: 'done' }); render(); } },
     take(el) { act({ t: 'take', i: +el.dataset.i }); },
     evolve(el) { act({ t: 'evolve', yes: el.dataset.yes === '1' }); },
     keepgoing() { G.phase = 'map'; G.res = null; G.battle = null; ui.mapX = null; save(); render(); },
@@ -3195,7 +3210,7 @@ const Bots = (() => {
     else render();
   });
   document.addEventListener('pointercancel', endDrag);
-  function resetSel() { ui.recall = null; ui.slide = null; ui.pickSel = null; ui.more = false; ui.gsw = null; ui.chip = false; ui.tweak = null; ui.sel = null; ui.die = null; ui.aim = null; ui.pick = []; ui.chooser = null; ui.play = null; ui.rolledFor = 0; ui.rollTap = null; ui.rolling = 0; ui.mapX = null; }
+  function resetSel() { ui.returning = false; ui.recall = null; ui.slide = null; ui.pickSel = null; ui.more = false; ui.gsw = null; ui.chip = false; ui.tweak = null; ui.sel = null; ui.die = null; ui.aim = null; ui.pick = []; ui.chooser = null; ui.play = null; ui.rolledFor = 0; ui.rollTap = null; ui.rolling = 0; ui.mapX = null; }
   document.addEventListener('click', ev => {
     if (ui.dragged && Date.now() - ui.dragged < 400) return;                 // that was the end of a drag, not a tap
     if (ui.rolling && Date.now() < ui.rolling) return;                       // the dice are still tumbling
@@ -3204,7 +3219,7 @@ const Bots = (() => {
     { const st = ev.target.closest('[data-stop]'); if (t && st && t !== st && !st.contains(t)) return; }          // a tap inside a sheet's frame (not on one of its buttons) does not close it; a tap outside does
     if (ui.play && !ui.play.waiting) { const ac = t && t.dataset.act; if (ac === 'skip') { skipPlay(); return; } if (!(ac === 'menu' || ac === 'tipok' || ac === 'leave')) { advancePlay(); return; } }      // a tap shows the next card
     if (G && G.phase === 'battle' && G.battle && G.battle.colMode && G.battle.stage === 'assign' && !G.battle.rolled && !ui.play && !ui.menu && !ui.help && !ui.coll && !ui.tip && !ui.settings && ui.gsw == null && !ui.swap && !(t && t.dataset.act === 'unit' && (ui.gsw != null || ui.swap) || t && ['menu', 'tipok', 'leave', 'mv', 'swapstart', 'gswstart', 'tweak'].indexOf(t.dataset.act) >= 0)) { act({ t: 'roll' }); setTimeout(maybeTips, 1100); return; }      // tap anywhere to roll this column's dice
-    if (G && G.phase === 'battle' && G.battle && !G.battle.colMode && G.battle.stage === 'assign' && G.battle.round === 1 && ui.rollTap !== G.turn && !ui.play && !ui.menu && !ui.help && !ui.coll && !ui.tip && !ui.settings && !(t && (t.dataset.act === 'menu' || t.dataset.act === 'tipok' || t.dataset.act === 'leave'))) { ui.rollTap = G.turn; E.apply(G, { t: 'rollseen' }); render(); setTimeout(maybeTips, 1100); return; }      // tap anywhere to roll the first dice
+    if (G && G.phase === 'battle' && G.battle && !G.battle.colMode && G.battle.stage === 'assign' && G.battle.round === 1 && ui.rollTap !== G.turn && !ui.play && !ui.menu && !ui.help && !ui.coll && !ui.tip && !ui.settings && !(t && ['menu', 'tipok', 'leave', 'retmode', 'recallpick', 'slide', 'slideno'].indexOf(t.dataset.act) >= 0)) { ui.rollTap = G.turn; E.apply(G, { t: 'rollseen' }); render(); setTimeout(maybeTips, 1100); return; }      // tap anywhere to roll the first dice
     // after a round: tap anywhere to roll the next one (the menu button and open sheets still work)
     if (G && G.phase === 'battle' && G.battle && G.battle.stage === 'resolved' && !E.hauntAsk(G.battle) && !ui.play && !ui.menu && !ui.help && !ui.coll && !ui.tip && !(t && (t.dataset.act === 'menu' || t.dataset.act === 'tipok'))) { A.next(); return; }
     if (!t) return;
