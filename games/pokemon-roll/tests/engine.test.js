@@ -651,3 +651,16 @@ test('Farfetch\'d: +2 Attack for its neighbours, but only for neighbours that ac
   const run = (dice) => { const c = craft(['1.1', '83', '4.1'], ['10', '13', '16']), b = play(c, { hero: dice, gm: [1, 1, 1] }, { hero: { 0: 0, 1: 1, 2: 2 }, gm: {} }); return evs(b, 'dmg').filter(e => e.by === c.h(0).uid).map(e => e.n); };
   assert.deepEqual(run([1, 5, 2]), [4], 'a neighbour that attacks gets +2 (2 becomes 4)'); assert.deepEqual(run([3, 5, 2]), [], 'a neighbour that heals instead does not attack, so there is no bonus to give');
 });
+
+test('shiny starters: a 10% chance that exactly one starter is shiny, and then its whole line is; the screen can know before the game exists', () => {
+  assert.equal(D.rules.starterShinyChance, 0.1);
+  let some = 0; const N = 2000;
+  for (let seed = 1; seed <= N; seed++) {
+    const k = E.starterShiny(seed); if (k) some++;
+    const shiny = D.starters.filter(st => E.newGame({ seed, starter: st.key }).coll[0].sh).map(st => st.key);
+    assert.deepEqual(shiny, k ? [k] : [], 'never more than one starter is shiny: ' + seed);
+  }
+  assert.ok(some > N * .07 && some < N * .13, 'about one game in ten has a shiny starter: ' + some);
+  const seed = [...Array(500).keys()].map(x => x + 1).find(x => E.starterShiny(x)), key = E.starterShiny(seed), st = D.starters.find(x => x.key === key), g = E.newGame({ seed, starter: key });
+  st.levels.concat(st.evolve ? Object.values(st.evolve) : []).forEach(id => assert.equal(g.sh[id], 1, id + ' is shiny with its line'));
+});

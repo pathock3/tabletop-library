@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- **Pokémon Roll! — choosing a starter:** the five starter cards are shown as the real cards you would get, shiny ones included. There is a 10% chance that one starter (never more) is shiny, and then so are all its evolutions; starters are no longer rolled at the ordinary per-card rate.
 - **Pokémon Roll! — level-up screen:** old card, arrow, new card, all on screen with the Continue button; the victory screens are centred; tapping the new card shows just that card.
 - **Pokémon Roll! — gym info only shows what you have seen:** a leader's card appears in their info only after you have seen it put down (retreating early keeps the rest as card backs). Farfetch'd's bonus is kept to attacking neighbours by a test.
 - **Pokémon Roll! — gym info:** tapping a trainer says how many Pokémon they have and "N vs M", and lists the places their cards come from; tapping a place shows its elements as the game began and what is left. Works on locked gyms too.

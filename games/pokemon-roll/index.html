@@ -492,6 +492,7 @@ const GAME_DATA = {
   library: { name: 'Tabletop Library', href: '../../index.html' },
   rules: {
     shinyHp: 1,                 // a shiny card has this much more health than the same card that is not
+    starterShinyChance: 0.10,   // a 10% chance that ONE starter (picked at random) is shiny, with all its levels and evolutions; never more than one. The starters are not rolled with the others
     shinyChance: 0.10,          // each card is rolled once, before anything is dealt, and keeps its form for the whole game (a partner keeps its form through every level and evolution)
     levelLabels: [1, 10, 20, 30, 40, 50],   // what a card's level 1-6 is called on screen (the rules still count 1-6)
     startSlots: 1, startLevel: 2,   // you begin with your partner at level 2 (the level the first rival fight gave in the paper game)
@@ -976,11 +977,17 @@ const Engine = (() => {
     if (o.starter) chooseStarter(s, o.starter);
     return s;
   }
+  // which starter (if any) is shiny in a game with this seed: a 10% chance that exactly one of them, picked at random, is shiny, and then so are all its levels and evolutions.
+  // It does not use the game's own dice, so the screen can show the starters before the game exists.
+  function starterShiny(seed) {
+    let t = (seed | 0) ^ 0x5bd1e995; const r = () => { t = (t + 0x6D2B79F5) | 0; let x = Math.imul(t ^ (t >>> 15), 1 | t); x = (x + Math.imul(x ^ (x >>> 7), 61 | x)) ^ x; return ((x ^ (x >>> 14)) >>> 0) / 4294967296; };
+    r(); return r() < R.starterShinyChance ? D.starters[Math.floor(r() * D.starters.length)].key : null;
+  }
   function chooseStarter(s, key) {
     const st = starterOf(key); if (!st) return false;
     s.starter = key; s.rival = rivalFor(key).key; s.lv = R.startLevel;
     s.sh = {}; Object.keys(CARDS).forEach(id => { s.sh[id] = shiny(s); });                       // shiny or not, for the whole game, decided before anything is dealt
-    const lineSh = s.sh[st.levels[0]]; st.levels.concat(st.evolve ? Object.values(st.evolve) : []).forEach(id => { s.sh[id] = lineSh; });      // a partner keeps its form as it levels up and evolves
+    const lineSh = starterShiny(s.seed) === key ? 1 : 0; st.levels.concat(st.evolve ? Object.values(st.evolve) : []).forEach(id => { s.sh[id] = lineSh; });      // a partner keeps its form as it levels up and evolves
     s.coll = [{ uid: s.nextUid++, id: st.levels[R.startLevel - 1], sh: lineSh, starter: 1 }];
     const mine = new Set(st.levels.concat(st.evolve ? Object.values(st.evolve) : [])), startersAll = new Set(D.starters.flatMap(x => x.levels));
     D.locations.forEach(l => { s.decks[l.id] = []; s.discard[l.id] = []; });
@@ -1894,7 +1901,7 @@ const Engine = (() => {
     if (v.battle && v.battle.stage === 'assign') { const o = other(side); v.battle.dice[o] = v.battle.dice[o].map(() => 0); v.battle.asg[o] = {}; }
     return v;
   }
-  return { endBattle, visitorNode, slideOpts, autoChoice, hauntAsk, blocksMove, colorBonus, faceOrder: layMoves, _t: { blkMult, keepStrongest, startBattle, startRound, resolveRound, cleanUp, drawWild }, handOf, canExpand, apply, newGame, chooseStarter, viewFor, CARDS, parseMove, parseSpecial, tagsOf, tags, preview, bestClause, chosenMove, candidates, pickTargets, amountOf, slotsFor, readyToGo, assignedDice, living, colIdx, U, rnd, ri, shuffle, node, starterOf, rivalFor, slots, unlocked, deckSize, heroCount, gmCount, typeOf, wm, hitValue, parseSpec, clauseValue, effectsOf, D, R };
+  return { starterShiny, endBattle, visitorNode, slideOpts, autoChoice, hauntAsk, blocksMove, colorBonus, faceOrder: layMoves, _t: { blkMult, keepStrongest, startBattle, startRound, resolveRound, cleanUp, drawWild }, handOf, canExpand, apply, newGame, chooseStarter, viewFor, CARDS, parseMove, parseSpecial, tagsOf, tags, preview, bestClause, chosenMove, candidates, pickTargets, amountOf, slotsFor, readyToGo, assignedDice, living, colIdx, U, rnd, ri, shuffle, node, starterOf, rivalFor, slots, unlocked, deckSize, heroCount, gmCount, typeOf, wm, hitValue, parseSpec, clauseValue, effectsOf, D, R };
 })();
 
 </script>
@@ -2567,7 +2574,7 @@ const Bots = (() => {
   const oakImg = (cls) => `<img class="oak pix ${cls || ''}" src="data:image/png;base64,${D.trainerArt.OAK}" alt="Professor Oak">`;
   const oakCard = () => `<div class="oakov"><div class="oakbox" data-stop="1">
       <div class="oaktalk">${oakImg()}<div class="bubble"><b class="who">Professor Oak</b><p>This is the only Pokémon you will get that will <b>level up and evolve</b>. All the rest are static cards.</p><p>Choose a starter you want to evolve with you as you progress through the game.</p></div></div>
-      <div class="oakst">${D.starters.map(st => { const c = C[st.levels[0]], e = el(c.type); return `<button class="stbtn" data-act="starter" data-k="${st.key}" style="--sb:${e.bg}"><img class="pix" src="${art(st.levels[0], 0)}" alt=""><b>${st.name}</b><small>${e.icon} ${c.type}</small></button>`; }).join('')}</div>
+      <div class="oakst">${(() => { const shk = E.starterShiny(ui.seed || 0), per = innerWidth >= 700 ? 5 : 3, cw = Math.max(96, Math.min(150, Math.floor((Math.min(innerWidth, 720) - 24 - (per - 1) * 10) / per))); return D.starters.map(st => card({ id: st.levels[D.rules.startLevel - 1], sh: shk === st.key ? 1 : 0 }, { cw, attr: `data-act="starter" data-k="${st.key}"` })).join(''); })()}</div>
       <div class="oakopts"><span>Computer:</span>${['easy', 'normal', 'master'].map(x => `<button class="chip${set.ai === x ? ' on' : ''}" data-act="ai" data-v="${x}">${D.ai[x].label}</button>`).join('')}<span>Length:</span>${[['short', 'Regular'], ['long', 'Extra Long']].map(([x, l]) => `<button class="chip${set.size === x ? ' on' : ''}" data-act="size" data-v="${x}">${l}</button>`).join('')}</div>
       <button class="btn ghost" data-act="menu0">Back</button></div></div>`;
   // the main menu: the map itself, dealt out on the table, with the title and the buttons above it
@@ -3052,7 +3059,7 @@ const Bots = (() => {
     continue() { G = saved(); ui.screen = 'play'; resetSel(); drive(); },
     new() {
       if (saved() && !ui.newAsk) { ui.newAsk = true; render(); setTimeout(() => { if (ui.newAsk) { ui.newAsk = false; if (ui.screen === 'menu') render(); } }, 4000); return; }
-      ui.newAsk = false; ui.screen = 'new'; render();
+      ui.newAsk = false; ui.seed = ui.seed || (Date.now() % 2147483647); ui.screen = 'new'; render();
     },
     menu0() { ui.menu = false; ui.newAsk = false; ui.screen = 'menu'; render(); },
     more() { ui.more = true; render(); }, closemore() { ui.more = false; render(); },
@@ -3062,7 +3069,7 @@ const Bots = (() => {
     size(el) { set.size = el.dataset.v; lsSet(SET, set); render(); },
     tips(el) { set.tips = el && el.dataset.v ? el.dataset.v === 'true' : !set.tips; lsSet(SET, set); render(); },
     settings() { ui.settings = true; ui.menu = false; render(); }, closesettings() { ui.settings = false; render(); },
-    starter(el) { G = E.newGame({ starter: el.dataset.k, size: set.size, ai: set.ai }); ui.screen = 'play'; resetSel(); save(); render(); },
+    starter(el) { G = E.newGame({ starter: el.dataset.k, size: set.size, ai: set.ai, seed: ui.seed }); ui.seed = null; ui.screen = 'play'; resetSel(); save(); render(); },
     dex() { ui.dex = true; ui.more = false; ui.menu = false; render(); }, closedex() { ui.dex = false; ui.dexCard = null; render(); }, dexcard(el) { ui.dexCard = +el.dataset.dex; render(); }, closedexcard() { ui.dexCard = null; render(); },
     records() { ui.records = true; ui.more = false; ui.menu = false; render(); }, closerec() { ui.records = false; render(); }, recsize(el) { ui.recSize = el.dataset.v; render(); },
     eye(el) { ui.eye = el.dataset.id; render(); }, closeeye() { ui.eye = null; ui.eyeBack = null; render(); }, chipinfo() { ui.chip = true; render(); }, closechip() { ui.chip = false; render(); },
@@ -3200,7 +3207,7 @@ const Bots = (() => {
   document.addEventListener('contextmenu', e => e.preventDefault());
   let rz = null; window.addEventListener('resize', () => { clearTimeout(rz); rz = setTimeout(() => { if (G && ui.screen === 'play' && G.phase === 'map') render(); }, 120); });
   render();
-  window.__deckPile = (l, w) => deckPile(l, { pw: w, count: 9 }); window.__pokemonRoll = { card, noDecision, fitCards, short, abText, recordResult, get G() { return G; }, setG(x) { G = x; ui.screen = 'play'; resetSel(); save(); drive(); }, ui, A, render, act, get set() { return set; } };
+  window.__deckPile = (l, w) => deckPile(l, { pw: w, count: 9 }); window.__pokemonRoll = { card, noDecision, setSeed(x) { ui.seed = x; render(); }, fitCards, short, abText, recordResult, get G() { return G; }, setG(x) { G = x; ui.screen = 'play'; resetSel(); save(); drive(); }, ui, A, render, act, get set() { return set; } };
 })();
 
 </script>
