@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- **Pokémon Roll! — your cards on the map:** the fanned hand is never drawn smaller than a readable size (moves were tiny), has more room above and below so the bottom corners are not clipped, and every card keeps a little space under its last row.
+
 - **Pokémon Roll! — Auto-assign:** the Auto-assign button is not offered while you still have a reroll left (you may want to use it first).
 
 - **Pokémon Roll! — Pokédex seen/caught:** "N of 157 seen" and "M of 157 caught" at the top, All/Seen/Caught filters, and three squares above each card: location found, caught, and the ✨ Shiny button.
