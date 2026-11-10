@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- **Pokémon Roll! — Pokédex:** every Pokémon is always shown; the two toggles, Seen and Caught, just dim the others (with Caught on, ones you have only seen turn greyscale). On a Pokémon, the three tiny icons are now big labelled tiles (Found / Caught / Shiny) saying Yes or Not yet; tap one for a plain explanation (the Shiny tile still switches the card). Places are shown larger under the card.
+
 - **Pokémon Roll! — leader and location info:** tap a card in a gym leader's team to see it big, and close to return. The location info now uses the whole width: the pile and counts on the left, every type on the right, no scrolling on an iPad.
 
 - **Pokémon Roll! — five saved games, green checkmark:** you can keep up to five games at once (Continue lists them; tap one to play, the red cross deletes it with a second tap; New Game never overwrites). The Pokédex is shared by all of them. Beaten gym leaders now get a real green check (the old symbol turned into a grey emoji on iPad). The library box cover is redrawn, and "More" is the same size as "New Game".

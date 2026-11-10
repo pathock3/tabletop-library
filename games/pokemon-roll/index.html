@@ -500,6 +500,10 @@ button{font:inherit;color:inherit;border:0;cursor:pointer}
 .slot{display:flex;gap:8px;align-items:stretch}.slotb{flex:1;display:flex;align-items:center;gap:12px;min-height:64px;padding:6px 12px;border:3px solid #14110f;border-radius:16px;background:#fff;text-align:left;font:inherit}.slotb img{width:52px;height:52px;object-fit:contain}.slotb span{display:flex;flex-direction:column}.slotb b{font:900 20px system-ui}.slotb small{font:600 14px system-ui;opacity:.75}.slotx{min-width:64px;border:3px solid #14110f;border-radius:16px;background:#ffb3a8;font:900 20px system-ui;color:#7a0d00}.slotx.ask{background:#e5383b;color:#fff;font-size:15px}
 .place .ck svg{width:78%;height:78%;filter:drop-shadow(0 5px 6px #000a)}
 .locinfo{height:auto;max-height:94vh;max-width:min(96vw,780px);width:96vw;overflow:auto}.locrow{display:flex;gap:18px;align-items:flex-start;justify-content:center}.loccol{flex:1;min-width:0;display:flex;flex-direction:column;align-items:center;gap:8px}.locgrid{display:grid!important;grid-template-columns:minmax(0,1fr);gap:10px;width:100%;overflow:visible!important}.locgrid .eyerow{width:auto;min-height:64px;font-size:22px}@media (max-width:640px){.locrow{flex-direction:column;align-items:stretch}}
+.dxc.dim{opacity:.28}.dxc.grey img{filter:grayscale(1) brightness(.9)}.dxc.grey{opacity:.75}
+.sqs{gap:10px!important}.stile{flex:1;min-width:0;max-width:150px;min-height:84px;padding:6px 4px;border-radius:14px;border:3px solid #ffffff44;background:#0007;color:#ffffffaa;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;font:inherit}.stile .si{font-size:26px;line-height:1}.stile b{font:900 17px system-ui}.stile small{font:700 13px system-ui;line-height:1.1;text-align:center}.stile.on{background:#fff;color:#14110f;border-color:#ffd23f}.stile .pbi{width:26px;height:26px}
+.locchip{display:flex;flex-direction:column;align-items:center;gap:4px;font:800 15px system-ui;text-align:center}.locs{display:flex;gap:12px;justify-content:center;flex-wrap:wrap}
+.dxvs~.hnav{margin:6px 0 0}
 </style>
 <script id="data">
 /* Pokémon Roll! — every rule number, the map, the bosses, the card sheet and the art live here. The engine and bots read this and hard-code none of it. */
@@ -2941,12 +2945,12 @@ const Bots = (() => {
     const by = {}; Object.values(C).forEach(c => { if (c.dex && (!by[c.dex] || c.level < by[c.dex].level)) by[c.dex] = c; });
     const nums = Object.keys(by).map(Number).sort((a, b) => a - b), seen = dexSeen(), cg = lsGet(DEXG) || {};
     const caught = d => Object.values(C).some(c => c.dex === d && cg[c.id]);          // any version of it counts
-    const nSeen = nums.filter(d => seen[d]).length, nCaught = nums.filter(caught).length, f = ui.dexFilter || 'all';
-    const shown = nums.filter(d => f === 'seen' ? seen[d] : f === 'caught' ? caught(d) : true);
-    const cell = d => { const k = !!seen[d], p = String(d).padStart(3, '0'); return `<div class="dxc${k ? ' got' : ''}"${k ? ` data-act="dexcard" data-dex="${d}"` : ''}>${k && D.art[d] ? `<img class="pix" src="data:image/png;base64,${D.art[d].n}" alt="">` : '<div class="dxq">?</div>'}<small>No. ${p}</small><b>${k ? esc(by[d].name) : '???'}</b></div>`; };
+    const nSeen = nums.filter(d => seen[d]).length, nCaught = nums.filter(caught).length, f = ui.dexFilter || '';
+    const shown = nums;          // every Pokémon is always there: a toggle only dims the ones that do not match it
+    const cell = d => { const k = !!seen[d], cg1 = caught(d), p = String(d).padStart(3, '0'), dim = f === 'seen' ? !k : f === 'caught' ? !cg1 : false, grey = f === 'caught' && k && !cg1; return `<div class="dxc${k ? ' got' : ''}${dim ? ' dim' : ''}${grey ? ' grey' : ''}"${k ? ` data-act="dexcard" data-dex="${d}"` : ''}>${k && D.art[d] ? `<img class="pix" src="data:image/png;base64,${D.art[d].n}" alt="">` : '<div class="dxq">?</div>'}<small>No. ${p}</small><b>${k ? esc(by[d].name) : '???'}</b></div>`; };
     return `<div class="sheet" data-act="closedex"><div class="box hbox dexbox" data-stop="1" style="max-width:760px;max-height:92vh;overflow:auto"><h2>Pokédex</h2>
       <div class="dxcount"><span>${nSeen} of ${nums.length} seen</span><span><i class="pbi"></i>${nCaught} of ${nums.length} caught</span></div>
-      <div class="dxfilter">${[['all', 'All'], ['seen', 'Seen'], ['caught', 'Caught']].map(([k, l]) => `<button class="chip${f === k ? ' on' : ''}" data-act="dexfilter" data-v="${k}">${l}</button>`).join('')}</div>
+      <div class="dxfilter">${[['seen', 'Seen'], ['caught', 'Caught']].map(([k, l]) => `<button class="chip${f === k ? ' on' : ''}" data-act="dexfilter" data-v="${k}">${k === 'caught' ? '<i class="pbi"></i> ' : ''}${l}</button>`).join('')}</div>
       <div class="dxgrid">${shown.map(cell).join('') || '<div class="hcap">Nothing here yet.</div>'}</div><button class="btn" data-act="closedex">Done</button></div></div>`;
   }
   function hofRuns() {
@@ -2959,22 +2963,23 @@ const Bots = (() => {
   function dexCardSheet() {
     const cs = Object.values(C).filter(c => c.dex === ui.dexCard).sort((a, b) => (a.loc === 0) - (b.loc === 0) || a.level - b.level); if (!cs.length) return '';
     const own = lsGet(DEXC) || {}, fnd = lsGet(DEXF) || {}, shs = lsGet(DEXS) || {}, n = cs.length, per = n <= 3 ? n : Math.ceil(n / 2), rows = Math.ceil(n / per);
-    const cw = Math.max(90, Math.min(300, Math.floor((innerWidth - 40 - (per - 1) * 12) / per), Math.floor((viewH() - 250 - (rows - 1) * 110) / rows / CH)));
+    const cw = Math.max(90, Math.min(300, Math.floor((innerWidth - 40 - (per - 1) * 12) / per), Math.floor((viewH() - 330 - (rows - 1) * 170) / rows / CH)));
     const legacy = !!dexSeen()[ui.dexCard] && !cs.some(c => own[c.id]);              // an older record without versions: show the ordinary card
     ui.dexShiny = ui.dexShiny || {};
     // a place is shown as the back of its cards with its name underneath
-    const loc = l => { const L = D.locations.find(x => x.id === l); return L ? `<div class="locchip"><div style="--pw:44px">${deckPile(l, { pw: 44, count: 1, nobadge: true })}</div><span>${esc(L.name)}</span></div>` : ''; };
+    const loc = l => { const L = D.locations.find(x => x.id === l); return L ? `<div class="locchip"><div style="--pw:84px">${deckPile(l, { pw: 84, count: 1, nobadge: true })}</div><span>${esc(L.name)}</span></div>` : ''; };
     const cg = lsGet(DEXG) || {};
     const one = c => {
       const have = !!own[c.id] || (legacy && c.loc !== 0 && c === cs.find(x => x.loc !== 0)), sh = !!ui.dexShiny[c.id] && !!shs[c.id], found = (fnd[c.id] || []).length > 0, got = !!cg[c.id];
-      // three squares above the card: where it is found, whether you have caught it (both just tell you), then the shiny button (a real button: it switches the card)
-      const locSq = `<div class="sq ${found || c.loc === 0 ? 'on' : ''}" title="Location">${c.loc === 0 ? '⭐' : found ? '📍' : '?'}</div>`;
-      const catSq = `<div class="sq ${got ? 'on' : ''}" title="Caught"><i class="pbi"></i></div>`;
-      const shBtn = shs[c.id] ? `<button class="shbtn${sh ? ' on' : ''}" data-act="dexshiny" data-id="${c.id}">${sh ? 'Normal' : '✨ Shiny'}</button>` : `<div class="shbtn off">✨ ?</div>`;
+      // three big labelled tiles above the card: where it is found, caught, shiny. Tap one for a plain explanation; the shiny tile also switches the card.
+      const tile = (k, ic, name, st, on, act) => `<button class="stile${on ? ' on' : ''}" data-act="${act || 'dextip'}" data-t="${k}" data-id="${c.id}"><span class="si">${ic}</span><b>${name}</b><small>${st}</small></button>`;
+      const locSq = tile('loc', c.loc === 0 ? '⭐' : '📍', 'Found', c.loc === 0 ? 'Starter' : found ? 'Yes' : 'Not yet', found || c.loc === 0);
+      const catSq = tile('cat', '<i class="pbi"></i>', 'Caught', got ? 'Yes' : 'Not yet', got);
+      const shBtn = tile('shy', '✨', 'Shiny', shs[c.id] ? (sh ? 'Showing · tap for normal' : 'Had one · tap to view') : 'Not yet', !!shs[c.id], shs[c.id] ? 'dexshiny' : 'dextip');
       const where = c.loc === 0 ? '<div class="dexwhere">Starter only</div>' : found ? `<div class="locs">${fnd[c.id].map(loc).join('')}</div>` : '<div class="dexwhere">Location unknown</div>';
       return `<div class="dxv"><div class="sqs">${locSq}${catSq}${shBtn}</div>${card({ id: c.id, sh: sh ? 1 : 0 }, { cw, cls: have ? '' : 'sil' })}${where}</div>`;
     };
-    return `<div class="sheet" style="z-index:70;flex-direction:column;gap:10px" data-act="closedexcard"><div class="dxvs">${cs.map(one).join('')}</div><div class="hnav"><button class="ib" data-act="dexprev" aria-label="Previous">◀</button><button class="ib" data-act="dexnext" aria-label="Next">▶</button></div></div>`;
+    return `<div class="sheet" style="z-index:70;flex-direction:column;gap:10px" data-act="closedexcard"><div class="dxvs">${cs.map(one).join('')}</div><div class="hnav"><button class="ib" data-act="dexprev" aria-label="Previous">◀</button><button class="ib" data-act="dexnext" aria-label="Next">▶</button></div>${ui.dexTip ? `<div class="sheet" style="z-index:80" data-act="dextipx"><div class="box" data-stop="1" style="max-width:420px;display:flex;flex-direction:column;gap:12px"><h2>${ui.dexTip.h}</h2><p class="hcap" style="font-size:20px">${ui.dexTip.p}</p><button class="btn" data-act="dextipx">OK</button></div></div>` : ''}</div>`;
   }
   function recordsSheet() {
     const sz = ui.recSize || set.size, rec = scores()[sz] || {}, bosses = D.nodes.filter(n => n.kind === 'boss');
@@ -3136,6 +3141,11 @@ const Bots = (() => {
   const A = {
     continue() { const l = saves(); if (l.length > 1) { ui.slots = true; ui.delAsk = null; render(); return; } G = l[0]; ui.screen = 'play'; resetSel(); drive(); },
     load(el) { const g = saves().find(s => s.slot === +el.dataset.slot); if (!g) return; G = g; ui.slots = false; ui.screen = 'play'; resetSel(); drive(); },
+    dextip(el) { const c = C[el.dataset.id], k = el.dataset.t, own = lsGet(DEXG) || {}, fnd = (lsGet(DEXF) || {})[c.id] || [], shs = lsGet(DEXS) || {};
+      ui.dexTip = k === 'loc' ? { h: '📍 Found', p: c.loc === 0 ? 'This version is a starter. It only comes to you if you choose it (or grow it) as your starter.' : fnd.length ? 'You have met this card in the wild at the places shown underneath.' : 'You have not met this card in the wild yet, so its place is still unknown.' }
+        : k === 'cat' ? { h: 'Caught', p: own[c.id] ? 'This card has been in your collection.' : 'You have not had this card in your collection yet. Beating one in a fight only counts as seeing it.' }
+        : { h: '✨ Shiny', p: shs[c.id] ? 'You have had a shiny one of these.' : 'You have never had a shiny version of this card. When you do, this tile lets you view it.' }; render(); },
+    dextipx() { ui.dexTip = null; render(); },
     gzoom(el) { ui.gz = +el.dataset.k; render(); }, gzclose() { ui.gz = null; render(); },
     gzprev() { const n = (ui.gseen || []).length; ui.gz = (ui.gz + n - 1) % n; render(); }, gznext() { const n = (ui.gseen || []).length; ui.gz = (ui.gz + 1) % n; render(); },
     closeslots() { ui.slots = false; ui.delAsk = null; render(); },
@@ -3153,7 +3163,7 @@ const Bots = (() => {
     tips(el) { set.tips = el && el.dataset.v ? el.dataset.v === 'true' : !set.tips; lsSet(SET, set); render(); },
     settings() { ui.settings = true; ui.menu = false; render(); }, closesettings() { ui.settings = false; render(); },
     starter(el) { G = E.newGame({ starter: el.dataset.k, size: set.size, ai: set.ai, seed: ui.seed }); ui.seed = null; ui.screen = 'play'; resetSel(); save(); render(); },
-    dex() { ui.dex = true; ui.more = false; ui.menu = false; render(); }, closedex() { ui.dex = false; ui.dexCard = null; render(); }, dexcard(el) { ui.dexCard = +el.dataset.dex; render(); }, dexfilter(el) { ui.dexFilter = el.dataset.v; render(); }, dexshiny(el) { ui.dexShiny = ui.dexShiny || {}; ui.dexShiny[el.dataset.id] = !ui.dexShiny[el.dataset.id]; render(); },
+    dex() { ui.dex = true; ui.more = false; ui.menu = false; render(); }, closedex() { ui.dex = false; ui.dexCard = null; render(); }, dexcard(el) { ui.dexCard = +el.dataset.dex; render(); }, dexfilter(el) { ui.dexFilter = ui.dexFilter === el.dataset.v ? '' : el.dataset.v; render(); }, dexshiny(el) { ui.dexShiny = ui.dexShiny || {}; ui.dexShiny[el.dataset.id] = !ui.dexShiny[el.dataset.id]; render(); },
     dexprev() { dexStep(-1); }, dexnext() { dexStep(1); }, closedexcard() { ui.dexCard = null; render(); },
     records() { ui.records = true; ui.more = false; ui.menu = false; render(); }, closerec() { ui.records = false; render(); }, recsize(el) { ui.recSize = el.dataset.v; render(); },
     eye(el) { ui.eye = el.dataset.id; render(); }, closeeye() { ui.eye = null; ui.eyeBack = null; ui.gz = null; render(); }, chipinfo() { ui.chip = true; render(); }, closechip() { ui.chip = false; render(); },

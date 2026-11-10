@@ -428,7 +428,7 @@ test('ui: Bill stands on the map after a special event and can be tapped; the Po
     assert.equal(await p.locator('[data-act=dexprev], [data-act=dexnext]').count(), 2, 'arrows to the Pokémon before and after');
     await p.evaluate(() => { localStorage.setItem('pokemon-roll-dexshiny', JSON.stringify({ '4.2': 1 })); localStorage.setItem('pokemon-roll-dexfound2', JSON.stringify({ '4.2': [5] })); localStorage.setItem('pokemon-roll-dexcards', JSON.stringify({ '4.1': 1, '4.2': 1 })); window.__pokemonRoll.render(); });
     assert.equal(await p.locator('.dxv .locchip .pile').count(), 1, 'a place is the back of its cards with its name under it'); assert.match(await p.innerText('.dxv .locchip'), /\S/);
-    assert.equal(await p.locator('.dxv .sq').count() >= 2, true, 'a square for the location and one for caught'); assert.equal(await p.locator('.dxv .shbtn').count() >= 1, true, 'and the shiny button'); assert.equal(await p.locator('.dxv .card.shiny').count(), 0, 'not shiny by default'); await p.click('[data-act=dexshiny]'); assert.equal(await p.locator('.dxv .card.shiny').count(), 1, 'the shiny one on request'); await p.click('[data-act=dexshiny]'); assert.equal(await p.locator('.dxv .card.shiny').count(), 0, 'and back');
+    assert.equal(await p.locator('.dxv .stile').count() >= 3, true, 'labelled tiles for found, caught and shiny'); assert.equal(await p.locator('.dxv .stile[data-act=dexshiny]').count() >= 1, true, 'and the shiny button'); assert.equal(await p.locator('.dxv .card.shiny').count(), 0, 'not shiny by default'); await p.click('[data-act=dexshiny]'); assert.equal(await p.locator('.dxv .card.shiny').count(), 1, 'the shiny one on request'); await p.click('[data-act=dexshiny]'); assert.equal(await p.locator('.dxv .card.shiny').count(), 0, 'and back');
     await p.mouse.click(8, 8); await p.mouse.click(8, 8); await p.click('.place.visitor').catch(() => {});
     assert.deepEqual(errs, []);
   } finally { await b.close(); }
@@ -523,7 +523,12 @@ test('ui: the Pokédex counts seen and caught (any version counts) and can be fi
     await p.goto(URL); await p.evaluate(() => { localStorage.setItem('pokemon-roll-dex', JSON.stringify({ 2: 1, 4: 1, 13: 1 })); localStorage.setItem('pokemon-roll-dexcaught', JSON.stringify({ '2.4': 1 })); }); await p.reload();
     await p.click('[data-act=more]'); await p.click('.sheet [data-act=dex]');
     assert.match(await p.innerText('.dxcount'), /3 of \d+ seen/); assert.match(await p.innerText('.dxcount'), /1 of \d+ caught/, 'one version of Ivysaur is enough');
-    await p.click('[data-act=dexfilter][data-v=seen]'); assert.equal(await p.locator('.dxc').count(), 3); await p.click('[data-act=dexfilter][data-v=caught]'); assert.equal(await p.locator('.dxc').count(), 1); await p.click('[data-act=dexfilter][data-v=all]'); assert.ok(await p.locator('.dxc').count() > 100);
+    const all = await p.locator('.dxc').count(); assert.ok(all > 100, 'every Pokémon is always shown');
+    assert.equal(await p.locator('[data-act=dexfilter]').count(), 2, 'only Seen and Caught');
+    await p.click('[data-act=dexfilter][data-v=seen]'); assert.equal(await p.locator('.dxc').count(), all); assert.equal(await p.locator('.dxc:not(.dim)').count(), 3, 'unseen ones are dimmed');
+    await p.click('[data-act=dexfilter][data-v=caught]'); assert.equal(await p.locator('.dxc').count(), all); assert.equal(await p.locator('.dxc:not(.dim)').count(), 1); assert.equal(await p.locator('.dxc.grey').count(), 2, 'seen but not caught: greyscale');
+    await p.click('[data-act=dexfilter][data-v=caught]'); assert.equal(await p.locator('.dxc.dim').count(), 0, 'tap again to clear the filter');
+    await p.click('.dxc.got'); assert.equal(await p.locator('.stile').count() >= 3, true); assert.match(await p.innerText('.stile >> nth=0'), /Found/); await p.click('.stile >> nth=1'); assert.match(await p.innerText('.sheet .sheet'), /Caught/); await p.click('[data-act=dextipx] >> nth=-1'); assert.equal(await p.locator('.sheet .sheet').count(), 0, 'OK closes the explanation');
     assert.deepEqual(errs, []);
   } finally { await b.close(); }
 });
