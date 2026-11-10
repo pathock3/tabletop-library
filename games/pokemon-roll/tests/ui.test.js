@@ -380,6 +380,7 @@ test('ui: choosing a card asks below the cards, goes straight to the map; a loss
     await p.evaluate(() => { const s = Engine.newGame({ seed: 5, starter: 'charmander' }); s.phase = 'result'; s.res = { win: true, node: 'B1', newDie: true, pick: [{ id: '13', sh: 0 }, { id: '10', sh: 0 }] }; window.__pokemonRoll.setG(s); });
     assert.equal(await p.locator('.leadtalk .leadimg').count(), 1, 'the leader is on screen while they talk'); assert.equal(await p.locator('.leadtalk .gift .die').count(), 1, 'and a die is shown when they hand you one');
     assert.equal(await p.locator('[data-act=pickcard]').count(), 0, 'the first screen is just the leader'); await p.click('[data-act=resnext]');
+    await p.click('.respile'); assert.ok(await p.locator('.handov').count() >= 1, 'while choosing, you can look at your hand'); await p.mouse.click(400, 1100); await p.waitForTimeout(500);
     await p.click('[data-act=pickcard] >> nth=0');
     const r = await p.evaluate(() => { const bar = document.querySelector('.pickbar').getBoundingClientRect(), cards = [...document.querySelectorAll('[data-act=pickcard]')].map(c => c.getBoundingClientRect().bottom); return { bar: bar.top, cards: Math.max(...cards), sheet: document.querySelectorAll('.sheet').length }; });
     assert.ok(r.bar >= r.cards - 1, 'the question sits below the cards'); assert.equal(r.sheet, 0, 'not over them');
