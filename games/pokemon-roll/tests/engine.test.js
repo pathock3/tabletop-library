@@ -519,7 +519,7 @@ test('rules: "immune" is now three less damage from that type; leaders field the
 });
 
 test('special events: 10% after a battle that started with three dice; the first is Bill on the map, then a random legendary every time, shuffled into its place\'s piles', () => {
-  const SP = D.specials; assert.equal(SP.chance, 0.1); assert.equal(SP.fromSlots, 3); assert.deepEqual(SP.order, ['bill']); assert.equal(SP.then, 'legendary');
+  const SP = D.specials; assert.equal(SP.chance, 0.1); assert.equal(SP.fromSlots, 3); assert.deepEqual(SP.order, ['bill', 'dojo']); assert.equal(SP.then, 'legendary'); assert.equal(SP.legendBadges, 4);
   const play1 = (seed, dice, setup) => { const s = E.newGame({ seed, starter: 'bulbasaur' }); for (let i = 0; i < dice - 1; i++) s.done['B' + [1, 2, 4, 5][i]] = true; s.slotsAtGo = E.slots ? E.slots(s) : dice; if (setup) setup(s); s.phase = 'result'; s.res = { win: true, node: 'L1', kind: 'loc' }; assert.ok(E.apply(s, { t: 'done' }).ok); return s; };
   let few = 0, enough = 0, first = null;
   for (let seed = 1; seed <= 400; seed++) {
@@ -528,8 +528,8 @@ test('special events: 10% after a battle that started with three dice; the first
   }
   assert.equal(few, 0, 'nothing special before the first battle with three dice'); assert.ok(enough > 15 && enough < 70, 'about one battle in ten (' + enough + ')');
   assert.deepEqual(first.visitors, ['bill']); assert.equal(first.specialsSeen, 1); assert.ok(first.notes[0].startsWith('visitor:'), 'the first one is Bill, standing on the map');
-  // after Bill: a random legendary each time; its place's draw and discard piles are shuffled together with it
-  let leg = null; for (let seed = 1; seed < 400 && !leg; seed++) { const s = play1(seed, 3, g => { g.specialsSeen = 1; g.discard[1] = ['10', '13']; g.discard[2] = ['16']; }); if (s.notes.some(n => n.startsWith('legend:'))) leg = s; }
+  // after Bill and the Dojo, and once you hold four badges: a random legendary each time; its place's draw and discard piles are shuffled together with it
+  let leg = null; for (let seed = 1; seed < 400 && !leg; seed++) { const s = play1(seed, 3, g => { g.specialsSeen = 2; g.done.B1 = g.done.B2 = g.done.B4 = g.done.B5 = true; g.discard[1] = ['10', '13']; g.discard[2] = ['16']; }); if (s.notes.some(n => n.startsWith('legend:'))) leg = s; }
   assert.ok(leg, 'then a legendary'); const id = leg.notes[0].slice(7), loc = C[id].loc; assert.ok(C[id].legend); assert.ok(leg.decks[loc].includes(id), 'it is in the new draw pile'); assert.equal(leg.discard[loc].length, 0, 'the discard pile went into it'); assert.ok(!leg.legend.includes(id));
 });
 

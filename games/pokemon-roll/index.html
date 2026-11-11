@@ -168,7 +168,7 @@ button{font:inherit;color:inherit;border:0;cursor:pointer}
 .die.sel{transform:translateY(-10px) scale(1.1);box-shadow:0 0 0 5px var(--gold),0 12px 0 #0006}
 .die.used{opacity:.4}
 .die.foe{background:#7b1e1e;color:#fff;border-color:#2a0e0e}
-.die.tumble{animation:tumble .9s cubic-bezier(.3,.7,.4,1)}
+.die.tumble{animation:tumble .75s cubic-bezier(.3,.7,.4,1)}
 @keyframes tumble{0%{transform:translateY(-90px) rotate(0) scale(.5);opacity:0}25%{opacity:1}50%{transform:translateY(0) rotate(400deg) scale(1.15)}65%{transform:translateY(-26px) rotate(520deg) scale(1.05)}82%{transform:translateY(0) rotate(680deg)}92%{transform:translateY(-6px) rotate(715deg)}100%{transform:none}}
 .rollhint{animation:blink 1.2s ease-in-out infinite}
 @keyframes blink{50%{opacity:.45}}
@@ -563,9 +563,10 @@ const GAME_DATA = {
   // special events: after every battle there is a 10% chance of one, counting from the first battle you start with three dice. `order` is the list of events in the order they happen; after it runs out, `then` happens every time.
   // kinds: 'visitor' (someone appears on the map at stage/lane; tap them: a fight where you keep one of `cards`) · 'legendary' (a random legendary is shuffled into its place's piles). Add a def here and a handler in the engine (SPECIAL) for a new kind.
   specials: {
-    chance: 0.1, fromSlots: 3, order: ['bill'], then: 'legendary',
+    chance: 0.1, fromSlots: 3, order: ['bill', 'dojo'], then: 'legendary', legendBadges: 4,
     defs: {
-      bill: { kind: 'visitor', name: 'Bill', art: 'BILL', stage: 3, lane: 1, cards: ['Vaporeon', 'Jolteon', 'Flareon'], fallback: 'Eevee', say: "Hi! I'm Bill. Beat my Eevee evolutions and take your pick of them to keep." },
+      bill: { kind: 'visitor', name: 'Bill', art: 'BILL', stage: 3, lane: 1, cards: ['Vaporeon', 'Jolteon', 'Flareon'], fallback: 'Eevee', info: 'Bill has three Eevee evolutions: Vaporeon, Jolteon and Flareon. Beat them and you keep one you do not have yet (or Eevee if you have all three).', say: "Hi! I'm Bill. Beat my Eevee evolutions and take your pick of them to keep." },
+      dojo: { kind: 'visitor', name: 'Fighting Dojo', art: 'DOJO', stage: 3, lane: 1, pick: { type: 'Fighting', n: 3 }, say: "Welcome to the Dojo! Beat my three fighters and take your pick of them to keep.", info: 'Three random Fighting Pokémon train here. Beat all three and you keep one of them.' },
       legendary: { kind: 'legendary' },
     },
   },
@@ -860,6 +861,7 @@ const Engine = (() => {
   'use strict';
   const D = GAME_DATA, R = D.rules;
   const lc = x => String(x || '').toLowerCase();
+  if (D.trainerArt && !D.trainerArt.DOJO && D.art && D.art[106]) D.trainerArt.DOJO = D.art[106].n;          // the Fighting Dojo is shown by Hitmonlee
   const other = x => 1 - x;
 
   // ---------------------------------------------------------------- the cards
@@ -964,9 +966,10 @@ const Engine = (() => {
   // ---------------------------------------------------------------- special events: after a battle there is a chance of an event (data: GAME_DATA.specials). Each kind has one small handler below; to add a kind of event, add its entry to the data and a handler here.
   const SPEC = D.specials, spDef = id => SPEC.defs[id];
   const visitorNode = id => { const d = spDef(id); return d ? { id: 'V_' + id, kind: 'visitor', special: id, name: d.name, art: d.art, say: d.say, stage: d.stage, lane: d.lane, needs: [] } : null; };
-  const visitorCards = id => spDef(id).cards.map(nm => Object.values(CARDS).find(c => c.name === nm)).filter(Boolean).map(c => c.id);
+  const visitorCards = (id, s) => (s && s.vcards && s.vcards[id]) || (spDef(id).cards || []).map(nm => Object.values(CARDS).find(c => c.name === nm)).filter(Boolean).map(c => c.id);
   const SPECIAL = {
-    visitor(s, id) { s.visitors.push(id); s.notes.push('visitor:' + id); return true; },                       // someone turns up on the map: tap them to meet them
+    visitor(s, id, d) { if (d && d.pick) { const pool = Object.values(CARDS).filter(c => c.type === d.pick.type && c.loc !== 0 && !c.legend).map(c => c.id); (s.vcards = s.vcards || {})[id] = shuffle(s, pool).slice(0, d.pick.n); }          // an event that draws its own cards (the Fighting Dojo: three random Fighting cards)
+      s.visitors.push(id); s.notes.push('visitor:' + id); return true; },                       // someone turns up on the map: tap them to meet them
     legendary(s) {                                                                                           // a random legendary: shuffled with what is left of its place's piles into one new draw pile
       if (!s.legend.length) return false; const id = s.legend.shift(), loc = CARDS[id].loc;
       s.decks[loc] = shuffle(s, s.decks[loc].concat(s.discard[loc], [id])); s.discard[loc] = []; s.notes.push('legend:' + id); return true;
@@ -974,8 +977,10 @@ const Engine = (() => {
   };
   function maybeSpecial(s) {
     s.visitors = s.visitors || []; s.specialsSeen = s.specialsSeen || 0;
-    if ((s.slotsAtGo || 0) < SPEC.fromSlots || rnd(s) >= SPEC.chance) return;
-    const id = SPEC.order[s.specialsSeen] || SPEC.then, d = spDef(id); if (d && SPECIAL[d.kind](s, id, d) !== false) s.specialsSeen++;
+    if (rnd(s) >= SPEC.chance) return;
+    // the visitors (Bill, the Dojo) come one after another once you have three dice; a legendary can turn up once you hold any four badges
+    const id = (s.specialsSeen < SPEC.order.length && (s.slotsAtGo || 0) >= SPEC.fromSlots) ? SPEC.order[s.specialsSeen] : bossesBeaten(s) >= SPEC.legendBadges ? SPEC.then : null; if (!id) return;
+    const d = spDef(id); if (d && SPECIAL[d.kind](s, id, d) !== false && id !== SPEC.then) s.specialsSeen++;
   }
   const node = id => D.nodes.find(n => n.id === id) || (/^V_/.test(id) ? visitorNode(id.slice(2)) : null);
   const starterOf = key => D.starters.find(x => x.key === key);
@@ -1601,7 +1606,7 @@ const Engine = (() => {
       }
       r.dittoDone = true;
     }
-    if (!r.started) { r.started = true; ev(b, { t: 'phase', p: 'heal' }); }                  // the screen plays the round in four steps: heals, attacks, blocks, damage
+    if (!r.started) { r.started = true; if (r.acts.some(x => { const q = U(b, x.uid); return !q.ko && !x.sp && effsFor(b, q, x).some(f => f.k === 'h'); })) ev(b, { t: 'phase', p: 'heal' }); else { r.phase = 'attack'; ev(b, { t: 'phase', p: 'attack' }); } }          // no one is healing this round: the heal step is skipped                  // the screen plays the round in four steps: heals, attacks, blocks, damage
     while (r.phase !== 'done') {
       b.planning = r.phase === 'attack';                                            // attacks are only declared; the damage lands in the last step, after the blocks
       if (r.phase === 'damage') { applyPending(s, b); r.phase = 'done'; continue; }
@@ -1850,7 +1855,7 @@ const Engine = (() => {
         s.turn++; if (nd.kind === 'boss') (s.seen = s.seen || {})[nd.id] = true;                  // once you have faced a gym leader their team is no longer a secret
         s.slotsAtGo = slots(s);                                                       // special events count from the first battle you start with three dice
         const hero = s.coll.map(c => ({ id: c.id, sh: c.sh })); s.phase = 'battle';
-        if (nd.kind === 'visitor') { const ids = visitorCards(nd.special); startBattle(s, 'loc', nd.id, hero, [], { lazy: true, wild: { loc: 1, cap: Math.min(slots(s), s.coll.length, ids.length) }, bill: ids, need: [0, 0] }); }
+        if (nd.kind === 'visitor') { const ids = visitorCards(nd.special, s); startBattle(s, 'loc', nd.id, hero, [], { lazy: true, wild: { loc: 1, cap: Math.min(slots(s), s.coll.length, ids.length) }, bill: ids, need: [0, 0] }); }
         else if (nd.kind === 'loc') startBattle(s, 'loc', nd.id, hero, [], { lazy: true, wild: { loc: nd.loc, cap: Math.min(slots(s), s.coll.length, deckSize(s, nd.loc)) }, need: [0, 0] });
         else { const gm = s.bosses[nd.id].map(i => ({ id: i.id, sh: i.sh })); startBattle(s, nd.kind, nd.id, hero, gm, { lazy: true, need: [Math.min(gm.length, s.coll.length), gm.length] }); }
         return null;
@@ -2242,15 +2247,15 @@ const Bots = (() => {
     o = o || {}; const c = C[u.id], e = el(c.type), cw = o.cw || 180, mx = u.max || c.hp + (u.sh ? D.rules.shinyHp : 0), hp = o.hp != null ? o.hp : (u.hp != null ? u.hp : mx);
     const pct = Math.max(0, Math.min(100, hp / mx * 100)), lvl = pct <= 33 ? ' lo' : pct <= 66 ? ' mid' : '';
     const sp = E.parseSpecial(c.special);
-    const rows = c.moves.map((m, i) => [m, i]).reverse().map(([m, i]) => { const me = m && c.movEls && c.movEls[i] ? el(c.movEls[i][0].toUpperCase() + c.movEls[i].slice(1)) : null; return `<div class="f${m ? '' : ' blank'}${me ? ' elm' : ''}" ${me ? `style="--mc:${me.color};--mb:${me.bg}"` : ''}${o.face === i + 1 && !o.sp ? ' hot' : ''}${o.pf === i + 1 && o.face !== i + 1 ? ' pick' : ''}"><span class="pip">${i + 1}</span><span class="mt">${m ? short(m) : '—'}</span>${me ? `<span class="me">${me.icon}</span>` : ''}</div>`; }).join('');
+    const rows = c.moves.map((m, i) => [m, i]).reverse().map(([m, i]) => { const me = m && c.movEls && c.movEls[i] ? el(c.movEls[i][0].toUpperCase() + c.movEls[i].slice(1)) : null; return `<div class="f${m ? '' : ' blank'}${me ? ' elm' : ''}" data-p="mv" data-i="${i + 1}" ${me ? `style="--mc:${me.color};--mb:${me.bg}"` : ''}${o.face === i + 1 && !o.sp ? ' hot' : ''}${o.pf === i + 1 && o.face !== i + 1 ? ' pick' : ''}"><span class="pip">${i + 1}</span><span class="mt">${m ? short(m) : '—'}</span>${me ? `<span class="me">${me.icon}</span>` : ''}</div>`; }).join('');
     return `<div class="card${u.sh ? ' shiny' : ''}${o.foe ? ' foe' : ''}${o.ko ? ' ko' : ''}${o.sel ? ' sel' : ''}${o.die != null ? ' has-die' : ''}${o.cls ? ' ' + o.cls : ''}" style="--cw:${cw}px;--bg:${e.bg};--c:${e.color}" ${o.attr || ''}>
-      ${D.elements[c.weak] ? `<div class="wkt" style="--wc:${el(c.weak).color}">weak: ${el(c.weak).icon} ${esc(c.weak)} ×2</div>` : ''}
+      ${D.elements[c.weak] ? `<div class="wkt" data-p="wk" style="--wc:${el(c.weak).color}">weak: ${el(c.weak).icon} ${esc(c.weak)} ×2</div>` : ''}
       <div class="cbox">
         <div class="art"><img style="width:${artPct(u.id)}%" src="${art(u.id, u.sh)}" alt="${esc(c.name)}">${u.sh ? sparkles() : ''}${o.mark ? `<div class="mark">${o.mark}</div>` : ''}${o.die != null ? `<div class="dbadge${o.heroDie ? ' hero' : ''}${o.land ? ' land' : ''}${o.dieCol ? ' colored' : ''}" ${o.dieAttr || ''}${o.dieCol ? ` style="background:${o.dieCol}"` : ''}>${o.die}${o.dieBonus ? '<small>+1</small>' : ''}</div>` : ''}</div>
         <div class="nm">${esc(c.name)}${u.sh ? ' ✨' : ''}</div>${o.recall ? `<div class="rcl${o.recall === 'sure' ? ' sure' : ''}" data-act="recall" data-uid="${u.uid}">${o.recall === 'sure' ? 'Return it? Tap again' : '↩ Return'}</div>` : ''}
-        <div class="side"><div class="hprow"><div class="hpc${lvl}">♥ <span class="hpn">${Math.max(0, hp)}</span><small>/${mx}</small></div>${o.chg ? `<span class="hpchg${o.chg.heal ? ' up' : ''}">${o.chg.heal ? '+' : '−'}${o.chg.n}${o.chg.weak ? ' <b>×2</b>' : ''}</span>` : ''}</div>${o.shield ? `<div class="shd">🛡 ${o.shield}</div>` : ''}${o.start != null && mx <= 14 ? hpPips(hp, o.start, mx) : ''}<div class="tagl">${e.icon} ${esc(c.type)}</div><div class="lv">Lv ${lvName(c.level)}</div></div>
+        <div class="side"><div class="hprow"><div class="hpc${lvl}" data-p="hp">♥ <span class="hpn">${Math.max(0, hp)}</span><small>/${mx}</small></div>${o.chg ? `<span class="hpchg${o.chg.heal ? ' up' : ''}">${o.chg.heal ? '+' : '−'}${o.chg.n}${o.chg.weak ? ' <b>×2</b>' : ''}</span>` : ''}</div>${o.shield ? `<div class="shd">🛡 ${o.shield}</div>` : ''}${o.start != null && mx <= 14 ? hpPips(hp, o.start, mx) : ''}<div class="tagl" data-p="el">${e.icon} ${esc(c.type)}</div><div class="lv">Lv ${lvName(c.level)}</div></div>
       </div>
-      <div class="ab${o.ab ? ' ' + o.ab.state + (o.ab.on ? ' on' : '') : ''}" ${o.ab && o.ab.state === 'ready' && o.ab.attr ? o.ab.attr : ''}>${c.ability ? abText(c.ability) : 'No ability'}${o.ab && o.ab.html ? o.ab.html : ''}</div>
+      <div class="ab${o.ab ? ' ' + o.ab.state + (o.ab.on ? ' on' : '') : ''}" data-p="ab" ${o.ab && o.ab.state === 'ready' && o.ab.attr ? o.ab.attr : ''}>${c.ability ? abText(c.ability) : 'No ability'}${o.ab && o.ab.html ? o.ab.html : ''}</div>
       <div class="faces">${rows}</div>
       ${sp && D.rules.specials ? `<div class="sp${o.sp ? ' hot' : ''}"><i>${String(sp.face).repeat(sp.count).split('').join(' ')}</i><span>${short(c.special.replace(/^\d+:\s*/, ''))}</span></div>` : ''}
       ${o.extra || ''}
@@ -2804,7 +2809,7 @@ const Bots = (() => {
     const colM = !!b.colMode, waitRoll = assign && (colM ? !b.rolled : b.round === 1 && ui.rollTap !== G.turn);                       // every card's roll is a tap
     const rollKey = colM ? b.round + ':' + b.cur : b.round;
     const curCol = colM ? (assign && !b.rolled ? b.cols.findIndex(c => [0, 1].some(sd => c[sd] != null && !b.acted[c[sd]] && !E.U(b, c[sd]).ko)) : b.cur) : -1;
-    if (assign && !waitRoll && ui.rolledFor !== rollKey) { ui.rolledFor = rollKey; ui.rerolled = null; ui.rolling = Date.now() + 950; setTimeout(() => { ui.rolling = 0; render(); }, 1000); }
+    if (assign && !waitRoll && ui.rolledFor !== rollKey) { ui.rolledFor = rollKey; ui.rerolled = null; ui.rolling = Date.now() + 680; setTimeout(() => { ui.rolling = 0; render(); }, 730); }
     const rolling = ui.rolling && Date.now() < ui.rolling;
     const asking = b.stage === 'resolving' && b.ask && (!p || p.waiting);
     const hpOf = u => p ? (p.hp[u.uid] != null ? p.hp[u.uid] : u.hp) : u.hp;
@@ -2823,7 +2828,7 @@ const Bots = (() => {
       return n ? { n, heal, weak } : null;
     };
     const unitCard = u => {
-      const info = unitMove(b, u), ko = u.ko || koOf(u), reveal = u.side === 0 || done || (p && p.revealed[u.uid]);
+      const info = unitMove(b, u), ko = p ? koOf(u) : u.ko, reveal = u.side === 0 || done || (p && p.revealed[u.uid]);
       let face = 0, spOn = false, die = null;
       if (info && reveal && info.m) { face = info.vals[0]; spOn = !!info.m.sp; die = info.vals.join('+'); }
       const mark = ko ? '✕' : (u.skip && (assign || p || done)) ? '💤' : '';
@@ -2857,7 +2862,7 @@ const Bots = (() => {
     // the bay: your hand while you set the matchups, then the dice
     const hd = b.dice[0], used = E.assignedDice(b, 0);
     // dice that were thrown again come after the others (each group highest first), so they never trade places with the dice you kept
-    const diceHtml = !waitRoll && (assign || done || p) && hd.length ? hd.map((v, i) => [v, i]).sort((x, y) => { const lk = (b.locked && b.locked[0]) || {}; return rolling ? x[1] - y[1] : (lk[x[1]] ? 1 : 0) - (lk[y[1]] ? 1 : 0) || y[0] - x[0] || x[1] - y[1]; }).map(([v, i]) => { const tum = rolling && (!ui.rerolled || ui.rerolled.indexOf(i) >= 0); return dieHtml(tum ? 1 + Math.floor(Math.random() * 6) : v, { sel: ui.die === i, used: !colM && used.has(i), tumble: tum, attr: !colM && assign && !rolling && !(b.fixed && b.fixed[0] && b.fixed[0][i]) ? `data-act="die" data-i="${i}"` : '' }); }).join('') : '';
+    const diceHtml = !waitRoll && (assign || done || p) && hd.length ? hd.map((v, i) => [v, i]).sort((x, y) => { const lk = (b.locked && b.locked[0]) || {}; return rolling ? x[1] - y[1] : (lk[x[1]] ? 1 : 0) - (lk[y[1]] ? 1 : 0) || y[0] - x[0] || x[1] - y[1]; }).map(([v, i]) => { const tum = rolling && (!ui.rerolled || ui.rerolled.indexOf(i) >= 0); return dieHtml(tum ? '' : v, { sel: ui.die === i, used: !colM && used.has(i), tumble: tum, attr: !colM && assign && !rolling && !(b.fixed && b.fixed[0] && b.fixed[0][i]) ? `data-act="die" data-i="${i}"` : '' }); }).join('') : '';
     let status = '', btns = '';
     const opt = yourPlace && b.pl.optional;
     if (placing) status = (b.sudden ? 'SUDDEN DEATH · ' : '') + (yourPlace ? (selected != null ? 'Now tap where it goes' : opt ? 'Put down another card, tap the deck for them to bring one first, or Fight!' : 'Pick a Pokémon from your hand to put down') : 'They are putting a card down…');
@@ -2891,7 +2896,7 @@ const Bots = (() => {
     const trainerHtml = nodeB.kind !== 'loc' && D.trainerArt && D.trainerArt[nodeB.art || nodeB.id] ? `<div class="trainer"><img class="pix" src="data:image/png;base64,${D.trainerArt[nodeB.art || nodeB.id]}" alt="${esc(nodeB.name)}"><b>${esc(nodeB.name)}</b></div>` : '';
     const railIn = placing ? `<div class="status">${status}</div>${fight}<div class="hrow handrow hcol">${heroTray}</div>${pileHtml}` : `<div class="rmid"><div class="status">${status}</div><div class="dice">${diceHtml}</div></div><div class="acts">${btns}</div>`;
     const dw = RW >= 200 ? 78 : RW >= 150 ? 62 : 46;
-    return `<div class="bt"><div class="board">${cols}</div><div class="rail${goReady ? ' rgo' : ''}" ${goReady ? 'data-act="go"' : ''} style="width:${RW}px;--dw:${dw}px"><div class="rtop">${canReturn ? `<button class="ib pball${ui.returning ? ' on' : ''}" data-act="retmode" aria-label="Return a Pokémon"><i></i></button>` : ''}<button class="ib" data-act="leave" style="${ui.leaveAsk ? 'width:auto;padding:0 12px;font-size:16px;font-weight:800' : ''}" aria-label="Leave">${ui.leaveAsk ? 'Flee?' : '🏃'}</button><button class="ib" data-act="menu" aria-label="Menu">☰</button></div>${trainerHtml}${railIn}</div></div>`;
+    return `<div class="bt"><div class="board">${cols}</div><div class="rail${goReady ? ' rgo' : ''}" ${goReady ? 'data-act="go"' : ''} style="width:${RW}px;--dw:${dw}px"><div class="rtop"><button class="ib" data-act="eye" data-id="${nodeB.id}" aria-label="Info">ⓘ</button>${canReturn ? `<button class="ib pball${ui.returning ? ' on' : ''}" data-act="retmode" aria-label="Return a Pokémon"><i></i></button>` : ''}<button class="ib" data-act="leave" style="${ui.leaveAsk ? 'width:auto;padding:0 12px;font-size:16px;font-weight:800' : ''}" aria-label="Leave">${ui.leaveAsk ? 'Flee?' : '🏃'}</button><button class="ib" data-act="menu" aria-label="Menu">☰</button></div>${trainerHtml}${railIn}</div></div>`;
   }
   // a card is picked in two steps so a quick tap can never choose one by accident: tap it, then OK in the middle of the screen (and a card that is not the strongest asks again)
   // choosing a card to keep: tap a card, then OK (tap it again to let go). Under the cards, never over them.
@@ -3008,7 +3013,7 @@ const Bots = (() => {
   function zoomSheet() {
     const list = collSorted(), c = list.find(x => x.uid === ui.zoom); if (!c) return '';
     const cw = Math.max(200, Math.min(760, innerWidth - 24, Math.floor((innerHeight - 130) / CH)));
-    return `<div class="sheet" style="z-index:60" data-act="closezoom">${card(c, { cw })}${ui.zoomOnly ? '' : `<div class="hnav"><button class="ib" data-act="zprev">◀</button><button class="btn" data-act="closezoom">Close</button><button class="ib" data-act="znext">▶</button></div>`}</div>`;
+    return `<div class="sheet" style="z-index:60" data-act="closezoom"><div data-stop="1" data-zc="${c.id}">${card(c, { cw })}</div>${ui.zoomOnly ? '' : `<div class="hnav"><button class="ib" data-act="zprev">◀</button><button class="btn" data-act="closezoom">Close</button><button class="ib" data-act="znext">▶</button></div>`}</div>`;
   }
   // your cards: picked up from the pile and splayed across the table like a hand; tap one to see it big, tap the table to put them back
   function collSheet() {
@@ -3065,6 +3070,7 @@ const Bots = (() => {
   }
   function eyeSheet() {
     const n = E.node(ui.eye); if (n.kind === 'loc') return deckInfoSheet(n);
+    if (n.kind === 'visitor') { const d = D.specials.defs[n.special] || {}; return `<div class="sheet" data-act="closeeye"><div class="box hbox" data-stop="1" style="height:auto;max-width:520px"><div class="infoi">i</div>${D.trainerArt && D.trainerArt[n.art] ? `<img class="pix infospr" src="data:image/png;base64,${D.trainerArt[n.art]}" alt="">` : ''}<h2>${esc(n.name)}</h2><p class="hcap" style="font-size:21px">${esc(d.info || d.say || '')}</p></div></div>`; }
     // their team in one line, in the order it was made: a card you have seen them put down is face up, every other one is the back of the place it comes from (tap a back to learn about that place). All the same size.
     const team = (G.bosses[n.id] || []).slice(), pool = ((G.seenCards || {})[n.id] || []).slice(), slots = team.map(i => { const k = pool.findIndex(c => c.id === i.id && !!c.sh === !!i.sh); if (k >= 0) { pool.splice(k, 1); return { i, seen: true }; } return { i, seen: false }; });
     const per = Math.max(1, slots.length), cellW = Math.max(66, Math.min(124, Math.floor((Math.min(innerWidth, 760) - 64 - (per - 1) * 10) / per))), cw = Math.floor(cellW / 1.128);          // a card back is wider for its height than a card: the cell is as wide as the back, the card sits in the middle, and both are the same height
@@ -3077,11 +3083,29 @@ const Bots = (() => {
     }).join('');
     return `<div class="sheet" data-act="closeeye"><div class="box hbox" data-stop="1" style="height:auto;max-height:92vh;overflow:auto;max-width:96vw">${D.trainerArt && D.trainerArt[n.id] ? `<img class="pix infospr" src="data:image/png;base64,${D.trainerArt[n.id]}" alt="${esc(n.name)}">` : ''}<h2>${esc(n.name)}'s team</h2><p class="hcap" style="font-size:19px">${esc(n.name)}'s team consists of cards from these locations:</p><div class="gline">${cells}</div></div></div>`;
   }
+  // tapping a part of a big card says what it is and does
+  const offWord = (o, k) => o === 0 ? (k === 'a' ? 'the card across' : 'itself') : Math.abs(o) === 1 ? (k === 'a' ? 'the opposing card in the column to the ' : 'the ally in the column to the ') + (o < 0 ? 'left' : 'right') : (k === 'a' ? 'the opposing card ' : 'the ally ') + Math.abs(o) + ' columns to the ' + (o < 0 ? 'left' : 'right');
+  const spW = (sp, k) => { if (!sp) return ''; const grp = g => g.map(o => offWord(o, k)).join(' and '); return sp.spread ? ' split among ' + grp(sp.opts.flat().filter((x, i, a) => a.indexOf(x) === i)) : sp.all ? ' ' + grp(sp.opts[0]) : ' ' + sp.opts.map(grp).join(', or ') + ' (your choice)'; };
+  function moveWords(str) {
+    if (/^Use the 6 move/i.test(str)) return 'Metronome: use the 6 move of the card across from it. If no card is across, it deals 5 damage instead.';
+    const mv = E.parseMove(str); if (!mv) return '';
+    return mv.clauses.map(cl => cl.map(f => { const n = f.n, kk = f.k; return (f.bonus ? 'Also ' : '') + (kk === 'a' ? `deals ${n} damage to` + spW(f.spec, 'a') : kk === 'h' ? `heals ${n} on` + spW(f.spec, 'h') : kk === 'b' ? (f.counter ? `counters ${n}: soaks up to ${n} damage aimed at` : `blocks ${n} damage aimed at`) + spW(f.spec, 'b') + (f.counter ? ' and sends what it soaks back to the attacker' : '') : `deals ${n} damage to itself`); }).join('; ').replace(/^./, x => x.toUpperCase())).join('. OR ') + '.';
+  }
+  function explain(id, p, i) {
+    const c = C[id], e = el(c.type);
+    if (p === 'mv') { const str = c.moves[+i - 1]; return { h: `Move on a ${i}`, p: str ? `${moveWords(str)}<br><br>It is used when this card's die shows <b>${i}</b>.${c.movEls && c.movEls[+i - 1] ? '<br>Its colour: ' + el(c.movEls[+i - 1][0].toUpperCase() + c.movEls[+i - 1].slice(1)).icon + ' ' + c.movEls[+i - 1] + ' (a move of the element it hits is twice as good against a card weak to it).' : ''}` : 'No move on this number: the card does nothing.' }; }
+    if (p === 'ab') return { h: 'Ability', p: c.ability ? `${esc(c.ability)}<br><br>It works all the time, without a die.` : 'This card has no ability.' };
+    if (p === 'hp') return { h: '♥ Health', p: `${c.hp} health. At 0 the card is knocked out when the round ends. Everyone is back at full health for the next battle.` };
+    if (p === 'el') return { h: `${e.icon} ${esc(c.type)}`, p: `This card is ${esc(c.type)}. A heal move the same element as the card it heals is twice as good, and so is a counter against an attack of its own element.` };
+    if (p === 'wk') return { h: `Weak to ${esc(c.weak)}`, p: D.elements[c.weak] ? `Attacks of the ${esc(c.weak)} element do double damage to this card.` : (c.weak === 'Enemy Heals' ? 'This card is weak to healing: an enemy heal can be aimed at it and hurts it for double.' : '') };
+    return null;
+  }
+  const expSheet = () => ui.exp ? `<div class="sheet" style="z-index:95" data-act="expx"><div class="box" data-stop="1" style="max-width:440px;display:flex;flex-direction:column;gap:12px"><h2>${ui.exp.h}</h2><p class="hcap" style="font-size:20px">${ui.exp.p}</p><button class="btn" data-act="expx">OK</button></div></div>` : '';
   // a leader's card you have seen, big, with arrows to the other cards seen
   function gzoomSheet() {
     const l = ui.gseen || [], c = l[ui.gz]; if (!c) return '';
     const cw = Math.max(200, Math.min(760, innerWidth - 24, Math.floor((innerHeight - 130) / CH)));
-    return `<div class="sheet" style="z-index:70" data-act="gzclose">${card({ id: c.id, sh: c.sh }, { cw })}<div class="hnav">${l.length > 1 ? '<button class="ib" data-act="gzprev">◀</button>' : ''}<button class="btn" data-act="gzclose">Close</button>${l.length > 1 ? '<button class="ib" data-act="gznext">▶</button>' : ''}</div></div>`;
+    return `<div class="sheet" style="z-index:70" data-act="gzclose"><div data-stop="1" data-zc="${c.id}">${card({ id: c.id, sh: c.sh }, { cw })}</div><div class="hnav">${l.length > 1 ? '<button class="ib" data-act="gzprev">◀</button>' : ''}<button class="btn" data-act="gzclose">Close</button>${l.length > 1 ? '<button class="ib" data-act="gznext">▶</button>' : ''}</div></div>`;
   }
   function chipSheet() {
     const n = E.slots(G);
@@ -3097,6 +3121,7 @@ const Bots = (() => {
   }
   // ---------------------------------------------------------------- render
   function flicker() {                                    // the dice tumble, their faces flickering until they settle
+    return;          // a rolling die shows no number at all: only the final result
     const els = [...document.querySelectorAll('.die.tumble')]; if (!els.length) return;
     const iv = setInterval(() => { if (!ui.rolling || Date.now() > ui.rolling) { clearInterval(iv); return; } els.forEach(x => { if (x.firstChild) x.firstChild.textContent = 1 + Math.floor(Math.random() * 6); }); }, 70);
   }
@@ -3119,6 +3144,7 @@ const Bots = (() => {
     if (ui.more) h += moreSheet();
     if (ui.slots) h += slotsSheet();
     if (ui.gz != null && ui.eye) h += gzoomSheet();
+    h += expSheet();
     if (ui.menu) h += menuSheet();
     if (ui.settings) h += settingsSheet();
     if (ui.help) h += helpSheet();
@@ -3158,6 +3184,7 @@ const Bots = (() => {
         : k === 'cat' ? { h: 'Caught', p: own[c.id] ? 'This card has been in your collection.' : 'You have not had this card in your collection yet. Beating one in a fight only counts as seeing it.' }
         : { h: '✨ Shiny', p: shs[c.id] ? 'You have had a shiny one of these.' : 'You have never had a shiny version of this card. When you do, this tile lets you view it.' }; render(); },
     dextipx() { ui.dexTip = null; render(); },
+    expx() { ui.exp = null; render(); },
     gzoom(el) { ui.gz = +el.dataset.k; render(); }, gzclose() { ui.gz = null; render(); },
     gzprev() { const n = (ui.gseen || []).length; ui.gz = (ui.gz + n - 1) % n; render(); }, gznext() { const n = (ui.gseen || []).length; ui.gz = (ui.gz + 1) % n; render(); },
     closeslots() { ui.slots = false; ui.delAsk = null; render(); },
@@ -3241,13 +3268,13 @@ const Bots = (() => {
     gswstart(el) { const k = +el.dataset.uid; ui.gsw = ui.gsw === k ? null : k; render(); },
     autoassign() { if (canAutoAssign(G.battle)) { ui.die = null; autoAssign(); save(); render(); } },
     reroll() {
-      const b0 = G.battle; if (b0.colMode) { ui.rerolled = [0]; ui.rolling = Date.now() + 800; if (act({ t: 'reroll', side: 0 })) { setTimeout(() => { ui.rolling = 0; render(); }, 850); } else ui.rolling = 0; return; }
+      const b0 = G.battle; if (b0.colMode) { ui.rerolled = [0]; ui.rolling = Date.now() + 680; if (act({ t: 'reroll', side: 0 })) { setTimeout(() => { ui.rolling = 0; render(); }, 730); } else ui.rolling = 0; return; }
       // every die not on a card yet is thrown again, together; they are locked in after that
       const b = G.battle, used = E.assignedDice(b, 0), lk = (b.locked && b.locked[0]) || {}, set = b.dice[0].map((_, i) => i).filter(i => !used.has(i) && !lk[i]);
-      ui.rerolled = set; ui.die = null; ui.rolling = Date.now() + 800;          // the dice must already be tumbling when the new numbers first appear on screen
-      if (act({ t: 'reroll', side: 0, all: true })) setTimeout(() => { ui.rolling = 0; render(); }, 850); else ui.rolling = 0;
+      ui.rerolled = set; ui.die = null; ui.rolling = Date.now() + 680;          // the dice must already be tumbling when the new numbers first appear on screen
+      if (act({ t: 'reroll', side: 0, all: true })) setTimeout(() => { ui.rolling = 0; render(); }, 730); else ui.rolling = 0;
     },
-    rerollfree() { if (ui.die == null) return; const rd = ui.die; ui.rerolled = [rd]; ui.die = null; ui.rolling = Date.now() + 800; if (act({ t: "reroll", side: 0, die: rd })) setTimeout(() => { ui.rolling = 0; render(); }, 850); else ui.rolling = 0; },
+    rerollfree() { if (ui.die == null) return; const rd = ui.die; ui.rerolled = [rd]; ui.die = null; ui.rolling = Date.now() + 680; if (act({ t: "reroll", side: 0, die: rd })) setTimeout(() => { ui.rolling = 0; render(); }, 730); else ui.rolling = 0; },
     tweak(el) { const uid = +el.dataset.uid, u = E.U(G.battle, uid), g = u && E.tags(u).find(x => x.t === 'setDie'); if (g && !G.battle.colMode) { ui.tweak = ui.tweak === uid ? null : uid; render(); return; } act({ t: 'tweak', side: 0, uid }); },
     go() { if (ui.die != null || ui.tweak != null) { ui.die = null; ui.tweak = null; render(); return; } if (G.battle && !E.readyToGo(G.battle, 0) && noDecision(G.battle)) autoAssign(); if (act({ t: 'go2' })) startPlay(); },
     skip() { skipPlay(); },
@@ -3295,6 +3322,7 @@ const Bots = (() => {
   document.addEventListener('click', ev => {
     if (ui.dragged && Date.now() - ui.dragged < 400) return;                 // that was the end of a drag, not a tap
     if (ui.rolling && Date.now() < ui.rolling) return;                       // the dice are still tumbling
+    { const pp = ev.target.closest('[data-zc] [data-p]'); if (pp && !ev.target.closest('[data-act=expx]')) { const x = explain(pp.closest('[data-zc]').dataset.zc, pp.dataset.p, pp.dataset.i); if (x) { ui.exp = x; render(); return; } } }          // a part of a big card: say what it is
     const t = ev.target.closest('[data-act]');
     if (ui.recall != null && !(t && t.dataset.act === 'recall')) { ui.recall = null; render(); }          // tapping anywhere else cancels "Return it?"
     { const st = ev.target.closest('[data-stop]'); if (t && st && t !== st && !st.contains(t)) return; }          // a tap inside a sheet's frame (not on one of its buttons) does not close it; a tap outside does

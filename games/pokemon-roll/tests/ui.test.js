@@ -100,7 +100,7 @@ test('ui: a shiny sparkles on the table and on its card, and is only a look (the
     await p.click('[data-act=coll]'); assert.ok(await p.locator('.card.shiny').count() === 1, 'a shiny in your cards'); assert.ok(await p.locator('.card.shiny .star').count() >= 3, 'sparkles'); assert.match(await p.innerText('.card.shiny .nm'), /✨/);
     // tapping a card in your collection fills the screen with it, and a tap closes it
     await p.click('.card.shiny'); const big = await p.locator('.sheet .card').last().boundingBox(); assert.ok(big.width >= 500, 'the card fills the screen: ' + big.width);
-    await p.click('.sheet .card >> nth=-1'); assert.equal(await p.locator('.sheet[data-act=closezoom]').count(), 0, 'a tap closes it');
+    await p.click('.sheet .card >> nth=-1'); assert.equal(await p.locator('.sheet[data-act=closezoom]').count(), 1, 'a tap on the card does not close it (it explains the part)'); if (await p.locator('[data-act=expx]').count()) await p.click('.btn[data-act=expx]'); await p.mouse.click(4, 400); assert.equal(await p.locator('.sheet[data-act=closezoom]').count(), 0, 'a tap outside closes it');
     const same = await p.evaluate(() => { const c = Engine.CARDS['25.2']; return c.hp; }); assert.equal(same, 4);
     const sprites = await p.evaluate(() => [...document.querySelectorAll('.card .art img')].map(i => i.src.slice(0, 30)));
     assert.ok(sprites[0].startsWith('data:image/png;base64'), 'sprites are built into the page: no network');
@@ -469,7 +469,7 @@ test('ui: the Pokéball in the side bar returns a Pokémon before the roll (tap 
   try {
     await p.goto(URL); await p.evaluate(() => { localStorage.setItem('pokemon-roll-tips', JSON.stringify({ place: 1, dice: 1, roll: 1, end: 1, shiny: 1 })); }); await p.reload();
     await p.evaluate(() => { const E = Engine, T = E._t, s = E.newGame({ seed: 1, starter: 'bulbasaur' }); s.phase = 'battle'; const h = ['1.1', '4.1', '7.1'], g = ['10', '13', '16']; const b = T.startBattle(s, 'loc', 'L1', h.map(id => ({ id, sh: 0 })), g.map(id => ({ id, sh: 0 }))); b.hand = [[], []]; b.cols = [0, 1, 2].map(i => [b.units[i].uid, b.units[3 + i].uid]); T.startRound(s); window.__pokemonRoll.setG(s); });
-    assert.equal(await p.locator('.rail .rtop .ib').count(), 3, 'return, flee and menu'); assert.equal(await p.locator('.card .rcl').count(), 0, 'nothing added to the cards');
+    assert.equal(await p.locator('.rail .rtop .ib').count(), 4, 'info, return, flee and menu'); assert.equal(await p.locator('.card .rcl').count(), 0, 'nothing added to the cards');
     await p.click('.pball', { force: true }); assert.match(await p.innerText('.rail .status'), /Tap the Pokémon to return/); await p.click('[data-act=retmode].btn', { force: true }); assert.equal(await p.locator('[data-act=recallpick]').count(), 0, 'cancelled');
     await p.click('.pball', { force: true }); await p.locator('.card[data-act=recallpick]').nth(1).click(); assert.match(await p.innerText('.rail .status'), /Slide a neighbour/); await p.locator('.card[data-act=slide]').first().click();
     assert.equal(await p.evaluate(() => window.__pokemonRoll.G.battle.cols.length), 3, 'a neighbour slid over to face the opponent'); assert.equal(await p.evaluate(() => window.__pokemonRoll.G.battle.units.filter(u => u.recalled).length), 1);
