@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- **Pokémon Roll! — V3 update (part 1):** all 176 cards re-read from the V3 sheet (Mew added; new levels, locations, health and moves). New **Counter** moves (c) replace blocks: the damage a counter soaks goes back to the attacker, and a fully countered hit does not count as a hit. **Ghosts** (Dark) are weak to healing: when a heal would go to a card with a ghost across from it, you may aim it at the ghost for double damage. Mew (Ancestor, Metronome), Raichu (1 less per column away), Koffing (ignores counters) and the Squirtle line (+1 per damage countered) work as the doc says; the arrow forms "<^ or ^>" and "<v or v>" are read as written. Special moves are gone. New **Fighting Dojo** event (three random Fighting cards, keep one), an info button for every location, trainer and event during a fight, tapping a part of a big card explains it (tapping outside closes it), no heal step when nobody heals, the KO cross waits until the round is over, no number shows while dice roll (and they roll a little faster). Legendaries can now appear once you hold four badges.
+
 - **Pokémon Roll! — Pokédex card tiles:** the location is now one thing, a big "Location" tile above the card that shows the place's card back and name (or "?" Unknown, or Starter only); Caught and Shiny sit under it, bigger. The separate place picture below the card is gone.
 
 - **Pokémon Roll! — new game seed, bigger starters:** each time you open New Game (after Back) it rolls a fresh seed, so the 10% shiny-starter chance is new every time. The starter cards are bigger (three on the top row, two below).
