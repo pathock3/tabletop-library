@@ -33,11 +33,11 @@ test('ui: menu, new game, map, and a whole first fight through real taps, with n
   const errs = []; p.on('pageerror', e => errs.push(e.message)); p.on('console', m => { if (m.type() === 'error') errs.push(m.text()); });
   try {
     await p.goto(URL);
-    assert.match(await p.innerText('.logo'), /Roll!/); assert.equal(await p.locator('.mm2 .mapin .place').count(), 16, 'the map is dealt out right on the menu'); assert.equal(await p.locator('.arena').count(), 0, 'no toy table'); assert.equal(await p.locator('[data-act=help]').count(), 0, 'help lives under More'); assert.ok(await p.locator('[data-act=more]').count() === 1, 'a More button');
+    assert.match(await p.innerText('.logo'), /Roll!/); assert.equal(await p.locator('.mm2 .mapin .place').count(), 23, 'the map is dealt out right on the menu'); assert.equal(await p.locator('.arena').count(), 0, 'no toy table'); assert.equal(await p.locator('[data-act=help]').count(), 0, 'help lives under More'); assert.ok(await p.locator('[data-act=more]').count() === 1, 'a More button');
     await p.click('[data-act=new]'); assert.equal(await p.locator('[data-act=starter]').count(), 5); assert.match(await p.innerText('.oakov .bubble'), /Professor Oak[\s\S]*level up and evolve[\s\S]*static cards/, 'Oak offers the starters and says only they evolve'); assert.equal(await p.locator('.oakov').count(), 1);
     await p.click('[data-act=starter][data-k=charmander]');
-    assert.equal(await p.locator('.oakov').count(), 0, 'Oak goes away and you are back on the map'); assert.equal(await p.locator('.place').count(), 16, 'the whole road is on show from the start, locked places included');
-    assert.equal(await p.locator('.place:not(.lock)').count(), 3, 'Viridian Forest, Brock and Mt. Moon are open from the start');
+    assert.equal(await p.locator('.oakov').count(), 0, 'Oak goes away and you are back on the map'); assert.equal(await p.locator('.place').count(), 23, 'the whole road is on show from the start, locked places included');
+    assert.equal(await p.locator('.place:not(.lock)').count(), 4, 'Viridian Forest, Brock, Mt. Moon and Misty are open from the start');
     assert.equal(await p.locator('.place > svg, .place .ptop > svg').count(), await p.locator('.place').count(), 'each place is drawn as a picture (a gym, or the back of a deck)');
     assert.ok(await p.evaluate(() => { const w = document.querySelector('.mapwrap'); return w.scrollWidth <= w.clientWidth + 1 && w.scrollHeight <= w.clientHeight + 1; }), 'the map fills the screen without scrolling');
     assert.equal(await p.locator('.dock').count(), 0, 'no bar along the bottom'); assert.ok(await p.locator('.top [data-act=coll]').count() === 1, 'Your cards is in the top bar');
@@ -72,7 +72,7 @@ test('ui: the table fits on the iPad and the iPhone, and cards open into the ful
         await p.locator('[data-act=tipok]').click({ timeout: 250 }).catch(() => {});
         const st = await p.evaluate(() => { const g = window.__pokemonRoll.G.battle; return g.stage + ':' + g.pl.side; });
         if (st.startsWith('assign')) break;
-        if (st === 'place:0') { await p.locator('[data-act=tray]').first().click(); const j = p.locator('[data-act=join]'); if (await j.count()) { await j.first().click(); if (await p.locator('.toast:has-text("Are you sure")').count()) await j.first().click(); } else await p.locator('[data-act=ins]').first().click(); } else await p.waitForTimeout(300);
+        if (st === 'place:0') { await p.locator('[data-act=tray]').first().click(); const j = p.locator('[data-act=join]'); if (await j.count()) { await j.first().click(); if (await p.locator('.toast:has-text("Are you sure")').count()) await j.first().click(); } else await p.waitForTimeout(300); } else await p.waitForTimeout(300);
       }
       await p.waitForTimeout(700);
       const fits = await p.evaluate(() => ({ sx: document.documentElement.scrollWidth <= innerWidth, sy: document.documentElement.scrollHeight <= innerHeight, over: true }));
@@ -113,7 +113,7 @@ test('ui: the game is saved, and Continue brings it back', { skip: !chromium }, 
     await p.goto(URL); assert.equal(await p.locator('[data-act=continue]').count(), 0);
     await p.click('[data-act=new]'); await p.click('[data-act=starter][data-k=pikachu]');
     await p.reload(); assert.equal(await p.locator('[data-act=continue]').count(), 1);
-    await p.click('[data-act=continue]'); assert.equal(await p.locator('.place').count(), 16); assert.equal(await p.locator('.top').count(), 1, 'the same map, now with its top bar: no new screen');
+    await p.click('[data-act=continue]'); assert.equal(await p.locator('.place').count(), 23); assert.equal(await p.locator('.top').count(), 1, 'the same map, now with its top bar: no new screen');
     assert.equal(await p.evaluate(() => window.__pokemonRoll.G.starter), 'pikachu');
   } finally { await b.close(); }
 });
@@ -200,12 +200,12 @@ test('ui: a gym leader has an eye that explains how their team was made; dice ca
     await p.click('.place[data-id=B1] .eye');
     assert.equal(await p.locator('[data-act=closeeye]').count() >= 1, true); const txt = await p.innerText('.hbox');
     assert.match(txt, /team/i); assert.doesNotMatch(txt, /\d vs \d|has \d+ Pokémon|went back|before your game began/i); assert.equal(await p.locator('.sheet .infoi').count(), 0, 'no big i above the name'); assert.equal(await p.locator('.sheet .infospr').count(), 1, 'a gym leader always shows their sprite'); assert.doesNotMatch(txt, /Face .* once/i); assert.match(txt, /Mt\. Moon/); assert.match(txt, /Viridian Forest/);
-    assert.equal(await p.locator('.sheet .gback').count(), 2, 'one card back for each of their Pokémon'); assert.match(txt, /consists of cards from these locations/); assert.equal(await p.locator('.sheet .eyerow').count(), 0, 'no list of places below');
+    assert.equal(await p.locator('.sheet .gback').count(), 2, 'one card back for each place the team is built from'); assert.match(txt, /built from these locations/); assert.match(txt, /Signature:[\s\S]*Ground/); assert.equal(await p.locator('.sheet .eyerow').count(), 0, 'no list of places below');
     await p.click('.sheet .gback.tap >> nth=0'); assert.ok(await p.locator('.sheet .tycount').count() >= 1, 'a place shows its elements and how many'); assert.doesNotMatch(await p.innerText('.hbox'), /draw pile|discard|began/i, 'inside a leader\'s info only the elements and how many'); assert.equal(await p.locator('.sheet .infoi').count(), 0); await p.click('[data-act=eyeback]'); assert.match(await p.innerText('.hbox'), /Brock's team/);
     assert.equal(await p.locator('.hbox .btn').count(), 0, 'no Got it button'); await p.mouse.click(8, 8); assert.equal(await p.locator('.sheet').count(), 0);
     // only the cards you have actually seen them put down are shown face up; the rest stay card backs
-    const n = await p.evaluate(() => { const G = window.__pokemonRoll.G; G.seenCards = { B1: [{ id: G.bosses.B1[0].id, sh: G.bosses.B1[0].sh }] }; window.__pokemonRoll.render(); return G.bosses.B1.length; });
-    await p.click('.place[data-id=B1] .eye'); assert.equal(await p.locator('.sheet .card').count(), 1, 'one card seen, shown face up'); assert.equal(await p.locator('.sheet .gback').count(), n - 1, 'the others are still backs');
+    await p.evaluate(() => { const G = window.__pokemonRoll.G; G.seenCards = { B1: [{ id: '74', sh: 0 }] }; window.__pokemonRoll.render(); });
+    await p.click('.place[data-id=B1] .eye'); assert.equal(await p.locator('.sheet .card').count(), 1, 'one card seen, shown face up'); assert.equal(await p.locator('.sheet .gback').count(), 2, 'and the places it is built from');
     await p.click('.sheet .card'); assert.equal(await p.locator('.sheet .card').count(), 2, 'tap a seen card: it opens big (the team stays behind it)');
     const big = await p.evaluate(() => [...document.querySelectorAll('.sheet .card')].map(c => c.getBoundingClientRect().width)); assert.ok(Math.max(...big) > 300, 'big');
     await p.click('[data-act=gzclose] >> nth=-1'); assert.equal(await p.locator('.sheet .card').count(), 1, 'closing the big card returns to the team');
@@ -247,8 +247,9 @@ test('ui: Kadabra can change column and Abra can swap two of theirs, right on th
   try {
     await p.goto(URL); await p.evaluate(() => { localStorage.setItem('pokemon-roll-tips', JSON.stringify({ place: 1, dice: 1, roll: 1, end: 1, shiny: 1 })); }); await p.reload();
     await p.evaluate(() => {
-      const s = Engine.newGame({ seed: 12, starter: 'charmander', size: 'short', ai: 'master' }); s.done.B1 = true; s.lv = 4; s.coll[0].id = '5.4'; ['64', '63'].forEach((id, i) => s.coll.push({ uid: 10 + i, id, sh: 0 }));
-      const R = window.__pokemonRoll; R.setG(s); R.act({ t: 'go', node: 'B2' }); const G = R.G; let g; while ((g = Bots.step(G))) Engine.apply(G, g);
+      const s = Engine.newGame({ seed: 12, starter: 'charmander', size: 'short', ai: 'master' }); s.done.B1 = true; s.done.B2 = true; s.lv = 4; s.coll[0].id = '5.4'; ['64', '63'].forEach((id, i) => s.coll.push({ uid: 10 + i, id, sh: 0 }));
+      for (let k = 0; k < 80; k++) { s.rng = k * 131 + 5; const tm = Engine._t.buildTeam(JSON.parse(JSON.stringify(s)), 'B3'); if (!tm.some(i => /change (position|columns)/.test(Engine.CARDS[i.id].ability))) break; }          // a team whose cards do not forbid moving
+      const R = window.__pokemonRoll; R.setG(s); R.act({ t: 'go', node: 'B3' }); const G = R.G; let g; while ((g = Bots.step(G))) Engine.apply(G, g);
       for (let i = 0; i < 8 && G.battle.stage === 'place'; i++) { if (G.battle.pl.side === 0 && G.battle.hand[0].length) Engine.apply(G, Object.assign({ t: 'place', side: 0, uid: G.battle.hand[0][0] }, Engine.slotsFor(G.battle, 0).find(x => x.join != null) || Engine.slotsFor(G.battle, 0)[0])); while ((g = Bots.step(G))) Engine.apply(G, g); }
       R.render();
     });
@@ -269,10 +270,10 @@ test('ui: beating Lance records the whole-game best (and Lance\'s own), and the 
   try {
     await p.goto(URL); await p.evaluate(() => { localStorage.removeItem('pokemon-roll-scores'); });
     const sc = await p.evaluate(() => {
-      const R = window.__pokemonRoll, s = Engine.newGame({ seed: 3, starter: 'charmander', size: 'short', ai: 'normal' }); s.turn = 31; s.bossTurns.B7 = 31; s.phase = 'won'; s.res = { win: true, node: 'B7', kind: 'boss' }; R.setG(s); R.recordResult();
+      const R = window.__pokemonRoll, s = Engine.newGame({ seed: 3, starter: 'charmander', size: 'short', ai: 'normal' }); s.turn = 31; s.bossTurns.F2 = 31; s.phase = 'won'; s.res = { win: true, node: 'F2', kind: 'boss' }; R.setG(s); R.recordResult();
       return JSON.parse(localStorage.getItem('pokemon-roll-scores'));
     });
-    assert.equal(sc.short.game, 31, 'the whole-game record'); assert.equal(sc.short.B7, 31, 'and Lance');
+    assert.equal(sc.short.game, 31, 'the whole-game record'); assert.equal(sc.short.F2, 31, 'and Red');
     const hof = await p.evaluate(() => JSON.parse(localStorage.getItem('pokemon-roll-hof') || '[]')); assert.equal(hof.length, 1, 'the run is in the Hall of Fame'); assert.equal(hof[0].turns, 31); assert.ok(Array.isArray(hof[0].team) && hof[0].team.length > 0, 'with the team that fought');
     const dx = await p.evaluate(() => JSON.parse(localStorage.getItem('pokemon-roll-dex') || '{}')); assert.ok(dx[4], 'Charmander is in the Pokédex (your starter)');
     assert.match(await p.evaluate(() => document.body.innerHTML), /reroll|🔄/, 'the help or the screen says you can reroll');
@@ -360,7 +361,8 @@ test('ui: a die on a card can be dragged to another card, or back to the tray', 
     await p.goto(URL); await p.evaluate(() => { localStorage.setItem('pokemon-roll-tips', JSON.stringify({ place: 1, dice: 1, roll: 1, end: 1, shiny: 1 })); }); await p.reload();
     await p.evaluate(() => {
       const s = Engine.newGame({ seed: 12, starter: 'charmander', size: 'short', ai: 'normal' }); s.done.B1 = true; s.lv = 3; s.coll.push({ uid: 10, id: '1.2', sh: 0 });
-      const R = window.__pokemonRoll; R.setG(s); R.act({ t: 'go', node: 'B2' }); const G = R.G; let g; while ((g = Bots.step(G))) Engine.apply(G, g);
+      for (let k = 0; k < 80; k++) { s.rng = k * 131 + 5; const tm = Engine._t.buildTeam(JSON.parse(JSON.stringify(s)), 'B3'); if (!tm.some(i => /change (position|columns)/.test(Engine.CARDS[i.id].ability))) break; }          // a team whose cards do not forbid moving
+      const R = window.__pokemonRoll; R.setG(s); R.act({ t: 'go', node: 'B3' }); const G = R.G; let g; while ((g = Bots.step(G))) Engine.apply(G, g);
       for (let i = 0; i < 8 && G.battle.stage === 'place'; i++) { if (G.battle.pl.side === 0 && G.battle.hand[0].length) Engine.apply(G, Object.assign({ t: 'place', side: 0, uid: G.battle.hand[0][0] }, Engine.slotsFor(G.battle, 0).find(x => x.join != null) || Engine.slotsFor(G.battle, 0)[0])); while ((g = Bots.step(G))) Engine.apply(G, g); }
       R.render();
     });
@@ -392,10 +394,10 @@ test('ui: choosing a card asks below the cards, goes straight to the map; a loss
     await p.click('[data-act=pickcard] >> nth=0'); assert.equal(await p.locator('[data-act=pickok]:not([disabled])').count(), 1, 'a card chosen: OK is ready'); await p.click('[data-act=pickcard] >> nth=0'); assert.equal(await p.locator('[data-act=pickok][disabled]').count(), 1, 'tapping it again lets go'); assert.equal(await p.locator('[data-act=pickno]').count(), 0, 'no Choose again button'); assert.doesNotMatch(await p.innerText('.scr'), /Tap OK|Choose one to join/i, 'nothing said twice'); await p.click('[data-act=pickcard] >> nth=0');
     const r = await p.evaluate(() => { const bar = document.querySelector('.pickbar').getBoundingClientRect(), cards = [...document.querySelectorAll('[data-act=pickcard]')].map(c => c.getBoundingClientRect().bottom); return { bar: bar.top, cards: Math.max(...cards), sheet: document.querySelectorAll('.sheet').length }; });
     assert.ok(r.bar >= r.cards - 1, 'the question sits below the cards'); assert.equal(r.sheet, 0, 'not over them');
-    await p.click('[data-act=pickok]'); assert.equal(await p.locator('.top').count(), 1, 'straight back to the map'); assert.equal(await p.locator('.place').count(), 16);
+    await p.click('[data-act=pickok]'); assert.equal(await p.locator('.top').count(), 1, 'straight back to the map'); assert.equal(await p.locator('.place').count(), 23);
     await p.evaluate(() => { const s = Engine.newGame({ seed: 5, starter: 'charmander' }); s.phase = 'result'; s.res = { win: false, node: 'L1' }; window.__pokemonRoll.setG(s); });
     assert.match(await p.innerText('.kos'), /You are KO'd!/); assert.match(await p.innerText('.kos'), /Tap anywhere to continue/);
-    await p.mouse.click(400, 600); assert.equal(await p.locator('.place').count(), 16, 'the map comes back');
+    await p.mouse.click(400, 600); assert.equal(await p.locator('.place').count(), 23, 'the map comes back');
     assert.deepEqual(errs, []);
   } finally { await b.close(); }
 });
@@ -439,9 +441,9 @@ test('ui: places that open together are one block with their requirement on it (
   const errs = []; p.on('pageerror', e => errs.push(e.message));
   try {
     await p.goto(URL); await p.click('[data-act=new]'); await p.click('[data-act=starter][data-k=pikachu]');
-    assert.equal(await p.locator('.mapin .grp').count(), 6, 'six blocks'); assert.equal(await p.locator('.mapin .grp.open').count(), 1, 'only the first block is open'); assert.equal(await p.locator('.mapsvg path').count(), 0, 'no lines');
-    const tabs = await p.locator('.grp.lock .gtab').allInnerTexts(); assert.ok(tabs.every(t => t.includes('🔒')), 'each locked block says it is locked'); assert.ok(tabs.some(t => /Brock/.test(t)), 'and by what');
-    await p.locator('.grp.lock').first().click({ position: { x: 20, y: 400 }, force: true }); assert.match(await p.innerText('.toast'), /Brock/);
+    assert.equal(await p.locator('.mapin .grp').count(), 11, 'eleven blocks'); assert.equal(await p.locator('.mapin .grp.open').count(), 1, 'only the first block is open'); assert.equal(await p.locator('.mapsvg path').count(), 0, 'no lines');
+    const tabs = await p.locator('.grp.lock .gtab').allInnerTexts(); assert.ok(tabs.every(t => t.includes('🔒')), 'each locked block says it is locked'); assert.ok(tabs.some(t => /🏅/.test(t)), 'and by what');
+    await p.locator('.grp.lock').first().click({ position: { x: 10, y: 10 }, force: true }); assert.match(await p.innerText('.toast'), /🏅/);
     assert.deepEqual(errs, []);
   } finally { await b.close(); }
 });
