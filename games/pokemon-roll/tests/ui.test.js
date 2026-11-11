@@ -152,15 +152,14 @@ test('ui: up to five games are saved side by side; New Game never overwrites; Co
   } finally { await b.close(); }
 });
 
-test('ui: the menu has Settings (Tips and Computer difficulty live there) and no Your cards entry', { skip: !chromium }, async () => {
+test('ui: the menu has Settings (Tips live there; there are no difficulty levels) and no Your cards entry', { skip: !chromium }, async () => {
   const b = await chromium.launch(), p = await b.newPage({ viewport: { width: 820, height: 1180 } });
   try {
     await p.goto(URL); await p.click('[data-act=new]'); await p.click('[data-act=starter][data-k=pikachu]');
     await p.click('[data-act=menu]');
     const items = await p.locator('.sheet .box .btn').allInnerTexts(); assert.ok(items.some(t => /Settings/.test(t))); assert.ok(!items.some(t => /Your cards/.test(t)), 'your cards is on the map, not in the menu');
     assert.equal(await p.locator('.sheet [data-act=tips]').count(), 0, 'tips are not on the menu');
-    await p.click('[data-act=settings]'); assert.equal(await p.locator('.sheet [data-act=tips]').count(), 2); assert.equal(await p.locator('.sheet [data-act=ai]').count(), 3);
-    await p.click('.sheet [data-act=ai][data-v=master]'); assert.equal(await p.evaluate(() => window.__pokemonRoll.set.ai), 'master');
+    await p.click('[data-act=settings]'); assert.equal(await p.locator('.sheet [data-act=tips]').count(), 2); assert.equal(await p.locator('.sheet [data-act=ai]').count(), 0, 'no difficulty levels'); assert.equal(await p.evaluate(() => window.__pokemonRoll.set.ai), 'master');
     await p.click('.sheet [data-act=tips][data-v=false]'); assert.equal(await p.evaluate(() => window.__pokemonRoll.set.tips), false);
   } finally { await b.close(); }
 });
