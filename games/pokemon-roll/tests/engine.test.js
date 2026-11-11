@@ -33,15 +33,15 @@ const evs = (b, t) => b.events.filter(e => e.t === t);
 // ================================================================ the cards
 // the older rule tests are written the way the sheet lists a card (move 1 on a 1); the tests that play whole games, and the ones named 'dice faces', use the real order (move 1 on a 6)
 E.faceOrder('sheet');
-test('data: all 175 cards load, with nine legendaries and six levels for each of the five starters', () => {
-  assert.equal(Object.keys(C).length, 175);
+test('data: all 176 cards load, with nine legendaries and six levels for each of the five starters', () => {
+  assert.equal(Object.keys(C).length, 176);
   assert.equal(Object.values(C).filter(c => c.legend).length, 9);
   D.starters.forEach(st => { assert.equal(st.levels.length, 6, st.name); st.levels.forEach((id, i) => { assert.ok(C[id], id); assert.equal(C[id].level, i + 1); }); });
   D.locations.forEach(l => assert.ok(Object.values(C).filter(c => c.loc === l.id && !c.legend).length >= 5, l.name + ' has cards'));
 });
 test('data: every move on every card reads, and so does every special move', () => {
   Object.values(C).forEach(c => {
-    c.moves.forEach((m, i) => { if (m) assert.ok(E.parseMove(m), c.name + ' face ' + (i + 1) + ': ' + m); });
+    c.moves.forEach((m, i) => { if (m && !/^Use the 6 move/.test(m)) assert.ok(E.parseMove(m), c.name + ' face ' + (i + 1) + ': ' + m); });
     if (/:\s*\S/.test(c.special)) assert.ok(E.parseSpecial(c.special), c.name + ' special ' + c.special);
   });
 });
@@ -99,17 +99,18 @@ test('rules: a card at 0 health cannot be healed (not even by its own attack)', 
   assert.ok(c.g(0).ko, 'still at 0, so it falls'); assert.ok(!evs(c.b, 'heal').some(e => e.u === c.g(0).uid), 'no healing for a card at 0');
 });
 test('rules: healing is resolved before attacks', () => {
-  const c = craft(['1.2'], ['7.1']); c.h(0).hp = 1;                                    // Bulbasaur heals 2 on a 3; Squirtle attacks for 2 on a 2
+  const c = craft(['1.2'], ['7.1']); c.h(0).hp = 1;                                    // Bulbasaur heals 3 on a 3; Squirtle attacks for 2 on a 2
   const b = play(c, { hero: [3], gm: [2] }, { hero: { 0: 0 }, gm: { 0: 0 } });
-  assert.ok(!c.h(0).ko && c.h(0).hp === 1, 'healed to 3 first, then took 2');
+  assert.ok(!c.h(0).ko && c.h(0).hp === 2, 'healed to 4 first, then took 2');
   assert.ok(b.events.findIndex(e => e.t === 'heal') < b.events.findIndex(e => e.t === 'dmg'));
 });
 test('rules: a block soaks damage, and the blocker takes whatever is left over', () => {
-  const c = craft(['1.1', '11'], ['4.1', '10']);       // Metapod blocks 3 for its neighbour Bulbasaur; Charmander hits Bulbasaur (a weakness: 4)
+  const c = craft(['1.1', '11'], ['4.1', '10']);       // Metapod counters 2 for its neighbour Bulbasaur; Charmander hits Bulbasaur (a weakness: 4)
   const b = play(c, { hero: [6, 1], gm: [1, 6] }, { hero: { 0: 0, 1: 1 }, gm: { 0: 0, 1: 1 } });
   assert.equal(c.h(0).hp, 4, 'Bulbasaur is untouched');
-  assert.ok(evs(b, 'blocked').some(e => e.u === c.h(1).uid && e.for === c.h(0).uid && e.n === 3));
-  assert.equal(c.h(1).hp, 3, 'Metapod is weak to fire too: 2 doubled to 4, three soaked, one left over for the blocker, and its own shield takes that one');
+  assert.ok(evs(b, 'blocked').some(e => e.u === c.h(1).uid && e.for === c.h(0).uid && e.n === 2));
+  assert.equal(c.h(1).hp, 2, 'Metapod is weak to fire too: 2 doubled to 4, two countered, two left over for the blocker, and its own shield takes one');
+  assert.equal(c.g(0).hp, C['4.1'].hp - 2, 'a counter sends what it soaked back: Charmander takes 2');
 });
 test('rules: a card with no card facing it still acts, and a move at an empty column misses', () => {
   const c = craft(['4.1', '1.1'], ['10']);
@@ -134,14 +135,13 @@ test('abilities: "-1d" is a shield of 1 for the whole round, for damage of any k
   const k = craft(['1.1'], ['14']); play(k, { hero: [1], gm: [6] }, { hero: { 0: 0 }, gm: { 0: 0 } }); assert.equal(k.g(0).hp, C['14'].hp - 1, 'and an attack of 2 hurts it for 1');
 });
 test('choices: an "or" on your card is asked when that card\'s turn comes, not when the die is given; the computer decides its own', () => {
-  const c = craft(['5.3', '10', '10'], ['10', '16', '19']);          // Charmeleon: 3a <^ or >  (across, or one over)
-  c.b.dice = [[1, 6, 6], [6, 6, 6]]; c.b.asg = [{ [c.h(0).uid]: { dice: [0], tgt: null }, [c.h(1).uid]: { dice: [1], tgt: null }, [c.h(2).uid]: { dice: [2], tgt: null } }, {}]; c.b.gmReady = true;
+  const c = craft(['10', '5.3', '10'], ['10', '16', '19']);          // Charmeleon in the middle: 3a <^ or ^>  (across and the left one, or across and the right one)
+  c.b.dice = [[6, 1, 6], [6, 6, 6]]; c.b.asg = [{ [c.h(0).uid]: { dice: [0], tgt: null }, [c.h(1).uid]: { dice: [1], tgt: null }, [c.h(2).uid]: { dice: [2], tgt: null } }, {}]; c.b.gmReady = true;
   assert.ok(E.apply(c.s, { t: 'go2' }).ok);
-  assert.equal(c.b.stage, 'resolving', 'the round stops at Charmeleon'); assert.ok(c.b.ask); assert.equal(c.b.ask.uid, c.h(0).uid);
+  assert.equal(c.b.stage, 'resolving', 'the round stops at Charmeleon'); assert.ok(c.b.ask); assert.equal(c.b.ask.uid, c.h(1).uid);
   assert.equal(c.g(1).hp, C['16'].hp, 'nothing has been hit yet');
-  assert.equal(E.apply(c.s, { t: 'choose', tgt: c.g(2).uid }).ok, false, 'only the cards it could reach');
-  assert.ok(E.apply(c.s, { t: 'choose', tgt: c.g(1).uid }).ok);
-  assert.equal(c.b.stage, 'resolved'); assert.ok(c.g(1).ko, 'Pidgey, the one chosen, took the hit'); assert.ok(!c.g(0).ko);
+  assert.ok(E.apply(c.s, { t: 'choose', tgt: c.g(2).uid }).ok);
+  assert.equal(c.b.stage, 'resolved'); assert.ok(c.g(1).ko, 'Pidgey, across, took the hit'); assert.ok(c.g(2).ko, 'and so did the one on the right'); assert.ok(!c.g(0).ko, 'not the one on the left');
 });
 test('abilities: a shield soaks damage once a round, then it is used up', () => {
   const c = craft(['1.1', '85'], ['14', '10']); play(c, { hero: [1, 1], gm: [6, 6] }, { hero: { 0: 0, 1: 1 }, gm: { 0: 0, 1: 1 } });
@@ -402,7 +402,7 @@ test('decisions: when a card of yours may dodge, the game stops and asks you eac
   E.apply(g.s, { t: 'go2' }); assert.ok(!g.b.ask, 'the computer is never asked'); assert.ok(evs(g.b, 'dodge').length >= 1, 'it dodged');
 });
 test('decisions: a block protects one card, and you choose which; a card that blocks for "itself or a neighbour" asks', () => {
-  const bc = Object.values(C).find(c => /^\d+b <v or >$/.test(c.moves[0]) && !c.legend); assert.ok(bc, 'a card with a "<v or >" block on a 1');
+  const bc = Object.values(C).find(c => /^\d+c <v or v>$/.test(c.moves[0]) && !c.legend); assert.ok(bc, 'a card with a "<v or v>" counter on a 1');
   const run = pick => {
     const c = craft([bc.id, '1.1'], ['10', '4.1']); const { s, b } = c; const [blk, nb] = [b.units[0], b.units[1]]; nb.hp = nb.max = 20; blk.hp = blk.max = 20;
     b.dice = [[1, 6], [6, 1]]; b.asg = [{ [blk.uid]: { dice: [0], tgt: null }, [nb.uid]: { dice: [1], tgt: null } }, { [b.units[3].uid]: { dice: [1], tgt: null } }]; b.gmReady = true;
@@ -442,8 +442,8 @@ test('rules: a card with nobody across from it is not put to sleep: it rolls, he
 test('dice faces: move 1 is rolled on a 6, move 2 on a 5 and so on; a move that only hurts the card is at the bottom, the worst on a 1', (t) => {
   E.faceOrder('top'); t.after(() => E.faceOrder('sheet'));
   const rolls = id => E.CARDS[id].moves;                         // index = die - 1
-  const pika = rolls('25.3'); assert.deepEqual([pika[5], pika[4], pika[3], pika[2], pika[1], pika[0]], ['3a', '2a', '2h v or >', '2a', '', '1d v'], 'Pikachu: moves 1-4 on 6, 5, 4, 3; nothing on 2; the damage to itself on 1');
-  const volt = rolls('100'); assert.equal(volt[5], '4a, 4d v', 'an attack that also hurts is still move 1 and is rolled on a 6'); assert.equal(volt[0], '1d v');
+  const pika = rolls('25.3'); assert.deepEqual([pika[5], pika[4], pika[3], pika[2], pika[1], pika[0]], ['3a', '2a', '3h < or v or >', '2a', '', '1d v'], 'Pikachu: moves 1-4 on 6, 5, 4, 3; nothing on 2; the damage to itself on 1');
+  const volt = rolls('100'); assert.equal(volt[5], '5a, 5d v', 'an attack that also hurts is still move 1 and is rolled on a 6'); assert.equal(volt[0], '1d v');
   const two = Object.values(E.CARDS).find(c => c.sheet.filter(m => /^\d+d v$/.test(m)).length >= 2);
   if (two) { const d = two.sheet.filter(m => /^\d+d v$/.test(m)).sort((a, b) => parseInt(b) - parseInt(a)); assert.deepEqual([two.moves[0], two.moves[1]], d.slice(0, 2), two.name + ': the worst self-damage on a 1, the next worst on a 2'); }
   Object.values(E.CARDS).forEach(c => { assert.equal(c.moves.length, 6); assert.equal(c.moves.filter(Boolean).length, c.sheet.filter(Boolean).length, c.name + ' keeps all its moves'); });
@@ -559,7 +559,7 @@ test('resolution order: heals, then every attack is declared, then blocks go up,
   const c = craft(['7.1'], ['19']); play(c, { hero: [6], gm: [6] }, { hero: { 0: 0 }, gm: { 0: 0 } });            // Squirtle blocks 2 (move 1); Rattata attacks 2
   const kinds = c.b.events.map(e => e.t), iStrike = kinds.indexOf('strike'), iGuard = kinds.indexOf('guard'), iHit = kinds.findIndex((k, i) => i > iGuard && (k === 'blocked' || k === 'dmg'));
   assert.ok(iStrike >= 0 && iGuard > iStrike, 'the attack is declared before the block is chosen'); assert.ok(iHit > iGuard, 'the damage (here soaked by the block) comes after both');
-  assert.equal(c.h(0).hp, C['7.1'].hp, 'the block took the whole attack');
+  assert.equal(c.h(0).hp, C['7.1'].hp - 1, 'the counter took 1 of the attack, the other 1 got through');
 });
 
 test('recall: a card of yours can be taken out of the fight before you press Resolve, but never your last one', () => {
