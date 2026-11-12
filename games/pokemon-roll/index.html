@@ -511,6 +511,8 @@ button{font:inherit;color:inherit;border:0;cursor:pointer}
 .mapwrap{overflow-x:auto!important;overflow-y:hidden!important;-webkit-overflow-scrolling:touch;touch-action:pan-x;scrollbar-width:none}.mapwrap::-webkit-scrollbar{display:none}.mapsp{position:absolute;left:0;top:0;pointer-events:none}
 .place.sq{width:150px;height:150px;border-radius:16px;border:4px solid #14110f;overflow:hidden;display:block}.place.sq svg{width:100%;height:100%;filter:none}.place.sq .pl{position:absolute;left:0;right:0;bottom:0;height:34px;padding:0;display:grid;place-items:center;background:#14110fd9;color:#fff}.place.sq .pl b{font:900 19px system-ui;color:#fff}.place.sq.lock svg{filter:grayscale(.85) brightness(.65)}.place.sq .lk{top:30px;font-size:38px}.place.sq .eye{bottom:40px;right:6px}.place.sq .ck{left:6px;right:auto;top:6px}.place.sq.done svg{filter:saturate(.75)}
 .place.sq .ck{left:6px!important;top:6px!important;right:auto!important;bottom:auto!important;width:62px!important;height:62px!important;border-radius:0!important;font-size:0!important}.place.sq .ck svg{width:100%!important;height:100%!important}
+.slotb,.slotb *{color:#14110f!important}.slotb b{font-size:21px!important}.slotx{color:#14110f}.slotx.ask{color:#fff}
+.gline{gap:18px!important}.gcell{display:flex!important;flex-direction:column;align-items:center}
 </style>
 <script id="data">
 /* Pokémon Roll! — every rule number, the map, the bosses, the card sheet and the art live here. The engine and bots read this and hard-code none of it. */
@@ -1094,6 +1096,13 @@ const Engine = (() => {
     return out;
   }
 
+  // saves from older builds: a trainer without a team gets one, and a fight that never started (phase 'battle' with no battle) goes back to the map
+  function repair(s) {
+    s.bosses = s.bosses || {}; s.held = s.held || {}; s.legFor = s.legFor || {}; s.notes = s.notes || []; s.visitors = s.visitors || []; s.done = s.done || {};
+    D.nodes.filter(n => n.kind === 'boss').forEach(n => { if (!s.bosses[n.id] || !s.bosses[n.id].length) { if (s.done[n.id]) { s.bosses[n.id] = s.bosses[n.id] || []; return; } const t = buildTeam(s, n.id); t[t.length - 1].sig = 1; s.bosses[n.id] = t; } });
+    if (s.phase === 'battle' && !s.battle) s.phase = 'map';
+    return s;
+  }
   function newGame(o) {
     o = o || {};
     const s = { v: D.version, seed: o.seed != null ? o.seed : (Date.now() % 2147483647), size: o.size === 'long' ? 'long' : 'short', ai: ({ hard: 'master', medium: 'normal' })[o.ai] || o.ai || 'master', cdice: [], phase: 'start', starter: null, rival: null, lv: 1, coll: [], decks: {}, discard: {}, bosses: {}, done: {}, bossTurns: {}, legend: [], nextUid: 1, turn: 0, pend: null, battle: null, res: null, notes: [] };
@@ -1964,6 +1973,7 @@ const Engine = (() => {
     switch (a.t) {
       case 'start': if (s.phase !== 'start') return 'already started'; return chooseStarter(s, a.starter) ? null : 'unknown starter';
       case 'go': {
+        repair(s);
         if (s.phase !== 'map') return 'not on the map'; const nd = node(a.node); if (!nd || !unlocked(s, nd)) return 'that is not open yet';
         if (nd.kind === 'visitor' && (s.visitors || []).indexOf(nd.special) < 0) return 'nobody is there';
         if (nd.kind === 'plateau') return 'choose one of the trainers there';
@@ -2059,7 +2069,7 @@ const Engine = (() => {
     if (v.battle && v.battle.stage === 'assign') { const o = other(side); v.battle.dice[o] = v.battle.dice[o].map(() => 0); v.battle.asg[o] = {}; }
     return v;
   }
-  return { starterShiny, endBattle, visitorNode, slideOpts, autoChoice, hauntAsk, blocksMove, colorBonus, faceOrder: layMoves, _t: { blkMult, buildTeam, badges, maybeSpecial, eventActive, releaseTeam, startBattle, startRound, resolveRound, cleanUp, drawWild }, handOf, canExpand, apply, newGame, chooseStarter, viewFor, CARDS, parseMove, parseSpecial, tagsOf, tags, preview, bestClause, chosenMove, candidates, pickTargets, amountOf, slotsFor, readyToGo, assignedDice, living, colIdx, U, rnd, ri, shuffle, node, starterOf, rivalFor, slots, unlocked, deckSize, heroCount, gmCount, typeOf, wm, hitValue, parseSpec, clauseValue, effectsOf, D, R };
+  return { starterShiny, repair, endBattle, visitorNode, slideOpts, autoChoice, hauntAsk, blocksMove, colorBonus, faceOrder: layMoves, _t: { blkMult, buildTeam, badges, repair, maybeSpecial, eventActive, releaseTeam, startBattle, startRound, resolveRound, cleanUp, drawWild }, handOf, canExpand, apply, newGame, chooseStarter, viewFor, CARDS, parseMove, parseSpecial, tagsOf, tags, preview, bestClause, chosenMove, candidates, pickTargets, amountOf, slotsFor, readyToGo, assignedDice, living, colIdx, U, rnd, ri, shuffle, node, starterOf, rivalFor, slots, unlocked, deckSize, heroCount, gmCount, typeOf, wm, hitValue, parseSpec, clauseValue, effectsOf, D, R };
 })();
 
 </script>
@@ -2766,7 +2776,7 @@ const Bots = (() => {
   function slotsSheet() {
     const l = saves(), full = ui.full && freeSlot() < 0; if (!full) ui.full = false;
     return `<div class="sheet" data-act="closeslots"><div class="box" data-stop="1" style="max-width:460px;display:flex;flex-direction:column;gap:10px"><h2>Saved games</h2>${full ? `<p style="margin:0;font-weight:700">All ${SLOTS} slots are full. Delete one to start a new game.</p>` : ''}
-      ${l.map(s => { const sd = D.starters.find(x => x.key === s.starter), cid = (s.coll.find(c => c.starter) || s.coll[0] || {}).id; return `<div class="slot"><button class="slotb" data-act="load" data-slot="${s.slot}">${cid ? `<img src="${art(cid, s.coll.some(c => c.starter && c.sh))}" alt="">` : ''}<span><b>${esc(sd ? sd.name || sd.key : 'Game')}</b><small>${(s.cdice || []).length} dice · ${esc((D.ai[s.ai] || {}).label || s.ai)} · ${esc(ago(s.at))}</small></span></button><button class="slotx${ui.delAsk === s.slot ? ' ask' : ''}" data-act="delslot" data-slot="${s.slot}" aria-label="Delete">${ui.delAsk === s.slot ? 'Delete?' : '✕'}</button></div>`; }).join('')}
+      ${l.map((s, gi) => { const sd = D.starters.find(x => x.key === s.starter), st = s.coll.find(c => c.starter) || s.coll[0], cid = (st || {}).id, bg = D.nodes.filter(n => n.gym && s.done && s.done[n.id]).length, dice = Math.min(D.rules.maxDice, D.rules.startSlots + D.rules.diceRewards.filter(g => g.some(id => s.done && s.done[id])).length); return `<div class="slot"><button class="slotb" data-act="load" data-slot="${s.slot}">${cid ? `<img src="${art(cid, !!(st && st.sh))}" alt="">` : ''}<span><b>${esc(sd ? sd.name || sd.key : 'Game')} · 🏅 ${bg}/8</b><small>${dice} ${dice === 1 ? 'die' : 'dice'} · ${s.coll.length} cards · ${esc(ago(s.at))}</small></span></button><button class="slotx" style="background:#fff;color:#14110f;border-color:#14110f" data-act="slotteam" data-slot="${s.slot}" aria-label="See the cards">🃏 ${s.coll.length}</button><button class="slotx${ui.delAsk === s.slot ? ' ask' : ''}" data-act="delslot" data-slot="${s.slot}" aria-label="Delete">${ui.delAsk === s.slot ? 'Delete?' : '✕'}</button></div>`; }).join('')}
       <button class="btn ghost" data-act="closeslots">Close</button></div></div>`;
   }
   const moreSheet = () => `<div class="sheet" data-act="closemore"><div class="box" data-stop="1" style="max-width:420px;display:flex;flex-direction:column;gap:12px"><h2>More</h2>
@@ -3190,6 +3200,11 @@ const Bots = (() => {
     // a trainer's team in the order it plays, the signature last and marked: a card you have seen them put down is face up; every other one is the back of the place it comes from
     const T = D.trainers[n.id], team = (G.bosses[n.id] || []).slice(), pool = ((G.seenCards || {})[n.id] || []).slice(), seenIdx = ui.gseen = [];
     const slotsT = team.map(i => { const k = pool.findIndex(c => c.id === i.id && !!c.sh === !!i.sh); if (k >= 0) { pool.splice(k, 1); return { i, seen: true }; } return { i, seen: false }; });
+    const lvn = r => D.rules.levelLabels[r - 1], rngT = r => r[0] === r[1] ? '' + lvn(r[0]) : lvn(r[0]) + '–' + lvn(r[1]);
+    const sgT = T.sig.legendary ? 'a random legendary Pokémon' : 'a ' + (T.sig.el ? T.sig.el.join(' or ') : 'Bug or Poison') + ' Pokémon, level ' + rngT(T.sig.lv) + (T.sig.anyLoc ? '' : (T.sig.locs || []).length ? ', from ' + T.sig.locs.map(l => (D.locations.find(x => x.id === l) || {}).name).join(' or ') + (T.sig.tagged ? " or carrying " + n.name + "'s name" : '') : '');
+    const quoT = (T.quotas || []).map(q => 'at least ' + q.n + ' ' + (q.el ? q.el : q.tags.map(t => t[0].toUpperCase() + t.slice(1)).join(' or ')) + (q.tags && q.tags[0] === 'ice move' ? ' move' : '')).join(', ');
+    const poolLocsT = (T.pool.locs || []).map(id => D.nodes.find(q => q.loc === id)).filter(Boolean), pcw = Math.max(66, Math.min(110, Math.floor((Math.min(innerWidth, 760) - 64) / Math.max(1, poolLocsT.length)) - 10));
+    const poolCells = poolLocsT.map(ln => `<div class="gcell" style="width:${pcw}px"><div class="gback tap" style="--pw:${pcw}px" data-act="eyeloc" data-id="${ln.id}" aria-label="${esc(ln.name)}">${deckPile(ln.loc, { pw: pcw, count: 1, nobadge: true })}</div></div>`).join('');
     const per = Math.max(1, slotsT.length), cellW = Math.max(66, Math.min(124, Math.floor((Math.min(innerWidth, 760) - 64 - (per - 1) * 10) / per))), cw = Math.floor(cellW / 1.128);
     const cells = slotsT.map(({ i, seen }) => {
       const c = C[i.id], star = i.sig ? '<div class="sigtag">★ Signature</div>' : '';
@@ -3198,8 +3213,10 @@ const Bots = (() => {
       const ln = D.nodes.find(q => q.loc === c.loc); return `<div class="gcell" style="width:${cellW}px">${ln ? `<div class="gback tap" style="--pw:${cellW}px" data-act="eyeloc" data-id="${ln.id}" aria-label="${esc(ln.name)}">${deckPile(c.loc, { pw: cellW, count: 1, nobadge: true })}</div>` : `<div class="gback"><div class="pilebay" style="--pw:${cellW}px">${deckPile(null, { pw: cellW, count: 1, nobadge: true, dk: '#4527a0', svg: '<svg viewBox="0 0 100 140" width="100%" height="100%"><rect width="100" height="140" fill="#4527a0"/><text x="50" y="86" text-anchor="middle" font-size="56">⭐</text></svg>' })}</div></div>`}${star}</div>`;
     }).join('');
     return `<div class="sheet" data-act="closeeye"><div class="box hbox" data-stop="1" style="height:auto;max-height:92vh;overflow:auto;max-width:96vw">${D.trainerArt && D.trainerArt[n.id] ? `<img class="pix infospr" src="data:image/png;base64,${D.trainerArt[n.id]}" alt="${esc(n.name)}">` : ''}<h2>${esc(n.name)}</h2>
-      <p class="hcap" style="font-size:19px">${esc(T.stage)} · ${T.n} Pokémon, ${T.out || 'as many as your dice'} out at a time. The signature plays last. Tap a place to see what it holds.</p>
-      <div class="gline">${cells}</div></div></div>`;
+      <p class="hcap" style="font-size:19px">${esc(T.stage)} · ${T.n} Pokémon, ${T.out || 'as many as your dice'} out at a time. The signature plays last.</p>
+      <div class="gline">${cells}</div>
+      <p class="hcap" style="font-size:19px"><b>Signature:</b> ${sgT}.${quoT ? '<br><b>The team has</b> ' + quoT + '.' : ''}<br><b>The others</b> come from ${poolLocsT.length ? 'these places (tap one to see what is in it)' : 'anywhere'}${T.pool.tagged ? (poolLocsT.length ? ', or are cards that carry ' : ' that carry ') + esc(n.name) + "'s name" : ''}:</p>
+      <div class="gline">${poolCells}</div></div></div>`;
   }
   // tapping a part of a big card says what it is and does
   const offWord = (o, k) => o === 0 ? (k === 'a' ? 'the card across' : 'itself') : Math.abs(o) === 1 ? (k === 'a' ? 'the opposing card in the column to the ' : 'the ally in the column to the ') + (o < 0 ? 'left' : 'right') : (k === 'a' ? 'the opposing card ' : 'the ally ') + Math.abs(o) + ' columns to the ' + (o < 0 ? 'left' : 'right');
@@ -3262,8 +3279,9 @@ const Bots = (() => {
     if (ui.dex && ui.dexCard) h += dexCardSheet();
     if (ui.more) h += moreSheet();
     if (ui.slots) h += slotsSheet();
+    if (ui.slotView != null) { const sv = saves().find(q => q.slot === ui.slotView); if (sv) { const cw = Math.max(110, Math.min(170, Math.floor((Math.min(innerWidth, 760) - 60) / 4))); h += `<div class="sheet" style="z-index:75" data-act="closeslotteam"><div class="box hbox" data-stop="1" style="height:auto;max-height:92vh;overflow:auto;max-width:96vw"><h2>${esc((D.starters.find(x => x.key === sv.starter) || {}).name || 'Game')}'s cards</h2><div class="cgrid">${teamSort(sv.coll, c => c.uid).map(c => card(c, { cw })).join('')}</div><button class="btn" data-act="closeslotteam">Close</button></div></div>`; } }
     if (ui.gz != null && ui.eye) h += gzoomSheet();
-    if (G && G.battle && G.battle.lend && ui.lendSeen !== G.turn && !ui.help && !ui.menu) { const nd1 = E.node(G.battle.node), art1 = D.trainerArt && D.trainerArt[nd1.id]; h += `<div class="sheet" style="z-index:65" data-act="lendok">${art1 ? `<img class="pix" style="width:140px;height:140px" src="data:image/png;base64,${art1}" alt="">` : ''}<div class="box" data-stop="1" style="max-width:440px;text-align:center"><h2>${esc(nd1.name)}</h2><p class="hcap" style="font-size:21px">You only have ${E.slots(G)} ${E.slots(G) === 1 ? 'die' : 'dice'} here. You can use ${G.battle.lend === 1 ? 'this one' : 'these'} for this battle.${E.D.diceRewards.some(g => g.indexOf(nd1.id) >= 0) ? ' If you win, just keep it!' : ''}</p><button class="btn big" data-act="lendok">🎲 Thanks!</button></div></div>`; }
+    if (G && G.battle && G.battle.lend && ui.lendSeen !== G.turn && !ui.help && !ui.menu) { const nd1 = E.node(G.battle.node), art1 = D.trainerArt && D.trainerArt[nd1.id]; h += `<div class="sheet" style="z-index:65" data-act="lendok">${art1 ? `<img class="pix" style="width:140px;height:140px" src="data:image/png;base64,${art1}" alt="">` : ''}<div class="box" data-stop="1" style="max-width:440px;text-align:center"><h2>${esc(nd1.name)}</h2><p class="hcap" style="font-size:21px">You only have ${E.slots(G)} ${E.slots(G) === 1 ? 'die' : 'dice'} here. You can use ${G.battle.lend === 1 ? 'this one' : 'these'} for this battle.${D.rules.diceRewards.some(g => g.indexOf(nd1.id) >= 0) ? ' If you win, just keep it!' : ''}</p><button class="btn big" data-act="lendok">🎲 Thanks!</button></div></div>`; }
     h += expSheet();
     if (ui.menu) h += menuSheet();
     if (ui.settings) h += settingsSheet();
@@ -3298,8 +3316,9 @@ const Bots = (() => {
 
   // ---------------------------------------------------------------- taps
   const A = {
-    continue() { const l = saves(); if (l.length > 1) { ui.slots = true; ui.delAsk = null; render(); return; } G = l[0]; ui.screen = 'play'; resetSel(); drive(); },
-    load(el) { const g = saves().find(s => s.slot === +el.dataset.slot); if (!g) return; G = g; ui.slots = false; ui.screen = 'play'; resetSel(); drive(); },
+    continue() { const l = saves(); if (l.length > 1) { ui.slots = true; ui.delAsk = null; render(); return; } G = E.repair(l[0]); ui.screen = 'play'; resetSel(); drive(); },
+    load(el) { const g = saves().find(s => s.slot === +el.dataset.slot); if (!g) return; G = E.repair(g); ui.slots = false; ui.screen = 'play'; resetSel(); drive(); },
+    slotteam(el) { ui.slotView = +el.dataset.slot; render(); }, closeslotteam() { ui.slotView = null; render(); },
     dextip(el) { const c = C[el.dataset.id], k = el.dataset.t, own = lsGet(DEXG) || {}, fnd = (lsGet(DEXF) || {})[c.id] || [], shs = lsGet(DEXS) || {};
       ui.dexTip = k === 'loc' ? { h: '📍 Location', p: c.loc === 0 ? 'This version is a starter. It only comes to you if you choose it (or grow it) as your starter.' : fnd.length ? 'You have met this card in the wild at the places shown underneath.' : 'You have not met this card in the wild yet, so its place is still unknown.' }
         : k === 'cat' ? { h: 'Caught', p: own[c.id] ? 'This card has been in your collection.' : 'You have not had this card in your collection yet. Beating one in a fight only counts as seeing it.' }
@@ -3347,7 +3366,7 @@ const Bots = (() => {
       if (n.kind !== 'loc' && n.kind !== 'visitor' && G.done[n.id]) return toast('You already beat them!');
       if (ui.sweeping) return;
       if (n.kind === 'loc' && !E.deckSize(G, n.loc)) return toast('That deck is empty');
-      sweepAway(el, () => { ui.sweeping = false; if (act({ t: 'go', node: n.id })) resetSel(); });
+      sweepAway(el, () => { ui.sweeping = false; try { if (act({ t: 'go', node: n.id })) resetSel(); } finally { render(); } });
     },
     ready() { act({ t: 'ready' }); },
     leave() { if (!ui.leaveAsk) { ui.leaveAsk = true; render(); setTimeout(() => { if (ui.leaveAsk) { ui.leaveAsk = false; render(); } }, 3000); return; } ui.leaveAsk = false; act({ t: 'forfeit' }); },

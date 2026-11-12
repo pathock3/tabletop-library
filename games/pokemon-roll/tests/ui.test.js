@@ -199,13 +199,13 @@ test('ui: a gym leader has an eye that explains how their team was made; dice ca
     await p.click('.place[data-id=B1] .eye');
     assert.equal(await p.locator('[data-act=closeeye]').count() >= 1, true); const txt = await p.innerText('.hbox');
     assert.match(txt, /Brock/); assert.doesNotMatch(txt, /\d vs \d|has \d+ Pokémon|went back|before your game began/i); assert.equal(await p.locator('.sheet .infoi').count(), 0, 'no big i above the name'); assert.equal(await p.locator('.sheet .infospr').count(), 1, 'a gym leader always shows their sprite'); assert.doesNotMatch(txt, /Face .* once/i);
-    assert.equal(await p.locator('.sheet .gback').count(), 2, 'one card back for each of their two Pokémon'); assert.equal(await p.locator('.sheet .sigtag').count(), 1, 'the signature is marked'); assert.match(txt, /signature plays last/i);
-    assert.ok(await p.evaluate(() => { const c = [...document.querySelectorAll('.sheet .gcell')]; return c.length === 2 && !!c[1].querySelector('.sigtag'); }), 'and it is the last one');
+    assert.equal(await p.locator('.sheet .gline').first().locator('.gback').count(), 2, 'one card back for each of their two Pokémon'); assert.equal(await p.locator('.sheet .sigtag').count(), 1, 'the signature is marked'); assert.match(txt, /signature plays last/i);
+    assert.ok(await p.evaluate(() => { const c = [...document.querySelector('.sheet .gline').querySelectorAll('.gcell')]; return c.length === 2 && !!c[1].querySelector('.sigtag'); }), 'and it is the last one');
     const tp = p.locator('.sheet .gback.tap'); if (await tp.count()) { await tp.first().click(); assert.ok(await p.locator('.sheet .tycount').count() >= 1, 'a place shows its elements and how many'); await p.click('[data-act=eyeback]'); }
     assert.equal(await p.locator('.hbox .btn').count(), 0, 'no Got it button'); await p.mouse.click(8, 8); assert.equal(await p.locator('.sheet').count(), 0);
     // only the cards you have actually seen them put down are shown face up; the rest stay card backs
     await p.evaluate(() => { const G = window.__pokemonRoll.G; G.seenCards = { B1: [{ id: G.bosses.B1[0].id, sh: G.bosses.B1[0].sh }] }; window.__pokemonRoll.render(); });
-    await p.click('.place[data-id=B1] .eye'); assert.equal(await p.locator('.sheet .card').count(), 1, 'one card seen, shown face up'); assert.equal(await p.locator('.sheet .gback').count(), 1, 'and the other is still a back');
+    await p.click('.place[data-id=B1] .eye'); assert.equal(await p.locator('.sheet .card').count(), 1, 'one card seen, shown face up'); assert.equal(await p.locator('.sheet .gline').first().locator('.gback').count(), 1, 'and the other is still a back');
     await p.click('.sheet .card'); assert.equal(await p.locator('.sheet .card').count(), 2, 'tap a seen card: it opens big (the team stays behind it)');
     const big = await p.evaluate(() => [...document.querySelectorAll('.sheet .card')].map(c => c.getBoundingClientRect().width)); assert.ok(Math.max(...big) > 300, 'big');
     await p.click('[data-act=gzclose] >> nth=-1'); assert.equal(await p.locator('.sheet .card').count(), 1, 'closing the big card returns to the team');
@@ -546,5 +546,33 @@ test('ui: one sliding map holds the gyms, the places, the Elite Four, Blue and R
     await p.click('.place[data-id=E1]'); assert.match(await p.innerText('.toast'), /eight gym/i);
     await p.click('[data-act=menu]'); await p.click('[data-act=settings]'); await p.click('[data-act=resetask]'); assert.match(await p.innerText('.sheet'), /deletes ALL/); await p.click('[data-act=resetno]'); assert.equal(await p.locator('[data-act=resetgo]').count(), 0, 'cancelling keeps everything');
     assert.deepEqual(errs, []);
+  } finally { await b.close(); }
+});
+
+test('ui: Continue lists each save with its starter, badges, dice and cards, a tap on the card count shows the whole team, and a save from an older build (no trainer teams) still opens and lets you challenge Brock', { skip: !chromium }, async () => {
+  const b = await chromium.launch(), p = await b.newPage({ viewport: { width: 820, height: 1180 } });
+  const errs = []; p.on('pageerror', e => errs.push(e.message));
+  try {
+    await p.goto(URL);
+    await p.evaluate(() => { for (let i = 0; i < 2; i++) { const s = Engine.newGame({ seed: 5 + i, starter: i ? 'squirtle' : 'pikachu' }); s.bosses = {}; delete s.held; delete s.legFor; localStorage.setItem(i ? 'pokemon-roll-save-2' : 'pokemon-roll-save', JSON.stringify(s)); } });
+    await p.reload(); await p.click('[data-act=continue]');
+    const txt = await p.innerText('.slot'); assert.match(txt, /Pikachu/); assert.match(txt, /🏅 0\/8/); assert.match(txt, /1 die/);
+    assert.ok(await p.evaluate(() => { const e = document.querySelector('.slotb b'); return getComputedStyle(e).color !== 'rgb(255, 255, 255)'; }), 'readable text');
+    await p.click('[data-act=slotteam][data-slot="1"]'); assert.ok(await p.locator('.sheet .card').count() >= 1, 'the team of cards'); await p.click('.sheet .btn[data-act=closeslotteam]');
+    await p.click('[data-act=load][data-slot="1"]'); await p.waitForSelector('.place[data-id=B1]'); await p.locator('[data-act=tipok]').click({ timeout: 800 }).catch(() => {});
+    await p.click('.place[data-id=B1]'); await p.waitForFunction(() => window.__pokemonRoll.G.phase === 'battle' && window.__pokemonRoll.G.battle, null, { timeout: 5000 });
+    assert.deepEqual(errs, []);
+  } finally { await b.close(); }
+});
+
+test('ui: with a second card, Brock lends you the die: a sheet says so and the fight starts; his info says what he might have', { skip: !chromium }, async () => {
+  const b = await chromium.launch(), p = await b.newPage({ viewport: { width: 820, height: 1180 } });
+  const errs = []; p.on('pageerror', e => errs.push(e.message));
+  try {
+    await p.goto(URL); await p.click('[data-act=new]'); await p.click('[data-act=starter][data-k=squirtle]'); await p.locator('[data-act=tipok]').click({ timeout: 800 }).catch(() => {});
+    await p.evaluate(() => { const R = window.__pokemonRoll; R.G.coll.push({ uid: 50, id: '10', sh: 0 }); R.render(); });
+    await p.evaluate(() => document.querySelector('.place[data-id=B1] .eye').click()); const info = await p.innerText('.hbox'); assert.match(info, /Signature:[\s\S]*Ground/); assert.match(info, /The others come from/); await p.mouse.click(8, 8);
+    await p.click('.place[data-id=B1]'); await p.waitForSelector('[data-act=lendok]'); assert.match(await p.innerText('.sheet'), /only have 1 die/); await p.click('.btn[data-act=lendok]');
+    assert.equal(await p.locator('[data-act=lendok]').count(), 0); assert.deepEqual(errs, []);
   } finally { await b.close(); }
 });
