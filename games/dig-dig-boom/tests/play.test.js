@@ -703,7 +703,7 @@ test('menu: in a game there is no link out to the library — a Menu with a way 
     await page.click('#play [data-p=gmenuclose]'); assert.equal(await page.locator('#play .gmenu').count(), 0);
     await page.click('#play .pbar [data-p=gmenu]'); await page.click('#play [data-p=mainmenu]');
     assert.match(await page.locator('#play .homemenu').innerText(), /Continue[\s\S]*New game/);
-    assert.equal(await page.locator('#play [data-p=resume] .pips i').count(), 5, 'one circle per round on Continue'); assert.equal(await page.locator('#play [data-p=resume] .pips i.now').count(), 1, 'the current round is ringed'); assert.doesNotMatch(await page.locator('#play [data-p=resume]').innerText(), /Round|Dig|Prep/, 'circles, no words');
+    assert.equal(await page.locator('#play [data-p=resume] .pips i').count(), 4, 'one circle per round on Continue (a run is 4 rounds)'); assert.equal(await page.locator('#play [data-p=resume] .pips i.now').count(), 1, 'the current round is ringed'); assert.doesNotMatch(await page.locator('#play [data-p=resume]').innerText(), /Round|Dig|Prep/, 'circles, no words');
     await page.click('#play [data-p=startrun]');                                       // the first tap only asks
     assert.match(await page.locator('#play .homemenu').innerText(), /Tap again to replace your game/); assert.equal(await stOf(page, () => window.DigDigBoomPlay.S.st.digs), 1, 'nothing was replaced yet');
     await page.click('#play [data-p=resume]'); await page.waitForSelector('#play .ptable');
