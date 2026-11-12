@@ -91,3 +91,12 @@
 - `RULING:` **Settings** (in More and in the in-game menu) has "Reset everything", which asks first and then deletes every saved game, the Hall of Fame, the Pokédex and the settings.
 - `RULING:` **Ghost heals** may also be aimed at a ghost across from any card the heal can reach (neighbours too), for double damage.
 - `RULING:` **Sprites**: the Yellow versions of Giovanni, Lorelei and Agatha are the very same pictures as Red/Blue, so those stay.
+
+## V3 map and progression (owner's later update: replaces the earlier map, unlock, Giovanni and 2nd-die rulings)
+- `RULING:` **Areas**: 1 Viridian Forest, Mt. Moon, Brock (start) · 2 Power Plant, Misty, Lt. Surge (beat Brock) · 3A S.S. Anne, Erika (beat Misty) · 3B Pokémon Tower, Sabrina (beat Lt. Surge) · 4A Safari Zone, Koga (beat Erika) · 4B Cinnabar Island, Blaine (beat Sabrina) · 5A Seafoam Islands (beat Koga) · 5B Victory Road (beat Blaine) · Giovanni (beat Koga or Blaine) · the Indigo Plateau (all 8 badges). No badge counts open anything except the plateau.
+- `RULING:` **Dice**: 1 at the start; Brock gives the 2nd; Misty or Lt. Surge (whichever first) gives the 3rd (`rules.diceRewards`).
+- `RULING:` **Cards out** = your dice, but Brock is 2 on 2 and Misty and Lt. Surge are 3 on 3: if you have fewer dice the trainer lends you the rest for that fight ("You only have one die here, use this one"), and says to keep it if you win and it is a die you were about to earn. Blue and Red are 4 on 4 (lent the same way, nothing to keep). You still need that many cards.
+- `RULING:` **Teams** are picked once, at the start of the game, from the piles, and are the same every time; the signature is tagged (`sig`) and is last on the info page and the last to be played. A loss keeps the team; a win puts it back into the wild.
+- `RULING:` **Trainers tab re-read**: Brock 4-5 points, Sabrina 13-15, Koga 15-17 with a level 30-40 Bug or Poison signature, Blaine 16-18; the Stage column is each leader's area.
+- `RULING:` **Choices**: when two options of a move hit exactly the same cards (nobody on the left or right), you are not asked.
+- `RULING:` **Sprites**: Giovanni, Lorelei and Agatha are the Gen 1 (Red/Blue/Yellow share them) pictures in colour: the repository only has them as four greys, so I coloured them with my own palettes (brown, ice blue, purple), not the real Yellow palettes.

@@ -37,7 +37,7 @@ test('ui: menu, new game, map, and a whole first fight through real taps, with n
     await p.click('[data-act=new]'); assert.equal(await p.locator('[data-act=starter]').count(), 5); assert.match(await p.innerText('.oakov .bubble'), /Professor Oak[\s\S]*level up and evolve[\s\S]*static cards/, 'Oak offers the starters and says only they evolve'); assert.equal(await p.locator('.oakov').count(), 1);
     await p.click('[data-act=starter][data-k=charmander]');
     assert.equal(await p.locator('.oakov').count(), 0, 'Oak goes away and you are back on the map'); assert.equal(await p.locator('.place').count(), 18, 'the whole road is on show from the start, locked places included');
-    assert.equal(await p.locator('.place:not(.lock)').count(), 4, 'Viridian Forest, Brock, Mt. Moon and Misty are open from the start');
+    assert.equal(await p.locator('.place:not(.lock)').count(), 3, 'Area 1: Viridian Forest, Brock and Mt. Moon are open from the start');
     assert.equal(await p.locator('.place > svg, .place .ptop > svg').count(), await p.locator('.place').count(), 'each place is drawn as a picture (a gym, or the back of a deck)');
     assert.ok(await p.evaluate(() => { const w = document.querySelector('.mapwrap'); return w.scrollWidth <= w.clientWidth + 1 && w.scrollHeight <= w.clientHeight + 1; }), 'the map fills the screen without scrolling');
     assert.equal(await p.locator('.dock').count(), 0, 'no bar along the bottom'); assert.ok(await p.locator('.top [data-act=coll]').count() === 1, 'Your cards is in the top bar');
@@ -80,7 +80,7 @@ test('ui: the table fits on the iPad and the iPhone, and cards open into the ful
       // every card on the table is the whole card: six faces, ability, weakness tab flush with the top edge, art, HP, and nothing clipped
       const cards = await p.evaluate(() => [...document.querySelectorAll('.board .card')].map(c => { const r = c.getBoundingClientRect(), t = c.querySelector('.wkt'); return { faces: c.querySelectorAll('.f').length, ab: !!c.querySelector('.ab'), art: !!c.querySelector('.art img'), hp: !!c.querySelector('.hpc'), tab: t ? Math.round(t.getBoundingClientRect().top - r.top) : 99, foe: c.classList.contains('foe'), upside: c.classList.contains('foe') ? getComputedStyle(c).rotate : '', w: Math.round(r.width), clipped: c.scrollHeight > c.clientHeight + 1, inView: r.left >= -1 && r.right <= innerWidth + 1 }; }));
       assert.ok(cards.length >= 6, 'cards on the table');
-      cards.forEach(c => { assert.equal(c.faces, 6); assert.ok(c.ab && c.art && c.hp); assert.ok(c.tab <= 6, 'weakness tab flush with the top'); assert.ok(!c.clipped, 'no part of the card is cut off'); assert.ok(c.w >= 120, 'big enough to read: ' + c.w); });
+      cards.forEach(c => { assert.equal(c.faces, 6); assert.ok(c.ab && c.art && c.hp); assert.ok(c.tab <= 6 || c.tab === 99, 'weakness tab flush with the top (a card weak to healing has none)'); assert.ok(!c.clipped, 'no part of the card is cut off'); assert.ok(c.w >= 120, 'big enough to read: ' + c.w); });
       if (w === 820) assert.ok(cards.every(c => c.inView), 'on the iPad in portrait the whole table is on screen');
       assert.ok(cards.some(c => c.foe && !/180deg/.test(c.upside)), 'their cards are the right way up, like yours, head to head'); assert.ok(cards.filter(c => !c.foe).every(c => !c.upside));
       assert.equal(await p.locator('.sheet .card').count(), 0, 'there is no second, enlarged version of a card');
@@ -198,13 +198,14 @@ test('ui: a gym leader has an eye that explains how their team was made; dice ca
     assert.match(await p.innerText('.hbox'), /in the draw pile[\s\S]*in the discard pile/, 'the full info on a place has both piles'); assert.equal(await p.locator('.sheet .bigpile .pile').count(), 1, 'the back of the cards is shown'); assert.equal(await p.locator('.place.deck .pcount').count(), 0, 'no card count on the map decks any more: it is all in the i'); await p.mouse.click(8, 8); assert.equal(await p.locator('.sheet').count(), 0);
     await p.click('.place[data-id=B1] .eye');
     assert.equal(await p.locator('[data-act=closeeye]').count() >= 1, true); const txt = await p.innerText('.hbox');
-    assert.match(txt, /team/i); assert.doesNotMatch(txt, /\d vs \d|has \d+ Pokémon|went back|before your game began/i); assert.equal(await p.locator('.sheet .infoi').count(), 0, 'no big i above the name'); assert.equal(await p.locator('.sheet .infospr').count(), 1, 'a gym leader always shows their sprite'); assert.doesNotMatch(txt, /Face .* once/i); assert.match(txt, /Mt\. Moon/); assert.match(txt, /Viridian Forest/);
-    assert.equal(await p.locator('.sheet .gback').count(), 2, 'one card back for each place the team is built from'); assert.match(txt, /built from these locations/); assert.match(txt, /Signature:[\s\S]*Ground/); assert.equal(await p.locator('.sheet .eyerow').count(), 0, 'no list of places below');
-    await p.click('.sheet .gback.tap >> nth=0'); assert.ok(await p.locator('.sheet .tycount').count() >= 1, 'a place shows its elements and how many'); assert.doesNotMatch(await p.innerText('.hbox'), /draw pile|discard|began/i, 'inside a leader\'s info only the elements and how many'); assert.equal(await p.locator('.sheet .infoi').count(), 0); await p.click('[data-act=eyeback]'); assert.match(await p.innerText('.hbox'), /Brock's team/);
+    assert.match(txt, /team/i); assert.doesNotMatch(txt, /\d vs \d|has \d+ Pokémon|went back|before your game began/i); assert.equal(await p.locator('.sheet .infoi').count(), 0, 'no big i above the name'); assert.equal(await p.locator('.sheet .infospr').count(), 1, 'a gym leader always shows their sprite'); assert.doesNotMatch(txt, /Face .* once/i);
+    assert.equal(await p.locator('.sheet .gback').count(), 2, 'one card back for each of their two Pokémon'); assert.equal(await p.locator('.sheet .sigtag').count(), 1, 'the signature is marked'); assert.match(txt, /signature plays last/i);
+    assert.ok(await p.evaluate(() => { const c = [...document.querySelectorAll('.sheet .gcell')]; return c.length === 2 && !!c[1].querySelector('.sigtag'); }), 'and it is the last one');
+    const tp = p.locator('.sheet .gback.tap'); if (await tp.count()) { await tp.first().click(); assert.ok(await p.locator('.sheet .tycount').count() >= 1, 'a place shows its elements and how many'); await p.click('[data-act=eyeback]'); }
     assert.equal(await p.locator('.hbox .btn').count(), 0, 'no Got it button'); await p.mouse.click(8, 8); assert.equal(await p.locator('.sheet').count(), 0);
     // only the cards you have actually seen them put down are shown face up; the rest stay card backs
-    await p.evaluate(() => { const G = window.__pokemonRoll.G; G.seenCards = { B1: [{ id: '74', sh: 0 }] }; window.__pokemonRoll.render(); });
-    await p.click('.place[data-id=B1] .eye'); assert.equal(await p.locator('.sheet .card').count(), 1, 'one card seen, shown face up'); assert.equal(await p.locator('.sheet .gback').count(), 2, 'and the places it is built from');
+    await p.evaluate(() => { const G = window.__pokemonRoll.G; G.seenCards = { B1: [{ id: G.bosses.B1[0].id, sh: G.bosses.B1[0].sh }] }; window.__pokemonRoll.render(); });
+    await p.click('.place[data-id=B1] .eye'); assert.equal(await p.locator('.sheet .card').count(), 1, 'one card seen, shown face up'); assert.equal(await p.locator('.sheet .gback').count(), 1, 'and the other is still a back');
     await p.click('.sheet .card'); assert.equal(await p.locator('.sheet .card').count(), 2, 'tap a seen card: it opens big (the team stays behind it)');
     const big = await p.evaluate(() => [...document.querySelectorAll('.sheet .card')].map(c => c.getBoundingClientRect().width)); assert.ok(Math.max(...big) > 300, 'big');
     await p.click('[data-act=gzclose] >> nth=-1'); assert.equal(await p.locator('.sheet .card').count(), 1, 'closing the big card returns to the team');
@@ -440,9 +441,9 @@ test('ui: places that open together are one block with their requirement on it (
   const errs = []; p.on('pageerror', e => errs.push(e.message));
   try {
     await p.goto(URL); await p.click('[data-act=new]'); await p.click('[data-act=starter][data-k=pikachu]');
-    assert.equal(await p.locator('.mapin .grp').count(), 6, 'six blocks'); assert.equal(await p.locator('.mapin .grp.open').count(), 1, 'only the first block is open'); assert.equal(await p.locator('.mapsvg path').count(), 0, 'no lines');
+    assert.equal(await p.locator('.mapin .grp').count(), 10, 'ten blocks'); assert.equal(await p.locator('.mapin .grp.open').count(), 1, 'only the first block is open'); assert.equal(await p.locator('.mapsvg path').count(), 0, 'no lines');
     const tabs = await p.locator('.grp.lock .gtab').allInnerTexts(); assert.ok(tabs.every(t => t.includes('🔒')), 'each locked block says it is locked'); assert.ok(tabs.some(t => /🏅/.test(t)), 'and by what');
-    await p.locator('.grp.lock').first().click({ position: { x: 10, y: 10 }, force: true }); assert.match(await p.innerText('.toast'), /🏅/);
+    await p.locator('.grp.lock').first().click({ position: { x: 10, y: 10 }, force: true }); assert.match(await p.innerText('.toast'), /🏅|Beat/);
     assert.deepEqual(errs, []);
   } finally { await b.close(); }
 });

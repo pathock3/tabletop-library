@@ -193,17 +193,17 @@ test('rules: a fight that goes nowhere for six rounds is lost', () => {
   c.b.stall = 5; const b = play(c, { hero: [6], gm: [6] }, { hero: { 0: 0 }, gm: { 0: 0 } });
   assert.equal(b.out, 'gm');
 });
-test('placement: a gym fight puts out as many cards as you have dice, in fixed columns; the rest wait; a knocked-out card is replaced from the reserve', (tc) => { E.faceOrder('top'); tc.after(() => E.faceOrder('sheet'));
-  const s = E.newGame({ seed: 5, starter: 'bulbasaur' });
+test('placement: a gym fight puts out as many cards as you have dice (a trainer lends the rest), in fixed columns; the rest wait; a knocked-out card is replaced from the reserve', (tc) => { E.faceOrder('top'); tc.after(() => E.faceOrder('sheet'));
+  const s = E.newGame({ seed: 5, starter: 'bulbasaur' }); s.done.B1 = true;
   s.coll.push({ uid: 5, id: '10', sh: 0 }, { uid: 6, id: '16', sh: 0 }, { uid: 7, id: '19', sh: 0 });
-  assert.ok(E.apply(s, { t: 'go', node: 'B2' }).ok); assert.equal(s.phase, 'battle', 'no team to pick: straight into the fight');
-  const b = s.battle; assert.equal(b.nOut, 1, 'one die: one card out'); assert.deepEqual(b.need, [1, 1]); assert.equal(b.cols.length, 1, 'the columns are fixed and shown from the start'); assert.equal(b.hand[0].length, 4, 'your whole collection is your hand'); assert.equal(b.hand[1].length, 1); assert.equal(b.rsv[1].length, 2, 'the other two of their three wait');
+  assert.ok(E.apply(s, { t: 'go', node: 'B3' }).ok); assert.equal(s.phase, 'battle');
+  const b = s.battle; assert.equal(b.nOut, 3, 'Lt. Surge is 3 on 3'); assert.equal(b.lend, 1, 'you have two dice: he lends you the third'); assert.deepEqual(b.need, [3, 3]); assert.equal(b.cols.length, 3, 'the columns are fixed and shown from the start'); assert.equal(b.hand[0].length, 4, 'your whole collection is your hand'); assert.equal(b.hand[1].length, 3); assert.equal(b.rsv[1].length, 1, 'the fourth waits (the signature)');
   assert.equal(E.slotsFor(b, 0).filter(x => x.at != null).length, 0, 'no new columns can be made');
-  let g = B.step(s, 'normal'); assert.ok(E.apply(s, g).ok); E.apply(s, Object.assign({ t: 'place', side: 0, uid: b.hand[0][0] }, E.slotsFor(b, 0)[0]));
-  assert.equal(b.stage, 'assign'); assert.equal(E.living(b, 0).length, 1); assert.equal(E.living(b, 1).length, 1); assert.equal(b.rsv[0].length, 3, 'your other three wait in reserve');
+  let g; while ((g = B.step(s, 'normal')) || (b.stage === 'place' && b.pl.side === 0)) { if (g) E.apply(s, g); else E.apply(s, Object.assign({ t: 'place', side: 0, uid: b.hand[0][0] }, E.slotsFor(b, 0)[0])); }
+  assert.equal(b.stage, 'assign'); assert.equal(E.living(b, 0).length, 3); assert.equal(E.living(b, 1).length, 3); assert.equal(b.rsv[0].length, 1, 'your fourth waits in reserve');
   const foe = E.living(b, 1)[0]; foe.ko = true; foe.hp = 0; b.stage = 'resolved'; b.out = null;
   assert.ok(E.apply(s, { t: 'next' }).ok); assert.equal(b.stage, 'place', 'a replacement is brought'); assert.ok(b.refill);
-  assert.ok(E.apply(s, B.step(s, 'normal')).ok); assert.equal(b.stage, 'assign', 'only they needed one'); assert.equal(E.living(b, 1).length, 1); assert.equal(b.rsv[1].length, 1);
+  assert.ok(E.apply(s, B.step(s, 'normal')).ok); assert.equal(b.stage, 'assign', 'only they needed one'); assert.equal(E.living(b, 1).length, 3); assert.equal(b.rsv[1].length, 0); assert.ok(E.living(b, 1).some(u => s.bosses.B3[s.bosses.B3.length - 1].id === u.id), 'the signature came out last');
 });
 test('wild cards: one comes up, you put one down, and then you choose: fight it one on one, or bring more and they draw one more each time', (tc) => { E.faceOrder('top'); tc.after(() => E.faceOrder('sheet'));
   const s = E.newGame({ seed: 21, starter: 'bulbasaur' }); s.done.B1 = true; s.done.B2 = true;            // three dice (the first two badges give two more)
@@ -260,17 +260,20 @@ test('campaign: every trainer builds a random team from its row: size, signature
     assert.ok(!T.buildTeam(s, 'E2').some(i => C[i.id].name === 'Onix'), 'Bruno never gets Onix');
   }
 });
-test('campaign: places open with badges and by beating trainers; one die at the start, a second and a third from the first two badges', () => {
-  const s = E.newGame({ seed: 4, starter: 'squirtle' });
-  const open = () => D.nodes.filter(n => E.unlocked(s, n)).map(n => n.id).sort();
-  assert.deepEqual(open(), ['B1', 'B2', 'L1', 'L2'], 'two gyms and two places are open from the start'); assert.equal(E.slots(s), 1); assert.equal(s.lv, 2, 'your partner starts at level 2');
-  s.done.B1 = true; assert.equal(E.slots(s), 2); assert.ok(open().includes('B3') && open().includes('L3') && open().includes('L4') && open().includes('L5')); assert.ok(!open().includes('B4'));
-  s.done.B2 = true; assert.equal(E.slots(s), 3); assert.ok(open().includes('B4') && open().includes('B5') && open().includes('L6') && open().includes('L7') && open().includes('L8'));
-  s.done.B3 = true; assert.equal(E.slots(s), 3, 'never more than three dice'); assert.equal(E._t.badges(s), 3); assert.ok(open().includes('B6') && open().includes('B7') && open().includes('L9')); assert.ok(!open().includes('B8'));
-  s.done.B4 = true; assert.ok(open().includes('B8')); ['B5', 'B6', 'B7', 'B8'].forEach(id => { s.done[id] = true; }); assert.equal(E._t.badges(s), 8);
-  assert.ok(open().includes('E1') && !open().includes('E2') && !open().includes('E4')); s.done.E1 = true; assert.ok(open().includes('E2')); s.done.E2 = true; assert.ok(open().includes('E3')); s.done.E3 = true; assert.ok(open().includes('E4'));
-  s.done.E4 = true; assert.ok(open().includes('F1')); s.done.F1 = true; assert.ok(open().includes('F2'));
-  assert.ok(!D.nodes.some(n => n.kind === 'rival'), 'there is no rival in solo');
+test('campaign: areas open by beating the leader before them; dice come from Brock and then Misty or Lt. Surge; the endgame needs all eight badges', () => {
+  const s = E.newGame({ seed: 4, starter: 'squirtle' }); const open = () => D.nodes.filter(n => E.unlocked(s, n)).map(n => n.id).sort();
+  assert.deepEqual(open(), ['B1', 'L1', 'L2'], 'Area 1: Viridian Forest, Mt. Moon and Brock'); assert.equal(E.slots(s), 1); assert.equal(s.lv, 2, 'your partner starts at level 2');
+  s.done.B1 = true; assert.equal(E.slots(s), 2, 'Brock gives the 2nd die');
+  assert.ok(open().includes('B2') && open().includes('B3') && open().includes('L3') && !open().includes('B4') && !open().includes('L4'));
+  s.done.B2 = true; assert.equal(E.slots(s), 3, 'Misty (or Surge, whichever first) gives the 3rd'); assert.ok(open().includes('B4') && open().includes('L4') && !open().includes('B6') && !open().includes('L5'));
+  s.done.B3 = true; assert.equal(E.slots(s), 3); assert.ok(open().includes('B6') && open().includes('L5'), 'Surge opens the Pokémon Tower and Sabrina');
+  s.done.B4 = true; assert.ok(open().includes('B5') && open().includes('L6')); assert.ok(!open().includes('L8') && !open().includes('B8'));
+  s.done.B6 = true; assert.ok(open().includes('B7') && open().includes('L7')); s.done.B5 = true; assert.ok(open().includes('L8') && open().includes('B8'), 'Koga opens Seafoam and Giovanni'); assert.ok(!open().includes('L9'));
+  s.done.B7 = true; assert.ok(open().includes('L9')); delete s.done.B5; assert.ok(open().includes('B8'), 'Blaine alone opens Giovanni too'); s.done.B5 = true;
+  assert.ok(!open().includes('IP') && !open().includes('E1')); s.done.B8 = true; assert.equal(E._t.badges(s), 8);
+  assert.ok(open().includes('IP') && open().includes('E1') && !open().includes('E2')); s.done.E1 = true; assert.ok(open().includes('E2')); s.done.E2 = true; assert.ok(open().includes('E3')); s.done.E3 = true; assert.ok(open().includes('E4'));
+  s.done.E4 = true; assert.ok(open().includes('F1') && open().includes('F2'));
+  const t = E.newGame({ seed: 4, starter: 'squirtle' }); t.done.B1 = true; t.done.B3 = true; assert.equal(E.slots(t), 3, 'Surge first works too');
 });
 test('campaign: your rival picks the partner that beats yours', () => {
   const beats = { bulbasaur: 'charmander', charmander: 'squirtle', squirtle: 'pikachu', pikachu: 'larvitar', larvitar: 'bulbasaur' };
@@ -490,16 +493,16 @@ test('decisions: "split" asks you how many points each target gets; a heal only 
   h.b.dice = [[4, 1], [1, 1]]; h.b.asg = [{ [pk.uid]: { dice: [0], tgt: null }, [h.b.units[1].uid]: { dice: [1], tgt: null } }, {}]; h.b.gmReady = true; assert.ok(E.apply(h.s, { t: 'go2' }).ok);
   assert.ok(!h.b.ask || h.b.ask.k !== 'h', 'no question when only one card could be healed'); assert.ok(pk.hp > 2, 'it healed the one that was hurt');
 });
-test('draw pile: a trainer\'s team is drawn from the places\' piles and goes back into the wild when the fight is over; a win says so', () => {
-  const s = E.newGame({ seed: 9, starter: 'charmander' }); const count = () => D.locations.reduce((n, l) => n + s.decks[l.id].length + s.discard[l.id].length, 0) + s.legend.length;
-  const before = count(); const team = T.buildTeam(s, 'B1'); s.bosses.B1 = team; const held = s.held.B1.slice();
-  assert.ok(held.length >= 1, 'real cards were taken'); assert.equal(count(), before - held.length, 'they are out of the piles while the trainer holds them');
-  held.forEach(id => assert.ok(![].concat(...Object.values(s.decks), ...Object.values(s.discard)).includes(id)));
+test('draw pile: every trainer\'s team is picked from the places\' piles at the start and is the same every time; a win puts it back into the wild and says so', () => {
+  const s = E.newGame({ seed: 9, starter: 'charmander' }); const all = [].concat(...Object.values(s.decks), ...Object.values(s.discard), s.legend);
+  Object.keys(s.held).forEach(id => s.held[id].forEach(c => assert.ok(!all.includes(c), 'a card a trainer holds is out of the piles'))); const held = s.held.B1.slice(); assert.ok(held.length >= 1);
+  const team = s.bosses.B1.slice(); assert.ok(team[team.length - 1].sig, 'the signature is tagged and last'); assert.equal(team.filter(i => i.sig).length, 1); assert.equal(team.length, 2, 'Brock has two Pokémon');
   s.phase = 'battle'; const b = T.startBattle(s, 'boss', 'B1', [{ id: '4.2', sh: 0 }, { id: '1.1', sh: 0 }], team.map(i => ({ id: i.id, sh: i.sh }))); b.hand = [[], []];
-  b.units.filter(u => u.side === 1).forEach(u => { u.ko = true; u.hp = 0; }); b.cols = [[b.units[0].uid, null], [b.units[1].uid, null]]; b.stage = 'resolved'; b.out = 'hero';
-  assert.ok(E.apply(s, { t: 'next' }).ok); assert.equal(count(), before, 'they are all back in the wild'); assert.deepEqual(s.res.wild.map(i => i.id).sort(), held.slice().sort(), 'and the result says which'); assert.deepEqual(s.res.cleared, team);
-  const t = E.newGame({ seed: 10, starter: 'charmander' }); const n0 = t.legend.length; t.bosses.E4 = T.buildTeam(t, 'E4'); const lg = t.legFor.E4; assert.ok(C[lg].trainerLegend);
-  if (C[lg].loc !== 0) { assert.equal(t.legend.length, n0 - 1, 'Lance holds a legendary taken from the ones not found yet'); E._t.releaseTeam(t, 'E4', false); assert.equal(t.legend.length, n0, 'a loss puts it back'); }
+  b.units.filter(u => u.side === 1).forEach(u => { u.ko = true; u.hp = 0; }); b.cols = [[b.units[0].uid, null], [b.units[1].uid, null]]; b.stage = 'resolved'; b.out = 'gm';
+  assert.ok(E.apply(s, { t: 'next' }).ok); assert.deepEqual(s.bosses.B1.map(i => i.id), team.map(i => i.id), 'a loss: the same team next time'); assert.deepEqual(s.held.B1, held, 'still holding the same cards');
+  s.phase = 'battle'; const c = T.startBattle(s, 'boss', 'B1', [{ id: '4.2', sh: 0 }], team.map(i => ({ id: i.id, sh: i.sh }))); c.hand = [[], []]; c.units.filter(u => u.side === 1).forEach(u => { u.ko = true; u.hp = 0; }); c.cols = [[c.units[0].uid, null], [c.units[1].uid, null]]; c.stage = 'resolved'; c.out = 'hero';
+  assert.ok(E.apply(s, { t: 'next' }).ok); const back = [].concat(...Object.values(s.decks)); held.forEach(id => assert.ok(back.includes(id), 'back in the wild')); assert.deepEqual(s.res.wild.map(i => i.id).sort(), held.slice().sort(), 'the result says which');
+  assert.ok(C[s.legFor.E4].trainerLegend); if (C[s.legFor.E4].loc !== 0) assert.ok(!s.legend.includes(s.legFor.E4), 'Lance\'s legendary is not in the wild while he holds it');
 });
 test('shiny: a shiny card has one more health than the same card that is not', () => {
   const c = craft(['4.1', '4.1'], ['10']); const s2 = E.newGame({ seed: 3, starter: 'charmander' }); s2.phase = 'battle';
@@ -707,4 +710,9 @@ test('v3: beating Lance brings Blue and Red (a note, then a promised legendary);
 test('v3: a heal that can reach neighbours may also be aimed at a ghost across from a neighbour', () => {
   const c = craft(['1.2', '1.1'], ['10', '92']); const e = { k: 'h', n: 2, spec: { opts: [[-1, 0, 1]], spread: false, all: false } }; e.spec = E.parseSpec('< or v or >'); c.h(0).hp = 1;
   assert.ok(E.candidates(c.b, c.h(0), e).some(g => g[0].ghost && g[0].u === c.g(1)), 'the ghost across from the neighbour is a target');
+});
+
+test('v3: when both options of a choice hit the very same cards (nobody to the left or right) there is nothing to choose', () => {
+  const c = craft(['5.3'], ['10']); const e = E.parseMove('3a <^ or ^>').clauses[0][0]; assert.equal(E.candidates(c.b, c.h(0), e).length, 1, 'one card across, nothing either side: one option');
+  c.b.dice = [[1], [6]]; c.b.asg = [{ [c.h(0).uid]: { dice: [0], tgt: null } }, {}]; c.b.gmReady = true; assert.ok(E.apply(c.s, { t: 'go2' }).ok); assert.ok(!c.b.ask, 'no question is asked');
 });
