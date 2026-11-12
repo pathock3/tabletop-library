@@ -506,6 +506,7 @@ button{font:inherit;color:inherit;border:0;cursor:pointer}
 .dxvs~.hnav{margin:6px 0 0}
 .sqs{width:calc(var(--sw,300px));align-items:stretch!important}.stile{min-height:150px!important;max-width:none!important;gap:4px!important}.stile.wide{flex:1.5!important}.stile b{font-size:19px!important}.stile small{font-size:14px!important}.stile .si{font-size:34px!important}.stile .pbi{width:44px!important;height:44px!important}.stile .locchip{font-size:13px}.stile .locs{gap:6px}
 .sqs{flex-wrap:wrap}.stile{min-height:70px!important;flex:1 1 40%!important;flex-direction:row!important;gap:8px!important;padding:4px 6px!important}.stile.wide{flex:1 1 100%!important;min-height:104px!important;flex-direction:column!important}.stile:not(.wide) b{font-size:16px!important}.stile:not(.wide) small{font-size:13px!important}.stile:not(.wide) .si,.stile:not(.wide) .pbi{font-size:28px!important;width:32px!important;height:32px!important;flex:none}.stile:not(.wide){text-align:left}.stile .col{display:flex;flex-direction:column;align-items:flex-start}
+.evslot{position:absolute;width:124px;height:174px;border:3px dashed #ffffff55;border-radius:14px;display:grid;place-items:center;color:#ffffff88;font:800 15px system-ui;text-align:center;padding:8px}.wildback{background:#0006;border-radius:16px;padding:10px 14px;max-width:96%;font:700 18px system-ui;text-align:center;color:#fff}.wildback .wb{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;margin-top:6px}.wildback .wb span{display:flex;flex-direction:column;align-items:center;width:84px}.wildback .wb img{width:52px;height:52px;object-fit:contain}.wildback small{font:700 12px system-ui;line-height:1.1}
 </style>
 <script id="data">
 /* Pokémon Roll! — every rule number, the map, the bosses, the card sheet and the art live here. The engine and bots read this and hard-code none of it. */
@@ -620,12 +621,13 @@ const GAME_DATA = {
     { id: 'B7', kind: 'boss', gym: true, name: 'Blaine', say: "Hah! You've got more fire than my Pokémon. Impressive!", color: '#ef5350', stage: 3, lane: 1, needs: [], badges: 3, lvl: 5 },
     { id: 'L9', kind: 'loc', loc: 9, name: 'Victory Road', stage: 3, lane: 2, needs: [], badges: 3 },
     { id: 'B8', kind: 'boss', gym: true, name: 'Giovanni', say: "Impossible... Beaten by a child. The badge is yours.", color: '#6d4c41', stage: 3, lane: 3, needs: [], badges: 4, lvl: 5 },
-    { id: 'E1', kind: 'boss', name: 'Lorelei', say: "You are strong. The ice has melted. Go on.", color: '#4dd0e1', stage: 4, lane: 0, needs: [], badges: 6, lvl: 5 },
-    { id: 'E2', kind: 'boss', name: 'Bruno', say: "Hoo hah! Your spirit is strong. Move on!", color: '#bf5b2c', stage: 4, lane: 1, needs: ['E1'], lvl: 5 },
-    { id: 'E3', kind: 'boss', name: 'Agatha', say: "Oh, my! You really are something. Go on, child.", color: '#7e57c2', stage: 4, lane: 2, needs: ['E2'], lvl: 5 },
-    { id: 'E4', kind: 'boss', name: 'Lance', say: "Magnificent! You have defeated the Elite Four.", color: '#5c6bc0', stage: 5, lane: 0, needs: ['E3'], badges: 8, lvl: 6 },
-    { id: 'F1', kind: 'boss', name: 'Blue', say: "Tch. Fine. You beat me. Don't get used to it, though.", color: '#3f51b5', stage: 5, lane: 1, needs: ['E4'], lvl: 6 },
-    { id: 'F2', kind: 'boss', finale: true, name: 'Red', say: "...", color: '#e53935', stage: 5, lane: 2, needs: ['F1'], lvl: 6 },
+    { id: 'IP', kind: 'plateau', name: 'Indigo Plateau', stage: 4, lane: 1, needs: [], badges: 8 },
+    { id: 'E1', kind: 'boss', name: 'Lorelei', say: "You are strong. The ice has melted. Go on.", color: '#4dd0e1', stage: 0, lane: 0, needs: [], badges: 8, lvl: 5, area: 'plateau' },
+    { id: 'E2', kind: 'boss', name: 'Bruno', say: "Hoo hah! Your spirit is strong. Move on!", color: '#bf5b2c', stage: 1, lane: 0, needs: ['E1'], badges: 8, lvl: 5, area: 'plateau' },
+    { id: 'E3', kind: 'boss', name: 'Agatha', say: "Oh, my! You really are something. Go on, child.", color: '#7e57c2', stage: 2, lane: 0, needs: ['E2'], badges: 8, lvl: 5, area: 'plateau' },
+    { id: 'E4', kind: 'boss', name: 'Lance', say: "Magnificent! You have defeated the Elite Four.", color: '#5c6bc0', stage: 3, lane: 0, needs: ['E3'], badges: 8, lvl: 6, area: 'plateau' },
+    { id: 'F1', kind: 'boss', final: true, name: 'Blue', say: "Tch. Fine. You beat me. Don't get used to it, though.", color: '#3f51b5', stage: 4, lane: 0, needs: ['E4'], lvl: 6, area: 'plateau', mystery: true },
+    { id: 'F2', kind: 'boss', final: true, finale: true, name: 'Red', say: "...", color: '#e53935', stage: 5, lane: 0, needs: ['E4'], lvl: 6, area: 'plateau', mystery: true },
   ],
   // ability text on the card -> what the engine does (first match wins; "$1" is the first group). Several abilities on a card are separated by ";".
   abilities: [
@@ -898,7 +900,8 @@ const Engine = (() => {
   D.cardsPsv.trim().split('\n').forEach(line => {
     const f = line.split('|');
     const c = { id: f[1], name: f[0], dex: Math.floor(parseFloat(f[1])), type: f[2], weak: f[3], level: +f[4], loc: parseInt(f[5], 10) || 0, hp: +f[6], role: f[7], ability: f[8].trim(), sheet: f.slice(9, 15).map(x => x.trim()), moves: [], special: (f[15] || '').trim(), tags: (f[17] || '').split(',').map(x => x.trim().toLowerCase()).filter(Boolean), els: (f[16] || '').split(',').map(x => x.trim().toLowerCase()) };
-    c.legend = c.tags.indexOf('legendary') >= 0 && c.loc !== 0;
+    c.trainerLegend = c.tags.indexOf('legendary') >= 0;          // may be the signature of Lance, Blue or Red (Tyranitar's last form is one too)
+    c.legend = c.trainerLegend && c.loc !== 0;          // can also turn up in the wild
     CARDS[c.id] = c;
   });
   const typeOf = u => lc(u.elem || CARDS[u.id].type);
@@ -1000,12 +1003,16 @@ const Engine = (() => {
     visitor(s, id, d) { if (d && d.pick) { const pool = Object.values(CARDS).filter(c => c.type === d.pick.type && c.loc !== 0 && !c.legend).map(c => c.id); (s.vcards = s.vcards || {})[id] = shuffle(s, pool).slice(0, d.pick.n); }          // an event that draws its own cards (the Fighting Dojo: three random Fighting cards)
       s.visitors.push(id); s.notes.push('visitor:' + id); return true; },                       // someone turns up on the map: tap them to meet them
     legendary(s) {                                                                                           // a random legendary: shuffled with what is left of its place's piles into one new draw pile
-      if (!s.legend.length) return false; const id = s.legend.shift(), loc = CARDS[id].loc;
+      if (!s.legend.length) return false; const id = s.legend.shift(), loc = CARDS[id].loc; s.legendSeen = true; s.legendMarker = id;
       s.decks[loc] = shuffle(s, s.decks[loc].concat(s.discard[loc], [id])); s.discard[loc] = []; s.notes.push('legend:' + id); return true;
     },
   };
+  // one special event at a time, in its fixed place on the map: nothing new comes until the one that is there is finished (a visitor met, a legendary caught)
+  const eventActive = s => !!((s.visitors && s.visitors.length) || (s.legendMarker && !s.coll.some(c => c.id === s.legendMarker)));
   function maybeSpecial(s) {
     s.visitors = s.visitors || []; s.specialsSeen = s.specialsSeen || 0;
+    if (eventActive(s)) return;
+    if (s.legendDue) { if (SPECIAL.legendary(s) !== false) s.legendDue = false; return; }
     if (rnd(s) >= SPEC.chance) return;
     // the visitors (Bill, the Dojo) come one after another once you have three dice; a legendary can turn up once you hold any four badges
     const id = (s.specialsSeen < SPEC.order.length && (s.slotsAtGo || 0) >= SPEC.fromSlots) ? SPEC.order[s.specialsSeen] : badges(s) >= SPEC.legendBadges ? SPEC.then : null; if (!id) return;
@@ -1024,9 +1031,14 @@ const Engine = (() => {
   // Signature first (it plays last), then one card at a time, only cards after which the quotas and the level points can still be met. Bosses use copies: nobody's catch pile is touched.
   function buildTeam(s, tid) {
     const T = D.trainers[tid], tag = lc(T.name), all = Object.values(CARDS);
+    let relax = false;
     const taggedMe = c => c.tags.indexOf(tag) >= 0, hasEl = (c, els) => els.some(x => lc(c.type) === lc(x)), anyTag = (c, ts) => ts.some(t => c.tags.indexOf(t) >= 0);
+    // teams are drawn from the places' piles (and a legendary from the ones not found yet): a card a trainer holds is out of the wild until the fight is over. Starter cards they carry are copies.
+    const avail = new Set(); Object.keys(s.decks).forEach(l => s.decks[l].concat(s.discard[l]).forEach(id => avail.add(id))); (s.legend || []).forEach(id => avail.add(id));
+    const real = c => c.loc === 0 ? taggedMe(c) : (relax || avail.has(c.id));
     const sigOk = c => {
-      const g = T.sig; if (g.legendary) { const lf = s.legFor || {}, mine = lf[tid]; return c.legend && (mine ? c.id === mine : Object.values(lf).indexOf(c.id) < 0); } if (c.legend) return false;          // Lance, Blue and Red each keep one legendary all game, never the same one
+      const g = T.sig; if (g.legendary) { const lf = s.legFor || {}, mine = lf[tid]; return c.trainerLegend && (c.loc === 0 || relax || avail.has(c.id)) && (mine ? c.id === mine : Object.values(lf).indexOf(c.id) < 0); }
+      if (!real(c)) return false; if (c.legend) return false;          // Lance, Blue and Red each keep one legendary all game, never the same one
       
       if (c.loc === 0 && !taggedMe(c)) return false;
       if (g.lv && (c.level < g.lv[0] || c.level > g.lv[1])) return false;
@@ -1034,32 +1046,49 @@ const Engine = (() => {
       return g.anyLoc || (g.locs || []).indexOf(c.loc) >= 0 || (g.tagged && taggedMe(c));
     };
     const poolOk = c => {
-      const g = T.pool, ol = T.other || [1, 6]; if (c.legend) return false; if (c.loc === 0 && !taggedMe(c)) return false;
+      const g = T.pool, ol = T.other || [1, 6]; if (c.trainerLegend || !real(c)) return false;
       if (c.level < ol[0] || c.level > ol[1]) return false; if ((T.never || []).indexOf(c.name) >= 0) return false;
       return g.anyLoc || (g.locs || []).indexOf(c.loc) >= 0 || (g.tagged && taggedMe(c)) || (g.tags && anyTag(c, g.tags));
     };
-    const quotaHas = (c, q) => q.el ? lc(c.type) === lc(q.el) : anyTag(c, q.tags), sigs = all.filter(sigOk), pool = all.filter(poolOk);
-    const lo = Math.min(...pool.map(c => c.level)), hi = Math.max(...pool.map(c => c.level));
-    for (let tries = 0; tries < 400; tries++) {
-      const sig = sigs[ri(s, sigs.length)]; if (!sig) break;
-      const team = [sig], names = new Set([sig.name]); let pts = sig.level; const have = T.quotas.map(q => quotaHas(sig, q) ? 1 : 0);
-      while (team.length < T.n) {
-        const rem = T.n - team.length - 1;                                  // slots left after this card
-        const ok = pool.filter(c => !names.has(c.name) && !(s.banned && s.banned[c.id]) && pts + c.level + rem * lo <= T.pts[1] && pts + c.level + rem * hi >= T.pts[0]
-          && T.quotas.every((q, i) => Math.max(0, q.n - have[i] - (quotaHas(c, q) ? 1 : 0)) <= rem));
-        if (!ok.length) break;
-        const c = ok[ri(s, ok.length)]; team.push(c); names.add(c.name); pts += c.level; T.quotas.forEach((q, i) => { if (quotaHas(c, q)) have[i]++; });
-      }
-      if (team.length === T.n && pts >= T.pts[0] && pts <= T.pts[1] && T.quotas.every((q, i) => have[i] >= q.n)) {
-        if (T.sig.legendary) (s.legFor = s.legFor || {})[tid] = sig.id;
-        const rest = shuffle(s, team.slice(1)); return rest.concat([sig]).map(c => inst(s, c.id, s.sh[c.id]));
+    const quotaHas = (c, q) => q.el ? lc(c.type) === lc(q.el) : anyTag(c, q.tags);
+    const take = team => {          // the real cards leave their piles while the trainer holds them
+      s.held = s.held || {}; s.held[tid] = [];
+      team.forEach(c => { if (c.loc === 0) return; let k = (s.legend || []).indexOf(c.id); if (k >= 0) { s.legend.splice(k, 1); s.held[tid].push(c.id); return; }
+        const L = [s.decks[c.loc], s.discard[c.loc]]; for (const arr of L) { k = arr.indexOf(c.id); if (k >= 0) { arr.splice(k, 1); s.held[tid].push(c.id); return; } } });
+    };
+    for (const rx of [false, true]) {
+      relax = rx; const sigs = all.filter(sigOk), pool = all.filter(poolOk); if (!pool.length) continue;
+      const lo = Math.min(...pool.map(c => c.level)), hi = Math.max(...pool.map(c => c.level));
+      for (let tries = 0; tries < 300; tries++) {
+        const sig = sigs[ri(s, sigs.length)]; if (!sig) break;
+        const team = [sig], names = new Set([sig.name]); let pts = sig.level; const have = T.quotas.map(q => quotaHas(sig, q) ? 1 : 0);
+        while (team.length < T.n) {
+          const rem = T.n - team.length - 1;                                  // slots left after this card
+          const ok = pool.filter(c => !names.has(c.name) && !(s.banned && s.banned[c.id]) && pts + c.level + rem * lo <= T.pts[1] && pts + c.level + rem * hi >= T.pts[0]
+            && T.quotas.every((q, i) => Math.max(0, q.n - have[i] - (quotaHas(c, q) ? 1 : 0)) <= rem));
+          if (!ok.length) break;
+          const c = ok[ri(s, ok.length)]; team.push(c); names.add(c.name); pts += c.level; T.quotas.forEach((q, i) => { if (quotaHas(c, q)) have[i]++; });
+        }
+        if (team.length === T.n && pts >= T.pts[0] && pts <= T.pts[1] && T.quotas.every((q, i) => have[i] >= q.n)) {
+          if (T.sig.legendary) (s.legFor = s.legFor || {})[tid] = sig.id;
+          if (!rx) take(team); else s.held = Object.assign(s.held || {}, { [tid]: [] });          // (when the piles ran short, the team is copies)
+          const rest = shuffle(s, team.slice(1)); return rest.concat([sig]).map(c => inst(s, c.id, s.sh[c.id]));
+        }
       }
     }
     // nothing fits (a sheet edit made the rules impossible): fill the team without the level points
+    relax = true; const pool = all.filter(poolOk), sigs = all.filter(sigOk);
     const rest = shuffle(s, pool.filter(c => !(s.banned && s.banned[c.id]))).slice(0, T.n - 1), sg = sigs[0] || pool[0];
+    s.held = Object.assign(s.held || {}, { [tid]: [] });
     return rest.concat([sg]).map(c => inst(s, c.id, s.sh[c.id]));
   }
-
+  // when the fight is over the team goes back: won, they join the wild (the places' piles; a legendary is now hiding in its place); lost, they simply return
+  function releaseTeam(s, tid, win) {
+    const ids = (s.held && s.held[tid]) || []; if (s.held) delete s.held[tid]; const out = [];
+    ids.forEach(id => { const loc = CARDS[id].loc; if (CARDS[id].legend && !win) { (s.legend = s.legend || []).unshift(id); return; } if (!s.decks[loc]) return; s.decks[loc].push(id); out.push(id); });
+    [...new Set(out.map(id => CARDS[id].loc))].forEach(l => { s.decks[l] = shuffle(s, s.decks[l]); });
+    return out;
+  }
 
   function newGame(o) {
     o = o || {};
@@ -1392,7 +1421,10 @@ const Engine = (() => {
     const out = opts.map(o => unitsAt(b, u, o, enemy)).filter(c => c.length);
     const sub = (x, y) => x !== y && x.every(t => y.some(z => z.u === t.u));
     if (!e.spec.spread && out.length > 1) { const keep = out.filter(g => !out.some(h => sub(g, h))); if (keep.length) out.splice(0, out.length, ...keep); }          // an option that is only part of another one ("<^ or ^>" at the edge) is never worth choosing
-    if (e.k === 'h' && !e.spec.spread) out.slice().forEach(g => { if (g.length !== 1) return; const ci = colIdx(b, g[0].u.uid), c = b.cols[ci], gh = c && c[other(g[0].u.side)] != null ? U(b, c[other(g[0].u.side)]) : null; if (gh && !gh.ko && typeOf(gh) === 'dark' && gh.hp > 0) out.push([{ u: gh, off: 0, ghost: true }]); });          // ghosts are weak to healing: the heal may go to the ghost across from the card it would heal, for double damage
+    if (e.k === 'h' && !e.spec.spread) {          // ghosts are weak to healing: the heal may go to a ghost across from any card it could heal (neighbours too), for double damage
+      const gs = []; out.slice().forEach(g => g.forEach(t => { const c = b.cols[colIdx(b, t.u.uid)], gh = c && c[other(t.u.side)] != null ? U(b, c[other(t.u.side)]) : null; if (gh && !gh.ko && typeOf(gh) === 'dark' && gh.hp > 0 && gs.indexOf(gh) < 0) gs.push(gh); }));
+      gs.forEach(gh => out.push([{ u: gh, off: 0, ghost: true }]));
+    }
     return out;
   }
   const spreadsDragon = (b, u, e) => typeOf(u) === 'dragon' && e.spec.opts.length === 1 && e.spec.opts[0].length === 1 && e.spec.opts[0][0] === 0 && b.units.some(x => !x.ko && x.side === u.side && has(x, 'dragonSpread'));
@@ -1885,6 +1917,7 @@ const Engine = (() => {
   }
   function endBattle(s, win) {
     const b = s.battle, nd = node(b.node), gm = b.units.filter(u => u.side === 1).map(u => ({ id: u.id, sh: u.sh })).concat(b.hcards ? b.hand[1].map(h => ({ id: b.hcards[h].id, sh: b.hcards[h].sh })) : []).concat(b.rsv ? b.rsv[1] : []);
+    const nd0 = node(b.node); let wildBack = null; if (nd0 && nd0.kind === 'boss') wildBack = releaseTeam(s, nd0.id, win);
     s.res = { win, node: b.node, kind: b.kind, gm, rounds: b.round, team: b.units.filter(u => u.side === 0).map(u => ({ id: u.id, sh: u.sh })) }; s.battle = null; s.phase = 'result';
     if (nd.kind === 'loc' || nd.kind === 'visitor') {
       if (b.isBill) {                                                                       // Bill's cards never go to a discard pile
@@ -1901,8 +1934,9 @@ const Engine = (() => {
     } else if (win) {
       const dice0 = slots(s); s.done[nd.id] = true; s.bossTurns[nd.id] = s.turn; if (nd.kind === 'boss' && !nd.finale && slots(s) > dice0) s.res.newDie = true;
       if (false && nd.die && !nd.finale) { const gain = nd.die.filter(c => (s.cdice = s.cdice || []).indexOf(c) < 0); gain.forEach(c => s.cdice.push(c)); if (gain.length) s.res.dieGain = gain; }          // you keep the leader's colour          // how many turns it took to get this far
-      if (nd.kind === 'boss') s.res.cleared = s.bosses[nd.id];          // the team was built from copies: nothing goes back into any pile
-      if (nd.finale) { s.phase = 'won'; }
+      if (nd.kind === 'boss') { s.res.cleared = s.bosses[nd.id]; s.res.wild = (wildBack || []).map(id => ({ id, sh: s.sh[id] ? 1 : 0 })); }          // the team goes back into the wild: the result screen says so
+      if (nd.id === 'E4') { s.notes.push('rivals'); if (!s.legendSeen) s.legendDue = true; }          // Blue and Red turn up; a legendary is promised if none has shown yet
+      if (nd.final && D.nodes.filter(q => q.final).every(q => s.done[q.id])) { s.phase = 'won'; }
       const nl = Math.min(R.maxLevel, (nd.lvl || 1) + 1);
       if (!nd.finale) if (nl > s.lv) { s.lv = nl; const st = s.coll.find(c => c.starter), sd = starterOf(s.starter); st.id = s.evolved && sd.evolve[nl] ? sd.evolve[nl] : sd.levels[nl - 1]; s.res.levelUp = nl; if (sd.evolve && sd.evolve[nl] && !s.evolved && !s.evoAsked) { s.evoAsked = true; s.res.evolve = nl; } }
     }
@@ -1925,6 +1959,7 @@ const Engine = (() => {
       case 'go': {
         if (s.phase !== 'map') return 'not on the map'; const nd = node(a.node); if (!nd || !unlocked(s, nd)) return 'that is not open yet';
         if (nd.kind === 'visitor' && (s.visitors || []).indexOf(nd.special) < 0) return 'nobody is there';
+        if (nd.kind === 'plateau') return 'choose one of the trainers there';
         if ((nd.kind === 'boss' || nd.kind === 'rival') && s.done[nd.id]) return 'already beaten';
         if (nd.kind === 'loc' && deckSize(s, nd.loc) < 1) return 'nothing is hiding here';
         s.turn++; if (nd.kind === 'boss') (s.seen = s.seen || {})[nd.id] = true;                  // once you have faced a gym leader their team is no longer a secret
@@ -2017,7 +2052,7 @@ const Engine = (() => {
     if (v.battle && v.battle.stage === 'assign') { const o = other(side); v.battle.dice[o] = v.battle.dice[o].map(() => 0); v.battle.asg[o] = {}; }
     return v;
   }
-  return { starterShiny, endBattle, visitorNode, slideOpts, autoChoice, hauntAsk, blocksMove, colorBonus, faceOrder: layMoves, _t: { blkMult, buildTeam, badges, maybeSpecial, startBattle, startRound, resolveRound, cleanUp, drawWild }, handOf, canExpand, apply, newGame, chooseStarter, viewFor, CARDS, parseMove, parseSpecial, tagsOf, tags, preview, bestClause, chosenMove, candidates, pickTargets, amountOf, slotsFor, readyToGo, assignedDice, living, colIdx, U, rnd, ri, shuffle, node, starterOf, rivalFor, slots, unlocked, deckSize, heroCount, gmCount, typeOf, wm, hitValue, parseSpec, clauseValue, effectsOf, D, R };
+  return { starterShiny, endBattle, visitorNode, slideOpts, autoChoice, hauntAsk, blocksMove, colorBonus, faceOrder: layMoves, _t: { blkMult, buildTeam, badges, maybeSpecial, eventActive, releaseTeam, startBattle, startRound, resolveRound, cleanUp, drawWild }, handOf, canExpand, apply, newGame, chooseStarter, viewFor, CARDS, parseMove, parseSpecial, tagsOf, tags, preview, bestClause, chosenMove, candidates, pickTargets, amountOf, slotsFor, readyToGo, assignedDice, living, colIdx, U, rnd, ri, shuffle, node, starterOf, rivalFor, slots, unlocked, deckSize, heroCount, gmCount, typeOf, wm, hitValue, parseSpec, clauseValue, effectsOf, D, R };
 })();
 
 </script>
@@ -2181,7 +2216,7 @@ const Bots = (() => {
     level = level || 'master';
     const b = s.battle;
     if (s.phase === 'map') {
-      const open = E.D.nodes.filter(n => E.unlocked(s, n) && !((n.kind === 'boss' || n.kind === 'rival') && s.done[n.id]));
+      const open = E.D.nodes.filter(n => n.kind !== 'plateau' && E.unlocked(s, n) && !((n.kind === 'boss' || n.kind === 'rival') && s.done[n.id]));
       const ready = open.filter(n => n.kind === 'rival' || (n.kind === 'boss' && s.coll.length >= E.gmCount(s, n, 0)));
       if (ready.length && s.turn % 3 !== 2) return { t: 'go', node: ready[0].id };
       const locs = open.filter(n => n.kind === 'loc' && E.deckSize(s, n.loc) > 0);
@@ -2728,7 +2763,7 @@ const Bots = (() => {
       <button class="btn ghost" data-act="closeslots">Close</button></div></div>`;
   }
   const moreSheet = () => `<div class="sheet" data-act="closemore"><div class="box" data-stop="1" style="max-width:420px;display:flex;flex-direction:column;gap:12px"><h2>More</h2>
-    <button class="btn alt" data-act="help">How to Play</button><button class="btn alt" data-act="records">Hall of Fame</button><button class="btn alt" data-act="dex">Pokédex</button><button class="btn ghost" data-act="closemore">Close</button></div></div>`;
+    <button class="btn alt" data-act="help">How to Play</button><button class="btn alt" data-act="records">Hall of Fame</button><button class="btn alt" data-act="dex">Pokédex</button><button class="btn alt" data-act="settings">Settings</button><button class="btn ghost" data-act="closemore">Close</button></div></div>`;
 
   // ---------------------------------------------------------------- the toy table on the main menu: dice, letter blocks and starters you can pick up, throw and knock about
   const TOY = { bodies: null, raf: 0, last: 0, W: 0, H: 0, drag: null };
@@ -2830,11 +2865,12 @@ const Bots = (() => {
   };
   fitScreen(); addEventListener('resize', () => { fitScreen(); }); addEventListener('orientationchange', () => setTimeout(fitScreen, 120));
   function mapScreen(menu) {
-    const vis = D.nodes.filter(shown), ids = new Set(vis.map(n => n.id));
-    const stages = Math.max(...D.nodes.map(n => n.stage)) + 1, pitch = 178;          // the whole road is laid out from the start, so the game always runs left to right, with the rest still to be revealed
+    const area = menu ? 'main' : (ui.area || 'main'), NA = D.nodes.filter(n => (n.area || 'main') === area);          // the gyms and places are one screen; the Elite Four are a second one, to the right
+    const vis = NA.filter(shown), ids = new Set(vis.map(n => n.id));
+    const stages = Math.max(...NA.map(n => n.stage)) + 1, pitch = 178;          // the whole road is laid out from the start, so the game always runs left to right, with the rest still to be revealed
     const availW = innerWidth, availH = viewH() - 60;
     const W0 = PADX * 2 + stages * pitch, sc = Math.min(availW / W0, 1);
-    const H0 = availH / sc, c0 = 14 + 150 + 44 / sc, c2 = H0 - 112 - 10, gap = Math.max(214, (c2 - c0) / (Math.max(...D.nodes.map(n => n.lane)))), lanes = Math.max(...D.nodes.map(n => n.lane)) + 1;          // the first row starts right under the top bar (nothing wasted above it); the last ends at the bottom edge
+    const H0 = availH / sc, c0 = Math.max(...NA.map(n => n.lane)) === 0 ? Math.max(214, H0 / 2 - 40) : 14 + 150 + 44 / sc, c2 = H0 - 112 - 10, gap = Math.max(214, (c2 - c0) / (Math.max(1, ...NA.map(n => n.lane)))), lanes = Math.max(...NA.map(n => n.lane)) + 1;          // the first row starts right under the top bar (nothing wasted above it); the last ends at the bottom edge
     const xy = n => [PADX + n.stage * pitch + pitch / 2, c0 + n.lane * gap];
     // places that open together are one block: every group of places with the same requirement is drawn inside one frame that says what opens it
     const reqText = n => [n.needs.length ? 'Beat ' + n.needs.map(id => E.node(id).name).join(n.any ? ' or ' : ' and ') : '', n.badges ? '🏅 ×' + n.badges : '', n.dice ? '🎲 ×' + n.dice : ''].filter(Boolean).join(' · ');
@@ -2844,8 +2880,9 @@ const Bots = (() => {
       return `<div class="grp ${open ? 'open' : 'lock'}" style="left:${x0}px;top:${y0}px;width:${x1 - x0}px;height:${y1 - y0}px" data-act="grp" data-req="${esc(r || 'Open from the start')}">${open ? '' : `<span class="gtab">🔒 ${esc((r || 'Open').replace(/^Beat /, ''))}</span>`}</div>`;
     }).join('');
     const visitors = (G.visitors || []).map(id => E.visitorNode(id)).filter(Boolean);          // special visitors (Bill) stand on the map until you meet them
+    const slot = area === 'main' ? (() => { const [sx, sy] = xy({ stage: 4, lane: 3 }), mk = G.legendMarker && !G.coll.some(c => c.id === G.legendMarker) ? G.legendMarker : null; return mk ? `<button class="place visitor next" style="left:${sx - TILE_W / 2}px;top:${sy - 92}px" data-act="legmark"><div class="vsc"><img class="pix" src="${art(mk, 0)}" alt="" style="filter:brightness(0)"></div><div class="vbang">!</div><div class="pl"><b>Legendary!</b></div></button>` : (visitors.length ? '' : `<div class="evslot" style="left:${sx - 62}px;top:${sy - 87}px"><span>Special event</span></div>`); })() : '';
     const tiles = vis.concat(visitors).map(n => {
-      if (n.kind === 'visitor') { const [vx, vy] = xy(n); return `<button class="place visitor next" style="left:${vx - TILE_W / 2}px;top:${vy - 92}px" data-act="node" data-id="${n.id}"><div class="vsc"><img class="pix" src="data:image/png;base64,${D.trainerArt[n.art]}" alt="${esc(n.name)}"></div><div class="vbang">!</div><div class="pl"><b>${esc(n.name)}</b></div></button>`; }
+      if (n.kind === 'visitor') { const [vx, vy] = xy({ stage: 4, lane: 3 }); return `<button class="place visitor next" style="left:${vx - TILE_W / 2}px;top:${vy - 92}px" data-act="node" data-id="${n.id}"><div class="vsc"><img class="pix" src="data:image/png;base64,${D.trainerArt[n.art]}" alt="${esc(n.name)}"></div><div class="vbang">!</div><div class="pl"><b>${esc(n.name)}</b></div></button>`; }
       const open = E.unlocked(G, n), done = n.kind !== 'loc' && G.done[n.id], [cx, cy] = xy(n);
       const next = open && !done && n.kind === 'boss';
       const sub = '';
@@ -2853,13 +2890,15 @@ const Bots = (() => {
         const left = E.deckSize(G, n.loc);
         return `<button class="place deck${open ? '' : ' lock'}" style="left:${cx - 62}px;top:${cy - 87}px" data-act="node" data-id="${n.id}" data-id2="${n.id}" aria-label="${esc(n.name)}, ${left} cards">${deckPile(n.loc, { pw: 124 })}${open ? `<div class="eye" data-act="eye" data-id="${n.id}" aria-label="What is left in this deck">i</div>` : '<div class="lk">🔒</div>'}</button>`;
       }
+      if (n.kind === 'plateau') return `<button class="place deck${open ? '' : ' lock'}" style="left:${cx - 62}px;top:${cy - 87}px" data-act="node" data-id="${n.id}" aria-label="Indigo Plateau">${deckPile(null, { pw: 124, svg: backFrame('gbIP', 'Indigo Plateau', '<rect width="160" height="120" fill="#7e57c2"/><rect y="84" width="160" height="36" fill="#4527a0"/><path d="M20 84V52l14-12 14 12v32M56 84V38l24-20 24 20v46M112 84V52l14-12 14 12v32" fill="#d1c4e9" stroke="#14110f" stroke-width="3" stroke-linejoin="round"/><rect x="72" y="58" width="16" height="26" fill="#311b92"/>', ['#2a1160', '#7e57c2', '#e6dcff']), dk: '#2a1160' })}${open ? '' : '<div class="lk">🔒</div>'}</button>`;
+      if (n.mystery && !G.done.E4) return `<button class="place deck gym lock" style="left:${cx - 62}px;top:${cy - 87}px" data-act="node" data-id="${n.id}" aria-label="A mystery opponent">${deckPile(null, { pw: 124, svg: backFrame('gbQ' + n.id, '???', '<rect width="160" height="120" fill="#37474f"/><text x="80" y="92" text-anchor="middle" font-size="90" font-weight="900" fill="#cfd8dc">?</text>', ['#1a2327', '#546e7a', '#cfd8dc']), dk: '#1a2327' })}<div class="lk">🔒</div></button>`;
       if (n.kind === 'boss') return `<button class="place deck gym${open ? '' : ' lock'}${done ? ' done' : ''}${next ? ' next' : ''}" style="left:${cx - 62}px;top:${cy - 87}px" data-act="node" data-id="${n.id}" data-id2="${n.id}" aria-label="${esc(n.name)}">${deckPile(null, { pw: 124, svg: gymBack(n), dk: gymPal(n)[0] })}<div class="eye" data-act="eye" data-id="${n.id}" aria-label="Their team">i</div>${open ? '' : '<div class="lk">🔒</div>'}${done ? '<div class="ck"><svg viewBox="0 0 100 100" aria-hidden="true"><path d="M18 54L40 76 84 24" fill="none" stroke="#0a3d1f" stroke-width="26" stroke-linecap="round" stroke-linejoin="round"/><path d="M18 54L40 76 84 24" fill="none" stroke="#2fd16b" stroke-width="16" stroke-linecap="round" stroke-linejoin="round"/></svg></div>' : ''}</button>`;
       return `<button class="place${open ? '' : ' lock'}${done ? ' done' : ''}${next ? ' next' : ''}${n.kind === 'boss' ? ' gym' : ''}" style="left:${cx - TILE_W / 2}px;top:${cy - 92}px" data-act="node" data-id="${n.id}" data-id2="${n.id}">
         <svg viewBox="0 0 160 120" role="img" aria-label="${esc(n.name)}">${sceneOf(n)}</svg>${open ? '' : '<div class="lk">🔒</div>'}${done ? '<div class="ck"><svg viewBox="0 0 100 100" aria-hidden="true"><path d="M18 54L40 76 84 24" fill="none" stroke="#0a3d1f" stroke-width="26" stroke-linecap="round" stroke-linejoin="round"/><path d="M18 54L40 76 84 24" fill="none" stroke="#2fd16b" stroke-width="16" stroke-linecap="round" stroke-linejoin="round"/></svg></div>' : ''}${n.kind === 'boss' ? `<div class="eye" data-act="eye" data-id="${n.id}" aria-label="How their team is made">i</div>` : ''}
         <div class="pl"><b>${esc(n.name)}</b></div></button>`;
     }).join('');
-    return `${menu ? '' : `<div class="top maptop"><div class="topl"></div><div class="t mapt">Kanto Map</div><div class="topr"><button class="chip" data-act="chipinfo" aria-label="Your dice">🎲 ×${E.slots(G)}</button><button class="mypile${ui.coll ? ' away' : ''}" data-act="coll" aria-label="Your cards">${myPile()}</button><button class="ib mbtn" data-act="menu" aria-label="Menu">☰</button></div></div>`}
-      <div class="mapwrap${menu ? ' mmapbox' : ''}"${menu ? ` style="height:${availH}px"` : ''}><div class="mapin" style="width:${W0}px;height:${H0}px;transform:scale(${sc});margin-left:${Math.max(0, (availW - W0 * sc) / 2)}px"><svg class="mapsvg" width="${W0}" height="${H0}"></svg>${lines}${tiles}</div></div>`;
+    return `${menu ? '' : `<div class="top maptop"><div class="topl">${area === 'plateau' ? '<button class="ib" data-act="plateauback" aria-label="Back to the map">‹</button>' : ''}</div><div class="t mapt">${area === 'plateau' ? 'Indigo Plateau' : 'Kanto Map'}</div><div class="topr"><button class="chip" data-act="chipinfo" aria-label="Your dice">🎲 ×${E.slots(G)}</button><button class="mypile${ui.coll ? ' away' : ''}" data-act="coll" aria-label="Your cards">${myPile()}</button><button class="ib mbtn" data-act="menu" aria-label="Menu">☰</button></div></div>`}
+      <div class="mapwrap${menu ? ' mmapbox' : ''}"${menu ? ` style="height:${availH}px"` : ''}><div class="mapin" style="width:${W0}px;height:${H0}px;transform:scale(${sc});margin-left:${Math.max(0, (availW - W0 * sc) / 2)}px"><svg class="mapsvg" width="${W0}" height="${H0}"></svg>${lines}${slot}${tiles}</div></div>`;
   }
 
   // a wrapping grid of whole cards, as big as the screen allows
@@ -2993,10 +3032,12 @@ const Bots = (() => {
     const turnsLine = r.turns != null ? `${nd.finale ? 'You beat the game' : 'You beat ' + esc(nd.name)} in <b>${r.turns} turn${r.turns === 1 ? '' : 's'}</b>${r.newBest ? ' <span class="nb">New best!</span>' : (r.best != null ? ` <span class="pb">(best ${r.best})</span>` : '')}` : '';
     // two screens: first the leader's thanks (what they hand you, how long you took); then what it did for your team (the starter, a new card, a legendary)
     const hasTeam = !!(r.win && (r.levelUp || r.evolve || r.legend || r.pick || r.took));
+    const placeOf = id => (D.locations.find(l => l.id === C[id].loc) || {}).name || '';
+    const wildTxt = r.win && r.wild && r.wild.length ? `<div class="wildback"><b>${esc(nd.name)}'s Pokémon went back into the wild</b><div class="wb">${r.wild.map(i => `<span><img class="pix" src="${art(i.id, i.sh)}" alt=""><small>${esc(C[i.id].name)}<br>${esc(placeOf(i.id))}</small></span>`).join('')}</div></div>` : '';
     const leadFirst = r.win && nd.kind === 'boss';
     if (ui.resFor !== G.turn + ':' + r.node) { ui.resFor = G.turn + ':' + r.node; ui.resStep = leadFirst ? 0 : 1; }
     const dest = G.phase === 'won' ? 'Hall of Fame' : 'Continue';
-    if (ui.resStep === 0 && leadFirst) return `<div class="scr" style="overflow:auto"><div class="center" style="justify-content:center;min-height:100%;padding-top:20px"><div class="banner">${nd.finale ? 'CHAMPION!' : 'Victory!'}</div>${lead}${turnsLine ? `<div style="font:800 24px system-ui">${turnsLine}</div>` : ''}<button class="btn big" data-act="${hasTeam ? 'resnext' : 'done'}">${hasTeam ? 'Continue' : dest}</button></div></div>`;
+    if (ui.resStep === 0 && leadFirst) return `<div class="scr" style="overflow:auto"><div class="center" style="justify-content:center;min-height:100%;padding-top:20px"><div class="banner">${nd.finale ? 'CHAMPION!' : 'Victory!'}</div>${lead}${turnsLine ? `<div style="font:800 24px system-ui">${turnsLine}</div>` : ''}${wildTxt}<button class="btn big" data-act="${hasTeam ? 'resnext' : 'done'}">${hasTeam ? 'Continue' : dest}</button></div></div>`;
     const st = G.coll.find(c => c.starter), room = viewH() - 360;          // the banner, the line of text and the button all share the screen with the card
     const one = (c, txt, attr) => `<div class="status">${txt}</div><div class="hrow" style="justify-content:center">${card(c, { cw: Math.max(140, Math.min(360, Math.floor(room / CH), innerWidth - 60)), attr: attr || '' })}</div>`;
     const prevId = (() => { const sd = E.starterOf(G.starter), pl = r.levelUp - 1; return pl >= 1 ? (G.evolved && sd.evolve && sd.evolve[pl] ? sd.evolve[pl] : sd.levels[pl - 1]) : st.id; })();
@@ -3030,6 +3071,7 @@ const Bots = (() => {
   }
   const settingsSheet = () => `<div class="sheet" data-act="closesettings"><div class="box" data-stop="1" style="max-width:460px;display:flex;flex-direction:column;gap:16px"><h2>Settings</h2>
       <div><b style="font-size:19px">Tips</b><div style="display:flex;gap:8px;margin-top:8px">${[[true, 'On'], [false, 'Off']].map(([v, l]) => `<button class="chip${set.tips === v ? ' on' : ''}" data-act="tips" data-v="${v}" style="min-height:48px;font-size:19px">${l}</button>`).join('')}</div></div>
+      ${ui.resetAsk ? `<div class="status" style="font-size:19px">This deletes ALL your saved games, the Hall of Fame and the Pokédex. It cannot be undone.</div><button class="btn" style="background:#e5383b;color:#fff" data-act="resetgo">Yes, delete everything</button><button class="btn alt" data-act="resetno">No, keep it all</button>` : `<button class="btn alt" data-act="resetask">Reset everything…</button>`}
       <button class="btn" data-act="closesettings">Done</button></div></div>`;
   // your team, left to right: highest level first, then the order you got them (oldest on the left)
   const teamSort = (arr, ord) => arr.slice().sort((a, b) => C[b.id].level - C[a.id].level || ord(a) - ord(b));
@@ -3193,6 +3235,7 @@ const Bots = (() => {
   function legendSheet() {
     const n = G.notes[0]; if (!n) return '';
     if (n.indexOf('visitor:') === 0) { const d = D.specials.defs[n.slice(8)]; if (!d) return ''; return `<div class="sheet" data-act="clearnote"><div class="banner">${esc(d.name)} is here!</div><img class="pix" style="width:224px;height:224px" src="data:image/png;base64,${D.trainerArt[d.art]}" alt=""><div style="font:800 24px system-ui;max-width:520px;text-align:center">${esc(d.say || '')}</div><button class="btn big" data-act="clearnote">Go see ${esc(d.name)}!</button></div>`; }
+    if (n === 'rivals') return `<div class="sheet" data-act="clearnote"><div class="banner">Blue and Red are here!</div><div style="display:flex;gap:18px">${['F1', 'F2'].map(k => `<img class="pix" style="width:150px;height:150px" src="data:image/png;base64,${D.trainerArt[k]}" alt="">`).join('')}</div><div style="font:800 24px system-ui;max-width:520px;text-align:center">You beat the Elite Four! Blue and Red heard and came to challenge you. They are waiting on the Indigo Plateau.</div><button class="btn big" data-act="clearnote">Go see them!</button></div>`;
     if (n.indexOf('legend:') !== 0) return '';
     const id = n.slice(7), c = C[id];
     return `<div class="sheet" data-act="clearnote"><div class="banner">A legendary was spotted!</div><img class="pix" style="width:224px;height:224px" src="${art(id, 0)}" alt=""><div style="font:800 24px system-ui">${esc(c.name)} is hiding at ${esc(D.locations.find(l => l.id === c.loc).name)}</div><button class="btn big" data-act="clearnote">Go find it!</button></div>`;
@@ -3263,6 +3306,10 @@ const Bots = (() => {
         : { h: '✨ Shiny', p: shs[c.id] ? 'You have had a shiny one of these.' : 'You have never had a shiny version of this card. When you do, this tile lets you view it.' }; render(); },
     dextipx() { ui.dexTip = null; render(); },
     expx() { ui.exp = null; render(); },
+    resetask() { ui.resetAsk = true; render(); }, resetno() { ui.resetAsk = false; render(); },
+    resetgo() { try { Object.keys(localStorage).filter(k => k.indexOf('pokemon-roll') === 0).forEach(k => localStorage.removeItem(k)); } catch (e) { /* nothing to clear */ } location.reload(); },
+    plateauback() { ui.area = 'main'; render(); },
+    legmark() { const id = G.legendMarker; if (!id) return; ui.exp = { h: '✨ A legendary is hiding', p: esc(C[id].name) + ' was spotted at ' + esc(D.locations.find(l => l.id === C[id].loc).name) + '. Find it there and it can be yours. No other event comes until you do.' }; render(); },
     gzoom(el) { ui.gz = +el.dataset.k; render(); }, gzclose() { ui.gz = null; render(); },
     gzprev() { const n = (ui.gseen || []).length; ui.gz = (ui.gz + n - 1) % n; render(); }, gznext() { const n = (ui.gseen || []).length; ui.gz = (ui.gz + 1) % n; render(); },
     closeslots() { ui.slots = false; ui.delAsk = null; render(); },
@@ -3271,14 +3318,14 @@ const Bots = (() => {
       if (freeSlot() < 0) { ui.slots = true; ui.full = true; ui.delAsk = null; render(); return; }
       ui.seed = ui.seed || (Date.now() % 2147483647); ui.screen = 'new'; render();
     },
-    menu0() { ui.menu = false; ui.newAsk = false; ui.slots = false; ui.seed = null; ui.screen = 'menu'; render(); },
+    menu0() { ui.menu = false; ui.area = 'main'; ui.newAsk = false; ui.slots = false; ui.seed = null; ui.screen = 'menu'; render(); },
     more() { ui.more = true; render(); }, closemore() { ui.more = false; render(); },
     help() { ui.help = true; ui.more = false; ui.helpPage = 0; ui.menu = false; render(); }, closehelp() { ui.help = false; render(); },
     hnext() { ui.helpPage = Math.min(HELP.length - 1, (ui.helpPage || 0) + 1); render(); }, hprev() { ui.helpPage = Math.max(0, (ui.helpPage || 0) - 1); render(); },
     ai(el) { set.ai = el.dataset.v; lsSet(SET, set); if (G) G.ai = set.ai; render(); },
     size(el) { set.size = el.dataset.v; lsSet(SET, set); render(); },
     tips(el) { set.tips = el && el.dataset.v ? el.dataset.v === 'true' : !set.tips; lsSet(SET, set); render(); },
-    settings() { ui.settings = true; ui.menu = false; render(); }, closesettings() { ui.settings = false; render(); },
+    settings() { ui.settings = true; ui.menu = false; ui.more = false; render(); }, closesettings() { ui.settings = false; ui.resetAsk = false; render(); },
     starter(el) { G = E.newGame({ starter: el.dataset.k, size: set.size, ai: set.ai, seed: ui.seed }); ui.seed = null; ui.screen = 'play'; resetSel(); save(); render(); },
     dex() { ui.dex = true; ui.more = false; ui.menu = false; render(); }, closedex() { ui.dex = false; ui.dexCard = null; render(); }, dexcard(el) { ui.dexCard = +el.dataset.dex; render(); }, dexfilter(el) { ui.dexFilter = ui.dexFilter === el.dataset.v ? '' : el.dataset.v; render(); }, dexshiny(el) { ui.dexShiny = ui.dexShiny || {}; ui.dexShiny[el.dataset.id] = !ui.dexShiny[el.dataset.id]; render(); },
     dexprev() { dexStep(-1); }, dexnext() { dexStep(1); }, closedexcard() { ui.dexCard = null; render(); },
@@ -3293,7 +3340,10 @@ const Bots = (() => {
     grp(el) { toast(el.dataset.req); },
     eyeloc(el) { ui.eyeBack = ui.eye; ui.eye = el.dataset.id; render(); }, eyeback() { ui.eye = ui.eyeBack; ui.eyeBack = null; render(); },
     node(el) {
-      const n = E.node(el.dataset.id); if (!E.unlocked(G, n)) { return toast((n.needs.length ? 'Beat ' + n.needs.map(id => E.node(id).name).join(n.any ? ' or ' : ' and ') : '') + (n.dice ? (n.needs.length ? ' and have ' : 'Have ') + n.dice + ' dice' : '') + ' first'); }
+      const n = E.node(el.dataset.id);
+      if (n.kind === 'plateau') { if (!E.unlocked(G, n)) return toast('Beat all eight gym leaders first'); ui.area = 'plateau'; render(); return; }
+      if (n.mystery && !G.done.E4) return toast('A mystery opponent: beat Lance first');
+      if (!E.unlocked(G, n)) { return toast((n.needs.length ? 'Beat ' + n.needs.map(id => E.node(id).name).join(n.any ? ' or ' : ' and ') : '') + (n.dice ? (n.needs.length ? ' and have ' : 'Have ') + n.dice + ' dice' : '') + ' first'); }
       if (n.kind !== 'loc' && n.kind !== 'visitor' && G.done[n.id]) return toast('You already beat them!');
       if (ui.sweeping) return;
       if (n.kind === 'loc' && !E.deckSize(G, n.loc)) return toast('That deck is empty');

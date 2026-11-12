@@ -68,7 +68,7 @@
 
 ## V3 update (from the owner's "Pokémon Roll v3 — Claude Code Update" doc)
 - `RULING:` **Levels** stay ranks 1-6 inside the game (the sheet's 1, 10, 20, 30, 40, 50 are the names shown, and a level point is the rank).
-- `RULING:` **Tyranitar 248.6 is tagged "Legendary" on the sheet but is a starter.** The doc says legendaries are level 50 and *not* a starter, so the tag is ignored for starters (nine legendaries: Articuno, Zapdos, Moltres, Mewtwo, Mew, Suicune, Lugia, Ho-oh, Celebi).
+- `RULING:` (superseded below) **Tyranitar 248.6 is tagged "Legendary" on the sheet but is a starter.** The doc says legendaries are level 50 and *not* a starter, so the tag is ignored for starters (nine legendaries: Articuno, Zapdos, Moltres, Mewtwo, Mew, Suicune, Lugia, Ho-oh, Celebi).
 - `RULING:` **Legendaries in the wild** now appear (10% after a battle) once you hold any four badges, as the doc says (the old rule was "three dice"). Bill and then the Fighting Dojo still come one after the other from the third die.
 - `RULING:` **What opens the map** (the doc only gives the dice and "Lance needs all 8 badges"): Brock and Misty open at the start; Lt. Surge and the places Power Plant, S.S. Anne and Pokémon Tower need 1 badge; Erika, Koga, Safari Zone, Seafoam and Cinnabar need 2; Sabrina, Blaine and Victory Road need 3; Giovanni 4; Lorelei 6, then Bruno, then Agatha in order; Lance needs Agatha and all 8 badges; then Blue, then Red.
 - `RULING:` **Dice** are 1 + the first two badges (max 3). Blue and Red put 4 cards out (or as many as you have).
@@ -77,8 +77,17 @@
 - `RULING:` **Counters** are blocks that reflect: the damage a counter soaks goes straight back to the attacker (not doubled); a fully countered hit does not count as a hit. A counter of the attacker's own element is still twice as good.
 - `RULING:` **Ghosts** are the Dark-type cards (Gastly, Haunter, Gengar). Their weakness is to healing: a single-target heal for a card with a ghost across from it may be aimed at the ghost for double damage (you are asked when it comes up).
 - `RULING:` **Special moves** are gone from the cards (the sheet has none now); the old code is still in the file but nothing calls it.
-- `RULING:` **A trainer's team is not drawn from the wild piles any more.** The old "returns to its places" rule is gone; teams are copies.
+- `RULING:` **A trainer's team is drawn from the places' piles** (owner, after the first V3 build, which used copies): the real cards are out of the wild while the trainer holds them, and when the fight is over they go back into the wild (a win says so on the result screen; a loss just returns them). Starter cards a trainer carries by name (Pikachu 25.5 for Red, Tyranitar 248.5) are copies. If the piles have run short, the team is built from copies instead.
 - `RULING:` **The computer** always plays its best (difficulty levels and game lengths removed from the screens; the levers are still in the data).
 - `RULING:` **Sprites**: Crystal has no Giovanni, Lorelei or Agatha, so those three are the Red/Blue (Gen 1) pictures; Koga, Sabrina, Bruno and Red are Crystal.
 - `RULING:` **Save format**: the data version is now 3, so old saved games are cleared.
 - Not in this update: nothing from the doc's list is knowingly skipped except the replacement swap above.
+
+## V3 follow-ups from the owner
+- `RULING:` **Tyranitar 248.6 is a trainer-only legendary**: it may be the signature of Lance, Blue or Red (the pool of their legendaries has ten cards) but it never turns up in the wild (nine wild legendaries).
+- `RULING:` **Elite Four**: all eight badges, then Lorelei, Bruno, Agatha, Lance, each unlocking the next. Beating Lance unlocks both Blue and Red (either order); the game is won when both are beaten. They are two mystery cards until Lance is beaten; then a Blue-and-Red dialogue appears, and if no legendary has shown yet one is promised straight after.
+- `RULING:` **Map**: all gyms and places are one screen, left to right. The Indigo Plateau tile is locked until all eight gyms are beaten and opens a second screen with the Elite Four and the two mystery opponents.
+- `RULING:` **Special events** have one fixed spot on the map (bottom right). Only one event at a time: nothing new comes until a visitor (Bill, the Dojo) is met or the legendary on show is caught. A legendary sighting sits in that spot as a dark silhouette; tap it to be told where it hides.
+- `RULING:` **Settings** (in More and in the in-game menu) has "Reset everything", which asks first and then deletes every saved game, the Hall of Fame, the Pokédex and the settings.
+- `RULING:` **Ghost heals** may also be aimed at a ghost across from any card the heal can reach (neighbours too), for double damage.
+- `RULING:` **Sprites**: the Yellow versions of Giovanni, Lorelei and Agatha are the very same pictures as Red/Blue, so those stay.

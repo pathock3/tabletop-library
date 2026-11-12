@@ -253,7 +253,7 @@ test('campaign: every trainer builds a random team from its row: size, signature
       assert.equal(team.length, Tr.n, Tr.name); const pts = cs.reduce((a, c) => a + c.level, 0); assert.ok(pts >= Tr.pts[0] && pts <= Tr.pts[1], Tr.name + ' level points ' + pts);
       assert.equal(new Set(cs.map(c => c.name)).size, cs.length, Tr.name + ': no two with the same name');
       Tr.quotas.forEach(q => assert.ok(cs.filter(c => q.el ? c.type.toLowerCase() === q.el.toLowerCase() : q.tags.some(t => tagOf(c).includes(t))).length >= q.n, Tr.name + ' quota'));
-      cs.forEach(c => { if (c.loc === 0) assert.ok(c.tags.includes(Tr.name.toLowerCase()), Tr.name + ' only uses a starter card that carries its name'); if (c.legend) assert.ok(c === sig && Tr.sig.legendary, 'legendaries only as Lance, Blue and Red\'s signature'); });
+      cs.forEach(c => { if (c.loc === 0) assert.ok(c.tags.includes(Tr.name.toLowerCase()) || (c === sig && c.trainerLegend), Tr.name + ' only uses a starter card that carries its name (or as a legendary signature)'); if (c.trainerLegend) assert.ok(c === sig && Tr.sig.legendary, 'legendaries only as Lance, Blue and Red\'s signature'); });
       if (Tr.sig.legendary) used.push(sig.id);
     });
     assert.equal(new Set(used).size, 3, 'Lance, Blue and Red never share a legendary');
@@ -490,11 +490,16 @@ test('decisions: "split" asks you how many points each target gets; a heal only 
   h.b.dice = [[4, 1], [1, 1]]; h.b.asg = [{ [pk.uid]: { dice: [0], tgt: null }, [h.b.units[1].uid]: { dice: [1], tgt: null } }, {}]; h.b.gmReady = true; assert.ok(E.apply(h.s, { t: 'go2' }).ok);
   assert.ok(!h.b.ask || h.b.ask.k !== 'h', 'no question when only one card could be healed'); assert.ok(pk.hp > 2, 'it healed the one that was hurt');
 });
-test('draw pile: a beaten trainer\'s team is copies: nothing goes into any pile, and the cleared team is shown', () => {
-  const s = E.newGame({ seed: 9, starter: 'charmander' }); s.phase = 'battle'; const team = T.buildTeam(s, 'B1'); s.bosses.B1 = team; const before = JSON.stringify([s.decks, s.discard]);
-  const b = T.startBattle(s, 'boss', 'B1', [{ id: '4.2', sh: 0 }, { id: '1.1', sh: 0 }], team.map(i => ({ id: i.id, sh: i.sh }))); b.hand = [[], []];
+test('draw pile: a trainer\'s team is drawn from the places\' piles and goes back into the wild when the fight is over; a win says so', () => {
+  const s = E.newGame({ seed: 9, starter: 'charmander' }); const count = () => D.locations.reduce((n, l) => n + s.decks[l.id].length + s.discard[l.id].length, 0) + s.legend.length;
+  const before = count(); const team = T.buildTeam(s, 'B1'); s.bosses.B1 = team; const held = s.held.B1.slice();
+  assert.ok(held.length >= 1, 'real cards were taken'); assert.equal(count(), before - held.length, 'they are out of the piles while the trainer holds them');
+  held.forEach(id => assert.ok(![].concat(...Object.values(s.decks), ...Object.values(s.discard)).includes(id)));
+  s.phase = 'battle'; const b = T.startBattle(s, 'boss', 'B1', [{ id: '4.2', sh: 0 }, { id: '1.1', sh: 0 }], team.map(i => ({ id: i.id, sh: i.sh }))); b.hand = [[], []];
   b.units.filter(u => u.side === 1).forEach(u => { u.ko = true; u.hp = 0; }); b.cols = [[b.units[0].uid, null], [b.units[1].uid, null]]; b.stage = 'resolved'; b.out = 'hero';
-  assert.ok(E.apply(s, { t: 'next' }).ok); assert.equal(JSON.stringify([s.decks, s.discard]), before, 'the piles are untouched'); assert.deepEqual(s.res.cleared, team);
+  assert.ok(E.apply(s, { t: 'next' }).ok); assert.equal(count(), before, 'they are all back in the wild'); assert.deepEqual(s.res.wild.map(i => i.id).sort(), held.slice().sort(), 'and the result says which'); assert.deepEqual(s.res.cleared, team);
+  const t = E.newGame({ seed: 10, starter: 'charmander' }); const n0 = t.legend.length; t.bosses.E4 = T.buildTeam(t, 'E4'); const lg = t.legFor.E4; assert.ok(C[lg].trainerLegend);
+  if (C[lg].loc !== 0) { assert.equal(t.legend.length, n0 - 1, 'Lance holds a legendary taken from the ones not found yet'); E._t.releaseTeam(t, 'E4', false); assert.equal(t.legend.length, n0, 'a loss puts it back'); }
 });
 test('shiny: a shiny card has one more health than the same card that is not', () => {
   const c = craft(['4.1', '4.1'], ['10']); const s2 = E.newGame({ seed: 3, starter: 'charmander' }); s2.phase = 'battle';
@@ -685,4 +690,21 @@ test('v3: the Fighting Dojo is a visitor with three random Fighting cards, and e
   const s = E.newGame({ seed: 5, starter: 'bulbasaur' }); s.visitors = []; s.specialsSeen = 1; s.slotsAtGo = 3;
   let got = null; for (let seed = 1; seed < 400 && !got; seed++) { s.rng = seed; s.visitors = []; s.notes = []; T.maybeSpecial && T.maybeSpecial(s); if (s.vcards && s.vcards.dojo) got = s.vcards.dojo; }
   if (got) { assert.equal(got.length, 3); got.forEach(id => assert.equal(C[id].type, 'Fighting')); assert.equal(new Set(got).size, 3); }
+});
+
+test('v3: beating Lance brings Blue and Red (a note, then a promised legendary); one special event at a time; the game is won when both are beaten; the Elite Four need all eight badges in order', () => {
+  const s = E.newGame({ seed: 31, starter: 'bulbasaur' }); const open = () => D.nodes.filter(n => E.unlocked(s, n)).map(n => n.id);
+  ['B1', 'B2', 'B3', 'B4', 'B5', 'B6', 'B7'].forEach(k => { s.done[k] = true; }); assert.ok(!open().includes('E1') && !open().includes('IP'), 'seven badges are not enough'); s.done.B8 = true;
+  assert.ok(open().includes('IP') && open().includes('E1') && !open().includes('E2')); s.done.E1 = true; s.done.E2 = true; s.done.E3 = true; assert.ok(open().includes('E4') && !open().includes('F1') && !open().includes('F2'));
+  s.phase = 'battle'; const b = T.startBattle(s, 'boss', 'E4', [{ id: '4.2', sh: 0 }], [{ id: '10', sh: 0 }]); b.hand = [[], []]; b.units[1].ko = true; b.units[1].hp = 0; b.cols = [[b.units[0].uid, b.units[1].uid]]; b.stage = 'resolved'; b.out = 'hero';
+  s.bosses.E4 = [{ id: '10', sh: 0 }]; assert.ok(E.apply(s, { t: 'next' }).ok); assert.ok(s.notes.includes('rivals'), 'Blue and Red show up'); assert.ok(s.legendDue, 'a legendary is promised');
+  s.res.pick = null; s.res.evolve = 0; E.apply(s, { t: 'done' }); assert.ok(s.legendMarker, 'it appears, in the event slot'); assert.ok(T.eventActive(s)); const seen = s.notes.length;
+  for (let i = 1; i < 60; i++) { s.rng = i; T.maybeSpecial(s); } assert.equal(s.notes.length, seen, 'no second event while one is waiting');
+  s.coll.push({ uid: 99, id: s.legendMarker, sh: 0 }); assert.ok(!T.eventActive(s), 'caught: the slot is free again');
+  assert.ok(open().includes('F1') && open().includes('F2')); s.done.F1 = true; s.phase = 'battle'; const c = T.startBattle(s, 'boss', 'F2', [{ id: '4.2', sh: 0 }], [{ id: '10', sh: 0 }]); c.hand = [[], []]; c.units[1].ko = true; c.units[1].hp = 0; c.cols = [[c.units[0].uid, c.units[1].uid]]; c.stage = 'resolved'; c.out = 'hero'; s.bosses.F2 = [{ id: '10', sh: 0 }];
+  assert.ok(E.apply(s, { t: 'next' }).ok); assert.equal(s.phase, 'won', 'both beaten: the game is won');
+});
+test('v3: a heal that can reach neighbours may also be aimed at a ghost across from a neighbour', () => {
+  const c = craft(['1.2', '1.1'], ['10', '92']); const e = { k: 'h', n: 2, spec: { opts: [[-1, 0, 1]], spread: false, all: false } }; e.spec = E.parseSpec('< or v or >'); c.h(0).hp = 1;
+  assert.ok(E.candidates(c.b, c.h(0), e).some(g => g[0].ghost && g[0].u === c.g(1)), 'the ghost across from the neighbour is a target');
 });

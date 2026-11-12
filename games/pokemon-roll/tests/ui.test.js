@@ -33,10 +33,10 @@ test('ui: menu, new game, map, and a whole first fight through real taps, with n
   const errs = []; p.on('pageerror', e => errs.push(e.message)); p.on('console', m => { if (m.type() === 'error') errs.push(m.text()); });
   try {
     await p.goto(URL);
-    assert.match(await p.innerText('.logo'), /Roll!/); assert.equal(await p.locator('.mm2 .mapin .place').count(), 23, 'the map is dealt out right on the menu'); assert.equal(await p.locator('.arena').count(), 0, 'no toy table'); assert.equal(await p.locator('[data-act=help]').count(), 0, 'help lives under More'); assert.ok(await p.locator('[data-act=more]').count() === 1, 'a More button');
+    assert.match(await p.innerText('.logo'), /Roll!/); assert.equal(await p.locator('.mm2 .mapin .place').count(), 18, 'the map is dealt out right on the menu'); assert.equal(await p.locator('.arena').count(), 0, 'no toy table'); assert.equal(await p.locator('[data-act=help]').count(), 0, 'help lives under More'); assert.ok(await p.locator('[data-act=more]').count() === 1, 'a More button');
     await p.click('[data-act=new]'); assert.equal(await p.locator('[data-act=starter]').count(), 5); assert.match(await p.innerText('.oakov .bubble'), /Professor Oak[\s\S]*level up and evolve[\s\S]*static cards/, 'Oak offers the starters and says only they evolve'); assert.equal(await p.locator('.oakov').count(), 1);
     await p.click('[data-act=starter][data-k=charmander]');
-    assert.equal(await p.locator('.oakov').count(), 0, 'Oak goes away and you are back on the map'); assert.equal(await p.locator('.place').count(), 23, 'the whole road is on show from the start, locked places included');
+    assert.equal(await p.locator('.oakov').count(), 0, 'Oak goes away and you are back on the map'); assert.equal(await p.locator('.place').count(), 18, 'the whole road is on show from the start, locked places included');
     assert.equal(await p.locator('.place:not(.lock)').count(), 4, 'Viridian Forest, Brock, Mt. Moon and Misty are open from the start');
     assert.equal(await p.locator('.place > svg, .place .ptop > svg').count(), await p.locator('.place').count(), 'each place is drawn as a picture (a gym, or the back of a deck)');
     assert.ok(await p.evaluate(() => { const w = document.querySelector('.mapwrap'); return w.scrollWidth <= w.clientWidth + 1 && w.scrollHeight <= w.clientHeight + 1; }), 'the map fills the screen without scrolling');
@@ -113,7 +113,7 @@ test('ui: the game is saved, and Continue brings it back', { skip: !chromium }, 
     await p.goto(URL); assert.equal(await p.locator('[data-act=continue]').count(), 0);
     await p.click('[data-act=new]'); await p.click('[data-act=starter][data-k=pikachu]');
     await p.reload(); assert.equal(await p.locator('[data-act=continue]').count(), 1);
-    await p.click('[data-act=continue]'); assert.equal(await p.locator('.place').count(), 23); assert.equal(await p.locator('.top').count(), 1, 'the same map, now with its top bar: no new screen');
+    await p.click('[data-act=continue]'); assert.equal(await p.locator('.place').count(), 18); assert.equal(await p.locator('.top').count(), 1, 'the same map, now with its top bar: no new screen');
     assert.equal(await p.evaluate(() => window.__pokemonRoll.G.starter), 'pikachu');
   } finally { await b.close(); }
 });
@@ -393,10 +393,10 @@ test('ui: choosing a card asks below the cards, goes straight to the map; a loss
     await p.click('[data-act=pickcard] >> nth=0'); assert.equal(await p.locator('[data-act=pickok]:not([disabled])').count(), 1, 'a card chosen: OK is ready'); await p.click('[data-act=pickcard] >> nth=0'); assert.equal(await p.locator('[data-act=pickok][disabled]').count(), 1, 'tapping it again lets go'); assert.equal(await p.locator('[data-act=pickno]').count(), 0, 'no Choose again button'); assert.doesNotMatch(await p.innerText('.scr'), /Tap OK|Choose one to join/i, 'nothing said twice'); await p.click('[data-act=pickcard] >> nth=0');
     const r = await p.evaluate(() => { const bar = document.querySelector('.pickbar').getBoundingClientRect(), cards = [...document.querySelectorAll('[data-act=pickcard]')].map(c => c.getBoundingClientRect().bottom); return { bar: bar.top, cards: Math.max(...cards), sheet: document.querySelectorAll('.sheet').length }; });
     assert.ok(r.bar >= r.cards - 1, 'the question sits below the cards'); assert.equal(r.sheet, 0, 'not over them');
-    await p.click('[data-act=pickok]'); assert.equal(await p.locator('.top').count(), 1, 'straight back to the map'); assert.equal(await p.locator('.place').count(), 23);
+    await p.click('[data-act=pickok]'); assert.equal(await p.locator('.top').count(), 1, 'straight back to the map'); assert.equal(await p.locator('.place').count(), 18);
     await p.evaluate(() => { const s = Engine.newGame({ seed: 5, starter: 'charmander' }); s.phase = 'result'; s.res = { win: false, node: 'L1' }; window.__pokemonRoll.setG(s); });
     assert.match(await p.innerText('.kos'), /You are KO'd!/); assert.match(await p.innerText('.kos'), /Tap anywhere to continue/);
-    await p.mouse.click(400, 600); assert.equal(await p.locator('.place').count(), 23, 'the map comes back');
+    await p.mouse.click(400, 600); assert.equal(await p.locator('.place').count(), 18, 'the map comes back');
     assert.deepEqual(errs, []);
   } finally { await b.close(); }
 });
@@ -440,7 +440,7 @@ test('ui: places that open together are one block with their requirement on it (
   const errs = []; p.on('pageerror', e => errs.push(e.message));
   try {
     await p.goto(URL); await p.click('[data-act=new]'); await p.click('[data-act=starter][data-k=pikachu]');
-    assert.equal(await p.locator('.mapin .grp').count(), 11, 'eleven blocks'); assert.equal(await p.locator('.mapin .grp.open').count(), 1, 'only the first block is open'); assert.equal(await p.locator('.mapsvg path').count(), 0, 'no lines');
+    assert.equal(await p.locator('.mapin .grp').count(), 6, 'six blocks'); assert.equal(await p.locator('.mapin .grp.open').count(), 1, 'only the first block is open'); assert.equal(await p.locator('.mapsvg path').count(), 0, 'no lines');
     const tabs = await p.locator('.grp.lock .gtab').allInnerTexts(); assert.ok(tabs.every(t => t.includes('🔒')), 'each locked block says it is locked'); assert.ok(tabs.some(t => /🏅/.test(t)), 'and by what');
     await p.locator('.grp.lock').first().click({ position: { x: 10, y: 10 }, force: true }); assert.match(await p.innerText('.toast'), /🏅/);
     assert.deepEqual(errs, []);
@@ -530,6 +530,23 @@ test('ui: the Pokédex counts seen and caught (any version counts) and can be fi
     await p.click('[data-act=dexfilter][data-v=caught]'); assert.equal(await p.locator('.dxc').count(), all); assert.equal(await p.locator('.dxc:not(.dim)').count(), 1); assert.equal(await p.locator('.dxc.grey').count(), 2, 'seen but not caught: greyscale');
     await p.click('[data-act=dexfilter][data-v=caught]'); assert.equal(await p.locator('.dxc.dim').count(), 0, 'tap again to clear the filter');
     await p.click('.dxc.got'); assert.equal(await p.locator('.stile').count() >= 3, true); assert.match(await p.innerText('.stile >> nth=0'), /Location/); await p.click('.stile >> nth=1'); assert.match(await p.innerText('.sheet .sheet'), /Caught/); await p.click('[data-act=dextipx] >> nth=-1'); assert.equal(await p.locator('.sheet .sheet').count(), 0, 'OK closes the explanation');
+    assert.deepEqual(errs, []);
+  } finally { await b.close(); }
+});
+
+test('ui: the Indigo Plateau is locked until all eight gyms are beaten, then opens the Elite Four screen with two mystery opponents; Settings can reset everything after a confirmation', { skip: !chromium }, async () => {
+  const b = await chromium.launch(), p = await b.newPage({ viewport: { width: 820, height: 1180 } });
+  const errs = []; p.on('pageerror', e => errs.push(e.message));
+  try {
+    await p.goto(URL); await p.click('[data-act=new]'); await p.click('[data-act=starter][data-k=squirtle]');
+    await p.locator('[data-act=tipok]').click({ timeout: 800 }).catch(() => {});
+    assert.equal(await p.locator('.place[data-id=IP].lock').count(), 1, 'locked at the start'); await p.click('.place[data-id=IP]'); assert.match(await p.innerText('.toast'), /eight gym/i);
+    await p.evaluate(() => { const s = window.__pokemonRoll.G; ['B1', 'B2', 'B3', 'B4', 'B5', 'B6', 'B7', 'B8'].forEach(k => { s.done[k] = true; }); window.__pokemonRoll.render(); });
+    assert.equal(await p.locator('.place[data-id=IP].lock').count(), 0); await p.click('.place[data-id=IP]');
+    assert.match(await p.innerText('.maptop'), /Indigo Plateau/); assert.equal(await p.locator('.mapin .place').count(), 6, 'four trainers and two mystery cards');
+    assert.equal(await p.locator('.place[aria-label="A mystery opponent"]').count(), 2, 'Blue and Red are hidden until Lance is beaten');
+    await p.click('[data-act=plateauback]'); assert.match(await p.innerText('.maptop'), /Kanto Map/);
+    await p.click('[data-act=menu]'); await p.click('[data-act=settings]'); await p.click('[data-act=resetask]'); assert.match(await p.innerText('.sheet'), /deletes ALL/); await p.click('[data-act=resetno]'); assert.equal(await p.locator('[data-act=resetgo]').count(), 0, 'cancelling keeps everything');
     assert.deepEqual(errs, []);
   } finally { await b.close(); }
 });
