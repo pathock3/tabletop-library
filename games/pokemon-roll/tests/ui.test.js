@@ -270,7 +270,7 @@ test('ui: beating Lance records the whole-game best (and Lance\'s own), and the 
   try {
     await p.goto(URL); await p.evaluate(() => { localStorage.removeItem('pokemon-roll-scores'); });
     const sc = await p.evaluate(() => {
-      const R = window.__pokemonRoll, s = Engine.newGame({ seed: 3, starter: 'charmander', size: 'short', ai: 'normal' }); s.turn = 31; s.bossTurns.F2 = 31; s.phase = 'won'; s.res = { win: true, node: 'F2', kind: 'boss' }; R.setG(s); R.recordResult();
+      const R = window.__pokemonRoll, s = Engine.newGame({ seed: 3, starter: 'charmander', size: 'short', ai: 'normal' }); s.turn = 31; s.bossTurns.F2 = 31; s.done.F1 = s.done.F2 = true; s.phase = 'won'; s.res = { win: true, node: 'F2', kind: 'boss' }; R.setG(s); R.recordResult();
       return JSON.parse(localStorage.getItem('pokemon-roll-scores'));
     });
     assert.equal(sc.short.game, 31, 'the whole-game record'); assert.equal(sc.short.F2, 31, 'and Red');

@@ -1948,7 +1948,6 @@ const Engine = (() => {
       if (win && !gm.length) s.res.pick = [];
     } else if (win) {
       const dice0 = slots(s); s.done[nd.id] = true; s.bossTurns[nd.id] = s.turn; if (nd.kind === 'boss' && !nd.finale && slots(s) > dice0) s.res.newDie = true;
-      if (false && nd.die && !nd.finale) { const gain = nd.die.filter(c => (s.cdice = s.cdice || []).indexOf(c) < 0); gain.forEach(c => s.cdice.push(c)); if (gain.length) s.res.dieGain = gain; }          // you keep the leader's colour          // how many turns it took to get this far
       if (b.lend && slots(s) > dice0) s.res.keepDie = b.lend;
       if (nd.kind === 'boss') { s.res.cleared = s.bosses[nd.id]; s.res.wild = (wildBack || []).map(id => ({ id, sh: s.sh[id] ? 1 : 0 })); }          // the team goes back into the wild: the result screen says so
       if (nd.id === 'E4') { s.notes.push('rivals'); if (!s.legendSeen) s.legendDue = true; }          // Blue and Red turn up; a legendary is promised if none has shown yet
@@ -1976,8 +1975,7 @@ const Engine = (() => {
         repair(s);
         if (s.phase !== 'map') return 'not on the map'; const nd = node(a.node); if (!nd || !unlocked(s, nd)) return 'that is not open yet';
         if (nd.kind === 'visitor' && (s.visitors || []).indexOf(nd.special) < 0) return 'nobody is there';
-        if (nd.kind === 'plateau') return 'choose one of the trainers there';
-        if ((nd.kind === 'boss' || nd.kind === 'rival') && s.done[nd.id]) return 'already beaten';
+        if (nd.kind === 'boss' && s.done[nd.id]) return 'already beaten';
         if (nd.kind === 'loc' && deckSize(s, nd.loc) < 1) return 'nothing is hiding here';
         s.turn++; if (nd.kind === 'boss') (s.seen = s.seen || {})[nd.id] = true;                  // once you have faced a gym leader their team is no longer a secret
         s.slotsAtGo = slots(s);                                                       // special events count from the first battle you start with three dice
@@ -2233,8 +2231,8 @@ const Bots = (() => {
     level = level || 'master';
     const b = s.battle;
     if (s.phase === 'map') {
-      const open = E.D.nodes.filter(n => n.kind !== 'plateau' && E.unlocked(s, n) && !((n.kind === 'boss' || n.kind === 'rival') && s.done[n.id]));
-      const ready = open.filter(n => n.kind === 'rival' || (n.kind === 'boss' && s.coll.length >= E.gmCount(s, n, 0)));
+      const open = E.D.nodes.filter(n => E.unlocked(s, n) && !(n.kind === 'boss' && s.done[n.id]));
+      const ready = open.filter(n => n.kind === 'boss' && s.coll.length >= E.gmCount(s, n, 0));
       if (ready.length && s.turn % 3 !== 2) return { t: 'go', node: ready[0].id };
       const locs = open.filter(n => n.kind === 'loc' && E.deckSize(s, n.loc) > 0);
       if (!locs.length) return { t: 'go', node: (ready[0] || open[0]).id };
@@ -2325,11 +2323,11 @@ const Bots = (() => {
   const scores = () => lsGet(SCORES) || {};
   function recordResult() {
     const r = G && G.res; if (!r || r.rec || !r.win) return; const nd = E.node(r.node); r.rec = true;
-    const keys = [nd.kind === 'boss' ? nd.id : null, nd.finale ? 'game' : null].filter(Boolean); if (!keys.length) return;      // beating Lance also finishes the whole game
+    const keys = [nd.kind === 'boss' ? nd.id : null, gameEnd(nd) ? 'game' : null].filter(Boolean); if (!keys.length) return;      // beating Lance also finishes the whole game
     const turns = G.bossTurns[nd.id]; if (turns == null) return;
-    if (nd.finale) { const h = hofList(); h.push({ t: Date.now(), turns, size: G.size, ai: G.ai, starter: G.starter, team: (r.team || G.coll.map(c => ({ id: c.id, sh: c.sh }))) }); lsSet(HOF, h); }
+    if (gameEnd(nd)) { const h = hofList(); h.push({ t: Date.now(), turns, size: G.size, ai: G.ai, starter: G.starter, team: (r.team || G.coll.map(c => ({ id: c.id, sh: c.sh }))) }); lsSet(HOF, h); }
     const all = scores(), rec = all[G.size] = all[G.size] || {};
-    keys.forEach(key => { const prev = rec[key]; if (key === (nd.finale ? 'game' : nd.id)) { r.turns = turns; r.best = prev; r.newBest = prev == null || turns < prev; } if (prev == null || turns < prev) rec[key] = turns; });
+    keys.forEach(key => { const prev = rec[key]; if (key === (gameEnd(nd) ? 'game' : nd.id)) { r.turns = turns; r.best = prev; r.newBest = prev == null || turns < prev; } if (prev == null || turns < prev) rec[key] = turns; });
     lsSet(SCORES, all);
   }
 
@@ -2432,6 +2430,7 @@ const Bots = (() => {
       ${trainerImg(n.id)}`;
   }
   const finaleScene = () => `<rect width="160" height="120" fill="#4527a0"/>${Array.from({ length: 12 }, (_, i) => { const a = i * Math.PI / 6; return `<path d="M80 62L${(80 + 90 * Math.cos(a - .1)).toFixed(0)} ${(62 + 90 * Math.sin(a - .1)).toFixed(0)} ${(80 + 90 * Math.cos(a + .1)).toFixed(0)} ${(62 + 90 * Math.sin(a + .1)).toFixed(0)}Z" fill="#7e57c2" opacity=".6"/>`; }).join('')}<text x="80" y="82" text-anchor="middle" font-size="66">🏆</text>`;
+  const gameEnd = nd => !!(nd.final && D.nodes.filter(q => q.final).every(q => G.done[q.id]));          // the game is won when Blue and Red are both beaten
   const sceneOf = n => n.kind === 'loc' ? SCENE[n.loc]() : n.finale ? finaleScene() + trainerImg(n.id) : gymScene(n);
 
   // ---------------------------------------------------------------- a location is a deck of cards: this is its back
@@ -2460,7 +2459,7 @@ const Bots = (() => {
   const deckBack = loc => { const L = D.locations.find(x => x.id === loc); return backFrame('db' + loc, L.name, SCENE[loc](), DECKC[L.color] || DECKC.blue); };
   const mixHex = (h, t, k) => { const a = [1, 3, 5].map(i => parseInt(h.slice(i, i + 2), 16)), b = [1, 3, 5].map(i => parseInt(t.slice(i, i + 2), 16)); return '#' + a.map((x, i) => Math.round(x + (b[i] - x) * k).toString(16).padStart(2, '0')).join(''); };
   const gymPal = n => { const c = n.color || '#78909c'; return [mixHex(c, '#000000', .55), c, mixHex(c, '#ffffff', .78)]; };
-  const gymBack = n => backFrame('gb' + n.id, n.name + "'s team", gymScene(n), gymPal(n));
+  const gymBack = n => backFrame('gb' + n.id, n.name, gymScene(n), gymPal(n));
   const uriOf = svg => 'url("data:image/svg+xml;utf8,' + encodeURIComponent(svg).replace(/"/g, '%22') + '")';
   const deckUri = loc => 'url("data:image/svg+xml;utf8,' + encodeURIComponent(deckBack(loc)).replace(/"/g, '%22') + '")';
   // the deck as a pile: a few cards stacked under the top one, and how many are left
@@ -2732,6 +2731,7 @@ const Bots = (() => {
 
   // ---------------------------------------------------------------- tips (once per device)
   const TIPTEXT = {
+    placeGym: 'They put a card down. Pick one of your Pokémon, then tap the column it goes in. The rest of your Pokémon wait in reserve and step in when one is knocked out.',
     place: 'They put a card down. Pick one of your Pokémon, then tap where it goes. If you have dice to spare you can bring more cards (they draw one more each time), or press Fight!',
     dice: 'Everyone rolls one die per card. Tap a die, then tap the card that should use it (or drag it). Give out the dice you like, then 🔄 throws the rest again together, once a round: those stay as they land. Each card does something different on each number: the rows on the card show what.',
     shiny: 'A shiny! Shinies have +1 heart more than usual.',
@@ -2744,7 +2744,7 @@ const Bots = (() => {
     const b = G && G.battle; if (!b) return;
     if (b.isBill) tipOnce('bill');
     if (b.units.some(u => u.sh)) tipOnce('shiny');
-    if (b.stage === 'place' && b.pl && b.pl.side === 0) tipOnce('place');
+    if (b.stage === 'place' && b.pl && b.pl.side === 0) tipOnce(b.mode === 'wild' ? 'place' : 'placeGym');
     if (b.stage === 'assign' && (b.colMode ? b.rolled : (b.round > 1 || ui.rollTap === G.turn))) tipOnce('dice');
   }
 
@@ -3038,7 +3038,7 @@ const Bots = (() => {
     const evo = r.evolve ? `<div class="status">${esc(C[sdv.levels[r.evolve - 1]].name)} is ready to evolve! Which will it be?</div><div class="hrow">${[[sdv.levels[r.evolve - 1], 0], [sdv.evolve[r.evolve], 1]].map(([id, y]) => card({ id, sh: 0 }, { cw, attr: `data-act="evolve" data-yes="${y}"` })).join('')}</div>` : '';
     const lead = r.win && nd.kind === 'visitor' ? `<div class="leadtalk"><img class="pix leadimg" src="data:image/png;base64,${D.trainerArt[nd.art]}" alt="${esc(nd.name)}"><div class="bubble"><b class="who">${esc(nd.name)}</b><p>${r.allHave ? '“Wow, you already have all the evolutions!”' : r.fallback ? '“You have all three already! Here, take an Eevee.”' : '“Take your pick!”'}</p></div></div>` : r.win && nd.kind === 'boss' ? `<div class="leadtalk">${D.trainerArt && D.trainerArt[nd.id] ? `<img class="pix leadimg" src="data:image/png;base64,${D.trainerArt[nd.id]}" alt="${esc(nd.name)}">` : ''}<div class="bubble"><b class="who">${esc(nd.name)}</b><p>“${esc(nd.say || 'Well fought!')}”</p>${r.newDie ? `<div class="gift">${dieHtml(6, {})}<span>${esc(nd.name)} hands you a die. <i>“${esc(D.dieLine)}”</i></span></div>` : ''}</div></div>` : '';
     if (!r.win) { const st = G.coll.find(c => c.starter) || G.coll[0]; return `<div class="scr kos" data-act="done"><div class="kobox"><div class="kopic"><img class="pix" src="${art(st.id, st.sh)}" alt=""><i>✦</i><i>✦</i><i>✦</i></div><div class="kotxt">You are KO'd!</div><div class="kotap">Tap anywhere to continue</div></div></div>`; }
-    const turnsLine = r.turns != null ? `${nd.finale ? 'You beat the game' : 'You beat ' + esc(nd.name)} in <b>${r.turns} turn${r.turns === 1 ? '' : 's'}</b>${r.newBest ? ' <span class="nb">New best!</span>' : (r.best != null ? ` <span class="pb">(best ${r.best})</span>` : '')}` : '';
+    const turnsLine = r.turns != null ? `${gameEnd(nd) ? 'You beat the game' : 'You beat ' + esc(nd.name)} in <b>${r.turns} turn${r.turns === 1 ? '' : 's'}</b>${r.newBest ? ' <span class="nb">New best!</span>' : (r.best != null ? ` <span class="pb">(best ${r.best})</span>` : '')}` : '';
     // two screens: first the leader's thanks (what they hand you, how long you took); then what it did for your team (the starter, a new card, a legendary)
     const hasTeam = !!(r.win && (r.levelUp || r.evolve || r.legend || r.pick || r.took));
     const placeOf = id => (D.locations.find(l => l.id === C[id].loc) || {}).name || '';
@@ -3046,7 +3046,7 @@ const Bots = (() => {
     const leadFirst = r.win && nd.kind === 'boss';
     if (ui.resFor !== G.turn + ':' + r.node) { ui.resFor = G.turn + ':' + r.node; ui.resStep = leadFirst ? 0 : 1; }
     const dest = G.phase === 'won' ? 'Hall of Fame' : 'Continue';
-    if (ui.resStep === 0 && leadFirst) return `<div class="scr" style="overflow:auto"><div class="center" style="justify-content:center;min-height:100%;padding-top:20px"><div class="banner">${nd.finale ? 'CHAMPION!' : 'Victory!'}</div>${lead}${turnsLine ? `<div style="font:800 24px system-ui">${turnsLine}</div>` : ''}${wildTxt}${r.keepDie ? `<div class="wildback"><b>🎲 ${esc(nd.name)} lets you keep the die!</b></div>` : ''}<button class="btn big" data-act="${hasTeam ? 'resnext' : 'done'}">${hasTeam ? 'Continue' : dest}</button></div></div>`;
+    if (ui.resStep === 0 && leadFirst) return `<div class="scr" style="overflow:auto"><div class="center" style="justify-content:center;min-height:100%;padding-top:20px"><div class="banner">${gameEnd(nd) ? 'CHAMPION!' : 'Victory!'}</div>${lead}${turnsLine ? `<div style="font:800 24px system-ui">${turnsLine}</div>` : ''}${wildTxt}${r.keepDie ? `<div class="wildback"><b>🎲 ${esc(nd.name)} lets you keep the die!</b></div>` : ''}<button class="btn big" data-act="${hasTeam ? 'resnext' : 'done'}">${hasTeam ? 'Continue' : dest}</button></div></div>`;
     const st = G.coll.find(c => c.starter), room = viewH() - 360;          // the banner, the line of text and the button all share the screen with the card
     const one = (c, txt, attr) => `<div class="status">${txt}</div><div class="hrow" style="justify-content:center">${card(c, { cw: Math.max(140, Math.min(360, Math.floor(room / CH), innerWidth - 60)), attr: attr || '' })}</div>`;
     const prevId = (() => { const sd = E.starterOf(G.starter), pl = r.levelUp - 1; return pl >= 1 ? (G.evolved && sd.evolve && sd.evolve[pl] ? sd.evolve[pl] : sd.levels[pl - 1]) : st.id; })();
@@ -3054,12 +3054,12 @@ const Bots = (() => {
     const lvTxt = r.win && r.levelUp && !r.evolve ? `<div class="status">Your starter grew to level ${lvName(r.levelUp)}!</div><div class="hrow lvrow" style="justify-content:center;align-items:center;gap:16px;flex-wrap:nowrap">${card({ id: prevId, sh: st.sh }, { cw: lcw })}<span class="lvarrow">➜</span>${card({ id: st.id, sh: st.sh }, { cw: lcw, attr: `data-act="zoom" data-only="1" data-uid="${st.uid}"` })}</div>` : '';
     const legTxt = r.win && r.legend ? one(r.legend, `${esc(C[r.legend.id].name)}${r.legend.sh ? ' ✨' : ''} joins your team!`) : '';
     const handBtn = r.pick || r.evolve ? `<button class="mypile respile${ui.coll ? ' away' : ''}" data-act="coll" aria-label="Your cards">${myPile()}</button>` : '';          // while you choose, you can look at the cards you already have
-    return `${handBtn}<div class="scr" style="overflow:auto"><div class="center" style="justify-content:center;min-height:100%;padding-top:20px"><div class="banner">${r.pick ? 'Choose a card' : r.evolve ? 'Evolution!' : r.levelUp ? 'Level up!' : nd.finale ? 'CHAMPION!' : 'Victory!'}</div>
+    return `${handBtn}<div class="scr" style="overflow:auto"><div class="center" style="justify-content:center;min-height:100%;padding-top:20px"><div class="banner">${r.pick ? 'Choose a card' : r.evolve ? 'Evolution!' : r.levelUp ? 'Level up!' : gameEnd(nd) ? 'CHAMPION!' : 'Victory!'}</div>
       ${nd.kind === 'visitor' ? lead : ''}${lvTxt}${legTxt}${evo}${take}
       ${r.pick || r.evolve ? '' : `<button class="btn big" data-act="done">${dest}</button>`}</div></div>`;
   }
   function wonScreen() {
-    return `<div class="scr"><div class="center" style="flex:none;padding-top:56px"><div class="banner" style="font-size:54px">CHAMPION!</div><div style="font:800 22px system-ui">You beat the gym leaders and Lance in <b>${G.turn} turns</b>.${(scores()[G.size] || {}).game != null ? ` <span class="pb">Best: ${(scores()[G.size] || {}).game}</span>` : ''}</div></div>
+    return `<div class="scr"><div class="center" style="flex:none;padding-top:56px"><div class="banner" style="font-size:54px">CHAMPION!</div><div style="font:800 22px system-ui">You beat the Elite Four, Blue and Red in <b>${G.turn} turns</b>.${(scores()[G.size] || {}).game != null ? ` <span class="pb">Best: ${(scores()[G.size] || {}).game}</span>` : ''}</div></div>
       ${cardGrid(collSorted(), { max: 170, attr: c => `data-act="zoom" data-uid="${c.uid}"` })}<div class="dock" style="flex-direction:row;justify-content:center;gap:12px"><button class="btn big" data-act="keepgoing">Keep playing</button><button class="btn big alt" data-act="menu0">Main menu</button></div></div>`;
   }
 
@@ -3328,7 +3328,6 @@ const Bots = (() => {
     expx() { ui.exp = null; render(); },
     resetask() { ui.resetAsk = true; render(); }, resetno() { ui.resetAsk = false; render(); },
     resetgo() { try { Object.keys(localStorage).filter(k => k.indexOf('pokemon-roll') === 0).forEach(k => localStorage.removeItem(k)); } catch (e) { /* nothing to clear */ } location.reload(); },
-    plateauback() { ui.area = 'main'; render(); },
     legmark() { const id = G.legendMarker; if (!id) return; ui.exp = { h: '✨ A legendary is hiding', p: esc(C[id].name) + ' was spotted at ' + esc(D.locations.find(l => l.id === C[id].loc).name) + '. Find it there and it can be yours. No other event comes until you do.' }; render(); },
     gzoom(el) { ui.gz = +el.dataset.k; render(); }, gzclose() { ui.gz = null; render(); },
     gzprev() { const n = (ui.gseen || []).length; ui.gz = (ui.gz + n - 1) % n; render(); }, gznext() { const n = (ui.gseen || []).length; ui.gz = (ui.gz + 1) % n; render(); },
@@ -3338,7 +3337,7 @@ const Bots = (() => {
       if (freeSlot() < 0) { ui.slots = true; ui.full = true; ui.delAsk = null; render(); return; }
       ui.seed = ui.seed || (Date.now() % 2147483647); ui.screen = 'new'; render();
     },
-    menu0() { ui.menu = false; ui.area = 'main'; ui.newAsk = false; ui.slots = false; ui.seed = null; ui.screen = 'menu'; render(); },
+    menu0() { ui.menu = false; ui.newAsk = false; ui.slots = false; ui.seed = null; ui.screen = 'menu'; render(); },
     more() { ui.more = true; render(); }, closemore() { ui.more = false; render(); },
     help() { ui.help = true; ui.more = false; ui.helpPage = 0; ui.menu = false; render(); }, closehelp() { ui.help = false; render(); },
     hnext() { ui.helpPage = Math.min(HELP.length - 1, (ui.helpPage || 0) + 1); render(); }, hprev() { ui.helpPage = Math.max(0, (ui.helpPage || 0) - 1); render(); },

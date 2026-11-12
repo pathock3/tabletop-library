@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- **Pokémon Roll! — clean-up pass:** removed leftovers of the old plateau screen, rival and colour-die code; the game is won (and the whole-game record and Hall of Fame entry made) when both Blue and Red are beaten; gym fights get their own first tip (columns and reserve) instead of the wild-fight one; the leader pile reads "Brock", not "Brock's team".
+
 - **Pokémon Roll! — Brock bug and gym info:** tapping Brock with a second card crashed the screen (the "lent die" sheet), which left the map stuck; fixed. Gym leader info again says what they might have: the signature rule (element, level, places) and the places the others come from, besides the team backs with the signature last.
 
 - **Pokémon Roll! — fixes:** saves from older builds no longer break (a trainer without a team gets one, and a fight that never started goes back to the map), so tapping Brock or a saved game works again. Continue now shows each save with its starter, badges (x/8), dice and cards, readable, and a 🃏 button shows its whole team of cards.
