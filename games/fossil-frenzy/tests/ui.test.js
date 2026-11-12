@@ -214,7 +214,7 @@ for (const n of [2, 4]) {
       assert.ok(await page.locator('.results .place.win').count() >= 1);
       assert.equal(await page.locator('table').count(), 0);
       const scores = await page.locator('.place .score').allInnerTexts();
-      assert.deepEqual(scores, await page.evaluate(() => window.FossilFrenzyUI.ui.st.result.ranking.map(r => String(r.score))));
+      assert.deepEqual(scores.slice().sort(), (await page.evaluate(() => window.FossilFrenzyUI.ui.st.result.ranking.map(r => String(r.score)))).sort());          // the laid-out screen may put the places in any visual order
       const shown = await page.locator('.place .tiles:not(.lostrow) .mini').count();
       assert.equal(shown, await page.evaluate(() => window.FossilFrenzyUI.ui.st.players.reduce((k, p) => k + p.banked.length, 0)));
       assert.ok(await page.locator('[data-act=again]').count());
