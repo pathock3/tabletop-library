@@ -508,6 +508,9 @@ button{font:inherit;color:inherit;border:0;cursor:pointer}
 .sqs{flex-wrap:wrap}.stile{min-height:70px!important;flex:1 1 40%!important;flex-direction:row!important;gap:8px!important;padding:4px 6px!important}.stile.wide{flex:1 1 100%!important;min-height:104px!important;flex-direction:column!important}.stile:not(.wide) b{font-size:16px!important}.stile:not(.wide) small{font-size:13px!important}.stile:not(.wide) .si,.stile:not(.wide) .pbi{font-size:28px!important;width:32px!important;height:32px!important;flex:none}.stile:not(.wide){text-align:left}.stile .col{display:flex;flex-direction:column;align-items:flex-start}
 .evslot{position:absolute;width:124px;height:174px;border:3px dashed #ffffff55;border-radius:14px;display:grid;place-items:center;color:#ffffff88;font:800 15px system-ui;text-align:center;padding:8px}.wildback{background:#0006;border-radius:16px;padding:10px 14px;max-width:96%;font:700 18px system-ui;text-align:center;color:#fff}.wildback .wb{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;margin-top:6px}.wildback .wb span{display:flex;flex-direction:column;align-items:center;width:84px}.wildback .wb img{width:52px;height:52px;object-fit:contain}.wildback small{font:700 12px system-ui;line-height:1.1}
 .sigtag{font:900 12px system-ui;color:#ffd23f;text-align:center;margin-top:2px}
+.mapwrap{overflow-x:auto!important;overflow-y:hidden!important;-webkit-overflow-scrolling:touch;touch-action:pan-x;scrollbar-width:none}.mapwrap::-webkit-scrollbar{display:none}.mapsp{position:absolute;left:0;top:0;pointer-events:none}
+.place.sq{width:150px;height:150px;border-radius:16px;border:4px solid #14110f;overflow:hidden;display:block}.place.sq svg{width:100%;height:100%;filter:none}.place.sq .pl{position:absolute;left:0;right:0;bottom:0;height:34px;padding:0;display:grid;place-items:center;background:#14110fd9;color:#fff}.place.sq .pl b{font:900 19px system-ui;color:#fff}.place.sq.lock svg{filter:grayscale(.85) brightness(.65)}.place.sq .lk{top:30px;font-size:38px}.place.sq .eye{bottom:40px;right:6px}.place.sq .ck{left:6px;right:auto;top:6px}.place.sq.done svg{filter:saturate(.75)}
+.place.sq .ck{left:6px!important;top:6px!important;right:auto!important;bottom:auto!important;width:62px!important;height:62px!important;border-radius:0!important;font-size:0!important}.place.sq .ck svg{width:100%!important;height:100%!important}
 </style>
 <script id="data">
 /* Pokémon Roll! — every rule number, the map, the bosses, the card sheet and the art live here. The engine and bots read this and hard-code none of it. */
@@ -623,13 +626,12 @@ const GAME_DATA = {
     { id: 'L8', kind: 'loc', loc: 7, name: 'Seafoam Islands', stage: 4, lane: 0, needs: ['B5'] },
     { id: 'L9', kind: 'loc', loc: 9, name: 'Victory Road', stage: 4, lane: 1, needs: ['B7'] },
     { id: 'B8', kind: 'boss', gym: true, name: 'Giovanni', say: "Impossible... Beaten by a child. The badge is yours.", color: '#6d4c41', stage: 4, lane: 2, needs: ['B5', 'B7'], any: true, lvl: 5 },
-    { id: 'IP', kind: 'plateau', name: 'Indigo Plateau', stage: 4, lane: 3, needs: [], badges: 8 },
-    { id: 'E1', kind: 'boss', name: 'Lorelei', say: "You are strong. The ice has melted. Go on.", color: '#4dd0e1', stage: 0, lane: 0, needs: [], badges: 8, lvl: 5, area: 'plateau' },
-    { id: 'E2', kind: 'boss', name: 'Bruno', say: "Hoo hah! Your spirit is strong. Move on!", color: '#bf5b2c', stage: 1, lane: 0, needs: ['E1'], badges: 8, lvl: 5, area: 'plateau' },
-    { id: 'E3', kind: 'boss', name: 'Agatha', say: "Oh, my! You really are something. Go on, child.", color: '#7e57c2', stage: 2, lane: 0, needs: ['E2'], badges: 8, lvl: 5, area: 'plateau' },
-    { id: 'E4', kind: 'boss', name: 'Lance', say: "Magnificent! You have defeated the Elite Four.", color: '#5c6bc0', stage: 3, lane: 0, needs: ['E3'], badges: 8, lvl: 6, area: 'plateau' },
-    { id: 'F1', kind: 'boss', final: true, name: 'Blue', say: "Tch. Fine. You beat me. Don't get used to it, though.", color: '#3f51b5', stage: 4, lane: 0, needs: ['E4'], lvl: 6, area: 'plateau', mystery: true },
-    { id: 'F2', kind: 'boss', final: true, finale: true, name: 'Red', say: "...", color: '#e53935', stage: 5, lane: 0, needs: ['E4'], lvl: 6, area: 'plateau', mystery: true },
+    { id: 'E1', kind: 'boss', name: 'Lorelei', say: "You are strong. The ice has melted. Go on.", color: '#4dd0e1', stage: 5, lane: 1, needs: [], badges: 8, lvl: 5 },
+    { id: 'E2', kind: 'boss', name: 'Bruno', say: "Hoo hah! Your spirit is strong. Move on!", color: '#bf5b2c', stage: 6, lane: 1, needs: ['E1'], badges: 8, lvl: 5 },
+    { id: 'E3', kind: 'boss', name: 'Agatha', say: "Oh, my! You really are something. Go on, child.", color: '#7e57c2', stage: 7, lane: 1, needs: ['E2'], badges: 8, lvl: 5 },
+    { id: 'E4', kind: 'boss', name: 'Lance', say: "Magnificent! You have defeated the Elite Four.", color: '#5c6bc0', stage: 8, lane: 1, needs: ['E3'], badges: 8, lvl: 6 },
+    { id: 'F1', kind: 'boss', final: true, name: 'Blue', say: "Tch. Fine. You beat me. Don't get used to it, though.", color: '#3f51b5', stage: 9, lane: 1, needs: ['E4'], lvl: 6, mystery: true },
+    { id: 'F2', kind: 'boss', final: true, finale: true, name: 'Red', say: "...", color: '#e53935', stage: 9, lane: 2, needs: ['E4'], lvl: 6, mystery: true },
   ],
   // ability text on the card -> what the engine does (first match wins; "$1" is the first group). Several abilities on a card are separated by ";".
   abilities: [
@@ -2869,41 +2871,33 @@ const Bots = (() => {
     document.documentElement.style.setProperty('--appH', (st && sh > innerHeight && sh - innerHeight < 120 ? sh : innerHeight) + 'px');
   };
   fitScreen(); addEventListener('resize', () => { fitScreen(); }); addEventListener('orientationchange', () => setTimeout(fitScreen, 120));
+  // what a place needs before it opens, in words (shown when you tap a locked one)
+  const reqMsg = n => n.badges ? 'Beat all eight gym leaders first' : n.needs.length ? 'Beat ' + n.needs.map(id => E.node(id).name).join(n.any ? ' or ' : ' and ') + ' first' : 'Open from the start';
+  const CHK = '<div class="ck"><svg viewBox="0 0 100 100" aria-hidden="true"><path d="M18 54L40 76 84 24" fill="none" stroke="#0a3d1f" stroke-width="26" stroke-linecap="round" stroke-linejoin="round"/><path d="M18 54L40 76 84 24" fill="none" stroke="#2fd16b" stroke-width="16" stroke-linecap="round" stroke-linejoin="round"/></svg></div>';
+  // the whole road, gyms and places, then the Elite Four and the last two, in one long strip you slide with a finger: the four rows fill the height
   function mapScreen(menu) {
-    const area = menu ? 'main' : (ui.area || 'main'), NA = D.nodes.filter(n => (n.area || 'main') === area);          // the gyms and places are one screen; the Elite Four are a second one, to the right
-    const vis = NA.filter(shown), ids = new Set(vis.map(n => n.id));
-    const stages = Math.max(...NA.map(n => n.stage)) + 1, pitch = 178;          // the whole road is laid out from the start, so the game always runs left to right, with the rest still to be revealed
-    const availW = innerWidth, availH = viewH() - 60;
-    const W0 = PADX * 2 + stages * pitch, laneN = Math.max(area === 'main' ? 4 : 0, ...NA.map(n => n.lane)) + 1, sc = Math.min(availW / W0, laneN > 1 ? availH / (14 + 150 + 44 + (laneN - 1) * 214 + 122) : 1, 1);          // it must fit both ways: no scrolling
-    const H0 = availH / sc, c0 = Math.max(...NA.map(n => n.lane)) === 0 ? Math.max(214, H0 / 2 - 40) : 14 + 150 + 44 / sc, c2 = H0 - 112 - 10, gap = Math.max(214, (c2 - c0) / (Math.max(1, laneN - 1))), lanes = laneN;          // the first row starts right under the top bar (nothing wasted above it); the last ends at the bottom edge
-    const xy = n => [PADX + n.stage * pitch + pitch / 2, c0 + n.lane * gap];
-    // places that open together are one block: every group of places with the same requirement is drawn inside one frame that says what opens it
-    const reqText = n => [n.needs.length ? 'Beat ' + n.needs.map(id => E.node(id).name).join(n.any ? ' or ' : ' and ') : '', n.badges ? '🏅 ×' + n.badges : '', n.dice ? '🎲 ×' + n.dice : ''].filter(Boolean).join(' · ');
-    const groups = {}; vis.forEach(n => { const k = (n.any ? 'any ' : 'all ') + n.needs.slice().sort().join('+') + '|' + (n.dice || 0) + '|' + (n.badges || 0); (groups[k] = groups[k] || []).push(n); });
-    const lines = Object.values(groups).map(g => {
-      const open = E.unlocked(G, g[0]), r = reqText(g[0]), st = g.map(n => n.stage), ln = g.map(n => n.lane), x0 = PADX + Math.min(...st) * pitch + 5, x1 = PADX + (Math.max(...st) + 1) * pitch - 5, y0 = c0 + Math.min(...ln) * gap - 150, y1 = c0 + Math.max(...ln) * gap + 112;
-      return `<div class="grp ${open ? 'open' : 'lock'}" style="left:${x0}px;top:${y0}px;width:${x1 - x0}px;height:${y1 - y0}px" data-act="grp" data-req="${esc(r || 'Open from the start')}">${open ? '' : `<span class="gtab">🔒 ${esc((r || 'Open').replace(/^Beat /, ''))}</span>`}</div>`;
-    }).join('');
-    const visitors = (G.visitors || []).map(id => E.visitorNode(id)).filter(Boolean);          // special visitors (Bill) stand on the map until you meet them
-    const slot = area === 'main' ? (() => { const [sx, sy] = xy({ stage: 4, lane: 4 }), mk = G.legendMarker && !G.coll.some(c => c.id === G.legendMarker) ? G.legendMarker : null; return mk ? `<button class="place visitor next" style="left:${sx - TILE_W / 2}px;top:${sy - 92}px" data-act="legmark"><div class="vsc"><img class="pix" src="${art(mk, 0)}" alt="" style="filter:brightness(0)"></div><div class="vbang">!</div><div class="pl"><b>Legendary!</b></div></button>` : (visitors.length ? '' : `<div class="evslot" style="left:${sx - 62}px;top:${sy - 87}px"><span>Special event</span></div>`); })() : '';
+    const vis = D.nodes.filter(shown), LANES = 4, pitch = 190, stages = Math.max(...vis.map(n => n.stage)) + 1, TOPH = menu ? 0 : 76;
+    const availW = innerWidth, availH = viewH() - TOPH - (menu ? 60 : 0);
+    const k = Math.max(0.8, Math.min(1.7, availH / (LANES * 200)));          // everything scales so four rows fill the height
+    const H0 = availH / k, W0 = PADX * 2 + stages * pitch, rowH = H0 / LANES;
+    const xy = n => [PADX + n.stage * pitch + pitch / 2, (n.lane + 0.5) * rowH];
+    const visitors = (G.visitors || []).map(id => E.visitorNode(id)).filter(Boolean);
+    const [sx, sy] = xy({ stage: 0, lane: 3 }), mk = G.legendMarker && !G.coll.some(c => c.id === G.legendMarker) ? G.legendMarker : null;          // the one fixed place for a special event
+    const slot = mk ? `<button class="place visitor next" style="left:${sx - TILE_W / 2}px;top:${sy - 92}px" data-act="legmark"><div class="vsc"><img class="pix" src="${art(mk, 0)}" alt="" style="filter:brightness(0)"></div><div class="vbang">!</div><div class="pl"><b>Legendary!</b></div></button>` : (visitors.length ? '' : `<div class="evslot" style="left:${sx - 62}px;top:${sy - 87}px"><span>Special event</span></div>`);
     const tiles = vis.concat(visitors).map(n => {
-      if (n.kind === 'visitor') { const [vx, vy] = xy({ stage: 4, lane: 4 }); return `<button class="place visitor next" style="left:${vx - TILE_W / 2}px;top:${vy - 92}px" data-act="node" data-id="${n.id}"><div class="vsc"><img class="pix" src="data:image/png;base64,${D.trainerArt[n.art]}" alt="${esc(n.name)}"></div><div class="vbang">!</div><div class="pl"><b>${esc(n.name)}</b></div></button>`; }
-      const open = E.unlocked(G, n), done = n.kind !== 'loc' && G.done[n.id], [cx, cy] = xy(n);
-      const next = open && !done && n.kind === 'boss';
-      const sub = '';
+      if (n.kind === 'visitor') return `<button class="place visitor next" style="left:${sx - TILE_W / 2}px;top:${sy - 92}px" data-act="node" data-id="${n.id}"><div class="vsc"><img class="pix" src="data:image/png;base64,${D.trainerArt[n.art]}" alt="${esc(n.name)}"></div><div class="vbang">!</div><div class="pl"><b>${esc(n.name)}</b></div></button>`;
+      const open = E.unlocked(G, n), done = n.kind !== 'loc' && G.done[n.id], [cx, cy] = xy(n), next = open && !done && n.kind === 'boss';
       if (n.kind === 'loc') {
         const left = E.deckSize(G, n.loc);
-        return `<button class="place deck${open ? '' : ' lock'}" style="left:${cx - 62}px;top:${cy - 87}px" data-act="node" data-id="${n.id}" data-id2="${n.id}" aria-label="${esc(n.name)}, ${left} cards">${deckPile(n.loc, { pw: 124 })}${open ? `<div class="eye" data-act="eye" data-id="${n.id}" aria-label="What is left in this deck">i</div>` : '<div class="lk">🔒</div>'}</button>`;
+        return `<button class="place deck${open ? '' : ' lock'}" style="left:${cx - 62}px;top:${cy - 87}px" data-act="node" data-id="${n.id}" aria-label="${esc(n.name)}, ${left} cards">${deckPile(n.loc, { pw: 124 })}${open ? '' : '<div class="lk">🔒</div>'}<div class="eye" data-act="eye" data-id="${n.id}" aria-label="What is left in this deck">i</div></button>`;
       }
-      if (n.kind === 'plateau') return `<button class="place deck${open ? '' : ' lock'}" style="left:${cx - 62}px;top:${cy - 87}px" data-act="node" data-id="${n.id}" aria-label="Indigo Plateau">${deckPile(null, { pw: 124, svg: backFrame('gbIP', 'Indigo Plateau', '<rect width="160" height="120" fill="#7e57c2"/><rect y="84" width="160" height="36" fill="#4527a0"/><path d="M20 84V52l14-12 14 12v32M56 84V38l24-20 24 20v46M112 84V52l14-12 14 12v32" fill="#d1c4e9" stroke="#14110f" stroke-width="3" stroke-linejoin="round"/><rect x="72" y="58" width="16" height="26" fill="#311b92"/>', ['#2a1160', '#7e57c2', '#e6dcff']), dk: '#2a1160' })}${open ? '' : '<div class="lk">🔒</div>'}</button>`;
-      if (n.mystery && !G.done.E4) return `<button class="place deck gym lock" style="left:${cx - 62}px;top:${cy - 87}px" data-act="node" data-id="${n.id}" aria-label="A mystery opponent">${deckPile(null, { pw: 124, svg: backFrame('gbQ' + n.id, '???', '<rect width="160" height="120" fill="#37474f"/><text x="80" y="92" text-anchor="middle" font-size="90" font-weight="900" fill="#cfd8dc">?</text>', ['#1a2327', '#546e7a', '#cfd8dc']), dk: '#1a2327' })}<div class="lk">🔒</div></button>`;
-      if (n.kind === 'boss') return `<button class="place deck gym${open ? '' : ' lock'}${done ? ' done' : ''}${next ? ' next' : ''}" style="left:${cx - 62}px;top:${cy - 87}px" data-act="node" data-id="${n.id}" data-id2="${n.id}" aria-label="${esc(n.name)}">${deckPile(null, { pw: 124, svg: gymBack(n), dk: gymPal(n)[0] })}<div class="eye" data-act="eye" data-id="${n.id}" aria-label="Their team">i</div>${open ? '' : '<div class="lk">🔒</div>'}${done ? '<div class="ck"><svg viewBox="0 0 100 100" aria-hidden="true"><path d="M18 54L40 76 84 24" fill="none" stroke="#0a3d1f" stroke-width="26" stroke-linecap="round" stroke-linejoin="round"/><path d="M18 54L40 76 84 24" fill="none" stroke="#2fd16b" stroke-width="16" stroke-linecap="round" stroke-linejoin="round"/></svg></div>' : ''}</button>`;
-      return `<button class="place${open ? '' : ' lock'}${done ? ' done' : ''}${next ? ' next' : ''}${n.kind === 'boss' ? ' gym' : ''}" style="left:${cx - TILE_W / 2}px;top:${cy - 92}px" data-act="node" data-id="${n.id}" data-id2="${n.id}">
-        <svg viewBox="0 0 160 120" role="img" aria-label="${esc(n.name)}">${sceneOf(n)}</svg>${open ? '' : '<div class="lk">🔒</div>'}${done ? '<div class="ck"><svg viewBox="0 0 100 100" aria-hidden="true"><path d="M18 54L40 76 84 24" fill="none" stroke="#0a3d1f" stroke-width="26" stroke-linecap="round" stroke-linejoin="round"/><path d="M18 54L40 76 84 24" fill="none" stroke="#2fd16b" stroke-width="16" stroke-linecap="round" stroke-linejoin="round"/></svg></div>' : ''}${n.kind === 'boss' ? `<div class="eye" data-act="eye" data-id="${n.id}" aria-label="How their team is made">i</div>` : ''}
-        <div class="pl"><b>${esc(n.name)}</b></div></button>`;
+      // a trainer is a square, so it cannot be mistaken for a place (a pile of cards)
+      const hid = n.mystery && !G.done.E4, S = 150, col = hid ? '#546e7a' : (n.color || '#78909c');
+      const scene = hid ? `<rect width="160" height="160" fill="#37474f"/><text x="80" y="118" text-anchor="middle" font-size="110" font-weight="900" fill="#cfd8dc">?</text>` : `<defs><linearGradient id="sq${n.id}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff" stop-opacity=".9"/><stop offset="1" stop-color="${col}" stop-opacity=".85"/></linearGradient></defs><rect width="160" height="160" fill="${col}" opacity=".55"/><rect width="160" height="160" fill="url(#sq${n.id})"/>${D.trainerArt && D.trainerArt[n.id] ? `<ellipse cx="80" cy="128" rx="34" ry="6" fill="#000" opacity=".28"/><image href="data:image/png;base64,${D.trainerArt[n.id]}" x="14" y="6" width="132" height="132" style="image-rendering:pixelated"/>` : ''}`;
+      return `<button class="place sq${open ? '' : ' lock'}${done ? ' done' : ''}${next ? ' next' : ''}" style="left:${cx - S / 2}px;top:${cy - S / 2}px" data-act="node" data-id="${n.id}" aria-label="${esc(hid ? 'A mystery opponent' : n.name)}"><svg viewBox="0 0 160 160" role="img">${scene}</svg>${open || hid ? '' : '<div class="lk">🔒</div>'}${hid ? '<div class="lk">🔒</div>' : ''}${done ? CHK : ''}<div class="pl"><b>${esc(hid ? '???' : n.name)}</b></div>${hid ? '' : `<div class="eye" data-act="eye" data-id="${n.id}" aria-label="Their team">i</div>`}</button>`;
     }).join('');
-    return `${menu ? '' : `<div class="top maptop"><div class="topl">${area === 'plateau' ? '<button class="ib" data-act="plateauback" aria-label="Back to the map">‹</button>' : ''}</div><div class="t mapt">${area === 'plateau' ? 'Indigo Plateau' : 'Kanto Map'}</div><div class="topr"><button class="chip" data-act="chipinfo" aria-label="Your dice">🎲 ×${E.slots(G)}</button><button class="mypile${ui.coll ? ' away' : ''}" data-act="coll" aria-label="Your cards">${myPile()}</button><button class="ib mbtn" data-act="menu" aria-label="Menu">☰</button></div></div>`}
-      <div class="mapwrap${menu ? ' mmapbox' : ''}"${menu ? ` style="height:${availH}px"` : ''}><div class="mapin" style="width:${W0}px;height:${H0}px;transform:scale(${sc});margin-left:${Math.max(0, (availW - W0 * sc) / 2)}px"><svg class="mapsvg" width="${W0}" height="${H0}"></svg>${lines}${slot}${tiles}</div></div>`;
+    return `${menu ? '' : `<div class="top maptop"><div class="topl"></div><div class="t mapt"></div><div class="topr"><button class="chip" data-act="chipinfo" aria-label="Your dice">🎲 ×${E.slots(G)}</button><button class="mypile${ui.coll ? ' away' : ''}" data-act="coll" aria-label="Your cards">${myPile()}</button><button class="ib mbtn" data-act="menu" aria-label="Menu">☰</button></div></div>`}
+      <div class="mapwrap${menu ? ' mmapbox' : ''}" data-k="${k}" style="${menu ? `height:${availH}px` : ''}"><div class="mapsp" style="width:${Math.round(W0 * k)}px;height:${Math.round(H0 * k)}px"></div><div class="mapin" style="width:${W0}px;height:${H0}px;transform:scale(${k})">${slot}${tiles}</div></div>`;
   }
 
   // a wrapping grid of whole cards, as big as the screen allows
@@ -3203,7 +3197,7 @@ const Bots = (() => {
       if (c.trainerLegend && c.loc !== 0 || c.legend) return `<div class="gcell" style="width:${cellW}px"><div class="gback"><div class="pilebay" style="--pw:${cellW}px">${deckPile(null, { pw: cellW, count: 1, nobadge: true, dk: '#4527a0', svg: '<svg viewBox="0 0 100 140" width="100%" height="100%"><rect width="100" height="140" fill="#4527a0"/><text x="50" y="86" text-anchor="middle" font-size="56">🌟</text></svg>' })}</div></div>${star}</div>`;
       const ln = D.nodes.find(q => q.loc === c.loc); return `<div class="gcell" style="width:${cellW}px">${ln ? `<div class="gback tap" style="--pw:${cellW}px" data-act="eyeloc" data-id="${ln.id}" aria-label="${esc(ln.name)}">${deckPile(c.loc, { pw: cellW, count: 1, nobadge: true })}</div>` : `<div class="gback"><div class="pilebay" style="--pw:${cellW}px">${deckPile(null, { pw: cellW, count: 1, nobadge: true, dk: '#4527a0', svg: '<svg viewBox="0 0 100 140" width="100%" height="100%"><rect width="100" height="140" fill="#4527a0"/><text x="50" y="86" text-anchor="middle" font-size="56">⭐</text></svg>' })}</div></div>`}${star}</div>`;
     }).join('');
-    return `<div class="sheet" data-act="closeeye"><div class="box hbox" data-stop="1" style="height:auto;max-height:92vh;overflow:auto;max-width:96vw">${D.trainerArt && D.trainerArt[n.id] ? `<img class="pix infospr" src="data:image/png;base64,${D.trainerArt[n.id]}" alt="${esc(n.name)}">` : ''}<h2>${esc(n.name)}'s team</h2>
+    return `<div class="sheet" data-act="closeeye"><div class="box hbox" data-stop="1" style="height:auto;max-height:92vh;overflow:auto;max-width:96vw">${D.trainerArt && D.trainerArt[n.id] ? `<img class="pix infospr" src="data:image/png;base64,${D.trainerArt[n.id]}" alt="${esc(n.name)}">` : ''}<h2>${esc(n.name)}</h2>
       <p class="hcap" style="font-size:19px">${esc(T.stage)} · ${T.n} Pokémon, ${T.out || 'as many as your dice'} out at a time. The signature plays last. Tap a place to see what it holds.</p>
       <div class="gline">${cells}</div></div></div>`;
   }
@@ -3298,6 +3292,7 @@ const Bots = (() => {
       pl.animate([{ transform: `translate(${f.left + f.width / 2 - (r.left + r.width / 2)}px,${f.top + f.height / 2 - (r.top + r.height / 2)}px) scale(${f.width / r.width})` }, { transform: 'none' }], { duration: 950, easing: 'cubic-bezier(.2,.8,.2,1)' });
     }
     if (ui.drawFly != null) { const k = ui.drawFly; ui.drawFly = null; drawFly(k); }
+    { const mw = document.querySelector('.mapwrap'); if (mw && !mw.classList.contains('mmapbox')) { const k = +mw.dataset.k || 1; if (ui.mapX == null) { const f = D.nodes.find(q => q.kind === 'boss' && !G.done[q.id] && E.unlocked(G, q)); ui.mapX = f ? Math.max(0, (20 + f.stage * 190 + 95) * k - innerWidth / 2) : 0; } mw.scrollLeft = ui.mapX; mw.onscroll = () => { ui.mapX = mw.scrollLeft; }; mw.onpointerdown = ev => { if (ev.pointerType !== 'mouse') return; const x0 = ev.clientX, s0 = mw.scrollLeft; let moved = false; const mv = e2 => { if (Math.abs(e2.clientX - x0) > 5) moved = true; if (moved) mw.scrollLeft = s0 - (e2.clientX - x0); }, up = () => { removeEventListener('pointermove', mv); removeEventListener('pointerup', up); if (moved) ui.dragged = Date.now(); }; addEventListener('pointermove', mv); addEventListener('pointerup', up); }; } }
     if (ui.zoomFrom) { const bd = document.querySelector('.board'); if (bd) bd.animate([{ transform: 'scale(' + ui.zoomFrom + ')' }, { transform: 'scale(1)' }], { duration: 500, easing: 'ease-out' }); ui.zoomFrom = null; }
   }
 
@@ -3347,9 +3342,8 @@ const Bots = (() => {
     eyeloc(el) { ui.eyeBack = ui.eye; ui.eye = el.dataset.id; render(); }, eyeback() { ui.eye = ui.eyeBack; ui.eyeBack = null; render(); },
     node(el) {
       const n = E.node(el.dataset.id);
-      if (n.kind === 'plateau') { if (!E.unlocked(G, n)) return toast('Beat all eight gym leaders first'); ui.area = 'plateau'; render(); return; }
       if (n.mystery && !G.done.E4) return toast('A mystery opponent: beat Lance first');
-      if (!E.unlocked(G, n)) { return toast((n.needs.length ? 'Beat ' + n.needs.map(id => E.node(id).name).join(n.any ? ' or ' : ' and ') : '') + (n.dice ? (n.needs.length ? ' and have ' : 'Have ') + n.dice + ' dice' : '') + ' first'); }
+      if (!E.unlocked(G, n)) return toast(reqMsg(n));
       if (n.kind !== 'loc' && n.kind !== 'visitor' && G.done[n.id]) return toast('You already beat them!');
       if (ui.sweeping) return;
       if (n.kind === 'loc' && !E.deckSize(G, n.loc)) return toast('That deck is empty');

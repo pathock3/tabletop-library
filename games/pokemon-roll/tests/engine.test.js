@@ -270,8 +270,8 @@ test('campaign: areas open by beating the leader before them; dice come from Bro
   s.done.B4 = true; assert.ok(open().includes('B5') && open().includes('L6')); assert.ok(!open().includes('L8') && !open().includes('B8'));
   s.done.B6 = true; assert.ok(open().includes('B7') && open().includes('L7')); s.done.B5 = true; assert.ok(open().includes('L8') && open().includes('B8'), 'Koga opens Seafoam and Giovanni'); assert.ok(!open().includes('L9'));
   s.done.B7 = true; assert.ok(open().includes('L9')); delete s.done.B5; assert.ok(open().includes('B8'), 'Blaine alone opens Giovanni too'); s.done.B5 = true;
-  assert.ok(!open().includes('IP') && !open().includes('E1')); s.done.B8 = true; assert.equal(E._t.badges(s), 8);
-  assert.ok(open().includes('IP') && open().includes('E1') && !open().includes('E2')); s.done.E1 = true; assert.ok(open().includes('E2')); s.done.E2 = true; assert.ok(open().includes('E3')); s.done.E3 = true; assert.ok(open().includes('E4'));
+  assert.ok(!open().includes('E1')); s.done.B8 = true; assert.equal(E._t.badges(s), 8);
+  assert.ok(open().includes('E1') && !open().includes('E2')); s.done.E1 = true; assert.ok(open().includes('E2')); s.done.E2 = true; assert.ok(open().includes('E3')); s.done.E3 = true; assert.ok(open().includes('E4'));
   s.done.E4 = true; assert.ok(open().includes('F1') && open().includes('F2'));
   const t = E.newGame({ seed: 4, starter: 'squirtle' }); t.done.B1 = true; t.done.B3 = true; assert.equal(E.slots(t), 3, 'Surge first works too');
 });
@@ -697,8 +697,8 @@ test('v3: the Fighting Dojo is a visitor with three random Fighting cards, and e
 
 test('v3: beating Lance brings Blue and Red (a note, then a promised legendary); one special event at a time; the game is won when both are beaten; the Elite Four need all eight badges in order', () => {
   const s = E.newGame({ seed: 31, starter: 'bulbasaur' }); const open = () => D.nodes.filter(n => E.unlocked(s, n)).map(n => n.id);
-  ['B1', 'B2', 'B3', 'B4', 'B5', 'B6', 'B7'].forEach(k => { s.done[k] = true; }); assert.ok(!open().includes('E1') && !open().includes('IP'), 'seven badges are not enough'); s.done.B8 = true;
-  assert.ok(open().includes('IP') && open().includes('E1') && !open().includes('E2')); s.done.E1 = true; s.done.E2 = true; s.done.E3 = true; assert.ok(open().includes('E4') && !open().includes('F1') && !open().includes('F2'));
+  ['B1', 'B2', 'B3', 'B4', 'B5', 'B6', 'B7'].forEach(k => { s.done[k] = true; }); assert.ok(!open().includes('E1'), 'seven badges are not enough'); s.done.B8 = true;
+  assert.ok(open().includes('E1') && !open().includes('E2')); s.done.E1 = true; s.done.E2 = true; s.done.E3 = true; assert.ok(open().includes('E4') && !open().includes('F1') && !open().includes('F2'));
   s.phase = 'battle'; const b = T.startBattle(s, 'boss', 'E4', [{ id: '4.2', sh: 0 }], [{ id: '10', sh: 0 }]); b.hand = [[], []]; b.units[1].ko = true; b.units[1].hp = 0; b.cols = [[b.units[0].uid, b.units[1].uid]]; b.stage = 'resolved'; b.out = 'hero';
   s.bosses.E4 = [{ id: '10', sh: 0 }]; assert.ok(E.apply(s, { t: 'next' }).ok); assert.ok(s.notes.includes('rivals'), 'Blue and Red show up'); assert.ok(s.legendDue, 'a legendary is promised');
   s.res.pick = null; s.res.evolve = 0; E.apply(s, { t: 'done' }); assert.ok(s.legendMarker, 'it appears, in the event slot'); assert.ok(T.eventActive(s)); const seen = s.notes.length;
