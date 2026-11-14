@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- **Pokémon Roll! — trainer scenes:** each of the 14 trainers stands in front of a little scene of their own (Brock's Pewter cliffs, Misty's beach, Surge's tesla-coil gym, Erika's garden, Sabrina's Saffron night, Koga's hedge maze, Blaine's volcano, Giovanni behind his desk, Lorelei's ice cave, Bruno on a boulder, Agatha's graveyard, Lance's mountains, Blue's champion hall, Red's Mt. Silver), on the map tiles and at the top of the leader's team sheet. The sprites are still the original game art.
+
 - **Pokémon Roll! — battle batch (part 1):** Easy / Normal / Hard computer (Easy places and assigns at random; Hard weighs types and both sides' move ranges); in wild fights they play one card, then you may play a second, and the deck can only be drawn from after your second card is down; your latest placed card can be picked back up before the fight; long-press any card for a big view; trainer tiles on the map are no longer faded when ready; a gym leader's team shrinks to fit the box (nothing cut off).
 
 - **Pokémon Roll! — trainer info:** it now shows only the card backs of their team (no text, no signature label); a legendary has its own gold-and-violet back that says LEGENDARY.
