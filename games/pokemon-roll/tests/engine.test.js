@@ -640,7 +640,7 @@ test('cards: Chansey has 10 health; Snorlax says plainly that its Heal moves bec
 test('recall: only before the dice are rolled (afterwards a returned card would leave a spare die)', () => {
   const c = craft(['1.1', '4.1'], ['10', '13']), { s, b } = c;
   assert.ok(E.apply(s, { t: 'rollseen' }).ok); assert.equal(E.apply(s, { t: 'recall', uid: c.h(0).uid }).ok, false, 'after the roll: no');
-  const d = craft(['1.1', '4.1'], ['10', '13']); d.b.round = 2; assert.equal(E.apply(d.s, { t: 'recall', uid: d.h(0).uid }).ok, false, 'and not in later rounds');
+  const d = craft(['1.1', '4.1'], ['10', '13']); d.b.round = 2; assert.equal(E.apply(d.s, { t: 'recall', uid: d.h(0).uid }).ok, true, 'and in later rounds too, before the roll');
 });
 
 test('gym leaders: a card is only known once it has been put down in front of you', () => {
@@ -740,4 +740,19 @@ test('v3: matchup phase: matchless cards slide next to a matchless foe; a lone o
   assert.equal(E.apply(c.s, { t: 'matchslide', side: 1, uid: c.g(0).uid, to: 1 }).ok, false, 'not their turn');
   assert.ok(E.apply(c.s, { t: 'matchslide', side: 0, uid: c.h(1).uid, to: 2 }).ok); assert.equal(b.stage, 'assign'); assert.deepEqual(b.cols.map(col => [col[0], col[1]]), [[null, c.g(0).uid], [c.h(1).uid, c.g(2).uid]].filter(x => x[0] != null || x[1] != null).map(x => x), 'the hero card slid to face their card');
   assert.equal(B.step(c.s, 'master') === null || true, true);
+});
+
+test('v3: a card can be retreated in any round before the dice are rolled; its die goes with it', () => {
+  const c = craft(['10', '10', '10'], ['10', '10', '10']); const b = c.b; b.round = 3; assert.equal(b.dice[0].length, 3);
+  assert.ok(E.apply(c.s, { t: 'recall', uid: c.h(1).uid }).ok, 'retreat in round 3'); assert.equal(b.dice[0].length, 2, 'one die fewer'); assert.ok(c.h(1).ko && c.h(1).recalled);
+  b.rolled = true; assert.equal(E.apply(c.s, { t: 'recall', uid: c.h(0).uid }).ok, false, 'not once the dice have been rolled');
+});
+
+test('v3: a matchless card may pass one matchless opponent to match another, but never a fight', () => {
+  const c = craft(['10', '10', '10', '10'], ['10', '10', '10', '10']); const b = c.b; b.fcols = true; b.nOut = null;
+  b.units.forEach(u => { u.ko = true; }); [c.h(0), c.g(1), c.g(2)].forEach(u => { u.ko = false; });
+  b.cols = [[c.h(0).uid, null], [null, c.g(1).uid], [null, c.g(2).uid]];
+  assert.deepEqual(E.matchMoves(b, 0).map(m => m.to).sort(), [1, 2], 'the nearest lone enemy, or the one behind it');
+  [c.h(3), c.g(3)].forEach(u => { u.ko = false; }); b.cols = [[c.h(0).uid, null], [c.h(3).uid, c.g(3).uid], [null, c.g(2).uid]];
+  assert.deepEqual(E.matchMoves(b, 0).map(m => m.to), [], 'a fight in the way stops it');
 });
