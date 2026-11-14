@@ -604,3 +604,25 @@ test('ui: a gym leader with many cards shrinks them to fit; nothing is cut off a
     }
   } finally { await b.close(); }
 });
+
+test('ui: matchup phase: with two places to slide to you tap the card, then the empty spot; "Stay put" keeps it matchless', { skip: !chromium }, async () => {
+  const b = await chromium.launch(), p = await b.newPage({ viewport: { width: 820, height: 1180 } });
+  const errs = []; p.on('pageerror', e => errs.push(e.message));
+  try {
+    await p.goto(URL); await p.click('[data-act=new]'); await p.click('[data-act=starter][data-k=squirtle]'); await p.locator('[data-act=tipok]').click({ timeout: 800 }).catch(() => {});
+    await p.evaluate(() => { const R = window.__pokemonRoll, E = window.Engine || R.E; R.G.coll.push({ uid: 50, id: '10', sh: 0 }, { uid: 51, id: '16', sh: 0 }, { uid: 52, id: '19', sh: 0 }); R.render(); });
+    await p.click('.place[data-id=B1]'); await p.waitForSelector('[data-act=lendok]', { timeout: 3000 }).catch(() => {}); await p.click('.btn[data-act=lendok]').catch(() => {});
+    await p.locator('[data-act=tipok]').click({ timeout: 800 }).catch(() => {});
+    const ok = await p.evaluate(() => { const R = window.__pokemonRoll, G = R.G; let g; while ((g = Bots.step(G))) Engine.apply(G, g);
+      for (let i = 0; i < 8 && G.battle.stage === 'place'; i++) { if (G.battle.pl.side === 0 && G.battle.hand[0].length) Engine.apply(G, Object.assign({ t: 'place', side: 0, uid: G.battle.hand[0][0] }, Engine.slotsFor(G.battle, 0).find(x => x.join != null) || Engine.slotsFor(G.battle, 0)[0])); while ((g = Bots.step(G))) Engine.apply(G, g); }
+      const b = G.battle; if (!b || b.stage === 'place') return 'still placing';
+      const h = b.units.filter(u => u.side === 0), m = b.units.filter(u => u.side === 1); if (h.length < 1 || m.length < 2) return 'few units ' + h.length + m.length;
+      b.fcols = true; b.nOut = null; b.units.forEach(u => { u.ko = true; }); [h[0], m[0], m[1]].forEach(u => { u.ko = false; u.hp = Math.max(1, u.hp); });
+      b.cols = [[null, m[0].uid], [h[0].uid, null], [null, m[1].uid]]; b.stage = 'match'; b.mt = { side: 0, passed: [false, false] }; b.events = []; R.render(); return 'ok'; });
+    assert.equal(ok, 'ok');
+    assert.match(await p.innerText('.rail .status'), /Tap one/); await p.locator('.card[data-act=unit]:not(.foe)').first().click(); assert.match(await p.innerText('.rail .status'), /empty spot/);
+    assert.equal(await p.locator('[data-act=mslide]').count(), 2, 'both neighbours are open'); await p.locator('[data-act=mslide]').first().click();
+    assert.notEqual(await p.evaluate(() => window.__pokemonRoll.G.battle.stage), 'match', 'the slide happened and the round went on');
+    assert.deepEqual(errs, []);
+  } finally { await b.close(); }
+});

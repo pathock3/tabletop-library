@@ -1207,11 +1207,11 @@ const Engine = (() => {
   }
   const canExpand = s => { const b = s.battle; return b.mode === 'wild' && b.placed[0] < b.cap && b.hand[0].length > 0 && wildLeft(s, b) > 0; };
   function beginFight(s) {
-    const b = s.battle;
+    const b = s.battle, wasRefill = !!b.refill;
     if (b.nOut != null && b.hcards) { b.rsv[0] = b.hand[0].map(h => ({ id: b.hcards[h].id, sh: b.hcards[h].sh })); b.refill = false; }          // the cards you did not put out wait in reserve
     b.hand = [[], []]; if (b.hcards) b.hcards = {};
     if (b.fcols && b.mode === 'wild') b.cols = b.cols.filter(c => c[0] != null || c[1] != null);
-    nidoMax(b); startRound(s);
+    nidoMax(b); if (wasRefill) enterMatch(s); else startRound(s);
   }
   const rsvN = (b, side) => (b.rsv && b.rsv[side] ? b.rsv[side].length : 0);
   // after a round, a card knocked out is replaced from the reserve: they bring theirs (the signature last), then you pick yours; it drops into any empty column
@@ -1905,6 +1905,43 @@ const Engine = (() => {
     else if (b.round >= R.maxRounds || b.stall >= R.stallRounds) b.out = 'gm';
     else b.out = null;
   }
+  // ---------------------------------------------------------------- the matchup phase
+  // After knocked-out cards are replaced, a card whose opponent fell is "matchless". Only matchless cards move: one slides to a neighbouring column (vacant columns do not count; a column where a battle is going on is never crossed) whose opposing card is matchless too. The side with fewer cards on the field goes first (equal: the hero), then they alternate; a lone option is taken by itself.
+  const matchless = (b, sd, c) => c[sd] != null && c[other(sd)] == null && !U(b, c[sd]).ko;
+  function matchMoves(b, sd) {
+    const out = [], live = b.cols.map((c, i) => ({ c, i })).filter(x => x.c[0] != null || x.c[1] != null);
+    live.forEach((x, k) => {
+      if (!matchless(b, sd, x.c)) return;
+      [live[k - 1], live[k + 1]].forEach(y => { if (y && y.c[sd] == null && y.c[other(sd)] != null && !U(b, y.c[other(sd)]).ko) out.push({ uid: x.c[sd], from: x.i, to: y.i }); });
+    });
+    return out;
+  }
+  function closeVacant(b) { b.cols = b.cols.filter(c => c[0] != null || c[1] != null); }
+  function enterMatch(s) {
+    const b = s.battle; closeVacant(b);
+    if (!matchMoves(b, 0).length && !matchMoves(b, 1).length) { startRound(s); return; }
+    const h = living(b, 0).length, g = living(b, 1).length;
+    b.stage = 'match'; b.events = []; b.mt = { side: h <= g ? 0 : 1, passed: [false, false] }; autoMatch(s);
+  }
+  function applyMatch(s, mv) {
+    const b = s.battle, u = U(b, mv.uid), sd = u.side;
+    b.cols[mv.from][sd] = null; b.cols[mv.to][sd] = u.uid;
+    ev(b, { t: 'text', msg: CARDS[u.id].name + ' slides over to ' + CARDS[U(b, b.cols[mv.to][other(sd)]).id].name });
+    enterHit(s, b, u, mv.to); closeVacant(b);
+  }
+  // runs the turns that need no decision: a side with no move passes, a lone move is taken; stops when the hero (or the computer's own thinking) has to choose
+  function autoMatch(s) {
+    const b = s.battle;
+    for (let g = 0; g < 30; g++) {
+      const sd = b.mt.side, mv = matchMoves(b, sd);
+      if (!mv.length) { b.mt.passed[sd] = true; }
+      else if (mv.length === 1) { applyMatch(s, mv[0]); b.mt.passed = [false, false]; }
+      else return;                                            // a choice
+      if (b.mt.passed[0] && b.mt.passed[1] || (!matchMoves(b, 0).length && !matchMoves(b, 1).length)) { closeVacant(b); b.mt = null; startRound(s); return; }
+      b.mt.side = other(sd);
+    }
+    closeVacant(b); b.mt = null; startRound(s);
+  }
   // after a round: knocked-out cards leave, and cards left without a matchup find one
   function cleanUp(s) {
     const b = s.battle;
@@ -2053,7 +2090,7 @@ const Engine = (() => {
         if (hauntAsk(b)) return 'Haunter may keep an ability first'; b.haunt = null;
         if (b.out === 'hero' || b.out === 'gm') { cleanUp(s); endBattle(s, b.out === 'hero'); return null; }
         if (b.out === 'sudden') { suddenDeath(s); return null; }
-        cleanUp(s); if (needRefill(b)) { startRefill(s); return null; } startRound(s); return null;
+        cleanUp(s); if (needRefill(b)) { startRefill(s); return null; } if (b.fcols) enterMatch(s); else startRound(s); return null;
       }
       case 'recall': {                                                // take one of your cards out of the fight (it goes back to your collection unharmed): a way out of tricky spots
         if (b.stage !== 'assign' || b.rolled || b.round > 1) return 'only before the dice are rolled'; const u = U(b, a.uid);          // after the roll a returned card would leave a spare die
@@ -2066,6 +2103,12 @@ const Engine = (() => {
         dropEmpty(b);
         ev(b, { t: 'text', msg: CARDS[u.id].name + ' is called back' }); return null;
       }
+      case 'matchslide': case 'matchpass': {
+        if (b.stage !== 'match' || !b.mt || b.mt.side !== a.side) return 'not your turn to slide';
+        if (a.t === 'matchpass') { b.mt.passed[a.side] = true; b.mt.side = other(a.side); if (b.mt.passed[0] && b.mt.passed[1]) { closeVacant(b); b.mt = null; startRound(s); } else autoMatch(s); return null; }
+        const mv = matchMoves(b, a.side).find(m => m.uid === a.uid && m.to === a.to); if (!mv) return 'that card cannot slide there';
+        b.events = []; applyMatch(s, mv); b.mt.passed = [false, false]; b.mt.side = other(a.side); autoMatch(s); return null;
+      }
       case 'rollseen': if (b && b.stage === 'assign') b.rolled = true; return null;
       case 'forfeit': endBattle(s, false); return null;
     }
@@ -2077,7 +2120,7 @@ const Engine = (() => {
     if (v.battle && v.battle.stage === 'assign') { const o = other(side); v.battle.dice[o] = v.battle.dice[o].map(() => 0); v.battle.asg[o] = {}; }
     return v;
   }
-  return { starterShiny, repair, endBattle, visitorNode, slideOpts, autoChoice, hauntAsk, blocksMove, colorBonus, faceOrder: layMoves, _t: { blkMult, buildTeam, badges, repair, maybeSpecial, eventActive, releaseTeam, startBattle, startRound, resolveRound, cleanUp, drawWild }, handOf, canExpand, apply, newGame, chooseStarter, viewFor, CARDS, parseMove, parseSpecial, tagsOf, tags, preview, bestClause, chosenMove, candidates, pickTargets, amountOf, slotsFor, readyToGo, assignedDice, living, colIdx, U, rnd, ri, shuffle, node, starterOf, rivalFor, slots, unlocked, deckSize, heroCount, gmCount, typeOf, wm, hitValue, parseSpec, clauseValue, effectsOf, D, R };
+  return { matchMoves, starterShiny, repair, endBattle, visitorNode, slideOpts, autoChoice, hauntAsk, blocksMove, colorBonus, faceOrder: layMoves, _t: { blkMult, buildTeam, badges, repair, maybeSpecial, eventActive, releaseTeam, startBattle, startRound, resolveRound, cleanUp, drawWild }, handOf, canExpand, apply, newGame, chooseStarter, viewFor, CARDS, parseMove, parseSpecial, tagsOf, tags, preview, bestClause, chosenMove, candidates, pickTargets, amountOf, slotsFor, readyToGo, assignedDice, living, colIdx, U, rnd, ri, shuffle, node, starterOf, rivalFor, slots, unlocked, deckSize, heroCount, gmCount, typeOf, wm, hitValue, parseSpec, clauseValue, effectsOf, D, R };
 })();
 
 </script>
@@ -2234,9 +2277,19 @@ const Bots = (() => {
     return cur < avg - 0.01 ? { t: 'reroll', side } : null;
   }
   // the next thing the computer's side does, or null if it is the player's move
+  // the matchup phase: slide a matchless card next to a foe it fares well against (Easy: any slide; Hard may stay put rather than take a bad matchup)
+  function matching(s, side, level) {
+    const b = s.battle, mv = E.matchMoves(b, side); if (!mv.length) return { t: 'matchpass', side };
+    const lv = (E.D.ai || {})[level] || {}, sc = m => matchScore(E.U(b, m.uid), E.U(b, b.cols[m.to][other(side)]));
+    if (lv.placeRandom >= 1) return Object.assign({ t: 'matchslide', side }, pick(s, mv));
+    const best = mv.slice().sort((a, c) => sc(c) - sc(a))[0];
+    if (lv.placeSmart >= 2 && sc(best) < -3) return { t: 'matchpass', side };
+    return Object.assign({ t: 'matchslide', side }, best);
+  }
   function step(s, level) {
     const b = s.battle; if (!b) return null; level = level || s.ai || 'normal';
     if (b.stage === 'place' && b.pl && b.pl.side === 1) return placement(s, 1, level);
+    if (b.stage === 'match' && b.mt && b.mt.side === 1) return matching(s, 1, level);
     if (b.colMode && b.stage === 'assign') {
       if (!b.rolled) { const m = b.round === 1 || !Object.keys(b.acted).length ? movements(s, 1, level) : null; return m || null; }      // its dice wait for your roll
       if (!b.gmReady) { const rr = colReroll(s, 1, level); if (rr && (b.gmRe = (b.gmRe || 0) + 1) <= 3) return rr; b.gmRe = 0; return { t: 'gm', asg: [] }; }
@@ -2255,6 +2308,7 @@ const Bots = (() => {
   function heroStep(s, level) {
     level = level || 'master';
     const b = s.battle;
+    if (b && b.stage === 'match' && b.mt && b.mt.side === 0) return matching(s, 0, level);
     if (s.phase === 'map') {
       const open = E.D.nodes.filter(n => E.unlocked(s, n) && !(n.kind === 'boss' && s.done[n.id]));
       const ready = open.filter(n => n.kind === 'boss' && s.coll.length >= E.gmCount(s, n, 0));
@@ -2978,6 +3032,7 @@ const trainerFg = {
     const H = viewH(), RW = innerWidth >= 1000 ? 212 : innerWidth >= 700 ? 160 : innerWidth >= 500 ? 150 : 118, W = Math.min(innerWidth, 1000 + RW) - RW;
     const selected = ui.sel != null && b.hand[0].indexOf(ui.sel) >= 0 ? ui.sel : null;
     const yourPlace = placing && b.pl.side === 0;
+    const matching = b.stage === 'match' && !!b.mt, yourMatch = matching && b.mt.side === 0, mvs = yourMatch ? E.matchMoves(b, 0) : [], movers = new Set(mvs.map(m => m.uid)), msel = ui.msel != null && movers.has(ui.msel) ? ui.msel : null;
     const insAts = yourPlace && selected != null ? E.slotsFor(b, 0).filter(sl => sl.at != null).map(sl => sl.at) : [];       // where a new column could go: each one is shown as a spot the size of a card
     const m = Math.max(1, b.cols.length + insAts.length, b.mode === 'wild' ? b.cap : Math.max(b.need[0], b.need[1]));
     const cwW = Math.floor((W - 8 - (m + 1) * 4 - m * 6) / m), cwH = Math.floor((H - 10 - 2) / 2 / CH);
@@ -3022,13 +3077,14 @@ const trainerFg = {
       }
       const pf = assign && !waitRoll && u.side === 0 && !ko && ui.die != null ? b.dice[0][ui.die] : 0;
       const dcol1 = null, dbonus = false;
-      return card(u, { cw, dieCol: dcol1, dieBonus: dbonus, foe: u.side === 1, ko: koOf(u), hp: hpOf(u), start: (b.stage === 'assign' || b.stage === 'place') ? hpOf(u) : (b.before && b.before[u.uid] != null ? b.before[u.uid] : hpOf(u)), shield: u.shield || 0, face, sp: spOn, pf, die, chg: chgOf(u), land: ui.landed === u.uid, heroDie: u.side === 0, dieAttr: !colM && u.side === 0 && assign && !(info && b.fixed && b.fixed[0] && info.die.some(i => b.fixed[0][i])) ? `data-act="unmv" data-uid="${u.uid}"${info && info.die.length === 1 ? ` data-i="${info.die[0]}"` : ''}` : '', mark, ab: abil, recall: '', cls: clsOf(u) + (ui.returning && u.side === 0 && !ko ? ' sel act' : '') + (ui.slide && ui.slide.opts.indexOf(u.uid) >= 0 ? ' sel act' : '') + (ui.swap && u.side === 1 && !ko ? (ui.swap.picks.indexOf(u.uid) >= 0 ? ' sel act' : ' sel') : ''), pop: popOf(u), attr: ui.returning && u.side === 0 && !ko ? `data-act="recallpick" data-uid="${u.uid}"` : ui.slide && ui.slide.opts.indexOf(u.uid) >= 0 ? `data-act="slide" data-uid="${u.uid}"` : `data-act="unit" data-uid="${u.uid}"` });
+      return card(u, { cw, dieCol: dcol1, dieBonus: dbonus, foe: u.side === 1, ko: koOf(u), hp: hpOf(u), start: (b.stage === 'assign' || b.stage === 'place') ? hpOf(u) : (b.before && b.before[u.uid] != null ? b.before[u.uid] : hpOf(u)), shield: u.shield || 0, face, sp: spOn, pf, die, chg: chgOf(u), land: ui.landed === u.uid, heroDie: u.side === 0, dieAttr: !colM && u.side === 0 && assign && !(info && b.fixed && b.fixed[0] && info.die.some(i => b.fixed[0][i])) ? `data-act="unmv" data-uid="${u.uid}"${info && info.die.length === 1 ? ` data-i="${info.die[0]}"` : ''}` : '', mark, ab: abil, recall: '', cls: clsOf(u) + (ui.returning && u.side === 0 && !ko ? ' sel act' : '') + (ui.slide && ui.slide.opts.indexOf(u.uid) >= 0 ? ' sel act' : '') + (movers.has(u.uid) ? (msel === u.uid ? ' sel act' : ' sel') : '') + (ui.swap && u.side === 1 && !ko ? (ui.swap.picks.indexOf(u.uid) >= 0 ? ' sel act' : ' sel') : ''), pop: popOf(u), attr: ui.returning && u.side === 0 && !ko ? `data-act="recallpick" data-uid="${u.uid}"` : ui.slide && ui.slide.opts.indexOf(u.uid) >= 0 ? `data-act="slide" data-uid="${u.uid}"` : `data-act="unit" data-uid="${u.uid}"` });
     };
     const slotHtml = (ci, side) => {
       const uid = b.cols[ci][side];
       if (uid != null) return unitCard(E.U(b, uid));
+      const mok = msel != null && side === 0 && mvs.some(m => m.uid === msel && m.to === ci);
       const ok = yourPlace && selected != null && side === 0 && E.slotsFor(b, 0).some(s => s.join === ci);
-      return `<div class="slot${ok ? ' ok' : ''}" style="--cw:${cw}px" ${ok ? `data-act="join" data-col="${ci}"` : ''}>${ok ? '＋' : ''}</div>`;
+      return `<div class="slot${ok || mok ? ' ok' : ''}" style="--cw:${cw}px" ${mok ? `data-act="mslide" data-to="${ci}"` : ok ? `data-act="join" data-col="${ci}"` : ''}>${ok || mok ? '＋' : ''}</div>`;
     };
     const canIns = insAts.length > 0;
     const ins = at => canIns && insAts.indexOf(at) >= 0 ? `<div class="col insc" style="--cw:${cw}px"><div class="slot ghost"></div><div class="slot ok" data-act="ins" data-at="${at}">＋</div></div>` : '';
@@ -3043,6 +3099,7 @@ const trainerFg = {
     let status = '', btns = '';
     const opt = yourPlace && b.pl.optional, canDraw = opt && b.pl.canDraw;
     if (placing) status = (b.sudden ? 'SUDDEN DEATH · ' : '') + (yourPlace ? (selected != null ? 'Now tap where it goes' : opt ? (canDraw ? 'Tap the deck for them to bring one first, put down another card, or Fight!' : 'Put down another card, or press Fight!') : 'Pick a Pokémon from your hand to put down') : 'They are putting a card down…');
+    else if (matching) { status = yourMatch ? (msel != null ? 'Tap the empty spot to slide there' : 'Cards with no opponent may slide next to a lone enemy. Tap one.') : 'They are choosing where to slide…'; btns = yourMatch ? `<button class="btn alt" data-act="mpass">Stay put</button>` : ''; }
     else if (assign && ui.returning) { status = 'Tap the Pokémon to return'; btns = `<button class="btn alt" data-act="retmode">Cancel</button>`; }
     else if (assign && ui.slide) { status = 'Slide a neighbour over to face the opponent? Tap it.'; btns = `<button class="btn alt" data-act="slideno">Leave it empty</button>`; }
     else if (waitRoll) status = '<span class="rollhint">🎲 Tap anywhere to roll</span>';
@@ -3443,6 +3500,7 @@ const trainerFg = {
     unit(el) {
       const b = G.battle, u = E.U(b, +el.dataset.uid); if (!u) return;
       if (b.stage === 'place' && u.side === 0 && b.pl && b.pl.side === 0 && (u.uid === b.lastMine || b.refill)) { const before = new Set(b.hand[0]); if (act({ t: 'pickup', uid: u.uid })) { const nb = G.battle.hand[0].find(h => !before.has(h)); ui.sel = nb != null ? nb : null; render(); } return; }          // your latest card (or any, while replacing a fallen one) comes back to your hand, ready to put somewhere else
+      if (b.stage === 'match' && b.mt && b.mt.side === 0) { const mv = E.matchMoves(b, 0).filter(m => m.uid === u.uid); if (mv.length) { ui.msel = ui.msel === u.uid ? null : u.uid; render(); return; } }
       if (b.ask && b.ask.kind === 'yn') return;
       if (b.ask && b.ask.kind === 'alloc') { if (b.ask.opts.some(o => o[0] === u.uid) && act({ t: 'alloc', tgt: u.uid })) { const p = ui.play; if (p && !b.ask) { absorbEvents(); p.waiting = false; nextBeat(); } else if (!p && !b.ask) startPlay(); } return; }
       if (b.ask && (!ui.play || ui.play.waiting)) {                                 // an "or": settled on this card's turn
@@ -3460,6 +3518,7 @@ const trainerFg = {
       } else { ui.big = { id: u.id, sh: u.sh }; render(); }          // nothing else to do with this card: show it big
     },
     bigclose() { ui.big = null; render(); },
+    mslide(el) { const uid = ui.msel; ui.msel = null; act({ t: 'matchslide', side: 0, uid, to: +el.dataset.to }); render(); }, mpass() { ui.msel = null; act({ t: 'matchpass', side: 0 }); },
     unmv(el) { const b = G.battle; if (b.stage === 'assign') act({ t: 'unassign', side: 0, uid: +el.dataset.uid }); },
     decide(el) { if (act({ t: 'decide', yes: el.dataset.yes === '1' })) { const p = ui.play; if (p) { absorbEvents(); p.waiting = false; nextBeat(); } else startPlay(); } },
     mv(el) { act({ t: 'move', side: 0, uid: +el.dataset.uid, dir: +el.dataset.dir }); },

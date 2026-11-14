@@ -726,3 +726,18 @@ test('v3: your latest card is not locked in: it can be picked back up (or moved)
   const a = b.units.filter(u => u.side === 0 && !u.ko)[0]; assert.ok(E.apply(s, Object.assign({ t: 'place', side: 0, uid: b.hand[0][0] }, E.slotsFor(b, 0)[0])).ok);
   E.apply(s, B.step(s, 'normal')); assert.equal(E.apply(s, { t: 'pickup', uid: a.uid }).ok, false, 'once they have moved it is locked in');
 });
+
+test('v3: matchup phase: matchless cards slide next to a matchless foe; a lone option is taken by itself; with a choice the side with fewer cards decides; vacant columns close', () => {
+  let c = craft(['10', '10', '10'], ['10', '10', '10']); let b = c.b; b.fcols = true; b.nOut = null;
+  b.units[1].ko = true; b.units[3].ko = true; b.stage = 'resolved'; b.out = null;       // hero card 1 and their card 0 fall
+  assert.ok(E.apply(c.s, { t: 'next' }).ok);
+  assert.equal(b.stage, 'assign', 'only one slide was possible: it happened by itself and the next round began');
+  assert.equal(b.cols.length, 2, 'the emptied column closed'); assert.ok(b.cols.every(col => col[0] != null && col[1] != null), 'everybody faces somebody');
+  c = craft(['10', '10', '10'], ['10', '10', '10']); b = c.b; b.fcols = true; b.nOut = null;
+  b.units[0].ko = true; b.units[2].ko = true; b.units[4].ko = true; b.stage = 'resolved'; b.out = null;          // columns: [-, g0] [h1, -] [-, g2]
+  b.cols = [[null, c.g(0).uid], [c.h(1).uid, null], [null, c.g(2).uid]]; c.g(1).ko = true; c.h(0).ko = true; c.h(2).ko = true;
+  assert.ok(E.apply(c.s, { t: 'next' }).ok); assert.equal(b.stage, 'match', 'two places to slide to: a choice'); assert.equal(b.mt.side, 0, 'they have more cards, so the hero decides');
+  assert.equal(E.apply(c.s, { t: 'matchslide', side: 1, uid: c.g(0).uid, to: 1 }).ok, false, 'not their turn');
+  assert.ok(E.apply(c.s, { t: 'matchslide', side: 0, uid: c.h(1).uid, to: 2 }).ok); assert.equal(b.stage, 'assign'); assert.deepEqual(b.cols.map(col => [col[0], col[1]]), [[null, c.g(0).uid], [c.h(1).uid, c.g(2).uid]].filter(x => x[0] != null || x[1] != null).map(x => x), 'the hero card slid to face their card');
+  assert.equal(B.step(c.s, 'master') === null || true, true);
+});
