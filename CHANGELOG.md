@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- **Pokémon Roll! — battle:** cards are bigger and the two teams sit right next to each other (no gap between them); in trainer fights each side shows a Poké Ball per Pokémon, and a different ball for each one that has fallen; you appear as the boy or the girl (Crystal's player art; pick in Settings or on Oak's card).
+
 - **Pokémon Roll! — map, Pokédex, placing:** the map groups what a leader unlocks on a tinted panel with a solid arrow from the leader (more space between columns and routes, gym leaders through the middle, no special-event slot unless there is an event); the Pokédex profile shows each version's card with its location (the back of the card, same size) right beside it, or Unknown/Starter, with Caught and Shiny chips under it; ghost cards show "weak: Enemy heals ×2"; drag cards from your hand onto a spot, drag a card you just put down back to your hand or onto another spot (tapping it only lights it up); in landscape the instructions sit in the top bar and your hand matches the board's card size; anything entering a column faces the "when enemies enter this column" burn however it got there.
 
 - **Pokémon Roll! — retreat, passing, scenes in battle:** a card can be retreated in any round before the dice are rolled (each round now waits for a tap to roll, and the card's die goes with it); a matchless card may pass one matchless opponent to match another; the trainer's scene shows on the battle header/side bar and on the gym piles' card backs.

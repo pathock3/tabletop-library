@@ -646,3 +646,15 @@ test('ui: while you place, your hand is fanned out under a smaller board (no col
     }
   } finally { await b.close(); }
 });
+
+test('ui: in a trainer fight both sides show a ball for each Pokémon (a different ball for a fallen one) and you stand there as the boy or girl you chose', { skip: !chromium }, async () => {
+  const b = await chromium.launch(), p = await b.newPage({ viewport: { width: 1180, height: 820 } });
+  try {
+    await p.goto(URL); await p.click('[data-act=new]'); await p.click('[data-act=starter][data-k=squirtle]'); await p.locator('[data-act=tipok]').click({ timeout: 800 }).catch(() => {});
+    await p.evaluate(() => window.__pokemonRoll.A.avatar({ dataset: { v: 'F' } })); assert.equal(await p.evaluate(() => window.__pokemonRoll.set.avatar), 'F', 'the girl can be chosen');
+    await p.evaluate(() => { const R = window.__pokemonRoll, G = R.G; G.coll.push({ uid: 50, id: '10', sh: 0 }); R.render(); }); await p.click('.place[data-id=B1]'); await p.waitForSelector('[data-act=lendok]', { timeout: 3000 }).catch(() => {}); await p.click('.btn[data-act=lendok]').catch(() => {}); await p.locator('[data-act=tipok]').click({ timeout: 800 }).catch(() => {});
+    await p.evaluate(() => { let g; while ((g = Bots.step(window.__pokemonRoll.G))) Engine.apply(window.__pokemonRoll.G, g); const G = window.__pokemonRoll.G; for (let i = 0; i < 8 && G.battle.stage === 'place'; i++) { if (G.battle.pl.side === 0 && G.battle.hand[0].length) Engine.apply(G, Object.assign({ t: 'place', side: 0, uid: G.battle.hand[0][0] }, Engine.slotsFor(G.battle, 0)[0])); while ((g = Bots.step(G))) Engine.apply(G, g); } window.__pokemonRoll.render(); });
+    assert.ok(await p.locator('.rail .balls').count() >= 2, 'a row of balls for them and for you'); assert.ok(await p.locator('.rail .me img').count() === 1, 'your sprite is there');
+    await p.evaluate(() => { const b = window.__pokemonRoll.G.battle; b.units.find(u => u.side === 1).ko = true; window.__pokemonRoll.render(); }); assert.ok(await p.locator('.rail .balls svg[aria-label=defeated]').count() >= 1, 'a fallen Pokémon has its own ball');
+  } finally { await b.close(); }
+});
