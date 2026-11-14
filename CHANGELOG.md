@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- **Pokémon Roll! — placing layout:** while you place cards, the board is smaller and your hand is fanned out under it (like Your cards on the map) instead of a thin column on the right; when the fight starts the hand flies off the bottom and the board zooms to full size. Level and menu buttons sit in a slim bar on top.
+
 - **Pokémon Roll! — matchup phase:** after fallen cards are replaced, a card whose opponent fell may slide to a neighbouring column facing a lone enemy (never across a fight; vacant columns close). The side with fewer cards on the field goes first (equal: you), a single option is taken by itself, with a choice you tap the card and then the empty spot, or press Stay put. The computer slides by its level (Easy at random, Hard avoids bad matchups).
 
 - **Pokémon Roll! — trainer scenes:** each of the 14 trainers stands in front of a little scene of their own (Brock's Pewter cliffs, Misty's beach, Surge's tesla-coil gym, Erika's garden, Sabrina's Saffron night, Koga's hedge maze, Blaine's volcano, Giovanni behind his desk, Lorelei's ice cave, Bruno on a boulder, Agatha's graveyard, Lance's mountains, Blue's champion hall, Red's Mt. Silver), on the map tiles and at the top of the leader's team sheet. The sprites are still the original game art.

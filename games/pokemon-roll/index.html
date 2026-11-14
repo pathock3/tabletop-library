@@ -515,8 +515,16 @@ button{font:inherit;color:inherit;border:0;cursor:pointer}
 .slotb,.slotb *{color:#14110f!important}.slotb b{font-size:21px!important}.slotx{color:#14110f}.slotx.ask{color:#fff}
 .gline{gap:18px!important}.gcell{display:flex!important;flex-direction:column;align-items:center}
 .gline{gap:20px!important}
-.pilebay{position:relative}.pilebay .eye{bottom:-4px;right:-4px}
+.pilebay{position:relative}.pilebay .eye{position:absolute;bottom:-4px;right:-4px;width:30px;height:30px;border-radius:50%;background:#fff;color:#14110f;border:3px solid #14110f;display:grid;place-items:center;font:900 18px/1 Georgia,serif;z-index:3}
 .card{-webkit-touch-callout:none;-webkit-user-select:none;user-select:none}
+</style>
+<style>
+.bt.pl{flex-direction:column}.bt.pl .board{flex:none;width:100%;min-width:0;overflow-x:auto;overflow-y:hidden}
+.phead{flex:none;height:52px;display:flex;align-items:center;gap:10px;padding:0 10px}.ptr{flex:1;display:flex;align-items:center;gap:8px;font:900 20px system-ui;min-width:0}.ptr img{width:44px;height:44px;image-rendering:pixelated}
+.pstat{flex:none;height:78px;box-sizing:border-box;display:flex;align-items:center;justify-content:center;gap:14px;padding:4px 12px}.pstat .status{margin:0;flex:1;text-align:center;font-size:20px;max-width:420px}.pstat .pilebay{flex:none}
+.pfan{flex:none;display:flex;justify-content:center;align-items:flex-end;overflow:hidden;padding:6px 0 16px;box-sizing:border-box}.pfan .pc{flex:none;transform-origin:50% 100%;transition:transform .18s}
+.fanaway{position:fixed;left:0;right:0;bottom:0;display:flex;justify-content:center;align-items:flex-end;overflow:hidden;pointer-events:none;z-index:40;animation:fanaway .6s cubic-bezier(.5,0,.8,.4) forwards}.fanaway .pfan{height:100%!important}
+@keyframes fanaway{to{transform:translateY(120%) rotate(6deg);opacity:0}}
 </style>
 <script id="data">
 /* Pokémon Roll! — every rule number, the map, the bosses, the card sheet and the art live here. The engine and bots read this and hard-code none of it. */
@@ -3029,14 +3037,14 @@ const trainerFg = {
   function battleScreen() {
     const b = G.battle, p = ui.play, placing = b.stage === 'place', assign = b.stage === 'assign', done = b.stage === 'resolved' && !p;
     // one screen: the cards fill it top to bottom, and everything else (your hand, the dice, the buttons) lives in a column down the right
-    const H = viewH(), RW = innerWidth >= 1000 ? 212 : innerWidth >= 700 ? 160 : innerWidth >= 500 ? 150 : 118, W = Math.min(innerWidth, 1000 + RW) - RW;
+    const H = viewH(), RW = placing ? 0 : innerWidth >= 1000 ? 212 : innerWidth >= 700 ? 160 : innerWidth >= 500 ? 150 : 118, W = Math.min(innerWidth, 1000 + RW) - RW, HEAD = 52, STAT = 78, nH = placing ? E.handOf(b, 0).length : 0, FCW = Math.max(64, Math.min(260, Math.floor(H * .36 / CH), nH > 1 ? Math.floor((innerWidth - 20) / (1 + (nH - 1) * .62)) : 260)), HH = placing ? Math.ceil(FCW * CH) + 36 : 0, HB = placing ? H - HEAD - STAT - HH : H;       // while you place, the board is smaller with your hand fanned out under it
     const selected = ui.sel != null && b.hand[0].indexOf(ui.sel) >= 0 ? ui.sel : null;
     const yourPlace = placing && b.pl.side === 0;
     const matching = b.stage === 'match' && !!b.mt, yourMatch = matching && b.mt.side === 0, mvs = yourMatch ? E.matchMoves(b, 0) : [], movers = new Set(mvs.map(m => m.uid)), msel = ui.msel != null && movers.has(ui.msel) ? ui.msel : null;
     const insAts = yourPlace && selected != null ? E.slotsFor(b, 0).filter(sl => sl.at != null).map(sl => sl.at) : [];       // where a new column could go: each one is shown as a spot the size of a card
     const m = Math.max(1, b.cols.length + insAts.length, b.mode === 'wild' ? b.cap : Math.max(b.need[0], b.need[1]));
-    const cwW = Math.floor((W - 8 - (m + 1) * 4 - m * 6) / m), cwH = Math.floor((H - 10 - 2) / 2 / CH);
-    const cw = Math.max(insAts.length ? 90 : 120, Math.min(320, cwW, cwH)), hcw = Math.max(80, Math.min(180, RW - 30));
+    const cwW = Math.floor((W - 8 - (m + 1) * 4 - m * 6) / m), cwH = Math.floor((HB - 10 - 2) / 2 / CH);
+    const cw = Math.max(insAts.length ? 90 : 120, Math.min(320, cwW, cwH)), hcw = placing ? 0 : Math.max(80, Math.min(180, RW - 30));
     if (ui.lastTurn === G.turn && ui.lastCw && ui.lastCw !== cw) ui.zoomFrom = ui.lastCw / cw; ui.lastCw = cw; ui.lastTurn = G.turn;       // if the board changes size, it zooms rather than jumps
     const colM = !!b.colMode, waitRoll = assign && (colM ? !b.rolled : b.round === 1 && ui.rollTap !== G.turn);                       // every card's roll is a tap
     const rollKey = colM ? b.round + ':' + b.cur : b.round;
@@ -3121,16 +3129,29 @@ const trainerFg = {
       const canRe = !rolling && b.rr[0] > 0 && freeDice.length > 0, canFree = !rolling && ui.die != null && !lk[ui.die] && b.rrFace[0].indexOf(hd[ui.die]) >= 0 && !b.rrUsed[0][ui.die];
       btns = `${canAutoAssign(b) && !rolling ? '<button class="btn big" data-act="autoassign">Auto-assign</button>' : ''}${b.rr[0] > 0 ? `<button class="btn alt" data-act="reroll" ${canRe ? '' : 'disabled'}>🔄 Reroll</button>` : ''}${canFree ? '<button class="btn alt" data-act="rerollfree">🔄 Free reroll</button>' : ''}`;
     }
-    const nodeB = E.node(b.node), pw = Math.max(64, Math.min(96, RW - 70));
+    const nodeB = E.node(b.node), pw = placing ? 54 : Math.max(64, Math.min(96, RW - 70));
     const pileHtml = placing && nodeB.kind === 'visitor' ? `<div class="pilebay${canDraw ? ' tappable' : ''}" style="--pw:${pw}px" ${canDraw ? 'data-act="drawdeck"' : ''}>${deckPile(null, { pw, count: b.bill ? b.bill.length : 0, svg: `<svg viewBox="0 0 100 140" width="100%" height="100%"><rect width="100" height="140" fill="#3949ab"/><image href="data:image/png;base64,${D.trainerArt[nodeB.art]}" x="8" y="30" width="84" height="84" style="image-rendering:pixelated"/></svg>`, dk: '#283593' })}</div>` : placing && nodeB.kind === 'loc' ? `<div class="pilebay${canDraw ? ' tappable' : ''}" style="--pw:${pw}px" ${canDraw ? 'data-act="drawdeck"' : ''}>${deckPile(nodeB.loc, { pw, count: E.deckSize(G, nodeB.loc) })}<div class="eye" data-act="eye" data-id="${nodeB.id}" aria-label="What this holds">i</div></div>` : placing && nodeB.kind === 'boss' ? `<div class="pilebay" style="--pw:${pw}px">${deckPile(null, { pw, count: b.hand[1].length, svg: gymBack(nodeB), dk: gymPal(nodeB)[0] })}<div class="eye" data-act="eye" data-id="${nodeB.id}" aria-label="What this holds">i</div></div>` : '';
     const autoOk = assign && !colM && b.gmReady && !E.readyToGo(b, 0) && noDecision(b), goReady = assign && !waitRoll && !rolling && !ui.slide && !asking && (colM ? b.gmReady : (E.readyToGo(b, 0) || autoOk) && b.gmReady);
     const canReturn = assign && !colM && !b.rolled && b.round === 1 && E.living(b, 0).length > 1;
     if (ui.returning && !canReturn) ui.returning = false;
     const fight = opt ? '<button class="btn big" data-act="ready">Fight!</button>' : '';
     const trainerHtml = nodeB.kind !== 'loc' && D.trainerArt && D.trainerArt[nodeB.art || nodeB.id] ? `<div class="trainer"><img class="pix" src="data:image/png;base64,${D.trainerArt[nodeB.art || nodeB.id]}" alt="${esc(nodeB.name)}"><b>${esc(nodeB.name)}</b></div>` : '';
+    // your hand, fanned out under the board while you place (the same fan as "Your cards"); it flies off when the fight starts
+    let fanHtml = '';
+    if (placing) {
+      const hand = teamSort(E.handOf(b, 0), hc => hc.hid != null ? hc.hid : hc.uid), n = hand.length, Hh = HH, fcw = FCW, step = Math.round(fcw * .62);
+      fanHtml = `<div class="pfan" style="height:${Hh}px">${hand.map((hc, i) => { const k = hc.hid != null ? hc.hid : hc.uid, a = Math.max(-9, Math.min(9, (i - (n - 1) / 2) * 2.6)), y = Math.round(Math.abs(a) * 1.8) + (k === selected ? -16 : 0);
+        return `<div class="pc${k === selected ? ' on' : ''}" style="margin-left:${i ? step - fcw : 0}px;transform:rotate(${a.toFixed(1)}deg) translateY(${y}px);z-index:${k === selected ? 20 : i}">${card(hc, { cw: fcw, sel: k === selected, attr: `data-act="tray" data-uid="${k}"` })}</div>`; }).join('')}</div>`;
+      ui.fan = { html: fanHtml, h: Hh };
+    }
+    const fanAway = !placing && ui.fan ? `<div class="fanaway" style="height:${ui.fan.h}px">${ui.fan.html}</div>` : ''; if (!placing) ui.fan = null;
+    if (placing) {
+      const tr = nodeB.kind !== 'loc' && D.trainerArt && D.trainerArt[nodeB.art || nodeB.id] ? `<img class="pix" src="data:image/png;base64,${D.trainerArt[nodeB.art || nodeB.id]}" alt=""><b>${esc(nodeB.name)}</b>` : `<b>${esc(nodeB.name)}</b>`;
+      return `<div class="bt pl"><div class="phead"><div class="ptr">${tr}</div><button class="ib" data-act="leave" style="${ui.leaveAsk ? 'width:auto;padding:0 12px;font-size:16px;font-weight:800' : ''}" aria-label="Leave">${ui.leaveAsk ? 'Flee?' : '🏃'}</button><button class="ib" data-act="menu" aria-label="Menu">☰</button></div><div class="board" style="height:${HB}px">${cols}</div><div class="pstat">${pileHtml}<div class="status">${status}</div>${fight}</div>${fanHtml}</div>`;
+    }
     const railIn = placing ? `<div class="status">${status}</div>${fight}<div class="hrow handrow hcol">${heroTray}</div>${pileHtml}` : `<div class="rmid"><div class="status">${status}</div><div class="dice">${diceHtml}</div></div><div class="acts">${btns}</div>`;
     const dw = RW >= 200 ? 78 : RW >= 150 ? 62 : 46;
-    return `<div class="bt"><div class="board">${cols}</div><div class="rail${goReady ? ' rgo' : ''}" ${goReady ? 'data-act="go"' : ''} style="width:${RW}px;--dw:${dw}px"><div class="rtop">${canReturn ? `<button class="ib pball${ui.returning ? ' on' : ''}" data-act="retmode" aria-label="Return a Pokémon"><i></i></button>` : ''}<button class="ib" data-act="leave" style="${ui.leaveAsk ? 'width:auto;padding:0 12px;font-size:16px;font-weight:800' : ''}" aria-label="Leave">${ui.leaveAsk ? 'Flee?' : '🏃'}</button><button class="ib" data-act="menu" aria-label="Menu">☰</button></div>${trainerHtml}${railIn}</div></div>`;
+    return `<div class="bt"><div class="board">${cols}</div><div class="rail${goReady ? ' rgo' : ''}" ${goReady ? 'data-act="go"' : ''} style="width:${RW}px;--dw:${dw}px"><div class="rtop">${canReturn ? `<button class="ib pball${ui.returning ? ' on' : ''}" data-act="retmode" aria-label="Return a Pokémon"><i></i></button>` : ''}<button class="ib" data-act="leave" style="${ui.leaveAsk ? 'width:auto;padding:0 12px;font-size:16px;font-weight:800' : ''}" aria-label="Leave">${ui.leaveAsk ? 'Flee?' : '🏃'}</button><button class="ib" data-act="menu" aria-label="Menu">☰</button></div>${trainerHtml}${railIn}</div>${fanAway}</div>`;
   }
   // a card is picked in two steps so a quick tap can never choose one by accident: tap it, then OK in the middle of the screen (and a card that is not the strongest asks again)
   // choosing a card to keep: tap a card, then OK (tap it again to let go). Under the cards, never over them.

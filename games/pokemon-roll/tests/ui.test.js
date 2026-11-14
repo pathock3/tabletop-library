@@ -626,3 +626,20 @@ test('ui: matchup phase: with two places to slide to you tap the card, then the 
     assert.deepEqual(errs, []);
   } finally { await b.close(); }
 });
+
+test('ui: while you place, your hand is fanned out under a smaller board (no column on the right); when the fight starts the hand flies off', { skip: !chromium }, async () => {
+  const b = await chromium.launch();
+  try {
+    for (const [w, h] of [[820, 1180], [402, 874]]) {
+      const p = await b.newPage({ viewport: { width: w, height: h } }); const errs = []; p.on('pageerror', e => errs.push(e.message));
+      await p.goto(URL); await p.click('[data-act=new]'); await p.click('[data-act=starter][data-k=squirtle]'); await p.locator('[data-act=tipok]').click({ timeout: 800 }).catch(() => {});
+      await p.evaluate(() => { const R = window.__pokemonRoll; R.G.coll.push({ uid: 50, id: '10', sh: 0 }, { uid: 51, id: '16', sh: 0 }); R.render(); });
+      await p.click('.place[data-id=B1]'); await p.waitForSelector('[data-act=lendok]', { timeout: 3000 }).catch(() => {}); await p.click('.btn[data-act=lendok]').catch(() => {}); await p.locator('[data-act=tipok]').click({ timeout: 800 }).catch(() => {});
+      await p.waitForFunction(() => { const g = window.__pokemonRoll.G.battle; return g && g.stage === 'place' && g.pl.side === 0; }, null, { timeout: 6000 });
+      assert.equal(await p.locator('.rail').count(), 0, `${w}: no column on the right while placing`); const n = await p.evaluate(() => window.__pokemonRoll.G.battle.hand[0].length);
+      assert.equal(await p.locator('.pfan [data-act=tray]').count(), n, `${w}: the whole hand is fanned out`);
+      const r = await p.evaluate(() => { const f = document.querySelector('.pfan').getBoundingClientRect(), bd = document.querySelector('.board').getBoundingClientRect(); return { fb: f.bottom, bb: bd.bottom, ft: f.top, ih: innerHeight }; });
+      assert.ok(r.fb <= r.ih + 1 && r.ft >= r.bb, `${w}: the fan sits under the board and on the screen`); assert.deepEqual(errs, []); await p.close();
+    }
+  } finally { await b.close(); }
+});
