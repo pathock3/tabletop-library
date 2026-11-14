@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- **Pokémon Roll! — battle batch (part 1):** Easy / Normal / Hard computer (Easy places and assigns at random; Hard weighs types and both sides' move ranges); in wild fights they play one card, then you may play a second, and the deck can only be drawn from after your second card is down; your latest placed card can be picked back up before the fight; long-press any card for a big view; trainer tiles on the map are no longer faded when ready; a gym leader's team shrinks to fit the box (nothing cut off).
+
 - **Pokémon Roll! — trainer info:** it now shows only the card backs of their team (no text, no signature label); a legendary has its own gold-and-violet back that says LEGENDARY.
 
 - **Pokémon Roll! — clean-up pass:** removed leftovers of the old plateau screen, rival and colour-die code; the game is won (and the whole-game record and Hall of Fame entry made) when both Blue and Red are beaten; gym fights get their own first tip (columns and reserve) instead of the wild-fight one; the leader pile reads "Brock", not "Brock's team".

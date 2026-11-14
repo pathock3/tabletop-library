@@ -590,3 +590,17 @@ test('ui: a long press shows any card big (and a tap on a part of it explains th
     assert.deepEqual(errs, []);
   } finally { await b.close(); }
 });
+
+test('ui: a gym leader with many cards shrinks them to fit; nothing is cut off at either edge', { skip: !chromium }, async () => {
+  const b = await chromium.launch();
+  try {
+    for (const [w, h] of [[820, 1180], [402, 874]]) {
+      const p = await b.newPage({ viewport: { width: w, height: h } });
+      await p.goto(URL); await p.click('[data-act=new]'); await p.click('[data-act=starter][data-k=squirtle]'); await p.locator('[data-act=tipok]').click({ timeout: 800 }).catch(() => {});
+      await p.evaluate(() => { const R = window.__pokemonRoll; R.G.bosses.B1 = [].concat(...Object.values(R.G.bosses)).slice(0, 10); R.render(); });
+      await p.click('[data-act=eye][data-id=B1]');
+      const r = await p.evaluate(() => { const g = document.querySelector('.gline'), a = g.getBoundingClientRect(), b = g.parentElement.getBoundingClientRect(); return { n: g.children.length, l: a.left, r: a.right, bl: b.left, br: b.right, sw: g.scrollWidth > g.clientWidth }; });
+      assert.ok(r.n >= 8 && r.l >= r.bl && r.r <= r.br && !r.sw, `${w}: every card is inside the box`); await p.close();
+    }
+  } finally { await b.close(); }
+});
