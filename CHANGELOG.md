@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- **Pokémon Roll! — trainer panel:** while you place, the trainer's panel stays on the right (their real sprite with no background, and Poké Balls for both sides; your hand fans over it); the gym leader's card-back pile is gone; in a trainer fight you can use as many Pokémon as they have, and your Poké Balls show that number, not everything you have caught.
+
 - **Pokémon Roll! — sprites and sizes:** trainer sprites no longer lose their white pixels (they were being treated as see-through, which gave the scarred look); the map uses the full height and everything on it is bigger; a trainer's info sheet has a much bigger picture, name and cards, sized to the screen.
 
 - **Pokémon Roll! — battle:** cards are bigger and the two teams sit right next to each other (no gap between them); in trainer fights each side shows a Poké Ball per Pokémon, and a different ball for each one that has fallen; you appear as the boy or the girl (Crystal's player art; pick in Settings or on Oak's card).
