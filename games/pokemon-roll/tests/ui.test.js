@@ -159,7 +159,7 @@ test('ui: the menu has Settings (Tips live there; there are no difficulty levels
     await p.click('[data-act=menu]');
     const items = await p.locator('.sheet .box .btn').allInnerTexts(); assert.ok(items.some(t => /Settings/.test(t))); assert.ok(!items.some(t => /Your cards/.test(t)), 'your cards is on the map, not in the menu');
     assert.equal(await p.locator('.sheet [data-act=tips]').count(), 0, 'tips are not on the menu');
-    await p.click('[data-act=settings]'); assert.equal(await p.locator('.sheet [data-act=tips]').count(), 2); assert.equal(await p.locator('.sheet [data-act=ai]').count(), 0, 'no difficulty levels'); assert.equal(await p.evaluate(() => window.__pokemonRoll.set.ai), 'master');
+    await p.click('[data-act=settings]'); assert.equal(await p.locator('.sheet [data-act=tips]').count(), 2); assert.equal(await p.locator('.sheet [data-act=ai]').count(), 3, 'Easy, Normal, Hard'); assert.equal(await p.evaluate(() => window.__pokemonRoll.set.ai), 'normal');
     await p.click('.sheet [data-act=tips][data-v=false]'); assert.equal(await p.evaluate(() => window.__pokemonRoll.set.tips), false);
   } finally { await b.close(); }
 });
@@ -223,10 +223,9 @@ test('ui: with two dice you can add a second Pokémon to a wild fight: there are
     await p.locator('[data-act=tray]').first().click();                                    // the first card goes across from the wild card by itself (one spot)
     await p.waitForFunction(() => window.__pokemonRoll.G.battle.placed[0] === 1, null, { timeout: 4000 });
     assert.ok(await p.locator('[data-act=ready]').count() === 1, 'you can fight now, or bring another');
-    await p.click('[data-act=drawdeck]');                                                   // tap the deck: the next wild card comes down
-    await p.waitForFunction(() => { const g = window.__pokemonRoll.G.battle; return g.placed[1] === 2 && g.pl.side === 0; }, null, { timeout: 6000 });
+    assert.equal(await p.locator('[data-act=drawdeck]').count(), 0, 'the deck cannot be tapped yet: a second card of yours goes down first, and they answer it');
     await p.locator('[data-act=tray]').first().click();
-    await p.waitForFunction(() => window.__pokemonRoll.G.battle.placed[0] === 2, null, { timeout: 4000 });
+    await p.waitForFunction(() => { const g = window.__pokemonRoll.G.battle; return g.placed[0] === 2 && g.placed[1] === 2; }, null, { timeout: 6000 });
     assert.deepEqual(errs, []);
   } finally { await b.close(); }
 });
@@ -469,7 +468,7 @@ test('ui: the Pokéball in the side bar returns a Pokémon before the roll (tap 
   try {
     await p.goto(URL); await p.evaluate(() => { localStorage.setItem('pokemon-roll-tips', JSON.stringify({ place: 1, dice: 1, roll: 1, end: 1, shiny: 1 })); }); await p.reload();
     await p.evaluate(() => { const E = Engine, T = E._t, s = E.newGame({ seed: 1, starter: 'bulbasaur' }); s.phase = 'battle'; const h = ['1.1', '4.1', '7.1'], g = ['10', '13', '16']; const b = T.startBattle(s, 'loc', 'L1', h.map(id => ({ id, sh: 0 })), g.map(id => ({ id, sh: 0 }))); b.hand = [[], []]; b.cols = [0, 1, 2].map(i => [b.units[i].uid, b.units[3 + i].uid]); T.startRound(s); window.__pokemonRoll.setG(s); });
-    assert.equal(await p.locator('.rail .rtop .ib').count(), 4, 'info, return, flee and menu'); assert.equal(await p.locator('.card .rcl').count(), 0, 'nothing added to the cards');
+    assert.equal(await p.locator('.rail .rtop .ib').count(), 3, 'return, flee and menu'); assert.equal(await p.locator('.card .rcl').count(), 0, 'nothing added to the cards');
     await p.click('.pball', { force: true }); assert.match(await p.innerText('.rail .status'), /Tap the Pokémon to return/); await p.click('[data-act=retmode].btn', { force: true }); assert.equal(await p.locator('[data-act=recallpick]').count(), 0, 'cancelled');
     await p.click('.pball', { force: true }); await p.locator('.card[data-act=recallpick]').nth(1).click(); assert.match(await p.innerText('.rail .status'), /Slide a neighbour/); await p.locator('.card[data-act=slide]').first().click();
     assert.equal(await p.evaluate(() => window.__pokemonRoll.G.battle.cols.length), 3, 'a neighbour slid over to face the opponent'); assert.equal(await p.evaluate(() => window.__pokemonRoll.G.battle.units.filter(u => u.recalled).length), 1);
@@ -574,5 +573,20 @@ test('ui: with a second card, Brock lends you the die: a sheet says so and the f
     await p.evaluate(() => document.querySelector('.place[data-id=B1] .eye').click()); const info = await p.innerText('.hbox'); assert.doesNotMatch(info, /Signature|come from/i, 'only the card backs'); await p.mouse.click(8, 8);
     await p.click('.place[data-id=B1]'); await p.waitForSelector('[data-act=lendok]'); assert.match(await p.innerText('.sheet'), /only have 1 die/); await p.click('.btn[data-act=lendok]');
     assert.equal(await p.locator('[data-act=lendok]').count(), 0); assert.deepEqual(errs, []);
+  } finally { await b.close(); }
+});
+
+test('ui: a long press shows any card big (and a tap on a part of it explains the part), and your latest card goes back to your hand when you tap it', { skip: !chromium }, async () => {
+  const b = await chromium.launch(), p = await b.newPage({ viewport: { width: 820, height: 1180 } });
+  const errs = []; p.on('pageerror', e => errs.push(e.message));
+  try {
+    await p.goto(URL); await p.click('[data-act=new]'); await p.click('[data-act=starter][data-k=squirtle]'); await p.locator('[data-act=tipok]').click({ timeout: 800 }).catch(() => {});
+    await p.evaluate(() => { const R = window.__pokemonRoll; R.G.coll.push({ uid: 50, id: '10', sh: 0 }); R.render(); }); await p.click('.place[data-id=B1]'); await p.waitForSelector('[data-act=lendok]'); await p.click('.btn[data-act=lendok]');
+    await p.locator('[data-act=tipok]').click({ timeout: 800 }).catch(() => {}); await p.waitForFunction(() => { const g = window.__pokemonRoll.G.battle; return g && g.stage === 'place' && g.pl.side === 0; }, null, { timeout: 6000 });
+    const box = await p.locator('[data-act=tray]').first().boundingBox(); await p.mouse.move(box.x + 40, box.y + 40); await p.mouse.down(); await p.waitForTimeout(700); await p.mouse.up();
+    assert.ok(await p.locator('[data-zc]').count() >= 1, 'a long press shows the card big'); await p.waitForTimeout(800); await p.mouse.click(5, 600); assert.equal(await p.locator('[data-zc]').count(), 0, 'a tap outside closes it');
+    await p.locator('[data-act=tray]').first().click(); if (await p.evaluate(() => window.__pokemonRoll.G.battle.placed[0]) === 0) await p.locator('[data-act=ins], [data-act=join]').first().click(); await p.waitForFunction(() => window.__pokemonRoll.G.battle.placed[0] >= 1, null, { timeout: 4000 });
+    await p.locator('.card[data-act=unit]:not(.foe)').first().click(); await p.waitForFunction(() => window.__pokemonRoll.G.battle.placed[0] === 0, null, { timeout: 4000 });
+    assert.deepEqual(errs, []);
   } finally { await b.close(); }
 });

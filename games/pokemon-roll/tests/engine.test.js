@@ -214,15 +214,15 @@ test('wild cards: one comes up, you put one down, and then you choose: fight it 
   assert.equal(E.apply(s, { t: 'ready' }).ok, false, 'you have not put one down yet');
   assert.ok(E.apply(s, Object.assign({ t: 'place', side: 0, uid: b.hand[0][0] }, E.slotsFor(b, 0).find(x => x.join != null))).ok);
   assert.equal(b.pl.optional, true, 'now you may bring more, or fight'); assert.equal(b.stage, 'place');
-  // tap the deck for a second: it is drawn, the computer puts it down, and then you must answer it with a card of yours
-  assert.ok(E.apply(s, { t: 'drawwild' }).ok); assert.deepEqual(b.pl, { side: 1, left: 1 }); assert.equal(b.hand[1].length, 1, 'a second wild card was drawn');
+  assert.equal(E.apply(s, { t: 'drawwild' }).ok, false, 'no tapping the deck yet: a second card of yours goes down first, and they answer it');
+  assert.ok(E.apply(s, Object.assign({ t: 'place', side: 0, uid: b.hand[0][0] }, E.slotsFor(b, 0)[0])).ok);
+  assert.deepEqual(b.pl, { side: 1, left: 1 }, 'they answer your extra card'); assert.equal(E.apply(s, { t: 'drawwild' }).ok, false, 'the deck cannot be tapped while a card is to be put down');
+  assert.ok(E.apply(s, B.step(s, 'normal')).ok); assert.equal(b.placed[0], b.placed[1], 'always equal when you may choose'); assert.ok(b.pl.canDraw, 'now the deck may be tapped');
+  // tap the deck: it is drawn, the computer puts it down first, and then you must answer it with a card of yours
+  assert.ok(E.apply(s, { t: 'drawwild' }).ok); assert.deepEqual(b.pl, { side: 1, left: 1 }); assert.equal(b.hand[1].length, 1, 'another wild card was drawn');
   assert.ok(E.apply(s, B.step(s, 'normal')).ok); assert.deepEqual(b.pl, { side: 0, left: 1, optional: false }, 'now you must answer it');
   assert.equal(E.apply(s, { t: 'ready' }).ok, false, 'no fighting before you have answered');
-  assert.ok(E.apply(s, Object.assign({ t: 'place', side: 0, uid: b.hand[0][0] }, E.slotsFor(b, 0).find(x => x.at != null) || E.slotsFor(b, 0)[0])).ok); assert.equal(b.pl.optional, true, 'and then you may tap the deck again, or fight');
-  // or put a second card down yourself: the place answers it at once, and you are back to choosing, with the sides equal
-  assert.ok(E.apply(s, Object.assign({ t: 'place', side: 0, uid: b.hand[0][0] }, E.slotsFor(b, 0).find(x => x.at != null) || E.slotsFor(b, 0)[0])).ok);
-  assert.deepEqual(b.pl, { side: 1, left: 1 }, 'they answer your extra card'); assert.equal(E.apply(s, { t: 'drawwild' }).ok, false, 'the deck cannot be tapped while a card is to be put down');
-  assert.ok(E.apply(s, B.step(s, 'normal')).ok); assert.equal(b.placed[0], b.placed[1], 'always equal when you may choose');
+  assert.ok(E.apply(s, Object.assign({ t: 'place', side: 0, uid: b.hand[0][0] }, E.slotsFor(b, 0)[0])).ok);
   assert.equal(b.stage, 'assign', 'three dice, three cards: the fight starts'); assert.equal(E.living(b, 0).length, 3); assert.equal(E.living(b, 1).length, 3);
   // one on one: put one down and fight at once
   const t = E.newGame({ seed: 22, starter: 'squirtle' }); t.done.B1 = true; t.coll.push({ uid: 9, id: '10', sh: 0 });
@@ -715,4 +715,14 @@ test('v3: a heal that can reach neighbours may also be aimed at a ghost across f
 test('v3: when both options of a choice hit the very same cards (nobody to the left or right) there is nothing to choose', () => {
   const c = craft(['5.3'], ['10']); const e = E.parseMove('3a <^ or ^>').clauses[0][0]; assert.equal(E.candidates(c.b, c.h(0), e).length, 1, 'one card across, nothing either side: one option');
   c.b.dice = [[1], [6]]; c.b.asg = [{ [c.h(0).uid]: { dice: [0], tgt: null } }, {}]; c.b.gmReady = true; assert.ok(E.apply(c.s, { t: 'go2' }).ok); assert.ok(!c.b.ask, 'no question is asked');
+});
+
+test('v3: your latest card is not locked in: it can be picked back up (or moved) until the other side moves; while replacing a fallen card any card of yours can retreat to the reserve', () => {
+  const s = E.newGame({ seed: 5, starter: 'bulbasaur' }); s.done.B1 = true; s.coll.push({ uid: 5, id: '10', sh: 0 }, { uid: 6, id: '16', sh: 0 }, { uid: 7, id: '19', sh: 0 });
+  E.apply(s, { t: 'go', node: 'B3' }); const b = s.battle; E.apply(s, B.step(s, 'normal')); assert.equal(b.pl.side, 0);
+  const h0 = b.hand[0][0]; assert.ok(E.apply(s, Object.assign({ t: 'place', side: 0, uid: h0 }, E.slotsFor(b, 0)[0])).ok); const placed = b.units.find(u => u.side === 0 && !u.ko); assert.equal(b.placed[0], 1);
+  assert.ok(E.apply(s, { t: 'pickup', uid: placed.uid }).ok, 'picked back up'); assert.equal(b.placed[0], 0); assert.equal(b.hand[0].length, 4); assert.ok(b.cols.every(c => c[0] !== placed.uid));
+  assert.ok(E.apply(s, Object.assign({ t: 'place', side: 0, uid: b.hand[0][0] }, E.slotsFor(b, 0)[1])).ok, 'and put somewhere else');
+  const a = b.units.filter(u => u.side === 0 && !u.ko)[0]; assert.ok(E.apply(s, Object.assign({ t: 'place', side: 0, uid: b.hand[0][0] }, E.slotsFor(b, 0)[0])).ok);
+  E.apply(s, B.step(s, 'normal')); assert.equal(E.apply(s, { t: 'pickup', uid: a.uid }).ok, false, 'once they have moved it is locked in');
 });
