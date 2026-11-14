@@ -424,12 +424,12 @@ test('ui: Bill stands on the map after a special event and can be tapped; the Po
     assert.equal(await p.locator('.place.visitor').count(), 1, 'Bill is on the map'); assert.equal(await p.locator('.place.visitor img').count(), 1, 'with his art');
     await p.evaluate(() => { localStorage.setItem('pokemon-roll-dex', JSON.stringify({ 4: 1 })); localStorage.setItem('pokemon-roll-dexcards', JSON.stringify({ '4.1': 1 })); localStorage.setItem('pokemon-roll-dexfound2', JSON.stringify({})); });
     await p.reload(); await p.click('[data-act=more]'); await p.click('.sheet [data-act=dex]'); await p.click('.dxc.got');
-    assert.equal(await p.locator('.dxv').count(), 2, 'both versions of the card'); assert.equal(await p.locator('.dxv .card.sil').count(), 1, 'the one you have never had is a silhouette');
-    const caps = await p.locator('.dxv .stile.wide').allInnerTexts(); assert.ok(caps.some(t => /Unknown/.test(t)), 'a card never met in the wild: location unknown'); assert.ok(caps.some(t => /Starter only/.test(t)), 'a starter version says so');
+    assert.equal(await p.locator('.dxv2').count(), 2, 'both versions of the card'); assert.equal(await p.locator('.dxv2 .card.sil').count(), 1, 'the one you have never had is a silhouette');
+    const caps = await p.locator('.dxv2 .dxback').allInnerTexts(); assert.ok(caps.some(t => /Unknown/.test(t)), 'a card never met in the wild: location unknown'); assert.ok(caps.some(t => /Starter/.test(t)), 'a starter version says so');
     assert.equal(await p.locator('[data-act=dexprev], [data-act=dexnext]').count(), 2, 'arrows to the Pokémon before and after');
     await p.evaluate(() => { localStorage.setItem('pokemon-roll-dexshiny', JSON.stringify({ '4.2': 1 })); localStorage.setItem('pokemon-roll-dexfound2', JSON.stringify({ '4.2': [5] })); localStorage.setItem('pokemon-roll-dexcards', JSON.stringify({ '4.1': 1, '4.2': 1 })); window.__pokemonRoll.render(); });
-    assert.equal(await p.locator('.dxv .locchip .pile').count(), 1, 'a place is the back of its cards with its name under it'); assert.match(await p.innerText('.dxv .locchip'), /\S/);
-    assert.equal(await p.locator('.dxv .stile').count() >= 3, true, 'labelled tiles for found, caught and shiny'); assert.equal(await p.locator('.dxv .stile[data-act=dexshiny]').count() >= 1, true, 'and the shiny button'); assert.equal(await p.locator('.dxv .card.shiny').count(), 0, 'not shiny by default'); await p.click('[data-act=dexshiny]'); assert.equal(await p.locator('.dxv .card.shiny').count(), 1, 'the shiny one on request'); await p.click('[data-act=dexshiny]'); assert.equal(await p.locator('.dxv .card.shiny').count(), 0, 'and back');
+    assert.equal(await p.locator('.dxv2 .dxstack .dxback svg').count() >= 1, true, 'where it is found is the back of the card, right beside it'); assert.equal(await p.locator('.dxv2 .dxpair .dxback').count(), 2, 'every version has its location (or Unknown) beside it');
+    assert.equal(await p.locator('.dxv2 .dxchip').count() >= 4, true, 'caught and shiny chips under each version'); assert.equal(await p.locator('.dxv2 .dxchip[data-act=dexshiny]').count() >= 1, true, 'and the shiny button'); assert.equal(await p.locator('.dxv2 .card.shiny').count(), 0, 'not shiny by default'); await p.click('[data-act=dexshiny]'); assert.equal(await p.locator('.dxv2 .card.shiny').count(), 1, 'the shiny one on request'); await p.click('[data-act=dexshiny]'); assert.equal(await p.locator('.dxv2 .card.shiny').count(), 0, 'and back');
     await p.mouse.click(8, 8); await p.mouse.click(8, 8); await p.click('.place.visitor').catch(() => {});
     assert.deepEqual(errs, []);
   } finally { await b.close(); }
@@ -527,7 +527,7 @@ test('ui: the Pokédex counts seen and caught (any version counts) and can be fi
     await p.click('[data-act=dexfilter][data-v=seen]'); assert.equal(await p.locator('.dxc').count(), all); assert.equal(await p.locator('.dxc:not(.dim)').count(), 3, 'unseen ones are dimmed');
     await p.click('[data-act=dexfilter][data-v=caught]'); assert.equal(await p.locator('.dxc').count(), all); assert.equal(await p.locator('.dxc:not(.dim)').count(), 1); assert.equal(await p.locator('.dxc.grey').count(), 2, 'seen but not caught: greyscale');
     await p.click('[data-act=dexfilter][data-v=caught]'); assert.equal(await p.locator('.dxc.dim').count(), 0, 'tap again to clear the filter');
-    await p.click('.dxc.got'); assert.equal(await p.locator('.stile').count() >= 3, true); assert.match(await p.innerText('.stile >> nth=0'), /Location/); await p.click('.stile >> nth=1'); assert.match(await p.innerText('.sheet .sheet'), /Caught/); await p.click('[data-act=dextipx] >> nth=-1'); assert.equal(await p.locator('.sheet .sheet').count(), 0, 'OK closes the explanation');
+    await p.click('.dxc.got'); assert.equal(await p.locator('.dxchip').count() >= 2, true); assert.match(await p.innerText('.dxchip >> nth=0'), /Caught/); await p.click('.dxchip >> nth=0'); assert.match(await p.innerText('.sheet .sheet'), /Caught/); await p.click('[data-act=dextipx] >> nth=-1'); assert.equal(await p.locator('.sheet .sheet').count(), 0, 'OK closes the explanation');
     assert.deepEqual(errs, []);
   } finally { await b.close(); }
 });
@@ -586,7 +586,10 @@ test('ui: a long press shows any card big (and a tap on a part of it explains th
     const box = await p.locator('[data-act=tray]').first().boundingBox(); await p.mouse.move(box.x + 40, box.y + 40); await p.mouse.down(); await p.waitForTimeout(700); await p.mouse.up();
     assert.ok(await p.locator('[data-zc]').count() >= 1, 'a long press shows the card big'); await p.waitForTimeout(800); await p.mouse.click(5, 600); assert.equal(await p.locator('[data-zc]').count(), 0, 'a tap outside closes it');
     await p.locator('[data-act=tray]').first().click(); if (await p.evaluate(() => window.__pokemonRoll.G.battle.placed[0]) === 0) await p.locator('[data-act=ins], [data-act=join]').first().click(); await p.waitForFunction(() => window.__pokemonRoll.G.battle.placed[0] >= 1, null, { timeout: 4000 });
-    await p.locator('.card[data-act=unit]:not(.foe)').first().click(); await p.waitForFunction(() => window.__pokemonRoll.G.battle.placed[0] === 0, null, { timeout: 4000 });
+    await p.locator('.card[data-act=unit]:not(.foe)').first().click(); assert.equal(await p.evaluate(() => window.__pokemonRoll.G.battle.placed[0]), 1, 'a tap only lights the card up');
+    const drag = async (from, to) => { const a = await from.boundingBox(); await p.mouse.move(a.x + a.width / 2, a.y + a.height / 2); await p.mouse.down(); const t = await to.boundingBox(); await p.mouse.move(t.x + t.width / 2, t.y + t.height / 2, { steps: 8 }); await p.mouse.up(); };
+    await drag(p.locator('.card[data-act=unit]:not(.foe)').first(), p.locator('.pfan')); await p.waitForFunction(() => window.__pokemonRoll.G.battle.placed[0] === 0, null, { timeout: 4000 });
+    await p.waitForTimeout(500); await drag(p.locator('.pfan [data-act=tray]').first(), p.locator('.board .col').last().locator('.slot').last()); await p.waitForFunction(() => window.__pokemonRoll.G.battle.placed[0] >= 1 || window.__pokemonRoll.ui.weakAsk, null, { timeout: 4000 });          // (a card weak to the one it would face asks first, as when tapping)
     assert.deepEqual(errs, []);
   } finally { await b.close(); }
 });

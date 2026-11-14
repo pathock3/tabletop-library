@@ -527,6 +527,13 @@ button{font:inherit;color:inherit;border:0;cursor:pointer}
 @keyframes fanaway{to{transform:translateY(120%) rotate(6deg);opacity:0}}
 </style>
 <style>.tscene.tsm{width:min(100%,104px);height:auto;aspect-ratio:1;border-width:3px;border-radius:12px;margin:0}.tscene.tsh{width:46px;height:46px;border-width:2px;border-radius:9px;margin:0;flex:none}</style>
+<style>.phead.wide{height:68px;gap:14px}.phead.wide .ptr{flex:none;width:170px}.phead.wide .status{margin:0;flex:1;text-align:center;font-size:20px;line-height:1.15}.phead.wide .pilebay{flex:none}.phead.wide .btn.big{min-height:52px;font-size:22px;padding:6px 22px}</style>
+<style>.cghost{position:fixed;z-index:210;pointer-events:none;margin:0;opacity:.94;transform:rotate(4deg) scale(1.04);filter:drop-shadow(0 14px 12px #0008)}.bt.pl .card{touch-action:none}.slot.dropok{outline:4px solid #7dff9c;background:#7dff9c33}</style>
+<style>.dxvs2{display:flex;flex-wrap:wrap;gap:12px 18px;justify-content:center;align-items:flex-start;max-width:98vw}.dxv2{display:flex;flex-direction:column;align-items:center;gap:6px}.dxpair{display:flex;gap:10px;align-items:flex-start}
+.dxback{flex:none;border-radius:12px;border:3px solid #14110f;overflow:hidden;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;color:#fff;box-sizing:border-box;box-shadow:0 4px 0 #0006}.dxstack{position:relative;flex:none}.dxstar{font-size:44px}.dxq2{font:900 64px Georgia,serif;color:#ffffff88}.dxlab{font:800 15px system-ui;opacity:.85}
+.dxchips{display:flex;gap:8px}.dxchip{display:flex;align-items:center;gap:6px;padding:5px 10px;border-radius:12px;border:3px solid #ffffff44;background:#0007;color:#ffffffaa;font:700 13px system-ui;min-height:44px}.dxchip.on{border-color:var(--gold);color:#fff}.dxchip b{font-size:15px}.dxchip small{opacity:.8}.dxchip .si{font-size:20px}
+</style>
+<style>.dxvs2{overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch}@media (max-width:520px){.dxchip{padding:4px 6px}.dxchip small{display:none}}</style>
 <script id="data">
 /* Pokémon Roll! — every rule number, the map, the bosses, the card sheet and the art live here. The engine and bots read this and hard-code none of it. */
 const GAME_DATA = {
@@ -624,29 +631,29 @@ const GAME_DATA = {
   // The map. A node opens when the badges it asks for are won and everything in `needs` is beaten (`any`: either). `lvl` is the level your starter has after beating a trainer (+1).
   dieLine: 'Congratulations, you earned this die.',           // said by the leader who hands you a new die
   nodes: [
-    { id: 'L1', kind: 'loc', loc: 1, name: 'Viridian Forest', stage: 0, lane: 0, needs: [] },
-    { id: 'B1', kind: 'boss', gym: true, name: 'Brock', say: "Your Pokémon are tougher than my rocks. Well fought!", color: '#8d6e63', stage: 0, lane: 1, needs: [], lvl: 2 },
-    { id: 'L2', kind: 'loc', loc: 2, name: 'Mt. Moon', stage: 0, lane: 2, needs: [] },
-    { id: 'L3', kind: 'loc', loc: 3, name: 'Power Plant', stage: 1, lane: 0, needs: ['B1'] },
+    { id: 'L1', kind: 'loc', loc: 1, name: 'Viridian Forest', stage: 0, lane: 1, needs: [] },
+    { id: 'B1', kind: 'boss', gym: true, name: 'Brock', say: "Your Pokémon are tougher than my rocks. Well fought!", color: '#8d6e63', stage: 0, lane: 2, needs: [], lvl: 2 },
+    { id: 'L2', kind: 'loc', loc: 2, name: 'Mt. Moon', stage: 0, lane: 3, needs: [] },
+    { id: 'L3', kind: 'loc', loc: 3, name: 'Power Plant', stage: 1, lane: 2, needs: ['B1'] },
     { id: 'B2', kind: 'boss', gym: true, name: 'Misty', say: "Wow, you really know how to ride a wave. Nicely done!", color: '#29b6f6', stage: 1, lane: 1, needs: ['B1'], lvl: 2 },
-    { id: 'B3', kind: 'boss', gym: true, name: 'Lt. Surge', say: "Hey, you're electric, kid! That was shocking!", color: '#fdd835', stage: 1, lane: 2, needs: ['B1'], lvl: 3 },
+    { id: 'B3', kind: 'boss', gym: true, name: 'Lt. Surge', say: "Hey, you're electric, kid! That was shocking!", color: '#fdd835', stage: 1, lane: 3, needs: ['B1'], lvl: 3 },
     { id: 'L4', kind: 'loc', loc: 4, name: 'S.S. Anne', stage: 2, lane: 0, needs: ['B2'] },
     { id: 'B4', kind: 'boss', gym: true, name: 'Erika', say: "Oh my... you've blossomed beautifully. Well played.", color: '#66bb6a', stage: 2, lane: 1, needs: ['B2'], lvl: 3 },
-    { id: 'L5', kind: 'loc', loc: 5, name: 'Pokémon Tower', stage: 2, lane: 2, needs: ['B3'] },
+    { id: 'L5', kind: 'loc', loc: 5, name: 'Pokémon Tower', stage: 2, lane: 4, needs: ['B3'] },
     { id: 'B6', kind: 'boss', gym: true, name: 'Sabrina', say: "I foresaw this... You have a strong will. Well done.", color: '#ec407a', stage: 2, lane: 3, needs: ['B3'], lvl: 4 },
     { id: 'L6', kind: 'loc', loc: 6, name: 'Safari Zone', stage: 3, lane: 0, needs: ['B4'] },
     { id: 'B5', kind: 'boss', gym: true, name: 'Koga', say: "Fwahaha! A fine battle, young one. You have earned this.", color: '#8e24aa', stage: 3, lane: 1, needs: ['B4'], lvl: 4 },
-    { id: 'L7', kind: 'loc', loc: 8, name: 'Cinnabar Island', stage: 3, lane: 2, needs: ['B6'] },
+    { id: 'L7', kind: 'loc', loc: 8, name: 'Cinnabar Island', stage: 3, lane: 4, needs: ['B6'] },
     { id: 'B7', kind: 'boss', gym: true, name: 'Blaine', say: "Hah! You've got more fire than my Pokémon. Impressive!", color: '#ef5350', stage: 3, lane: 3, needs: ['B6'], lvl: 5 },
     { id: 'L8', kind: 'loc', loc: 7, name: 'Seafoam Islands', stage: 4, lane: 0, needs: ['B5'] },
-    { id: 'L9', kind: 'loc', loc: 9, name: 'Victory Road', stage: 4, lane: 1, needs: ['B7'] },
+    { id: 'L9', kind: 'loc', loc: 9, name: 'Victory Road', stage: 4, lane: 4, needs: ['B7'] },
     { id: 'B8', kind: 'boss', gym: true, name: 'Giovanni', say: "Impossible... Beaten by a child. The badge is yours.", color: '#6d4c41', stage: 4, lane: 2, needs: ['B5', 'B7'], any: true, lvl: 5 },
-    { id: 'E1', kind: 'boss', name: 'Lorelei', say: "You are strong. The ice has melted. Go on.", color: '#4dd0e1', stage: 5, lane: 1, needs: [], badges: 8, lvl: 5 },
-    { id: 'E2', kind: 'boss', name: 'Bruno', say: "Hoo hah! Your spirit is strong. Move on!", color: '#bf5b2c', stage: 6, lane: 1, needs: ['E1'], badges: 8, lvl: 5 },
-    { id: 'E3', kind: 'boss', name: 'Agatha', say: "Oh, my! You really are something. Go on, child.", color: '#7e57c2', stage: 7, lane: 1, needs: ['E2'], badges: 8, lvl: 5 },
-    { id: 'E4', kind: 'boss', name: 'Lance', say: "Magnificent! You have defeated the Elite Four.", color: '#5c6bc0', stage: 8, lane: 1, needs: ['E3'], badges: 8, lvl: 6 },
+    { id: 'E1', kind: 'boss', name: 'Lorelei', say: "You are strong. The ice has melted. Go on.", color: '#4dd0e1', stage: 5, lane: 2, needs: [], badges: 8, lvl: 5 },
+    { id: 'E2', kind: 'boss', name: 'Bruno', say: "Hoo hah! Your spirit is strong. Move on!", color: '#bf5b2c', stage: 6, lane: 2, needs: ['E1'], badges: 8, lvl: 5 },
+    { id: 'E3', kind: 'boss', name: 'Agatha', say: "Oh, my! You really are something. Go on, child.", color: '#7e57c2', stage: 7, lane: 2, needs: ['E2'], badges: 8, lvl: 5 },
+    { id: 'E4', kind: 'boss', name: 'Lance', say: "Magnificent! You have defeated the Elite Four.", color: '#5c6bc0', stage: 8, lane: 2, needs: ['E3'], badges: 8, lvl: 6 },
     { id: 'F1', kind: 'boss', final: true, name: 'Blue', say: "Tch. Fine. You beat me. Don't get used to it, though.", color: '#3f51b5', stage: 9, lane: 1, needs: ['E4'], lvl: 6, mystery: true },
-    { id: 'F2', kind: 'boss', final: true, finale: true, name: 'Red', say: "...", color: '#e53935', stage: 9, lane: 2, needs: ['E4'], lvl: 6, mystery: true },
+    { id: 'F2', kind: 'boss', final: true, finale: true, name: 'Red', say: "...", color: '#e53935', stage: 9, lane: 3, needs: ['E4'], lvl: 6, mystery: true },
   ],
   // ability text on the card -> what the engine does (first match wins; "$1" is the first group). Several abilities on a card are separated by ";".
   abilities: [
@@ -1527,7 +1534,7 @@ const Engine = (() => {
     const u = U(b, a.uid); if (!u || u.ko || u.side !== a.side || !has(u, 'mover')) return 'that card cannot move';
     if (u.movedR === b.round) return 'once a round'; if (blocksMove(b, u.side)) return 'something stops it moving';
     if (!shiftUnit(b, u, a.dir < 0 ? -1 : 1)) return 'no column that way';
-    u.movedR = b.round; ev(b, { t: 'text', msg: CARDS[u.id].name + ' changes column' }); return null;
+    u.movedR = b.round; ev(b, { t: 'text', msg: CARDS[u.id].name + ' changes column' }); enterHit(s, b, u, colIdx(b, u.uid)); return null;
   }
   // Gyarados: once the matchups are set (before the first roll of the battle), swap places with any ally -- and that is all it ever does
   function doGSwap(s, a) {
@@ -1535,7 +1542,7 @@ const Engine = (() => {
     const u = U(b, a.uid), z = U(b, a.with); if (!u || !z || u.side !== z.side || u === z || u.ko || z.ko || !has(u, 'swapOnce')) return 'cannot swap';
     if (u.onceUsed) return 'already used'; if (blocksMove(b, u.side)) return 'a card here stops cards moving';
     const ci = colIdx(b, u.uid), cj = colIdx(b, z.uid); b.cols[ci][u.side] = z.uid; b.cols[cj][u.side] = u.uid; u.onceUsed = true;
-    ev(b, { t: 'text', msg: CARDS[u.id].name + ' swaps places with ' + CARDS[z.id].name }); return null;
+    ev(b, { t: 'text', msg: CARDS[u.id].name + ' swaps places with ' + CARDS[z.id].name }); enterHit(s, b, u, cj); enterHit(s, b, z, ci); return null;
   }
   function doSwap(s, a) {
     const b = s.battle; if (b.stage !== 'assign') return 'not now';
@@ -1543,7 +1550,7 @@ const Engine = (() => {
     if (!z || z.ko || z.side !== a.side || !has(z, 'swapper') || z.skip) return 'that card cannot swap'; if (z.swapR === b.round) return 'once a round';
     if (!p || !q || p === q || p.ko || q.ko || p.side === z.side || q.side === z.side) return 'swap two opponents'; if (blocksMove(b, z.side)) return 'something stops it';
     const ci = colIdx(b, p.uid), cj = colIdx(b, q.uid), sd = p.side; b.cols[ci][sd] = q.uid; b.cols[cj][sd] = p.uid;
-    z.swapR = b.round; ev(b, { t: 'text', msg: CARDS[z.id].name + ' swaps ' + CARDS[p.id].name + ' and ' + CARDS[q.id].name }); return null;
+    z.swapR = b.round; ev(b, { t: 'text', msg: CARDS[z.id].name + ' swaps ' + CARDS[p.id].name + ' and ' + CARDS[q.id].name }); enterHit(s, b, p, cj); enterHit(s, b, q, ci); return null;
   }
   function doHaunt(s, a) {
     const b = s.battle, k = hauntAsk(b); if (!k) return 'nothing to keep';
@@ -2110,7 +2117,7 @@ const Engine = (() => {
         const ci = colIdx(b, u.uid), opts = slideOpts(b, u.uid);
         if (a.slide != null && opts.indexOf(a.slide) < 0) return 'that card cannot slide over';
         if (ci >= 0) b.cols[ci][0] = null; u.ko = true; u.recalled = true; delete b.asg[0][u.uid];
-        if (a.slide != null) { const z = U(b, a.slide), cj = colIdx(b, z.uid); b.cols[ci][0] = z.uid; b.cols[cj][0] = null; delete b.asg[0][z.uid]; ev(b, { t: 'text', msg: CARDS[z.id].name + ' slides over to ' + CARDS[U(b, b.cols[ci][1]).id].name }); }       // a neighbour takes the empty spot facing the opponent
+        if (a.slide != null) { const z = U(b, a.slide), cj = colIdx(b, z.uid); b.cols[ci][0] = z.uid; b.cols[cj][0] = null; delete b.asg[0][z.uid]; ev(b, { t: 'text', msg: CARDS[z.id].name + ' slides over to ' + CARDS[U(b, b.cols[ci][1]).id].name }); enterHit(s, b, z, ci); }       // a neighbour takes the empty spot facing the opponent
         dropEmpty(b);
         if (!b.colMode) { const need = living(b, 0).filter(x => !x.skip).length; while (b.dice[0].length > need) { let k = b.dice[0].length - 1; while (k > 0 && b.fixed[0][k]) k--; b.dice[0].splice(k, 1); if (b.dcol && b.dcol[0]) b.dcol[0].splice(k, 1); [b.fixed[0], b.locked[0]].forEach(m => { const o = {}; Object.keys(m).forEach(i => { const j = +i; if (j !== k) o[j > k ? j - 1 : j] = m[i]; }); Object.keys(m).forEach(i => delete m[i]); Object.assign(m, o); }); Object.keys(b.asg[0]).forEach(id => { const a2 = b.asg[0][id]; if (a2 && a2.dice) a2.dice = a2.dice.filter(i => i !== k).map(i => i > k ? i - 1 : i); }); } }          // the card's die goes with it
         ev(b, { t: 'text', msg: CARDS[u.id].name + ' is called back' }); return null;
@@ -2469,7 +2476,7 @@ const Bots = (() => {
     const sp = E.parseSpecial(c.special);
     const rows = c.moves.map((m, i) => [m, i]).reverse().map(([m, i]) => { const me = m && c.movEls && c.movEls[i] ? el(c.movEls[i][0].toUpperCase() + c.movEls[i].slice(1)) : null; return `<div class="f${m ? '' : ' blank'}${me ? ' elm' : ''}" data-p="mv" data-i="${i + 1}" ${me ? `style="--mc:${me.color};--mb:${me.bg}"` : ''}${o.face === i + 1 && !o.sp ? ' hot' : ''}${o.pf === i + 1 && o.face !== i + 1 ? ' pick' : ''}"><span class="pip">${i + 1}</span><span class="mt">${m ? short(m) : '—'}</span>${me ? `<span class="me">${me.icon}</span>` : ''}</div>`; }).join('');
     return `<div class="card${u.sh ? ' shiny' : ''}${o.foe ? ' foe' : ''}${o.ko ? ' ko' : ''}${o.sel ? ' sel' : ''}${o.die != null ? ' has-die' : ''}${o.cls ? ' ' + o.cls : ''}" style="--cw:${cw}px;--bg:${e.bg};--c:${e.color}" data-cid="${u.id}" data-csh="${u.sh ? 1 : 0}" ${o.attr || ''}>
-      ${D.elements[c.weak] ? `<div class="wkt" data-p="wk" style="--wc:${el(c.weak).color}">weak: ${el(c.weak).icon} ${esc(c.weak)} ×2</div>` : ''}
+      ${D.elements[c.weak] ? `<div class="wkt" data-p="wk" style="--wc:${el(c.weak).color}">weak: ${el(c.weak).icon} ${esc(c.weak)} ×2</div>` : c.weak === 'Enemy Heals' ? `<div class="wkt" data-p="wk" style="--wc:#d81b60">weak: ❤️ Enemy heals ×2</div>` : ''}
       <div class="cbox">
         <div class="art"><img style="width:${artPct(u.id)}%" src="${art(u.id, u.sh)}" alt="${esc(c.name)}">${u.sh ? sparkles() : ''}${o.mark ? `<div class="mark">${o.mark}</div>` : ''}${o.die != null ? `<div class="dbadge${o.heroDie ? ' hero' : ''}${o.land ? ' land' : ''}${o.dieCol ? ' colored' : ''}" ${o.dieAttr || ''}${o.dieCol ? ` style="background:${o.dieCol}"` : ''}>${o.die}${o.dieBonus ? '<small>+1</small>' : ''}</div>` : ''}</div>
         <div class="nm">${esc(c.name)}${u.sh ? ' ✨' : ''}</div>${o.recall ? `<div class="rcl${o.recall === 'sure' ? ' sure' : ''}" data-act="recall" data-uid="${u.uid}">${o.recall === 'sure' ? 'Return it? Tap again' : '↩ Return'}</div>` : ''}
@@ -3005,14 +3012,16 @@ const trainerFg = {
   const CHK = '<div class="ck"><svg viewBox="0 0 100 100" aria-hidden="true"><path d="M18 54L40 76 84 24" fill="none" stroke="#0a3d1f" stroke-width="26" stroke-linecap="round" stroke-linejoin="round"/><path d="M18 54L40 76 84 24" fill="none" stroke="#2fd16b" stroke-width="16" stroke-linecap="round" stroke-linejoin="round"/></svg></div>';
   // the whole road, gyms and places, then the Elite Four and the last two, in one long strip you slide with a finger: the four rows fill the height
   function mapScreen(menu) {
-    const vis = D.nodes.filter(shown), LANES = 4, pitch = 190, stages = Math.max(...vis.map(n => n.stage)) + 1, TOPH = menu ? 0 : 76;
+    const vis = D.nodes.filter(shown), LANES = 5, stages = Math.max(...vis.map(n => n.stage)) + 1, TOPH = menu ? 0 : 76;
+    // the columns are spaced by hand: a wide gap after the first column and between the routes, so what leads to what is clear
+    const GAPS = [300, 260, 260, 260, 260, 210, 210, 210, 210], cxs = [PADX + 100]; for (let i = 1; i < stages; i++) cxs.push(cxs[i - 1] + (GAPS[i - 1] || 210));
     const availW = innerWidth, availH = viewH() - TOPH - (menu ? 60 : 0);
-    const k = Math.max(0.8, Math.min(1.7, availH / (LANES * 200)));          // everything scales so four rows fill the height
-    const H0 = availH / k, W0 = PADX * 2 + stages * pitch, rowH = H0 / LANES;
-    const xy = n => [PADX + n.stage * pitch + pitch / 2, (n.lane + 0.5) * rowH];
+    const k = Math.max(0.72, Math.min(1.7, availH / (LANES * 218)));          // everything scales so four rows fill the height
+    const H0 = availH / k, W0 = cxs[stages - 1] + 100 + PADX, rowH = H0 / LANES;
+    const xy = n => [cxs[n.stage], (n.lane + 0.5) * rowH];
     const visitors = (G.visitors || []).map(id => E.visitorNode(id)).filter(Boolean);
-    const [sx, sy] = xy({ stage: 0, lane: 3 }), mk = G.legendMarker && !G.coll.some(c => c.id === G.legendMarker) ? G.legendMarker : null;          // the one fixed place for a special event
-    const slot = mk ? `<button class="place visitor next" style="left:${sx - TILE_W / 2}px;top:${sy - 92}px" data-act="legmark"><div class="vsc"><img class="pix" src="${art(mk, 0)}" alt="" style="filter:brightness(0)"></div><div class="vbang">!</div><div class="pl"><b>Legendary!</b></div></button>` : (visitors.length ? '' : `<div class="evslot" style="left:${sx - 62}px;top:${sy - 87}px"><span>Special event</span></div>`);
+    const [sx, sy] = xy({ stage: 0, lane: 4 }), mk = G.legendMarker && !G.coll.some(c => c.id === G.legendMarker) ? G.legendMarker : null;          // the one fixed place for a special event
+    const slot = mk ? `<button class="place visitor next" style="left:${sx - TILE_W / 2}px;top:${sy - 92}px" data-act="legmark"><div class="vsc"><img class="pix" src="${art(mk, 0)}" alt="" style="filter:brightness(0)"></div><div class="vbang">!</div><div class="pl"><b>Legendary!</b></div></button>` : '';          // the event space only exists while there is an event
     const tiles = vis.concat(visitors).map(n => {
       if (n.kind === 'visitor') return `<button class="place visitor next" style="left:${sx - TILE_W / 2}px;top:${sy - 92}px" data-act="node" data-id="${n.id}"><div class="vsc"><img class="pix" src="data:image/png;base64,${D.trainerArt[n.art]}" alt="${esc(n.name)}"></div><div class="vbang">!</div><div class="pl"><b>${esc(n.name)}</b></div></button>`;
       const open = E.unlocked(G, n), done = n.kind !== 'loc' && G.done[n.id], [cx, cy] = xy(n), next = open && !done && n.kind === 'boss';
@@ -3025,8 +3034,24 @@ const trainerFg = {
       const scene = hid ? `<rect width="160" height="160" fill="#37474f"/><text x="80" y="118" text-anchor="middle" font-size="110" font-weight="900" fill="#cfd8dc">?</text>` : (trainerScene(n.id) || `<defs><linearGradient id="sq${n.id}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff" stop-opacity=".2"/><stop offset="1" stop-color="#000" stop-opacity=".3"/></linearGradient></defs><rect width="160" height="160" fill="${col}"/><rect width="160" height="160" fill="url(#sq${n.id})"/>${D.trainerArt && D.trainerArt[n.id] ? `<ellipse cx="80" cy="128" rx="34" ry="6" fill="#000" opacity=".28"/><image href="data:image/png;base64,${D.trainerArt[n.id]}" x="14" y="6" width="132" height="132" style="image-rendering:pixelated"/>` : ''}`);
       return `<button class="place sq${open ? '' : ' lock'}${done ? ' done' : ''}${next ? ' next' : ''}" style="left:${cx - S / 2}px;top:${cy - S / 2}px" data-act="node" data-id="${n.id}" aria-label="${esc(hid ? 'A mystery opponent' : n.name)}"><svg viewBox="0 0 160 160" role="img">${scene}</svg>${open || hid ? '' : '<div class="lk">🔒</div>'}${hid ? '<div class="lk">🔒</div>' : ''}${done ? CHK : ''}<div class="pl"><b>${esc(hid ? '???' : n.name)}</b></div>${hid ? '' : `<div class="eye" data-act="eye" data-id="${n.id}" aria-label="Their team">i</div>`}</button>`;
     }).join('');
+    // what a leader unlocks is grouped on a tinted panel in the leader's colour, with a solid arrow from the leader to it
+    const pos = {}; vis.forEach(n => { pos[n.id] = xy(n); });
+    const unlocks = {}; vis.forEach(n => { if (n.needs.length === 1 && pos[n.needs[0]]) (unlocks[n.needs[0]] = unlocks[n.needs[0]] || []).push(n); });
+    let lines = '', panels = '';
+    const arrow = (a, b, col, on) => { const x0 = a[0] + 82, y0 = a[1], x1 = b[0], y1 = b[1], dx = Math.max(30, (x1 - x0) / 2); return `<g opacity="${on}"><path d="M${x0} ${y0}C${x0 + dx} ${y0} ${x1 - dx} ${y1} ${x1 - 10} ${y1}" fill="none" stroke="${col}" stroke-width="7" stroke-linecap="round"/><path d="M${x1} ${y1}l-16 -10v20Z" fill="${col}"/></g>`; };
+    const stateOf = id => G.done[id] ? .95 : E.unlocked(G, D.nodes.find(q => q.id === id)) ? .85 : .35;
+    Object.keys(unlocks).forEach(id => {
+      const L = D.nodes.find(q => q.id === id), mem = unlocks[id], col = L.color || '#cfd8dc', on = stateOf(id);
+      if (L.gym && mem.length > 1) {
+        const xs0 = pos[mem[0].id][0], ys = mem.map(m => pos[m.id][1]), top = Math.min(...ys) - 104, bot = Math.max(...ys) + 104;
+        panels += `<rect x="${xs0 - 96}" y="${top}" width="192" height="${bot - top}" rx="26" fill="${col}" fill-opacity="${on > .5 ? .2 : .1}" stroke="${col}" stroke-opacity="${on}" stroke-width="4"/>`;
+        lines += arrow(pos[id], [xs0 - 96, Math.max(top + 40, Math.min(bot - 40, pos[id][1]))], col, on);
+      } else mem.forEach(m => { lines += arrow(pos[id], [pos[m.id][0] - 84, pos[m.id][1]], col, on); });
+    });
+    vis.filter(n => n.any && n.needs.length > 1).forEach(n => n.needs.forEach(id => { const L = D.nodes.find(q => q.id === id); lines += arrow(pos[id], [pos[n.id][0] - 84, pos[n.id][1]], L.color || '#cfd8dc', stateOf(id)); }));
+    const links = `<svg class="mapsvg" width="${W0}" height="${H0}" viewBox="0 0 ${W0} ${H0}">${panels}${lines}</svg>`;
     return `${menu ? '' : `<div class="top maptop"><div class="topl"></div><div class="t mapt"></div><div class="topr"><button class="chip" data-act="chipinfo" aria-label="Your dice">🎲 ×${E.slots(G)}</button><button class="mypile${ui.coll ? ' away' : ''}" data-act="coll" aria-label="Your cards">${myPile()}</button><button class="ib mbtn" data-act="menu" aria-label="Menu">☰</button></div></div>`}
-      <div class="mapwrap${menu ? ' mmapbox' : ''}" data-k="${k}" style="${menu ? `height:${availH}px` : ''}"><div class="mapsp" style="width:${Math.round(W0 * k)}px;height:${Math.round(H0 * k)}px"></div><div class="mapin" style="width:${W0}px;height:${H0}px;transform:scale(${k})">${slot}${tiles}</div></div>`;
+      <div class="mapwrap${menu ? ' mmapbox' : ''}" data-k="${k}" style="${menu ? `height:${availH}px` : ''}"><div class="mapsp" style="width:${Math.round(W0 * k)}px;height:${Math.round(H0 * k)}px"></div><div class="mapin" style="width:${W0}px;height:${H0}px;transform:scale(${k})">${links}${slot}${tiles}</div></div>`;
   }
 
   // a wrapping grid of whole cards, as big as the screen allows
@@ -3042,14 +3067,19 @@ const trainerFg = {
   function battleScreen() {
     const b = G.battle, p = ui.play, placing = b.stage === 'place', assign = b.stage === 'assign', done = b.stage === 'resolved' && !p;
     // one screen: the cards fill it top to bottom, and everything else (your hand, the dice, the buttons) lives in a column down the right
-    const H = viewH(), RW = placing ? 0 : innerWidth >= 1000 ? 212 : innerWidth >= 700 ? 160 : innerWidth >= 500 ? 150 : 118, W = Math.min(innerWidth, 1000 + RW) - RW, HEAD = 52, STAT = 78, nH = placing ? E.handOf(b, 0).length : 0, FCW = Math.max(64, Math.min(260, Math.floor(H * .36 / CH), nH > 1 ? Math.floor((innerWidth - 20) / (1 + (nH - 1) * .62)) : 260)), HH = placing ? Math.ceil(FCW * CH) + 36 : 0, HB = placing ? H - HEAD - STAT - HH : H;       // while you place, the board is smaller with your hand fanned out under it
+    const H = viewH(), RW = placing ? 0 : innerWidth >= 1000 ? 212 : innerWidth >= 700 ? 160 : innerWidth >= 500 ? 150 : 118, W = Math.min(innerWidth, 1000 + RW) - RW, NARROW = innerWidth < 700, HEAD = NARROW ? 52 : 68, STAT = placing && NARROW ? 78 : 0; let FCW = 0, HH = 0, HB = H;       // while you place, the board is smaller with your hand fanned out under it
     const selected = ui.sel != null && b.hand[0].indexOf(ui.sel) >= 0 ? ui.sel : null;
     const yourPlace = placing && b.pl.side === 0;
     const matching = b.stage === 'match' && !!b.mt, yourMatch = matching && b.mt.side === 0, mvs = yourMatch ? E.matchMoves(b, 0) : [], movers = new Set(mvs.map(m => m.uid)), msel = ui.msel != null && movers.has(ui.msel) ? ui.msel : null;
     const insAts = yourPlace && selected != null ? E.slotsFor(b, 0).filter(sl => sl.at != null).map(sl => sl.at) : [];       // where a new column could go: each one is shown as a spot the size of a card
     const m = Math.max(1, b.cols.length + insAts.length, b.mode === 'wild' ? b.cap : Math.max(b.need[0], b.need[1]));
-    const cwW = Math.floor((W - 8 - (m + 1) * 4 - m * 6) / m), cwH = Math.floor((HB - 10 - 2) / 2 / CH);
-    const cw = Math.max(insAts.length ? 90 : 120, Math.min(320, cwW, cwH)), hcw = placing ? 0 : Math.max(80, Math.min(180, RW - 30));
+    const cwW = Math.floor((W - 8 - (m + 1) * 4 - m * 6) / m);
+    if (placing) {          // your hand is fanned under the board, its cards the very same size as the board's
+      const nH = E.handOf(b, 0).length + (b.placed ? b.placed[0] : 0), hfit = nH > 1 ? Math.floor((innerWidth - 20) / (1 + (nH - 1) * .62)) : 999;
+      FCW = Math.max(64, Math.min(320, cwW, hfit, Math.floor((H - HEAD - STAT - 64) / 3 / CH))); HH = Math.ceil(FCW * CH) + 36; HB = H - HEAD - STAT - HH;
+    }
+    const cwH = Math.floor((HB - 10 - 2) / 2 / CH);
+    let cw = Math.max(insAts.length ? 90 : 120, Math.min(320, cwW, cwH)); if (placing) cw = Math.min(cw, FCW); const hcw = placing ? 0 : Math.max(80, Math.min(180, RW - 30)); if (placing) FCW = cw;
     if (ui.lastTurn === G.turn && ui.lastCw && ui.lastCw !== cw) ui.zoomFrom = ui.lastCw / cw; ui.lastCw = cw; ui.lastTurn = G.turn;       // if the board changes size, it zooms rather than jumps
     const colM = !!b.colMode, waitRoll = assign && (colM ? !b.rolled : ui.rollTap !== G.turn + ':' + b.round);                       // every card's roll is a tap
     const rollKey = colM ? b.round + ':' + b.cur : b.round;
@@ -3090,7 +3120,7 @@ const trainerFg = {
       }
       const pf = assign && !waitRoll && u.side === 0 && !ko && ui.die != null ? b.dice[0][ui.die] : 0;
       const dcol1 = null, dbonus = false;
-      return card(u, { cw, dieCol: dcol1, dieBonus: dbonus, foe: u.side === 1, ko: koOf(u), hp: hpOf(u), start: (b.stage === 'assign' || b.stage === 'place') ? hpOf(u) : (b.before && b.before[u.uid] != null ? b.before[u.uid] : hpOf(u)), shield: u.shield || 0, face, sp: spOn, pf, die, chg: chgOf(u), land: ui.landed === u.uid, heroDie: u.side === 0, dieAttr: !colM && u.side === 0 && assign && !(info && b.fixed && b.fixed[0] && info.die.some(i => b.fixed[0][i])) ? `data-act="unmv" data-uid="${u.uid}"${info && info.die.length === 1 ? ` data-i="${info.die[0]}"` : ''}` : '', mark, ab: abil, recall: '', cls: clsOf(u) + (ui.returning && u.side === 0 && !ko ? ' sel act' : '') + (ui.slide && ui.slide.opts.indexOf(u.uid) >= 0 ? ' sel act' : '') + (movers.has(u.uid) ? (msel === u.uid ? ' sel act' : ' sel') : '') + (ui.swap && u.side === 1 && !ko ? (ui.swap.picks.indexOf(u.uid) >= 0 ? ' sel act' : ' sel') : ''), pop: popOf(u), attr: ui.returning && u.side === 0 && !ko ? `data-act="recallpick" data-uid="${u.uid}"` : ui.slide && ui.slide.opts.indexOf(u.uid) >= 0 ? `data-act="slide" data-uid="${u.uid}"` : `data-act="unit" data-uid="${u.uid}"` });
+      return card(u, { cw, dieCol: dcol1, dieBonus: dbonus, foe: u.side === 1, ko: koOf(u), hp: hpOf(u), start: (b.stage === 'assign' || b.stage === 'place') ? hpOf(u) : (b.before && b.before[u.uid] != null ? b.before[u.uid] : hpOf(u)), shield: u.shield || 0, face, sp: spOn, pf, die, chg: chgOf(u), land: ui.landed === u.uid, heroDie: u.side === 0, dieAttr: !colM && u.side === 0 && assign && !(info && b.fixed && b.fixed[0] && info.die.some(i => b.fixed[0][i])) ? `data-act="unmv" data-uid="${u.uid}"${info && info.die.length === 1 ? ` data-i="${info.die[0]}"` : ''}` : '', mark, ab: abil, recall: '', cls: clsOf(u) + (ui.returning && u.side === 0 && !ko ? ' sel act' : '') + (ui.slide && ui.slide.opts.indexOf(u.uid) >= 0 ? ' sel act' : '') + (movers.has(u.uid) ? (msel === u.uid ? ' sel act' : ' sel') : '') + (yourPlace && ui.psel === u.uid ? ' sel act' : '') + (ui.swap && u.side === 1 && !ko ? (ui.swap.picks.indexOf(u.uid) >= 0 ? ' sel act' : ' sel') : ''), pop: popOf(u), attr: ui.returning && u.side === 0 && !ko ? `data-act="recallpick" data-uid="${u.uid}"` : ui.slide && ui.slide.opts.indexOf(u.uid) >= 0 ? `data-act="slide" data-uid="${u.uid}"` : `data-act="unit" data-uid="${u.uid}"` });
     };
     const slotHtml = (ci, side) => {
       const uid = b.cols[ci][side];
@@ -3111,7 +3141,7 @@ const trainerFg = {
     const diceHtml = !waitRoll && (assign || done || p) && hd.length ? hd.map((v, i) => [v, i]).sort((x, y) => { const lk = (b.locked && b.locked[0]) || {}; return rolling ? x[1] - y[1] : (lk[x[1]] ? 1 : 0) - (lk[y[1]] ? 1 : 0) || y[0] - x[0] || x[1] - y[1]; }).map(([v, i]) => { const tum = rolling && (!ui.rerolled || ui.rerolled.indexOf(i) >= 0); return dieHtml(tum ? '' : v, { sel: ui.die === i, used: !colM && used.has(i), tumble: tum, attr: !colM && assign && !rolling && !(b.fixed && b.fixed[0] && b.fixed[0][i]) ? `data-act="die" data-i="${i}"` : '' }); }).join('') : '';
     let status = '', btns = '';
     const opt = yourPlace && b.pl.optional, canDraw = opt && b.pl.canDraw;
-    if (placing) status = (b.sudden ? 'SUDDEN DEATH · ' : '') + (yourPlace ? (selected != null ? 'Now tap where it goes' : opt ? (canDraw ? 'Tap the deck for them to bring one first, put down another card, or Fight!' : 'Put down another card, or press Fight!') : 'Pick a Pokémon from your hand to put down') : 'They are putting a card down…');
+    if (placing) status = (b.sudden ? 'SUDDEN DEATH · ' : '') + (yourPlace ? (ui.psel != null && !selected ? 'Drag it to your hand to take it back, or to another spot' : selected != null ? 'Now tap where it goes' : opt ? (canDraw ? 'Tap the deck for them to bring one first, put down another card, or Fight!' : 'Put down another card, or press Fight!') : 'Pick a Pokémon from your hand to put down') : 'They are putting a card down…');
     else if (matching) { status = yourMatch ? (msel != null ? 'Tap the empty spot to slide there' : 'Cards with no opponent may slide next to a lone enemy. Tap one.') : 'They are choosing where to slide…'; btns = yourMatch ? `<button class="btn alt" data-act="mpass">Stay put</button>` : ''; }
     else if (assign && ui.returning) { status = 'Tap the Pokémon to return'; btns = `<button class="btn alt" data-act="retmode">Cancel</button>`; }
     else if (assign && ui.slide) { status = 'Slide a neighbour over to face the opponent? Tap it.'; btns = `<button class="btn alt" data-act="slideno">Leave it empty</button>`; }
@@ -3134,7 +3164,7 @@ const trainerFg = {
       const canRe = !rolling && b.rr[0] > 0 && freeDice.length > 0, canFree = !rolling && ui.die != null && !lk[ui.die] && b.rrFace[0].indexOf(hd[ui.die]) >= 0 && !b.rrUsed[0][ui.die];
       btns = `${canAutoAssign(b) && !rolling ? '<button class="btn big" data-act="autoassign">Auto-assign</button>' : ''}${b.rr[0] > 0 ? `<button class="btn alt" data-act="reroll" ${canRe ? '' : 'disabled'}>🔄 Reroll</button>` : ''}${canFree ? '<button class="btn alt" data-act="rerollfree">🔄 Free reroll</button>' : ''}`;
     }
-    const nodeB = E.node(b.node), pw = placing ? 54 : Math.max(64, Math.min(96, RW - 70));
+    const nodeB = E.node(b.node), pw = placing ? (NARROW ? 54 : 44) : Math.max(64, Math.min(96, RW - 70));
     const pileHtml = placing && nodeB.kind === 'visitor' ? `<div class="pilebay${canDraw ? ' tappable' : ''}" style="--pw:${pw}px" ${canDraw ? 'data-act="drawdeck"' : ''}>${deckPile(null, { pw, count: b.bill ? b.bill.length : 0, svg: `<svg viewBox="0 0 100 140" width="100%" height="100%"><rect width="100" height="140" fill="#3949ab"/><image href="data:image/png;base64,${D.trainerArt[nodeB.art]}" x="8" y="30" width="84" height="84" style="image-rendering:pixelated"/></svg>`, dk: '#283593' })}</div>` : placing && nodeB.kind === 'loc' ? `<div class="pilebay${canDraw ? ' tappable' : ''}" style="--pw:${pw}px" ${canDraw ? 'data-act="drawdeck"' : ''}>${deckPile(nodeB.loc, { pw, count: E.deckSize(G, nodeB.loc) })}<div class="eye" data-act="eye" data-id="${nodeB.id}" aria-label="What this holds">i</div></div>` : placing && nodeB.kind === 'boss' ? `<div class="pilebay" style="--pw:${pw}px">${deckPile(null, { pw, count: b.hand[1].length, svg: gymBack(nodeB), dk: gymPal(nodeB)[0] })}<div class="eye" data-act="eye" data-id="${nodeB.id}" aria-label="What this holds">i</div></div>` : '';
     const autoOk = assign && !colM && b.gmReady && !E.readyToGo(b, 0) && noDecision(b), goReady = assign && !waitRoll && !rolling && !ui.slide && !asking && (colM ? b.gmReady : (E.readyToGo(b, 0) || autoOk) && b.gmReady);
     const canReturn = assign && !colM && !b.rolled && E.living(b, 0).length > 1;
@@ -3152,7 +3182,9 @@ const trainerFg = {
     const fanAway = !placing && ui.fan ? `<div class="fanaway" style="height:${ui.fan.h}px">${ui.fan.html}</div>` : ''; if (!placing) ui.fan = null;
     if (placing) {
       const tr = nodeB.kind !== 'loc' && trainerScene(nodeB.id) ? `<svg class="tscene tsh" viewBox="0 0 160 160" role="img" aria-label="${esc(nodeB.name)}">${trainerScene(nodeB.id)}</svg><b>${esc(nodeB.name)}</b>` : nodeB.kind !== 'loc' && D.trainerArt && D.trainerArt[nodeB.art || nodeB.id] ? `<img class="pix" src="data:image/png;base64,${D.trainerArt[nodeB.art || nodeB.id]}" alt=""><b>${esc(nodeB.name)}</b>` : `<b>${esc(nodeB.name)}</b>`;
-      return `<div class="bt pl"><div class="phead"><div class="ptr">${tr}</div><button class="ib" data-act="leave" style="${ui.leaveAsk ? 'width:auto;padding:0 12px;font-size:16px;font-weight:800' : ''}" aria-label="Leave">${ui.leaveAsk ? 'Flee?' : '🏃'}</button><button class="ib" data-act="menu" aria-label="Menu">☰</button></div><div class="board" style="height:${HB}px">${cols}</div><div class="pstat">${pileHtml}<div class="status">${status}</div>${fight}</div>${fanHtml}</div>`;
+      const bar = `<button class="ib" data-act="leave" style="${ui.leaveAsk ? 'width:auto;padding:0 12px;font-size:16px;font-weight:800' : ''}" aria-label="Leave">${ui.leaveAsk ? 'Flee?' : '🏃'}</button><button class="ib" data-act="menu" aria-label="Menu">☰</button>`;
+      if (!NARROW) return `<div class="bt pl"><div class="phead wide"><div class="ptr">${tr}</div>${pileHtml}<div class="status">${status}</div>${fight}${bar}</div><div class="board" style="height:${HB}px">${cols}</div>${fanHtml}</div>`;
+      return `<div class="bt pl"><div class="phead"><div class="ptr">${tr}</div>${bar}</div><div class="board" style="height:${HB}px">${cols}</div><div class="pstat">${pileHtml}<div class="status">${status}</div>${fight}</div>${fanHtml}</div>`;
     }
     const railIn = placing ? `<div class="status">${status}</div>${fight}<div class="hrow handrow hcol">${heroTray}</div>${pileHtml}` : `<div class="rmid"><div class="status">${status}</div><div class="dice">${diceHtml}</div></div><div class="acts">${btns}</div>`;
     const dw = RW >= 200 ? 78 : RW >= 150 ? 62 : 46;
@@ -3241,25 +3273,26 @@ const trainerFg = {
   function dexStep(dir) { const seen = dexSeen(), nums = [...new Set(Object.values(C).map(c => c.dex).filter(Boolean))].sort((a, b) => a - b).filter(d => seen[d]); const i = nums.indexOf(ui.dexCard); if (i < 0 || nums.length < 2) return; ui.dexCard = nums[(i + dir + nums.length) % nums.length]; render(); }
   function dexCardSheet() {
     const cs = Object.values(C).filter(c => c.dex === ui.dexCard).sort((a, b) => (a.loc === 0) - (b.loc === 0) || a.level - b.level); if (!cs.length) return '';
-    const own = lsGet(DEXC) || {}, fnd = lsGet(DEXF) || {}, shs = lsGet(DEXS) || {}, n = cs.length, per = n <= 3 ? n : Math.ceil(n / 2), rows = Math.ceil(n / per);
-    const cw = Math.max(90, Math.min(300, Math.floor((innerWidth - 40 - (per - 1) * 12) / per), Math.floor((viewH() - 330 - (rows - 1) * 170) / rows / CH)));
+    const own = lsGet(DEXC) || {}, fnd = lsGet(DEXF) || {}, shs = lsGet(DEXS) || {}, cg = lsGet(DEXG) || {}, n = cs.length;
+    // every version of the Pokémon: its card, and right beside it (the very same size) the back of the card, i.e. where it is found; a "?" while that is not known
+    const W = Math.min(innerWidth, 1100) - 24, Hh = viewH() - 150; let cw = 70;
+    for (let r = 1; r <= n; r++) { const per = Math.ceil(n / r), rr = Math.ceil(n / per), c = Math.floor(Math.min(300, (W - (per - 1) * 18 - per * 10) / (2 * per), (Hh - (rr - 1) * 14 - rr * 74) / rr / CH)); if (c > cw) cw = c; }
+    if (cw < 120) { const per = W >= 520 ? 2 : 1; cw = Math.floor(Math.min(190, (W - (per - 1) * 18 - per * 10) / (2 * per))); }          // too many to fit on one screen: they scroll
     const legacy = !!dexSeen()[ui.dexCard] && !cs.some(c => own[c.id]);              // an older record without versions: show the ordinary card
     ui.dexShiny = ui.dexShiny || {};
-    // a place is shown as the back of its cards with its name underneath
-    const loc = l => { const L = D.locations.find(x => x.id === l); return L ? `<div class="locchip"><div style="--pw:84px">${deckPile(l, { pw: 84, count: 1, nobadge: true })}</div><span>${esc(L.name)}</span></div>` : ''; };
-    const cg = lsGet(DEXG) || {};
+    const box = (inner, bg, act, id) => `<div class="dxback" style="width:${cw}px;height:${Math.round(cw * CH)}px;background:${bg}"${act ? ` data-act="${act}" data-t="loc" data-id="${id}"` : ''}>${inner}</div>`;
+    const backOf = l => deckBack(l).replace('<svg ', '<svg style="width:100%;height:100%;display:block" preserveAspectRatio="xMidYMid meet" ');
     const one = c => {
-      const have = !!own[c.id] || (legacy && c.loc !== 0 && c === cs.find(x => x.loc !== 0)), sh = !!ui.dexShiny[c.id] && !!shs[c.id], found = (fnd[c.id] || []).length > 0, got = !!cg[c.id];
-      // three big labelled tiles above the card: where it is found, caught, shiny. Tap one for a plain explanation; the shiny tile also switches the card.
-      const tile = (k, ic, name, st, on, act) => `<button class="stile${on ? ' on' : ''}" data-act="${act || 'dextip'}" data-t="${k}" data-id="${c.id}"><span class="si">${ic}</span><span class="col"><b>${name}</b><small>${st}</small></span></button>`;
-      const fl = fnd[c.id] || [], pw = fl.length > 1 ? 54 : 84;
-      const locSq = `<button class="stile wide${found || c.loc === 0 ? ' on' : ''}" data-act="dextip" data-t="loc" data-id="${c.id}"><b>Location</b>${c.loc === 0 ? '<span class="si">⭐</span><small>Starter only</small>' : found ? `<span class="locs">${fl.map(l => { const L = D.locations.find(x => x.id === l); return L ? `<span class="locchip"><span style="--pw:${pw}px;display:block">${deckPile(l, { pw, count: 1, nobadge: true })}</span><small>${esc(L.name)}</small></span>` : ''; }).join('')}</span>` : '<span class="si" style="font-size:44px">?</span><small>Unknown</small>'}</button>`;
-      const catSq = tile('cat', '<i class="pbi"></i>', 'Caught', got ? 'Yes' : 'Not yet', got);
-      const shBtn = tile('shy', '✨', 'Shiny', shs[c.id] ? (sh ? 'Showing · tap for normal' : 'Had one · tap to view') : 'Not yet', !!shs[c.id], shs[c.id] ? 'dexshiny' : 'dextip');
-      const where = '';
-      return `<div class="dxv"><div class="sqs" style="--sw:${cw}px">${locSq}${catSq}${shBtn}</div>${card({ id: c.id, sh: sh ? 1 : 0 }, { cw, cls: have ? '' : 'sil' })}${where}</div>`;
+      const have = !!own[c.id] || (legacy && c.loc !== 0 && c === cs.find(x => x.loc !== 0)), sh = !!ui.dexShiny[c.id] && !!shs[c.id], fl = fnd[c.id] || [], got = !!cg[c.id];
+      let where;
+      if (c.loc === 0) where = box('<div class="dxstar">⭐</div><div class="dxlab">Starter</div>', 'linear-gradient(#5e35b1,#311b92)', 'dextip', c.id);
+      else if (fl.length) where = `<div class="dxstack" style="width:${cw + (fl.length - 1) * 16}px;height:${Math.round(cw * CH) + (fl.length - 1) * 8}px">${fl.map((l, i) => `<div style="position:absolute;left:${i * 16}px;top:${(fl.length - 1 - i) * 8}px">${box(backOf(l), (DECKC[(D.locations.find(x => x.id === l) || {}).color] || DECKC.blue)[0], 'dextip', c.id)}</div>`).join('')}</div>`;
+      else where = box('<div class="dxq2">?</div><div class="dxlab">Unknown</div>', 'linear-gradient(#37474f,#1c262b)', 'dextip', c.id);
+      const chip = (k, ic, name, st, on, act) => `<button class="dxchip${on ? ' on' : ''}" data-act="${act || 'dextip'}" data-t="${k}" data-id="${c.id}"><span class="si">${ic}</span><b>${name}</b><small>${st}</small></button>`;
+      const catC = chip('cat', '<i class="pbi"></i>', 'Caught', got ? 'Yes' : 'Not yet', got), shC = chip('shy', '✨', 'Shiny', shs[c.id] ? (sh ? 'Showing' : 'Tap to view') : 'Not yet', !!shs[c.id], shs[c.id] ? 'dexshiny' : 'dextip');
+      return `<div class="dxv2"><div class="dxpair">${card({ id: c.id, sh: sh ? 1 : 0 }, { cw, cls: have ? '' : 'sil' })}${where}</div><div class="dxchips">${catC}${shC}</div></div>`;
     };
-    return `<div class="sheet" style="z-index:70;flex-direction:column;gap:10px" data-act="closedexcard"><div class="dxvs">${cs.map(one).join('')}</div><div class="hnav"><button class="ib" data-act="dexprev" aria-label="Previous">◀</button><button class="ib" data-act="dexnext" aria-label="Next">▶</button></div>${ui.dexTip ? `<div class="sheet" style="z-index:80" data-act="dextipx"><div class="box" data-stop="1" style="max-width:420px;display:flex;flex-direction:column;gap:12px"><h2>${ui.dexTip.h}</h2><p class="hcap" style="font-size:20px">${ui.dexTip.p}</p><button class="btn" data-act="dextipx">OK</button></div></div>` : ''}</div>`;
+    return `<div class="sheet" style="z-index:70;flex-direction:column;gap:10px" data-act="closedexcard"><div class="dxvs2" style="max-height:${viewH() - 96}px">${cs.map(one).join('')}</div><div class="hnav"><button class="ib" data-act="dexprev" aria-label="Previous">◀</button><button class="ib" data-act="dexnext" aria-label="Next">▶</button></div>${ui.dexTip ? `<div class="sheet" style="z-index:80" data-act="dextipx"><div class="box" data-stop="1" style="max-width:420px;display:flex;flex-direction:column;gap:12px"><h2>${ui.dexTip.h}</h2><p class="hcap" style="font-size:20px">${ui.dexTip.p}</p><button class="btn" data-act="dextipx">OK</button></div></div>` : ''}</div>`;
   }
   function recordsSheet() {
     const sz = ui.recSize || set.size, rec = scores()[sz] || {}, bosses = D.nodes.filter(n => n.kind === 'boss');
@@ -3525,7 +3558,7 @@ const trainerFg = {
     die(el) { const i = +el.dataset.i; if (ui.tweak != null) { const uid = ui.tweak; ui.tweak = null; act({ t: 'tweak', side: 0, uid, die: i }); return; } ui.die = ui.die === i ? null : i; render(); },
     unit(el) {
       const b = G.battle, u = E.U(b, +el.dataset.uid); if (!u) return;
-      if (b.stage === 'place' && u.side === 0 && b.pl && b.pl.side === 0 && (u.uid === b.lastMine || b.refill)) { const before = new Set(b.hand[0]); if (act({ t: 'pickup', uid: u.uid })) { const nb = G.battle.hand[0].find(h => !before.has(h)); ui.sel = nb != null ? nb : null; render(); } return; }          // your latest card (or any, while replacing a fallen one) comes back to your hand, ready to put somewhere else
+      if (b.stage === 'place' && u.side === 0 && b.pl && b.pl.side === 0 && (u.uid === b.lastMine || b.refill)) { ui.psel = ui.psel === u.uid ? null : u.uid; render(); return; }          // a card you may still take back: a tap only lights it up; drag it to your hand to take it back, or to another spot to move it
       if (b.stage === 'match' && b.mt && b.mt.side === 0) { const mv = E.matchMoves(b, 0).filter(m => m.uid === u.uid); if (mv.length) { ui.msel = ui.msel === u.uid ? null : u.uid; render(); return; } }
       if (b.ask && b.ask.kind === 'yn') return;
       if (b.ask && b.ask.kind === 'alloc') { if (b.ask.opts.some(o => o[0] === u.uid) && act({ t: 'alloc', tgt: u.uid })) { const p = ui.play; if (p && !b.ask) { absorbEvents(); p.waiting = false; nextBeat(); } else if (!p && !b.ask) startPlay(); } return; }
@@ -3603,6 +3636,40 @@ const trainerFg = {
     else render();
   });
   document.addEventListener('pointercancel', endDrag);
+  // placing: drag a card from your hand onto a spot; drag one you have just put down back to your hand (takes it back) or onto another spot (moves it)
+  let pd = null;
+  document.addEventListener('pointerdown', ev => {
+    const b = G && G.battle; if (!b || b.stage !== 'place' || !b.pl || b.pl.side !== 0 || ui.big) return;
+    const c = ev.target.closest && ev.target.closest('.card[data-act=tray], .card[data-act=unit]'); if (!c) return;
+    let key = +c.dataset.uid, from = null;
+    if (c.dataset.act === 'unit') { const u = E.U(b, key); if (!u || u.side !== 0 || u.ko || !(u.uid === b.lastMine || b.refill)) return; from = u.uid; }
+    pd = { key, from, x: ev.clientX, y: ev.clientY, moved: false, ghost: null, origin: null };
+  });
+  document.addEventListener('pointermove', ev => {
+    if (!pd) return;
+    if (!pd.moved) {
+      if (Math.hypot(ev.clientX - pd.x, ev.clientY - pd.y) < 10) return;
+      pd.moved = true; const b = G.battle;
+      if (pd.from != null) { const ci = b.cols.findIndex(c => c[0] === pd.from), before = new Set(b.hand[0]); pd.origin = ci; if (!act({ t: 'pickup', uid: pd.from })) { pd = null; return; } const nb = G.battle.hand[0].find(h => !before.has(h)); pd.key = nb != null ? nb : null; }
+      ui.sel = pd.key; ui.psel = null; render();
+      const src = document.querySelector('.card[data-act=tray][data-uid="' + pd.key + '"]'); if (!src) { pd = null; return; }
+      const g = src.cloneNode(true); g.removeAttribute('data-act'); g.classList.add('cghost'); const r = src.getBoundingClientRect(); g.style.width = r.width + 'px'; g.style.height = r.height + 'px'; pd.w = r.width; pd.h = r.height; document.body.appendChild(g); pd.ghost = g;
+    }
+    if (!pd || !pd.ghost) return;
+    pd.ghost.style.left = (ev.clientX - pd.w / 2) + 'px'; pd.ghost.style.top = (ev.clientY - pd.h / 2) + 'px';
+    document.querySelectorAll('.dropok').forEach(x => x.classList.remove('dropok')); const t = document.elementFromPoint(ev.clientX, ev.clientY), sl = t && t.closest('[data-act=join], [data-act=ins]'); if (sl) sl.classList.add('dropok');
+  });
+  const endPd = () => { if (pd && pd.ghost) pd.ghost.remove(); document.querySelectorAll('.dropok').forEach(x => x.classList.remove('dropok')); pd = null; };
+  document.addEventListener('pointerup', ev => {
+    if (!pd) return; const d = pd; const t = d.moved ? document.elementFromPoint(ev.clientX, ev.clientY) : null; endPd(); if (!d.moved) return;
+    ui.dragged = Date.now(); const sl = t && t.closest('[data-act=join], [data-act=ins]');
+    ui.sel = d.key;
+    if (sl) { A[sl.dataset.act](sl); return; }
+    if (t && t.closest('.pfan, .handrow')) { ui.sel = null; render(); return; }          // back in your hand
+    if (d.from != null && d.origin != null && d.origin >= 0 && G.battle.cols[d.origin] && E.slotsFor(G.battle, 0).some(x => x.join === d.origin)) { A.join({ dataset: { col: d.origin } }); return; }          // dropped nowhere: it goes back where it was
+    ui.sel = null; render();
+  });
+  document.addEventListener('pointercancel', endPd);
   function resetSel() { ui.returning = false; ui.recall = null; ui.slide = null; ui.pickSel = null; ui.more = false; ui.gsw = null; ui.chip = false; ui.tweak = null; ui.sel = null; ui.die = null; ui.aim = null; ui.pick = []; ui.chooser = null; ui.play = null; ui.rolledFor = 0; ui.rollTap = null; ui.rolling = 0; ui.mapX = null; }
   // a long press on any card, anywhere, shows it big
   { let lp = null; document.addEventListener('pointerdown', ev => { const c = ev.target.closest && ev.target.closest('.card[data-cid]'); if (!c || ui.big) return; const x0 = ev.clientX, y0 = ev.clientY; clearTimeout(lp); lp = setTimeout(() => { ui.big = { id: c.dataset.cid, sh: +c.dataset.csh }; ui.longp = Date.now(); render(); }, 480); const cancel = e2 => { if (e2.type === 'pointermove' && Math.hypot(e2.clientX - x0, e2.clientY - y0) < 10) return; clearTimeout(lp); removeEventListener('pointermove', cancel); removeEventListener('pointerup', cancel); removeEventListener('pointercancel', cancel); }; addEventListener('pointermove', cancel); addEventListener('pointerup', cancel); addEventListener('pointercancel', cancel); }); }

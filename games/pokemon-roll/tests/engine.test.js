@@ -756,3 +756,13 @@ test('v3: a matchless card may pass one matchless opponent to match another, but
   [c.h(3), c.g(3)].forEach(u => { u.ko = false; }); b.cols = [[c.h(0).uid, null], [c.h(3).uid, c.g(3).uid], [null, c.g(2).uid]];
   assert.deepEqual(E.matchMoves(b, 0).map(m => m.to), [], 'a fight in the way stops it');
 });
+
+test('v3: a card entering a column faces the "when enemies enter this column" burn however it got there: placed, slid in a matchup, slid in after a retreat, or moved/swapped by an ability', () => {
+  // matchup slide
+  let c = craft(['10', '10'], ['4.1', '10']); let b = c.b; b.fcols = true; b.nOut = null; c.h(0).ko = true; c.g(1).ko = true;
+  b.cols = [[null, c.g(0).uid], [c.h(1).uid, null]]; b.stage = 'resolved'; b.out = null; const hp = c.h(1).hp;
+  assert.ok(E.apply(c.s, { t: 'next' }).ok); assert.equal(c.h(1).hp, hp - 1, 'Charmander burns the card that slid in across from it');
+  // retreat slide
+  c = craft(['10', '10', '10'], ['10', '4.1', '10']); b = c.b; const hp2 = c.h(2).hp;
+  assert.ok(E.apply(c.s, { t: 'recall', uid: c.h(1).uid, slide: c.h(2).uid }).ok); assert.equal(c.h(2).hp, hp2 - 1, 'and the neighbour that slides over after a retreat');
+});

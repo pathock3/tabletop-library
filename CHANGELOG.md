@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- **Pokémon Roll! — map, Pokédex, placing:** the map groups what a leader unlocks on a tinted panel with a solid arrow from the leader (more space between columns and routes, gym leaders through the middle, no special-event slot unless there is an event); the Pokédex profile shows each version's card with its location (the back of the card, same size) right beside it, or Unknown/Starter, with Caught and Shiny chips under it; ghost cards show "weak: Enemy heals ×2"; drag cards from your hand onto a spot, drag a card you just put down back to your hand or onto another spot (tapping it only lights it up); in landscape the instructions sit in the top bar and your hand matches the board's card size; anything entering a column faces the "when enemies enter this column" burn however it got there.
+
 - **Pokémon Roll! — retreat, passing, scenes in battle:** a card can be retreated in any round before the dice are rolled (each round now waits for a tap to roll, and the card's die goes with it); a matchless card may pass one matchless opponent to match another; the trainer's scene shows on the battle header/side bar and on the gym piles' card backs.
 
 - **Pokémon Roll! — placing layout:** while you place cards, the board is smaller and your hand is fanned out under it (like Your cards on the map) instead of a thin column on the right; when the fight starts the hand flies off the bottom and the board zooms to full size. Level and menu buttons sit in a slim bar on top.
