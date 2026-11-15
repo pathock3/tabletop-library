@@ -322,7 +322,7 @@ test('ui: a card lists its moves from 6 at the top down to 1 at the bottom', { s
   try {
     await p.goto(URL); await p.click('[data-act=new]'); await p.click('[data-act=starter][data-k=pikachu]'); await p.click('.mypile'); await p.waitForSelector('.handf .card');
     const pips = await p.locator('.handf .card').first().locator('.pip').allInnerTexts(); assert.deepEqual(pips, ['6', '5', '4', '3', '2', '1'], 'best on top');
-    const rows = await p.locator('.handf .card').first().locator('.f .mt').allInnerTexts(); assert.match(rows[0], /Attack/, 'move 1 is on the 6'); assert.match(rows[5], /Damage/, 'the damage to itself is on the 1');
+    const rows = await p.locator('.handf .card').first().locator('.f .mt').allInnerTexts(); assert.match(rows[0], /Attack/, 'move 1 is on the 6'); assert.match(rows[5], /Recoil|Damage/, 'the recoil is on the 1 (Bulbasaur)');
   } finally { await b.close(); }
 });
 
@@ -589,7 +589,7 @@ test('ui: a long press shows any card big (and a tap on a part of it explains th
     await p.locator('.card[data-act=unit]:not(.foe)').first().click(); assert.equal(await p.evaluate(() => window.__pokemonRoll.G.battle.placed[0]), 1, 'a tap only lights the card up');
     const drag = async (from, to) => { const a = await from.boundingBox(); await p.mouse.move(a.x + a.width / 2, a.y + a.height / 2); await p.mouse.down(); const t = await to.boundingBox(); await p.mouse.move(t.x + t.width / 2, t.y + t.height / 2, { steps: 8 }); await p.mouse.up(); };
     await drag(p.locator('.card[data-act=unit]:not(.foe)').first(), p.locator('.pfan')); await p.waitForFunction(() => window.__pokemonRoll.G.battle.placed[0] === 0, null, { timeout: 4000 });
-    await p.waitForTimeout(500); await drag(p.locator('.pfan [data-act=tray]').first(), p.locator('.board .col').last().locator('.slot').last()); await p.waitForFunction(() => window.__pokemonRoll.G.battle.placed[0] >= 1 || window.__pokemonRoll.ui.weakAsk, null, { timeout: 4000 });          // (a card weak to the one it would face asks first, as when tapping)
+    await p.waitForTimeout(500); await p.waitForSelector('.pfan [data-act=tray]', { timeout: 6000 }); await drag(p.locator('.pfan [data-act=tray]').first(), p.locator('.board .col').last().locator('.slot').last()); await p.waitForFunction(() => window.__pokemonRoll.G.battle.placed[0] >= 1 || window.__pokemonRoll.ui.weakAsk, null, { timeout: 4000 });          // (a card weak to the one it would face asks first, as when tapping)
     assert.deepEqual(errs, []);
   } finally { await b.close(); }
 });
@@ -656,5 +656,23 @@ test('ui: in a trainer fight both sides show a ball for each Pokémon (a differe
     await p.evaluate(() => { let g; while ((g = Bots.step(window.__pokemonRoll.G))) Engine.apply(window.__pokemonRoll.G, g); const G = window.__pokemonRoll.G; for (let i = 0; i < 8 && G.battle.stage === 'place'; i++) { if (G.battle.pl.side === 0 && G.battle.hand[0].length) Engine.apply(G, Object.assign({ t: 'place', side: 0, uid: G.battle.hand[0][0] }, Engine.slotsFor(G.battle, 0)[0])); while ((g = Bots.step(G))) Engine.apply(G, g); } window.__pokemonRoll.render(); });
     assert.ok(await p.locator('.rail .balls').count() >= 2, 'a row of balls for them and for you'); assert.ok(await p.locator('.rail .me img').count() === 1, 'your sprite is there');
     await p.evaluate(() => { const b = window.__pokemonRoll.G.battle; b.units.find(u => u.side === 1).ko = true; window.__pokemonRoll.render(); }); assert.ok(await p.locator('.rail .balls svg[aria-label=defeated]').count() >= 1, 'a fallen Pokémon has its own ball');
+  } finally { await b.close(); }
+});
+
+test('ui: V4 statuses and charges show as icons on the card (tap one to read it), keywords in a zoomed move explain themselves, and the freeze choice is put to you after the round', { skip: !chromium }, async () => {
+  const b = await chromium.launch(), p = await b.newPage({ viewport: { width: 1180, height: 820 } });
+  const errs = []; p.on('pageerror', e => errs.push(e.message));
+  try {
+    await p.goto(URL); await p.click('[data-act=new]'); await p.click('[data-act=starter][data-k=squirtle]'); await p.locator('[data-act=tipok]').click({ timeout: 800 }).catch(() => {});
+    await p.evaluate(() => { const R = window.__pokemonRoll; R.G.coll.push({ uid: 50, id: '10', sh: 0 }, { uid: 51, id: '16', sh: 0 }); R.render(); });
+    await p.click('.place[data-id=B1]'); await p.waitForSelector('[data-act=lendok]', { timeout: 3000 }).catch(() => {}); await p.click('.btn[data-act=lendok]').catch(() => {}); await p.locator('[data-act=tipok]').click({ timeout: 800 }).catch(() => {});
+    await p.evaluate(() => { const G = window.__pokemonRoll.G; let g; while ((g = Bots.step(G))) Engine.apply(G, g); for (let i = 0; i < 8 && G.battle.stage === 'place'; i++) { if (G.battle.pl.side === 0 && G.battle.hand[0].length) Engine.apply(G, Object.assign({ t: 'place', side: 0, uid: G.battle.hand[0][0] }, Engine.slotsFor(G.battle, 0)[0])); while ((g = Bots.step(G))) Engine.apply(G, g); }
+      const bt = G.battle, h = bt.units.filter(u => u.side === 0 && !u.ko)[0]; h.poison = true; h.chargeNow = 2; window.__pokemonRoll.render(); });
+    await p.locator('[data-act=tipok]').click({ timeout: 800 }).catch(() => {});
+    assert.ok(await p.locator('.sts .st-poison').count() >= 1 && await p.locator('.sts .st-charge').count() >= 1, 'poison and charge icons');
+    await p.locator('.sts .st-poison').first().click(); assert.match(await p.innerText('.sheet'), /Poison/); await p.locator('[data-act=expx]').last().click();
+    await p.evaluate(() => { const R = window.__pokemonRoll, b2 = R.G.battle; b2.stage = 'resolved'; b2.out = null; const u = b2.units.find(x => x.side === 1 && !x.ko); u.lastDie = 2; b2.fzAsk = [u.uid]; R.render(); });
+    await p.locator('[data-act=tipok]').click({ timeout: 800 }).catch(() => {}); assert.match(await p.innerText('.rail'), /Lock the 2/, 'the freeze choice'); assert.equal(await p.locator('[data-act=fzkeep]').count(), 1); await p.evaluate(() => window.__pokemonRoll.A.fzkeep({ dataset: { uid: window.__pokemonRoll.G.battle.fzAsk[0] } })); assert.equal(await p.evaluate(() => window.__pokemonRoll.G.battle.fzAsk.length), 0);
+    assert.deepEqual(errs, []);
   } finally { await b.close(); }
 });

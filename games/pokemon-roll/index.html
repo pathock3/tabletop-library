@@ -542,6 +542,8 @@ button{font:inherit;color:inherit;border:0;cursor:pointer}
 <style>.tsp{width:min(100%,120px);height:auto;aspect-ratio:1;image-rendering:pixelated;filter:drop-shadow(0 4px 0 #0007)}.prail .tsp{width:132px}</style>
 <style>.prail .rbar{display:flex;gap:10px;justify-content:flex-end;width:100%;pointer-events:auto}.prail .pilebay,.prail .btn,.prail .ib{pointer-events:auto}.prail .status.small{font-size:16px;line-height:1.15;margin:0;text-align:center}.prail{overflow:visible}</style>
 <style>.card.tgt{z-index:6;outline:6px solid #fff35c;outline-offset:2px;box-shadow:0 0 0 12px #ffd23f88,0 0 46px 16px #ffd23fcc;animation:tgtp .8s ease-in-out infinite}.card.tgt::after{content:'TAP';position:absolute;left:50%;top:-16px;transform:translateX(-50%);background:#ffd23f;color:#14110f;font:900 20px system-ui;padding:4px 16px;border-radius:999px;border:3px solid #14110f;z-index:7;box-shadow:0 3px 0 #0007}.card.notgt{opacity:.45;filter:saturate(.55) brightness(.85)}@keyframes tgtp{50%{transform:scale(1.035);box-shadow:0 0 0 18px #ffd23f55,0 0 60px 22px #ffd23fff}}</style>
+<style>.sts{position:absolute;left:4px;top:4px;display:flex;gap:4px;z-index:4}.sts .st{min-width:26px;height:26px;padding:0 5px;border-radius:13px;background:#14110fd9;border:2px solid #fff;display:grid;place-items:center;font:900 15px system-ui;color:#fff;box-shadow:0 2px 0 #0007}.st-poison{border-color:#ba68c8!important}.st-stun{border-color:#ffd23f!important}.st-freeze{border-color:#4dd0e1!important}.st-charge{border-color:#ffb300!important}.kw{cursor:help}.mS{font-weight:900}.mS-poison{color:#8e24aa}.mS-stun{color:#b8860b}.mS-freeze{color:#0097a7}.mK{font-weight:900;color:#e08600}.kwd{font-weight:800;opacity:.9}</style>
+<style>.sts{left:auto!important;bottom:auto!important;top:calc(var(--cw) * .2)!important;right:6px}</style>
 <script id="data">
 /* Pokémon Roll! — every rule number, the map, the bosses, the card sheet and the art live here. The engine and bots read this and hard-code none of it. */
 const GAME_DATA = {
@@ -1527,13 +1529,17 @@ const Engine = (() => {
     const score = c => c.reduce((sum, t) => sum + (e.k === 'a' ? hitValue(b, u, t.u, amt) : t.ghost ? hitValue(b, u, t.u, amt * 2) : Math.min(amt, t.u.max - t.u.hp)), 0);
     return cand.reduce((best, c) => score(c) > score(best) ? c : best);
   }
+  // what a status is worth to the one who gives it (rough, for the computer)
+  const stV = (b, T, st) => T.ko || T.hp <= 0 ? 0 : st === 'stun' ? (T.skip || T.skipNext ? 0.3 : 2.6) : st === 'poison' ? (T.poison || T.poisonNew ? 0 : 1.6) : st === 'freeze' ? 1.1 : 0;
   function clauseValue(b, u, clause, hint) {
     let v = 0;
     effectsOf(b, u, clause).forEach(e => {
       const amt = amountOf(b, u, e);
-      if (e.k === 'a') { const T = pickTargets(b, u, e, amt, hint); if (e.spec.spread) { let r = amt; T.forEach(t => { const x = Math.min(r, Math.ceil(t.u.hp / wm(b, u, t.u))); r -= x; v += hitValue(b, u, t.u, x); }); } else T.forEach(t => { v += hitValue(b, u, t.u, amt); }); if (!T.length) v -= 0.5; }
+      if (e.k === 'a') { const T = pickTargets(b, u, e, amt, hint); if (e.spec.spread) { let r = amt; T.forEach(t => { const x = Math.min(r, Math.ceil(t.u.hp / wm(b, u, t.u))); r -= x; v += hitValue(b, u, t.u, x); }); } else T.forEach(t => { v += hitValue(b, u, t.u, amt); }); if (!T.length) v -= 0.5; else { if (e.pierce || has(u, 'pierceAll')) v += 0.4 * T.length; if (e.drain) v += 0.5 * Math.min(amt, u.max - u.hp + 1); (e.sts || []).concat(tags(u).filter(g => g.t === 'atkStatus').map(g => g.st)).forEach(st => T.forEach(t => { v += stV(b, t.u, st); })); } }
       else if (e.k === 'h') { const T = pickTargets(b, u, e, amt, hint); let r = amt; T.forEach(t => { if (t.ghost) { v += hitValue(b, u, t.u, amt * 2); return; } const x = t.u.hp <= 0 ? 0 : Math.min(e.spec.spread ? r : amt, t.u.max - t.u.hp); r -= x; v += x * 0.9; }); }
       else if (e.k === 'b') v += amt * (living(b, other(u.side)).some(x => !x.skip) ? 0.55 : 0.1);
+      else if (e.k === 's') { const T = pickTargets(b, u, e, 0, hint); T.forEach(t => { v += stV(b, t.u, e.st); }); }
+      else if (e.k === 'g') v += 0.9 * pickTargets(b, u, e, 0, hint).length;
       else if (e.k === 'd') v -= e.n * 1.3 + (u.hp <= e.n ? 6 : 0);
     });
     return v;
@@ -2530,7 +2536,29 @@ const Bots = (() => {
   const sprW = {}; const artPct = id => { const d = C[id].dex; if (sprW[d] == null) { try { const b = (D.art[d] || D.art[1]).n, bin = atob(b.slice(0, 32)); sprW[d] = (bin.charCodeAt(18) << 8) | bin.charCodeAt(19); } catch (e) { sprW[d] = 56; } } return Math.max(34, Math.min(100, Math.round(sprW[d] / 56 * 100))); };
   const art = (id, sh) => { const dex = C[id].dex, k = dex + (sh ? 's' : 'n'); return uriC[k] || (uriC[k] = 'data:image/png;base64,' + (D.art[dex] || D.art[1])[sh ? 's' : 'n']); };
   const el = t => D.elements[t] || D.elements.Normal;
-  const WORD = { a: 'Attack', b: 'Block', h: 'Heal', d: 'Damage 💥' }, ARROWD = '▼ ', KLS = { a: 'mA', b: 'mB', h: 'mH', d: 'mD' };
+  const WORD = { a: 'Attack', p: 'Pierce', b: 'Block', c: 'Counter', h: 'Heal', d: 'Recoil' }, ARROWD = '', KLS = { a: 'mA', p: 'mA', b: 'mB', c: 'mB', h: 'mH', d: 'mD' };
+  // the V4 keywords, in plain words (tap one in a zoomed card to read it)
+  const KW = {
+    attack: ['⚔ Attack (a)', 'Damage to the target. A block or counter can reduce it.'],
+    pierce: ['🗡 Pierce (p)', 'Damage to the target that blocks and counters cannot stop.'],
+    block: ['🛡 Block (b)', 'Prevents that much damage to the target this round. Leftover block is wasted.'],
+    counter: ['↩ Counter (c)', 'Prevents that much damage and sends it back to the attacker. If the hit is bigger, the rest gets through. Leftover counter is wasted. Damage sent back never carries a status.'],
+    heal: ['❤ Heal (h)', 'Restores health and removes every status (poison, stun, freeze). A heal aimed at an enemy Dark (ghost) card instead hits it for double the heal, as an attack that blocks and counters can stop; it cures nothing.'],
+    drain: ['🩸 Drain', 'It attacks, then heals itself for the damage it really dealt.'],
+    boost: ['⬆ Boost', 'This round, its neighbours\' attacks deal +1 (or the amount shown) to each target they hit, but only if those neighbours attack.'],
+    charge: ['⚡ Charge', 'Next round every number on this card\'s move goes up by 1 per charge: attacks, pierce, heals, blocks, counters and recoil. Charges stack, arrive at the end of the round and are all used next round. A blank roll wastes them. "charge ◀▶" charges its neighbours instead.'],
+    recoil: ['▼ Recoil', 'Damage to the card itself. It can never be blocked.'],
+    poison: ['☠ Poison', 'No damage right away. The card takes 1 damage at the end of the next round and every round after, until it is healed. It cannot stack.'],
+    stun: ['💫 Stun', 'The card loses its next turn. Stunning a stunned card just refreshes it. A heal removes it.'],
+    freeze: ['❄ Freeze', 'At the end of the round, whoever froze the card chooses whether it keeps the same die number next round (no reroll). Lock in a bad roll, or let a good one go.']
+  };
+  // what is wrong with (or stored on) a card: little icons on its art; tap one to read it
+  const stsHtml = u => {
+    if (!u || u.ko) return ''; const out = [], ch = (u.chargeNow || 0) + (u.chargeNext || 0);
+    if (u.poison || u.poisonNew) out.push(['poison', '☠']); if (u.skip || u.skipNext) out.push(['stun', '💫']); if (u.frozen != null || u.fzBy != null) out.push(['freeze', '❄']); if (ch > 0) out.push(['charge', '⚡' + (ch > 1 ? '×' + ch : '')]);
+    return out.length ? `<div class="sts">${out.map(([k, t]) => `<span class="st st-${k}" data-st="${k}">${t}</span>`).join('')}</div>` : '';
+  };
+  const kwSpan = (k, html) => `<span class="kw kw-${k}" data-kw="${k}">${html}</span>`;
   // "3a <^ or >" -> ⚔3 ◀▲ or ▶   (a short, readable move)
   // the arrows, explicit: with an "or" you pick ONE of them (◀ or ▲ or ▶); without it the move reaches ALL of them (◀ and ▲ and ▶); "split" means you share the points out between them
   const GL = { '<': '◀', '>': '▶', '^': '▲', v: '▼' };
@@ -2543,17 +2571,21 @@ const Bots = (() => {
   };
   const short = str => {
     if (!str) return '';
-    return str.replace(/(\+?)(\d+)([abhd])(\s+(?:over\s+)?[<>^v][<>^v ]*(?:(?:or|and\/or|and)\s*[<>^v][<>^v ]*)*)?/g, (m, plus, n, k, sp) => {
+    return str.replace(/(\+?)(\d+)([abchdp])(\s+drain)?(\s+(?:over\s+)?[<>^v][<>^v ]*(?:(?:or|and\/or|and)\s*[<>^v][<>^v ]*)*)?/g, (m, plus, n, k, drain, sp) => {
       const arr = k === 'd' ? '' : (sp ? ' ' + arrows(sp) : '');
-      return `<span class="${KLS[k]}">${k === 'd' ? ARROWD : ''}${plus}${n} ${WORD[k]}</span><small>${arr}</small>` + (sp && /\s$/.test(sp) ? ' ' : '');
-    }).replace(/,\s*/g, ' · ');
+      const kn = { a: 'attack', p: 'pierce', b: 'block', c: 'counter', h: 'heal', d: 'recoil' }[k];
+      return kwSpan(kn, `<span class="${KLS[k]}">${k === 'd' ? ARROWD : ''}${plus}${n} ${WORD[k]}</span>`) + (drain ? kwSpan('drain', '<small class="kwd"> drain</small>') : '') + `<small>${arr}</small>` + (sp && /\s$/.test(sp) ? ' ' : '');
+    }).replace(/recoil\s*(\d+)/gi, (m, n) => kwSpan('recoil', `<span class="mD">${n} Recoil</span>`))
+      .replace(/\bcharge\b(\s*<>)?/gi, (m, nb) => kwSpan('charge', `<span class="mK">⚡ Charge</span>`) + (nb ? '<small> ◀▶</small>' : ''))
+      .replace(/\b(poison|stun|freeze)\b/gi, (m, w) => { w = w.toLowerCase(); return kwSpan(w, `<span class="mS mS-${w}">${{ poison: '☠', stun: '💫', freeze: '❄' }[w]} ${w[0].toUpperCase() + w.slice(1)}</span>`); })
+      .replace(/,\s*/g, ' · ');
   };
   // an ability in plain words: "-1d" is "-1 damage", "2h" is "2 heal", the arrows become ◀ ▲ ▶
   const abText = t => esc(String(t)
     .replace(/^Immune to (.+)$/, (m, x) => 'Takes ' + D.rules.typeShield + ' less damage from ' + x + ' attacks')
     .replace(/When enemies enter this column, (\d+)d/g, 'When enemies enter this column: ➜ them $1 💥')
     .replace(/-(\d+)d from matchup/g, 'takes $1 less damage from the card across').replace(/-(\d+)d\b/g, '$1 counter')
-    .replace(/max h\b/g, 'max health').replace(/\b(at|below) (\d+)h\b/g, '$1 $2 health')
+    .replace(/(\d+)c\b/g, '$1 counter').replace(/max h\b/g, 'max health').replace(/\b(at|below) (\d+)h\b/g, '$1 $2 health')
     .replace(/(\d+)a\b/g, '$1 attack').replace(/(\d+)b\b/g, '$1 block').replace(/(\d+)h\b/g, '$1 heal').replace(/(\d+)d\b/g, '$1 💥')
     .replace(/[<>^]+/g, m => m.replace(/</g, '◀').replace(/>/g, '▶').replace(/\^/g, '▲')).replace(/\bv\b/g, '▼'));
   // health as pips: solid = health now; hatched = health lost since the round began (blocks can only win back up to where the round began); green = healed above it; empty = room up to max
@@ -2573,7 +2605,7 @@ const Bots = (() => {
     return `<div class="card${u.sh ? ' shiny' : ''}${o.foe ? ' foe' : ''}${o.ko ? ' ko' : ''}${o.sel ? ' sel' : ''}${o.die != null ? ' has-die' : ''}${o.cls ? ' ' + o.cls : ''}" style="--cw:${cw}px;--bg:${e.bg};--c:${e.color}" data-cid="${u.id}" data-csh="${u.sh ? 1 : 0}" ${o.attr || ''}>
       ${D.elements[c.weak] ? `<div class="wkt" data-p="wk" style="--wc:${el(c.weak).color}">weak: ${el(c.weak).icon} ${esc(c.weak)} ×2</div>` : c.weak === 'Enemy Heals' ? `<div class="wkt" data-p="wk" style="--wc:#d81b60">weak: ❤️ Enemy heals ×2</div>` : ''}
       <div class="cbox">
-        <div class="art"><img style="width:${artPct(u.id)}%" src="${art(u.id, u.sh)}" alt="${esc(c.name)}">${u.sh ? sparkles() : ''}${o.mark ? `<div class="mark">${o.mark}</div>` : ''}${o.die != null ? `<div class="dbadge${o.heroDie ? ' hero' : ''}${o.land ? ' land' : ''}${o.dieCol ? ' colored' : ''}" ${o.dieAttr || ''}${o.dieCol ? ` style="background:${o.dieCol}"` : ''}>${o.die}${o.dieBonus ? '<small>+1</small>' : ''}</div>` : ''}</div>
+        <div class="art"><img style="width:${artPct(u.id)}%" src="${art(u.id, u.sh)}" alt="${esc(c.name)}">${u.sh ? sparkles() : ''}${o.mark ? `<div class="mark">${o.mark}</div>` : ''}${o.sts || ''}${o.die != null ? `<div class="dbadge${o.heroDie ? ' hero' : ''}${o.land ? ' land' : ''}${o.dieCol ? ' colored' : ''}" ${o.dieAttr || ''}${o.dieCol ? ` style="background:${o.dieCol}"` : ''}>${o.die}${o.dieBonus ? '<small>+1</small>' : ''}</div>` : ''}</div>
         <div class="nm">${esc(c.name)}${u.sh ? ' ✨' : ''}</div>${o.recall ? `<div class="rcl${o.recall === 'sure' ? ' sure' : ''}" data-act="recall" data-uid="${u.uid}">${o.recall === 'sure' ? 'Return it? Tap again' : '↩ Return'}</div>` : ''}
         <div class="side"><div class="hprow"><div class="hpc${lvl}" data-p="hp">♥ <span class="hpn">${Math.max(0, hp)}</span><small>/${mx}</small></div>${o.chg ? `<span class="hpchg${o.chg.heal ? ' up' : ''}">${o.chg.heal ? '+' : '−'}${o.chg.n}${o.chg.weak ? ' <b>×2</b>' : ''}</span>` : ''}</div>${o.shield ? `<div class="shd">🛡 ${o.shield}</div>` : ''}${o.start != null && mx <= 14 ? hpPips(hp, o.start, mx) : ''}<div class="tagl" data-p="el">${e.icon} ${esc(c.type)}</div><div class="lv">Lv ${lvName(c.level)}</div></div>
       </div>
@@ -2732,6 +2764,7 @@ const trainerFg = {
   // ---------------------------------------------------------------- the game loop
   function toast(t) { ui.toast = t; render(); setTimeout(() => { if (ui.toast === t) { ui.toast = ''; const x = document.querySelector('.toast'); if (x) x.remove(); } }, 2400); }
   function act(a) {
+    if (a.t === 'place') ui.noAuto = false;
     const r = E.apply(G, a); if (!r.ok) { toast(r.error); return false; }
     recordResult(); save(); showEntered(); drive(); return true;
   }
@@ -2761,11 +2794,12 @@ const trainerFg = {
   const weakVs = (uid, col) => { const b0 = G.battle, foe = b0 && b0.cols[col] && b0.cols[col][1] != null ? E.U(b0, b0.cols[col][1]) : null, hid = b0 && b0.hcards && b0.hcards[uid] ? b0.hcards[uid].id : (E.U(b0, uid) || {}).id; return foe && hid && String(C[hid].weak).toLowerCase() === C[foe.id].type.toLowerCase() ? { foe, hid } : null; };
   function autoPlace() {
     const b = G.battle; if (!b || b.stage !== 'place' || !b.pl || b.pl.side !== 0 || b.pl.optional) return false;
+    if (ui.noAuto) return false;          // you took a card back on purpose: it does not jump back by itself
     const hand = E.handOf(b, 0); if (hand.length !== 1) return false;
     const k = hand[0].hid != null ? hand[0].hid : hand[0].uid, slots = E.slotsFor(b, 0);
     if (slots.length !== 1 || (slots[0].join != null && weakVs(k, slots[0].join))) { ui.sel = k; return false; }          // a lone card with a lone spot goes down by itself, unless it is weak to what it would face
     setTimeout(() => {
-      const c = G && G.battle; if (!c || c.stage !== 'place' || !c.pl || c.pl.side !== 0 || c.hand[0].indexOf(k) < 0) return;
+      const c = G && G.battle; if (ui.noAuto || !c || c.stage !== 'place' || !c.pl || c.pl.side !== 0 || c.hand[0].indexOf(k) < 0) return;
       const u0 = c.hcards && c.hcards[k]; if (act(Object.assign({ t: 'place', side: 0, uid: k }, E.slotsFor(c, 0)[0]))) { const b2 = G.battle; if (u0 && u0.sh && b2) { const pu = b2.units.find(x => x.side === 0 && x.sh && x.id === u0.id && !x.ko); if (pu) burst(pu.uid); } }
     }, 450);
     return true;
@@ -2933,14 +2967,14 @@ const trainerFg = {
   // a battle plays like a cut scene: when a round has played out, the next one starts by itself (it waits only where you have something to decide)
   function scheduleNext() {
     clearTimeout(ui.nt);
-    ui.nt = setTimeout(() => { const b = G && G.battle; if (!b || b.stage !== 'resolved' || ui.play || ui.tip || ui.menu || ui.help || ui.coll || ui.settings || E.hauntAsk(b)) return; A.next(); }, 1300);
+    ui.nt = setTimeout(() => { const b = G && G.battle; if (!b || b.stage !== 'resolved' || ui.play || ui.tip || ui.menu || ui.help || ui.coll || ui.settings || E.hauntAsk(b) || (b.fzAsk && b.fzAsk.length)) return; A.next(); }, 1300);
   }
   // nothing to decide: every die shows the same number, there are enough dice for every card, and there are no rerolls or abilities to use: then it does not matter who gets which die
   function noDecision(b) {
     if (!b || b.colMode || b.stage !== 'assign') return false; const hd = b.dice[0], us = E.living(b, 0).filter(x => !x.skip);
     if (!hd.length || !us.length || hd.some(v => v !== hd[0]) || hd.length < us.length) return false;
     if (b.rr[0] > 0 || (b.bonus && b.bonus[0] > 0) || ((b.rrFace || [])[0] || []).indexOf(hd[0]) >= 0) return false;
-    if (us.some(x => E.tags(x).some(g => ['mover', 'swapper', 'setDie', 'incDie', 'swapOnce', 'ditto'].indexOf(g.t) >= 0))) return false;
+    if (us.some(x => E.tags(x).some(g => ['mover', 'swapper', 'setDie', 'incDie', 'turnDie', 'addDie', 'swapOnce', 'ditto'].indexOf(g.t) >= 0))) return false;
     return true;
   }
   // the dice not on a card yet and the cards still without one
@@ -3173,10 +3207,10 @@ const trainerFg = {
     const matching = b.stage === 'match' && !!b.mt, yourMatch = matching && b.mt.side === 0, mvs = yourMatch ? E.matchMoves(b, 0) : [], movers = new Set(mvs.map(m => m.uid)), msel = ui.msel != null && movers.has(ui.msel) ? ui.msel : null;
     const insAts = yourPlace && selected != null ? E.slotsFor(b, 0).filter(sl => sl.at != null).map(sl => sl.at) : [];       // where a new column could go: each one is shown as a spot the size of a card
     const m = Math.max(1, b.cols.length + insAts.length, b.mode === 'wild' ? b.cap : Math.max(b.need[0], b.need[1]));
-    const cwW = Math.floor((W - 8 - (m + 1) * 4 - m * 6) / m);
+    const cwW = Math.floor((W - 8 - (m + 1) * 4 - m * 6) / m), mBase = Math.max(1, b.cols.length, b.mode === 'wild' ? b.cap : Math.max(b.need[0], b.need[1]));          // the hand keeps its size while a spot is being picked
     if (placing) {          // your hand is fanned under the board, its cards the very same size as the board's
       const nH = E.handOf(b, 0).length + (b.placed ? b.placed[0] : 0), hfit = nH > 1 ? Math.floor((innerWidth - 20) / (1 + (nH - 1) * .62)) : 999;
-      FCW = Math.max(64, Math.min(320, cwW, hfit, Math.floor((H - HEAD - STAT - 64) / 3 / CH))); HH = Math.ceil(FCW * CH) + 36; HB = H - HEAD - STAT - HH;
+      FCW = Math.max(64, Math.min(320, Math.floor((W - 8 - (mBase + 1) * 4 - mBase * 6) / mBase), hfit, Math.floor((H - HEAD - STAT - 64) / 3 / CH))); HH = Math.ceil(FCW * CH) + 36; HB = H - HEAD - STAT - HH;
     }
     const cwH = Math.floor((HB - 10 - 2) / 2 / CH);
     let cw = Math.max(insAts.length ? 90 : 120, Math.min(640, cwW, cwH)); if (placing) cw = Math.min(cw, FCW); const hcw = placing ? 0 : Math.max(80, Math.min(180, RW - 30)); if (placing) FCW = cw;
@@ -3207,8 +3241,8 @@ const trainerFg = {
       let face = 0, spOn = false, die = null;
       if (info && reveal && info.m) { face = info.vals[0]; spOn = !!info.m.sp; die = info.vals.join('+'); }
       const mark = ko ? '✕' : (u.skip && (assign || p || done)) ? '💤' : '';
-      const tw = E.tags(u).find(g => g.t === 'incDie' || g.t === 'setDie');
-      const twOk = tw && u.side === 0 && assign && !ko && !waitRoll && !rolling && b.round - u.lastTweak >= tw.every && (tw.t === 'setDie' ? b.dice[0].length > 0 : info);
+      const tw = E.tags(u).find(g => ['incDie', 'setDie', 'turnDie', 'addDie'].indexOf(g.t) >= 0);
+      const twOk = tw && u.side === 0 && assign && !ko && !waitRoll && !rolling && (tw.t === 'turnDie' ? !(tw.once && u.onceTurn) && b.dice[0].some((v, i) => v === +tw.from && !(b.fixed && b.fixed[0] && b.fixed[0][i])) : b.round - u.lastTweak >= tw.every && (tw.t === 'setDie' ? b.dice[0].length > 0 : tw.t === 'addDie' ? b.dice[0].some(v => v < 6) : info));
       const canMv = assign && (colM ? !b.rolled && !Object.keys(b.acted).length : !waitRoll && !rolling) && u.side === 0 && !ko && !u.skip && !E.blocksMove(b, 0);
       // an ability you can use is the ability box itself: lit when you can use it now, greyed when you cannot
       const tg = E.tags(u); let abil = null;
@@ -3220,7 +3254,7 @@ const trainerFg = {
       }
       const pf = assign && !waitRoll && u.side === 0 && !ko && ui.die != null ? b.dice[0][ui.die] : 0;
       const dcol1 = null, dbonus = false;
-      return card(u, { cw, dieCol: dcol1, dieBonus: dbonus, foe: u.side === 1, ko: koOf(u), hp: hpOf(u), start: (b.stage === 'assign' || b.stage === 'place') ? hpOf(u) : (b.before && b.before[u.uid] != null ? b.before[u.uid] : hpOf(u)), shield: u.shield || 0, face, sp: spOn, pf, die, chg: chgOf(u), land: ui.landed === u.uid, heroDie: u.side === 0, dieAttr: !colM && u.side === 0 && assign && !(info && b.fixed && b.fixed[0] && info.die.some(i => b.fixed[0][i])) ? `data-act="unmv" data-uid="${u.uid}"${info && info.die.length === 1 ? ` data-i="${info.die[0]}"` : ''}` : '', mark, ab: abil, recall: '', cls: clsOf(u) + (ui.returning && u.side === 0 && !ko ? ' sel act' : '') + (ui.slide && ui.slide.opts.indexOf(u.uid) >= 0 ? ' sel act' : '') + (movers.has(u.uid) ? (msel === u.uid ? ' sel act' : ' sel') : '') + (yourPlace && ui.psel === u.uid ? ' sel act' : '') + (ui.swap && u.side === 1 && !ko ? (ui.swap.picks.indexOf(u.uid) >= 0 ? ' sel act' : ' sel') : ''), pop: popOf(u), attr: ui.returning && u.side === 0 && !ko ? `data-act="recallpick" data-uid="${u.uid}"` : ui.slide && ui.slide.opts.indexOf(u.uid) >= 0 ? `data-act="slide" data-uid="${u.uid}"` : `data-act="unit" data-uid="${u.uid}"` });
+      return card(u, { cw, dieCol: dcol1, dieBonus: dbonus, foe: u.side === 1, ko: koOf(u), hp: hpOf(u), start: (b.stage === 'assign' || b.stage === 'place') ? hpOf(u) : (b.before && b.before[u.uid] != null ? b.before[u.uid] : hpOf(u)), shield: u.shield || 0, sts: stsHtml(u), face, sp: spOn, pf, die, chg: chgOf(u), land: ui.landed === u.uid, heroDie: u.side === 0, dieAttr: !colM && u.side === 0 && assign && !(info && b.fixed && b.fixed[0] && info.die.some(i => b.fixed[0][i])) ? `data-act="unmv" data-uid="${u.uid}"${info && info.die.length === 1 ? ` data-i="${info.die[0]}"` : ''}` : '', mark, ab: abil, recall: '', cls: clsOf(u) + (ui.returning && u.side === 0 && !ko ? ' sel act' : '') + (ui.slide && ui.slide.opts.indexOf(u.uid) >= 0 ? ' sel act' : '') + (movers.has(u.uid) ? (msel === u.uid ? ' sel act' : ' sel') : '') + (yourPlace && ui.psel === u.uid ? ' sel act' : '') + (ui.swap && u.side === 1 && !ko ? (ui.swap.picks.indexOf(u.uid) >= 0 ? ' sel act' : ' sel') : ''), pop: popOf(u), attr: ui.returning && u.side === 0 && !ko ? `data-act="recallpick" data-uid="${u.uid}"` : ui.slide && ui.slide.opts.indexOf(u.uid) >= 0 ? `data-act="slide" data-uid="${u.uid}"` : `data-act="unit" data-uid="${u.uid}"` });
     };
     const slotHtml = (ci, side) => {
       const uid = b.cols[ci][side];
@@ -3249,12 +3283,13 @@ const trainerFg = {
     else if (assign && colM) { status = (b.sudden ? 'SUDDEN DEATH · ' : '') + (rolling ? 'Rolling…' : b.dice[0].length ? 'Keep it, or reroll?' : 'Nothing to roll for you here'); }
     else if (assign && ui.returning) { status = 'Tap the Pokémon to return'; btns = `<button class="btn alt" data-act="retmode">Cancel</button>`; }
     else if (assign && ui.slide) { status = 'Slide a neighbour over to face the opponent? Tap it.'; btns = `<button class="btn alt" data-act="slideno">Leave it empty</button>`; }
-    else if (assign) { const need = E.living(b, 0).filter(u => !u.skip && !b.asg[0][u.uid]).length; status = (b.sudden ? 'SUDDEN DEATH · ' : '') + (rolling ? 'Rolling…' : ui.tweak != null ? 'Tap the die to change to ' + (E.tags(E.U(b, ui.tweak)).find(g => g.t === 'setDie') || {}).v : ui.die != null ? 'Tap a card to give it that ' + b.dice[0][ui.die] : (E.readyToGo(b, 0) ? '✅ All set!<br>Tap here to play the round' : noDecision(b) ? '✅ Nothing to decide!<br>Tap here to play the round' : 'Drag a die onto a card')); }
+    else if (assign) { const need = E.living(b, 0).filter(u => !u.skip && !b.asg[0][u.uid]).length; status = (b.sudden ? 'SUDDEN DEATH · ' : '') + (rolling ? 'Rolling…' : ui.tweak != null ? (() => { const g = E.tags(E.U(b, ui.tweak)).find(x => x.t === 'setDie' || x.t === 'turnDie' || x.t === 'addDie') || {}; return g.t === 'turnDie' ? 'Tap a ' + g.from + ' to turn it into a ' + g.to : g.t === 'addDie' ? 'Tap a die to add ' + g.n + ' to it' : 'Tap the die to change to ' + g.v; })() : ui.die != null ? 'Tap a card to give it that ' + b.dice[0][ui.die] : (E.readyToGo(b, 0) ? '✅ All set!<br>Tap here to play the round' : noDecision(b) ? '✅ Nothing to decide!<br>Tap here to play the round' : 'Drag a die onto a card')); }
     else if (asking && b.ask.kind === 'yn') { status = `<b>${C[E.U(b, b.ask.uid).id].name}</b> is attacked by ${C[E.U(b, b.ask.by).id].name} for ${b.ask.n}. Dodge?`; btns = `<button class="btn big" data-act="decide" data-yes="1">Dodge!</button><button class="btn alt" data-act="decide" data-yes="0">Take it</button>`; }
     else if (asking && b.ask.opts && b.ask.kind !== 'alloc' && b.ask.kind !== 'yn') { status = 'Choose a target: <b>tap the glowing card</b>'; }
     else if (asking && b.ask.kind === 'alloc') { const left = b.ask.n - Object.values(b.ask.given).reduce((t, v) => t + v, 0); status = `Share ${left} ${b.ask.k === 'a' ? 'attack' : 'heal'} point${left === 1 ? '' : 's'} from <b>${C[E.U(b, b.ask.uid).id].name}</b>: tap a card for each` + (Object.keys(b.ask.given).length ? '<br>' + Object.keys(b.ask.given).map(k => `${C[E.U(b, +k).id].name} ${b.ask.given[k]}`).join(' · ') : ''); }
     else if (asking) status = b.ask.what === 'ditto' ? `Tap whose move ${C[E.U(b, b.ask.uid).id].name} copies` : `Tap who ${C[E.U(b, b.ask.uid).id].name} ${b.ask.k === 'a' ? 'attacks' : b.ask.k === 'b' ? 'blocks for' : 'heals'}`;
     else if (p) status = p.bi < 0 ? 'Here is what everyone rolled…' : (p.cur ? `<b class="phl">${PHASE[p.cur.ph] || ''}</b>` : '');
+    else if (done && b.fzAsk && b.fzAsk.length) { const fu = E.U(b, b.fzAsk[0]); status = `❄ <b>${C[fu.id].name}</b> is frozen. It rolled a <b>${fu.lastDie}</b>. Lock that number for next round (no reroll), or let it go?`; btns = `<button class="btn big" data-act="fzkeep" data-uid="${fu.uid}">Lock the ${fu.lastDie}</button><button class="btn alt" data-act="fzlet" data-uid="${fu.uid}">Let it go</button>`; }
     else if (done && E.hauntAsk(b)) { const k = E.hauntAsk(b); status = `<b>${C[E.U(b, k.hid).id].name}</b> can keep an ability — tap one`; btns = k.opts.map(id => `<button class="btn alt" data-act="haunt" data-uid="${id}">Keep ${C[E.U(b, id).id].name}</button>`).join('') + `<button class="btn ghost" data-act="haunt">No thanks</button>`; }
     else if (done) status = `<span class="rollhint">${b.out === 'hero' ? '🏆 You win! Tap anywhere to continue' : b.out === 'gm' ? 'You lose this one. Tap anywhere to continue' : b.out === 'sudden' ? 'Everyone fell! Tap anywhere for sudden death' : '🎲 Tap anywhere to roll'}</span>`;
     if (assign && colM && !waitRoll) {
@@ -3496,9 +3531,19 @@ const trainerFg = {
   const offWord = (o, k) => o === 0 ? (k === 'a' ? 'the card across' : 'itself') : Math.abs(o) === 1 ? (k === 'a' ? 'the opposing card in the column to the ' : 'the ally in the column to the ') + (o < 0 ? 'left' : 'right') : (k === 'a' ? 'the opposing card ' : 'the ally ') + Math.abs(o) + ' columns to the ' + (o < 0 ? 'left' : 'right');
   const spW = (sp, k) => { if (!sp) return ''; const grp = g => g.map(o => offWord(o, k)).join(' and '); return sp.spread ? ' split among ' + grp(sp.opts.flat().filter((x, i, a) => a.indexOf(x) === i)) : sp.all ? ' ' + grp(sp.opts[0]) : ' ' + sp.opts.map(grp).join(', or ') + ' (your choice)'; };
   function moveWords(str) {
-    if (/^Use the 6 move/i.test(str)) return 'Metronome: use the 6 move of the card across from it. If no card is across, it deals 5 damage instead.';
+    if (/^Use the 6 move/i.test(str)) return 'Metronome: use the 6 move of the card across from it. If no card is across, nothing happens.';
     const mv = E.parseMove(str); if (!mv) return '';
-    return mv.clauses.map(cl => cl.map(f => { const n = f.n, kk = f.k; return (f.bonus ? 'Also ' : '') + (kk === 'a' ? `deals ${n} damage to` + spW(f.spec, 'a') : kk === 'h' ? `heals ${n} on` + spW(f.spec, 'h') : kk === 'b' ? (f.counter ? `counters ${n}: soaks up to ${n} damage aimed at` : `blocks ${n} damage aimed at`) + spW(f.spec, 'b') + (f.counter ? ' and sends what it soaks back to the attacker' : '') : `deals ${n} damage to itself`); }).join('; ').replace(/^./, x => x.toUpperCase())).join('. OR ') + '.';
+    const words = f => {
+      const n = f.n, pre = f.bonus ? 'Also ' : '';
+      if (f.k === 'a') return pre + `${f.pierce ? 'pierces' : 'deals'} ${n} damage to` + spW(f.spec, 'a') + (f.pierce ? ' (blocks and counters cannot stop it)' : '') + (f.drain ? ', then heals itself for the damage it really dealt' : '') + ((f.sts || []).length ? '; every card it hits is also ' + f.sts.map(x => ({ poison: 'poisoned', stun: 'stunned', freeze: 'frozen' }[x])).join(' and ') : '');
+      if (f.k === 'h') return pre + `heals ${n} on` + spW(f.spec, 'h') + ' (and removes every status)';
+      if (f.k === 'b') return (f.counter ? `counters ${n}: soaks up to ${n} damage aimed at` : `blocks ${n} damage aimed at`) + spW(f.spec, 'b') + (f.counter ? ' and sends it back to the attacker' : '');
+      if (f.k === 'd') return `takes ${n} recoil damage itself (it cannot be blocked)`;
+      if (f.k === 's') return { poison: 'poisons', stun: 'stuns', freeze: 'freezes' }[f.st] + spW(f.spec, 'a');
+      if (f.k === 'g') return 'charges' + (f.spec.opts[0].length > 1 || f.spec.opts[0][0] !== 0 ? ' its neighbours' : ' itself') + ': next round every number goes up by 1';
+      return '';
+    };
+    return mv.clauses.map(cl => 'This card ' + cl.map(words).filter(Boolean).join(', and ')).join('<br>— or —<br>');
   }
   function explain(id, p, i) {
     const c = C[id], e = el(c.type);
@@ -3685,6 +3730,7 @@ const trainerFg = {
       } else { ui.big = { id: u.id, sh: u.sh }; render(); }          // nothing else to do with this card: show it big
     },
     bigclose() { ui.big = null; render(); },
+    fzkeep(el) { act({ t: 'freeze', uid: +el.dataset.uid, keep: true }); if (!(G.battle.fzAsk && G.battle.fzAsk.length)) scheduleNext(); }, fzlet(el) { act({ t: 'freeze', uid: +el.dataset.uid, keep: false }); if (!(G.battle.fzAsk && G.battle.fzAsk.length)) scheduleNext(); },
     mslide(el) { const uid = ui.msel; ui.msel = null; act({ t: 'matchslide', side: 0, uid, to: +el.dataset.to }); render(); }, mpass() { ui.msel = null; act({ t: 'matchpass', side: 0 }); },
     unmv(el) { const b = G.battle; if (b.stage === 'assign') act({ t: 'unassign', side: 0, uid: +el.dataset.uid }); },
     decide(el) { if (act({ t: 'decide', yes: el.dataset.yes === '1' })) { const p = ui.play; if (p) { absorbEvents(); p.waiting = false; nextBeat(); } else startPlay(); } },
@@ -3701,7 +3747,7 @@ const trainerFg = {
       if (act({ t: 'reroll', side: 0, all: true })) setTimeout(() => { ui.rolling = 0; render(); }, 730); else ui.rolling = 0;
     },
     rerollfree() { if (ui.die == null) return; const rd = ui.die; ui.rerolled = [rd]; ui.die = null; ui.rolling = Date.now() + 680; if (act({ t: "reroll", side: 0, die: rd })) setTimeout(() => { ui.rolling = 0; render(); }, 730); else ui.rolling = 0; },
-    tweak(el) { const uid = +el.dataset.uid, u = E.U(G.battle, uid), g = u && E.tags(u).find(x => x.t === 'setDie'); if (g && !G.battle.colMode) { ui.tweak = ui.tweak === uid ? null : uid; render(); return; } act({ t: 'tweak', side: 0, uid }); },
+    tweak(el) { const uid = +el.dataset.uid, u = E.U(G.battle, uid), g = u && E.tags(u).find(x => x.t === 'setDie' || x.t === 'turnDie' || x.t === 'addDie'); if (g && !G.battle.colMode) { ui.tweak = ui.tweak === uid ? null : uid; render(); return; } act({ t: 'tweak', side: 0, uid }); },
     go() { if (ui.die != null || ui.tweak != null) { ui.die = null; ui.tweak = null; render(); return; } if (G.battle && !E.readyToGo(G.battle, 0) && noDecision(G.battle)) autoAssign(); if (act({ t: 'go2' })) startPlay(); },
     skip() { skipPlay(); },
     next() { ui.die = null; act({ t: 'next' }); },
@@ -3758,7 +3804,7 @@ const trainerFg = {
     if (!pd.moved) {
       if (Math.hypot(ev.clientX - pd.x, ev.clientY - pd.y) < 10) return;
       pd.moved = true; const b = G.battle;
-      if (pd.from != null) { const ci = b.cols.findIndex(c => c[0] === pd.from), before = new Set(b.hand[0]); pd.origin = ci; if (!act({ t: 'pickup', uid: pd.from })) { pd = null; return; } const nb = G.battle.hand[0].find(h => !before.has(h)); pd.key = nb != null ? nb : null; }
+      if (pd.from != null) { const ci = b.cols.findIndex(c => c[0] === pd.from), before = new Set(b.hand[0]); pd.origin = ci; ui.noAuto = true; if (!act({ t: 'pickup', uid: pd.from })) { ui.noAuto = false; pd = null; return; } const nb = G.battle.hand[0].find(h => !before.has(h)); pd.key = nb != null ? nb : null; }
       ui.sel = pd.key; ui.psel = null; render();
       const src = document.querySelector('.card[data-act=tray][data-uid="' + pd.key + '"]'); if (!src) { pd = null; return; }
       const g = src.cloneNode(true); g.removeAttribute('data-act'); g.classList.add('cghost'); const r = src.getBoundingClientRect(); g.style.width = r.width + 'px'; g.style.height = r.height + 'px'; pd.w = r.width; pd.h = r.height; document.body.appendChild(g); pd.ghost = g;
@@ -3778,13 +3824,15 @@ const trainerFg = {
     ui.sel = null; render();
   });
   document.addEventListener('pointercancel', endPd);
-  function resetSel() { ui.returning = false; ui.recall = null; ui.slide = null; ui.pickSel = null; ui.more = false; ui.gsw = null; ui.chip = false; ui.tweak = null; ui.sel = null; ui.die = null; ui.aim = null; ui.pick = []; ui.chooser = null; ui.play = null; ui.rolledFor = 0; ui.rollTap = null; ui.rolling = 0; ui.mapX = null; }
+  function resetSel() { ui.noAuto = false; ui.returning = false; ui.recall = null; ui.slide = null; ui.pickSel = null; ui.more = false; ui.gsw = null; ui.chip = false; ui.tweak = null; ui.sel = null; ui.die = null; ui.aim = null; ui.pick = []; ui.chooser = null; ui.play = null; ui.rolledFor = 0; ui.rollTap = null; ui.rolling = 0; ui.mapX = null; }
   // a long press on any card, anywhere, shows it big
   { let lp = null; document.addEventListener('pointerdown', ev => { const c = ev.target.closest && ev.target.closest('.card[data-cid]'); if (!c || ui.big) return; const x0 = ev.clientX, y0 = ev.clientY; clearTimeout(lp); lp = setTimeout(() => { ui.big = { id: c.dataset.cid, sh: +c.dataset.csh }; ui.longp = Date.now(); render(); }, 480); const cancel = e2 => { if (e2.type === 'pointermove' && Math.hypot(e2.clientX - x0, e2.clientY - y0) < 10) return; clearTimeout(lp); removeEventListener('pointermove', cancel); removeEventListener('pointerup', cancel); removeEventListener('pointercancel', cancel); }; addEventListener('pointermove', cancel); addEventListener('pointerup', cancel); addEventListener('pointercancel', cancel); }); }
   document.addEventListener('click', ev => {
     if (ui.longp && Date.now() - ui.longp < 700) return;                    // that was the end of a long press
     if (ui.dragged && Date.now() - ui.dragged < 400) return;                 // that was the end of a drag, not a tap
     if (ui.rolling && Date.now() < ui.rolling) return;                       // the dice are still tumbling
+    { const kw = ev.target.closest('[data-zc] [data-kw]'); if (kw && KW[kw.dataset.kw]) { ui.exp = { h: KW[kw.dataset.kw][0], p: KW[kw.dataset.kw][1] }; render(); return; } }          // a keyword in a move: say what it is
+    { const st = ev.target.closest('[data-st]'); if (st && KW[st.dataset.st]) { ui.exp = { h: KW[st.dataset.st][0], p: KW[st.dataset.st][1] }; render(); return; } }          // a status icon on a card
     { const pp = ev.target.closest('[data-zc] [data-p]'); if (pp && !ev.target.closest('[data-act=expx]')) { const x = explain(pp.closest('[data-zc]').dataset.zc, pp.dataset.p, pp.dataset.i); if (x) { ui.exp = x; render(); return; } } }          // a part of a big card: say what it is
     const t = ev.target.closest('[data-act]');
     if (ui.recall != null && !(t && t.dataset.act === 'recall')) { ui.recall = null; render(); }          // tapping anywhere else cancels "Return it?"
@@ -3793,7 +3841,7 @@ const trainerFg = {
     if (G && G.phase === 'battle' && G.battle && G.battle.colMode && G.battle.stage === 'assign' && !G.battle.rolled && !ui.play && !ui.menu && !ui.help && !ui.coll && !ui.tip && !ui.settings && ui.gsw == null && !ui.swap && !(t && t.dataset.act === 'unit' && (ui.gsw != null || ui.swap) || t && ['menu', 'tipok', 'leave', 'mv', 'swapstart', 'gswstart', 'tweak'].indexOf(t.dataset.act) >= 0)) { act({ t: 'roll' }); setTimeout(maybeTips, 1100); return; }      // tap anywhere to roll this column's dice
     if (G && G.phase === 'battle' && G.battle && !G.battle.colMode && G.battle.stage === 'assign' && ui.rollTap !== G.turn + ':' + G.battle.round && !ui.play && !ui.menu && !ui.help && !ui.coll && !ui.tip && !ui.settings && !(t && ['menu', 'tipok', 'leave', 'retmode', 'recallpick', 'slide', 'slideno'].indexOf(t.dataset.act) >= 0)) { ui.rollTap = G.turn + ':' + G.battle.round; E.apply(G, { t: 'rollseen' }); render(); setTimeout(maybeTips, 1100); return; }      // tap anywhere to roll the first dice
     // after a round: tap anywhere to roll the next one (the menu button and open sheets still work)
-    if (G && G.phase === 'battle' && G.battle && G.battle.stage === 'resolved' && !E.hauntAsk(G.battle) && !ui.play && !ui.menu && !ui.help && !ui.coll && !ui.tip && !(t && (t.dataset.act === 'menu' || t.dataset.act === 'tipok'))) { A.next(); return; }
+    if (G && G.phase === 'battle' && G.battle && G.battle.stage === 'resolved' && !E.hauntAsk(G.battle) && !(G.battle.fzAsk && G.battle.fzAsk.length) && !ui.play && !ui.menu && !ui.help && !ui.coll && !ui.tip && !(t && (t.dataset.act === 'menu' || t.dataset.act === 'tipok'))) { A.next(); return; }
     if (!t) return;
     const f = A[t.dataset.act]; if (f) { ev.stopPropagation(); f(t); }
   });

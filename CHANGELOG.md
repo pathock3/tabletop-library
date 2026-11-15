@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- **Pokémon Roll! — V4 (cards and moves):** all cards now come from the V4 tab; a move is read straight from the roll's column (Roll of 6 … Roll of 1, blank = nothing); new keywords: pierce, drain, recoil, charge, poison, stun and freeze (with the freeze choice put to you after the round); abilities rewritten (die-changing abilities, Slowpoke's slow, Koffing pierces, Articuno freezes, and more); statuses and charges show as icons on the cards (tap to read), and every keyword in a zoomed move explains itself; "1c" now reads "1 Counter" and recoil has no arrow; Mew does nothing with nobody opposite; a card you take back by dragging no longer jumps back by itself.
+
 - **Pokémon Roll! — wild fights and choices:** in a wild fight a card can go in any open column, and the fight only starts when everyone has a matchup; while placing, the right strip holds the deck (location card size) or the trainer, with the buttons; no "pick a Pokémon" line in the middle; a card you must choose is now unmistakable (bright pulsing frame, TAP flag, the others dimmed); Auto-assign also shows when the only dice left are locked ones; shield abilities now say "counter" and their explanation is readable.
 
 - **Pokémon Roll! — signature Pokémon:** a trainer's signature is now always their highest-level Pokémon (a tie is fine) and plays last; before, the signature was picked first and a higher-level Pokémon could be drafted after it (e.g. Electabuzz after Jolteon).

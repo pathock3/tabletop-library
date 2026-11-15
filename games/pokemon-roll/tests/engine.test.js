@@ -775,3 +775,52 @@ test('v3: a trainer\'s signature Pokémon is always the highest level on the tea
     assert.ok(t.every(c => E.CARDS[c.id].level <= E.CARDS[sig.id].level), `${tid} seed ${seed}: ${E.CARDS[sig.id].name} is not the highest level`);
   }
 });
+
+// ---------------------------------------------------------------- V4 keywords
+const v4 = (name, fn) => test('V4: ' + name, (tc) => { E.faceOrder('roll'); tc.after(() => E.faceOrder('sheet')); fn(); });
+const nextRound = c => { assert.ok(E.apply(c.s, { t: 'next' }).ok); assert.equal(c.b.stage, 'assign'); };
+v4('a pierce is damage that blocks and counters cannot stop; Koffing\'s attacks all pierce', () => {
+  let c = craft(['19'], ['7.1']); play(c, { hero: [6], gm: [6] }, { hero: { 0: 0 }, gm: { 0: 0 } });       // Rattata 2p against Squirtle's 1c
+  assert.equal(c.g(0).hp, C['7.1'].hp - 2, 'the pierce went through the counter'); assert.equal(c.h(0).hp, C['19'].hp, 'and nothing came back');
+  c = craft(['109'], ['7.1']); play(c, { hero: [5], gm: [6] }, { hero: { 0: 0 }, gm: { 0: 0 } });          // Koffing 2a (an attack) pierces because of its ability
+  assert.equal(c.g(0).hp, C['7.1'].hp - 2, 'Koffing\'s attack pierced the counter');
+});
+v4('poison hurts 1 at the end of every round after the one it was given in, never stacks, and a heal removes it (and every other status)', () => {
+  const c = craft(['1.1', '1.1'], ['16']); play(c, { hero: [4], gm: [2] }, { hero: { 0: 0 }, gm: { 0: 0 } });          // Bulbasaur's poison on a 4; Pidgey does nothing on a 2
+  assert.equal(c.g(0).hp, C['16'].hp, 'no damage the round it is given'); assert.ok(c.g(0).poison);
+  nextRound(c); c.b.dice = [[2], [2]]; c.b.asg = [{ [c.h(0).uid]: { dice: [0], tgt: null } }, { [c.g(0).uid]: { dice: [0], tgt: null } }]; c.b.gmReady = true; assert.ok(E.apply(c.s, { t: 'go2' }).ok);
+  assert.equal(c.g(0).hp, C['16'].hp - 1, 'one damage at the end of the next round');
+  const d = craft(['1.1'], ['16']); d.h(0).poison = true; d.h(0).skipNext = true; d.h(0).hp = 2; play(d, { hero: [3], gm: [2] }, { hero: { 0: 0 }, gm: {} });   // Bulbasaur heals itself 1 on a 3
+  assert.equal(d.h(0).hp, 3); assert.ok(!d.h(0).poison && !d.h(0).skipNext, 'the heal removed the poison and the stun');
+});
+v4('stun: the card loses its next turn; stunning a stunned card refreshes it', () => {
+  const c = craft(['23'], ['16']); play(c, { hero: [3], gm: [2] }, { hero: { 0: 0 }, gm: { 0: 0 } });             // Ekans' stun on a 3
+  assert.ok(c.g(0).skipNext, 'stunned'); nextRound(c); assert.ok(c.g(0).skip, 'and it loses that round: no die for it'); assert.equal(c.b.dice[1].length, 0);
+});
+v4('charge: next round every number on the card goes up by 1 per charge (and a blank wastes it)', () => {
+  const c = craft(['4.1'], ['10']); play(c, { hero: [3], gm: [2] }, { hero: { 0: 0 }, gm: { 0: 0 } });             // Charmander charges on a 3
+  assert.equal(c.h(0).chargeNow, 1); nextRound(c); c.g(0).hp = c.g(0).max = 9;
+  c.b.dice = [[6], [2]]; c.b.asg = [{ [c.h(0).uid]: { dice: [0], tgt: null } }, { [c.g(0).uid]: { dice: [0], tgt: null } }]; c.b.gmReady = true; assert.ok(E.apply(c.s, { t: 'go2' }).ok);
+  assert.equal(c.g(0).hp, 9 - 3 * 2, 'its 2a became 3a, and Caterpie is weak to fire: doubled'); assert.equal(c.h(0).chargeNow, 0, 'all the charges were used');
+});
+v4('drain: the attacker heals for the damage it really dealt', () => {
+  const c = craft(['41'], ['10']); c.h(0).hp = 1; play(c, { hero: [5], gm: [2] }, { hero: { 0: 0 }, gm: { 0: 0 } });   // Zubat 1a drain on a 5
+  assert.equal(c.g(0).hp, C['10'].hp - 1); assert.equal(c.h(0).hp, 2, 'it healed 1');
+});
+v4('freeze: whoever applied it decides, after the round, whether the frozen card keeps its number (no reroll); the player is asked before the next round', () => {
+  const c = craft(['86'], ['16']); play(c, { hero: [6], gm: [4] }, { hero: { 0: 0 }, gm: { 0: 0 } });             // Seel: 2a, freeze on a 6
+  assert.deepEqual(c.b.fzAsk, [c.g(0).uid], 'the player froze it: the player chooses'); assert.equal(E.apply(c.s, { t: 'next' }).ok, false, 'decide first');
+  assert.ok(E.apply(c.s, { t: 'freeze', uid: c.g(0).uid, keep: true }).ok); nextRound(c);
+  const i = c.b.asg[1][c.g(0).uid].dice[0]; assert.equal(c.b.dice[1][i], 4, 'it keeps its 4'); assert.ok(c.b.fixed[1][i], 'and cannot be rerolled');
+  const d = craft(['16'], ['86']); play(d, { hero: [4], gm: [6] }, { hero: { 0: 0 }, gm: { 0: 0 } });
+  assert.equal(d.b.fzAsk.length, 0, 'the computer froze it: it decides itself'); nextRound(d);
+});
+v4('Poliwag: any 3 may be turned into a 4; Paras adds 2 every other round; Cubone turns a 1 into a 6 once per battle', () => {
+  const c = craft(['60'], ['10']); c.b.dice = [[3], [2]]; assert.ok(E.apply(c.s, { t: 'tweak', uid: c.h(0).uid, die: 0 }).ok); assert.equal(c.b.dice[0][0], 4);
+  assert.equal(E.apply(c.s, { t: 'tweak', uid: c.h(0).uid, die: 0 }).ok, false, 'a 4 is not a 3');
+  const p = craft(['46'], ['10']); p.b.dice = [[3], [2]]; assert.ok(E.apply(p.s, { t: 'tweak', uid: p.h(0).uid, die: 0 }).ok); assert.equal(p.b.dice[0][0], 5); assert.equal(E.apply(p.s, { t: 'tweak', uid: p.h(0).uid, die: 0 }).ok, false, 'not two rounds running');
+  const u = craft(['104'], ['10']); u.b.dice = [[1, 1], [2]]; assert.ok(E.apply(u.s, { t: 'tweak', uid: u.h(0).uid, die: 0 }).ok); assert.equal(u.b.dice[0][0], 6); assert.equal(E.apply(u.s, { t: 'tweak', uid: u.h(0).uid, die: 1 }).ok, false, 'once per battle');
+});
+v4('Mew copies the 6 move of the card across and does nothing if nobody is across', () => {
+  const b = craft(['151'], ['4.1']); play(b, { hero: [6], gm: [1] }, { hero: { 0: 0 } }); assert.ok(b.g(0).ko, 'Charmander\'s 6 (2a) doubled by Mew\'s ancestor element');
+});
