@@ -2909,11 +2909,11 @@ const trainerFg = {
   function drawFly(uid) {
     const c = document.querySelector('.board .card[data-uid="' + uid + '"]'), pl = document.querySelector('.pilebay .pile'); if (!c || !pl || !c.animate) return;
     const cr = c.getBoundingClientRect(), pr = pl.getBoundingClientRect(), dx = pr.left + pr.width / 2 - (cr.left + cr.width / 2), dy = pr.top + pr.height / 2 - (cr.top + cr.height / 2), s = pr.width / cr.width;
-    const dur = 3600; ui.flyUntil = Date.now() + dur; c.style.zIndex = 40;          // 0-.25 slides to its spot face down, .25-.55 waits a second, .55-.8 turns over (a big lift and a slow turn), then settles
-    const P = 'perspective(1100px) ';
-    c.animate([{ transform: P + `translate(${dx}px,${dy}px) scale(${s}) rotate(-8deg)`, offset: 0 }, { transform: P + 'translate(0,0) scale(1.04)', offset: .25 }, { transform: P + 'translate(0,0) scale(1.04)', offset: .55 }, { transform: P + 'translate(0,0) scale(1.22) rotateY(90deg)', offset: .67 }, { transform: P + 'translate(0,0) scale(1.22) rotateY(0deg)', offset: .8 }, { transform: P + 'translate(0,0) scale(1)', offset: 1 }], { duration: dur, easing: 'ease-in-out' }).onfinish = () => { c.style.zIndex = ''; };
+    const dur = 2400; ui.flyUntil = Date.now() + dur; c.style.zIndex = 40;          // 0-.2 the card slides to its spot face down; .2-.6 it waits a second; .6-.9 it turns over (up, edge-on, down again); then settles
+    const T = (x, y, sc, rot, ry) => `perspective(1000px) translate(${x}px,${y}px) scale(${sc}) rotate(${rot}deg) rotateY(${ry}deg)`;          // the same list of functions in every step, so the browser turns it smoothly instead of blending matrices
+    c.animate([{ transform: T(dx, dy, s, -8, 0), offset: 0, easing: 'ease-out' }, { transform: T(0, 0, 1.03, 0, 0), offset: .2 }, { transform: T(0, 0, 1.03, 0, 0), offset: .6, easing: 'ease-in' }, { transform: T(0, 0, 1.2, 0, 90), offset: .75 }, { transform: T(0, 0, 1.2, 0, 0), offset: .9, easing: 'ease-out' }, { transform: T(0, 0, 1, 0, 0), offset: 1 }], { duration: dur }).onfinish = () => { c.style.zIndex = ''; };
     const bk = document.createElement('div'); bk.className = 'dbackov'; const nd0 = E.node(G.battle.node); bk.style.backgroundImage = nd0.kind === 'loc' ? deckUri(nd0.loc) : uriOf(gymBack(nd0)); c.appendChild(bk);
-    bk.animate([{ opacity: 1 }, { opacity: 1, offset: .669 }, { opacity: 0, offset: .67 }, { opacity: 0 }], { duration: dur, fill: 'forwards' }).onfinish = () => bk.remove(); setTimeout(() => bk.remove(), dur + 200);
+    bk.animate([{ opacity: 1 }, { opacity: 1, offset: .749 }, { opacity: 0, offset: .75 }, { opacity: 0 }], { duration: dur, fill: 'forwards' }).onfinish = () => bk.remove(); setTimeout(() => bk.remove(), dur + 200);
     pl.animate([{ transform: 'none' }, { transform: 'translate(-3px,-5px) rotate(-2deg)', offset: .1 }, { transform: 'none' }], { duration: 500 });
   }
 
@@ -2936,7 +2936,7 @@ const trainerFg = {
       ui.busy = true; render();
       setTimeout(() => {
         const g = B.step(G, set.ai); if (!g) { ui.busy = false; render(); return; }
-        E.apply(G, g); const u = G.battle && G.battle.units.filter(x => x.side === 1 && !x.ko).pop(); if (u && u.sh) burst(u.uid); if (u) { ui.drawFly = u.uid; ui.flyUntil = Date.now() + 3700; }
+        E.apply(G, g); const u = G.battle && G.battle.units.filter(x => x.side === 1 && !x.ko).pop(); if (u && u.sh) burst(u.uid); if (u) { ui.drawFly = u.uid; ui.flyUntil = Date.now() + 2500; }
         save(); ui.busy = false; drive();
       }, 650);
       return;
