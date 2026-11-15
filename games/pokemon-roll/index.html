@@ -1989,7 +1989,7 @@ const Engine = (() => {
       if (e.k === 'a') {                                                          // does one of the player's cards get to decide something about this attack?
         const dk = act.uid + ':' + r.ei, dm = (r.dec[dk] = r.dec[dk] || {}), amt = amountOf(b, u, e);
         const T = pickTargets(b, u, e, amt, chosen == null ? null : chosen);
-        for (const t of T) { const x = t.u; if (amt > 0 && x.side === 0 && dm[x.uid] == null && dodgeAvail(b, x, false)) { b.ask = { kind: 'yn', what: 'dodge', uid: x.uid, by: u.uid, key: dk, n: amt }; b.stage = 'resolving'; return; } }
+        for (const t of T) { const x = t.u; if (amt > 0 && x.side === 0 && dm[x.uid] == null && has(x, 'dodgeMatch') && dodgeAvail(b, x, false)) { b.ask = { kind: 'yn', what: 'dodge', uid: x.uid, by: u.uid, key: dk, n: amt }; b.stage = 'resolving'; return; } }
       }
       b.curDec = r.dec[act.uid + ':' + r.ei] || null; b.curAlloc = r.alloc[act.uid + ':' + r.ei] || null; execEffect(s, b, u, e, chosen == null ? null : chosen); b.curDec = null; b.curAlloc = null; r.main = true; r.ei++;
     }

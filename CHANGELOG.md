@@ -1,5 +1,6 @@
 # Changelog
 
+- Pokémon Roll: Diglett and Dugtrio (and the Pikachu that dodges after the first attack) dodge automatically; only the once-per-battle Pikachu asks you.
 - Pokémon Roll: Electrode's Roll of 6 is 7a with recoil 5 (was 7), in the sheet and the game.
 - Pokémon Roll: a stunned card shows the stun symbol (💫), never sleeping Zs.
 - Pokémon Roll: the draw is quicker (about half a second to cross, a one-second wait, then a real flip: it lifts, turns edge-on and settles face up).
