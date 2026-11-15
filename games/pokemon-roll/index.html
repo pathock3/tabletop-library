@@ -554,19 +554,6 @@ button{font:inherit;color:inherit;border:0;cursor:pointer}
 <style>.mS-sleep{background:#3949ab;color:#fff}.mS-dodge{background:#00838f;color:#fff}.st-sleep{border-color:#7986cb}.st-dodge{border-color:#4dd0e1}</style>
 <style>.card .pips{display:none!important}.aiblurb{font:600 16px/1.3 system-ui;opacity:.9;margin-top:6px;max-width:420px}</style>
 <style>
-.card.grid{height:calc(var(--cw)*1.4)}
-.card.grid .faces{grid-template-columns:1fr 1fr;grid-auto-rows:1fr;gap:calc(var(--cw)*.014);margin:calc(var(--cw)*.022) calc(var(--cw)*.03) calc(var(--cw)*.03)}
-.card.grid .f{margin-top:0;padding:0 calc(var(--cw)*.012) 0 0;gap:calc(var(--cw)*.01);font-size:calc(var(--cw)*.056);line-height:1.04;border-radius:calc(var(--cw)*.03);border-left:max(1px,calc(var(--cw)*.011)) solid var(--ink);align-items:center}
-.card.grid .f .mt{display:flex;flex-wrap:wrap;align-items:center;gap:0 calc(var(--cw)*.012);align-content:center;line-height:1.02}
-.card.grid .dp{flex:none;align-self:stretch;display:grid;place-items:center;width:calc(var(--cw)*.105);font-size:calc(var(--cw)*.105);line-height:1;background:#fff;border-right:max(1px,calc(var(--cw)*.011)) solid var(--ink);border-radius:calc(var(--cw)*.025) 0 0 calc(var(--cw)*.025);color:#14110f}
-.card.grid .f.blank{opacity:.5;background:repeating-linear-gradient(135deg,#0001 0 5px,#0000 5px 10px),#d9d1c4;box-shadow:none}
-.card.grid .f.blank .dp{background:#e8e2d8}
-.card.grid .f.hot,.card.grid .f.pick{outline:2px solid #ffd23f}
-.gx-icon .gm{display:inline-flex;align-items:center;gap:0;white-space:nowrap}.gx-icon .gm b{font-size:1.15em}.gx-icon .gm small{font-size:.8em}
-.gx-icon .ic{font-style:normal;font-size:.95em;line-height:1;margin:0 .06em}
-.gx-icon .gm-a .ic{color:#c62828}.gx-icon .gm-b .ic,.gx-icon .gm-c .ic{color:#1565c0}.gx-icon .gm-h .ic{color:#2e7d32}.gx-icon .gm-d .ic{color:#555}
-.gx-icon .ag,.gx-text .ag{font-size:.62em;letter-spacing:-.05em;opacity:.85;white-space:nowrap;margin-left:.1em}
-.gx-icon .orw{font-style:normal;font-size:.7em;opacity:.7;margin:0 .15em}
 .lab{position:fixed;inset:0;overflow:auto;background:#3b2815;color:#fff;font-family:system-ui;-webkit-overflow-scrolling:touch;z-index:5}
 .labtop{display:flex;align-items:center;gap:10px;padding:calc(10px + env(safe-area-inset-top)) 12px 8px;position:sticky;top:0;background:#2b1d10;z-index:6;flex-wrap:wrap}.labtop b{font-size:20px}
 .labsp{flex:1}.labbar{display:flex;gap:8px;align-items:center;padding:8px 12px;flex-wrap:wrap}.labbar .chip{min-height:44px;font-size:17px}
@@ -577,9 +564,34 @@ button{font:inherit;color:inherit;border:0;cursor:pointer}
 .labrail{background:#0003;display:grid;place-items:center;font-size:20px;opacity:.8}.labtray{position:absolute;left:0;right:0;bottom:0;background:#0003;display:grid;place-items:center;font-size:20px}
 .labnote{text-align:center;font:600 16px system-ui;opacity:.9;margin-bottom:10px}
 </style>
-<style>.card.grid .cbox{height:calc(var(--cw)*.5)}.card.grid .art{width:calc(var(--cw)*.5)}.card.grid .nm{font-size:calc(var(--cw)*.11)}.card.grid .f{font-size:calc(var(--cw)*.054)}</style>
-<style>.card.grid .cbox{height:calc(var(--cw)*.53)}.card.grid .ab{font-size:calc(var(--cw)*.05)!important;line-height:1.1}</style>
-<style>.card.grid.gx-icon .f{font-size:calc(var(--cw)*.064)}.card.grid.gx-icon .gm b{font-size:1.1em}</style>
+<style>
+/* LAB: the 2x3 grid card on trading-card proportions (1.4): everything edge to edge, no gaps */
+.card.grid{height:calc(var(--cw)*1.4);padding:0}
+.card.grid .wkt{flex:none;height:calc(var(--cw)*.078);display:flex;align-items:center;justify-content:center;font-size:calc(var(--cw)*.05);padding:0}
+.card.grid .cbox{position:relative;flex:none;margin:0;padding:0;height:calc(var(--cw)*.54)}
+.card.grid .art{position:absolute;right:0;top:0;bottom:0;width:calc(var(--cw)*.54);height:auto;padding:0;border-radius:0;border-width:0 0 max(1px,calc(var(--cw)*.011)) max(1px,calc(var(--cw)*.011));display:flex;align-items:flex-end;justify-content:center}
+.card.grid .nm{position:absolute;left:calc(var(--cw)*.03);top:calc(var(--cw)*.012);z-index:3;font-size:calc(var(--cw)*.12);line-height:1;white-space:nowrap;margin:0}
+.card.grid .side{position:absolute;left:0;top:calc(var(--cw)*.16);width:calc(var(--cw)*.46);display:flex;flex-direction:column;align-items:flex-start;gap:calc(var(--cw)*.025);z-index:2;margin:0;padding:0}
+.card.grid .hprow{margin:0}.card.grid .hpc{margin:0;border-radius:0 calc(var(--cw)*.08) calc(var(--cw)*.08) 0;padding-left:calc(var(--cw)*.03)}
+.card.grid .tagl{margin:0;border-radius:0 calc(var(--cw)*.05) calc(var(--cw)*.05) 0;padding-left:calc(var(--cw)*.03)}
+.card.grid .lv{margin:0;padding-left:calc(var(--cw)*.03);font-size:calc(var(--cw)*.06)}
+.card.grid .ab{margin:0;border-radius:0;border-left:0;border-right:0;padding:calc(var(--cw)*.008) calc(var(--cw)*.03);font-size:calc(var(--cw)*.05)!important;line-height:1.1;min-height:calc(var(--cw)*.12);display:flex;align-items:center}
+.card.grid .faces{margin:0;gap:0;grid-template-columns:1fr 1fr;grid-auto-rows:1fr;flex:1;min-height:0}
+.card.grid .f{position:relative;display:grid;grid-template-columns:calc(var(--cw)*.115) 1fr;align-items:stretch;padding:0;margin:0;gap:0;border:0;border-right:max(1px,calc(var(--cw)*.011)) solid var(--ink);border-top:max(1px,calc(var(--cw)*.011)) solid var(--ink);border-radius:0;font-size:calc(var(--cw)*.062);line-height:1.05;overflow:hidden;min-height:0}
+.card.grid .f:nth-child(2n){border-right:0}
+.card.grid .f .n{background:#fff;border-right:max(1px,calc(var(--cw)*.011)) solid var(--ink);display:grid;place-items:center;font-weight:900;font-size:calc(var(--cw)*.09);color:#14110f}
+.card.grid .f .mt{display:flex;flex-wrap:wrap;align-items:center;align-content:center;gap:0 calc(var(--cw)*.012);padding:0 calc(var(--cw)*.02);min-width:0}
+.card.grid .f.two{display:block}.card.grid .f.two .n{float:left;width:calc(var(--cw)*.115);height:50%;border-bottom:max(1px,calc(var(--cw)*.011)) solid var(--ink)}
+.card.grid .f.two .mt{display:block;padding:calc(var(--cw)*.005) calc(var(--cw)*.02);line-height:1.08}
+.card.grid .f.blank{background:repeating-linear-gradient(135deg,#0001 0 5px,#0000 5px 10px),#d9d1c4;box-shadow:none}.card.grid .f.blank .n{background:#e8e2d8;color:#0006}
+.card.grid .f.hot{outline:2px solid #ffd23f;outline-offset:-2px}
+.card.grid .gm{display:inline-flex;align-items:center;white-space:nowrap}.card.grid .gm b{font-size:1.1em}.card.grid .gm small{font-size:.8em}
+.card.grid .ic{font-style:normal;line-height:1;margin:0 .06em}.card.grid .gm-h .ic{color:#d32f2f}.card.grid .gm-a .ic{color:#c62828}.card.grid .gm-b .ic{color:#1565c0}
+.card.grid .ag{font-size:.62em;letter-spacing:-.05em;opacity:.85;white-space:nowrap;margin-left:.1em}.card.grid .orw{font-style:normal;font-size:.7em;opacity:.7;margin:0 .15em}
+</style>
+<style>.card.grid .wkt{position:relative;top:auto;left:auto;right:auto;width:auto;transform:none}.card.grid .nm{max-width:none;overflow:visible;top:calc(var(--cw)*.016);left:calc(var(--cw)*.03);font-size:calc(var(--cw)*.115)}.card.grid .cbox{overflow:hidden}</style>
+<style>.card.grid .cbox{height:calc(var(--cw)*.5)}.card.grid .art{width:calc(var(--cw)*.5)}.card.grid .side{top:calc(var(--cw)*.15)}.card.grid .gm b{margin-right:.14em}</style>
+<style>.card.grid .f.elm{box-shadow:none}</style>
 <script id="data">
 /* Pokémon Roll! — every rule number, the map, the bosses, the card sheet and the art live here. The engine and bots read this and hard-code none of it. */
 const GAME_DATA = {
@@ -2800,14 +2812,17 @@ const Bots = (() => {
   const sparkles = () => [[8, 12], [86, 16], [14, 76], [82, 70], [50, 40]].map(([x, y], i) => `<span class="star" style="left:${x}%;top:${y}%;font-size:${12 + (i % 3) * 4}px;animation-delay:calc(var(--td,0s) + ${i * 0.3}s)">✦</span>`).join('');
 
   // LAB: a move written with icons: a small picture for every keyword, arrows as glyphs, numbers stay numbers
-  const IC = { a: '⚔', p: '🗡', b: '🛡', c: '↩', h: '❤' }, LGL = { '<': '◀', '>': '▶', '^': '▲', v: '▼' };
+  const IC = { a: ['⚔', 'a'], h: ['♥', 'h'], b: ['🛡', 'b'] }, LGL = { '<': '◀', '>': '▶', '^': '▲', v: '▼' };
   const glyphs = sp => sp.trim().replace(/^over\s+/, '÷ ').split(/\s*(?:or|and\/or|and)\s*/).map(g => g.replace(/\s+/g, '').split('').map(ch => LGL[ch] || ch).join('')).join('<i class="orw">/</i>');
+  // LAB (light icons): a number with a symbol for attack, heart for heal, shield for block; everything else stays in words; arrows as glyphs
   const iconMove = str => {
-    if (/^Use the 6 move/i.test(str)) return '<span class="ic">🎲</span><b>6</b><span class="ic">⇄</span>';
-    return String(str).replace(/(\+?)(\d+)([abchp])(\s+drain)?(\s+(?:over\s+)?[<>^v][<>^v ]*(?:(?:or|and\/or|and)\s*[<>^v][<>^v ]*)*)?/g, (m, plus, n, k, drain, sp) => `<span class="gm gm-${k}">${plus ? '<small>+</small>' : ''}<b>${n}</b><i class="ic">${IC[k]}</i>${drain ? '<i class="ic">🩸</i>' : ''}${sp ? `<span class="ag">${glyphs(sp)}</span>` : ''}</span>`)
-      .replace(/recoil\s*(\d+)/gi, (m, n) => `<span class="gm gm-d"><b>${n}</b><i class="ic">▼</i></span>`).replace(/\bcharge\b(\s*<>)?/gi, (m, nb) => `<i class="ic">⚡</i>${nb ? '<span class="ag">◀▶</span>' : ''}`)
-      .replace(/\bpoison\b/gi, '<i class="ic">☠</i>').replace(/\bstun\b/gi, '<i class="ic">💫</i>').replace(/\bsleep\b/gi, '<i class="ic">💤</i>').replace(/\bfreeze\b/gi, '<i class="ic">❄</i>').replace(/\bdodge\b/gi, '<i class="ic">💨</i>')
-      .replace(/,\s*/g, ' ').replace(/\s+or\s+/g, '<i class="orw">or</i>');
+    if (/^Use the 6 move/i.test(str)) return 'Copies the 6 across';
+    return String(str).replace(/(\+?)(\d+)([abchp])(\s+drain)?(\s+(?:over\s+)?[<>^v][<>^v ]*(?:(?:or|and\/or|and)\s*[<>^v][<>^v ]*)*)?/g, (m, plus, n, k, drain, sp) => {
+      const sym = IC[k], word = { c: 'Counter', p: 'Pierce' }[k];
+      return `<span class="gm gm-${k}">${plus ? '<small>+</small>' : ''}<b>${n}</b>${sym ? `<i class="ic">${sym[0]}</i>` : ` ${word}`}${drain ? ' <small>drain</small>' : ''}${sp ? `<span class="ag">${glyphs(sp)}</span>` : ''}</span>`;
+    }).replace(/recoil\s*(\d+)/gi, (m, n) => `<span class="gm"><b>${n}</b> Recoil</span>`).replace(/\bcharge\b(\s*<>)?/gi, (m, nb) => `⚡ Charge${nb ? ' <span class="ag">◀▶</span>' : ''}`)
+      .replace(/\bpoison\b/gi, '☠ Poison').replace(/\bstun\b/gi, '💫 Stun').replace(/\bsleep\b/gi, '💤 Sleep').replace(/\bfreeze\b/gi, '❄ Freeze').replace(/\bdodge\b/gi, '💨 Dodge')
+      .replace(/,\s*/g, ' · ').replace(/\s+or\s+/g, '<i class="orw">or</i>');
   };
   // THE card: one design at every size, a standard portrait card. o: cw, face (the number lit), pf (a number on offer), sp (special in use), die (the die shown as a badge), dieAttr, heroDie, mark (a cover: out / loses a round), extra, pop, hp, ko, foe, sel, cls, attr
   function card(u, o) {
@@ -2815,7 +2830,7 @@ const Bots = (() => {
     const pct = Math.max(0, Math.min(100, hp / mx * 100)), lvl = pct <= 33 ? ' lo' : pct <= 66 ? ' mid' : '';
     const sp = E.parseSpecial(c.special);
     const DIE = ['⚀', '⚁', '⚂', '⚃', '⚄', '⚅'];
-    const gridRows = o.grid ? [5, 4, 3, 2, 1, 0].map(i => { const m = c.moves[i], me = m && c.movEls && c.movEls[i] ? el(c.movEls[i][0].toUpperCase() + c.movEls[i].slice(1)) : null; return `<div class="f${m ? '' : ' blank'}${me ? ' elm' : ''}" data-p="mv" data-i="${i + 1}" ${me ? `style="--mc:${me.color};--mb:${me.bg}"` : ''}><span class="dp">${DIE[i]}</span><span class="mt">${m ? (o.grid === 'icon' ? iconMove(m) : short(m)) : ''}</span></div>`; }).join('') : '';
+    const gridRows = o.grid ? [5, 4, 3, 2, 1, 0].map(i => { const m = c.moves[i], me = m && c.movEls && c.movEls[i] ? el(c.movEls[i][0].toUpperCase() + c.movEls[i].slice(1)) : null; return `<div class="f${m ? '' : ' blank'}${me ? ' elm' : ''}" data-p="mv" data-i="${i + 1}" ${me ? `style="--mc:${me.color};--mb:${me.bg}"` : ''}><span class="n">${i + 1}</span><span class="mt">${m ? (o.grid === 'icon' ? iconMove(m) : short(m)) : ''}</span></div>`; }).join('') : '';
     const rows = o.grid ? gridRows : c.moves.map((m, i) => [m, i]).reverse().map(([m, i]) => { const me = m && c.movEls && c.movEls[i] ? el(c.movEls[i][0].toUpperCase() + c.movEls[i].slice(1)) : null; return `<div class="f${m ? '' : ' blank'}${me ? ' elm' : ''}" data-p="mv" data-i="${i + 1}" ${me ? `style="--mc:${me.color};--mb:${me.bg}"` : ''}${o.face === i + 1 && !o.sp ? ' hot' : ''}${o.pf === i + 1 && o.face !== i + 1 ? ' pick' : ''}"><span class="pip">${i + 1}</span><span class="mt">${m ? short(m) : '—'}</span>${me ? `<span class="me">${me.icon}</span>` : ''}</div>`; }).join('');
     return `<div class="card${o.grid ? ' grid gx-' + o.grid : ''}${u.sh ? ' shiny' : ''}${o.foe ? ' foe' : ''}${o.ko ? ' ko' : ''}${o.sel ? ' sel' : ''}${o.die != null ? ' has-die' : ''}${o.cls ? ' ' + o.cls : ''}" style="--cw:${cw}px;--bg:${e.bg};--c:${e.color}" data-cid="${u.id}" data-csh="${u.sh ? 1 : 0}" ${o.attr || ''}>
       ${D.elements[c.weak] ? `<div class="wkt" data-p="wk" style="--wc:${el(c.weak).color}">weak: ${el(c.weak).icon} ${esc(c.weak)} ×2</div>` : c.weak === 'Enemy Heals' ? `<div class="wkt" data-p="wk" style="--wc:#d81b60">weak: ❤️ Enemy heals ×2</div>` : ''}
@@ -3248,6 +3263,8 @@ const trainerFg = {
     const sc = Math.min(1, (innerWidth - 24) / z.W);
     return `<div class="labframe-wrap" style="width:${Math.round(z.W * sc)}px;height:${Math.round(z.H * sc)}px"><div class="labframe" style="width:${z.W}px;height:${z.H}px;transform:scale(${sc})"><div class="labboard" style="width:${z.W - z.railW}px;height:${z.H - z.trayH}px;gap:${z.gap}px;padding:${z.gap}px">${row(foes, true)}${row(mine, false)}</div>${z.railW ? `<div class="labrail" style="width:${z.railW}px">▢ rail</div>` : ''}${z.trayH ? `<div class="labtray" style="height:${z.trayH}px">dice tray</div>` : ''}</div></div><div class="labnote">${n}v${n} · ${z.W}×${z.H}${sc < 1 ? ` (shown at ${Math.round(sc * 100)}%)` : ' (real size)'} · card width <b>${z.cw}px</b> × ${Math.round(z.cw * z.ch)}px</div>`;
   }
+  // a cell whose text needs more than one line gets a half-height number box, so the text can use the full width on its second line
+  function labFit() { document.querySelectorAll('.card.grid .f:not(.blank)').forEach(f => { f.classList.remove('two'); const mt = f.querySelector('.mt'); if (!mt) return; const fs = parseFloat(getComputedStyle(f).fontSize); const r = document.createRange(); r.selectNodeContents(mt); if (r.getBoundingClientRect().height > fs * 1.5) f.classList.add('two'); }); }
   function labScreen() {
     const t = ui.labTab || 'cards', mv = ui.labMv || 'text', orient = ui.labOr || 'port', cur = ui.labCur ? null : mv, n = ui.labN || 3;
     const seg = (k, v, items) => items.map(([x, l]) => `<button class="chip${v === x ? ' on' : ''}" data-act="labset" data-k="${k}" data-v="${x}">${l}</button>`).join('');
@@ -3863,7 +3880,7 @@ const trainerFg = {
     const oldHand = document.querySelector('.handrow'), oldRect = oldHand && oldHand.getBoundingClientRect(), oldHtml = oldHand && oldHand.innerHTML;
     const oldPileEl = document.querySelector('.pilebay'), oldPileRect = oldPileEl && oldPileEl.getBoundingClientRect(), oldPileHtml = oldPileEl && oldPileEl.outerHTML;
     const dxTop = (document.querySelector('.dexbox') || {}).scrollTop;
-    markDex(); $app.innerHTML = h; if (dxTop) { const nb = document.querySelector('.dexbox'); if (nb) nb.scrollTop = dxTop; }
+    markDex(); $app.innerHTML = h; if (ui.screen === 'lab') labFit(); if (dxTop) { const nb = document.querySelector('.dexbox'); if (nb) nb.scrollTop = dxTop; }
     { const ms = Date.now(), gd = -(ms % 2600) / 1000 + 's', td = -(ms % 1600) / 1000 + 's'; document.querySelectorAll('.card.shiny .art, .shw').forEach(e => { e.style.setProperty('--gd', gd); e.style.setProperty('--td', td); }); }      // a redraw must not restart the shine flicker(); toyMount();
     if (oldPileEl && !document.querySelector('.pilebay') && G && G.battle && G.battle.stage !== 'place') {        // done drawing: the pile flies away with the rest of your hand
       const pg = document.createElement('div'); pg.innerHTML = oldPileHtml; const pe = pg.firstChild; pe.style.cssText += `;position:fixed;left:${oldPileRect.left}px;top:${oldPileRect.top}px;width:${oldPileRect.width}px;z-index:36;pointer-events:none;right:auto;bottom:auto`; document.body.appendChild(pe);

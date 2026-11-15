@@ -1,5 +1,6 @@
 # Changelog
 
+- Pokémon Roll: the layout lab grid card is now edge to edge (no gaps, number boxes, half-height number box for two-line moves, left-aligned name/health/element/level, big square art flush right).
 - Pokémon Roll: a "Card layout lab" (More menu, or add #lab to the address) compares today's six-row cards with a 2×3 move grid (text or icons) on 2.5×3.5 trading-card proportions, with 3v3 and 4v4 battle mock-ups. The game itself is unchanged.
 - Pokémon Roll: Brock has two Pokémon and you send out one at a time (no borrowed die; he gives you another at the end); Misty and Lt. Surge have three and you send out two. Trainers say something when their signature Pokémon comes out. Starter cards get a Professor Oak card back in the Pokédex. Balls are crossed out from the left (a signature is always the last ball). Difficulty buttons explain themselves. The little red health pips are gone. In gym fights your cards on the field are locked during a replacement, and Fight! works even when one side has fewer cards.
 - Pokémon Roll: new keywords Dodge (the first attack against the card this round misses, pierce too) and Sleep (loses the next turn, then wakes on 4-6, wakes when hurt or healed); Snorlax's Rest; "takes N less" abilities now only cut attacks (not recoil or poison); Kakuna and Metapod recoil 1; moves with an element but no number lose the element.
