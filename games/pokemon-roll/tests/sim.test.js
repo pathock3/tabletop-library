@@ -32,7 +32,7 @@ const evs = (b, t) => b.events.filter(e => e.t === t);
 // the older rule tests are written the way the sheet lists a card (move 1 on a 1); the tests that play whole games, and the ones named 'dice faces', use the real order (move 1 on a 6)
 // the long simulations (whole campaigns played by the computer): slow, so they run in the full `npm test` and in GitHub CI but not in the quick set
 
-test('fuzz: forty computer-played campaigns, from the first rival to the champion, with no errors', (tc) => { E.faceOrder('top'); tc.after(() => E.faceOrder('sheet'));
+test('fuzz: forty computer-played campaigns, from the first rival to the champion, with no errors', (tc) => { E.faceOrder('roll'); tc.after(() => E.faceOrder('sheet'));
   for (let i = 1; i <= 40; i++) {
     const s = E.newGame({ seed: i * 7919, starter: D.starters[i % 5].key, size: i % 2 ? 'short' : 'long', ai: ['easy', 'normal', 'master'][i % 3] });
     let n = 0;
@@ -47,7 +47,7 @@ test('fuzz: forty computer-played campaigns, from the first rival to the champio
   }
 });
 
-test('ai: nobody on the computer side rerolls; Easy plays blind; the levels are real levers in the data', (tc) => { E.faceOrder('top'); tc.after(() => E.faceOrder('sheet'));
+test('ai: nobody on the computer side rerolls; Easy plays blind; the levels are real levers in the data', (tc) => { E.faceOrder('roll'); tc.after(() => E.faceOrder('sheet'));
   const B = Bots, ais = E.D.ai; assert.deepEqual(Object.keys(ais), ['easy', 'normal', 'master']);
   const c = craft(['1.1'], ['10']); c.b.dice[1] = [1]; c.b.rr[1] = 3;
   for (let i = 0; i < 30; i++) assert.equal(B.step(c.s, 'easy').t, 'gm', 'Easy hands out dice without ever rerolling');
