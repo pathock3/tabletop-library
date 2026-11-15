@@ -149,3 +149,6 @@ Column I is the text on the card; column J (`D.abilityDetails`, keyed by the col
 - **Signature entrance**: the trainer says a line (`D.sigLines`) after the signature's card has turned over.
 - **Counters**: a counter soaks up to its number and sends that much back, as damage that cannot be dodged, blocked or countered.
 - Not done: male/female sprites for the Pokédex — the game has no source art for them (Crystal's sheet has no gender differences).
+
+## The 2x3 card
+The owner approved the grid card from the layout lab and it is now the only card. Design calls: trading-card proportions; one element colour for the whole top half; type and weakness share the top strip (40/60); counters get ↩ and pierce 🗡 (everything else is words); main effect on the first line and riders (recoil, poison, a boost, the other half of an "or") on the second; a move that is only a number and a symbol is drawn larger and centred; empty cells are the same pale grey on every card; the ability text shrinks a little for long abilities; the rolled number's box lights up yellow in a fight (green for a number a die could go to).

@@ -51,7 +51,7 @@ button{font:inherit;color:inherit;border:0;cursor:pointer}
 .card.zero{filter:saturate(.55) brightness(.9);outline:3px solid #e5383b88;outline-offset:-2px}
 .card.foe{--ink:#2a0e0e}                 /* their cards face up to you, the right way round, so every card reads the same */
 .card .wkt{position:absolute;top:0;left:0;right:0;z-index:4;background:var(--wc,#fff);color:#fff;text-shadow:0 1px 0 #0009;border-bottom:max(1px,calc(var(--cw)*.011)) solid var(--ink);padding:calc(var(--cw)*.008) 0 calc(var(--cw)*.014);text-align:center;font-weight:900;font-size:calc(var(--cw)*.066);letter-spacing:.04em;white-space:nowrap;line-height:1.1}
-.card{height:calc(var(--cw)*1.58);min-height:0}
+.card{height:calc(var(--cw)*1.4);min-height:0}.card.rows{height:calc(var(--cw)*1.58)}
 .card .nmrow{padding:calc(var(--cw)*.09) calc(var(--cw)*.04) 0}
 .card .top2{display:flex;gap:calc(var(--cw)*.04);padding:calc(var(--cw)*.02) calc(var(--cw)*.04) 0}
 .card .art{width:calc(var(--cw)*.42);height:calc(var(--cw)*.42);flex:none;padding:3%;border:max(1px,calc(var(--cw)*.011)) solid var(--ink);border-radius:calc(var(--cw)*.05);background:radial-gradient(circle at 50% 40%,#fff9,var(--c) 78%);display:grid;place-items:center;position:relative;overflow:hidden}
@@ -117,7 +117,7 @@ button{font:inherit;color:inherit;border:0;cursor:pointer}
 .board{flex:1;min-height:0;display:flex;align-items:center;gap:6px;position:relative;overflow:auto;padding:4px}
 .board::before,.board::after{content:'';margin:auto}
 .col{display:flex;flex-direction:column;gap:10px;align-items:center;position:relative;padding:6px 3px;border-radius:14px;background:#ffffff0d}
-.slot{width:var(--cw);height:calc(var(--cw)*1.58);border:3px dashed #ffffff44;border-radius:calc(var(--cw)*.1);display:grid;place-items:center;font-size:calc(var(--cw)*.3);color:#ffffff66}
+.slot{width:var(--cw);height:calc(var(--cw)*1.4);border:3px dashed #ffffff44;border-radius:calc(var(--cw)*.1);display:grid;place-items:center;font-size:calc(var(--cw)*.3);color:#ffffff66}
 .slot.ok{border-color:var(--gold);color:var(--gold);background:#ffd23f22;animation:pulse 1s infinite}
 .slot.ghost{visibility:hidden}
 .die.colored{color:#fff;text-shadow:0 2px 0 #000b;border-color:#14110f}
@@ -602,6 +602,10 @@ button{font:inherit;color:inherit;border:0;cursor:pointer}
 <style>.card.grid .lv{font-size:calc(var(--cw)*.048);font-weight:700;opacity:.65}
 .card.grid .f.blank{background:repeating-linear-gradient(135deg,#dcdcdc 0 6px,#e3e3e3 6px 12px)}.card.grid .f.blank .n{background:#ebebeb;color:#b4b4b4;border-color:#9a9a9a}</style>
 <style>.card.grid .lv{opacity:1;font-weight:800}</style>
+<style>.card.grid .f .gm-c .ic{color:#1565c0}.card.grid .f .gm-p .ic{color:#c62828}
+.card.grid .f.hot{box-shadow:inset 0 0 0 3px #ffd23f}.card.grid .f.hot .n{background:#ffd23f}
+.card.grid .f.pick{box-shadow:inset 0 0 0 3px #4cd964}.card.grid .f.pick .n{background:#4cd964}</style>
+<style>.card.grid .art img{width:100%!important;height:100%;max-width:none;object-fit:contain;object-position:50% 100%;image-rendering:pixelated}</style>
 <script id="data">
 /* Pokémon Roll! — every rule number, the map, the bosses, the card sheet and the art live here. The engine and bots read this and hard-code none of it. */
 const GAME_DATA = {
@@ -2815,14 +2819,14 @@ const Bots = (() => {
     .replace(/[<>^]+/g, m => m.replace(/</g, '◀').replace(/>/g, '▶').replace(/\^/g, '▲')).replace(/\bv\b/g, '▼'));
   // health as pips: solid = health now; hatched = health lost since the round began (blocks can only win back up to where the round began); green = healed above it; empty = room up to max
   const hpPips = (cur, start, mx) => { let h = ''; for (let i = 1; i <= mx; i++) h += `<i class="${i <= Math.min(cur, start) ? 'k' : i <= cur ? 'g' : i <= start ? 'l' : ''}"></i>`; return `<div class="pips" title="${cur} now, ${start} at the start of the round, ${mx} at most">${h}</div>`; };
-  const CH = 1.58;          // a card is this many card-widths tall
+  const CH = 1.4;          // a card is this many card-widths tall
   const lvName = n => (D.rules.levelLabels || [])[n - 1] || n;
   const lvRange = loc => { const ls = Object.values(C).filter(c => c.loc === loc && !c.legend).map(c => c.level); if (!ls.length) return ''; const a = lvName(Math.min(...ls)), b = lvName(Math.max(...ls)); return a === b ? 'Level ' + a : 'Levels ' + a + '–' + b; };
   const stars = lv => '★'.repeat(lv) + '☆'.repeat(Math.max(0, 6 - lv));
   const sparkles = () => [[8, 12], [86, 16], [14, 76], [82, 70], [50, 40]].map(([x, y], i) => `<span class="star" style="left:${x}%;top:${y}%;font-size:${12 + (i % 3) * 4}px;animation-delay:calc(var(--td,0s) + ${i * 0.3}s)">✦</span>`).join('');
 
   // LAB: a move written with icons: a small picture for every keyword, arrows as glyphs, numbers stay numbers
-  const IC = { a: ['⚔', 'a'], h: ['♥', 'h'], b: ['🛡', 'b'] }, LGL = { '<': '◀', '>': '▶', '^': '▲', v: '▼' };
+  const IC = { a: ['⚔', 'a'], h: ['♥', 'h'], b: ['🛡', 'b'], c: ['↩', 'c'], p: ['🗡', 'p'] }, LGL = { '<': '◀', '>': '▶', '^': '▲', v: '▼' };
   const glyphs = sp => sp.trim().replace(/^over\s+/, '÷ ').split(/\s*(?:or|and\/or|and)\s*/).map(g => g.replace(/\s+/g, '').split('').map(ch => LGL[ch] || ch).join('')).join('<i class="orw">/</i>');
   // LAB (light icons): a number with a symbol for attack, heart for heal, shield for block; everything else stays in words; arrows as glyphs
   const iconMove = str => {
@@ -2836,20 +2840,21 @@ const Bots = (() => {
   };
   // THE card: one design at every size, a standard portrait card. o: cw, face (the number lit), pf (a number on offer), sp (special in use), die (the die shown as a badge), dieAttr, heroDie, mark (a cover: out / loses a round), extra, pop, hp, ko, foe, sel, cls, attr
   function card(u, o) {
-    o = o || {}; const c = C[u.id], e = el(c.type), cw = o.cw || 180, mx = u.max || c.hp + (u.sh ? D.rules.shinyHp : 0), hp = o.hp != null ? o.hp : (u.hp != null ? u.hp : mx);
+    o = o || {}; const grid = o.grid === undefined ? 'icon' : o.grid;          // the card is the 2x3 grid by default; null is the old six rows (only the lab shows it)
+    const c = C[u.id], e = el(c.type), cw = o.cw || 180, mx = u.max || c.hp + (u.sh ? D.rules.shinyHp : 0), hp = o.hp != null ? o.hp : (u.hp != null ? u.hp : mx);
     const pct = Math.max(0, Math.min(100, hp / mx * 100)), lvl = pct <= 33 ? ' lo' : pct <= 66 ? ' mid' : '';
     const sp = E.parseSpecial(c.special);
     const DIE = ['⚀', '⚁', '⚂', '⚃', '⚄', '⚅'];
-    const gridRows = o.grid ? [5, 2, 4, 1, 3, 0].map(i => { const m = c.moves[i], me = m && c.movEls && c.movEls[i] ? el(c.movEls[i][0].toUpperCase() + c.movEls[i].slice(1)) : null; return `<div class="f${m ? '' : ' blank'}${me ? ' elm' : ''}${o.grid === 'icon' && m ? (/^\d+[abh]$/.test(m) ? ' sz1' : /^\d+[abhp]\s+[<>^v][<>^v ]*$/.test(m) ? ' sz2' : '') : ''}" data-p="mv" data-i="${i + 1}" ${me ? `style="--mc:${me.color};--mb:${me.bg}"` : ''}><span class="n">${i + 1}</span><span class="mt">${m ? (o.grid === 'icon' ? iconMove(m) : short(m)) : ''}</span></div>`; }).join('') : '';
-    const rows = o.grid ? gridRows : c.moves.map((m, i) => [m, i]).reverse().map(([m, i]) => { const me = m && c.movEls && c.movEls[i] ? el(c.movEls[i][0].toUpperCase() + c.movEls[i].slice(1)) : null; return `<div class="f${m ? '' : ' blank'}${me ? ' elm' : ''}" data-p="mv" data-i="${i + 1}" ${me ? `style="--mc:${me.color};--mb:${me.bg}"` : ''}${o.face === i + 1 && !o.sp ? ' hot' : ''}${o.pf === i + 1 && o.face !== i + 1 ? ' pick' : ''}"><span class="pip">${i + 1}</span><span class="mt">${m ? short(m) : '—'}</span>${me ? `<span class="me">${me.icon}</span>` : ''}</div>`; }).join('');
-    return `<div class="card${o.grid ? ' grid gx-' + o.grid : ''}${u.sh ? ' shiny' : ''}${o.foe ? ' foe' : ''}${o.ko ? ' ko' : ''}${o.sel ? ' sel' : ''}${o.die != null ? ' has-die' : ''}${o.cls ? ' ' + o.cls : ''}" style="--cw:${cw}px;--bg:${e.bg};--c:${e.color}" data-cid="${u.id}" data-csh="${u.sh ? 1 : 0}" ${o.attr || ''}>
-      ${o.grid ? `<div class="wkt2"><div class="wt" data-p="el" style="background:${e.bg}">${e.icon} ${esc(c.type)}</div>${D.elements[c.weak] ? `<div class="ww" data-p="wk" style="background:${el(c.weak).color}">weak: ${el(c.weak).icon} ${esc(c.weak)} ×2</div>` : c.weak === 'Enemy Heals' ? `<div class="ww" data-p="wk" style="background:#d81b60">weak: ❤️ Enemy heals ×2</div>` : '<div class="ww"></div>'}</div>` : ''}${o.grid ? '' : D.elements[c.weak] ? `<div class="wkt" data-p="wk" style="--wc:${el(c.weak).color}">weak: ${el(c.weak).icon} ${esc(c.weak)} ×2</div>` : c.weak === 'Enemy Heals' ? `<div class="wkt" data-p="wk" style="--wc:#d81b60">weak: ❤️ Enemy heals ×2</div>` : ''}
+    const gridRows = grid ? [5, 2, 4, 1, 3, 0].map(i => { const m = c.moves[i], me = m && c.movEls && c.movEls[i] ? el(c.movEls[i][0].toUpperCase() + c.movEls[i].slice(1)) : null; return `<div class="f${m ? '' : ' blank'}${me ? ' elm' : ''}${o.face === i + 1 && !o.sp ? ' hot' : ''}${o.pf === i + 1 && o.face !== i + 1 ? ' pick' : ''}${grid === 'icon' && m ? (/^\d+[abh]$/.test(m) ? ' sz1' : /^\d+[abhp]\s+[<>^v][<>^v ]*$/.test(m) ? ' sz2' : '') : ''}" data-p="mv" data-i="${i + 1}" ${me ? `style="--mc:${me.color};--mb:${me.bg}"` : ''}><span class="n">${i + 1}</span><span class="mt">${m ? (grid === 'icon' ? iconMove(m) : short(m)) : ''}</span></div>`; }).join('') : '';
+    const rows = grid ? gridRows : c.moves.map((m, i) => [m, i]).reverse().map(([m, i]) => { const me = m && c.movEls && c.movEls[i] ? el(c.movEls[i][0].toUpperCase() + c.movEls[i].slice(1)) : null; return `<div class="f${m ? '' : ' blank'}${me ? ' elm' : ''}" data-p="mv" data-i="${i + 1}" ${me ? `style="--mc:${me.color};--mb:${me.bg}"` : ''}${o.face === i + 1 && !o.sp ? ' hot' : ''}${o.pf === i + 1 && o.face !== i + 1 ? ' pick' : ''}"><span class="pip">${i + 1}</span><span class="mt">${m ? short(m) : '—'}</span>${me ? `<span class="me">${me.icon}</span>` : ''}</div>`; }).join('');
+    return `<div class="card${grid ? ' grid gx-' + grid : ' rows'}${u.sh ? ' shiny' : ''}${o.foe ? ' foe' : ''}${o.ko ? ' ko' : ''}${o.sel ? ' sel' : ''}${o.die != null ? ' has-die' : ''}${o.cls ? ' ' + o.cls : ''}" style="--cw:${cw}px;--bg:${e.bg};--c:${e.color}" data-cid="${u.id}" data-csh="${u.sh ? 1 : 0}" ${o.attr || ''}>
+      ${grid ? `<div class="wkt2"><div class="wt" data-p="el" style="background:${e.bg}">${e.icon} ${esc(c.type)}</div>${D.elements[c.weak] ? `<div class="ww" data-p="wk" style="background:${el(c.weak).color}">weak: ${el(c.weak).icon} ${esc(c.weak)} ×2</div>` : c.weak === 'Enemy Heals' ? `<div class="ww" data-p="wk" style="background:#d81b60">weak: ❤️ Enemy heals ×2</div>` : '<div class="ww"></div>'}</div>` : ''}${grid ? '' : D.elements[c.weak] ? `<div class="wkt" data-p="wk" style="--wc:${el(c.weak).color}">weak: ${el(c.weak).icon} ${esc(c.weak)} ×2</div>` : c.weak === 'Enemy Heals' ? `<div class="wkt" data-p="wk" style="--wc:#d81b60">weak: ❤️ Enemy heals ×2</div>` : ''}
       <div class="cbox">
         <div class="art"><img style="width:${artPct(u.id)}%" src="${art(u.id, u.sh)}" alt="${esc(c.name)}">${u.sh ? sparkles() : ''}${o.mark ? `<div class="mark">${o.mark}</div>` : ''}${o.sts || ''}${o.die != null ? `<div class="dbadge${o.heroDie ? ' hero' : ''}${o.land ? ' land' : ''}${o.dieCol ? ' colored' : ''}" ${o.dieAttr || ''}${o.dieCol ? ` style="background:${o.dieCol}"` : ''}>${o.die}${o.dieBonus ? '<small>+1</small>' : ''}</div>` : ''}</div>
-        <div class="nm"${o.grid ? ` style="font-size:calc(var(--cw)*${c.name.length > 10 ? .095 : c.name.length > 8 ? .108 : .125})"` : ''}>${esc(c.name)}${u.sh ? ' ✨' : ''}</div>${o.recall ? `<div class="rcl${o.recall === 'sure' ? ' sure' : ''}" data-act="recall" data-uid="${u.uid}">${o.recall === 'sure' ? 'Return it? Tap again' : '↩ Return'}</div>` : ''}
-        <div class="side"><div class="hprow"><div class="hpc${lvl}" data-p="hp">♥ <span class="hpn">${Math.max(0, hp)}</span><small>/${mx}</small></div>${o.chg ? `<span class="hpchg${o.chg.heal ? ' up' : ''}">${o.chg.heal ? '+' : '−'}${o.chg.n}${o.chg.weak ? ' <b>×2</b>' : ''}</span>` : ''}</div>${o.shield ? `<div class="shd">🛡 ${o.shield}</div>` : ''}${o.start != null && mx <= 14 ? hpPips(hp, o.start, mx) : ''}${o.grid ? '' : `<div class="tagl" data-p="el">${e.icon} ${esc(c.type)}</div>`}<div class="lv">Lv ${lvName(c.level)}</div></div>
+        <div class="nm"${grid ? ` style="font-size:calc(var(--cw)*${c.name.length > 10 ? .095 : c.name.length > 8 ? .108 : .125})"` : ''}>${esc(c.name)}${u.sh ? ' ✨' : ''}</div>${o.recall ? `<div class="rcl${o.recall === 'sure' ? ' sure' : ''}" data-act="recall" data-uid="${u.uid}">${o.recall === 'sure' ? 'Return it? Tap again' : '↩ Return'}</div>` : ''}
+        <div class="side"><div class="hprow"><div class="hpc${lvl}" data-p="hp">♥ <span class="hpn">${Math.max(0, hp)}</span><small>/${mx}</small></div>${o.chg ? `<span class="hpchg${o.chg.heal ? ' up' : ''}">${o.chg.heal ? '+' : '−'}${o.chg.n}${o.chg.weak ? ' <b>×2</b>' : ''}</span>` : ''}</div>${o.shield ? `<div class="shd">🛡 ${o.shield}</div>` : ''}${o.start != null && mx <= 14 ? hpPips(hp, o.start, mx) : ''}${grid ? '' : `<div class="tagl" data-p="el">${e.icon} ${esc(c.type)}</div>`}<div class="lv">Lv ${lvName(c.level)}</div></div>
       </div>
-      <div class="ab${o.ab ? ' ' + o.ab.state + (o.ab.on ? ' on' : '') : ''}" data-p="ab" ${o.ab && o.ab.state === 'ready' && o.ab.attr ? o.ab.attr : ''}>${c.ability ? abText(c.ability) : 'No ability'}${o.ab && o.ab.html ? o.ab.html : ''}</div>
+      <div class="ab${o.ab ? ' ' + o.ab.state + (o.ab.on ? ' on' : '') : ''}" data-p="ab"${grid && c.ability ? ` style="font-size:calc(var(--cw)*${c.ability.length > 80 ? .04 : c.ability.length > 60 ? .044 : .05}) !important"` : ''} ${o.ab && o.ab.state === 'ready' && o.ab.attr ? o.ab.attr : ''}>${c.ability ? abText(c.ability) : 'No ability'}${o.ab && o.ab.html ? o.ab.html : ''}</div>
       <div class="faces">${rows}</div>
       ${sp && D.rules.specials ? `<div class="sp${o.sp ? ' hot' : ''}"><i>${String(sp.face).repeat(sp.count).split('').join(' ')}</i><span>${short(c.special.replace(/^\d+:\s*/, ''))}</span></div>` : ''}
       ${o.extra || ''}
@@ -3264,7 +3269,7 @@ const trainerFg = {
   const LAB_CH = 1.4;          // a standard trading card is 2.5 x 3.5 in: 1.4 card-widths tall (today's card is 1.58)
   function labSize(n, orient, grid) {
     const W = orient === 'land' ? 1180 : 820, H = orient === 'land' ? 820 : 1180, gap = 10, railW = orient === 'land' ? 160 : 0, trayH = orient === 'land' ? 0 : 150;          // the rail (flee / menu / fight) on the right in landscape, the dice tray at the bottom in portrait
-    const bw = W - railW - gap, bh = H - trayH - gap, ch = grid ? LAB_CH : CH;
+    const bw = W - railW - gap, bh = H - trayH - gap, ch = grid ? LAB_CH : 1.58;
     return { W, H, railW, trayH, gap, cw: Math.floor(Math.min((bw - (n + 1) * gap) / n, (bh - 3 * gap) / (2 * ch))), ch };
   }
   function labBoard(n, orient, grid) {
