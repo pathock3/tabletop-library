@@ -3492,7 +3492,7 @@ const trainerFg = {
     const yourPlace = placing && b.pl.side === 0;
     const matching = b.stage === 'match' && !!b.mt, yourMatch = matching && b.mt.side === 0, mvs = yourMatch ? E.matchMoves(b, 0) : [], movers = new Set(mvs.map(m => m.uid)), msel = ui.msel != null && movers.has(ui.msel) ? ui.msel : null;
     const insAts = yourPlace && selected != null ? E.slotsFor(b, 0).filter(sl => sl.at != null).map(sl => sl.at) : [];       // where a new column could go: each one is shown as a spot the size of a card
-    const m = Math.max(1, b.cols.length + insAts.length, b.mode === 'wild' ? b.cap : Math.max(b.need[0], b.need[1]));
+    const m = placing ? Math.max(1, b.cols.length + insAts.length, b.mode === 'wild' ? b.cap : Math.max(b.need[0], b.need[1])) : Math.max(1, b.cols.length);          // while you place, room is kept for every spot that may be used; once the fight is on, the cards use the whole screen
     const dk = railP && (nodeP.kind === 'loc' || nodeP.kind === 'visitor') ? 1 : 0, mD = m + dk, cwW = Math.floor((W - 8 - (mD + 1) * 4 - mD * 6) / mD), mBase = Math.max(1, b.cols.length, b.mode === 'wild' ? b.cap : Math.max(b.need[0], b.need[1])) + dk;          // a wild deck sits beside the columns, the size of a card          // the hand keeps its size while a spot is being picked
     if (placing) {          // your hand is fanned under the board, its cards the very same size as the board's
       const nH = E.handOf(b, 0).length + (b.placed ? b.placed[0] : 0), hfit = nH > 1 ? Math.floor((innerWidth - 20) / (1 + (nH - 1) * .62)) : 999;
