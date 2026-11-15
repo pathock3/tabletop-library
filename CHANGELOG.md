@@ -1,5 +1,6 @@
 # Changelog
 
+- Pokémon Roll: the die you win is mentioned once, in the leader's speech bubble; the victory screen is bigger (leader, bubble, die, button) and fits the phone.
 - Pokémon Roll: a trainer puts down their signature Pokémon last, never before the rest of their team.
 - Pokémon Roll: visitor trainers show their icon and Poké Balls in the right column too (with the deck beside their columns).
 - Pokémon Roll: the wild deck is now a card-sized pile beside the enemy columns; a drawn card lands face down, then flips. Battle and hand cards are bigger and equal; the hand runs off the bottom edge; notes are shorter.
