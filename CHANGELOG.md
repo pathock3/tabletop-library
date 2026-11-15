@@ -2,6 +2,7 @@
 
 - Pokémon Roll: the fight never starts by itself: once everything is down you press Fight! (you can still take your last card back, or in the wild bring another). The location deck sits left of a centred battlefield; every card, even the first, is drawn from it face down, waits a second, then flips (slower). The deck's i button works and is bigger, so are Flee and Menu; the hand is shown in full and in front of the board; the tip waits for the draw.
 - Pokémon Roll: the die you win is mentioned once, in the leader's speech bubble; the victory screen is bigger (leader, bubble, die, button) and fits the phone.
+- Pokémon Roll: every ability rewritten from the V4 sheet (column I on the card, column J when you tap it): per-hit blocks, thorns after blocked attacks, free counters (Krabby, Larvitar line, Nidorino), Vileplume and Nido max health, Doduo/Dodrio reach, Kadabra/Celebi/Gyarados swaps, Alakazam and Rhyhorn redirects, Ditto copying any card, Hitmonchan's new moves. See DECISIONS.md.
 - Pokémon Roll: a trainer puts down their signature Pokémon last, never before the rest of their team.
 - Pokémon Roll: visitor trainers show their icon and Poké Balls in the right column too (with the deck beside their columns).
 - Pokémon Roll: the wild deck is now a card-sized pile beside the enemy columns; a drawn card lands face down, then flips. Battle and hand cards are bigger and equal; the hand runs off the bottom edge; notes are shorter.

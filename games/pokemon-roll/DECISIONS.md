@@ -119,3 +119,23 @@
 - `RULING:` **Abilities** rewritten in V4 are mapped to the existing machinery where it was the same rule in new words (counters thorns-style "N pierce to the attacker", stun the attacker = lose a round, self-stuns replace "can't attack next round", and so on). New: Poliwag line (a 3 may become a 4) and Magnemite (a 4 may become a 3) and Cubone/Marowak (a 1 may become a 6, once per battle) and Paras/Parasect (+2 to one die, every other round) are the die-changing ability box on the card (tap it, then a die); Slowpoke/Slowbro lower the die of the card opposite by 3 (min 1) automatically on rounds 1, 3, 5…; Koffing's attacks all pierce; Articuno's attacks all freeze. "Takes N less damage" keeps the old rule (N is soaked once per round, any damage), now worded as a counter on the card. **Conflict**: the V4 glossary says there are no type immunities; printed "Immune to X" abilities are kept as the earlier ruling (3 less damage from that type).
 - `RULING:` **Not changed** (it still works as before, and V4 does not mention it): a heal of the card's own element heals double, a counter against its own element counts double, coloured dice from gym leaders add 1, and elemental weakness doubles damage.
 - Not used by any card, so only parsed: boosts that give neighbours a keyword ("+poison <>", "+pierce <>"); the plain boosts ("+2a <>", "+3h <>", "+1c <>") work as before.
+
+
+## V4 ability rewrite (sheet columns I and J)
+Column I is the text on the card; column J (`D.abilityDetails`, keyed by the column I text) is shown when the ability is tapped. Levels in column E are the named levels (1, 10, 20 ... 50) and are read back to ranks 1-6. Every ability is read by `D.abilities` (first match wins); `tests` checks that none is left unread.
+- **Per-hit blocks** ("Has X block against each attack / ground attack / Nido ally", Magikarp's 9) cut every hit separately and are ignored by pierce (statuses still apply if damage gets through). A card's own Counters and Blocks still come after.
+- **Thorns** (Sandshrew, Grimer, Omanyte...) hit the attacker after any attack that reached the card, even when the damage was blocked or countered (not when it was dodged or missed). **KO triggers** hit the card that dealt the final damage.
+- **Squirtle line** counts damage its counters sent back last round (the sheet now says "countered"; this replaces the earlier "blocked or countered").
+- **Free counters**: Krabby, Kingler, Larvitar and the Pupitar line give each neighbour a free 1 counter every round; Nidorino gets 1 per Nido ally. They add to any counter rolled. Tyranitar only adds +2 to a neighbour's counter move.
+- **Max health** follows the cards: +1 per living Nido ally (Nidoqueen, Nidoking), +3 beside Vileplume. When it rises the card gains the same health (our reading); when it falls health drops to the new max.
+- **Grass heal** (Bulbasaur line): the biggest on the team, not added up.
+- **Reach** (Doduo left, Dodrio right): every move of a neighbour gets one more column on that side.
+- **Swaps**: Kadabra and Celebi swap with an ally once a round, Gyarados once a battle, all between rounds before any die is given out (tap the ability, then the ally). Celebi swaps only with a card, not into an empty column. Golbat stops every column change of the other side, Tangela the ones made by abilities (all of our column changes are abilities, so they behave the same today).
+- **Alakazam** and **Rhyhorn/Rhydon** decide by themselves (no prompt): Alakazam turns the attack of the card opposite onto the card of its own team that suits the defender best (not two rounds in a row); Rhyhorn swaps the card it attacked for the enemy it would most like to face.
+- **Ditto** picks any card in play when round 1 begins (you tap it; the computer takes the strongest), and then *is* that card for the battle: its moves and ability, its look and element, but its own health. (Deviation: it also takes the copy's type and weakness.)
+- **Haunter** keeps the earlier end-of-round yes/no flow (once per battle).
+- **Hitmonchan** takes 1 recoil for each side of a "<>" punch that finds no enemy; "< or >" moves take none.
+- **Rapidash** acts first and a card it knocks out does not act that round. This is the one exception to "a card at 0 still moves".
+- **Hitmonlee** stays at exactly 1 health the first time it would fall (no longer protected for the rest of the round).
+- **Weezing** heals 1 and the card opposite takes 1 pierce after each round if that card has more health.
+- **Rerolls**: Lugia now gives your team +1 reroll (like Vulpix); "reroll any 1" and "reroll any 2 for free" are both one free reroll per die.

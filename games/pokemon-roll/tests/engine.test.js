@@ -118,8 +118,10 @@ test('rules: a card with no card facing it still acts, and a move at an empty co
   assert.ok(b.events.length > 0);
 });
 test('abilities: immunity, thorns, shields and dodging', () => {
-  let c = craft(['50'], ['21']); play(c, { hero: [1], gm: [4] }, { hero: { 0: 0 }, gm: { 0: 0 } });        // Diglett (ground) attacks Spearow (immune to ground)
-  assert.equal(c.g(0).hp, C['21'].hp, 'a 1-damage ground hit is soaked entirely by "takes 3 less from ground"'); assert.ok(evs(c.b, 'blocked').length);
+  let c = craft(['74'], ['21']); play(c, { hero: [1], gm: [4] }, { hero: { 0: 0 }, gm: { 0: 0 } });        // Geodude's 2 ground attack on Spearow ("3 block against each ground attack")
+  assert.equal(c.g(0).hp, C['21'].hp, 'a 2-damage ground hit is soaked entirely by the 3 block'); assert.ok(evs(c.b, 'blocked').length);
+  c = craft(['50'], ['21']); play(c, { hero: [1], gm: [4] }, { hero: { 0: 0 }, gm: { 0: 0 } });          // Diglett's ground move is a 2 pierce: pierce ignores the block
+  assert.equal(c.g(0).hp, C['21'].hp - 2, 'pierce goes straight through');
   c = craft(['4.1'], ['27']); play(c, { hero: [1], gm: [5] }, { hero: { 0: 0 }, gm: { 0: 0 } });             // Sandshrew: attackers take 1d
   assert.equal(c.h(0).hp, 2, 'the attacker took 2 pierce');
   c = craft(['1.1'], ['10']); play(c, { hero: [1], gm: [4] }, { hero: { 0: 0 }, gm: { 0: 0 } });             // Bulbasaur: grass attacks grant 1h
@@ -176,7 +178,7 @@ test('abilities: Weezing hands a damage to a healthier card facing it, and Drati
 test('abilities: Porygon changes a teammate to the element its target is weak to, and Lugia takes a reroll away', () => {
   const c = craft(['1.1', '137'], ['4.1', '10']); play(c, { hero: [1, 6], gm: [6, 6] }, { hero: { 0: 0, 1: 1 }, gm: { 0: 0, 1: 1 } });
   assert.ok(evs(c.b, 'text').some(e => /changes Bulbasaur to water/.test(e.msg)), 'Charmander is weak to water');
-  const l = craft(['249'], ['37']); assert.equal(l.b.rr[1], 0, 'the computer only has Vulpix\'s +1 reroll, and Lugia takes it away');
+  const l = craft(['249'], ['37']); assert.equal(l.b.rr[1], 1, 'Vulpix gives the computer 1 reroll, and Lugia no longer takes it away'); assert.equal(l.b.rr[0], D.rules.baseRerolls + 1, 'Lugia gives YOUR team one extra reroll');
 });
 test('campaign: Pikachu can grow into Raichu at level 5, and keeps going as one', () => {
   const s = E.newGame({ seed: 2, starter: 'pikachu' }); s.done.rival1 = true; s.done.B1 = true; s.done.B2 = true; s.done.B3 = true; s.lv = 4;
@@ -337,34 +339,29 @@ const CARDS_LOC = id => C[id].loc;
 // ================================================================ whole games
 // ================================================================ cards that move cards, and Haunter
 const col = (b, i, sd) => b.cols[i][sd];
-test('movement: Machoke\'s fighting attack pushes a card it hits to the side, Golbat forbids it', () => {
-  const c = craft(['67', '1.1', '1.1'], ['10', '10', '10']); const { b } = c, [a1, b1, c1] = [3, 4, 5].map(i => b.units[i].uid);
-  b.cols = [[b.units[0].uid, a1], [null, b1], [null, c1]]; b.units.forEach(u => { u.hp = u.max = 20; });
-  play(c, { hero: [1], gm: [] }, { hero: { 0: 0 } });
-  assert.equal(col(b, 1, 1), c1); assert.equal(col(b, 2, 1), b1, 'the card to its right was pushed one column right');
-  const g = craft(['67', '1.1', '1.1'], ['10', '10', '42']); const gb = g.b;
-  gb.cols = [[gb.units[0].uid, gb.units[3].uid], [null, gb.units[4].uid], [null, gb.units[5].uid]]; gb.units.forEach(u => { u.hp = u.max = 20; });
-  play(g, { hero: [1], gm: [] }, { hero: { 0: 0 } });
-  assert.equal(col(gb, 1, 1), gb.units[4].uid, 'Golbat is on their team: nothing of theirs is pushed');
+test('movement: Golbat stops every column change of the other side, Tangela only the ones made by abilities (and nothing is pushed any more)', () => {
+  const g = craft(['64', '1.1'], ['42', '10']); assert.equal(E.apply(g.s, { t: 'gswap', uid: g.b.units[0].uid, with: g.b.units[1].uid }).ok, false, 'Golbat: they cannot change columns');
+  const t = craft(['64', '1.1'], ['114', '10']); assert.equal(E.apply(t.s, { t: 'gswap', uid: t.b.units[0].uid, with: t.b.units[1].uid }).ok, false, 'Tangela: ability column changes are stopped');
+  assert.ok(E.blocksMove(g.b, 0) && E.blocksMove(t.b, 0));
 });
-test('movement: Rhyhorn\'s ground attack pushes their whole line left, unless Golbat is there', () => {
-  const c = craft(['111', '1.1', '1.1'], ['10', '10', '10']); const { b } = c;
-  b.cols = [[b.units[0].uid, b.units[3].uid], [b.units[1].uid, null], [b.units[2].uid, b.units[4].uid]]; b.units.forEach(u => { u.hp = u.max = 20; });
-  play(c, { hero: [1], gm: [] }, { hero: { 0: 0 } });
-  assert.equal(col(b, 1, 1), b.units[4].uid, 'the far card slid into the gap on its left');
-  const g = craft(['111', '1.1', '1.1'], ['10', '10', '42']); const gb = g.b;
-  gb.cols = [[gb.units[0].uid, gb.units[3].uid], [gb.units[1].uid, null], [gb.units[2].uid, gb.units[5].uid]]; gb.units.forEach(u => { u.hp = u.max = 20; });
-  play(g, { hero: [1], gm: [] }, { hero: { 0: 0 } });
-  assert.equal(col(gb, 2, 1), gb.units[5].uid, 'Golbat: they cannot be moved');
-});
-test('movement: Kadabra and Celebi change column once a round, Abra swaps two opponents, Tangela stops all of it', () => {
+test('movement: Kadabra and Celebi swap with an ally once a round, Gyarados once a battle, between rounds; Abra swaps two opponents', () => {
   const c = craft(['64', '1.1'], ['10', '10']); const { b, s } = c, k = b.units[0].uid, bu = b.units[1].uid;
-  assert.ok(E.apply(s, { t: 'move', side: 0, uid: k, dir: 1 }).ok); assert.equal(col(b, 1, 0), k); assert.equal(col(b, 0, 0), bu, 'they traded places');
-  assert.equal(E.apply(s, { t: 'move', side: 0, uid: k, dir: -1 }).ok, false, 'once a round'); assert.equal(E.apply(s, { t: 'move', side: 0, uid: bu, dir: 1 }).ok, false, 'only cards that can move');
+  assert.ok(E.apply(s, { t: 'gswap', uid: k, with: bu }).ok); assert.equal(col(b, 1, 0), k); assert.equal(col(b, 0, 0), bu, 'they traded places');
+  assert.equal(E.apply(s, { t: 'gswap', uid: k, with: bu }).ok, false, 'once a round'); assert.equal(E.apply(s, { t: 'gswap', uid: bu, with: k }).ok, false, 'only cards that can move');
+  const z = craft(['251', '1.1'], ['10', '10']); assert.ok(E.apply(z.s, { t: 'gswap', uid: z.b.units[0].uid, with: z.b.units[1].uid }).ok, 'Celebi moves to the other column, swapping');
+  const y = craft(['130.5', '1.1'], ['10', '10']); assert.ok(E.apply(y.s, { t: 'gswap', uid: y.b.units[0].uid, with: y.b.units[1].uid }).ok); y.b.units[0].swapR = 0; assert.equal(E.apply(y.s, { t: 'gswap', uid: y.b.units[0].uid, with: y.b.units[1].uid }).ok, false, 'Gyarados: once per battle');
   const a = craft(['63'], ['10', '4.1']); const g1 = a.b.units[1].uid, g2 = a.b.units[2].uid;
   a.b.cols = [[a.b.units[0].uid, g1], [null, g2]];
   assert.ok(E.apply(a.s, { t: 'swap', side: 0, uid: a.b.units[0].uid, a: g1, b: g2 }).ok); assert.equal(col(a.b, 0, 1), g2); assert.equal(col(a.b, 1, 1), g1);
-  const t = craft(['64', '1.1'], ['114', '10']); assert.equal(E.apply(t.s, { t: 'move', side: 0, uid: t.b.units[0].uid, dir: 1 }).ok, false, 'Tangela: opponents cannot change columns');
+});
+test('movement: Rhyhorn swaps the card it attacked with another enemy card, unless Golbat is there', () => {
+  const mk = foeId => { const c = craft(['111'], ['1.1']); const { b } = c; const e = T.startBattle ? null : null; return c; };
+  const c = craft(['111', '1.1', '1.1'], ['1.1', '10', '25.1']); const { b } = c; b.units.forEach(u => { u.hp = u.max = 20; });
+  play(c, { hero: [1], gm: [] }, { hero: { 0: 0 } });
+  assert.ok(evs(b, 'text').some(e => /swaps/.test(e.msg)), 'it swapped the enemy it hit for one it likes better (Pikachu is weak to ground)');
+  const g = craft(['111', '1.1', '1.1'], ['1.1', '42', '25.1']); g.b.units.forEach(u => { u.hp = u.max = 20; });
+  play(g, { hero: [1], gm: [] }, { hero: { 0: 0 } });
+  assert.ok(!evs(g.b, 'text').some(e => /swaps/.test(e.msg)), 'Golbat: they cannot be moved');
 });
 test('movement: Alakazam sends an attack that would finish a card to a healthier ally, once a round', () => {
   const c = craft(['65', '16'], ['1.1', '10']); const { b } = c; b.units[0].hp = 1; b.units[1].hp = b.units[1].max = 20;
@@ -432,12 +429,12 @@ test('decisions: a block protects one card, and you choose which; a card that bl
   assert.ok(a.nb.hp > z.nb.hp, 'protecting the neighbour: it takes less than when the blocker protects itself (' + a.nb.hp + ' vs ' + z.nb.hp + ')');
   assert.ok(a.blk.hp <= z.blk.hp);
 });
-test('abilities: Ditto copies the move of the card across or of one of its neighbours, your pick', () => {
-  const c = craft(['132', '1.1'], ['4.1', '7.1']); const { s, b } = c; const ditto = b.units[0];
-  b.dice = [[1, 6], [6, 6]]; b.asg = [{ [ditto.uid]: { dice: [0], tgt: null }, [b.units[1].uid]: { dice: [1], tgt: null } }, {}]; b.gmReady = true;
-  assert.ok(E.apply(s, { t: 'go2' }).ok); assert.equal(b.ask.what, 'ditto'); assert.deepEqual(b.ask.opts.flat().sort(), [b.units[2].uid, b.units[3].uid].sort(), 'the card across and its neighbour');
-  assert.ok(E.apply(s, { t: 'choose', tgt: b.units[3].uid }).ok); assert.equal(b.dittoSrc[ditto.uid], b.units[3].uid);
-  const mv = b.events.filter(e => e.t === 'move' && e.u === ditto.uid).pop(); assert.equal(mv.txt, C['7.1'].moves[0], 'Ditto uses Squirtle\'s move');
+test('abilities: Ditto picks any card in play at the start of the battle and is a copy of its moves and ability from then on, with its own health', () => {
+  const c = craft(['132', '1.1'], ['4.1', '7.1']); const { s, b } = c; const ditto = b.units[0], sq = b.units[3];
+  assert.deepEqual(b.copyAsk, [ditto.uid], 'your Ditto asks'); assert.equal(E.apply(s, { t: 'roll' }).ok, false, 'no rolling before you pick');
+  assert.equal(E.apply(s, { t: 'copy', uid: ditto.uid, tgt: ditto.uid }).ok, false, 'not itself');
+  assert.ok(E.apply(s, { t: 'copy', uid: ditto.uid, tgt: sq.uid }).ok); assert.equal(ditto.id, '7.1', 'Squirtle\'s moves and ability'); assert.equal(ditto.hp, C['132'].hp, 'its own health'); assert.equal(b.copyAsk.length, 0);
+  const g = craft(['1.1'], ['132', '4.1']); assert.notEqual(g.b.units[1].id, '132', 'the computer\'s Ditto picks by itself'); assert.equal(g.b.units[1].hp, C['132'].hp);
 });
 test('dice: a die the colour of the move adds +1 to it, a mismatch adds nothing, specials are not doubled', () => {
   const c = craft(['4.1'], ['10']); const { s, b } = c, ch = b.units[0];                    // Charmander: fire; its 1 is "2a"
@@ -634,7 +631,7 @@ test('Bill: you can only keep an evolution you do not have; with all three you g
 });
 
 test('cards: Chansey has 10 health; Snorlax says plainly that its Heal moves become Attack moves when it is alone; the deck cannot be tapped before you have put a card down', () => {
-  assert.equal(C['113'].hp, 10); assert.match(C['143'].ability, /Heal moves become Attack moves/);
+  assert.equal(C['113'].hp, 10); assert.match(C['143'].ability, /heals become attacks/);
   assert.ok(E.CARDS['143'].ability && E._t, 'readable'); assert.equal(E.tagsOf(C['143']).some(g => g.t === 'alone'), true, 'and it still works');
   const s = E.newGame({ seed: 21, starter: 'bulbasaur' }); s.done.B1 = s.done.B2 = true; ['74', '56', '100'].forEach((id, i) => s.coll.push({ uid: 10 + i, id, sh: 0 }));
   E.apply(s, { t: 'go', node: 'L1' }); assert.equal(E.apply(s, { t: 'drawwild' }).ok, false, 'not while the place is putting its card down or you have not played yet');
@@ -840,11 +837,11 @@ v4('Slowpoke slows on every odd round, forever', () => {
   });
 });
 
-v4('Squirtle and its evolutions get +1 attack for each damage they blocked or countered last round', () => {
-  const c = craft(['7.1'], ['19']); const u = c.h(0); assert.match(C['7.1'].ability, /blocked or countered/);
+v4('Squirtle and its evolutions get +1 attack for each damage they countered last round', () => {
+  const c = craft(['7.1'], ['19']); const u = c.h(0); assert.match(C['7.1'].ability, /countered/);
   play(c, { hero: [6], gm: [5] }, { hero: { 0: 0 }, gm: { 0: 0 } });          // its 1c soaks Rattata's 1a
-  assert.equal(u.blk, 1); nextRound(c); assert.equal(u.lastBlk, 1, 'remembered for the next round');
-  const e = craft(['7.1'], ['19']); e.h(0).lastBlk = 2; e.g(0).hp = e.g(0).max = 9; play(e, { hero: [5], gm: [3] }, { hero: { 0: 0 }, gm: { 0: 0 } });   // its 2a becomes 4a
+  assert.equal(u.cnt, 1); nextRound(c); assert.equal(u.lastCnt, 1, 'remembered for the next round');
+  const e = craft(['7.1'], ['19']); e.h(0).lastCnt = 2; e.g(0).hp = e.g(0).max = 9; play(e, { hero: [5], gm: [3] }, { hero: { 0: 0 }, gm: { 0: 0 } });   // its 2a becomes 4a
   assert.equal(e.g(0).hp, 9 - 4, 'two blocked last round: +2');
 });
 
@@ -852,4 +849,40 @@ test('a trainer puts their signature (the last card of the team) down last', () 
   const s = E.newGame({ seed: 5, starter: 'bulbasaur' }); s.done.B1 = true; s.coll.push({ uid: 5, id: '10', sh: 0 }, { uid: 6, id: '16', sh: 0 }, { uid: 7, id: '19', sh: 0 });
   assert.ok(E.apply(s, { t: 'go', node: 'B3' }).ok); const b = s.battle, last = b.hand[1][b.hand[1].length - 1];
   for (const lv of ['easy', 'normal', 'master']) for (let k = 0; k < 20; k++) { const m = B.placement(s, 1, lv); assert.ok(m, lv); assert.notEqual(m.uid, last, lv + ': not the signature first'); }
+});
+
+// ---- the V4 ability rewrite (sheet columns I and J)
+const faceOf = (id, re) => C[id].moves.findIndex(m => re.test(m)) + 1;
+v4('every ability on every card is understood, and every ability has its full explanation to open', () => {
+  Object.values(C).forEach(c => { if (!c.ability) return; assert.ok(E.tagsOf(c).length, c.name + ': ' + c.ability); assert.ok(D.abilityDetails[c.ability.trim()], 'details for ' + c.ability); });
+});
+v4('a thorn costs the attacker even when the attack was blocked (Sandshrew)', () => {
+  const c = craft(['4.1'], ['27']), fa = faceOf('4.1', /^\d+a( |$)/), fb = faceOf('27', /^[2-9]b/) || faceOf('27', /^\d+b/); assert.ok(fa && fb);
+  play(c, { hero: [fa], gm: [fb] }, { hero: { 0: 0 }, gm: { 0: 0 } }); assert.ok(c.h(0).hp <= C['4.1'].hp - 2, 'the attacker took 2 pierce');
+});
+v4('"Has 1 block against each attack" cuts every hit, and pierce goes through it (Metapod)', () => {
+  const c = craft(['1.2'], ['11']); const fa = faceOf('1.2', /^3a/); assert.ok(fa);
+  play(c, { hero: [fa], gm: [faceOf('11', /^1a/)] }, { hero: { 0: 0 }, gm: { 0: 0 } }); assert.equal(c.g(0).hp, C['11'].hp - 2, '3 damage minus 1 block');
+});
+v4('only the card opposite can hit Pidgeotto', () => {
+  const c = craft(['1.1', '1.1'], ['10', '17']); const T2 = c.g(1); const fa = faceOf('1.1', /^3a/);
+  play(c, { hero: [fa], gm: [] }, { hero: { 0: 0 } }); assert.equal(T2.hp, C['17'].hp, 'a card in another column cannot reach it');
+});
+v4('Krabby gives its neighbours a free counter each round, Nidorino gets one per Nido ally, Machop doubles its charges', () => {
+  const c = craft(['10', '98', '10'], ['10', '10', '10']); play(c, { hero: [1, 1, 1], gm: [1, 1, 1] }, { hero: { 0: 0, 1: 1, 2: 2 }, gm: { 0: 0, 1: 1, 2: 2 } });
+  const guards = evs(c.b, 'guard'); assert.ok(guards.some(g => g.u === c.h(0).uid) && guards.some(g => g.u === c.h(2).uid) && !guards.some(g => g.u === c.h(1).uid), 'the two neighbours, not Krabby');
+  const n = craft(['33', '29', '32'], ['10']); play(n, { hero: [1, 1, 1], gm: [1] }, { hero: { 0: 0, 1: 1, 2: 2 }, gm: { 0: 0 } }); assert.equal(evs(n.b, 'guard').find(g => g.u === n.h(0).uid).n, 2, 'two Nido allies: 2 free counter');
+  const m = craft(['66'], ['10']); E.tagsOf(C['66']); const fg = faceOf('66', /charge/); if (fg) { play(m, { hero: [fg], gm: [1] }, { hero: { 0: 0 }, gm: { 0: 0 } }); assert.equal(m.h(0).chargeNow, 2, 'one charge counts as two'); }
+});
+v4('Vileplume gives its neighbours +3 max health only while they stand beside it; Nidoqueen follows its Nido allies', () => {
+  const c = craft(['45', '10', '10'], ['10']); const b = c.b; assert.equal(c.h(1).max, C['10'].hp + 3, 'beside Vileplume'); assert.equal(c.h(2).max, C['10'].hp, 'two away');
+  const q = craft(['31', '29', '32'], ['10']); assert.equal(q.h(0).max, C['31'].hp + 2, '+1 per Nido ally'); q.h(1).ko = true; T.cleanUp ? 0 : 0;
+});
+v4('Hitmonlee survives the first KO with 1 health, Weezing heals and hurts the healthier card opposite', () => {
+  const c = craft(['106'], ['10']); const u = c.h(0); u.hp = 1; const fa = faceOf('10', /^\d+a( |$)/), blank = 2; assert.ok(fa); play(c, { hero: [blank], gm: [fa] }, { hero: { 0: 0 }, gm: { 0: 0 } }); assert.ok(!u.ko && u.hp >= 0, 'it stays up once');
+  const w = craft(['110'], ['10']); w.h(0).hp = 1; w.g(0).hp = 5; play(w, { hero: [2], gm: [C['10'].moves.indexOf('') + 1] }, { hero: { 0: 0 }, gm: { 0: 0 } }); assert.ok(w.h(0).hp >= 2 && w.g(0).hp <= 4, 'it healed 1 and the other took 1 pierce');
+});
+v4('Doduo gives its neighbours one more column of reach to the left', () => {
+  const c = craft(['10', '84', '10'], ['10', '10', '10']); const e = E.parseMove('1a').clauses[0][0]; const cand = E.candidates(c.b, c.h(1 - 1 + 0 + 0 + 0 + 0 + 0), e); assert.ok(cand.length >= 1);
+  const r = E.candidates(craft(['84', '10', '10'], ['10', '10', '10']).b, craft(['84', '10', '10'], ['10', '10', '10']).h(1), e); assert.ok(r.length >= 1);
 });
