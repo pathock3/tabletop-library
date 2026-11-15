@@ -1,5 +1,6 @@
 # Changelog
 
+- Pokémon Roll: visitor trainers show their icon and Poké Balls in the right column too (with the deck beside their columns).
 - Pokémon Roll: the wild deck is now a card-sized pile beside the enemy columns; a drawn card lands face down, then flips. Battle and hand cards are bigger and equal; the hand runs off the bottom edge; notes are shorter.
 
 ## Unreleased
