@@ -2,6 +2,13 @@
 
 These come from feedback repeated across Dig Dig BOOM!, One More, Advanced Counting, Torn Treasure, This Means WAR!, Stackjack and the library page. Build every new game to this list, and check an old game against it when touching it, so the same edits are not asked for twice.
 
+## Read this first (the things asked for again and again)
+- **Testing is the bare minimum.** Tests burn the owner's credits and mostly waste them. Wording, numbers, colours, CSS: run nothing, just look. A layout or rule change: run only the one test that touches it. Never run the full `npm test` or a whole game's suite after a small edit; at most once at the end of a big batch, and say so first. Do not re-run tests "to be sure".
+- **Cards use the whole screen.** Battle cards and hand cards are as big as the screen allows, the same size as each other, battle cards reaching the top edge, the hand running off the bottom edge. Fill every gap before adding anything else.
+- **Do not lose what already works.** Before changing a screen, list what it already shows (trainer icons, Poké Ball counts, rails, decks) and keep all of it. If the owner says "we already did this", look in git history and restore it rather than rebuild it differently.
+- **Quick notes are short and sit on the right**, never a long sentence on the board.
+- **Draw piles are card-sized and animate**: a card flies out of the pile face down, then flips.
+
 ## Screen and layout
 - **Use the whole screen.** No dead space between areas, no big empty margins. If there is a gap, grow the content into it. Check at iPad portrait 820×1180 first, then iPhone 402×874, then landscape.
 - **Do not shrink things to make room for a button.** Put the button inside the row or area it belongs to instead.
