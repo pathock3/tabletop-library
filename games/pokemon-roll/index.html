@@ -544,6 +544,7 @@ button{font:inherit;color:inherit;border:0;cursor:pointer}
 <style>.card.tgt{z-index:6;outline:6px solid #fff35c;outline-offset:2px;box-shadow:0 0 0 12px #ffd23f88,0 0 46px 16px #ffd23fcc;animation:tgtp .8s ease-in-out infinite}.card.tgt::after{content:'TAP';position:absolute;left:50%;top:-16px;transform:translateX(-50%);background:#ffd23f;color:#14110f;font:900 20px system-ui;padding:4px 16px;border-radius:999px;border:3px solid #14110f;z-index:7;box-shadow:0 3px 0 #0007}.card.notgt{opacity:.45;filter:saturate(.55) brightness(.85)}@keyframes tgtp{50%{transform:scale(1.035);box-shadow:0 0 0 18px #ffd23f55,0 0 60px 22px #ffd23fff}}</style>
 <style>.sts{position:absolute;left:4px;top:4px;display:flex;gap:4px;z-index:4}.sts .st{min-width:26px;height:26px;padding:0 5px;border-radius:13px;background:#14110fd9;border:2px solid #fff;display:grid;place-items:center;font:900 15px system-ui;color:#fff;box-shadow:0 2px 0 #0007}.st-poison{border-color:#ba68c8!important}.st-stun{border-color:#ffd23f!important}.st-freeze{border-color:#4dd0e1!important}.st-charge{border-color:#ffb300!important}.kw{cursor:help}.mS{font-weight:900}.mS-poison{color:#8e24aa}.mS-stun{color:#b8860b}.mS-freeze{color:#0097a7}.mK{font-weight:900;color:#e08600}.kwd{font-weight:800;opacity:.9}</style>
 <style>.sts{left:auto!important;bottom:auto!important;top:calc(var(--cw) * .2)!important;right:6px}</style>
+<style>.oakgo{display:flex;gap:14px;justify-content:center;align-items:center;margin-top:6px}.oakgo .btn.big{min-height:64px;font-size:26px;padding:8px 40px}.oakgo .btn[disabled]{opacity:.4}</style>
 <script id="data">
 /* Pokémon Roll! — every rule number, the map, the bosses, the card sheet and the art live here. The engine and bots read this and hard-code none of it. */
 const GAME_DATA = {
@@ -708,7 +709,7 @@ const GAME_DATA = {
     ['^Attacks (?:-1a the further they get from the matchup v|deal 1a less for each column away from the matchup)$', { t: 'distFall' }],
     ['^Water attacks heal me$', { t: 'absorb', el: 'water' }],
     ['^Healed by fire attacks$', { t: 'absorb', el: 'fire' }],
-    ['^\\+1a for each damage (?:blocked|countered) last round$', { t: 'perBlocked' }],
+    ['^\\+1a for each damage (?:blocked|countered|blocked or countered) last round$', { t: 'perBlocked' }],
     ['^\\+1a for each damage taken last round$', { t: 'perHurt' }],
     ['^\\+1 max h for each Nido ally$', { t: 'nido', k: 'hp' }],
     ['^-1d for each Nido ally$', { t: 'nido', k: 'd' }],
@@ -776,12 +777,12 @@ Charmeleon|5.3|Fire|Water|3|8 Cinnabar Island|6|Attack|When an enemy enters this
 Charmeleon|5.4|Fire|Water|4|0 Starter|7|Attack|When an enemy enters this column, it takes 2 pierce|3a <^ or ^>|2a <^ or ^>|2a <^ or ^>|2a|charge|recoil 2||fire,fire,,,,|
 Charizard|6.5|Fire|Water|5|8 Cinnabar Island|9|Attack|When an enemy enters this column, it takes 2 pierce|3a <^>|2a <^>|3a <^ or ^>|1a|charge|recoil 2||fire,fire,,,,|
 Charizard|6.6|Fire|Water|6|0 Starter|10|Attack|When an enemy enters this column, it takes 2 pierce|4a <^>|3a <^>|3a <^ or ^>|1a <^ or ^>|charge|||fire,fire,,,,|
-Squirtle|7.1|Water|Electric|1|0 Starter|4|Attack, defend|+1a for each damage countered last round|1c|2a|1a|1a|1b|recoil 1||water,water,water,,,|
-Squirtle|7.2|Water|Electric|2|4 S.S. Anne|5|Attack, defend|+1a for each damage countered last round|2c|2a|1a|1b||recoil 1||water,water,,,,|
-Wartortle|8.3|Water|Electric|3|7 Seafoam Islands|6|Attack, defend|+1a for each damage countered last round|2c < or v or >|3a <^ or ^>|2a <^ or ^>|2a <^ or ^>|1b <v or v>|recoil 1||water,water,water,,,|
-Wartortle|8.4|Water|Electric|4|0 Starter|7|Attack, defend|+1a for each damage countered last round|2c < or v or >|4a <^ or ^>|3a <^ or ^>|3a <^ or ^>|1b <v or v>|recoil 1||water,water,water,,,|
-Blastoise|9.5|Water|Electric|5|7 Seafoam Islands|8|Attack, defend|+1a for each damage countered last round|2c <v or v>|7a over <^>|5a over <^>|3a <^ or ^>|1c <v or v>|recoil 1||water,water,water,water,,|
-Blastoise|9.6|Water|Electric|6|0 Starter|9|Attack, defend|+1a for each damage countered last round|3c <v or v>|8a over <^>|6a over <^>|4a <^ or ^>|2c <v or v>|||water,water,water,water,,|
+Squirtle|7.1|Water|Electric|1|0 Starter|4|Attack, defend|+1a for each damage blocked or countered last round|1c|2a|1a|1a|1b|recoil 1||water,water,water,,,|
+Squirtle|7.2|Water|Electric|2|4 S.S. Anne|5|Attack, defend|+1a for each damage blocked or countered last round|2c|2a|1a|1b||recoil 1||water,water,,,,|
+Wartortle|8.3|Water|Electric|3|7 Seafoam Islands|6|Attack, defend|+1a for each damage blocked or countered last round|2c < or v or >|3a <^ or ^>|2a <^ or ^>|2a <^ or ^>|1b <v or v>|recoil 1||water,water,water,,,|
+Wartortle|8.4|Water|Electric|4|0 Starter|7|Attack, defend|+1a for each damage blocked or countered last round|2c < or v or >|4a <^ or ^>|3a <^ or ^>|3a <^ or ^>|1b <v or v>|recoil 1||water,water,water,,,|
+Blastoise|9.5|Water|Electric|5|7 Seafoam Islands|8|Attack, defend|+1a for each damage blocked or countered last round|2c <v or v>|7a over <^>|5a over <^>|3a <^ or ^>|1c <v or v>|recoil 1||water,water,water,water,,|
+Blastoise|9.6|Water|Electric|6|0 Starter|9|Attack, defend|+1a for each damage blocked or countered last round|3c <v or v>|8a over <^>|6a over <^>|4a <^ or ^>|2c <v or v>|||water,water,water,water,,|
 Caterpie|10|Grass|Fire|1|1 Viridian Forest|2|Support|When KO'd, stun the attacker|1a|2a|freeze|||recoil 1||grass,,,,,|Bug
 Metapod|11|Grass|Fire|2|1 Viridian Forest|3|Defend|Takes 1 less damage|2c <v or v>|1c <v or v>|1a|1a|1b|recoil 2||grass,grass,grass,,,|Bug
 Butterfree|12|Grass|Fire|4|4 S.S. Anne|5|Support|When KO'd, stun the attacker|2a, +2a <>|3h, +3h <>|1c, +1c <>|3h|stun|recoil 1||grass,grass,grass,,,|Bug
@@ -1623,7 +1624,16 @@ const Engine = (() => {
   }
   // a frozen die: the card's next roll is the number it last had, and it cannot be rerolled or changed (it is repeated, for one round)
   // the computer's freeze choice: lock a poor roll, let a good one go
-  const fzKeep = (b, u) => u.lastDie != null && u.lastDie <= 3;
+  // Easy locks a roll of 3 or less. The others weigh the roll against what the card would be expected to roll next round, counting the reroll its owner may have (a frozen die cannot be rerolled): lock it only if it is worse than that
+  function fzKeep(b, u, level) {
+    if (u.lastDie == null) return false;
+    const lv = (D.ai || {})[level] || {}; if (lv.random >= 1) return u.lastDie <= 3;
+    const v = f => { const m = chosenMove(b, u, [f]); if (!m || !m.mv) return 0; const c = bestClause(b, u, m.mv, null); return c ? c.value : 0; };
+    const vs = [1, 2, 3, 4, 5, 6].map(v), mean = vs.reduce((t, x) => t + x, 0) / 6;
+    let best2 = 0; vs.forEach(x => vs.forEach(y => { best2 += Math.max(x, y); })); best2 /= 36;                  // a reroll: the better of two throws
+    const owner = u.side, rr = owner === 0 ? Math.max(1, (b.rr && b.rr[0]) || 0) : 0, share = Math.min(1, rr / Math.max(1, living(b, owner).length));
+    return v(u.lastDie) < mean + share * (best2 - mean);
+  }
   function doFreeze(s, a) { const b = s.battle, u = U(b, a.uid); if (!b.fzAsk || b.fzAsk.indexOf(a.uid) < 0 || !u) return 'nothing to decide'; b.fzAsk = b.fzAsk.filter(x => x !== a.uid); if (a.keep && !u.ko) { u.frozen = u.lastDie; ev(b, { t: 'text', msg: CARDS[u.id].name + "'s die is frozen" }); } return null; }
   function freezeDie(b, u) { if (u.ko || u.lastDie == null || u.frozen != null) return; u.frozen = u.lastDie; ev(b, { t: 'text', msg: CARDS[u.id].name + "'s die is frozen" }); }
   function knockOut(s, b, T, src) {
@@ -1650,7 +1660,7 @@ const Engine = (() => {
   const shieldMax = (b, T) => tags(T).reduce((t, g) => t + (g.t === 'shield' ? g.n : g.t === 'nido' && g.k === 'd' ? b.units.filter(x => !x.ko && x.side === T.side && x !== T && /^Nido/.test(CARDS[x.id].name)).length : 0), 0);
   function dealDamage(s, b, T, n, src, raw, weak) {
     if (T.ko || n <= 0) return 0;
-    if (T.shield > 0) { const cut = Math.min(T.shield, n); T.shield -= cut; n -= cut; if (n <= 0) { ev(b, { t: 'blocked', u: T.uid, n: cut }); return 0; } }     // a shield soaks damage of any kind (a card's own hurt included) until it is used up, once a round
+    { const red = shieldMax(b, T); if (red > 0) { const cut = Math.min(red, n); n -= cut; if (n <= 0) { ev(b, { t: 'blocked', u: T.uid, n: cut }); return 0; } } }          // "takes N less damage": every time it takes damage, from anything     // a shield soaks damage of any kind (a card's own hurt included) until it is used up, once a round
     T.hp -= n; T.hurt += n; if (src) b.dealt[src.side] += n; b.dealtRound[src ? src.side : other(T.side)] += n;
     if (T.hold === b.round && T.hp < 1) T.hp = 1;
     ev(b, { t: 'dmg', u: T.uid, n, hp: Math.max(0, T.hp), by: src ? src.uid : null, weak: !!weak });
@@ -2008,7 +2018,7 @@ const Engine = (() => {
     b.fzAsk = [];                                                      // freeze: whoever froze a card decides whether its die is locked for next round
     b.units.forEach(u => {
       if (u.fzBy == null) return; const by = u.fzBy; u.fzBy = null; if (u.ko || u.lastDie == null) return;
-      if (by === 0) b.fzAsk.push(u.uid); else if (fzKeep(b, u)) { u.frozen = u.lastDie; ev(b, { t: 'text', msg: CARDS[u.id].name + "'s die is frozen" }); }
+      if (by === 0) b.fzAsk.push(u.uid); else if (fzKeep(b, u, s.ai)) { u.frozen = u.lastDie; ev(b, { t: 'text', msg: CARDS[u.id].name + "'s die is frozen" }); }
     });
     const h = living(b, 0).length + rsvN(b, 0), g = living(b, 1).length + rsvN(b, 1);
     const moved = b.dealtRound[0] + b.dealtRound[1] + (b.colMode ? b.healedRound : b.events.filter(e => e.t === 'heal').length);
@@ -2238,7 +2248,7 @@ const Engine = (() => {
     if (v.battle && v.battle.stage === 'assign') { const o = other(side); v.battle.dice[o] = v.battle.dice[o].map(() => 0); v.battle.asg[o] = {}; }
     return v;
   }
-  return { unmatched, matchMoves, starterShiny, repair, endBattle, visitorNode, slideOpts, autoChoice, hauntAsk, blocksMove, colorBonus, faceOrder: layMoves, _t: { blkMult, buildTeam, badges, repair, maybeSpecial, eventActive, releaseTeam, startBattle, startRound, resolveRound, cleanUp, drawWild }, handOf, canExpand, apply, newGame, chooseStarter, viewFor, CARDS, parseMove, parseSpecial, tagsOf, tags, preview, bestClause, chosenMove, candidates, pickTargets, amountOf, slotsFor, readyToGo, assignedDice, living, colIdx, U, rnd, ri, shuffle, node, starterOf, rivalFor, slots, unlocked, deckSize, heroCount, gmCount, typeOf, wm, hitValue, parseSpec, clauseValue, effectsOf, D, R };
+  return { fzKeep, unmatched, matchMoves, starterShiny, repair, endBattle, visitorNode, slideOpts, autoChoice, hauntAsk, blocksMove, colorBonus, faceOrder: layMoves, _t: { blkMult, buildTeam, badges, repair, maybeSpecial, eventActive, releaseTeam, startBattle, startRound, resolveRound, cleanUp, drawWild }, handOf, canExpand, apply, newGame, chooseStarter, viewFor, CARDS, parseMove, parseSpecial, tagsOf, tags, preview, bestClause, chosenMove, candidates, pickTargets, amountOf, slotsFor, readyToGo, assignedDice, living, colIdx, U, rnd, ri, shuffle, node, starterOf, rivalFor, slots, unlocked, deckSize, heroCount, gmCount, typeOf, wm, hitValue, parseSpec, clauseValue, effectsOf, D, R };
 })();
 
 </script>
@@ -2428,7 +2438,7 @@ const Bots = (() => {
     level = level || 'master';
     const b = s.battle;
     if (b && b.stage === 'match' && b.mt && b.mt.side === 0) return matching(s, 0, level);
-    if (b && b.stage === 'resolved' && b.fzAsk && b.fzAsk.length) { const u = E.U(b, b.fzAsk[0]); return { t: 'freeze', uid: u.uid, keep: u.lastDie != null && u.lastDie <= 3 }; }          // freeze: lock a poor roll, let a good one go
+    if (b && b.stage === 'resolved' && b.fzAsk && b.fzAsk.length) { const u = E.U(b, b.fzAsk[0]); return { t: 'freeze', uid: u.uid, keep: E.fzKeep(b, u, level) }; }          // freeze: lock a poor roll, let a good one go
     if (s.phase === 'map') {
       const open = E.D.nodes.filter(n => E.unlocked(s, n) && !(n.kind === 'boss' && s.done[n.id]));
       const ready = open.filter(n => n.kind === 'boss' && s.coll.length >= E.gmCount(s, n, 0));
@@ -2492,7 +2502,7 @@ const Bots = (() => {
   const lsSet = (k, v) => { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) { /* private window: carry on without saving */ } };
 
   let G = null;
-  const set = Object.assign({ ai: 'normal', size: 'short', tips: true, avatar: 'M' }, lsGet(SET) || {}); set.size = 'short';
+  const set = Object.assign({ ai: 'normal', size: 'short', tips: true, avatar: 'M' }, (() => { const st = lsGet(SET) || {}; if (!st.v4) { st.ai = 'normal'; st.v4 = 1; } return st; })());          // a new game starts on Normal (older saved settings are reset to it once) set.size = 'short';
   set.ai = ({ medium: 'normal', hard: 'master' })[set.ai] || (D.ai[set.ai] ? set.ai : 'normal');
   const ui = { screen: 'menu', sel: null, die: null, aim: null, menu: false, play: null, pick: [], chooser: null, tip: null, burst: null, busy: false, toast: '', help: false, coll: false, rolling: 0, rolledFor: 0, rollTap: null, flash: {}, lastCw: 0, lastTurn: 0, zoomFrom: null, mapX: null, zoom: null, helpPage: 0, newAsk: false, settings: false, eye: null, records: false, recSize: null };
   // up to five games at once (slot 0 keeps the old single-save key); the Pokédex is shared by all of them
@@ -3009,10 +3019,10 @@ const trainerFg = {
   const oakImg = (cls) => `<img class="oak pix ${cls || ''}" src="data:image/png;base64,${D.trainerArt.OAK}" alt="Professor Oak">`;
   const oakCard = () => `<div class="oakov"><div class="oakbox" data-stop="1">
       <div class="oaktalk">${oakImg()}<div class="bubble"><b class="who">Professor Oak</b><p>This is the only Pokémon you will get that will <b>level up and evolve</b>. All the rest are static cards.</p><p>Choose a starter you want to evolve with you as you progress through the game.</p></div></div>
-      <div class="oakst">${(() => { const shk = E.starterShiny(ui.seed || 0), per = 3, cw = Math.max(100, Math.min(225, Math.floor((Math.min(innerWidth, 760) - 40 - (per - 1) * 10) / per), Math.floor((viewH() - 440) / 2 / CH))); return D.starters.map(st => card({ id: st.levels[D.rules.startLevel - 1], sh: shk === st.key ? 1 : 0 }, { cw, attr: `data-act="starter" data-k="${st.key}"` })).join(''); })()}</div>
+      <div class="oakst">${(() => { const shk = E.starterShiny(ui.seed || 0), per = 3, cw = Math.max(100, Math.min(225, Math.floor((Math.min(innerWidth, 760) - 40 - (per - 1) * 10) / per), Math.floor((viewH() - 440) / 2 / CH))); return D.starters.map(st => card({ id: st.levels[D.rules.startLevel - 1], sh: shk === st.key ? 1 : 0 }, { cw, sel: ui.pickSt === st.key, attr: `data-act="pickst" data-k="${st.key}"` })).join(''); })()}</div>
       <div class="oakopts"><span>You:</span>${[['M', 'Boy'], ['F', 'Girl']].map(([k, l]) => `<button class="chip avc${set.avatar === k ? ' on' : ''}" data-act="avatar" data-v="${k}" style="min-height:50px;font-size:17px;display:flex;align-items:center;gap:6px"><img class="pix" style="width:44px;height:44px" src="data:image/png;base64,${D.trainerArt['PLAYER_' + k]}" alt="">${l}</button>`).join('')}</div>
       <div class="oakopts"><span>Computer:</span>${['easy', 'normal', 'master'].map(x => `<button class="chip${set.ai === x ? ' on' : ''}" data-act="ai" data-v="${x}">${D.ai[x].label}</button>`).join('')}</div>
-      <button class="btn ghost" data-act="menu0">Back</button></div></div>`;
+      <div class="oakgo"><button class="btn ghost" data-act="menu0">Back</button><button class="btn big" data-act="starter" data-k="${ui.pickSt || ''}" id="startbtn" ${ui.pickSt ? '' : 'disabled'}>Start</button></div></div></div>`;
   // the main menu: the map itself, dealt out on the table, with the title and the buttons above it
   function menuScreen() {
     const sv = saved(), keep = G; G = ui.prevG || (ui.prevG = E.newGame({ seed: 1, starter: 'bulbasaur' }));
@@ -3425,7 +3435,7 @@ const trainerFg = {
       let where;
       if (c.loc === 0) where = box('<div class="dxstar">⭐</div><div class="dxlab">Starter</div>', 'linear-gradient(#5e35b1,#311b92)', 'dextip', c.id);
       else if (fl.length) where = `<div class="dxstack" style="width:${cw + (fl.length - 1) * 16}px;height:${Math.round(cw * CH) + (fl.length - 1) * 8}px">${fl.map((l, i) => `<div style="position:absolute;left:${i * 16}px;top:${(fl.length - 1 - i) * 8}px">${box(backOf(l), (DECKC[(D.locations.find(x => x.id === l) || {}).color] || DECKC.blue)[0], 'dextip', c.id)}</div>`).join('')}</div>`;
-      else where = box('<div class="dxq2">?</div><div class="dxlab">Unknown</div>', 'linear-gradient(#37474f,#1c262b)', 'dextip', c.id);
+      else where = box('<div class="dxq2">?</div><div class="dxlab">Location unknown</div>', 'linear-gradient(#37474f,#1c262b)', 'dextip', c.id);
       const chip = (k, ic, name, st, on, act) => `<button class="dxchip${on ? ' on' : ''}" data-act="${act || 'dextip'}" data-t="${k}" data-id="${c.id}"><span class="si">${ic}</span><b>${name}</b><small>${st}</small></button>`;
       const catC = chip('cat', '<i class="pbi"></i>', 'Caught', got ? 'Yes' : 'Not yet', got), shC = chip('shy', '✨', 'Shiny', shs[c.id] ? (sh ? 'Showing' : 'Tap to view') : 'Not yet', !!shs[c.id], shs[c.id] ? 'dexshiny' : 'dextip');
       return `<div class="dxv2"><div class="dxpair">${card({ id: c.id, sh: sh ? 1 : 0 }, { cw, cls: have ? '' : 'sil' })}${where}</div><div class="dxchips">${catC}${shC}</div></div>`;
@@ -3548,7 +3558,7 @@ const trainerFg = {
   function explain(id, p, i) {
     const c = C[id], e = el(c.type);
     if (p === 'mv') { const str = c.moves[+i - 1]; return { h: `Move on a ${i}`, p: str ? `${moveWords(str)}<br><br>It is used when this card's die shows <b>${i}</b>.${c.movEls && c.movEls[+i - 1] ? '<br>Its colour: ' + el(c.movEls[+i - 1][0].toUpperCase() + c.movEls[+i - 1].slice(1)).icon + ' ' + c.movEls[+i - 1] + ' (a move of the element it hits is twice as good against a card weak to it).' : ''}` : 'No move on this number: the card does nothing.' }; }
-    if (p === 'ab') { const sh = /^-(\d+)d$/.exec(String(c.ability || '')); return { h: 'Ability', p: c.ability ? `${abText(c.ability)}${sh ? `<br><br>A counter soaks the first ${sh[1]} damage it takes each round, from anything.` : ''}<br><br>It works all the time, without a die.` : 'This card has no ability.' }; }
+    if (p === 'ab') { const sh = /^Takes (\d+) less damage$/.exec(String(c.ability || '')); return { h: 'Ability', p: c.ability ? `${abText(c.ability)}${sh ? `<br><br>Every time this card takes damage, from anything, it takes ${sh[1]} less (but never less than 0).` : ''}<br><br>It works all the time, without a die.` : 'This card has no ability.' }; }
     if (p === 'hp') return { h: '♥ Health', p: `${c.hp} health. At 0 the card is knocked out when the round ends. Everyone is back at full health for the next battle.` };
     if (p === 'el') return { h: `${e.icon} ${esc(c.type)}`, p: `This card is ${esc(c.type)}. A heal move the same element as the card it heals is twice as good, and so is a counter against an attack of its own element.` };
     if (p === 'wk') return { h: `Weak to ${esc(c.weak)}`, p: D.elements[c.weak] ? `Attacks of the ${esc(c.weak)} element do double damage to this card.` : (c.weak === 'Enemy Heals' ? 'This card is weak to healing: an enemy heal can be aimed at it and hurts it for double.' : '') };
@@ -3655,14 +3665,15 @@ const trainerFg = {
     delslot(el) { const i = +el.dataset.slot; if (ui.delAsk !== i) { ui.delAsk = i; render(); return; } try { localStorage.removeItem(slotKey(i)); } catch (e) { /* nothing to remove */ } ui.delAsk = null; if (!saves().length) ui.slots = false; render(); },
     new() {
       if (freeSlot() < 0) { ui.slots = true; ui.full = true; ui.delAsk = null; render(); return; }
-      ui.seed = ui.seed || (Date.now() % 2147483647); ui.screen = 'new'; render();
+      ui.seed = ui.seed || (Date.now() % 2147483647); ui.pickSt = null; ui.screen = 'new'; render();
     },
+    pickst(el) { ui.pickSt = el.dataset.k; document.querySelectorAll('.oakst .card').forEach(c => c.classList.toggle('sel', c === el)); const b = document.getElementById('startbtn'); if (b) { b.dataset.k = ui.pickSt; b.disabled = false; } },          // the choice is only marked; Start begins
     menu0() { ui.menu = false; ui.newAsk = false; ui.slots = false; ui.seed = null; ui.screen = 'menu'; render(); },
     more() { ui.more = true; render(); }, closemore() { ui.more = false; render(); },
     help() { ui.help = true; ui.more = false; ui.helpPage = 0; ui.menu = false; render(); }, closehelp() { ui.help = false; render(); },
     hnext() { ui.helpPage = Math.min(HELP.length - 1, (ui.helpPage || 0) + 1); render(); }, hprev() { ui.helpPage = Math.max(0, (ui.helpPage || 0) - 1); render(); },
-    avatar(el) { set.avatar = el.dataset.v; lsSet(SET, set); render(); },
-    ai(el) { set.ai = el.dataset.v; lsSet(SET, set); if (G) G.ai = set.ai; render(); },
+    avatar(el) { set.avatar = el.dataset.v; lsSet(SET, set); document.querySelectorAll('.avc').forEach(x => x.classList.toggle('on', x.dataset.v === set.avatar)); },
+    ai(el) { set.ai = el.dataset.v; lsSet(SET, set); if (G) G.ai = set.ai; document.querySelectorAll('.chip[data-act=ai]').forEach(x => x.classList.toggle('on', x.dataset.v === set.ai)); },
     size(el) { set.size = el.dataset.v; lsSet(SET, set); render(); },
     tips(el) { set.tips = el && el.dataset.v ? el.dataset.v === 'true' : !set.tips; lsSet(SET, set); render(); },
     settings() { ui.settings = true; ui.menu = false; ui.more = false; render(); }, closesettings() { ui.settings = false; ui.resetAsk = false; render(); },

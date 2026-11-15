@@ -143,9 +143,9 @@ test('choices: an "or" on your card is asked when that card\'s turn comes, not w
   assert.ok(E.apply(c.s, { t: 'choose', tgt: c.g(2).uid }).ok);
   assert.equal(c.b.stage, 'resolved'); assert.ok(c.g(1).ko, 'Pidgey, across, took the hit'); assert.ok(c.g(2).ko, 'and so did the one on the right'); assert.ok(!c.g(0).ko, 'not the one on the left');
 });
-test('abilities: a shield soaks damage once a round, then it is used up', () => {
+test('abilities: "takes 1 less damage" applies to every hit, every round', () => {
   const c = craft(['1.1', '85'], ['14', '10']); play(c, { hero: [1, 1], gm: [4, 4] }, { hero: { 0: 0, 1: 1 }, gm: { 0: 0, 1: 1 } });
-  assert.equal(c.g(0).hp, C['14'].hp - 3, 'Bulbasaur 2 minus the 1 shield, then Dodrio 2 with the shield gone');
+  assert.equal(c.g(0).hp, C['14'].hp - 2, 'Bulbasaur 2 minus 1, and Dodrio 2 minus 1: it counts against each hit');
 });
 test('abilities: a card that loses its round gets no die next round (Caterpie)', () => {
   const c = craft(['4.1'], ['10']); play(c, { hero: [1], gm: [6] }, { hero: { 0: 0 }, gm: { 0: 0 } });      // Charmander knocks out Caterpie... which has no further effect on a dead target
@@ -823,4 +823,26 @@ v4('Poliwag: any 3 may be turned into a 4; Paras adds 2 every other round; Cubon
 });
 v4('Mew copies the 6 move of the card across and does nothing if nobody is across', () => {
   const b = craft(['151'], ['4.1']); play(b, { hero: [6], gm: [1] }, { hero: { 0: 0 } }); assert.ok(b.g(0).ko, 'Charmander\'s 6 (2a) doubled by Mew\'s ancestor element');
+});
+
+v4('the computer\'s freeze choice: Easy locks a roll of 3 or less; the others compare the roll with what the card is worth on average (counting the owner\'s reroll)', () => {
+  const c = craft(['16'], ['25.3']); const u = c.g(0);
+  u.lastDie = 3; assert.equal(E.fzKeep(c.b, u, 'easy'), true, 'Easy: a 3 is low'); u.lastDie = 4; assert.equal(E.fzKeep(c.b, u, 'easy'), false);
+  u.lastDie = 1; assert.equal(E.fzKeep(c.b, u, 'master'), true, 'recoil on a 1 is worth locking in'); u.lastDie = 6; assert.equal(E.fzKeep(c.b, u, 'master'), false, 'a 3 Attack is worth letting go');
+  u.lastDie = 2; assert.equal(E.fzKeep(c.b, u, 'normal'), true, 'a charge on a 2 is below Pikachu\'s average'); u.lastDie = 3; assert.equal(E.fzKeep(c.b, u, 'normal'), false, 'its stun on a 3 is worth more than that, so it is let go (Easy would have locked it)');
+});
+v4('Slowpoke slows on every odd round, forever', () => {
+  const c = craft(['1.1'], ['79']);
+  [1, 2, 3, 4, 5, 6, 7, 8, 9].forEach(r => {
+    const d = craft(['1.1'], ['79']); d.b.round = r; d.b.dice = [[5], [3]]; d.b.asg = [{ [d.h(0).uid]: { dice: [0], tgt: null } }, { [d.g(0).uid]: { dice: [0], tgt: null } }]; d.b.gmReady = true;
+    assert.ok(E.apply(d.s, { t: 'go2' }).ok); assert.equal(d.b.dice[0][0], r % 2 ? 2 : 5, 'round ' + r);
+  });
+});
+
+v4('Squirtle and its evolutions get +1 attack for each damage they blocked or countered last round', () => {
+  const c = craft(['7.1'], ['19']); const u = c.h(0); assert.match(C['7.1'].ability, /blocked or countered/);
+  play(c, { hero: [6], gm: [5] }, { hero: { 0: 0 }, gm: { 0: 0 } });          // its 1c soaks Rattata's 1a
+  assert.equal(u.blk, 1); nextRound(c); assert.equal(u.lastBlk, 1, 'remembered for the next round');
+  const e = craft(['7.1'], ['19']); e.h(0).lastBlk = 2; e.g(0).hp = e.g(0).max = 9; play(e, { hero: [5], gm: [3] }, { hero: { 0: 0 }, gm: { 0: 0 } });   // its 2a becomes 4a
+  assert.equal(e.g(0).hp, 9 - 4, 'two blocked last round: +2');
 });
