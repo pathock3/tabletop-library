@@ -613,6 +613,20 @@ button{font:inherit;color:inherit;border:0;cursor:pointer}
 .card.grid .ab{flex:1;min-height:0;font-size:calc(var(--cw)*.066)!important;line-height:1.12;padding:calc(var(--cw)*.01) calc(var(--cw)*.035);border-bottom:max(1px,calc(var(--cw)*.011)) solid var(--ink);align-items:center}
 </style>
 <style>.card.grid .art{overflow:hidden}.card.grid .ab{background:#fff;font-weight:600;font-size:calc(var(--cw)*.06)!important;z-index:2;position:relative}.card.grid .faces{height:calc(var(--cw)*.48)}</style>
+<style>/* LAB v3c: the art is a full square with a border all round, sitting on the ability box; the name has the free band above it */
+.card.grid .cbox{height:calc(var(--cw)*.6)}
+.card.grid .art{top:auto;bottom:0;right:0;width:calc(var(--cw)*.5);height:calc(var(--cw)*.5);border-width:max(1px,calc(var(--cw)*.011)) 0 0 max(1px,calc(var(--cw)*.011));align-items:flex-end}
+.card.grid .nm{top:calc(var(--cw)*.01);z-index:4;font-size:calc(var(--cw)*.125)}
+.card.grid .side{top:calc(var(--cw)*.15)}
+</style>
+<style>.card.grid .ab{flex:none;height:calc(var(--cw)*.242);min-height:0;overflow:hidden}</style>
+<style>.card.grid{justify-content:flex-start;box-sizing:border-box}.card.grid .ab{flex:1 1 0;height:auto;overflow:hidden}</style>
+<style>.card.grid{gap:0;flex-wrap:nowrap}</style>
+<style>.card.grid .wkt2{flex:none;display:flex;height:calc(var(--cw)*.078);color:#fff;font-weight:900;font-size:calc(var(--cw)*.05);text-shadow:0 1px 0 #0006}
+.card.grid .wkt2 .wt{flex:1 1 0;display:flex;align-items:center;justify-content:center;white-space:nowrap;border-right:max(1px,calc(var(--cw)*.011)) solid var(--ink)}
+.card.grid .wkt2 .ww{flex:2 1 0;display:flex;align-items:center;justify-content:center;white-space:nowrap}
+.card.grid .side{top:calc(var(--cw)*.15)}</style>
+<style>.card.grid .wkt2{font-size:calc(var(--cw)*.046)}</style>
 <script id="data">
 /* Pokémon Roll! — every rule number, the map, the bosses, the card sheet and the art live here. The engine and bots read this and hard-code none of it. */
 const GAME_DATA = {
@@ -2854,11 +2868,11 @@ const Bots = (() => {
     const gridRows = o.grid ? [5, 4, 3, 2, 1, 0].map(i => { const m = c.moves[i], me = m && c.movEls && c.movEls[i] ? el(c.movEls[i][0].toUpperCase() + c.movEls[i].slice(1)) : null; return `<div class="f${m ? '' : ' blank'}${me ? ' elm' : ''}${o.grid === 'icon' && m ? (/^\d+[abh]$/.test(m) ? ' sz1' : /^\d+[abhp]\s+[<>^v][<>^v ]*$/.test(m) ? ' sz2' : '') : ''}" data-p="mv" data-i="${i + 1}" ${me ? `style="--mc:${me.color};--mb:${me.bg}"` : ''}><span class="n">${i + 1}</span><span class="mt">${m ? (o.grid === 'icon' ? iconMove(m) : short(m)) : ''}</span></div>`; }).join('') : '';
     const rows = o.grid ? gridRows : c.moves.map((m, i) => [m, i]).reverse().map(([m, i]) => { const me = m && c.movEls && c.movEls[i] ? el(c.movEls[i][0].toUpperCase() + c.movEls[i].slice(1)) : null; return `<div class="f${m ? '' : ' blank'}${me ? ' elm' : ''}" data-p="mv" data-i="${i + 1}" ${me ? `style="--mc:${me.color};--mb:${me.bg}"` : ''}${o.face === i + 1 && !o.sp ? ' hot' : ''}${o.pf === i + 1 && o.face !== i + 1 ? ' pick' : ''}"><span class="pip">${i + 1}</span><span class="mt">${m ? short(m) : '—'}</span>${me ? `<span class="me">${me.icon}</span>` : ''}</div>`; }).join('');
     return `<div class="card${o.grid ? ' grid gx-' + o.grid : ''}${u.sh ? ' shiny' : ''}${o.foe ? ' foe' : ''}${o.ko ? ' ko' : ''}${o.sel ? ' sel' : ''}${o.die != null ? ' has-die' : ''}${o.cls ? ' ' + o.cls : ''}" style="--cw:${cw}px;--bg:${e.bg};--c:${e.color}" data-cid="${u.id}" data-csh="${u.sh ? 1 : 0}" ${o.attr || ''}>
-      ${D.elements[c.weak] ? `<div class="wkt" data-p="wk" style="--wc:${el(c.weak).color}">weak: ${el(c.weak).icon} ${esc(c.weak)} ×2</div>` : c.weak === 'Enemy Heals' ? `<div class="wkt" data-p="wk" style="--wc:#d81b60">weak: ❤️ Enemy heals ×2</div>` : ''}
+      ${o.grid ? `<div class="wkt2"><div class="wt" data-p="el" style="background:${e.color}">${e.icon} ${esc(c.type)}</div>${D.elements[c.weak] ? `<div class="ww" data-p="wk" style="background:${el(c.weak).color}">weak: ${el(c.weak).icon} ${esc(c.weak)} ×2</div>` : c.weak === 'Enemy Heals' ? `<div class="ww" data-p="wk" style="background:#d81b60">weak: ❤️ Enemy heals ×2</div>` : '<div class="ww"></div>'}</div>` : ''}${o.grid ? '' : D.elements[c.weak] ? `<div class="wkt" data-p="wk" style="--wc:${el(c.weak).color}">weak: ${el(c.weak).icon} ${esc(c.weak)} ×2</div>` : c.weak === 'Enemy Heals' ? `<div class="wkt" data-p="wk" style="--wc:#d81b60">weak: ❤️ Enemy heals ×2</div>` : ''}
       <div class="cbox">
         <div class="art"><img style="width:${artPct(u.id)}%" src="${art(u.id, u.sh)}" alt="${esc(c.name)}">${u.sh ? sparkles() : ''}${o.mark ? `<div class="mark">${o.mark}</div>` : ''}${o.sts || ''}${o.die != null ? `<div class="dbadge${o.heroDie ? ' hero' : ''}${o.land ? ' land' : ''}${o.dieCol ? ' colored' : ''}" ${o.dieAttr || ''}${o.dieCol ? ` style="background:${o.dieCol}"` : ''}>${o.die}${o.dieBonus ? '<small>+1</small>' : ''}</div>` : ''}</div>
-        <div class="nm"${o.grid ? ` style="font-size:calc(var(--cw)*${c.name.length > 10 ? .088 : c.name.length > 8 ? .1 : .115})"` : ''}>${esc(c.name)}${u.sh ? ' ✨' : ''}</div>${o.recall ? `<div class="rcl${o.recall === 'sure' ? ' sure' : ''}" data-act="recall" data-uid="${u.uid}">${o.recall === 'sure' ? 'Return it? Tap again' : '↩ Return'}</div>` : ''}
-        <div class="side"><div class="hprow"><div class="hpc${lvl}" data-p="hp">♥ <span class="hpn">${Math.max(0, hp)}</span><small>/${mx}</small></div>${o.chg ? `<span class="hpchg${o.chg.heal ? ' up' : ''}">${o.chg.heal ? '+' : '−'}${o.chg.n}${o.chg.weak ? ' <b>×2</b>' : ''}</span>` : ''}</div>${o.shield ? `<div class="shd">🛡 ${o.shield}</div>` : ''}${o.start != null && mx <= 14 ? hpPips(hp, o.start, mx) : ''}<div class="tagl" data-p="el">${e.icon} ${esc(c.type)}</div><div class="lv">Lv ${lvName(c.level)}</div></div>
+        <div class="nm"${o.grid ? ` style="font-size:calc(var(--cw)*${c.name.length > 10 ? .095 : c.name.length > 8 ? .108 : .125})"` : ''}>${esc(c.name)}${u.sh ? ' ✨' : ''}</div>${o.recall ? `<div class="rcl${o.recall === 'sure' ? ' sure' : ''}" data-act="recall" data-uid="${u.uid}">${o.recall === 'sure' ? 'Return it? Tap again' : '↩ Return'}</div>` : ''}
+        <div class="side"><div class="hprow"><div class="hpc${lvl}" data-p="hp">♥ <span class="hpn">${Math.max(0, hp)}</span><small>/${mx}</small></div>${o.chg ? `<span class="hpchg${o.chg.heal ? ' up' : ''}">${o.chg.heal ? '+' : '−'}${o.chg.n}${o.chg.weak ? ' <b>×2</b>' : ''}</span>` : ''}</div>${o.shield ? `<div class="shd">🛡 ${o.shield}</div>` : ''}${o.start != null && mx <= 14 ? hpPips(hp, o.start, mx) : ''}${o.grid ? '' : `<div class="tagl" data-p="el">${e.icon} ${esc(c.type)}</div>`}<div class="lv">Lv ${lvName(c.level)}</div></div>
       </div>
       <div class="ab${o.ab ? ' ' + o.ab.state + (o.ab.on ? ' on' : '') : ''}" data-p="ab" ${o.ab && o.ab.state === 'ready' && o.ab.attr ? o.ab.attr : ''}>${c.ability ? abText(c.ability) : 'No ability'}${o.ab && o.ab.html ? o.ab.html : ''}</div>
       <div class="faces">${rows}</div>
