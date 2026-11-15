@@ -202,13 +202,13 @@ test('placement: a gym fight puts out as many cards as you have dice (a trainer 
   const s = E.newGame({ seed: 5, starter: 'bulbasaur' }); s.done.B1 = true;
   s.coll.push({ uid: 5, id: '10', sh: 0 }, { uid: 6, id: '16', sh: 0 }, { uid: 7, id: '19', sh: 0 });
   assert.ok(E.apply(s, { t: 'go', node: 'B3' }).ok); assert.equal(s.phase, 'battle');
-  const b = s.battle; assert.equal(b.nOut, 3, 'Lt. Surge is 3 on 3'); assert.equal(b.lend, 1, 'you have two dice: he lends you the third'); assert.deepEqual(b.need, [3, 3]); assert.equal(b.cols.length, 3, 'the columns are fixed and shown from the start'); assert.equal(b.hand[0].length, 4, 'your whole collection is your hand'); assert.equal(b.hand[1].length, 3); assert.equal(b.rsv[1].length, 1, 'the fourth waits (the signature)');
+  const b = s.battle; assert.equal(b.nOut, 2, 'Lt. Surge has three Pokémon but only two are out at a time'); assert.ok(!b.lend, 'nothing is lent'); assert.deepEqual(b.need, [2, 2]); assert.equal(b.cols.length, 2, 'the columns are fixed and shown from the start'); assert.equal(b.hand[0].length, 4, 'your whole collection is your hand'); assert.equal(b.hand[1].length, 2); assert.equal(b.rsv[1].length, 1, 'the third waits (the signature)');
   assert.equal(E.slotsFor(b, 0).filter(x => x.at != null).length, 0, 'no new columns can be made');
   let g; while ((g = B.step(s, 'normal')) || (b.stage === 'place' && b.pl.side === 0)) { if (g) E.apply(s, g); else if (b.pl.confirm) E.apply(s, { t: 'ready' }); else E.apply(s, Object.assign({ t: 'place', side: 0, uid: b.hand[0][0] }, E.slotsFor(b, 0)[0])); }
-  assert.equal(b.stage, 'assign'); assert.equal(E.living(b, 0).length, 3); assert.equal(E.living(b, 1).length, 3); assert.equal(b.rsv[0].length, 1, 'your fourth waits in reserve');
+  assert.equal(b.stage, 'assign'); assert.equal(E.living(b, 0).length, 2); assert.equal(E.living(b, 1).length, 2); assert.equal(b.rsv[0].length, 1, 'one of yours waits in reserve');
   const foe = E.living(b, 1)[0]; foe.ko = true; foe.hp = 0; b.stage = 'resolved'; b.out = null;
   assert.ok(E.apply(s, { t: 'next' }).ok); assert.equal(b.stage, 'place', 'a replacement is brought'); assert.ok(b.refill);
-  assert.ok(E.apply(s, B.step(s, 'normal')).ok); assert.ok(E.apply(s, { t: 'ready' }).ok, 'your OK'); assert.equal(b.stage, 'assign', 'only they needed one'); assert.equal(E.living(b, 1).length, 3); assert.equal(b.rsv[1].length, 0); assert.ok(E.living(b, 1).some(u => s.bosses.B3[s.bosses.B3.length - 1].id === u.id), 'the signature came out last');
+  assert.ok(E.apply(s, B.step(s, 'normal')).ok); assert.ok(E.apply(s, { t: 'ready' }).ok, 'your OK'); assert.equal(b.stage, 'assign', 'only they needed one'); assert.equal(E.living(b, 1).length, 2); assert.equal(b.rsv[1].length, 0); assert.ok(E.living(b, 1).some(u => s.bosses.B3[s.bosses.B3.length - 1].id === u.id), 'the signature came out last');
 });
 test('wild cards: one comes up, you put one down, and then you choose: fight it one on one, or bring more and they draw one more each time', (tc) => { E.faceOrder('roll'); tc.after(() => E.faceOrder('sheet'));
   const s = E.newGame({ seed: 21, starter: 'bulbasaur' }); s.done.B1 = true; s.done.B2 = true;            // three dice (the first two badges give two more)
@@ -250,7 +250,7 @@ test('hidden information: the computer never sees your dice, and you never see t
 
 // ================================================================ the campaign
 test('campaign: every trainer builds a random team from its row: size, signature last, quotas, level points, no repeats, no starters, copies', () => {
-  assert.deepEqual(Object.values(D.trainers).map(t => t.n), [2, 3, 4, 4, 4, 4, 5, 5, 5, 5, 5, 5, 6, 6]);
+  assert.deepEqual(Object.values(D.trainers).map(t => t.n), [2, 3, 3, 4, 4, 4, 5, 5, 5, 5, 5, 5, 6, 6]);
   const tagOf = c => c.tags;
   for (let seed = 1; seed <= 60; seed++) {
     const s = E.newGame({ seed, starter: 'bulbasaur' }); const used = [];

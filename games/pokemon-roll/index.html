@@ -552,6 +552,7 @@ button{font:inherit;color:inherit;border:0;cursor:pointer}
 <style>.prail .btn.big{width:calc(100% - 8px);min-width:0;box-sizing:border-box;padding:0 6px;min-height:64px;font-size:26px}</style>
 <style>.sheet{z-index:100}</style>
 <style>.mS-sleep{background:#3949ab;color:#fff}.mS-dodge{background:#00838f;color:#fff}.st-sleep{border-color:#7986cb}.st-dodge{border-color:#4dd0e1}</style>
+<style>.card .pips{display:none!important}.aiblurb{font:600 16px/1.3 system-ui;opacity:.9;margin-top:6px;max-width:420px}</style>
 <script id="data">
 /* Pokémon Roll! — every rule number, the map, the bosses, the card sheet and the art live here. The engine and bots read this and hard-code none of it. */
 const GAME_DATA = {
@@ -582,10 +583,17 @@ const GAME_DATA = {
   // the computer's three levels: Master is the best play we can build; Normal is Master without the reroll; Easy is pure chance.
   // random = share of decisions made blindly · search = looks for swaps and specials · rerollBelow = rerolls a die only when nothing it could do is worth this much (Master compares against a fresh throw instead)
   ai: {
-    easy:   { label: 'Easy',   random: 1,    search: false, specials: false, rerolls: 'never',  placeRandom: 1, placeSmart: 0,    lookahead: false },
-    normal: { label: 'Normal', random: 0,    search: true,  specials: true,  rerolls: 'expect', placeRandom: .25, placeSmart: 1,    lookahead: false, rerollMargin: 0.4 },
-    master: { label: 'Hard',   random: 0,    search: true,  specials: true,  rerolls: 'expect', placeRandom: 0, placeSmart: 2,    lookahead: true,  rerollMargin: 0.4 },
+    easy:   { label: 'Easy', blurb: 'The computer hands out its dice and places its cards at random.',   random: 1,    search: false, specials: false, rerolls: 'never',  placeRandom: 1, placeSmart: 0,    lookahead: false },
+    normal: { label: 'Normal', blurb: 'The computer puts its dice where they do the most good, but sometimes places a card carelessly.', random: 0,    search: true,  specials: true,  rerolls: 'expect', placeRandom: .25, placeSmart: 1,    lookahead: false, rerollMargin: 0.4 },
+    master: { label: 'Hard', blurb: 'The computer plans ahead: the best places for its cards, the best dice for each one, and it shuffles cards around to get the most from every roll.',   random: 0,    search: true,  specials: true,  rerolls: 'expect', placeRandom: 0, placeSmart: 2,    lookahead: true,  rerollMargin: 0.4 },
   },
+  // what a trainer says when their signature Pokémon (the last card of their team) comes out; {mon} is its name
+  sigLines: [
+    "You've made me work for this. Now meet my very best: {mon}!",
+    "This is the one I trust most. Go, {mon}! Show them everything!",
+    "Everything I've trained for comes down to this. {mon}, it's your moment!",
+    "Most trainers never get to see {mon}. Let's see if you can handle it!",
+  ],
   elements: {
     Grass:    { color: '#4caf50', bg: '#bfe8a5', icon: '🌿' },
     Fire:     { color: '#ef6c00', bg: '#ffc79a', icon: '🔥' },
@@ -626,14 +634,14 @@ const GAME_DATA = {
   ],
   // Map 2 from the design doc. A node opens when everything in `needs` is beaten. `lvl` is the level your starter should have;
   // beating a boss lifts your starter to lvl+1. `draws`: [location, cards, extra cards in the long game].
-  dieLine: 'Congratulations, you earned this die.',           // said by the leader who hands you a new die
+  dieLine: 'Here, you get another die.',           // said by the leader who hands you a new die
   // The trainers (the V3 Trainers tab). Teams are built at random at the start of each battle. A card's level is its rank 1-6 (the names 1, 10, 20, 30, 40, 50): a level point is its rank.
   // n cards, `out` on the table at once (the player's dice, or `out` for Blue and Red); sig = the card drawn first (it plays last); pool = where the other cards come from;
   // quotas count the signature; pts = the team's level points (a team may land anywhere in this range); other = a rank range for the other cards.
   trainers: {
-    B1: { name: 'Brock', stage: 'Gym, Area 1', out: 2, n: 2, sig: { el: ['Ground'], lv: [2, 3], locs: [2], tagged: true }, pool: { locs: [1, 2], tagged: true }, quotas: [], pts: [4, 5] },
-    B2: { name: 'Misty', stage: 'Gym, Area 2', out: 3, n: 3, sig: { el: ['Water'], lv: [3, 4], locs: [4, 7] }, pool: { locs: [2, 4] }, quotas: [{ el: 'Water', n: 2 }], pts: [6, 7] },
-    B3: { name: 'Lt. Surge', stage: 'Gym, Area 2', out: 3, n: 4, sig: { el: ['Electric'], lv: [4, 5], locs: [3, 4] }, pool: { locs: [3, 2], tagged: true }, quotas: [{ el: 'Electric', n: 2 }], pts: [10, 12] },
+    B1: { name: 'Brock', stage: 'Gym, Area 1', out: 1, n: 2, sig: { el: ['Ground'], lv: [2, 3], locs: [2], tagged: true }, pool: { locs: [1, 2], tagged: true }, quotas: [], pts: [4, 5] },
+    B2: { name: 'Misty', stage: 'Gym, Area 2', out: 2, n: 3, sig: { el: ['Water'], lv: [3, 4], locs: [4, 7] }, pool: { locs: [2, 4] }, quotas: [{ el: 'Water', n: 2 }], pts: [6, 7] },
+    B3: { name: 'Lt. Surge', stage: 'Gym, Area 2', out: 2, n: 3, sig: { el: ['Electric'], lv: [4, 5], locs: [3, 4] }, pool: { locs: [3, 2], tagged: true }, quotas: [{ el: 'Electric', n: 2 }], pts: [9, 11] },
     B4: { name: 'Erika', stage: 'Gym, Area 3A', n: 4, sig: { el: ['Grass'], lv: [4, 5], locs: [6, 4] }, pool: { locs: [6, 5], tagged: true }, quotas: [{ el: 'Grass', n: 2 }], pts: [12, 14] },
     B5: { name: 'Koga', stage: 'Gym, Area 4A', n: 4, sig: { tags: ['bug', 'poison'], lv: [4, 5], anyLoc: true }, pool: { locs: [6, 3, 5], tags: ['bug', 'poison'] }, quotas: [{ tags: ['bug', 'poison'], n: 2 }], pts: [15, 17] },
     B6: { name: 'Sabrina', stage: 'Gym, Area 3B', n: 4, sig: { el: ['Psychic', 'Dark'], lv: [4, 5], locs: [5, 7] }, pool: { locs: [5], tagged: true }, quotas: [{ el: 'Psychic', n: 2 }], pts: [13, 15] },
@@ -647,7 +655,7 @@ const GAME_DATA = {
     F2: { name: 'Red', stage: 'Endgame', n: 6, out: 4, sig: { legendary: true }, pool: { anyLoc: true, tagged: true }, quotas: [{ el: 'Fire', n: 1 }, { el: 'Electric', n: 1 }, { el: 'Grass', n: 1 }, { el: 'Water', n: 1 }], pts: [28, 30], other: [4, 5] },
   },
   // The map. A node opens when the badges it asks for are won and everything in `needs` is beaten (`any`: either). `lvl` is the level your starter has after beating a trainer (+1).
-  dieLine: 'Congratulations, you earned this die.',           // said by the leader who hands you a new die
+  dieLine: 'Here, you get another die.',           // said by the leader who hands you a new die
   nodes: [
     { id: 'L1', kind: 'loc', loc: 1, name: 'Viridian Forest', stage: 0, lane: 1, needs: [] },
     { id: 'B1', kind: 'boss', gym: true, name: 'Brock', say: "Your Pokémon are tougher than my rocks. Well fought!", color: '#8d6e63', stage: 0, lane: 2, needs: [], lvl: 2 },
@@ -1392,7 +1400,7 @@ const Engine = (() => {
   // after a round, a card knocked out is replaced from the reserve: they bring theirs (the signature last), then you pick yours; it drops into any empty column
   function needRefill(b) { return !!(b.fcols && b.nOut != null && [0, 1].some(sd => living(b, sd).length < b.nOut && rsvN(b, sd) > 0)); }
   function startRefill(s) {
-    const b = s.battle; b.refill = true; b.stage = 'place'; b.events = []; b.hand = [[], []]; b.hcards = {}; b.nextH = 1;
+    const b = s.battle; b.refill = true; b.lastMine = null; b.stage = 'place'; b.events = []; b.hand = [[], []]; b.hcards = {}; b.nextH = 1;
     const miss = sd => Math.min(b.nOut - living(b, sd).length, rsvN(b, sd)), m0 = miss(0), m1 = miss(1);
     for (let k = 0; k < m1; k++) { const i = b.rsv[1].shift(); addHand(b, 1, i); }
     if (m0 > 0) { b.rsv[0].forEach(i => addHand(b, 0, i)); b.rsv[0] = []; }
@@ -2305,7 +2313,7 @@ const Engine = (() => {
         else {
           const T = D.trainers[nd.id], team = s.bosses[nd.id];               // the same team every time, the signature last
           const gm = team.map(i => ({ id: i.id, sh: i.sh })), want = Math.min(T.out || slots(s), gm.length), n = Math.max(1, Math.min(want, s.coll.length));
-          const b0 = startBattle(s, nd.kind, nd.id, hero, gm, { lazy: true, nOut: n, fixed: n, need: [n, n], cap0: Math.min(s.coll.length, gm.length) }); if (T.out && T.out > slots(s) && s.coll.length >= T.out) b0.lend = T.out - slots(s);          // too few dice: the trainer lends you the rest for this fight
+          const b0 = startBattle(s, nd.kind, nd.id, hero, gm, { lazy: true, nOut: n, fixed: n, need: [n, n], cap0: Math.min(s.coll.length, gm.length) }); b0.sigId = team.length ? team[team.length - 1].id : null; if (T.out && T.out > slots(s) && s.coll.length >= T.out) b0.lend = T.out - slots(s);          // too few dice: the trainer lends you the rest for this fight
         }
         return null;
       }
@@ -2335,7 +2343,7 @@ const Engine = (() => {
       case 'place': return doPlace(s, a);
       case 'pickup': {                                                // take your latest card back (not locked in yet), or, while replacing a fallen card, retreat any card of yours to the reserve
         if (b.stage !== 'place' || !b.pl || b.pl.side !== 0 || !b.hcards) return 'not now'; const u = U(b, a.uid);
-        if (!u || u.side !== 0 || u.ko || (u.uid !== b.lastMine && !b.refill && !(b.pl && b.pl.fix))) return 'that card is locked in'; const ci = colIdx(b, u.uid);
+        if (!u || u.side !== 0 || u.ko || (u.uid !== b.lastMine && !(b.pl && b.pl.fix))) return 'that card is locked in'; const ci = colIdx(b, u.uid);
         if (ci >= 0) b.cols[ci][0] = null; u.ko = true; u.gone = true; const hid = addHand(b, 0, { id: u.id, sh: u.sh }); b.placed[0]--; b.pl.left++; if (b.pl.optional) b.pl = { side: 0, left: 1, optional: false }; if (b.lastMine === u.uid) b.lastMine = null; return null;
       }
       case 'roll': return doRoll(s);
@@ -2875,6 +2883,8 @@ const trainerFg = {
       <g fill="${gold}" stroke="#6b4a00" stroke-width="1">${[80, 100, 120].map((x, i) => `<path d="M${x} ${i === 1 ? 247 : 250}l2.4 5 5.6.8-4 4 1 5.6-5-2.7-5 2.7 1-5.6-4-4 5.6-.8z"/>`).join('')}</g>
       <path d="M-30 0L90 0 -10 280-130 280Z" transform="translate(50 0)" fill="#fff" fill-opacity=".09" clip-path="url(#${k}r)"/></svg>`;
   };
+  // the back of a starter card: Professor Oak on a lab-green back
+  const oakBack = () => backFrame('dbOak', 'Starter', `<rect width="160" height="120" fill="#d9efe2"/><rect y="96" width="160" height="24" fill="#9ccfb0"/>${trainerImg('OAK')}`, DECKC.green);
   const deckBack = loc => { const L = D.locations.find(x => x.id === loc); return backFrame('db' + loc, L.name, SCENE[loc](), DECKC[L.color] || DECKC.blue); };
   const mixHex = (h, t, k) => { const a = [1, 3, 5].map(i => parseInt(h.slice(i, i + 2), 16)), b = [1, 3, 5].map(i => parseInt(t.slice(i, i + 2), 16)); return '#' + a.map((x, i) => Math.round(x + (b[i] - x) * k).toString(16).padStart(2, '0')).join(''); };
   // the back of a legendary: a gold-and-violet burst with a crowned star, and the word LEGENDARY
@@ -2949,7 +2959,7 @@ const trainerFg = {
       ui.busy = true; render();
       setTimeout(() => {
         const g = B.step(G, set.ai); if (!g) { ui.busy = false; render(); return; }
-        E.apply(G, g); const u = G.battle && G.battle.units.filter(x => x.side === 1 && !x.ko).pop(); if (u && u.sh) burst(u.uid); if (u) { ui.drawFly = u.uid; ui.flyUntil = Date.now() + 2500; }
+        E.apply(G, g); const u = G.battle && G.battle.units.filter(x => x.side === 1 && !x.ko).pop(); if (u && u.sh) burst(u.uid); if (u) { ui.drawFly = u.uid; ui.flyUntil = Date.now() + 2500; const bb = G.battle; if (bb && bb.kind === 'boss' && bb.sigId != null && u.id === bb.sigId && !bb.sigShown) { bb.sigShown = true; const nd = E.node(bb.node), ls = D.sigLines, ln = ls[(nd.id.charCodeAt(0) + nd.id.charCodeAt(nd.id.length - 1)) % ls.length].replace('{mon}', C[u.id].name); ui.sigWait = setTimeout(() => { ui.sigWait = null; if (G && G.battle) { ui.sigSay = { name: nd.name, art: nd.art || nd.id, line: ln }; render(); } }, 2700); } }          // the signature Pokémon comes out last: once its card has turned over the trainer says something about it
         save(); ui.busy = false; drive();
       }, 650);
       return;
@@ -3181,7 +3191,7 @@ const trainerFg = {
       <div class="oaktalk">${oakImg()}<div class="bubble"><b class="who">Professor Oak</b><p>This is the only Pokémon you will get that will <b>level up and evolve</b>. All the rest are static cards.</p><p>Choose a starter you want to evolve with you as you progress through the game.</p></div></div>
       <div class="oakst">${(() => { const shk = E.starterShiny(ui.seed || 0), per = 3, cw = Math.max(100, Math.min(225, Math.floor((Math.min(innerWidth, 760) - 40 - (per - 1) * 10) / per), Math.floor((viewH() - 440) / 2 / CH))); return D.starters.map(st => card({ id: st.levels[D.rules.startLevel - 1], sh: shk === st.key ? 1 : 0 }, { cw, sel: ui.pickSt === st.key, attr: `data-act="pickst" data-k="${st.key}"` })).join(''); })()}</div>
       <div class="oakopts"><span>You:</span>${[['M', 'Boy'], ['F', 'Girl']].map(([k, l]) => `<button class="chip avc${set.avatar === k ? ' on' : ''}" data-act="avatar" data-v="${k}" style="min-height:50px;font-size:17px;display:flex;align-items:center;gap:6px"><img class="pix" style="width:44px;height:44px" src="data:image/png;base64,${D.trainerArt['PLAYER_' + k]}" alt="">${l}</button>`).join('')}</div>
-      <div class="oakopts"><span>Computer:</span>${['easy', 'normal', 'master'].map(x => `<button class="chip${set.ai === x ? ' on' : ''}" data-act="ai" data-v="${x}">${D.ai[x].label}</button>`).join('')}</div>
+      <div class="oakopts"><span>Computer:</span>${['easy', 'normal', 'master'].map(x => `<button class="chip${set.ai === x ? ' on' : ''}" data-act="ai" data-v="${x}">${D.ai[x].label}</button>`).join('')}</div><div class="aiblurb">${esc(D.ai[set.ai].blurb)}</div>
       <div class="oakgo"><button class="btn ghost" data-act="menu0">Back</button><button class="btn big" data-act="starter" data-k="${ui.pickSt || ''}" id="startbtn" ${ui.pickSt ? '' : 'disabled'}>Start</button></div></div></div>`;
   // the main menu: the map itself, dealt out on the table, with the title and the buttons above it
   function menuScreen() {
@@ -3367,7 +3377,10 @@ const trainerFg = {
   // how many Pokémon each side has left, the traditional way: a ball for each, and a different ball for each one that has fallen
   const ballSvg = dead => dead ? '<svg viewBox="0 0 20 20" aria-label="defeated"><circle cx="10" cy="10" r="9" fill="#8a8f98" stroke="#14110f" stroke-width="2"/><path d="M5 5l10 10M15 5L5 15" stroke="#14110f" stroke-width="2.6" stroke-linecap="round"/></svg>' : '<svg viewBox="0 0 20 20" aria-label="ready"><circle cx="10" cy="10" r="9" fill="#fff" stroke="#14110f" stroke-width="2"/><path d="M1 10a9 9 0 0 1 18 0Z" fill="#e53935" stroke="#14110f" stroke-width="2"/><path d="M1 10h18" stroke="#14110f" stroke-width="2"/><circle cx="10" cy="10" r="3" fill="#fff" stroke="#14110f" stroke-width="2"/></svg>';
   const ballsOf = (b, sd) => { const fallen = b.units.filter(u => u.side === sd && u.ko && !u.recalled && !u.gone).length, raw = E.living(b, sd).length + (b.rsv && b.rsv[sd] ? b.rsv[sd].length : 0) + (b.stage === 'place' ? b.hand[sd].length : 0), alive = b.cap0 != null && sd === 0 ? Math.max(0, Math.min(raw + fallen, b.cap0) - fallen) : raw;          // what you can use in this fight, not everything you have caught
-    return `<div class="balls">${'x'.repeat(alive).split('').map(() => ballSvg(false)).join('')}${'x'.repeat(fallen).split('').map(() => ballSvg(true)).join('')}</div>`; };
+    const ball = (n, x) => Array.from({ length: Math.max(0, n) }, () => ballSvg(x)).join('');
+    const sig = sd === 1 && b.sigId != null ? b.units.find(u => u.side === 1 && u.id === b.sigId) : null;          // a trainer's signature Pokémon is always the last ball: the ones that fall are crossed out from the left, and its ball is crossed out only when it falls
+    if (sig && (alive + fallen) > 0) { const sigDead = !!sig.ko, otherFallen = fallen - (sigDead ? 1 : 0), otherAlive = alive - (sigDead ? 0 : 1); return `<div class="balls">${ball(otherFallen, true)}${ball(otherAlive, false)}${ball(1, sigDead)}</div>`; }
+    return `<div class="balls">${ball(fallen, true)}${ball(alive, false)}</div>`; };
   function battleScreen() {
     const b = G.battle, p = ui.play, placing = b.stage === 'place', assign = b.stage === 'assign', done = b.stage === 'resolved' && !p;
     // one screen: the cards fill it top to bottom, and everything else (your hand, the dice, the buttons) lives in a column down the right
@@ -3444,7 +3457,7 @@ const trainerFg = {
     const diceHtml = !waitRoll && (assign || done || p) && hd.length ? hd.map((v, i) => [v, i]).sort((x, y) => { const lk = (b.locked && b.locked[0]) || {}; return rolling ? x[1] - y[1] : (lk[x[1]] ? 1 : 0) - (lk[y[1]] ? 1 : 0) || y[0] - x[0] || x[1] - y[1]; }).map(([v, i]) => { const tum = rolling && (!ui.rerolled || ui.rerolled.indexOf(i) >= 0); return dieHtml(tum ? '' : v, { sel: ui.die === i, used: !colM && used.has(i), tumble: tum, attr: !colM && assign && !rolling && !(b.fixed && b.fixed[0] && b.fixed[0][i]) ? `data-act="die" data-i="${i}"` : '' }); }).join('') : '';
     let status = '', btns = '';
     const opt = yourPlace && b.pl.optional, canDraw = opt && b.pl.canDraw;
-    if (placing) status = (b.sudden ? 'SUDDEN DEATH · ' : '') + (yourPlace && b.fcols && E.unmatched(b) && (b.pl.fix || opt) ? 'Everyone needs an opponent' : yourPlace ? (ui.psel != null && !selected ? 'Drag it back, or elsewhere' : selected != null ? 'Tap a spot' : opt ? (canDraw ? 'Tap the deck, add a card, or Fight!' : (b.mode === 'wild' && E.canExpand(G) ? 'Another card, or Fight!' : 'Happy? Fight!')) : 'Pick a Pokémon from your hand to put down') : 'Their turn…');
+    if (placing) status = (b.sudden ? 'SUDDEN DEATH · ' : '') + (yourPlace && b.mode === 'wild' && b.fcols && E.unmatched(b) && (b.pl.fix || opt) ? 'Everyone needs an opponent' : yourPlace ? (ui.psel != null && !selected ? 'Drag it back, or elsewhere' : selected != null ? 'Tap a spot' : opt ? (canDraw ? 'Tap the deck, add a card, or Fight!' : (b.mode === 'wild' && E.canExpand(G) ? 'Another card, or Fight!' : 'Happy? Fight!')) : 'Pick a Pokémon from your hand to put down') : 'Their turn…');
     else if (matching) { status = yourMatch ? (msel != null ? 'Tap the empty spot to slide there' : 'Cards with no opponent may slide next to a lone enemy. Tap one.') : 'They are choosing where to slide…'; btns = yourMatch ? `<button class="btn alt" data-act="mpass">Stay put</button>` : ''; }
     else if (assign && ui.returning) { status = 'Tap the Pokémon to return'; btns = `<button class="btn alt" data-act="retmode">Cancel</button>`; }
     else if (assign && ui.slide) { status = 'Slide a neighbour over to face the opponent? Tap it.'; btns = `<button class="btn alt" data-act="slideno">Leave it empty</button>`; }
@@ -3475,7 +3488,7 @@ const trainerFg = {
     const autoOk = assign && !colM && b.gmReady && !E.readyToGo(b, 0) && noDecision(b), goReady = assign && !waitRoll && !rolling && !ui.slide && !asking && (colM ? b.gmReady : (E.readyToGo(b, 0) || autoOk) && b.gmReady);
     const canReturn = assign && !colM && !b.rolled && E.living(b, 0).length > 1;
     if (ui.returning && !canReturn) ui.returning = false;
-    const fight = opt && !(b.fcols && E.unmatched(b)) ? '<button class="btn big" data-act="ready">Fight!</button>' : '';
+    const fight = opt && !(b.mode === 'wild' && b.fcols && E.unmatched(b)) ? '<button class="btn big" data-act="ready">Fight!</button>' : '';
     const trainerHtml = nodeB.kind !== 'loc' && D.trainerArt && D.trainerArt[nodeB.art || nodeB.id] ? `<div class="trainer"><img class="pix tsp" src="data:image/png;base64,${D.trainerArt[nodeB.art || nodeB.id]}" alt="${esc(nodeB.name)}"><b>${esc(nodeB.name)}</b>${ballsOf(b, 1)}</div>` : '';
     // your hand, fanned out under the board while you place (the same fan as "Your cards"); it flies off when the fight starts
     let fanHtml = '';
@@ -3555,7 +3568,7 @@ const trainerFg = {
   const settingsSheet = () => `<div class="sheet" data-act="closesettings"><div class="box" data-stop="1" style="max-width:460px;display:flex;flex-direction:column;gap:16px"><h2>Settings</h2>
       <div><b style="font-size:19px">Tips</b><div style="display:flex;gap:8px;margin-top:8px">${[[true, 'On'], [false, 'Off']].map(([v, l]) => `<button class="chip${set.tips === v ? ' on' : ''}" data-act="tips" data-v="${v}" style="min-height:48px;font-size:19px">${l}</button>`).join('')}</div></div>
       <div><b style="font-size:19px">You</b><div style="display:flex;gap:8px;margin-top:8px">${[['M', 'Boy'], ['F', 'Girl']].map(([k, l]) => `<button class="chip avc${set.avatar === k ? ' on' : ''}" data-act="avatar" data-v="${k}" style="min-height:60px;font-size:19px;display:flex;align-items:center;gap:6px"><img class="pix" style="width:44px;height:44px" src="data:image/png;base64,${D.trainerArt['PLAYER_' + k]}" alt="">${l}</button>`).join('')}</div></div>
-      <div><b style="font-size:19px">Computer</b><div style="display:flex;gap:8px;margin-top:8px">${['easy', 'normal', 'master'].map(x => `<button class="chip${set.ai === x ? ' on' : ''}" data-act="ai" data-v="${x}" style="min-height:48px;font-size:19px">${D.ai[x].label}</button>`).join('')}</div></div>
+      <div><b style="font-size:19px">Computer</b><div style="display:flex;gap:8px;margin-top:8px">${['easy', 'normal', 'master'].map(x => `<button class="chip${set.ai === x ? ' on' : ''}" data-act="ai" data-v="${x}" style="min-height:48px;font-size:19px">${D.ai[x].label}</button>`).join('')}</div><div class="aiblurb">${esc(D.ai[set.ai].blurb)}</div></div>
       ${ui.resetAsk ? `<div class="status" style="font-size:19px">This deletes ALL your saved games, the Hall of Fame and the Pokédex. It cannot be undone.</div><button class="btn" style="background:#e5383b;color:#fff" data-act="resetgo">Yes, delete everything</button><button class="btn alt" data-act="resetno">No, keep it all</button>` : `<button class="btn alt" data-act="resetask">Reset everything…</button>`}
       <button class="btn" data-act="closesettings">Done</button></div></div>`;
   // your team, left to right: highest level first, then the order you got them (oldest on the left)
@@ -3593,7 +3606,7 @@ const trainerFg = {
     const one = c => {
       const have = !!own[c.id] || (legacy && c.loc !== 0 && c === cs.find(x => x.loc !== 0)), sh = !!ui.dexShiny[c.id] && !!shs[c.id], fl = fnd[c.id] || [], got = !!cg[c.id];
       let where;
-      if (c.loc === 0) where = box('<div class="dxstar">⭐</div><div class="dxlab">Starter</div>', 'linear-gradient(#5e35b1,#311b92)', 'dextip', c.id);
+      if (c.loc === 0) where = box(oakBack().replace('<svg ', '<svg style="width:100%;height:100%;display:block" preserveAspectRatio="xMidYMid meet" '), 'transparent', 'dextip', c.id);
       else if (fl.length) where = `<div class="dxstack" style="width:${cw + (fl.length - 1) * 16}px;height:${Math.round(cw * CH) + (fl.length - 1) * 8}px">${fl.map((l, i) => `<div style="position:absolute;left:${i * 16}px;top:${(fl.length - 1 - i) * 8}px">${box(backOf(l), (DECKC[(D.locations.find(x => x.id === l) || {}).color] || DECKC.blue)[0], 'dextip', c.id)}</div>`).join('')}</div>`;
       else where = box('<div class="dxq2">?</div><div class="dxlab">Location unknown</div>', 'linear-gradient(#37474f,#1c262b)', 'dextip', c.id);
       const chip = (k, ic, name, st, on, act) => `<button class="dxchip${on ? ' on' : ''}" data-act="${act || 'dextip'}" data-t="${k}" data-id="${c.id}"><span class="si">${ic}</span><b>${name}</b><small>${st}</small></button>`;
@@ -3777,6 +3790,7 @@ const trainerFg = {
     if (ui.menu) h += menuSheet();
     if (ui.settings) h += settingsSheet();
     if (ui.help) h += helpSheet();
+    if (ui.sigSay) h += `<div class="tip tipoak sigsay"><img class="oak pix tipimg" src="data:image/png;base64,${D.trainerArt[ui.sigSay.art]}" alt="${esc(ui.sigSay.name)}"><div class="tipt"><b>${esc(ui.sigSay.name)}</b><span>“${esc(ui.sigSay.line)}”</span><button class="btn" data-act="sigok">OK</button></div></div>`;
     if (ui.tip) h += `<div class="tip tipoak">${oakImg('tipimg')}<div class="tipt"><b>Professor Oak</b><span>${esc(ui.tip.text)}</span><button class="btn" data-act="tipok">OK</button></div></div>`;
     if (ui.toast) h += `<div class="toast">${esc(ui.toast)}</div>`;
     const oldHand = document.querySelector('.handrow'), oldRect = oldHand && oldHand.getBoundingClientRect(), oldHtml = oldHand && oldHand.innerHTML;
@@ -3834,7 +3848,7 @@ const trainerFg = {
     help() { ui.help = true; ui.more = false; ui.helpPage = 0; ui.menu = false; render(); }, closehelp() { ui.help = false; render(); },
     hnext() { ui.helpPage = Math.min(HELP.length - 1, (ui.helpPage || 0) + 1); render(); }, hprev() { ui.helpPage = Math.max(0, (ui.helpPage || 0) - 1); render(); },
     avatar(el) { set.avatar = el.dataset.v; lsSet(SET, set); document.querySelectorAll('.avc').forEach(x => x.classList.toggle('on', x.dataset.v === set.avatar)); },
-    ai(el) { set.ai = el.dataset.v; lsSet(SET, set); if (G) G.ai = set.ai; document.querySelectorAll('.chip[data-act=ai]').forEach(x => x.classList.toggle('on', x.dataset.v === set.ai)); },
+    ai(el) { set.ai = el.dataset.v; lsSet(SET, set); if (G) G.ai = set.ai; document.querySelectorAll('.chip[data-act=ai]').forEach(x => x.classList.toggle('on', x.dataset.v === set.ai)); document.querySelectorAll('.aiblurb').forEach(x => { x.textContent = D.ai[set.ai].blurb; }); },
     size(el) { set.size = el.dataset.v; lsSet(SET, set); render(); },
     tips(el) { set.tips = el && el.dataset.v ? el.dataset.v === 'true' : !set.tips; lsSet(SET, set); render(); },
     settings() { ui.settings = true; ui.menu = false; ui.more = false; render(); }, closesettings() { ui.settings = false; ui.resetAsk = false; render(); },
@@ -3884,7 +3898,7 @@ const trainerFg = {
     unit(el) {
       const b = G.battle, u = E.U(b, +el.dataset.uid); if (!u) return;
       if (b.copyAsk && b.copyAsk.length && !u.ko) { act({ t: 'copy', uid: b.copyAsk[0], tgt: u.uid }); return; }          // Ditto: tap the card to copy
-      if (b.stage === 'place' && u.side === 0 && b.pl && b.pl.side === 0 && (u.uid === b.lastMine || b.refill || b.pl.fix)) { ui.psel = ui.psel === u.uid ? null : u.uid; render(); return; }          // a card you may still take back: a tap only lights it up; drag it to your hand to take it back, or to another spot to move it
+      if (b.stage === 'place' && u.side === 0 && b.pl && b.pl.side === 0 && (u.uid === b.lastMine || b.pl.fix)) { ui.psel = ui.psel === u.uid ? null : u.uid; render(); return; }          // a card you may still take back: a tap only lights it up; drag it to your hand to take it back, or to another spot to move it
       if (b.stage === 'match' && b.mt && b.mt.side === 0) { const mv = E.matchMoves(b, 0).filter(m => m.uid === u.uid); if (mv.length) { ui.msel = ui.msel === u.uid ? null : u.uid; render(); return; } }
       if (b.ask && b.ask.kind === 'yn') return;
       if (b.ask && b.ask.kind === 'alloc') { if (b.ask.opts.some(o => o[0] === u.uid) && act({ t: 'alloc', tgt: u.uid })) { const p = ui.play; if (p && !b.ask) { absorbEvents(); p.waiting = false; nextBeat(); } else if (!p && !b.ask) startPlay(); } return; }
@@ -3931,6 +3945,7 @@ const trainerFg = {
     resnext() { ui.resStep = 1; render(); },
     done() { ui.mapX = null; if (act({ t: 'done' })) render(); },
     forfeit() { ui.menu = false; act({ t: 'forfeit' }); },
+    sigok() { ui.sigSay = null; render(); },
     tipok() { ui.tip = null; render(); if (G && G.battle && G.battle.stage === 'resolved') scheduleNext(); },
     clearnote() { G.notes.shift(); save(); render(); },
   };
@@ -3969,7 +3984,7 @@ const trainerFg = {
     const b = G && G.battle; if (!b || b.stage !== 'place' || !b.pl || b.pl.side !== 0 || ui.big) return;
     const c = ev.target.closest && ev.target.closest('.card[data-act=tray], .card[data-act=unit]'); if (!c) return;
     let key = +c.dataset.uid, from = null;
-    if (c.dataset.act === 'unit') { const u = E.U(b, key); if (!u || u.side !== 0 || u.ko || !(u.uid === b.lastMine || b.refill || b.pl.fix)) return; from = u.uid; }
+    if (c.dataset.act === 'unit') { const u = E.U(b, key); if (!u || u.side !== 0 || u.ko || !(u.uid === b.lastMine || b.pl.fix)) return; from = u.uid; }
     pd = { key, from, x: ev.clientX, y: ev.clientY, moved: false, ghost: null, origin: null };
   });
   document.addEventListener('pointermove', ev => {

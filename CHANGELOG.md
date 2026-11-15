@@ -1,5 +1,6 @@
 # Changelog
 
+- Pokémon Roll: Brock has two Pokémon and you send out one at a time (no borrowed die; he gives you another at the end); Misty and Lt. Surge have three and you send out two. Trainers say something when their signature Pokémon comes out. Starter cards get a Professor Oak card back in the Pokédex. Balls are crossed out from the left (a signature is always the last ball). Difficulty buttons explain themselves. The little red health pips are gone. In gym fights your cards on the field are locked during a replacement, and Fight! works even when one side has fewer cards.
 - Pokémon Roll: new keywords Dodge (the first attack against the card this round misses, pierce too) and Sleep (loses the next turn, then wakes on 4-6, wakes when hurt or healed); Snorlax's Rest; "takes N less" abilities now only cut attacks (not recoil or poison); Kakuna and Metapod recoil 1; moves with an element but no number lose the element.
 - Pokémon Roll: Diglett and Dugtrio (and the Pikachu that dodges after the first attack) dodge automatically; only the once-per-battle Pikachu asks you.
 - Pokémon Roll: Electrode's Roll of 6 is 7a with recoil 5 (was 7), in the sheet and the game.
