@@ -1,5 +1,7 @@
 # Changelog
 
+- Pokémon Roll: the wild deck is now a card-sized pile beside the enemy columns; a drawn card lands face down, then flips. Battle and hand cards are bigger and equal; the hand runs off the bottom edge; notes are shorter.
+
 ## Unreleased
 
 - **Pokémon Roll! — V4 (cards and moves):** all cards now come from the V4 tab; a move is read straight from the roll's column (Roll of 6 … Roll of 1, blank = nothing); new keywords: pierce, drain, recoil, charge, poison, stun and freeze (with the freeze choice put to you after the round); abilities rewritten (die-changing abilities, Slowpoke's slow, Koffing pierces, Articuno freezes, and more); statuses and charges show as icons on the cards (tap to read), and every keyword in a zoomed move explains itself; "1c" now reads "1 Counter" and recoil has no arrow; Mew does nothing with nobody opposite; a card you take back by dragging no longer jumps back by itself.
