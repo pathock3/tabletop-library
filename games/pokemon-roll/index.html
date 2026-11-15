@@ -590,6 +590,7 @@ button{font:inherit;color:inherit;border:0;cursor:pointer}
 .card.grid .f.hot .n{background:#ffd23f}
 </style>
 <style>.card.grid .ab{height:calc(var(--cw)*.15);font-size:calc(var(--cw)*.048)!important}</style>
+<style>.labrow2{display:grid;grid-template-columns:repeat(3,auto);gap:12px;justify-content:center;padding:8px 0 30px}</style>
 <script id="data">
 /* Pokémon Roll! — every rule number, the map, the bosses, the card sheet and the art live here. The engine and bots read this and hard-code none of it. */
 const GAME_DATA = {
@@ -3267,13 +3268,17 @@ const trainerFg = {
     const t = ui.labTab || 'cards', mv = ui.labMv || 'text', orient = ui.labOr || 'port', cur = ui.labCur ? null : mv, n = ui.labN || 3;
     const seg = (k, v, items) => items.map(([x, l]) => `<button class="chip${v === x ? ' on' : ''}" data-act="labset" data-k="${k}" data-v="${x}">${l}</button>`).join('');
     let body;
-    if (t === 'cards') {
+    if (t === 'random') {
+      if (!ui.labRand) ui.labRand = Object.keys(C).filter(id => !C[id].legend).sort(() => Math.random() - .5).slice(0, 6);
+      const cw = Math.min(256, Math.floor((innerWidth - 40) / 3));
+      body = `<div class="labbar">${seg('labMv', mv, [['text', 'Text'], ['icon', 'Icons']])}<span class="labsp"></span><button class="btn" data-act="labshuffle">Show 6 more</button></div><div class="labrow2">${ui.labRand.map(id => `<div data-zc="${id}">${card({ id, sh: 0 }, { cw, grid: mv })}</div>`).join('')}</div>`;
+    } else if (t === 'cards') {
       const cw = Math.min(250, Math.floor((innerWidth - 56) / 3));
       body = LAB_IDS.map(([id, why]) => `<div class="labsample"><div class="labwhy">${esc(why)}</div><div class="labtri">${[['Current (6 rows)', null], ['Grid · text', 'text'], ['Grid · icons', 'icon']].map(([l, g]) => `<div class="labcol"><small>${l}</small><div data-zc="${id}">${card({ id, sh: 0 }, { cw, grid: g })}</div></div>`).join('')}</div></div>`).join('');
     } else {
       body = `<div class="labbar">${seg('labN', n, [[3, '3 v 3'], [4, '4 v 4']])}<span class="labsp"></span>${seg('labOr', orient, [['port', 'Portrait'], ['land', 'Landscape']])}</div><div class="labbar">${seg('labCur', ui.labCur ? 1 : 0, [[0, 'Grid card'], [1, 'Current card']])}<span class="labsp"></span>${ui.labCur ? '' : seg('labMv', mv, [['text', 'Text'], ['icon', 'Icons']])}</div>${labBoard(n, orient, cur)}`;
     }
-    return `<div class="lab"><div class="labtop"><button class="btn alt" data-act="labback">‹ Back</button><b>Card layout lab</b><span class="labsp"></span>${seg('labTab', t, [['cards', 'Sample cards'], ['board', 'Battle mock-up']])}</div>${t === 'cards' ? `<div class="labbar">Tap a move to read it. The game itself is not changed.</div>` : ''}<div class="labbody">${body}</div></div>`;
+    return `<div class="lab"><div class="labtop"><button class="btn alt" data-act="labback">‹ Back</button><b>Card layout lab</b><span class="labsp"></span>${seg('labTab', t, [['cards', 'Sample cards'], ['random', 'Random 6'], ['board', 'Battle mock-up']])}</div>${t === 'cards' ? `<div class="labbar">Tap a move to read it. The game itself is not changed.</div>` : ''}<div class="labbody">${body}</div></div>`;
   }
   function menuScreen() {
     const sv = saved(), keep = G; G = ui.prevG || (ui.prevG = E.newGame({ seed: 1, starter: 'bulbasaur' }));
@@ -3914,6 +3919,7 @@ const trainerFg = {
     lendok() { ui.lendSeen = G.turn; render(); },
     expx() { ui.exp = null; render(); },
     lab() { ui.menu = false; ui.more = false; ui.labPrev = ui.screen; ui.screen = 'lab'; render(); }, labback() { ui.screen = ui.labPrev && ui.labPrev !== 'lab' ? ui.labPrev : 'menu'; render(); },
+    labshuffle() { ui.labRand = null; render(); },
     labset(el) { const k = el.dataset.k, v = el.dataset.v; ui[k] = k === 'labN' || k === 'labCur' ? +v : v; render(); },
     resetask() { ui.resetAsk = true; render(); }, resetno() { ui.resetAsk = false; render(); },
     resetgo() { try { Object.keys(localStorage).filter(k => k.indexOf('pokemon-roll') === 0).forEach(k => localStorage.removeItem(k)); } catch (e) { /* nothing to clear */ } location.reload(); },
