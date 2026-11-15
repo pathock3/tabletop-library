@@ -592,6 +592,27 @@ button{font:inherit;color:inherit;border:0;cursor:pointer}
 <style>.card.grid .wkt{position:relative;top:auto;left:auto;right:auto;width:auto;transform:none}.card.grid .nm{max-width:none;overflow:visible;top:calc(var(--cw)*.016);left:calc(var(--cw)*.03);font-size:calc(var(--cw)*.115)}.card.grid .cbox{overflow:hidden}</style>
 <style>.card.grid .cbox{height:calc(var(--cw)*.5)}.card.grid .art{width:calc(var(--cw)*.5)}.card.grid .side{top:calc(var(--cw)*.15)}.card.grid .gm b{margin-right:.14em}</style>
 <style>.card.grid .f.elm{box-shadow:none}</style>
+<style>
+/* LAB v3: the number box is always the top-left corner, half the height of the cell; the text starts beside it and the second line runs under it */
+.card.grid .f,.card.grid .f.two{display:block;position:relative}
+.card.grid .f .n,.card.grid .f.two .n{float:left;width:calc(var(--cw)*.095);height:calc(var(--cw)*.078);border:0;border-right:max(1px,calc(var(--cw)*.011)) solid var(--ink);border-bottom:max(1px,calc(var(--cw)*.011)) solid var(--ink);font-size:calc(var(--cw)*.075);line-height:1;display:grid;place-items:center}
+.card.grid .f .mt,.card.grid .f.two .mt{display:block;padding:0 calc(var(--cw)*.015);line-height:calc(var(--cw)*.078);font-size:calc(var(--cw)*.062);min-width:0}
+.card.grid .f .mt .gm{white-space:nowrap}.card.grid .f .mt .gm b{font-size:1.12em}
+.card.grid .f .ag{font-size:.8em;opacity:1;letter-spacing:0;margin-left:.15em;color:#37474f}
+.card.grid .f .orw{font-size:.75em;margin:0 .2em 0 0}
+/* a move that is only "2 + a symbol" fills the space beside the number box */
+.card.grid .f.sz1 .mt,.card.grid .f.sz2 .mt{position:absolute;left:calc(var(--cw)*.095);right:0;top:0;bottom:0;display:flex;align-items:center;justify-content:center;line-height:1;padding:0}
+.card.grid .f.sz1 .mt{font-size:calc(var(--cw)*.17)}.card.grid .f.sz2 .mt{font-size:calc(var(--cw)*.105)}
+.card.grid .f.sz1 .gm,.card.grid .f.sz2 .gm{display:inline-flex;align-items:center;gap:.08em}.card.grid .f.sz2 .ag{font-size:.5em}
+.card.grid .f.sz1 .gm-h .ic,.card.grid .f.sz2 .gm-h .ic{color:#d32f2f}
+</style>
+<style>.card.grid .cbox{overflow:visible}.card.grid .nm{top:calc(var(--cw)*.03);line-height:1.15;padding-top:calc(var(--cw)*.005)}.card.grid .side{top:calc(var(--cw)*.17)}</style>
+<style>/* LAB v3b: no gap between the ability and the moves: the ability box takes all the space the grid does not need */
+.card.grid .cbox{height:calc(var(--cw)*.56)}.card.grid .art{width:calc(var(--cw)*.56)}.card.grid .side{top:calc(var(--cw)*.17)}
+.card.grid .faces{flex:none;height:calc(var(--cw)*.5)}
+.card.grid .ab{flex:1;min-height:0;font-size:calc(var(--cw)*.066)!important;line-height:1.12;padding:calc(var(--cw)*.01) calc(var(--cw)*.035);border-bottom:max(1px,calc(var(--cw)*.011)) solid var(--ink);align-items:center}
+</style>
+<style>.card.grid .art{overflow:hidden}.card.grid .ab{background:#fff;font-weight:600;font-size:calc(var(--cw)*.06)!important;z-index:2;position:relative}.card.grid .faces{height:calc(var(--cw)*.48)}</style>
 <script id="data">
 /* Pokémon Roll! — every rule number, the map, the bosses, the card sheet and the art live here. The engine and bots read this and hard-code none of it. */
 const GAME_DATA = {
@@ -2822,7 +2843,7 @@ const Bots = (() => {
       return `<span class="gm gm-${k}">${plus ? '<small>+</small>' : ''}<b>${n}</b>${sym ? `<i class="ic">${sym[0]}</i>` : ` ${word}`}${drain ? ' <small>drain</small>' : ''}${sp ? `<span class="ag">${glyphs(sp)}</span>` : ''}</span>`;
     }).replace(/recoil\s*(\d+)/gi, (m, n) => `<span class="gm"><b>${n}</b> Recoil</span>`).replace(/\bcharge\b(\s*<>)?/gi, (m, nb) => `⚡ Charge${nb ? ' <span class="ag">◀▶</span>' : ''}`)
       .replace(/\bpoison\b/gi, '☠ Poison').replace(/\bstun\b/gi, '💫 Stun').replace(/\bsleep\b/gi, '💤 Sleep').replace(/\bfreeze\b/gi, '❄ Freeze').replace(/\bdodge\b/gi, '💨 Dodge')
-      .replace(/,\s*/g, ' · ').replace(/\s+or\s+/g, '<i class="orw">or</i>');
+      .replace(/,\s*/g, '<br>').replace(/\s+or\s+/g, '<br><i class="orw">or</i> ');          // the main effect on the first line, riders (recoil, poison, a boost, the other half of an "or") on the second
   };
   // THE card: one design at every size, a standard portrait card. o: cw, face (the number lit), pf (a number on offer), sp (special in use), die (the die shown as a badge), dieAttr, heroDie, mark (a cover: out / loses a round), extra, pop, hp, ko, foe, sel, cls, attr
   function card(u, o) {
@@ -2830,13 +2851,13 @@ const Bots = (() => {
     const pct = Math.max(0, Math.min(100, hp / mx * 100)), lvl = pct <= 33 ? ' lo' : pct <= 66 ? ' mid' : '';
     const sp = E.parseSpecial(c.special);
     const DIE = ['⚀', '⚁', '⚂', '⚃', '⚄', '⚅'];
-    const gridRows = o.grid ? [5, 4, 3, 2, 1, 0].map(i => { const m = c.moves[i], me = m && c.movEls && c.movEls[i] ? el(c.movEls[i][0].toUpperCase() + c.movEls[i].slice(1)) : null; return `<div class="f${m ? '' : ' blank'}${me ? ' elm' : ''}" data-p="mv" data-i="${i + 1}" ${me ? `style="--mc:${me.color};--mb:${me.bg}"` : ''}><span class="n">${i + 1}</span><span class="mt">${m ? (o.grid === 'icon' ? iconMove(m) : short(m)) : ''}</span></div>`; }).join('') : '';
+    const gridRows = o.grid ? [5, 4, 3, 2, 1, 0].map(i => { const m = c.moves[i], me = m && c.movEls && c.movEls[i] ? el(c.movEls[i][0].toUpperCase() + c.movEls[i].slice(1)) : null; return `<div class="f${m ? '' : ' blank'}${me ? ' elm' : ''}${o.grid === 'icon' && m ? (/^\d+[abh]$/.test(m) ? ' sz1' : /^\d+[abhp]\s+[<>^v][<>^v ]*$/.test(m) ? ' sz2' : '') : ''}" data-p="mv" data-i="${i + 1}" ${me ? `style="--mc:${me.color};--mb:${me.bg}"` : ''}><span class="n">${i + 1}</span><span class="mt">${m ? (o.grid === 'icon' ? iconMove(m) : short(m)) : ''}</span></div>`; }).join('') : '';
     const rows = o.grid ? gridRows : c.moves.map((m, i) => [m, i]).reverse().map(([m, i]) => { const me = m && c.movEls && c.movEls[i] ? el(c.movEls[i][0].toUpperCase() + c.movEls[i].slice(1)) : null; return `<div class="f${m ? '' : ' blank'}${me ? ' elm' : ''}" data-p="mv" data-i="${i + 1}" ${me ? `style="--mc:${me.color};--mb:${me.bg}"` : ''}${o.face === i + 1 && !o.sp ? ' hot' : ''}${o.pf === i + 1 && o.face !== i + 1 ? ' pick' : ''}"><span class="pip">${i + 1}</span><span class="mt">${m ? short(m) : '—'}</span>${me ? `<span class="me">${me.icon}</span>` : ''}</div>`; }).join('');
     return `<div class="card${o.grid ? ' grid gx-' + o.grid : ''}${u.sh ? ' shiny' : ''}${o.foe ? ' foe' : ''}${o.ko ? ' ko' : ''}${o.sel ? ' sel' : ''}${o.die != null ? ' has-die' : ''}${o.cls ? ' ' + o.cls : ''}" style="--cw:${cw}px;--bg:${e.bg};--c:${e.color}" data-cid="${u.id}" data-csh="${u.sh ? 1 : 0}" ${o.attr || ''}>
       ${D.elements[c.weak] ? `<div class="wkt" data-p="wk" style="--wc:${el(c.weak).color}">weak: ${el(c.weak).icon} ${esc(c.weak)} ×2</div>` : c.weak === 'Enemy Heals' ? `<div class="wkt" data-p="wk" style="--wc:#d81b60">weak: ❤️ Enemy heals ×2</div>` : ''}
       <div class="cbox">
         <div class="art"><img style="width:${artPct(u.id)}%" src="${art(u.id, u.sh)}" alt="${esc(c.name)}">${u.sh ? sparkles() : ''}${o.mark ? `<div class="mark">${o.mark}</div>` : ''}${o.sts || ''}${o.die != null ? `<div class="dbadge${o.heroDie ? ' hero' : ''}${o.land ? ' land' : ''}${o.dieCol ? ' colored' : ''}" ${o.dieAttr || ''}${o.dieCol ? ` style="background:${o.dieCol}"` : ''}>${o.die}${o.dieBonus ? '<small>+1</small>' : ''}</div>` : ''}</div>
-        <div class="nm">${esc(c.name)}${u.sh ? ' ✨' : ''}</div>${o.recall ? `<div class="rcl${o.recall === 'sure' ? ' sure' : ''}" data-act="recall" data-uid="${u.uid}">${o.recall === 'sure' ? 'Return it? Tap again' : '↩ Return'}</div>` : ''}
+        <div class="nm"${o.grid ? ` style="font-size:calc(var(--cw)*${c.name.length > 10 ? .088 : c.name.length > 8 ? .1 : .115})"` : ''}>${esc(c.name)}${u.sh ? ' ✨' : ''}</div>${o.recall ? `<div class="rcl${o.recall === 'sure' ? ' sure' : ''}" data-act="recall" data-uid="${u.uid}">${o.recall === 'sure' ? 'Return it? Tap again' : '↩ Return'}</div>` : ''}
         <div class="side"><div class="hprow"><div class="hpc${lvl}" data-p="hp">♥ <span class="hpn">${Math.max(0, hp)}</span><small>/${mx}</small></div>${o.chg ? `<span class="hpchg${o.chg.heal ? ' up' : ''}">${o.chg.heal ? '+' : '−'}${o.chg.n}${o.chg.weak ? ' <b>×2</b>' : ''}</span>` : ''}</div>${o.shield ? `<div class="shd">🛡 ${o.shield}</div>` : ''}${o.start != null && mx <= 14 ? hpPips(hp, o.start, mx) : ''}<div class="tagl" data-p="el">${e.icon} ${esc(c.type)}</div><div class="lv">Lv ${lvName(c.level)}</div></div>
       </div>
       <div class="ab${o.ab ? ' ' + o.ab.state + (o.ab.on ? ' on' : '') : ''}" data-p="ab" ${o.ab && o.ab.state === 'ready' && o.ab.attr ? o.ab.attr : ''}>${c.ability ? abText(c.ability) : 'No ability'}${o.ab && o.ab.html ? o.ab.html : ''}</div>
