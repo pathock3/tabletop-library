@@ -1093,10 +1093,11 @@ const Engine = (() => {
       const lo = Math.min(...pool.map(c => c.level)), hi = Math.max(...pool.map(c => c.level));
       for (let tries = 0; tries < 300; tries++) {
         const sig = sigs[ri(s, sigs.length)]; if (!sig) break;
+        const poolS = pool.filter(c => c.level <= sig.level); if (!poolS.length) continue; const hiS = Math.max(...poolS.map(c => c.level));          // the signature is the highest level on the team (a tie is fine)
         const team = [sig], names = new Set([sig.name]); let pts = sig.level; const have = T.quotas.map(q => quotaHas(sig, q) ? 1 : 0);
         while (team.length < T.n) {
           const rem = T.n - team.length - 1;                                  // slots left after this card
-          const ok = pool.filter(c => !names.has(c.name) && !(s.banned && s.banned[c.id]) && pts + c.level + rem * lo <= T.pts[1] && pts + c.level + rem * hi >= T.pts[0]
+          const ok = poolS.filter(c => !names.has(c.name) && !(s.banned && s.banned[c.id]) && pts + c.level + rem * lo <= T.pts[1] && pts + c.level + rem * hiS >= T.pts[0]
             && T.quotas.every((q, i) => Math.max(0, q.n - have[i] - (quotaHas(c, q) ? 1 : 0)) <= rem));
           if (!ok.length) break;
           const c = ok[ri(s, ok.length)]; team.push(c); names.add(c.name); pts += c.level; T.quotas.forEach((q, i) => { if (quotaHas(c, q)) have[i]++; });

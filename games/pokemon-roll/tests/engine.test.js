@@ -766,3 +766,10 @@ test('v3: a card entering a column faces the "when enemies enter this column" bu
   c = craft(['10', '10', '10'], ['10', '4.1', '10']); b = c.b; const hp2 = c.h(2).hp;
   assert.ok(E.apply(c.s, { t: 'recall', uid: c.h(1).uid, slide: c.h(2).uid }).ok); assert.equal(c.h(2).hp, hp2 - 1, 'and the neighbour that slides over after a retreat');
 });
+
+test('v3: a trainer\'s signature Pokémon is always the highest level on the team (a tie is fine) and plays last', () => {
+  for (const tid of Object.keys(D.trainers)) for (let seed = 1; seed <= 60; seed++) {
+    const s = E.newGame({ seed, starter: 'bulbasaur' }), t = T.buildTeam(s, tid), sig = t[t.length - 1];
+    assert.ok(t.every(c => E.CARDS[c.id].level <= E.CARDS[sig.id].level), `${tid} seed ${seed}: ${E.CARDS[sig.id].name} is not the highest level`);
+  }
+});
