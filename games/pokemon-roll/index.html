@@ -3009,7 +3009,7 @@ const trainerFg = {
       else if (e.t === 'blocked') bits.push('<b class="capb">🛡 no damage</b>');
       else if (e.t === 'dodge') bits.push('<b class="capx">dodged!</b>');
       else if (e.t === 'immune') bits.push('<b class="capx">no effect</b>');
-      else if (e.t === 'skip') bits.push('<b class="capx">💤 loses a round</b>');
+      else if (e.t === 'skip') bits.push('<b class="capx">💫 stunned</b>');
       else if (e.t === 'ko') bits.push(`<b class="capk">${faceOf(e.u)} knocked out!</b>`);
       else if (e.t === 'text') bits.push(`<span class="capt">${esc(e.msg)}</span>`);
     });
@@ -3397,7 +3397,7 @@ const trainerFg = {
       const info = unitMove(b, u), ko = p ? koOf(u) : u.ko, reveal = u.side === 0 || done || (p && p.revealed[u.uid]);
       let face = 0, spOn = false, die = null;
       if (info && reveal && info.m) { face = info.vals[0]; spOn = !!info.m.sp; die = info.vals.join('+'); }
-      const mark = ko ? '✕' : (u.skip && (assign || p || done)) ? '💤' : '';
+      const mark = ko ? '✕' : (u.skip && (assign || p || done)) ? '💫' : '';
       const tw = E.tags(u).find(g => ['incDie', 'setDie', 'turnDie', 'addDie'].indexOf(g.t) >= 0);
       const twOk = tw && u.side === 0 && assign && !ko && !waitRoll && !rolling && (tw.t === 'turnDie' ? !(tw.once && u.onceTurn) && b.dice[0].some((v, i) => v === +tw.from && !(b.fixed && b.fixed[0] && b.fixed[0][i])) : b.round - u.lastTweak >= tw.every && (tw.t === 'setDie' ? b.dice[0].length > 0 : tw.t === 'addDie' ? b.dice[0].some(v => v < 6) : info));
       const canMv = assign && (colM ? !b.rolled && !Object.keys(b.acted).length : !waitRoll && !rolling) && u.side === 0 && !ko && !u.skip && !E.blocksMove(b, 0);

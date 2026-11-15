@@ -1,5 +1,6 @@
 # Changelog
 
+- Pokémon Roll: a stunned card shows the stun symbol (💫), never sleeping Zs.
 - Pokémon Roll: the draw is quicker (about half a second to cross, a one-second wait, then a real flip: it lifts, turns edge-on and settles face up).
 - Pokémon Roll: the fight never starts by itself: once everything is down you press Fight! (you can still take your last card back, or in the wild bring another). The location deck sits left of a centred battlefield; every card, even the first, is drawn from it face down, waits a second, then flips (slower). The deck's i button works and is bigger, so are Flee and Menu; the hand is shown in full and in front of the board; the tip waits for the draw.
 - Pokémon Roll: the die you win is mentioned once, in the leader's speech bubble; the victory screen is bigger (leader, bubble, die, button) and fits the phone.
