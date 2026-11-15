@@ -553,6 +553,33 @@ button{font:inherit;color:inherit;border:0;cursor:pointer}
 <style>.sheet{z-index:100}</style>
 <style>.mS-sleep{background:#3949ab;color:#fff}.mS-dodge{background:#00838f;color:#fff}.st-sleep{border-color:#7986cb}.st-dodge{border-color:#4dd0e1}</style>
 <style>.card .pips{display:none!important}.aiblurb{font:600 16px/1.3 system-ui;opacity:.9;margin-top:6px;max-width:420px}</style>
+<style>
+.card.grid{height:calc(var(--cw)*1.4)}
+.card.grid .faces{grid-template-columns:1fr 1fr;grid-auto-rows:1fr;gap:calc(var(--cw)*.014);margin:calc(var(--cw)*.022) calc(var(--cw)*.03) calc(var(--cw)*.03)}
+.card.grid .f{margin-top:0;padding:0 calc(var(--cw)*.012) 0 0;gap:calc(var(--cw)*.01);font-size:calc(var(--cw)*.056);line-height:1.04;border-radius:calc(var(--cw)*.03);border-left:max(1px,calc(var(--cw)*.011)) solid var(--ink);align-items:center}
+.card.grid .f .mt{display:flex;flex-wrap:wrap;align-items:center;gap:0 calc(var(--cw)*.012);align-content:center;line-height:1.02}
+.card.grid .dp{flex:none;align-self:stretch;display:grid;place-items:center;width:calc(var(--cw)*.105);font-size:calc(var(--cw)*.105);line-height:1;background:#fff;border-right:max(1px,calc(var(--cw)*.011)) solid var(--ink);border-radius:calc(var(--cw)*.025) 0 0 calc(var(--cw)*.025);color:#14110f}
+.card.grid .f.blank{opacity:.5;background:repeating-linear-gradient(135deg,#0001 0 5px,#0000 5px 10px),#d9d1c4;box-shadow:none}
+.card.grid .f.blank .dp{background:#e8e2d8}
+.card.grid .f.hot,.card.grid .f.pick{outline:2px solid #ffd23f}
+.gx-icon .gm{display:inline-flex;align-items:center;gap:0;white-space:nowrap}.gx-icon .gm b{font-size:1.15em}.gx-icon .gm small{font-size:.8em}
+.gx-icon .ic{font-style:normal;font-size:.95em;line-height:1;margin:0 .06em}
+.gx-icon .gm-a .ic{color:#c62828}.gx-icon .gm-b .ic,.gx-icon .gm-c .ic{color:#1565c0}.gx-icon .gm-h .ic{color:#2e7d32}.gx-icon .gm-d .ic{color:#555}
+.gx-icon .ag,.gx-text .ag{font-size:.62em;letter-spacing:-.05em;opacity:.85;white-space:nowrap;margin-left:.1em}
+.gx-icon .orw{font-style:normal;font-size:.7em;opacity:.7;margin:0 .15em}
+.lab{position:fixed;inset:0;overflow:auto;background:#3b2815;color:#fff;font-family:system-ui;-webkit-overflow-scrolling:touch;z-index:5}
+.labtop{display:flex;align-items:center;gap:10px;padding:calc(10px + env(safe-area-inset-top)) 12px 8px;position:sticky;top:0;background:#2b1d10;z-index:6;flex-wrap:wrap}.labtop b{font-size:20px}
+.labsp{flex:1}.labbar{display:flex;gap:8px;align-items:center;padding:8px 12px;flex-wrap:wrap}.labbar .chip{min-height:44px;font-size:17px}
+.labbody{padding:0 12px 40px}.labsample{margin:12px 0 22px}.labwhy{font:800 18px system-ui;margin-bottom:6px;color:#ffd23f}
+.labtri{display:flex;gap:10px;justify-content:center;align-items:flex-start}.labcol small{display:block;text-align:center;font:700 14px system-ui;margin-bottom:4px;opacity:.9}
+.labframe-wrap{margin:8px auto;position:relative}.labframe{position:absolute;left:0;top:0;transform-origin:top left;background:#8a5d30;display:flex}
+.labboard{display:flex;flex-direction:column;justify-content:center;align-items:center;box-sizing:border-box}.labrow{display:flex;justify-content:center}
+.labrail{background:#0003;display:grid;place-items:center;font-size:20px;opacity:.8}.labtray{position:absolute;left:0;right:0;bottom:0;background:#0003;display:grid;place-items:center;font-size:20px}
+.labnote{text-align:center;font:600 16px system-ui;opacity:.9;margin-bottom:10px}
+</style>
+<style>.card.grid .cbox{height:calc(var(--cw)*.5)}.card.grid .art{width:calc(var(--cw)*.5)}.card.grid .nm{font-size:calc(var(--cw)*.11)}.card.grid .f{font-size:calc(var(--cw)*.054)}</style>
+<style>.card.grid .cbox{height:calc(var(--cw)*.53)}.card.grid .ab{font-size:calc(var(--cw)*.05)!important;line-height:1.1}</style>
+<style>.card.grid.gx-icon .f{font-size:calc(var(--cw)*.064)}.card.grid.gx-icon .gm b{font-size:1.1em}</style>
 <script id="data">
 /* Pokémon Roll! — every rule number, the map, the bosses, the card sheet and the art live here. The engine and bots read this and hard-code none of it. */
 const GAME_DATA = {
@@ -2772,13 +2799,25 @@ const Bots = (() => {
   const stars = lv => '★'.repeat(lv) + '☆'.repeat(Math.max(0, 6 - lv));
   const sparkles = () => [[8, 12], [86, 16], [14, 76], [82, 70], [50, 40]].map(([x, y], i) => `<span class="star" style="left:${x}%;top:${y}%;font-size:${12 + (i % 3) * 4}px;animation-delay:calc(var(--td,0s) + ${i * 0.3}s)">✦</span>`).join('');
 
+  // LAB: a move written with icons: a small picture for every keyword, arrows as glyphs, numbers stay numbers
+  const IC = { a: '⚔', p: '🗡', b: '🛡', c: '↩', h: '❤' }, LGL = { '<': '◀', '>': '▶', '^': '▲', v: '▼' };
+  const glyphs = sp => sp.trim().replace(/^over\s+/, '÷ ').split(/\s*(?:or|and\/or|and)\s*/).map(g => g.replace(/\s+/g, '').split('').map(ch => LGL[ch] || ch).join('')).join('<i class="orw">/</i>');
+  const iconMove = str => {
+    if (/^Use the 6 move/i.test(str)) return '<span class="ic">🎲</span><b>6</b><span class="ic">⇄</span>';
+    return String(str).replace(/(\+?)(\d+)([abchp])(\s+drain)?(\s+(?:over\s+)?[<>^v][<>^v ]*(?:(?:or|and\/or|and)\s*[<>^v][<>^v ]*)*)?/g, (m, plus, n, k, drain, sp) => `<span class="gm gm-${k}">${plus ? '<small>+</small>' : ''}<b>${n}</b><i class="ic">${IC[k]}</i>${drain ? '<i class="ic">🩸</i>' : ''}${sp ? `<span class="ag">${glyphs(sp)}</span>` : ''}</span>`)
+      .replace(/recoil\s*(\d+)/gi, (m, n) => `<span class="gm gm-d"><b>${n}</b><i class="ic">▼</i></span>`).replace(/\bcharge\b(\s*<>)?/gi, (m, nb) => `<i class="ic">⚡</i>${nb ? '<span class="ag">◀▶</span>' : ''}`)
+      .replace(/\bpoison\b/gi, '<i class="ic">☠</i>').replace(/\bstun\b/gi, '<i class="ic">💫</i>').replace(/\bsleep\b/gi, '<i class="ic">💤</i>').replace(/\bfreeze\b/gi, '<i class="ic">❄</i>').replace(/\bdodge\b/gi, '<i class="ic">💨</i>')
+      .replace(/,\s*/g, ' ').replace(/\s+or\s+/g, '<i class="orw">or</i>');
+  };
   // THE card: one design at every size, a standard portrait card. o: cw, face (the number lit), pf (a number on offer), sp (special in use), die (the die shown as a badge), dieAttr, heroDie, mark (a cover: out / loses a round), extra, pop, hp, ko, foe, sel, cls, attr
   function card(u, o) {
     o = o || {}; const c = C[u.id], e = el(c.type), cw = o.cw || 180, mx = u.max || c.hp + (u.sh ? D.rules.shinyHp : 0), hp = o.hp != null ? o.hp : (u.hp != null ? u.hp : mx);
     const pct = Math.max(0, Math.min(100, hp / mx * 100)), lvl = pct <= 33 ? ' lo' : pct <= 66 ? ' mid' : '';
     const sp = E.parseSpecial(c.special);
-    const rows = c.moves.map((m, i) => [m, i]).reverse().map(([m, i]) => { const me = m && c.movEls && c.movEls[i] ? el(c.movEls[i][0].toUpperCase() + c.movEls[i].slice(1)) : null; return `<div class="f${m ? '' : ' blank'}${me ? ' elm' : ''}" data-p="mv" data-i="${i + 1}" ${me ? `style="--mc:${me.color};--mb:${me.bg}"` : ''}${o.face === i + 1 && !o.sp ? ' hot' : ''}${o.pf === i + 1 && o.face !== i + 1 ? ' pick' : ''}"><span class="pip">${i + 1}</span><span class="mt">${m ? short(m) : '—'}</span>${me ? `<span class="me">${me.icon}</span>` : ''}</div>`; }).join('');
-    return `<div class="card${u.sh ? ' shiny' : ''}${o.foe ? ' foe' : ''}${o.ko ? ' ko' : ''}${o.sel ? ' sel' : ''}${o.die != null ? ' has-die' : ''}${o.cls ? ' ' + o.cls : ''}" style="--cw:${cw}px;--bg:${e.bg};--c:${e.color}" data-cid="${u.id}" data-csh="${u.sh ? 1 : 0}" ${o.attr || ''}>
+    const DIE = ['⚀', '⚁', '⚂', '⚃', '⚄', '⚅'];
+    const gridRows = o.grid ? [5, 4, 3, 2, 1, 0].map(i => { const m = c.moves[i], me = m && c.movEls && c.movEls[i] ? el(c.movEls[i][0].toUpperCase() + c.movEls[i].slice(1)) : null; return `<div class="f${m ? '' : ' blank'}${me ? ' elm' : ''}" data-p="mv" data-i="${i + 1}" ${me ? `style="--mc:${me.color};--mb:${me.bg}"` : ''}><span class="dp">${DIE[i]}</span><span class="mt">${m ? (o.grid === 'icon' ? iconMove(m) : short(m)) : ''}</span></div>`; }).join('') : '';
+    const rows = o.grid ? gridRows : c.moves.map((m, i) => [m, i]).reverse().map(([m, i]) => { const me = m && c.movEls && c.movEls[i] ? el(c.movEls[i][0].toUpperCase() + c.movEls[i].slice(1)) : null; return `<div class="f${m ? '' : ' blank'}${me ? ' elm' : ''}" data-p="mv" data-i="${i + 1}" ${me ? `style="--mc:${me.color};--mb:${me.bg}"` : ''}${o.face === i + 1 && !o.sp ? ' hot' : ''}${o.pf === i + 1 && o.face !== i + 1 ? ' pick' : ''}"><span class="pip">${i + 1}</span><span class="mt">${m ? short(m) : '—'}</span>${me ? `<span class="me">${me.icon}</span>` : ''}</div>`; }).join('');
+    return `<div class="card${o.grid ? ' grid gx-' + o.grid : ''}${u.sh ? ' shiny' : ''}${o.foe ? ' foe' : ''}${o.ko ? ' ko' : ''}${o.sel ? ' sel' : ''}${o.die != null ? ' has-die' : ''}${o.cls ? ' ' + o.cls : ''}" style="--cw:${cw}px;--bg:${e.bg};--c:${e.color}" data-cid="${u.id}" data-csh="${u.sh ? 1 : 0}" ${o.attr || ''}>
       ${D.elements[c.weak] ? `<div class="wkt" data-p="wk" style="--wc:${el(c.weak).color}">weak: ${el(c.weak).icon} ${esc(c.weak)} ×2</div>` : c.weak === 'Enemy Heals' ? `<div class="wkt" data-p="wk" style="--wc:#d81b60">weak: ❤️ Enemy heals ×2</div>` : ''}
       <div class="cbox">
         <div class="art"><img style="width:${artPct(u.id)}%" src="${art(u.id, u.sh)}" alt="${esc(c.name)}">${u.sh ? sparkles() : ''}${o.mark ? `<div class="mark">${o.mark}</div>` : ''}${o.sts || ''}${o.die != null ? `<div class="dbadge${o.heroDie ? ' hero' : ''}${o.land ? ' land' : ''}${o.dieCol ? ' colored' : ''}" ${o.dieAttr || ''}${o.dieCol ? ` style="background:${o.dieCol}"` : ''}>${o.die}${o.dieBonus ? '<small>+1</small>' : ''}</div>` : ''}</div>
@@ -3194,6 +3233,33 @@ const trainerFg = {
       <div class="oakopts"><span>Computer:</span>${['easy', 'normal', 'master'].map(x => `<button class="chip${set.ai === x ? ' on' : ''}" data-act="ai" data-v="${x}">${D.ai[x].label}</button>`).join('')}</div><div class="aiblurb">${esc(D.ai[set.ai].blurb)}</div>
       <div class="oakgo"><button class="btn ghost" data-act="menu0">Back</button><button class="btn big" data-act="starter" data-k="${ui.pickSt || ''}" id="startbtn" ${ui.pickSt ? '' : 'disabled'}>Start</button></div></div></div>`;
   // the main menu: the map itself, dealt out on the table, with the title and the buttons above it
+
+  // ---------------------------------------------------------------- LAB: the 2x3 move grid, side by side with today's six rows (a preview only: the game itself does not use it)
+  const LAB_IDS = [['1.1', 'Bulbasaur: several blank rolls'], ['94', 'Gengar: inverted, pierce, drain, sleep'], ['110', 'Weezing: a long move and combined keywords'], ['25.5', 'Pikachu: long "or" moves'], ['12', 'Butterfree: boost moves'], ['107', 'Hitmonchan: all six rolls filled'], ['26.5', 'Raichu: long-range arrows'], ['151', 'Mew: a custom text move'], ['132', 'Ditto: only the Roll of 1'], ['129', 'Magikarp: inverted, almost all blank']];
+  const LAB_CH = 1.4;          // a standard trading card is 2.5 x 3.5 in: 1.4 card-widths tall (today's card is 1.58)
+  function labSize(n, orient, grid) {
+    const W = orient === 'land' ? 1180 : 820, H = orient === 'land' ? 820 : 1180, gap = 10, railW = orient === 'land' ? 160 : 0, trayH = orient === 'land' ? 0 : 150;          // the rail (flee / menu / fight) on the right in landscape, the dice tray at the bottom in portrait
+    const bw = W - railW - gap, bh = H - trayH - gap, ch = grid ? LAB_CH : CH;
+    return { W, H, railW, trayH, gap, cw: Math.floor(Math.min((bw - (n + 1) * gap) / n, (bh - 3 * gap) / (2 * ch))), ch };
+  }
+  function labBoard(n, orient, grid) {
+    const z = labSize(n, orient, grid), ids = LAB_IDS.map(x => x[0]), foes = ['25.5', '12', '107', '26.5'].slice(0, n), mine = ['1.1', '94', '110', '132'].slice(0, n);
+    const row = (list, foe) => `<div class="labrow" style="gap:${z.gap}px">${list.map(id => `<div data-zc="${id}">${card({ id, sh: 0 }, { cw: z.cw, grid: grid || null, foe })}</div>`).join('')}</div>`;
+    const sc = Math.min(1, (innerWidth - 24) / z.W);
+    return `<div class="labframe-wrap" style="width:${Math.round(z.W * sc)}px;height:${Math.round(z.H * sc)}px"><div class="labframe" style="width:${z.W}px;height:${z.H}px;transform:scale(${sc})"><div class="labboard" style="width:${z.W - z.railW}px;height:${z.H - z.trayH}px;gap:${z.gap}px;padding:${z.gap}px">${row(foes, true)}${row(mine, false)}</div>${z.railW ? `<div class="labrail" style="width:${z.railW}px">▢ rail</div>` : ''}${z.trayH ? `<div class="labtray" style="height:${z.trayH}px">dice tray</div>` : ''}</div></div><div class="labnote">${n}v${n} · ${z.W}×${z.H}${sc < 1 ? ` (shown at ${Math.round(sc * 100)}%)` : ' (real size)'} · card width <b>${z.cw}px</b> × ${Math.round(z.cw * z.ch)}px</div>`;
+  }
+  function labScreen() {
+    const t = ui.labTab || 'cards', mv = ui.labMv || 'text', orient = ui.labOr || 'port', cur = ui.labCur ? null : mv, n = ui.labN || 3;
+    const seg = (k, v, items) => items.map(([x, l]) => `<button class="chip${v === x ? ' on' : ''}" data-act="labset" data-k="${k}" data-v="${x}">${l}</button>`).join('');
+    let body;
+    if (t === 'cards') {
+      const cw = Math.min(250, Math.floor((innerWidth - 56) / 3));
+      body = LAB_IDS.map(([id, why]) => `<div class="labsample"><div class="labwhy">${esc(why)}</div><div class="labtri">${[['Current (6 rows)', null], ['Grid · text', 'text'], ['Grid · icons', 'icon']].map(([l, g]) => `<div class="labcol"><small>${l}</small><div data-zc="${id}">${card({ id, sh: 0 }, { cw, grid: g })}</div></div>`).join('')}</div></div>`).join('');
+    } else {
+      body = `<div class="labbar">${seg('labN', n, [[3, '3 v 3'], [4, '4 v 4']])}<span class="labsp"></span>${seg('labOr', orient, [['port', 'Portrait'], ['land', 'Landscape']])}</div><div class="labbar">${seg('labCur', ui.labCur ? 1 : 0, [[0, 'Grid card'], [1, 'Current card']])}<span class="labsp"></span>${ui.labCur ? '' : seg('labMv', mv, [['text', 'Text'], ['icon', 'Icons']])}</div>${labBoard(n, orient, cur)}`;
+    }
+    return `<div class="lab"><div class="labtop"><button class="btn alt" data-act="labback">‹ Back</button><b>Card layout lab</b><span class="labsp"></span>${seg('labTab', t, [['cards', 'Sample cards'], ['board', 'Battle mock-up']])}</div>${t === 'cards' ? `<div class="labbar">Tap a move to read it. The game itself is not changed.</div>` : ''}<div class="labbody">${body}</div></div>`;
+  }
   function menuScreen() {
     const sv = saved(), keep = G; G = ui.prevG || (ui.prevG = E.newGame({ seed: 1, starter: 'bulbasaur' }));
     let map; try { map = mapScreen(true); } finally { G = keep; }
@@ -3216,7 +3282,7 @@ const trainerFg = {
       <button class="btn ghost" data-act="closeslots">Close</button></div></div>`;
   }
   const moreSheet = () => `<div class="sheet" data-act="closemore"><div class="box" data-stop="1" style="max-width:420px;display:flex;flex-direction:column;gap:12px"><h2>More</h2>
-    <button class="btn alt" data-act="help">How to Play</button><button class="btn alt" data-act="records">Hall of Fame</button><button class="btn alt" data-act="dex">Pokédex</button><button class="btn alt" data-act="settings">Settings</button><button class="btn ghost" data-act="closemore">Close</button></div></div>`;
+    <button class="btn alt" data-act="help">How to Play</button><button class="btn alt" data-act="records">Hall of Fame</button><button class="btn alt" data-act="dex">Pokédex</button><button class="btn alt" data-act="settings">Settings</button><button class="btn alt" data-act="lab">Card layout lab</button><button class="btn ghost" data-act="closemore">Close</button></div></div>`;
 
   // ---------------------------------------------------------------- the toy table on the main menu: dice, letter blocks and starters you can pick up, throw and knock about
   const TOY = { bodies: null, raf: 0, last: 0, W: 0, H: 0, drag: null };
@@ -3562,7 +3628,7 @@ const trainerFg = {
   function menuSheet() {
     const inB = !!G.battle;
     return `<div class="sheet" data-act="closemenu"><div class="box" data-stop="1" style="max-width:420px;display:flex;flex-direction:column;gap:12px"><h2>Menu</h2>
-      <button class="btn alt" data-act="help">How to Play</button><button class="btn alt" data-act="settings">Settings</button><button class="btn alt" data-act="dex">Pokédex</button>${inB ? '' : '<button class="btn alt" data-act="records">Hall of Fame</button>'}
+      <button class="btn alt" data-act="help">How to Play</button><button class="btn alt" data-act="settings">Settings</button><button class="btn alt" data-act="dex">Pokédex</button><button class="btn alt" data-act="lab">Card layout lab</button>${inB ? '' : '<button class="btn alt" data-act="records">Hall of Fame</button>'}
       <button class="btn" data-act="menu0">Save &amp; main menu</button><button class="btn ghost" data-act="closemenu">Close</button></div></div>`;
   }
   const settingsSheet = () => `<div class="sheet" data-act="closesettings"><div class="box" data-stop="1" style="max-width:460px;display:flex;flex-direction:column;gap:16px"><h2>Settings</h2>
@@ -3767,7 +3833,8 @@ const trainerFg = {
   function render() {
     if (!$app) return;
     let h = '';
-    if (ui.screen === 'new' || ui.screen === 'menu' || !G) h = menuScreen();
+    if (ui.screen === 'lab') h = labScreen();
+    else if (ui.screen === 'new' || ui.screen === 'menu' || !G) h = menuScreen();
     else if (G.phase === 'map') h = mapScreen();
     else if (G.phase === 'battle') h = battleScreen();
     else if (G.phase === 'result') h = resultScreen();
@@ -3831,6 +3898,8 @@ const trainerFg = {
     dextipx() { ui.dexTip = null; render(); },
     lendok() { ui.lendSeen = G.turn; render(); },
     expx() { ui.exp = null; render(); },
+    lab() { ui.menu = false; ui.more = false; ui.labPrev = ui.screen; ui.screen = 'lab'; render(); }, labback() { ui.screen = ui.labPrev && ui.labPrev !== 'lab' ? ui.labPrev : 'menu'; render(); },
+    labset(el) { const k = el.dataset.k, v = el.dataset.v; ui[k] = k === 'labN' || k === 'labCur' ? +v : v; render(); },
     resetask() { ui.resetAsk = true; render(); }, resetno() { ui.resetAsk = false; render(); },
     resetgo() { try { Object.keys(localStorage).filter(k => k.indexOf('pokemon-roll') === 0).forEach(k => localStorage.removeItem(k)); } catch (e) { /* nothing to clear */ } location.reload(); },
     legmark() { const id = G.legendMarker; if (!id) return; ui.exp = { h: '✨ A legendary is hiding', p: esc(C[id].name) + ' was spotted at ' + esc(D.locations.find(l => l.id === C[id].loc).name) + '. Find it there and it can be yours. No other event comes until you do.' }; render(); },
@@ -4042,6 +4111,7 @@ const trainerFg = {
   });
   document.addEventListener('contextmenu', e => e.preventDefault());
   let rz = null; window.addEventListener('resize', () => { clearTimeout(rz); rz = setTimeout(() => { if (G && ui.screen === 'play' && G.phase === 'map') render(); }, 120); });
+  if (/#lab/.test(location.hash)) ui.screen = 'lab';
   render();
   window.__deckPile = (l, w) => deckPile(l, { pw: w, count: 9 }); window.__pokemonRoll = { card, noDecision, setSeed(x) { ui.seed = x; render(); }, fitCards, short, abText, recordResult, get G() { return G; }, setG(x) { G = x; ui.screen = 'play'; resetSel(); save(); drive(); }, ui, A, render, act, get set() { return set; } };
 })();
