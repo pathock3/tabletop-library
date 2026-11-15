@@ -563,72 +563,33 @@ button{font:inherit;color:inherit;border:0;cursor:pointer}
 .labboard{display:flex;flex-direction:column;justify-content:center;align-items:center;box-sizing:border-box}.labrow{display:flex;justify-content:center}
 .labrail{background:#0003;display:grid;place-items:center;font-size:20px;opacity:.8}.labtray{position:absolute;left:0;right:0;bottom:0;background:#0003;display:grid;place-items:center;font-size:20px}
 .labnote{text-align:center;font:600 16px system-ui;opacity:.9;margin-bottom:10px}
-</style>
-<style>
-/* LAB: the 2x3 grid card on trading-card proportions (1.4): everything edge to edge, no gaps */
-.card.grid{height:calc(var(--cw)*1.4);padding:0}
-.card.grid .wkt{flex:none;height:calc(var(--cw)*.078);display:flex;align-items:center;justify-content:center;font-size:calc(var(--cw)*.05);padding:0}
-.card.grid .cbox{position:relative;flex:none;margin:0;padding:0;height:calc(var(--cw)*.54)}
-.card.grid .art{position:absolute;right:0;top:0;bottom:0;width:calc(var(--cw)*.54);height:auto;padding:0;border-radius:0;border-width:0 0 max(1px,calc(var(--cw)*.011)) max(1px,calc(var(--cw)*.011));display:flex;align-items:flex-end;justify-content:center}
-.card.grid .nm{position:absolute;left:calc(var(--cw)*.03);top:calc(var(--cw)*.012);z-index:3;font-size:calc(var(--cw)*.12);line-height:1;white-space:nowrap;margin:0}
-.card.grid .side{position:absolute;left:0;top:calc(var(--cw)*.16);width:calc(var(--cw)*.46);display:flex;flex-direction:column;align-items:flex-start;gap:calc(var(--cw)*.025);z-index:2;margin:0;padding:0}
-.card.grid .hprow{margin:0}.card.grid .hpc{margin:0;border-radius:0 calc(var(--cw)*.08) calc(var(--cw)*.08) 0;padding-left:calc(var(--cw)*.03)}
-.card.grid .tagl{margin:0;border-radius:0 calc(var(--cw)*.05) calc(var(--cw)*.05) 0;padding-left:calc(var(--cw)*.03)}
-.card.grid .lv{margin:0;padding-left:calc(var(--cw)*.03);font-size:calc(var(--cw)*.06)}
-.card.grid .ab{margin:0;border-radius:0;border-left:0;border-right:0;padding:calc(var(--cw)*.008) calc(var(--cw)*.03);font-size:calc(var(--cw)*.05)!important;line-height:1.1;min-height:calc(var(--cw)*.12);display:flex;align-items:center}
-.card.grid .faces{margin:0;gap:0;grid-template-columns:1fr 1fr;grid-auto-rows:1fr;flex:1;min-height:0}
-.card.grid .f{position:relative;display:grid;grid-template-columns:calc(var(--cw)*.115) 1fr;align-items:stretch;padding:0;margin:0;gap:0;border:0;border-right:max(1px,calc(var(--cw)*.011)) solid var(--ink);border-top:max(1px,calc(var(--cw)*.011)) solid var(--ink);border-radius:0;font-size:calc(var(--cw)*.062);line-height:1.05;overflow:hidden;min-height:0}
-.card.grid .f:nth-child(2n){border-right:0}
-.card.grid .f .n{background:#fff;border-right:max(1px,calc(var(--cw)*.011)) solid var(--ink);display:grid;place-items:center;font-weight:900;font-size:calc(var(--cw)*.09);color:#14110f}
-.card.grid .f .mt{display:flex;flex-wrap:wrap;align-items:center;align-content:center;gap:0 calc(var(--cw)*.012);padding:0 calc(var(--cw)*.02);min-width:0}
-.card.grid .f.two{display:block}.card.grid .f.two .n{float:left;width:calc(var(--cw)*.115);height:50%;border-bottom:max(1px,calc(var(--cw)*.011)) solid var(--ink)}
-.card.grid .f.two .mt{display:block;padding:calc(var(--cw)*.005) calc(var(--cw)*.02);line-height:1.08}
-.card.grid .f.blank{background:repeating-linear-gradient(135deg,#0001 0 5px,#0000 5px 10px),#d9d1c4;box-shadow:none}.card.grid .f.blank .n{background:#e8e2d8;color:#0006}
-.card.grid .f.hot{outline:2px solid #ffd23f;outline-offset:-2px}
-.card.grid .gm{display:inline-flex;align-items:center;white-space:nowrap}.card.grid .gm b{font-size:1.1em}.card.grid .gm small{font-size:.8em}
-.card.grid .ic{font-style:normal;line-height:1;margin:0 .06em}.card.grid .gm-h .ic{color:#d32f2f}.card.grid .gm-a .ic{color:#c62828}.card.grid .gm-b .ic{color:#1565c0}
-.card.grid .ag{font-size:.62em;letter-spacing:-.05em;opacity:.85;white-space:nowrap;margin-left:.1em}.card.grid .orw{font-style:normal;font-size:.7em;opacity:.7;margin:0 .15em}
-</style>
-<style>.card.grid .wkt{position:relative;top:auto;left:auto;right:auto;width:auto;transform:none}.card.grid .nm{max-width:none;overflow:visible;top:calc(var(--cw)*.016);left:calc(var(--cw)*.03);font-size:calc(var(--cw)*.115)}.card.grid .cbox{overflow:hidden}</style>
-<style>.card.grid .cbox{height:calc(var(--cw)*.5)}.card.grid .art{width:calc(var(--cw)*.5)}.card.grid .side{top:calc(var(--cw)*.15)}.card.grid .gm b{margin-right:.14em}</style>
-<style>.card.grid .f.elm{box-shadow:none}</style>
-<style>
-/* LAB v3: the number box is always the top-left corner, half the height of the cell; the text starts beside it and the second line runs under it */
-.card.grid .f,.card.grid .f.two{display:block;position:relative}
-.card.grid .f .n,.card.grid .f.two .n{float:left;width:calc(var(--cw)*.095);height:calc(var(--cw)*.078);border:0;border-right:max(1px,calc(var(--cw)*.011)) solid var(--ink);border-bottom:max(1px,calc(var(--cw)*.011)) solid var(--ink);font-size:calc(var(--cw)*.075);line-height:1;display:grid;place-items:center}
-.card.grid .f .mt,.card.grid .f.two .mt{display:block;padding:0 calc(var(--cw)*.015);line-height:calc(var(--cw)*.078);font-size:calc(var(--cw)*.062);min-width:0}
-.card.grid .f .mt .gm{white-space:nowrap}.card.grid .f .mt .gm b{font-size:1.12em}
-.card.grid .f .ag{font-size:.8em;opacity:1;letter-spacing:0;margin-left:.15em;color:#37474f}
-.card.grid .f .orw{font-size:.75em;margin:0 .2em 0 0}
-/* a move that is only "2 + a symbol" fills the space beside the number box */
-.card.grid .f.sz1 .mt,.card.grid .f.sz2 .mt{position:absolute;left:calc(var(--cw)*.095);right:0;top:0;bottom:0;display:flex;align-items:center;justify-content:center;line-height:1;padding:0}
-.card.grid .f.sz1 .mt{font-size:calc(var(--cw)*.17)}.card.grid .f.sz2 .mt{font-size:calc(var(--cw)*.105)}
-.card.grid .f.sz1 .gm,.card.grid .f.sz2 .gm{display:inline-flex;align-items:center;gap:.08em}.card.grid .f.sz2 .ag{font-size:.5em}
-.card.grid .f.sz1 .gm-h .ic,.card.grid .f.sz2 .gm-h .ic{color:#d32f2f}
-</style>
-<style>.card.grid .cbox{overflow:visible}.card.grid .nm{top:calc(var(--cw)*.03);line-height:1.15;padding-top:calc(var(--cw)*.005)}.card.grid .side{top:calc(var(--cw)*.17)}</style>
-<style>/* LAB v3b: no gap between the ability and the moves: the ability box takes all the space the grid does not need */
-.card.grid .cbox{height:calc(var(--cw)*.56)}.card.grid .art{width:calc(var(--cw)*.56)}.card.grid .side{top:calc(var(--cw)*.17)}
-.card.grid .faces{flex:none;height:calc(var(--cw)*.5)}
-.card.grid .ab{flex:1;min-height:0;font-size:calc(var(--cw)*.066)!important;line-height:1.12;padding:calc(var(--cw)*.01) calc(var(--cw)*.035);border-bottom:max(1px,calc(var(--cw)*.011)) solid var(--ink);align-items:center}
-</style>
-<style>.card.grid .art{overflow:hidden}.card.grid .ab{background:#fff;font-weight:600;font-size:calc(var(--cw)*.06)!important;z-index:2;position:relative}.card.grid .faces{height:calc(var(--cw)*.48)}</style>
-<style>/* LAB v3c: the art is a full square with a border all round, sitting on the ability box; the name has the free band above it */
-.card.grid .cbox{height:calc(var(--cw)*.6)}
-.card.grid .art{top:auto;bottom:0;right:0;width:calc(var(--cw)*.5);height:calc(var(--cw)*.5);border-width:max(1px,calc(var(--cw)*.011)) 0 0 max(1px,calc(var(--cw)*.011));align-items:flex-end}
-.card.grid .nm{top:calc(var(--cw)*.01);z-index:4;font-size:calc(var(--cw)*.125)}
-.card.grid .side{top:calc(var(--cw)*.15)}
-</style>
-<style>.card.grid .ab{flex:none;height:calc(var(--cw)*.242);min-height:0;overflow:hidden}</style>
-<style>.card.grid{justify-content:flex-start;box-sizing:border-box}.card.grid .ab{flex:1 1 0;height:auto;overflow:hidden}</style>
-<style>.card.grid{gap:0;flex-wrap:nowrap}</style>
-<style>.card.grid .wkt2{flex:none;display:flex;height:calc(var(--cw)*.078);color:#fff;font-weight:900;font-size:calc(var(--cw)*.05);text-shadow:0 1px 0 #0006}
-.card.grid .wkt2 .wt{flex:1 1 0;display:flex;align-items:center;justify-content:center;white-space:nowrap;border-right:max(1px,calc(var(--cw)*.011)) solid var(--ink)}
+</style><style>
+/* LAB grid card, one coherent design on trading-card proportions (1.4): strip, art square touching the strip, ability, six move cells edge to edge */
+.card.grid{--hb:max(1px,calc(var(--cw)*.011));height:calc(var(--cw)*1.4);padding:0;gap:0;flex-wrap:nowrap;justify-content:flex-start;box-sizing:border-box}
+.card.grid .wkt2{flex:none;display:flex;height:calc(var(--cw)*.075);color:#fff;font-weight:900;font-size:calc(var(--cw)*.046);text-shadow:0 1px 0 #0006}
+.card.grid .wkt2 .wt{flex:1 1 0;display:flex;align-items:center;justify-content:center;white-space:nowrap;border-right:var(--hb) solid var(--ink)}
 .card.grid .wkt2 .ww{flex:2 1 0;display:flex;align-items:center;justify-content:center;white-space:nowrap}
-.card.grid .side{top:calc(var(--cw)*.15)}</style>
-<style>.card.grid .wkt2{font-size:calc(var(--cw)*.046)}</style>
-<style>.card.grid .lv{position:absolute;right:calc(var(--cw)*.03);top:calc(var(--cw)*.03);width:auto;padding:0;margin:0;font-size:calc(var(--cw)*.07);font-weight:900;z-index:4;color:#14110f;text-shadow:0 0 calc(var(--cw)*.015) #fff,0 0 calc(var(--cw)*.015) #fff}.card.grid .hpc{font-size:calc(var(--cw)*.13)}</style>
-<style>.card.grid .hpc{font-size:calc(var(--cw)*.115)}</style>
+.card.grid .cbox{flex:none;position:relative;margin:0;padding:0;height:calc(var(--cw)*.5);overflow:visible}
+.card.grid .art{position:absolute;top:0;right:0;bottom:auto;width:calc(var(--cw)*.5);height:calc(var(--cw)*.5);padding:0;margin:0;border:0;border-left:var(--hb) solid var(--ink);border-radius:0;display:flex;align-items:flex-end;justify-content:center;overflow:hidden}
+.card.grid .nm{position:absolute;left:calc(var(--cw)*.03);top:calc(var(--cw)*.012);z-index:4;max-width:none;margin:0;overflow:visible;white-space:nowrap;line-height:1.1;font-size:calc(var(--cw)*.125)}
+.card.grid .side{position:absolute;left:0;top:calc(var(--cw)*.17);width:calc(var(--cw)*.46);display:flex;flex-direction:column;align-items:flex-start;gap:calc(var(--cw)*.02);z-index:3;margin:0;padding:0}
+.card.grid .hprow{margin:0}.card.grid .hpc{margin:0;border-radius:0 calc(var(--cw)*.08) calc(var(--cw)*.08) 0;padding-left:calc(var(--cw)*.03);font-size:calc(var(--cw)*.12)}
+.card.grid .lv{margin:0;padding:0 0 0 calc(var(--cw)*.03);font-size:calc(var(--cw)*.065);font-weight:800}
+.card.grid .ab{flex:none;height:calc(var(--cw)*.135);margin:0;border-radius:0;border:solid var(--ink);border-width:var(--hb) 0;padding:0 calc(var(--cw)*.03);display:flex;align-items:center;background:#fff;font-size:calc(var(--cw)*.05)!important;font-weight:600;line-height:1.1;overflow:hidden}
+.card.grid .faces{flex:1 1 0;min-height:0;margin:0;gap:0;display:grid;grid-template-columns:1fr 1fr;grid-template-rows:repeat(3,1fr)}
+.card.grid .f{position:relative;display:block;margin:0;padding:0;border:0;border-right:var(--hb) solid var(--ink);border-bottom:var(--hb) solid var(--ink);border-radius:0;overflow:hidden;min-height:0;font-size:calc(var(--cw)*.068);line-height:calc(var(--cw)*.105);box-shadow:none}
+.card.grid .f:nth-child(2n){border-right:0}.card.grid .f:nth-child(n+5){border-bottom:0}
+.card.grid .f .n{float:left;width:calc(var(--cw)*.105);height:calc(var(--cw)*.105);display:grid;place-items:center;background:#fff;color:#14110f;border-right:var(--hb) solid var(--ink);border-bottom:var(--hb) solid var(--ink);font-weight:900;font-size:calc(var(--cw)*.075);line-height:1}
+.card.grid .f .mt{display:block;padding:0 calc(var(--cw)*.02);min-width:0}
+.card.grid .f .gm{white-space:nowrap}.card.grid .f .gm b{margin-right:.12em}
+.card.grid .f .ic{font-style:normal;margin:0 .05em}.card.grid .f .gm-h .ic{color:#d32f2f}.card.grid .f .gm-a .ic{color:#c62828}.card.grid .f .gm-b .ic{color:#1565c0}
+.card.grid .f .ag{font-size:.8em;margin-left:.15em;color:#37474f}.card.grid .f .orw{font-style:normal;font-size:.75em;margin-right:.2em;opacity:.8}
+.card.grid .f.sz1 .mt,.card.grid .f.sz2 .mt{position:absolute;left:calc(var(--cw)*.105);right:0;top:0;bottom:0;display:flex;align-items:center;justify-content:center;padding:0;line-height:1}
+.card.grid .f.sz1 .mt{font-size:calc(var(--cw)*.1)}.card.grid .f.sz2 .mt{font-size:calc(var(--cw)*.085)}.card.grid .f.sz2 .ag{font-size:.6em}
+.card.grid .f.blank{background:repeating-linear-gradient(135deg,#0001 0 5px,#0000 5px 10px),#d9d1c4}.card.grid .f.blank .n{background:#e8e2d8;color:#0006}
+.card.grid .f.hot .n{background:#ffd23f}
+</style>
+<style>.card.grid .ab{height:calc(var(--cw)*.15);font-size:calc(var(--cw)*.048)!important}</style>
 <script id="data">
 /* Pokémon Roll! — every rule number, the map, the bosses, the card sheet and the art live here. The engine and bots read this and hard-code none of it. */
 const GAME_DATA = {
@@ -2859,7 +2820,7 @@ const Bots = (() => {
       return `<span class="gm gm-${k}">${plus ? '<small>+</small>' : ''}<b>${n}</b>${sym ? `<i class="ic">${sym[0]}</i>` : ` ${word}`}${drain ? ' <small>drain</small>' : ''}${sp ? `<span class="ag">${glyphs(sp)}</span>` : ''}</span>`;
     }).replace(/recoil\s*(\d+)/gi, (m, n) => `<span class="gm"><b>${n}</b> Recoil</span>`).replace(/\bcharge\b(\s*<>)?/gi, (m, nb) => `⚡ Charge${nb ? ' <span class="ag">◀▶</span>' : ''}`)
       .replace(/\bpoison\b/gi, '☠ Poison').replace(/\bstun\b/gi, '💫 Stun').replace(/\bsleep\b/gi, '💤 Sleep').replace(/\bfreeze\b/gi, '❄ Freeze').replace(/\bdodge\b/gi, '💨 Dodge')
-      .replace(/,\s*/g, '<br>').replace(/\s+or\s+/g, '<br><i class="orw">or</i> ');          // the main effect on the first line, riders (recoil, poison, a boost, the other half of an "or") on the second
+      .replace(/,\s*/g, '<br>').replace(/(>|\s)or\s+(?=<span)/g, '$1<br><i class="orw">or</i> ');          // the main effect on the first line, riders (recoil, poison, a boost, the other half of an "or") on the second
   };
   // THE card: one design at every size, a standard portrait card. o: cw, face (the number lit), pf (a number on offer), sp (special in use), die (the die shown as a badge), dieAttr, heroDie, mark (a cover: out / loses a round), extra, pop, hp, ko, foe, sel, cls, attr
   function card(u, o) {
@@ -2874,7 +2835,7 @@ const Bots = (() => {
       <div class="cbox">
         <div class="art"><img style="width:${artPct(u.id)}%" src="${art(u.id, u.sh)}" alt="${esc(c.name)}">${u.sh ? sparkles() : ''}${o.mark ? `<div class="mark">${o.mark}</div>` : ''}${o.sts || ''}${o.die != null ? `<div class="dbadge${o.heroDie ? ' hero' : ''}${o.land ? ' land' : ''}${o.dieCol ? ' colored' : ''}" ${o.dieAttr || ''}${o.dieCol ? ` style="background:${o.dieCol}"` : ''}>${o.die}${o.dieBonus ? '<small>+1</small>' : ''}</div>` : ''}</div>
         <div class="nm"${o.grid ? ` style="font-size:calc(var(--cw)*${c.name.length > 10 ? .095 : c.name.length > 8 ? .108 : .125})"` : ''}>${esc(c.name)}${u.sh ? ' ✨' : ''}</div>${o.recall ? `<div class="rcl${o.recall === 'sure' ? ' sure' : ''}" data-act="recall" data-uid="${u.uid}">${o.recall === 'sure' ? 'Return it? Tap again' : '↩ Return'}</div>` : ''}
-        <div class="side"><div class="hprow"><div class="hpc${lvl}" data-p="hp">♥ <span class="hpn">${Math.max(0, hp)}</span><small>/${mx}</small></div>${o.chg ? `<span class="hpchg${o.chg.heal ? ' up' : ''}">${o.chg.heal ? '+' : '−'}${o.chg.n}${o.chg.weak ? ' <b>×2</b>' : ''}</span>` : ''}</div>${o.shield ? `<div class="shd">🛡 ${o.shield}</div>` : ''}${o.start != null && mx <= 14 ? hpPips(hp, o.start, mx) : ''}${o.grid ? '' : `<div class="tagl" data-p="el">${e.icon} ${esc(c.type)}</div>`}${o.grid ? '' : `<div class="lv">Lv ${lvName(c.level)}</div>`}</div>${o.grid ? `<div class="lv">Lv ${lvName(c.level)}</div>` : ''}
+        <div class="side"><div class="hprow"><div class="hpc${lvl}" data-p="hp">♥ <span class="hpn">${Math.max(0, hp)}</span><small>/${mx}</small></div>${o.chg ? `<span class="hpchg${o.chg.heal ? ' up' : ''}">${o.chg.heal ? '+' : '−'}${o.chg.n}${o.chg.weak ? ' <b>×2</b>' : ''}</span>` : ''}</div>${o.shield ? `<div class="shd">🛡 ${o.shield}</div>` : ''}${o.start != null && mx <= 14 ? hpPips(hp, o.start, mx) : ''}${o.grid ? '' : `<div class="tagl" data-p="el">${e.icon} ${esc(c.type)}</div>`}<div class="lv">Lv ${lvName(c.level)}</div></div>
       </div>
       <div class="ab${o.ab ? ' ' + o.ab.state + (o.ab.on ? ' on' : '') : ''}" data-p="ab" ${o.ab && o.ab.state === 'ready' && o.ab.attr ? o.ab.attr : ''}>${c.ability ? abText(c.ability) : 'No ability'}${o.ab && o.ab.html ? o.ab.html : ''}</div>
       <div class="faces">${rows}</div>
