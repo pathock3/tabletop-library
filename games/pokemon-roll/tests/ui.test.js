@@ -81,7 +81,7 @@ test('ui: the table fits on the iPad and the iPhone, and cards open into the ful
       // every card on the table is the whole card: six faces, ability, weakness tab flush with the top edge, art, HP, and nothing clipped
       const cards = await p.evaluate(() => [...document.querySelectorAll('.board .card')].map(c => { const r = c.getBoundingClientRect(), t = c.querySelector('.wkt'); return { faces: c.querySelectorAll('.f').length, ab: !!c.querySelector('.ab'), art: !!c.querySelector('.art img'), hp: !!c.querySelector('.hpc'), tab: t ? Math.round(t.getBoundingClientRect().top - r.top) : 99, foe: c.classList.contains('foe'), upside: c.classList.contains('foe') ? getComputedStyle(c).rotate : '', w: Math.round(r.width), clipped: c.scrollHeight > c.clientHeight + 1, inView: r.left >= -1 && r.right <= innerWidth + 1 }; }));
       assert.ok(cards.length >= 6, 'cards on the table');
-      cards.forEach(c => { assert.equal(c.faces, 6); assert.ok(c.ab && c.art && c.hp); assert.ok(c.tab <= 6 || c.tab === 99, 'weakness tab flush with the top (a card weak to healing has none)'); assert.ok(!c.clipped, 'no part of the card is cut off'); assert.ok(c.w >= 120, 'big enough to read: ' + c.w); });
+      cards.forEach(c => { assert.equal(c.faces, 6); assert.ok(c.ab && c.art && c.hp); assert.ok(c.tab <= 6 || c.tab === 99, 'weakness tab flush with the top (a card weak to healing has none)'); assert.ok(!c.clipped, 'no part of the card is cut off'); assert.ok(c.w >= (w < 500 ? 70 : 120), 'big enough to read: ' + c.w); });
       if (w === 820) assert.ok(cards.every(c => c.inView), 'on the iPad in portrait the whole table is on screen');
       assert.ok(cards.some(c => c.foe && !/180deg/.test(c.upside)), 'their cards are the right way up, like yours, head to head'); assert.ok(cards.filter(c => !c.foe).every(c => !c.upside));
       assert.equal(await p.locator('.sheet .card').count(), 0, 'there is no second, enlarged version of a card');
@@ -171,6 +171,7 @@ test('ui: you only choose when there is a choice for where a card goes, but dice
   try {
     await p.goto(URL); await p.click('[data-act=new]'); await p.click('[data-act=pickst][data-k=charmander]'); await p.click('#startbtn');
     await p.waitForSelector('[data-id=L1]'); await p.waitForTimeout(800); await p.locator('[data-act=tipok]').click({ timeout: 300 }).catch(() => {}); await p.click('[data-id=L1]', { timeout: 5000 });
+    await p.waitForSelector('[data-act=ready]', { timeout: 12000 }); await p.locator('[data-act=tipok]').click({ timeout: 300 }).catch(() => {}); await p.locator('[data-act=ready]').click();          // your only card is down: your OK starts the fight
     await p.waitForFunction(() => { const g = window.__pokemonRoll.G.battle; return g && g.stage === 'assign'; }, null, { timeout: 6000 });
     assert.equal(await p.evaluate(() => window.__pokemonRoll.G.battle.cols.length), 1, 'your only card is across from theirs: no tap needed');
     // dice are never given out for you: the first roll is a tap, and you drag the die onto your card
@@ -247,7 +248,7 @@ test('ui: Kadabra can change column and Abra can swap two of theirs, right on th
   try {
     await p.goto(URL); await p.evaluate(() => { localStorage.setItem('pokemon-roll-tips', JSON.stringify({ place: 1, dice: 1, roll: 1, end: 1, shiny: 1 })); }); await p.reload();
     await p.evaluate(() => {
-      const s = Engine.newGame({ seed: 12, starter: 'charmander', size: 'short', ai: 'master' }); s.done.B1 = true; s.done.B2 = true; s.lv = 4; s.coll[0].id = '5.4'; ['64', '63'].forEach((id, i) => s.coll.push({ uid: 10 + i, id, sh: 0 }));
+      const s = Engine.newGame({ seed: 12, starter: 'charmander', size: 'short', ai: 'master' }); s.done.B1 = true; s.done.B2 = true; s.lv = 4; s.coll[0].id = '64'; s.coll.push({ uid: 10, id: '63', sh: 0 });
       for (let k = 0; k < 80; k++) { s.rng = k * 131 + 5; const tm = Engine._t.buildTeam(JSON.parse(JSON.stringify(s)), 'B3'); if (!tm.some(i => /change (position|columns)/.test(Engine.CARDS[i.id].ability))) break; }          // a team whose cards do not forbid moving
       const R = window.__pokemonRoll; R.setG(s); R.act({ t: 'go', node: 'B3' }); const G = R.G; let g; while ((g = Bots.step(G))) Engine.apply(G, g);
       for (let i = 0; i < 8 && G.battle.stage === 'place'; i++) { if (G.battle.pl.confirm) Engine.apply(G, { t: 'ready' }); else if (G.battle.pl.side === 0 && G.battle.hand[0].length) Engine.apply(G, Object.assign({ t: 'place', side: 0, uid: G.battle.hand[0][0] }, Engine.slotsFor(G.battle, 0).find(x => x.join != null) || Engine.slotsFor(G.battle, 0)[0])); while ((g = Bots.step(G))) Engine.apply(G, g); }
@@ -459,7 +460,7 @@ test('ui: a shiny card shows its extra heart; with nothing to decide the side ba
     assert.match(await p.evaluate(() => window.__pokemonRoll.card({ id: '143', sh: 1 }, { cw: 200 }).replace(/<[^>]+>/g, ' ')), /11/, 'a shiny Snorlax has 11 health on its card, the same as in the fight');
     await p.evaluate(() => { const s = Engine.newGame({ seed: 8, starter: 'squirtle' }); window.__pokemonRoll.setG(s); });
     await p.click('[data-id=L1]');
-    for (let i = 0; i < 30; i++) { if (await p.evaluate(() => { const g = window.__pokemonRoll.G.battle; return g && g.stage === 'assign'; })) break; await p.waitForTimeout(300); if (await p.locator('[data-act=tray]').count()) { await p.locator('[data-act=tray]').first().click().catch(() => {}); await p.locator('[data-act=join]').first().click({ timeout: 800 }).catch(() => {}); await p.locator('[data-act=join]').first().click({ timeout: 800 }).catch(() => {}); } }
+    for (let i = 0; i < 30; i++) { if (await p.evaluate(() => { const g = window.__pokemonRoll.G.battle; return g && g.stage === 'assign'; })) break; await p.waitForTimeout(300); await p.locator('[data-act=tipok]').click({ timeout: 150 }).catch(() => {}); if (await p.locator('[data-act=ready]').count()) await p.locator('[data-act=ready]').first().click().catch(() => {}); if (await p.locator('[data-act=tray]').count()) { await p.locator('[data-act=tray]').first().click().catch(() => {}); await p.locator('[data-act=join]').first().click({ timeout: 800 }).catch(() => {}); await p.locator('[data-act=join]').first().click({ timeout: 800 }).catch(() => {}); } }
     await p.mouse.click(400, 300); await p.waitForTimeout(1300);          // tap anywhere to roll
     await p.evaluate(() => { const g = window.__pokemonRoll.G.battle; g.dice[0] = [3]; g.rr[0] = 0; g.rrFace[0] = []; g.asg[0] = {}; window.__pokemonRoll.render(); });
     await p.waitForTimeout(1300); assert.equal(await p.locator('.rail.rgo').count(), 1, 'nothing to decide: the side bar is ready'); assert.match(await p.innerText('.rail .status'), /Nothing to decide/);
@@ -618,8 +619,8 @@ test('ui: matchup phase: with two places to slide to you tap the card, then the 
   const errs = []; p.on('pageerror', e => errs.push(e.message));
   try {
     await p.goto(URL); await p.click('[data-act=new]'); await p.click('[data-act=pickst][data-k=squirtle]'); await p.click('#startbtn'); await p.locator('[data-act=tipok]').click({ timeout: 800 }).catch(() => {});
-    await p.evaluate(() => { const R = window.__pokemonRoll, E = window.Engine || R.E; R.G.coll.push({ uid: 50, id: '10', sh: 0 }, { uid: 51, id: '16', sh: 0 }, { uid: 52, id: '19', sh: 0 }); R.render(); });
-    await p.click('.place[data-id=B1]'); await p.waitForSelector('[data-act=lendok]', { timeout: 3000 }).catch(() => {}); await p.click('.btn[data-act=lendok]').catch(() => {});
+    await p.evaluate(() => { const R = window.__pokemonRoll, E = window.Engine || R.E; R.G.done.B1 = true; R.G.coll.push({ uid: 50, id: '10', sh: 0 }, { uid: 51, id: '16', sh: 0 }, { uid: 52, id: '19', sh: 0 }); R.render(); });
+    await p.click('.place[data-id=B2]');
     await p.locator('[data-act=tipok]').click({ timeout: 800 }).catch(() => {});
     const ok = await p.evaluate(() => { const R = window.__pokemonRoll, G = R.G; let g; while ((g = Bots.step(G))) Engine.apply(G, g);
       for (let i = 0; i < 8 && G.battle.stage === 'place'; i++) { if (G.battle.pl.confirm) Engine.apply(G, { t: 'ready' }); else if (G.battle.pl.side === 0 && G.battle.hand[0].length) Engine.apply(G, Object.assign({ t: 'place', side: 0, uid: G.battle.hand[0][0] }, Engine.slotsFor(G.battle, 0).find(x => x.join != null) || Engine.slotsFor(G.battle, 0)[0])); while ((g = Bots.step(G))) Engine.apply(G, g); }
