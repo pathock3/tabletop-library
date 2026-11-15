@@ -1,5 +1,6 @@
 # Changelog
 
+- Pokémon Roll: new keywords Dodge (the first attack against the card this round misses, pierce too) and Sleep (loses the next turn, then wakes on 4-6, wakes when hurt or healed); Snorlax's Rest; "takes N less" abilities now only cut attacks (not recoil or poison); Kakuna and Metapod recoil 1; moves with an element but no number lose the element.
 - Pokémon Roll: Diglett and Dugtrio (and the Pikachu that dodges after the first attack) dodge automatically; only the once-per-battle Pikachu asks you.
 - Pokémon Roll: Electrode's Roll of 6 is 7a with recoil 5 (was 7), in the sheet and the game.
 - Pokémon Roll: a stunned card shows the stun symbol (💫), never sleeping Zs.

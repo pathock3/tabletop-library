@@ -109,7 +109,7 @@ test('rules: a block soaks damage, and the blocker takes whatever is left over',
   const b = play(c, { hero: [5, 1], gm: [1, 5] }, { hero: { 0: 0, 1: 1 }, gm: { 0: 0, 1: 1 } });
   assert.equal(c.h(0).hp, 4, 'Bulbasaur is untouched');
   assert.ok(evs(b, 'blocked').some(e => e.u === c.h(1).uid && e.for === c.h(0).uid && e.n === 2));
-  assert.equal(c.h(1).hp, 2, 'Metapod is weak to fire too: 2 doubled to 4, two countered, two left over for the blocker, and its own shield takes one');
+  assert.equal(c.h(1).hp, 1, 'Metapod is weak to fire too: 2 doubled to 4, two countered, two left over for the blocker (its own 1 block does not apply to damage it takes for a neighbour)');
   assert.equal(c.g(0).hp, C['4.1'].hp - 2, 'a counter sends what it soaked back: Charmander takes 2');
 });
 test('rules: a card with no card facing it still acts, and a move at an empty column misses', () => {
@@ -131,9 +131,9 @@ test('abilities: immunity, thorns, shields and dodging', () => {
   c = craft(['1.1'], ['25.1']); play(c, { hero: [1], gm: [5] }, { hero: { 0: 0 }, gm: { 0: 0 } });           // Pikachu dodges the first attack of the match
   assert.equal(c.g(0).hp, 3); assert.ok(evs(c.b, 'dodge').length);
 });
-test('abilities: "-1d" is a shield of 1 for the whole round, for damage of any kind, even what a card does to itself (Metapod)', () => {
-  const c = craft(['11'], ['10']); play(c, { hero: [6], gm: [4] }, { hero: { 0: 0 }, gm: { 0: 0 } });     // Metapod on a 6: recoil 2 to itself, minus 1
-  assert.equal(c.h(0).hp, C['11'].hp - 1, 'only 1 damage');
+test('abilities: "Has 1 block against each attack" cuts attacks only: recoil and poison are never reduced (Metapod, Kakuna)', () => {
+  const c = craft(['11'], ['10']); play(c, { hero: [6], gm: [4] }, { hero: { 0: 0 }, gm: { 0: 0 } });     // Metapod on a 6: recoil 1 to itself
+  assert.equal(c.h(0).hp, C['11'].hp - 1, 'the whole recoil: the block does not touch it');
   const k = craft(['1.1'], ['14']); play(k, { hero: [1], gm: [4] }, { hero: { 0: 0 }, gm: { 0: 0 } }); assert.equal(k.g(0).hp, C['14'].hp - 1, 'and an attack of 2 hurts it for 1');
 });
 test('choices: an "or" on your card is asked when that card\'s turn comes, not when the die is given; the computer decides its own', () => {
@@ -885,4 +885,21 @@ v4('Hitmonlee survives the first KO with 1 health, Weezing heals and hurts the h
 v4('Doduo gives its neighbours one more column of reach to the left', () => {
   const c = craft(['10', '84', '10'], ['10', '10', '10']); const e = E.parseMove('1a').clauses[0][0]; const cand = E.candidates(c.b, c.h(1 - 1 + 0 + 0 + 0 + 0 + 0), e); assert.ok(cand.length >= 1);
   const r = E.candidates(craft(['84', '10', '10'], ['10', '10', '10']).b, craft(['84', '10', '10'], ['10', '10', '10']).h(1), e); assert.ok(r.length >= 1);
+});
+
+v4('dodge: the first attack against the card misses completely, pierce included, with no damage and no status', () => {
+  const dg = faceOf('16', /dodge/), at = faceOf('4.1', /^\d+a( |$)/), pi = faceOf('50', /^\d+p/); assert.ok(dg && at && pi);
+  const c = craft(['4.1'], ['16']); play(c, { hero: [at], gm: [dg] }, { hero: { 0: 0 }, gm: { 0: 0 } });
+  assert.equal(c.g(0).hp, C['16'].hp, 'no damage'); assert.equal(evs(c.b, 'dodge').length, 1);
+  const p = craft(['50'], ['16']); play(p, { hero: [pi], gm: [dg] }, { hero: { 0: 0 }, gm: { 0: 0 } }); assert.equal(p.g(0).hp, C['16'].hp, 'a pierce is dodged too');
+  const n = craft(['4.1'], ['16']); play(n, { hero: [at], gm: [1] }, { hero: { 0: 0 }, gm: { 0: 0 } }); assert.ok(n.g(0).hp < C['16'].hp, 'without dodge the attack lands');
+});
+v4('sleep: loses the next turn, wakes on 4-6 after that, wakes at once when hurt, and cannot be put to sleep twice', () => {
+  assert.equal(E.parseMove('sleep').clauses[0][0].st, 'sleep'); assert.equal(E.parseMove('10h, sleep').clauses[0].find(x => x.k === 's').self, true, 'Rest sleeps Snorlax itself');
+  const sl = faceOf('35', /^sleep/), at = faceOf('4.1', /^\d+a( |$)/); assert.ok(sl && at);
+  const c = craft(['35'], ['10']); play(c, { hero: [sl], gm: [C['10'].moves.indexOf('') + 1] }, { hero: { 0: 0 }, gm: { 0: 0 } });
+  assert.ok(c.g(0).asleep, 'asleep'); nextRound(c); assert.ok(c.g(0).skip, 'it always loses the next turn'); assert.equal(c.b.dice[1].length, 0);
+  const w = craft(['4.1'], ['10']); w.g(0).asleep = true; w.g(0).sleepFresh = false; play(w, { hero: [at], gm: [1] }, { hero: { 0: 0 }, gm: {} }); assert.equal(w.g(0).asleep, false, 'an attack that hurts it wakes it');
+  const r = craft(['35'], ['10']); r.g(0).asleep = true; r.g(0).sleepFresh = true; play(r, { hero: [sl], gm: [1] }, { hero: { 0: 0 }, gm: {} }); assert.equal(r.g(0).sleepFresh, true, 'already asleep: nothing changes');
+  const m = craft(['143'], ['10']); const rest = faceOf('143', /sleep/); play(m, { hero: [rest], gm: [C['10'].moves.indexOf('') + 1] }, { hero: { 0: 0 }, gm: { 0: 0 } }); assert.ok(m.h(0).asleep, 'Snorlax falls asleep after healing 10');
 });

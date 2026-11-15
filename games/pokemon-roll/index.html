@@ -551,6 +551,7 @@ button{font:inherit;color:inherit;border:0;cursor:pointer}
 <style>.bt.pl .pfan{position:relative;z-index:60;overflow:visible}.bt.pl .board{z-index:1}.pfan .pc.sel,.pfan .pc.up{z-index:70}</style>
 <style>.prail .btn.big{width:calc(100% - 8px);min-width:0;box-sizing:border-box;padding:0 6px;min-height:64px;font-size:26px}</style>
 <style>.sheet{z-index:100}</style>
+<style>.mS-sleep{background:#3949ab;color:#fff}.mS-dodge{background:#00838f;color:#fff}.st-sleep{border-color:#7986cb}.st-dodge{border-color:#4dd0e1}</style>
 <script id="data">
 /* Pokémon Roll! — every rule number, the map, the bosses, the card sheet and the art live here. The engine and bots read this and hard-code none of it. */
 const GAME_DATA = {
@@ -681,7 +682,7 @@ const GAME_DATA = {
     "Enemies that arrive opposite it take 2 pierce": "Whenever an enemy card is placed in or moves into the column directly opposite this card (as a replacement, or by a swap), that enemy immediately takes 2 pierce, which block and counter can't stop.",
     "Its attacks deal +1 for each damage it countered last round": "Count the damage this card's counters stopped and sent back last round. This round, each of its attacks deals that much extra to each target. Example: it countered 2 last round, so its 3a hits for 5.",
     "When KO'd, stun the card that KO'd it": "When this card is KO'd, the enemy that dealt the final damage is stunned and loses its next turn.",
-    "Has 1 block against each attack": "Every attack that hits this card deals 1 less, like a permanent 1 block. It applies to each attack separately. Pierce ignores it.",
+    "Has 1 block against each attack": "Every attack that hits this card deals 1 less, like a permanent 1 block. It applies to each attack separately. Pierce ignores it. It only works against attacks: it does nothing against recoil, poison or any other damage.",
     "When KO'd, deal 4 pierce to the card that KO'd it": "When this card is KO'd, the enemy that dealt the final damage takes 4 pierce, which block and counter can't stop.",
     "Only the card opposite can hit it with attacks": "Attacks from enemies in other columns can't hit this card, even if their arrows would reach it (like <^> or <<^>>). Only the enemy directly opposite can hit it with attacks.",
     "Even with no rerolls left, you may reroll any 1": "After your team has used up its rerolls for the round, you may still reroll any of your dice that shows a 1, each time a 1 comes up.",
@@ -880,18 +881,18 @@ Wartortle|8.4|Water|Electric|4|0 Starter|7|Attack, defend|Its attacks deal +1 fo
 Blastoise|9.5|Water|Electric|5|7 Seafoam Islands|8|Attack, defend|Its attacks deal +1 for each damage it countered last round|2c <v or v>|7a over <^>|5a over <^>|3a <^ or ^>|1c <v or v>|recoil 1||water,water,water,water,,|
 Blastoise|9.6|Water|Electric|6|0 Starter|9|Attack, defend|Its attacks deal +1 for each damage it countered last round|3c <v or v>|8a over <^>|6a over <^>|4a <^ or ^>|2c <v or v>|||water,water,water,water,,|
 Caterpie|10|Grass|Fire|1|1 Viridian Forest|2|Support|When KO'd, stun the card that KO'd it|1a|2a|freeze|||recoil 1||grass,,,,,|Bug
-Metapod|11|Grass|Fire|2|1 Viridian Forest|3|Defend|Has 1 block against each attack|2c <v or v>|1c <v or v>|1a|1a|1b|recoil 2||grass,grass,grass,,,|Bug
-Butterfree|12|Grass|Fire|4|4 S.S. Anne|5|Support|When KO'd, stun the card that KO'd it|2a, +2a <>|3h, +3h <>|1c, +1c <>|3h|stun|recoil 1||grass,grass,grass,,,|Bug
+Metapod|11|Grass|Fire|2|1 Viridian Forest|3|Defend|Has 1 block against each attack|2c <v or v>|1c <v or v>|1a|1a|1b|recoil 1||grass,grass,grass,,,|Bug
+Butterfree|12|Grass|Fire|4|4 S.S. Anne|5|Support|When KO'd, stun the card that KO'd it|2a, +2a <>|3h, +3h <>|1c, +1c <>|3h|sleep|recoil 1||grass,grass,grass,,,|Bug
 Weedle|13|Grass|Fire|1|1 Viridian Forest|2|Support|When KO'd, deal 4 pierce to the card that KO'd it|1p, poison|1a|poison|||recoil 1||grass,,,,,|Bug, Poison
-Kakuna|14|Grass|Fire|2|1 Viridian Forest|4|Defend|Has 1 block against each attack|1c <v or v>|1c <v or v>|2a|1a|1b|recoil 2||grass,grass,grass,,,|Bug, Poison
+Kakuna|14|Grass|Fire|2|1 Viridian Forest|4|Defend|Has 1 block against each attack|1c <v or v>|1c <v or v>|2a|1a|1b|recoil 1||grass,grass,grass,,,|Bug, Poison
 Beedrill|15|Grass|Fire|4|6 Safari Zone|5|Attack|When KO'd, deal 4 pierce to the card that KO'd it|4p over <^>|2p <^ or ^>, poison|1c <v or v>|2a||recoil 1||grass,grass,,,,|Bug, Poison
-Pidgey|16|Normal|Electric|1|1 Viridian Forest|2|Support|When KO'd, stun the card that KO'd it|2a|1a|1c|||recoil 1||,,,,,|
+Pidgey|16|Normal|Electric|1|1 Viridian Forest|2|Support|When KO'd, stun the card that KO'd it|2a|1a, dodge|1c|||recoil 1||,,,,,|
 Pidgeotto|17|Normal|Electric|3|1 Viridian Forest|5|Attack|Only the card opposite can hit it with attacks|2a <^ or ^>|2a|1a|1c||recoil 1||,,,,,|
 Pidgeot|18|Normal|Electric|5|7 Seafoam Islands|8|Attack|Only the card opposite can hit it with attacks|3a <^ or ^>|4a <^ or ^>|3h, 2c|3a|1a|||,,,,,|
-Rattata|19|Normal|Fighting|1|1 Viridian Forest|2|Support|Even with no rerolls left, you may reroll any 1|2p|1a|1c|1a||recoil 1||,,,,,|
-Raticate|20|Normal|Fighting|3|4 S.S. Anne|5|Attack|Even with no rerolls left, you may reroll any 1|3p|2a|1c|1a||recoil 1||,,,,,|
-Spearow|21|Normal|Electric|2|3 Power Plant|2|Attack|Has 3 block against each ground attack|2p|2a|1a|||recoil 1||,,,,,|
-Fearow|22|Normal|Electric|3|3 Power Plant|4|Attack|Has 3 block against each ground attack|3p|3a|2a|1a||recoil 1||,,,,,|
+Rattata|19|Normal|Fighting|1|1 Viridian Forest|2|Support|Even with no rerolls left, you may reroll any 1|2p|1a, dodge|1c|1a||recoil 1||,,,,,|
+Raticate|20|Normal|Fighting|3|4 S.S. Anne|5|Attack|Even with no rerolls left, you may reroll any 1|3p|2a|1c|1a, dodge||recoil 1||,,,,,|
+Spearow|21|Normal|Electric|2|3 Power Plant|2|Attack|Has 3 block against each ground attack|2p|2a|dodge|||recoil 1||,,,,,|
+Fearow|22|Normal|Electric|3|3 Power Plant|4|Attack|Has 3 block against each ground attack|3p|3a|2a|dodge||recoil 1||,,,,,|
 Ekans|23|Normal|Psychic|2|3 Power Plant|2|Attack|Enemies <^> can't be healed (they can still heal others)|2a <^ or ^>, poison|2a|1a|stun||recoil 1||,grass,,,,|Poison
 Arbok|24|Normal|Psychic|4|9 Victory Road|6|Attack|Enemies <^> can't be healed (they can still heal others)|3a <^ or ^>, poison|3a|stun|1a||recoil 1||,grass,,,,|Poison
 Pikachu|25.1|Electric|Ground|1|0 Starter|3|Attack, heal|Once per battle, you may dodge one attack|2a|1a|1h|charge||recoil 1||electric,,,,,|
@@ -910,25 +911,25 @@ Nidoqueen|31|Ground|Grass|5|9 Victory Road|9|Attack| +1 max health per Nido ally
 Nidoran M|32|Ground|Grass|2|2 Mt. Moon|4|Defend|Has 1 block against each attack per Nido ally|2p|1c|1a|poison||recoil 1||ground,,,,,|Poison
 Nidorino|33|Ground|Grass|3|6 Safari Zone|6|Defend|Gets 1 counter each round per Nido ally|2c <v or v>|1c <v or v>|1c <v or v>|2p|poison|recoil 1||ground,ground,,,,|Poison
 Nidoking|34|Ground|Grass|5|8 Cinnabar Island|9|Defend| +1 max health per Nido ally|3c over <v>|4p|2c <v or v>|3a, poison|1a|recoil 1||ground,ground,ground,,,|Poison
-Clefairy|35|Normal|Fighting|2|2 Mt. Moon|3|Heal|When KO'd, heal each neighbor 2|stun|1h <v or v>|1h <v or v>|1h <v or v>|1h <v or v>|recoil 1||fire,grass,ground,electric,water,|
-Clefable|36|Normal|Fighting|5|9 Victory Road|7|Heal|When one attack deals it 4+ damage, deal 2 pierce to the attacker|stun <^ or ^>|4h < or > or 3h|4h < or > or 3h|4h < or > or 3h|4h < or > or 3h|recoil 1||fire,grass,ground,electric,water,|
+Clefairy|35|Normal|Fighting|2|2 Mt. Moon|3|Heal|When KO'd, heal each neighbor 2|sleep|1h <v or v>|1h <v or v>|1h <v or v>|1h <v or v>|recoil 1||,grass,ground,electric,water,|
+Clefable|36|Normal|Fighting|5|9 Victory Road|7|Heal|When one attack deals it 4+ damage, deal 2 pierce to the attacker|sleep <^ or ^>|4h < or > or 3h|4h < or > or 3h|4h < or > or 3h|4h < or > or 3h|recoil 1||,grass,ground,electric,water,|
 Vulpix|37|Fire|Water|2|5 Pokemon Tower|3|Support|Your team gets 1 extra reroll each round|3a|2a|2a|1a||recoil 1||fire,,,,,|Brock
 Ninetales|38|Fire|Water|4|8 Cinnabar Island|7|Heal|Your team gets 1 extra reroll each round|7h < or >|4h <v or v>|3a|2a|1h|recoil 1||fire,fire,fire,,,|
-Jigglypuff|39|Normal|Fighting|1|2 Mt. Moon|2|Heal|When it takes damage, stun the card that damaged it|stun|3h <v or v>|2a|1h <v or v>|1a|recoil 1||,,,,,|
-Wigglytuff|40|Normal|Fighting|3|4 S.S. Anne|5|Heal|When it takes damage, stun the card that damaged it|6h over <v>|3h over <v>|2a|1a|stun|recoil 1||,,,,,|
-Zubat|41|Normal|Psychic|1|2 Mt. Moon|2|Support|When KO'd, heal each neighbor 1|1a, 1h <v>|1a drain|poison|||recoil 1||grass,,,,,|Poison
-Golbat|42|Normal|Psychic|3|9 Victory Road|5|Heal, attack|Enemies can't change columns|2a, 3h <v or v>|2a, 3h <v>|1a drain|1a, poison||recoil 1||grass,,,,,|Poison
+Jigglypuff|39|Normal|Fighting|1|2 Mt. Moon|2|Heal|When it takes damage, stun the card that damaged it|sleep|3h <v or v>|2a|1h <v or v>|1a|recoil 1||,,,,,|
+Wigglytuff|40|Normal|Fighting|3|4 S.S. Anne|5|Heal|When it takes damage, stun the card that damaged it|6h over <v>|3h over <v>|2a|1a|sleep|recoil 1||,,,,,|
+Zubat|41|Normal|Psychic|1|2 Mt. Moon|2|Support|When KO'd, heal each neighbor 1|1a, 1h <v>|1a drain|poison|dodge||recoil 1||grass,,,,,|Poison
+Golbat|42|Normal|Psychic|3|9 Victory Road|5|Heal, attack|Enemies can't change columns|2a, 3h <v or v>|2a, 3h <v>|1a drain|1a, poison|dodge|recoil 1||grass,,,,,|Poison
 Oddish|43|Grass|Fire|2|1 Viridian Forest|2|Heal|Water attacks heal it instead of hurting it|3h < or >|2a|1a drain|poison||recoil 1||grass,,,,,|Poison, Erika
-Gloom|44|Grass|Fire|3|6 Safari Zone|4|Heal|Water attacks heal it instead of hurting it|1h <<v>>|3h < or >|stun|1a, poison||recoil 1||grass,grass,grass,,,|Poison
+Gloom|44|Grass|Fire|3|6 Safari Zone|4|Heal|Water attacks heal it instead of hurting it|1h <<v>>|3h < or >|stun|1a, poison||recoil 1||grass,grass,,,,|Poison
 Vileplume|45|Grass|Fire|5|6 Safari Zone|7|Heal|Neighbors get +3 max health|7h over <v>|4h <v or v>|2a, poison|stun||recoil 1||grass,grass,grass,,,|Poison
-Paras|46|Grass|Fire|1|2 Mt. Moon|2|Support|Every other round, you may add 2 to any one die (max 6)|2a|1a drain|stun|||recoil 1||grass,,,,,|Bug
-Parasect|47|Grass|Fire|3|9 Victory Road|4|Support|Every other round, you may add 2 to any one die (max 6)|2a drain|3h|stun|||recoil 1||grass,,,,,|Bug
+Paras|46|Grass|Fire|1|2 Mt. Moon|2|Support|Every other round, you may add 2 to any one die (max 6)|2a|1a drain|sleep|||recoil 1||grass,,,,,|Bug
+Parasect|47|Grass|Fire|3|9 Victory Road|4|Support|Every other round, you may add 2 to any one die (max 6)|2a drain|3h|sleep|||recoil 1||grass,,,,,|Bug
 Venonat|48|Grass|Fire|2|2 Mt. Moon|3|Support|Neighbors' grass attacks deal +2|2a|1a drain|poison|||recoil 1||grass,,,,,|Bug, Poison
 Venomoth|49|Grass|Fire|3|8 Cinnabar Island|5|Support, attack|Neighbors' grass attacks deal +2|2a, poison|1h & 1c|stun|||recoil 1||grass,,,,,|Bug, Poison, Sabrina
 Diglett|50|Ground|Grass|1|2 Mt. Moon|2|Attack|When it uses a ground attack, it dodges the first attack against it that round|2p|1c < or >|1a|||recoil 1||ground,,,,,|
 Dugtrio|51|Ground|Grass|3|2 Mt. Moon|5|Attack|When it uses a ground attack, it dodges the first attack against it that round|3p|2a|1c < or >|1a||recoil 1||ground,ground,,,,|
-Meowth|52|Normal|Fighting|2|4 S.S. Anne|3|Support|Neighbors' attacks deal +1|3a|2a|1c|1a||recoil 1||,,,,,|
-Persian|53|Normal|Fighting|3|4 S.S. Anne|4|Attack|Neighbors' attacks deal +1|3p|3a|1a|1c||recoil 1||,,,,,|Giovanni
+Meowth|52|Normal|Fighting|2|4 S.S. Anne|3|Support|Neighbors' attacks deal +1|3a|2a|1c|dodge||recoil 1||,,,,,|
+Persian|53|Normal|Fighting|3|4 S.S. Anne|4|Attack|Neighbors' attacks deal +1|3p|3a|1a|dodge||recoil 1||,,,,,|Giovanni
 Psyduck|54|Water|Electric|2|4 S.S. Anne|3|Attack|Takes no damage from cards level 30 or higher|3a|2a|1h|charge||recoil 1||water,water,,,,|
 Golduck|55|Water|Electric|3|7 Seafoam Islands|5|Heal|May add 1 to its own die, but not two rounds in a row (a 6 becomes a 1)|4h <v or v>|3h <v>|2a|1a||recoil 1||water,psychic,water,,,|
 Mankey|56|Fighting|Psychic|1|2 Mt. Moon|2|Weak|Its fighting attacks also deal 1 to each neighboring ally|4a, recoil 1|3a|1a|charge||recoil 1||fighting,,,,,|
@@ -936,10 +937,10 @@ Primeape|57|Fighting|Psychic|3|8 Cinnabar Island|5|Attack, support|Its fighting 
 Growlithe|58|Fire|Water|2|5 Pokemon Tower|3|Attack|You may reroll any 2 for free (it doesn't use up a reroll)|3a|2a|1a|||recoil 1||fire,,,,,|
 Arcanine|59|Fire|Water|4|8 Cinnabar Island|7|Attack|Its attacks deal +1 for each damage it took last round|5a <^ or ^>, recoil 1|3a <^ or ^>|2a|1a||recoil 1||fire,fire,,,,|
 Poliwag|60|Water|Electric|2|4 S.S. Anne|3|Support|You may turn any 3 you roll into a 4|3a|2a|1c|1a||recoil 1||water,,,,,|
-Poliwhirl|61|Water|Electric|3|4 S.S. Anne|5|Attack, heal|You may turn any 3 you roll into a 4|3a|3h < or >|2a|1c|stun|recoil 1||water,water,,,,|
+Poliwhirl|61|Water|Electric|3|4 S.S. Anne|5|Attack, heal|You may turn any 3 you roll into a 4|3a|3h < or >|2a|1c|sleep|recoil 1||water,water,,,,|
 Poliwrath|62|Water|Electric|5|7 Seafoam Islands|8|Attack, heal|You may turn any 3 you roll into a 4|3a <>|5a|4h < or >|2a|3h|recoil 1||fighting,water,water,,,|Bruno
-Abra|63|Psychic|Dark|2|5 Pokemon Tower|2|Support|At the start of each round, you may swap two enemy cards|3a|2c|2a|||recoil 1||psychic,psychic,,,,|
-Kadabra|64|Psychic|Dark|3|5 Pokemon Tower|5|Attack, support|Between rounds, you may swap this card with an ally|5a <^ or ^>|3a <^ or ^>|2c|1a||recoil 1||psychic,psychic,psychic,,,|
+Abra|63|Psychic|Dark|2|5 Pokemon Tower|2|Support|At the start of each round, you may swap two enemy cards|3a|2c|2a|dodge||recoil 1||psychic,psychic,,,,|
+Kadabra|64|Psychic|Dark|3|5 Pokemon Tower|5|Attack, support|Between rounds, you may swap this card with an ally|5a <^ or ^>|3a <^ or ^>|2c|dodge||recoil 1||psychic,psychic,psychic,,,|
 Alakazam|65|Psychic|Dark|5|5 Pokemon Tower|8|Attack|May redirect the attack of the card opposite onto its own team (even itself), but not two rounds in a row|7a <^ or ^>|5a <^ or ^>|3a <^ or ^>|3c|1a|recoil 1||psychic,psychic,psychic,psychic,,|
 Machop|66|Fighting|Psychic|2|4 S.S. Anne|3|Attack, support|Each charge it receives counts double (+2 instead of +1)|2a <^ or ^>|1a|charge|||recoil 1||fighting,,,,,|
 Machoke|67|Fighting|Psychic|3|9 Victory Road|6|Attack, support|Each charge it receives counts double (+2 instead of +1)|4a <^ or ^>, recoil 1|1a <^ or ^>|1a|charge||recoil 1||fighting,fighting,,,,|
@@ -952,15 +953,15 @@ Tentacruel|73|Water|Electric|4|7 Seafoam Islands|6|Attack, defend|Your team gets
 Geodude|74|Ground|Grass|1|2 Mt. Moon|3|Attack|Has 3 block against each electric attack|2a|1c|1a|1b||recoil 1||ground,ground,,,,|
 Graveler|75|Ground|Grass|3|2 Mt. Moon|6|Defend, attack|Has 3 block against each electric attack|2c <v or v>|3a|1c <v or v>|1a|1b|recoil 1||ground,ground,ground,,,|
 Golem|76|Ground|Grass|5|9 Victory Road|8|Defend, attack|Has 3 block against each electric attack|5c < or >|4a, recoil 2|2c <v or v>|2a|1c <v or v>|recoil 1||ground,ground,ground,,,|
-Ponyta|77|Fire|Water|2|4 S.S. Anne|3|Attack|Allies within 2 columns deal +1 with attacks|4a, recoil 1|2a|2a|1a||recoil 1||fire,,,,,|Blaine
-Rapidash|78|Fire|Water|3|8 Cinnabar Island|5|Attack|Acts first each round. A card it KOs doesn't get to act|5a, recoil 1|2a|2a|1a|charge|recoil 1||fire,fire,,,,|
+Ponyta|77|Fire|Water|2|4 S.S. Anne|3|Attack|Allies within 2 columns deal +1 with attacks|4a, recoil 1|2a|2a|1a, dodge||recoil 1||fire,,,,,|Blaine
+Rapidash|78|Fire|Water|3|8 Cinnabar Island|5|Attack|Acts first each round. A card it KOs doesn't get to act|5a, recoil 1|2a|2a|1a, dodge|charge|recoil 1||fire,fire,,,,|
 Slowpoke|79|Water|Electric|2|3 Power Plant|3|Support|On odd rounds (1, 3, 5...), the card opposite's die drops by 3 (min 1)|recoil 1||charge|1c|1a <^ or ^>|2a||,,,,psychic,water|
 Slowbro|80|Water|Electric|3|7 Seafoam Islands|5|Defend, attack|On odd rounds (1, 3, 5...), the card opposite's die drops by 3 (min 1)|recoil 1|1b|2a|1c <v or v>|2a <^ or ^>|2c <v or v>||,,water,water,psychic,water|
 Magnemite|81|Electric|Ground|2|3 Power Plant|3|Support|You may turn any 4 you roll into a 3|3a over <^>|1c|2a|charge||recoil 1||electric,,,,,|
 Magneton|82|Electric|Ground|3|3 Power Plant|6|Support|Its attacks deal +1 while it's the only electric card in play|3a over <^>|1a <^ or ^>|2a|3h|stun|recoil 1||electric,electric,,,,|
 Farfetch'd|83|Normal|Electric|3|7 Seafoam Islands|4|Support|Neighbors' attacks deal +2|3p|2a|1c|charge||recoil 1||,,,,,|
-Doduo|84|Normal|Electric|3|8 Cinnabar Island|4|Support|Neighbors' moves reach one extra column to the left|3a <^|3a ^>|1a <^ or ^>|1a||recoil 1||,,,,,|
-Dodrio|85|Normal|Electric|4|8 Cinnabar Island|6|Attack, support|Neighbors' moves reach one extra column to the right|2a <^>|1a <^>|1a <^ or ^>|1a||recoil 1||,,,,,|
+Doduo|84|Normal|Electric|3|8 Cinnabar Island|4|Support|Neighbors' moves reach one extra column to the left|3a <^|3a ^>|1a <^ or ^>|dodge||recoil 1||,,,,,|
+Dodrio|85|Normal|Electric|4|8 Cinnabar Island|6|Attack, support|Neighbors' moves reach one extra column to the right|2a <^>|1a <^>|1a <^ or ^>|dodge||recoil 1||,,,,,|
 Seel|86|Water|Electric|3|7 Seafoam Islands|4|Attack|Neighbors' water moves get +1|2a, freeze|2a|2h|1a||recoil 1||water,,,,,|
 Dewgong|87|Water|Electric|4|7 Seafoam Islands|6|Attack|Neighbors' water moves get +1|3a|2a < or >, freeze|2a < or >|3h||recoil 1||water,ice,water,,,|Ice move
 Grimer|88|Normal|Psychic|2|3 Power Plant|3|Attack|Any card that attacks it takes 2 pierce|2a < or ^ or >, poison|1a <^ or ^>|1c|||recoil 1||grass,,,,,|Poison
@@ -969,16 +970,16 @@ Shellder|90|Water|Electric|2|4 S.S. Anne|4|Defend|Has 1 block against each attac
 Cloyster|91|Water|Electric|4|7 Seafoam Islands|8|Defend|Has 1 block against each attack|2c <v or v>|3a, freeze|1c < or >|2p|1b|recoil 2||water,water,water,water,,|
 Gastly|92|Dark|Enemy Heals|2|5 Pokemon Tower|3|Attack|Has 3 block against each normal attack|recoil 1|||stun|1p|2p <^ or ^>||,,,,,dark|Poison
 Haunter|93|Dark|Enemy Heals|3|5 Pokemon Tower|5|Attack|Once per battle, when an ally is KO'd, you may keep that ally's ability active for the rest of the battle|recoil 1|1a drain|1a|2a|3a <^ or ^>|3p <^ or ^>||,,,,dark,dark|Poison
-Gengar|94|Dark|Enemy Heals|5|5 Pokemon Tower|8|Attack|Whenever any card is KO'd, it heals 2|recoil 1|1a|2a drain|stun|5a <^ or ^>|7p over <^>||,,,dark,dark,dark|Poison
+Gengar|94|Dark|Enemy Heals|5|5 Pokemon Tower|8|Attack|Whenever any card is KO'd, it heals 2|recoil 1|1a|2a drain|sleep|5a <^ or ^>|7p over <^>||,,,,dark,dark|Poison
 Onix|95|Ground|Grass|3|9 Victory Road|7|Defend|Has 1 block against each attack|2c < and/or >|1c < and/or >|2a|2a|1b|recoil 2||ground,ground,ground,,,|Brock
 Drowzee|96|Psychic|Dark|2|5 Pokemon Tower|3|Support|When it damages the card opposite, stun that card|2a|1a|1a drain|1h||recoil 1||psychic,,,,,|
 Hypno|97|Psychic|Dark|3|5 Pokemon Tower|4|Attack|When it damages the card opposite, stun that card|2a|1a drain|3h|1a||recoil 1||psychic,psychic,,,,|
 Krabby|98|Water|Electric|2|4 S.S. Anne|3|Attack, defend|Each round, its neighbors get 1 counter|2a|1c|2a|1b||recoil 1||water,water,,,,|
 Kingler|99|Water|Electric|3|7 Seafoam Islands|5|Attack, defend|Each round, its neighbors get 1 counter|5a, recoil 1|1c|3a|1c|1b|recoil 1||water,water,,,,|
-Voltorb|100|Electric|Ground|2|3 Power Plant|2|Support|Your team gets 1 extra reroll each round|5a, recoil 5|2a|charge|||recoil 1||electric,,,,,|
+Voltorb|100|Electric|Ground|2|3 Power Plant|2|Support|Your team gets 1 extra reroll each round|5a, recoil 2|2a|charge|||recoil 1||electric,,,,,|
 Electrode|101|Electric|Ground|3|3 Power Plant|5|Support|Your team gets 1 extra reroll each round|7a, recoil 5|3a|1a|1c <v or v>|charge|recoil 1||electric,electric,,,,|
-Exeggcute|102|Grass|Fire|3|6 Safari Zone|4|Support|Each round, may add 1 to its own die (a 6 becomes a 1)|3a|1a drain|2c|stun||recoil 1||grass,,,,,|
-Exeggutor|103|Grass|Fire|4|6 Safari Zone|6|Defend, attack|Each round, may add 1 to its own die (a 6 becomes a 1)|2a <^>|2a < or ^ or >|4h, 2c|1h, 1c|stun|recoil 1||grass,psychic,grass,grass,,|
+Exeggcute|102|Grass|Fire|3|6 Safari Zone|4|Support|Each round, may add 1 to its own die (a 6 becomes a 1)|3a|1a drain|2c|sleep||recoil 1||grass,,,,,|
+Exeggutor|103|Grass|Fire|4|6 Safari Zone|6|Defend, attack|Each round, may add 1 to its own die (a 6 becomes a 1)|2a <^>|2a < or ^ or >|4h, 2c|1h, 1c|sleep|recoil 1||grass,psychic,grass,grass,,|
 Cubone|104|Ground|Grass|2|5 Pokemon Tower|3|Support|Once per battle, you may turn a 1 into a 6|2a <^ or ^>|1c|2a|1b||recoil 1||ground,ground,,,,|
 Marowak|105|Ground|Grass|3|9 Victory Road|5|Support, attack|Once per battle, you may turn a 1 into a 6|3a <^ or ^>|2a <^ or ^>|1c < or >|1a, stun||recoil 1||ground,ground,ground,,,|
 Hitmonlee|106|Fighting|Psychic|4|9 Victory Road|7|Attack|Once per battle, survives a KO with 1 health|6a over <^>, recoil 1|3a over <^>|2a over <^>|1a <^ or ^>|1a|recoil 1||fighting,fighting,,,,|
@@ -998,27 +999,27 @@ Seaking|119|Water|Electric|3|7 Seafoam Islands|5|Attack|Neighbors' attacks deal 
 Staryu|120|Water|Electric|2|4 S.S. Anne|3|Attack, heal|May change one of your team's dice to a 5, but not two rounds in a row|2a|3h over <v>|2a|1a||recoil 1||water,water,,,,|
 Starmie|121|Water|Electric|4|4 S.S. Anne|6|Attack, heal|May change one of your team's dice to a 5, but not two rounds in a row|3a < or >|3a, freeze|6h over <v>|2a|1h|recoil 1||psychic,water,water,,,|
 Mr. Mime|122|Psychic|Dark|4|5 Pokemon Tower|6|Support|Allies within 2 columns deal +1 with psychic attacks|recoil 1|1b <v>|1a|2c over <>|4a|4c over <v>||,,,psychic,psychic,psychic|
-Scyther|123|Grass|Fire|5|6 Safari Zone|8|Attack|Neighbors' grass attacks deal +2|4p|4a|3a|2a|charge|recoil 1||grass,grass,grass,,,|Bug
-Jynx|124|Psychic|Ghost|4|7 Seafoam Islands|7|Attack, support|When KO'd, you may freeze an ally's die|5a|3a <^ or ^>, freeze|3a|stun||recoil 1||psychic,ice,psychic,,,|Ice move
+Scyther|123|Grass|Fire|5|6 Safari Zone|8|Attack|Neighbors' grass attacks deal +2|4p|4a|3a|2a, dodge|charge|recoil 1||grass,grass,grass,,,|Bug
+Jynx|124|Psychic|Ghost|4|7 Seafoam Islands|7|Attack, support|When KO'd, you may freeze an ally's die|5a|3a <^ or ^>, freeze|3a|sleep||recoil 1||psychic,ice,psychic,,,|Ice move
 Electabuzz|125|Electric|Ground|5|3 Power Plant|8|Attack|Has 3 block against each electric attack|3a <^>|2a <^>|2a <^ or ^>|stun||recoil 1||electric,electric,electric,,,|
 Magmar|126|Fire|Water|5|8 Cinnabar Island|8|Attack|Fire attacks heal it instead of hurting it|4a, 3a < or >|3a, 2a < or >|2a, poison|2a|1a|recoil 1||fire,fire,fire,,,|
 Pinsir|127|Grass|Fire|5|6 Safari Zone|8|Attack|While below 4 health, its attacks deal +2|4p|4a|2a, freeze|1a||recoil 1||grass,,,,,|Bug
 Tauros|128|Normal|Psychic|3|6 Safari Zone|6|Attack|If its attack hits, it is stunned next round|3a <>|2a <>|2a <>|1a < or >|1c|recoil 1||,ground,,,,|
 Magikarp|129|Water|Electric|1|2 Mt. Moon|1|Support|While it has allies, has 9 block against attacks from the card opposite|recoil 1|||||1a||,,,,,water|
 Gyarados|130.5|Water|Electric|5|7 Seafoam Islands|9|Attack|Once per battle, may swap places with any ally|recoil 1|1a|3p|1a <^>|2a <^>|3a <^>||,,,water,water,water|
-Lapras|131|Water|Electric|5|8 Cinnabar Island|8|Balanced|Fire types on both teams get no elemental bonuses|2a <^>|2a <^ or ^>, freeze|1c <v or v>|stun||recoil 1||water,ice,water,,,|Ice move
+Lapras|131|Water|Electric|5|8 Cinnabar Island|8|Balanced|Fire types on both teams get no elemental bonuses|2a <^>|2a <^ or ^>, freeze|1c <v or v>|sleep||recoil 1||water,ice,water,,,|Ice move
 Ditto|132|Normal|Fighting|4|8 Cinnabar Island|5|Variable|At the start of each battle, choose any card in play. It gains that card's moves and ability but keeps its own health||||||recoil 1||,,,,,|
 Eevee|133|Normal|Fighting|2|4 S.S. Anne|3|Support|Your team gets 1 extra reroll each round|3a|2a|1a|||recoil 1||,,,,,|
 Vaporeon|134|Water|Electric|4|7 Seafoam Islands|8|Balanced|Allies within 2 columns deal +1 with water attacks|4a|4h <v or v>|2c <v or v>|2a, freeze|1b|recoil 1||water,water,water,,,|
-Jolteon|135|Electric|Ground|4|4 S.S. Anne|7|Attack|Allies within 2 columns deal +1 with electric attacks|4a over <^>|4h <v or v>|2c <v or v>|2a, stun||recoil 1||electric,electric,electric,,,|
+Jolteon|135|Electric|Ground|4|4 S.S. Anne|7|Attack|Allies within 2 columns deal +1 with electric attacks|4a over <^>|4h <v or v>|2c <v or v>|2a, stun|1a, dodge|recoil 1||electric,electric,electric,,,|
 Flareon|136|Fire|Water|4|8 Cinnabar Island|7|Balanced|Allies within 2 columns deal +1 with fire attacks|5a, recoil 1|4h <v or v>|2c <v or v>|3a||recoil 1||fire,fire,fire,,,|
 Porygon|137|Normal|Fighting|4|8 Cinnabar Island|6|Support, attack|May change one teammate's move to any element, but not two rounds in a row|2a|1a <^>|charge|||recoil 2||,,,,,|
 Omanyte|138|Water|Electric|3|8 Cinnabar Island|5|Defend, attack|Any card that attacks it takes 1 pierce|3a|2c <v or v>|1c <v or v>|1b||recoil 1||water,water,,,,|
 Omastar|139|Water|Electric|4|8 Cinnabar Island|7|Defend, attack|Any card that attacks it takes 1 pierce|2a <^>|3p|2c <v or v>|1c <v or v>|1b|recoil 1||ground,water,,water,,|
 Kabuto|140|Ground|Grass|3|8 Cinnabar Island|5|Balanced|Neighbors' ground moves get +1|2c <v or v>|2a|1a drain|1b||recoil 1||ground,ground,,,,|
 Kabutops|141|Ground|Grass|4|8 Cinnabar Island|7|Balanced|Neighbors' ground moves get +1|2c <v or v>|3a <>|3p < or >|1a drain||recoil 1||ground,,water,ground,,|
-Aerodactyl|142|Ground|Grass|5|8 Cinnabar Island|8|Attack|Has 3 block against each ground attack|3a <^>|3a <^ or ^>|3a <^ or ^>|3a|1a, stun|recoil 1||ground,ground,,ground,,|
-Snorlax|143|Normal|Psychic|5|5 Pokemon Tower|10|Defend|With no allies, its heals become attacks|10h|7h|4h|1h|stun|recoil 2||,,,,,|
+Aerodactyl|142|Ground|Grass|5|8 Cinnabar Island|8|Attack|Has 3 block against each ground attack|3a <^>|3a <^ or ^>|3a <^ or ^>|2a, dodge|1a, stun|recoil 1||ground,ground,,ground,,|
+Snorlax|143|Normal|Psychic|5|5 Pokemon Tower|10|Defend|With no allies, its heals become attacks|10h, sleep|7h|4h|1h|stun|recoil 2||,,,,,|
 Articuno|144|Ice|Fire|6|7 Seafoam Islands|10|Attack, support|All of its attacks also freeze|3a <<^>>|5a <<^>>|4a <<^>>|3a <<^>>|1a <^ or ^>|||ice,ice,ice,ice,,|Ice move, Legendary
 Zapdos|145|Electric|Ground|6|3 Power Plant|10|Attack|Its electric attacks also hit every enemy that shares the target's element|7a|5a|3a|3a|1a, stun|||electric,electric,electric,,,|Legendary
 Moltres|146|Fire|Water|6|2 Mt. Moon|10|Attack|Has 3 block against each fire or ground attack|10a over <^>|7a over <^>|4a over <^>|3a over <^>|2a over <^>|||fire,fire,fire,,,|Legendary
@@ -1084,9 +1085,10 @@ const Engine = (() => {
   function parseEffect(txt) {
     txt = txt.trim(); let m;
     if ((m = /^recoil (\d+)$/i.exec(txt))) return { k: 'd', n: +m[1], recoil: true, spec: SPEC0() };                        // damage to yourself, never blockable
-    if ((m = /^(poison|stun|freeze)\s*(.*)$/i.exec(txt))) return { k: 's', st: lc(m[1]), n: 0, spec: parseSpec(m[2]) };      // a status; on an attack it rides along with it
+    if (/^dodge$/i.test(txt)) return { k: 'o', n: 0, spec: SPEC0() };                                                             // dodge: the first attack against this card this round misses
+    if ((m = /^(poison|stun|sleep|freeze)\s*(.*)$/i.exec(txt))) return { k: 's', st: lc(m[1]), n: 0, spec: parseSpec(m[2]) };      // a status; on an attack it rides along with it
     if ((m = /^charge\s*(.*)$/i.exec(txt))) return { k: 'g', n: 0, spec: parseSpec(m[1]) };                                  // next round every number on the card goes up by 1 per charge
-    if ((m = /^\+(poison|pierce|stun|freeze)\s*(.*)$/i.exec(txt))) return { k: 'x', st: lc(m[1]), bonus: true, n: 0, spec: parseSpec(m[2]) };      // "+poison <>": neighbours' attacks get the keyword this round
+    if ((m = /^\+(poison|pierce|stun|sleep|freeze)\s*(.*)$/i.exec(txt))) return { k: 'x', st: lc(m[1]), bonus: true, n: 0, spec: parseSpec(m[2]) };      // "+poison <>": neighbours' attacks get the keyword this round
     m = /^(\+)?(\d+)([abchp])(\s+drain)?\s*(.*)$/.exec(txt); if (!m) return null;
     return { k: m[3] === 'c' ? 'b' : m[3] === 'p' ? 'a' : m[3], counter: m[3] === 'c', pierce: m[3] === 'p', drain: !!m[4], n: +m[2], bonus: !!m[1], spec: parseSpec(m[5]) };
   }
@@ -1096,9 +1098,10 @@ const Engine = (() => {
       const effs = cl.split(/\s*(?:,|&)\s*/).map(parseEffect).filter(Boolean);
       const atk = effs.find(x => x.k === 'a' && !x.bonus);
       if (atk) { const sts = effs.filter(x => x.k === 's'); if (sts.length) { atk.sts = sts.map(x => x.st); return effs.filter(x => x.k !== 's'); } }          // a status on an attack hits every card the attack hits
+      if (effs.some(x => x.k === 'h')) effs.forEach(x => { if (x.k === 's') x.self = true; });          // "10h, sleep" (Snorlax's Rest): the status is for itself
       return effs;
     }).filter(c => c.length);
-    clauses.forEach(cl => { const f = cl.find(x => !x.bonus && x.k !== 'd' && x.k !== 's' && x.k !== 'g'); if (f) f.main = true; });         // the move's main effect is what a matching die colour adds to
+    clauses.forEach(cl => { const f = cl.find(x => !x.bonus && x.k !== 'd' && x.k !== 's' && x.k !== 'g' && x.k !== 'o'); if (f) f.main = true; });         // the move's main effect is what a matching die colour adds to
     return (MV[str] = clauses.length ? { raw: str, clauses } : null);
   }
   const SP = {};
@@ -1436,7 +1439,8 @@ const Engine = (() => {
     b.round++; b.stage = 'assign'; b.events = []; b.asg = [{}, {}]; b.gmReady = false; b.pools = []; b.out = null;
     if (b.round === 1) b.units.forEach(u => { if (u.ko || !has(u, 'ditto') || u.copied) return; if (u.side === 0) { if (dittoPick(b, u)) (b.copyAsk = b.copyAsk || []).push(u.uid); } else { const t = dittoPick(b, u); if (t) dittoCopy(b, u, t); } });
     nidoMax(b); b.units.forEach(u => { if (!u.ko) u.shield = shieldMax(b, u); });
-    b.units.forEach(u => { if (u.ko) return; u.skip = u.skipNext; u.skipNext = false; u.lastHurt = u.hurt; u.hurt = 0; u.lastBlk = u.blk; u.blk = 0; u.lastCnt = u.cnt || 0; u.cnt = 0; u.hits = 0; u.dodgedRound = false; });
+    b.units.forEach(u => { if (u.ko) return; u.skip = u.skipNext; u.skipNext = false; u.lastHurt = u.hurt; u.hurt = 0; u.lastBlk = u.blk; u.blk = 0; u.lastCnt = u.cnt || 0; u.cnt = 0; u.dodging = false; u.dodgeSpent = false;
+      if (u.asleep) { if (u.sleepFresh) { u.sleepFresh = false; u.skip = true; } else { const rl = die(s); if (rl >= 4) { u.asleep = false; ev(b, { t: 'text', msg: CARDS[u.id].name + ' wakes up (rolled ' + rl + ')' }); } else { u.skip = true; ev(b, { t: 'text', msg: CARDS[u.id].name + ' sleeps on (rolled ' + rl + ')' }); } } } u.hits = 0; u.dodgedRound = false; });
     if (b.colMode) {                                             // one die per card, one column at a time, left to right: nothing is rolled until the column's turn
       b.dice = [[], []]; b.dcol = [[], []]; b.locked = [{}, {}]; b.fixed = [{}, {}]; b.rr = [0, 0]; b.rrFace = [[], []]; b.rrUsed = [{}, {}]; b.bonus = [0, 0];
       b.acted = {}; b.rolled = false; b.cur = -1; b.more = false; b.res = null; b.dealtRound = [0, 0]; b.healedRound = 0; b.before = {}; b.units.forEach(u => { b.before[u.uid] = u.hp; });
@@ -1613,7 +1617,7 @@ const Engine = (() => {
     if (t && living(b, u.side).length === 1) return clause.map(e => e.k === 'h' ? { k: 'a', n: e.n, bonus: e.bonus, main: e.main, spec: t.sp || { opts: [[0]], spread: false, all: true } } : e);
     return clause;
   }
-  function hitValue(b, a, t, n) { if (t.hp <= 0) return 0; const m = n * wm(b, a, t); return Math.min(m, t.hp) + (m >= t.hp ? 3 : 0); }
+  function hitValue(b, a, t, n) { if (t.hp <= 0) return 0; const m = n * wm(b, a, t); return Math.min(m, t.hp) + (m >= t.hp ? 3 : (t.asleep ? -3 : 0)); }          // hitting a sleeper wakes it: not worth it unless the hit knocks it out
   // the neighbours' abilities that make a move reach one more column to the left or the right (Doduo, Dodrio)
   function reachOpts(b, u, opts) {
     const ci = colIdx(b, u.uid); if (ci < 0) return opts; let out = opts;
@@ -1643,7 +1647,7 @@ const Engine = (() => {
     return cand.reduce((best, c) => score(c) > score(best) ? c : best);
   }
   // what a status is worth to the one who gives it (rough, for the computer)
-  const stV = (b, T, st) => T.ko || T.hp <= 0 ? 0 : st === 'stun' ? (T.skip || T.skipNext ? 0.3 : 2.6) : st === 'poison' ? (T.poison || T.poisonNew ? 0 : 1.6) : st === 'freeze' ? 1.1 : 0;
+  const stV = (b, T, st) => T.ko || T.hp <= 0 ? 0 : st === 'stun' ? (T.skip || T.skipNext ? 0.3 : 2.6) : st === 'sleep' ? (T.asleep ? 0 : 3.4) : st === 'poison' ? (T.poison || T.poisonNew ? 0 : 1.6) : st === 'freeze' ? 1.1 : 0;
   function clauseValue(b, u, clause, hint) {
     let v = 0;
     effectsOf(b, u, clause).forEach(e => {
@@ -1651,6 +1655,8 @@ const Engine = (() => {
       if (e.k === 'a') { const T = pickTargets(b, u, e, amt, hint); if (e.spec.spread) { let r = amt; T.forEach(t => { const x = Math.min(r, Math.ceil(t.u.hp / wm(b, u, t.u))); r -= x; v += hitValue(b, u, t.u, x); }); } else T.forEach(t => { v += hitValue(b, u, t.u, amt); }); if (!T.length) v -= 0.5; else { if (e.pierce || has(u, 'pierceAll')) v += 0.4 * T.length; if (e.drain) v += 0.5 * Math.min(amt, u.max - u.hp + 1); (e.sts || []).concat(tags(u).filter(g => g.t === 'atkStatus').map(g => g.st)).forEach(st => T.forEach(t => { v += stV(b, t.u, st); })); } }
       else if (e.k === 'h') { const T = pickTargets(b, u, e, amt, hint); let r = amt; T.forEach(t => { if (t.ghost) { v += hitValue(b, u, t.u, amt * 2); return; } const x = t.u.hp <= 0 ? 0 : Math.min(e.spec.spread ? r : amt, t.u.max - t.u.hp); r -= x; v += x * 0.9; }); }
       else if (e.k === 'b') v += amt * (living(b, other(u.side)).some(x => !x.skip) ? 0.55 : 0.1);
+      else if (e.k === 'o') v += 1.2 * (living(b, other(u.side)).some(x => !x.skip) ? 1 : 0.2);
+      else if (e.k === 's' && e.self) v -= stV(b, u, e.st);
       else if (e.k === 's') { const T = pickTargets(b, u, e, 0, hint); T.forEach(t => { v += stV(b, t.u, e.st); }); }
       else if (e.k === 'g') v += 0.9 * pickTargets(b, u, e, 0, hint).length;
       else if (e.k === 'd') v -= e.n * 1.3 + (u.hp <= e.n ? 6 : 0);
@@ -1675,7 +1681,7 @@ const Engine = (() => {
     if (t.ko || n <= 0 || t.hp <= 0) return 0;                   // a card at 0 cannot be healed: it falls at the end of the round
     const foe = b.units.find(x => !x.ko && x.side !== t.side && tags(x).some(g => { if (g.t !== 'noHeal') return false; const xi = colIdx(b, x.uid), ti = colIdx(b, t.uid); return g.offs.indexOf(ti - xi) >= 0; }));
     if (foe) { ev(b, { t: 'text', msg: CARDS[foe.id].name + ' stops the healing' }); return 0; }
-    if (t.poison || t.poisonNew || t.skipNext || t.fzBy != null) { t.poison = t.poisonNew = false; t.skipNext = false; t.fzBy = null; ev(b, { t: 'status', u: t.uid, st: 'cured' }); }          // a heal removes every status
+    if (t.poison || t.poisonNew || t.skipNext || t.asleep || t.fzBy != null) { t.poison = t.poisonNew = false; t.skipNext = false; t.asleep = false; t.sleepFresh = false; t.fzBy = null; ev(b, { t: 'status', u: t.uid, st: 'cured' }); }          // a heal removes every status
     if (has(t, 'doubleHeal')) n *= 2;
     if (mv && src && atkEl(b, src) === typeOf(t) && atkEl(b, src) !== 'normal') n *= 2;                 // a heal of the element of the card it heals is twice as good
     const got = Math.min(n, t.max - t.hp); if (got <= 0) return 0;
@@ -1773,7 +1779,8 @@ const Engine = (() => {
   const shieldMax = (b, T) => tags(T).reduce((t, g) => t + (g.t === 'shield' ? g.n : g.t === 'nido' && g.k === 'd' ? b.units.filter(x => !x.ko && x.side === T.side && x !== T && /^Nido/.test(CARDS[x.id].name)).length : 0), 0);
   function dealDamage(s, b, T, n, src, raw, weak, pierced) {
     if (T.ko || n <= 0) return 0;
-    { const red = pierced ? 0 : shieldMax(b, T); if (red > 0) { const cut = Math.min(red, n); n -= cut; if (n <= 0) { ev(b, { t: 'blocked', u: T.uid, n: cut }); return 0; } } }          // "takes N less damage": every time it takes damage, from anything     // a shield soaks damage of any kind (a card's own hurt included) until it is used up, once a round
+    { const red = (pierced || raw) ? 0 : shieldMax(b, T); if (red > 0) { const cut = Math.min(red, n); n -= cut; if (n <= 0) { ev(b, { t: 'blocked', u: T.uid, n: cut }); return 0; } } }          // "takes N less damage": every time it takes damage, from anything     // a shield soaks damage of any kind (a card's own hurt included) until it is used up, once a round
+    if (!raw && T.asleep) { T.asleep = false; T.sleepFresh = false; ev(b, { t: 'text', msg: CARDS[T.id].name + ' wakes up' }); }          // any attack that hurts it wakes it (pierce too)
     T.hp -= n; T.hurt += n; if (src) b.dealt[src.side] += n; b.dealtRound[src ? src.side : other(T.side)] += n;
     if (T.hold === b.round && T.hp < 1) T.hp = 1;
     ev(b, { t: 'dmg', u: T.uid, n, hp: Math.max(0, T.hp), by: src ? src.uid : null, weak: !!weak });
@@ -1818,6 +1825,7 @@ const Engine = (() => {
         if (best) { z.redirR = b.round; ev(b, { t: 'text', msg: CARDS[z.id].name + ' sends the attack to ' + CARDS[best.id].name }); b.redirecting = true; hit(s, b, A, best, n, Math.abs(colIdx(b, best.uid) - colIdx(b, A.uid)), opt); b.redirecting = false; return; }
       }
     }
+    if (T.dodging && !T.dodgeSpent) { T.dodgeSpent = true; ev(b, { t: 'dodge', u: T.uid }); return; }          // the first attack against a card that used dodge misses completely (pierce too), and triggers nothing
     const ta = tags(T), at = has(A, 'ancestor') ? lc(CARDS[T.id].weak) : atkEl(b, A);
     if (off !== 0 && ta.some(g => g.t === 'onlyOpp')) { ev(b, { t: 'immune', u: T.uid }); return; }
     if (ta.some(g => g.t === 'nullLevels' && R.levelLabels[CARDS[A.id].level - 1] >= +g.min)) { ev(b, { t: 'immune', u: T.uid }); return; }
@@ -1865,6 +1873,7 @@ const Engine = (() => {
     if (T.ko) return;
     if (st === 'poison') { if (!T.poison && !T.poisonNew) { T.poisonNew = true; ev(b, { t: 'status', u: T.uid, st: 'poison' }); } }
     else if (st === 'stun') { T.skipNext = true; ev(b, { t: 'skip', u: T.uid }); ev(b, { t: 'status', u: T.uid, st: 'stun' }); }
+    else if (st === 'sleep') { if (!T.asleep) { T.asleep = true; T.sleepFresh = true; ev(b, { t: 'status', u: T.uid, st: 'sleep' }); } }          // a sleeping card cannot be put to sleep again
     else if (st === 'freeze') { T.fzBy = A ? A.side : other(T.side); ev(b, { t: 'status', u: T.uid, st: 'freeze' }); }
   }
   const blkMult = (b, p, A) => p.el && p.el !== 'normal' && p.el === atkEl(b, A) ? 2 : 1;       // a block is twice as good against an attack of its own element
@@ -1902,7 +1911,8 @@ const Engine = (() => {
       else T.forEach(t => hit(s, b, u, t.u, amt, t.off, opt));
       if (b.planning && !has(u, 'first')) b.pend.push({ k: 'after', A: u.uid, T: T.map(t => ({ u: t.u.uid, off: t.off })), amt }); else after(s, b, u, T, amt);
     } else if (e.k === 'd') { const rn = amountOf(b, u, e); ev(b, { t: 'strike', u: u.uid, to: [u.uid] }); if (b.planning && !has(u, 'first')) b.pend.push({ k: 'raw', T: u.uid, n: rn, src: u.uid }); else dealDamage(s, b, u, rn, u, true); }
-    else if (e.k === 's') { pickTargets(b, u, e, 0, hint).forEach(t => applyStatus(b, u, t.u, e.st)); }
+    else if (e.k === 'o') { u.dodging = true; ev(b, { t: 'status', u: u.uid, st: 'dodge' }); }          // dodge protects only the card that used it, for the whole round
+    else if (e.k === 's') { if (e.self) applyStatus(b, u, u, e.st); else pickTargets(b, u, e, 0, hint).forEach(t => applyStatus(b, u, t.u, e.st)); }
     else if (e.k === 'g') { pickTargets(b, u, e, 0, hint).forEach(t => { t.u.chargeNext = (t.u.chargeNext || 0) + (has(t.u, 'chargeDouble') ? 2 : 1); ev(b, { t: 'status', u: t.u.uid, st: 'charge' }); }); }
   }
   // the effects a card has this round (read again each time, so it plays out one card at a time)
@@ -1964,7 +1974,7 @@ const Engine = (() => {
       }
       r.dittoDone = true;
     }
-    if (!r.started) { r.started = true; if (r.acts.some(x => { const q = U(b, x.uid); return !q.ko && !x.sp && effsFor(b, q, x).some(f => f.k === 'h'); })) ev(b, { t: 'phase', p: 'heal' }); else { r.phase = 'attack'; ev(b, { t: 'phase', p: 'attack' }); } }          // no one is healing this round: the heal step is skipped                  // the screen plays the round in four steps: heals, attacks, blocks, damage
+    if (!r.started) { r.started = true; if (r.acts.some(x => { const q = U(b, x.uid); return !q.ko && !x.sp && effsFor(b, q, x).some(f => f.k === 'h' || f.k === 'o'); })) ev(b, { t: 'phase', p: 'heal' }); else { r.phase = 'attack'; ev(b, { t: 'phase', p: 'attack' }); } }          // no one is healing this round: the heal step is skipped                  // the screen plays the round in four steps: heals, attacks, blocks, damage
     while (r.phase !== 'done') {
       b.planning = r.phase === 'attack';                                            // attacks are only declared; the damage lands in the last step, after the blocks
       if (r.phase === 'damage') { applyPending(s, b); r.phase = 'done'; continue; }
@@ -1974,7 +1984,7 @@ const Engine = (() => {
       if (r.phase === 'attack' && act.sp) { doSpecial(s, b, u, parseSpecial(CARDS[u.id].special), null); r.i++; r.ei = 0; r.main = false; continue; }
       const effs = act.sp ? [] : effsFor(b, u, act);
       if (r.ei >= effs.length) { r.i++; r.ei = 0; r.main = false; continue; }
-      const e = effs[r.ei], mine = r.phase === 'heal' ? e.k === 'h' : r.phase === 'block' ? e.k === 'b' : (e.k === 'a' || e.k === 'd' || e.k === 's' || e.k === 'g');
+      const e = effs[r.ei], mine = r.phase === 'heal' ? (e.k === 'h' || e.k === 'o') : r.phase === 'block' ? e.k === 'b' : (e.k === 'a' || e.k === 'd' || e.k === 's' || e.k === 'g');
       if (!mine || (e.bonus && !r.main)) { r.ei++; continue; }
       const key = act.uid + ':' + r.ei, chosen = r.ch[key];
       if (chosen == null) { const opts = choiceOf(b, u, e); if (opts) { b.ask = { uid: u.uid, ei: r.ei, k: e.k, opts }; b.stage = 'resolving'; return; } }
@@ -2698,19 +2708,21 @@ const Bots = (() => {
     pierce: ['🗡 Pierce (p)', 'Damage to the target that blocks and counters cannot stop.'],
     block: ['🛡 Block (b)', 'Prevents that much damage to the target this round. Leftover block is wasted.'],
     counter: ['↩ Counter (c)', 'Prevents that much damage and sends it back to the attacker. If the hit is bigger, the rest gets through. Leftover counter is wasted. Damage sent back never carries a status.'],
-    heal: ['❤ Heal (h)', 'Restores health and removes every status (poison, stun, freeze). A heal aimed at an enemy Dark (ghost) card instead hits it for double the heal, as an attack that blocks and counters can stop; it cures nothing.'],
+    heal: ['❤ Heal (h)', 'Restores health and removes every status (poison, stun, sleep, freeze). A heal aimed at an enemy Dark (ghost) card instead hits it for double the heal, as an attack that blocks and counters can stop; it cures nothing.'],
     drain: ['🩸 Drain', 'It attacks, then heals itself for the damage it really dealt.'],
     boost: ['⬆ Boost', 'This round, its neighbours\' attacks deal +1 (or the amount shown) to each target they hit, but only if those neighbours attack.'],
     charge: ['⚡ Charge', 'Next round every number on this card\'s move goes up by 1 per charge: attacks, pierce, heals, blocks, counters and recoil. Charges stack, arrive at the end of the round and are all used next round. A blank roll wastes them. "charge ◀▶" charges its neighbours instead.'],
     recoil: ['▼ Recoil', 'Damage to the card itself. It can never be blocked.'],
     poison: ['☠ Poison', 'No damage right away. The card takes 1 damage at the end of the next round and every round after, until it is healed. It cannot stack.'],
     stun: ['💫 Stun', 'The card loses its next turn. Stunning a stunned card just refreshes it. A heal removes it.'],
+    sleep: ['💤 Sleep', 'The card always loses its next turn. At the start of each round after that, a die is rolled for it: on 4-6 it wakes up and acts normally that round, on 1-3 it stays asleep and loses that turn too. It wakes at once if an attack hurts it (pierce too) or if it is healed. A sleeping card cannot be put to sleep again.'],
+    dodge: ['💨 Dodge', 'Only for the card that used it. The first attack against it this round misses completely: no damage (pierce too) and no status, and nothing it would trigger happens. Later attacks that round hit normally. It protects the card for the whole round, whenever its own move happens.'],
     freeze: ['❄ Freeze', 'At the end of the round, whoever froze the card chooses whether it keeps the same die number next round (no reroll). Lock in a bad roll, or let a good one go.']
   };
   // what is wrong with (or stored on) a card: little icons on its art; tap one to read it
   const stsHtml = u => {
     if (!u || u.ko) return ''; const out = [], ch = (u.chargeNow || 0) + (u.chargeNext || 0);
-    if (u.poison || u.poisonNew) out.push(['poison', '☠']); if (u.skip || u.skipNext) out.push(['stun', '💫']); if (u.frozen != null || u.fzBy != null) out.push(['freeze', '❄']); if (ch > 0) out.push(['charge', '⚡' + (ch > 1 ? '×' + ch : '')]);
+    if (u.poison || u.poisonNew) out.push(['poison', '☠']); if (u.asleep) out.push(['sleep', '💤']); else if (u.skip || u.skipNext) out.push(['stun', '💫']); if (u.dodging) out.push(['dodge', '💨']); if (u.frozen != null || u.fzBy != null) out.push(['freeze', '❄']); if (ch > 0) out.push(['charge', '⚡' + (ch > 1 ? '×' + ch : '')]);
     return out.length ? `<div class="sts">${out.map(([k, t]) => `<span class="st st-${k}" data-st="${k}">${t}</span>`).join('')}</div>` : '';
   };
   const kwSpan = (k, html) => `<span class="kw kw-${k}" data-kw="${k}">${html}</span>`;
@@ -2732,7 +2744,8 @@ const Bots = (() => {
       return kwSpan(kn, `<span class="${KLS[k]}">${k === 'd' ? ARROWD : ''}${plus}${n} ${WORD[k]}</span>`) + (drain ? kwSpan('drain', '<small class="kwd"> drain</small>') : '') + `<small>${arr}</small>` + (sp && /\s$/.test(sp) ? ' ' : '');
     }).replace(/recoil\s*(\d+)/gi, (m, n) => kwSpan('recoil', `<span class="mD">${n} Recoil</span>`))
       .replace(/\bcharge\b(\s*<>)?/gi, (m, nb) => kwSpan('charge', `<span class="mK">⚡ Charge</span>`) + (nb ? '<small> ◀▶</small>' : ''))
-      .replace(/\b(poison|stun|freeze)\b/gi, (m, w) => { w = w.toLowerCase(); return kwSpan(w, `<span class="mS mS-${w}">${{ poison: '☠', stun: '💫', freeze: '❄' }[w]} ${w[0].toUpperCase() + w.slice(1)}</span>`); })
+      .replace(/\b(poison|stun|sleep|freeze)\b/gi, (m, w) => { w = w.toLowerCase(); return kwSpan(w, `<span class="mS mS-${w}">${{ poison: '☠', stun: '💫', sleep: '💤', freeze: '❄' }[w]} ${w[0].toUpperCase() + w.slice(1)}</span>`); })
+      .replace(/\bdodge\b/gi, () => kwSpan('dodge', '<span class="mS mS-dodge">💨 Dodge</span>'))
       .replace(/,\s*/g, ' · ');
   };
   // an ability in plain words: "-1d" is "-1 damage", "2h" is "2 heal", the arrows become ◀ ▲ ▶
@@ -3397,7 +3410,7 @@ const trainerFg = {
       const info = unitMove(b, u), ko = p ? koOf(u) : u.ko, reveal = u.side === 0 || done || (p && p.revealed[u.uid]);
       let face = 0, spOn = false, die = null;
       if (info && reveal && info.m) { face = info.vals[0]; spOn = !!info.m.sp; die = info.vals.join('+'); }
-      const mark = ko ? '✕' : (u.skip && (assign || p || done)) ? '💫' : '';
+      const mark = ko ? '✕' : (u.skip && (assign || p || done)) ? (u.asleep ? '💤' : '💫') : '';
       const tw = E.tags(u).find(g => ['incDie', 'setDie', 'turnDie', 'addDie'].indexOf(g.t) >= 0);
       const twOk = tw && u.side === 0 && assign && !ko && !waitRoll && !rolling && (tw.t === 'turnDie' ? !(tw.once && u.onceTurn) && b.dice[0].some((v, i) => v === +tw.from && !(b.fixed && b.fixed[0] && b.fixed[0][i])) : b.round - u.lastTweak >= tw.every && (tw.t === 'setDie' ? b.dice[0].length > 0 : tw.t === 'addDie' ? b.dice[0].some(v => v < 6) : info));
       const canMv = assign && (colM ? !b.rolled && !Object.keys(b.acted).length : !waitRoll && !rolling) && u.side === 0 && !ko && !u.skip && !E.blocksMove(b, 0);
@@ -3696,7 +3709,8 @@ const trainerFg = {
       if (f.k === 'h') return pre + `heals ${n} on` + spW(f.spec, 'h') + ' (and removes every status)';
       if (f.k === 'b') return (f.counter ? `counters ${n}: soaks up to ${n} damage aimed at` : `blocks ${n} damage aimed at`) + spW(f.spec, 'b') + (f.counter ? ' and sends it back to the attacker' : '');
       if (f.k === 'd') return `takes ${n} recoil damage itself (it cannot be blocked)`;
-      if (f.k === 's') return { poison: 'poisons', stun: 'stuns', freeze: 'freezes' }[f.st] + spW(f.spec, 'a');
+      if (f.k === 's') return f.self ? { poison: 'poisons itself', stun: 'stuns itself', sleep: 'falls asleep (Rest)', freeze: 'freezes itself' }[f.st] : { poison: 'poisons', stun: 'stuns', sleep: 'puts to sleep', freeze: 'freezes' }[f.st] + spW(f.spec, 'a');
+      if (f.k === 'o') return 'dodges: the first attack against it this round misses completely';
       if (f.k === 'g') return 'charges' + (f.spec.opts[0].length > 1 || f.spec.opts[0][0] !== 0 ? ' its neighbours' : ' itself') + ': next round every number goes up by 1';
       return '';
     };
