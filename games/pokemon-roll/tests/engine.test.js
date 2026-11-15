@@ -850,5 +850,5 @@ v4('Squirtle and its evolutions get +1 attack for each damage they blocked or co
 test('a trainer puts their signature (the last card of the team) down last', () => {
   const s = E.newGame({ seed: 5, starter: 'bulbasaur' }); s.done.B1 = true; s.coll.push({ uid: 5, id: '10', sh: 0 }, { uid: 6, id: '16', sh: 0 }, { uid: 7, id: '19', sh: 0 });
   assert.ok(E.apply(s, { t: 'go', node: 'B3' }).ok); const b = s.battle, last = b.hand[1][b.hand[1].length - 1];
-  for (const lv of ['normal', 'master']) { const m = B.placement(s, 1, lv); assert.ok(m, lv); assert.notEqual(m.uid, last, lv + ': not the signature first'); }
+  for (const lv of ['easy', 'normal', 'master']) for (let k = 0; k < 20; k++) { const m = B.placement(s, 1, lv); assert.ok(m, lv); assert.notEqual(m.uid, last, lv + ': not the signature first'); }
 });
