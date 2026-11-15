@@ -11,6 +11,7 @@ async function playFight(p, maxSteps) {
     if (await p.locator('.banner, .kos').count()) return true;
     if (await tap('[data-act=tipok]')) continue;
     if (await p.locator('[data-act=skip]').count()) { await tap('[data-act=skip]'); continue; }
+    if (await p.locator('[data-act=ready]').count()) { await tap('[data-act=ready]'); continue; }          // everything is down: the OK (Fight!) before the fight starts
     if (await p.locator('.rollhint').count()) { await tap('.rollhint'); continue; }      // tap anywhere to roll
     if (await p.locator('.rail.rgo').count()) { await tap('.rail.rgo .status'); await p.waitForTimeout(150); continue; }          // all dice given out: a tap on the side bar plays the round
     if (await p.locator('[data-act=tray]').count()) {
