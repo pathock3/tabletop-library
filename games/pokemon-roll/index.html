@@ -547,6 +547,9 @@ button{font:inherit;color:inherit;border:0;cursor:pointer}
 <style>.oakgo{display:flex;gap:14px;justify-content:center;align-items:center;margin-top:6px}.oakgo .btn.big{min-height:64px;font-size:26px;padding:8px 40px}.oakgo .btn[disabled]{opacity:.4}</style>
 <style>.board .deckcol{flex:none;align-self:flex-start;display:flex;justify-content:center}.pfan.hide{align-items:flex-start;padding:8px 0 0}</style>
 <style>.leadtalk{width:min(780px,calc(100vw - 24px));gap:12px}.leadtalk .bubble{min-width:0;box-sizing:border-box}.leadimg{width:clamp(96px,27vw,250px)}.leadtalk .bubble{font-size:clamp(18px,3.1vw,28px);padding:18px 22px;border-radius:24px}.leadtalk .bubble .who{font-size:clamp(22px,3.6vw,34px)}.leadtalk .gift{gap:14px;margin-top:10px}.leadtalk .gift .die{width:clamp(56px,9vw,76px);height:clamp(56px,9vw,76px);font-size:clamp(32px,5vw,44px)}.turnsline{font:800 clamp(22px,3.6vw,34px) system-ui}.wildback{padding:14px 18px;font-size:clamp(18px,2.8vw,26px)}.wildback .wb span{width:clamp(92px,15vw,130px);font-size:clamp(12px,1.9vw,17px)}.wildback .wb img{width:clamp(56px,10vw,96px);height:clamp(56px,10vw,96px)}.scr .center .btn.big{min-width:clamp(220px,34vw,320px);min-height:72px;font-size:clamp(24px,3.6vw,34px)}.scr .center .banner{font-size:clamp(46px,8vw,78px)}.scr .center{gap:clamp(14px,2.6vh,28px)}</style>
+<style>.board .deckcol{position:relative}.pilebay .eye{width:46px;height:46px;font-size:28px;bottom:8px;right:8px;pointer-events:auto;z-index:9;cursor:pointer}.board .fieldw{flex:1;min-width:0;height:100%;display:flex;justify-content:center;align-items:stretch;gap:6px}.prail .rbar .ib{width:68px;height:68px;font-size:34px;border-radius:18px}.prail .rbar .ib[style*='auto']{height:68px;font-size:20px!important}.phead .ib,.top .ib{width:60px;height:60px;font-size:30px;border-radius:16px}</style>
+<style>.bt.pl .pfan{position:relative;z-index:60;overflow:visible}.bt.pl .board{z-index:1}.pfan .pc.sel,.pfan .pc.up{z-index:70}</style>
+<style>.prail .btn.big{width:calc(100% - 8px);min-width:0;box-sizing:border-box;padding:0 6px;min-height:64px;font-size:26px}</style>
 <script id="data">
 /* Pokémon Roll! — every rule number, the map, the bosses, the card sheet and the art live here. The engine and bots read this and hard-code none of it. */
 const GAME_DATA = {
@@ -1275,6 +1278,8 @@ const Engine = (() => {
   const unmatched = b => b.cols.some(c => (c[0] == null) !== (c[1] == null));
   // a wild fight starts only when every card faces another; if someone does not, you move a card
   function startOrFix(s) { const b = s.battle; if (b.fcols && unmatched(b)) { b.pl = { side: 0, left: 1, optional: false, fix: true }; return; } beginFight(s); }
+  // once everything is down they wait for your OK: you may still take your last card back (or, in the wild, bring another) before the fight starts
+  function confirmPlace(s) { const b = s.battle; if (b.mode === 'wild' && b.fcols && unmatched(b)) { b.pl = { side: 0, left: 1, optional: false, fix: true }; return; } b.pl = { side: 0, left: 1, optional: true, confirm: true }; }
   function beginFight(s) {
     const b = s.battle, wasRefill = !!b.refill;
     if (b.nOut != null && b.hcards) { let rest = b.hand[0].map(h => ({ id: b.hcards[h].id, sh: b.hcards[h].sh })); if (b.cap0 != null && rest.length > Math.max(0, b.cap0 - b.nOut)) rest = rest.sort((x, y) => CARDS[y.id].level - CARDS[x.id].level || CARDS[y.id].hp - CARDS[x.id].hp).slice(0, Math.max(0, b.cap0 - b.nOut)); b.rsv[0] = rest; b.refill = false; }          // in a trainer fight you can use as many as they have: the rest stay home (the strongest of the ones you did not put out come along)          // the cards you did not put out wait in reserve
@@ -1297,12 +1302,12 @@ const Engine = (() => {
     const b = s.battle;
     if (b.mode === 'wild') {
       // the order: they put one down, you put one down; then, as long as you have dice and cards, you may bring another (it is answered at once from the place), or tap the deck for them to bring another first (you answer it); the two sides always end up equal
-      if (side === 1) { if (b.placed[0] < b.placed[1] && b.hand[0].length) b.pl = { side: 0, left: 1, optional: false }; else if (canExpand(s)) b.pl = { side: 0, left: 1, optional: true, canDraw: true }; else startOrFix(s); return; }          // canDraw: only after they have answered a second card of yours may you tap the deck
-      if (b.placed[1] < b.placed[0]) { const w = wildLeft(s, b) > 0 ? wildDraw(s, b, 1) : []; if (w.length) { addHand(b, 1, w[0]); b.pl = { side: 1, left: 1 }; } else startOrFix(s); return; }        // your extra card: the place answers it
-      if (canExpand(s)) b.pl = { side: 0, left: 1, optional: true }; else startOrFix(s);
+      if (side === 1) { if (b.placed[0] < b.placed[1] && b.hand[0].length) b.pl = { side: 0, left: 1, optional: false }; else if (canExpand(s)) b.pl = { side: 0, left: 1, optional: true, canDraw: true }; else confirmPlace(s); return; }          // canDraw: only after they have answered a second card of yours may you tap the deck
+      if (b.placed[1] < b.placed[0]) { const w = wildLeft(s, b) > 0 ? wildDraw(s, b, 1) : []; if (w.length) { addHand(b, 1, w[0]); b.pl = { side: 1, left: 1 }; } else confirmPlace(s); return; }        // your extra card: the place answers it
+      if (canExpand(s)) b.pl = { side: 0, left: 1, optional: true }; else confirmPlace(s);
       return;
     }
-    if (b.placed[0] >= b.need[0] && b.placed[1] >= b.need[1]) { beginFight(s); return; }
+    if (b.placed[0] >= b.need[0] && b.placed[1] >= b.need[1]) { confirmPlace(s); return; }
     const done = sd => b.placed[sd] >= b.need[sd];
     if (b.pl.left <= 0 || done(side)) { const o = other(side); b.pl = done(o) ? { side, left: R.placeCount } : { side: o, left: R.placeCount }; }
   }
@@ -2180,7 +2185,7 @@ const Engine = (() => {
         if (b.stage !== 'place' || b.mode !== 'wild' || !b.pl || !b.pl.optional || !b.pl.canDraw || b.pl.side !== 0 || !canExpand(s)) return 'put a second card down first: they answer it, and then you may draw'; if (b.placed[0] < 1 || b.placed[0] !== b.placed[1]) return 'put your own card down first';
         const w = wildDraw(s, b, 1); if (!w.length) return 'the deck is empty'; addHand(b, 1, w[0]); b.pl = { side: 1, left: 1 }; return null;
       }
-      case 'ready': if (b.stage !== 'place' || b.mode !== 'wild' || !b.pl || !b.pl.optional || b.pl.side !== 0) return 'not now'; if (unmatched(b)) return 'every Pokémon needs an opponent across from it'; beginFight(s); return null;
+      case 'ready': if (b.stage !== 'place' || !b.pl || !b.pl.optional || b.pl.side !== 0) return 'not now'; if (b.mode === 'wild') { if (unmatched(b)) return 'every Pokémon needs an opponent across from it'; startOrFix(s); } else beginFight(s); return null;
       case 'first': if (b.stage !== 'place' || b.firstChosen || b.mode === 'wild') return 'too late'; b.pl = { side: a.side === 0 ? 0 : 1, left: R.firstPlaceCount }; return null;
       case 'place': return doPlace(s, a);
       case 'pickup': {                                                // take your latest card back (not locked in yet), or, while replacing a fallen card, retreat any card of yours to the reserve
@@ -2459,7 +2464,7 @@ const Bots = (() => {
     if (s.phase === 'won') return { t: 'done' };
     if (!b) return null;
     if (b.stage === 'place') {
-      if (b.pl.side === 0) { if (b.mode === 'wild' && b.pl.optional) { if (!E.canExpand(s)) return { t: 'ready' }; return b.pl.canDraw ? { t: 'drawwild' } : placement(s, 0, level); } return placement(s, 0, level); }
+      if (b.pl.side === 0) { if (b.pl.optional && b.pl.confirm && b.mode !== 'wild') return { t: 'ready' }; if (b.mode === 'wild' && b.pl.optional) { if (!E.canExpand(s)) return { t: 'ready' }; return b.pl.canDraw ? { t: 'drawwild' } : placement(s, 0, level); } return placement(s, 0, level); }
       return null;
     }
     if (b.colMode && b.stage === 'assign') {
@@ -2767,11 +2772,12 @@ const trainerFg = {
   function drawFly(uid) {
     const c = document.querySelector('.board .card[data-uid="' + uid + '"]'), pl = document.querySelector('.pilebay .pile'); if (!c || !pl || !c.animate) return;
     const cr = c.getBoundingClientRect(), pr = pl.getBoundingClientRect(), dx = pr.left + pr.width / 2 - (cr.left + cr.width / 2), dy = pr.top + pr.height / 2 - (cr.top + cr.height / 2), s = pr.width / cr.width;
-    const dur = 1700; c.style.zIndex = 40;
-    c.animate([{ transform: `translate(${dx}px,${dy}px) scale(${s}) rotate(-10deg)` }, { transform: 'translate(0,0) scale(1.04) rotate(0)', offset: .45 }, { transform: 'translate(0,0) scale(1.04,1.04)', offset: .6 }, { transform: 'translate(0,0) scale(0,1.04)', offset: .72 }, { transform: 'translate(0,0) scale(1.06,1.06)', offset: .88 }, { transform: 'none' }], { duration: dur, easing: 'ease-in-out' }).onfinish = () => { c.style.zIndex = ''; };          // it comes down face down, waits a moment, then turns over
+    const dur = 3600; ui.flyUntil = Date.now() + dur; c.style.zIndex = 40;          // 0-.25 slides to its spot face down, .25-.55 waits a second, .55-.8 turns over (a big lift and a slow turn), then settles
+    const P = 'perspective(1100px) ';
+    c.animate([{ transform: P + `translate(${dx}px,${dy}px) scale(${s}) rotate(-8deg)`, offset: 0 }, { transform: P + 'translate(0,0) scale(1.04)', offset: .25 }, { transform: P + 'translate(0,0) scale(1.04)', offset: .55 }, { transform: P + 'translate(0,0) scale(1.22) rotateY(90deg)', offset: .67 }, { transform: P + 'translate(0,0) scale(1.22) rotateY(0deg)', offset: .8 }, { transform: P + 'translate(0,0) scale(1)', offset: 1 }], { duration: dur, easing: 'ease-in-out' }).onfinish = () => { c.style.zIndex = ''; };
     const bk = document.createElement('div'); bk.className = 'dbackov'; const nd0 = E.node(G.battle.node); bk.style.backgroundImage = nd0.kind === 'loc' ? deckUri(nd0.loc) : uriOf(gymBack(nd0)); c.appendChild(bk);
-    bk.animate([{ opacity: 1 }, { opacity: 1, offset: .715 }, { opacity: 0, offset: .72 }, { opacity: 0 }], { duration: dur, fill: 'forwards' }).onfinish = () => bk.remove(); setTimeout(() => bk.remove(), dur + 200);
-    pl.animate([{ transform: 'none' }, { transform: 'translate(-3px,-5px) rotate(-2deg)', offset: .3 }, { transform: 'none' }], { duration: 300 });
+    bk.animate([{ opacity: 1 }, { opacity: 1, offset: .669 }, { opacity: 0, offset: .67 }, { opacity: 0 }], { duration: dur, fill: 'forwards' }).onfinish = () => bk.remove(); setTimeout(() => bk.remove(), dur + 200);
+    pl.animate([{ transform: 'none' }, { transform: 'translate(-3px,-5px) rotate(-2deg)', offset: .1 }, { transform: 'none' }], { duration: 500 });
   }
 
   // ---------------------------------------------------------------- the game loop
@@ -2793,7 +2799,7 @@ const trainerFg = {
       ui.busy = true; render();
       setTimeout(() => {
         const g = B.step(G, set.ai); if (!g) { ui.busy = false; render(); return; }
-        const placed = g.uid; E.apply(G, g); const u = E.U(G.battle, placed); if (u && u.sh) burst(u.uid); if (u) ui.drawFly = u.uid;
+        E.apply(G, g); const u = G.battle && G.battle.units.filter(x => x.side === 1 && !x.ko).pop(); if (u && u.sh) burst(u.uid); if (u) { ui.drawFly = u.uid; ui.flyUntil = Date.now() + 3700; }
         save(); ui.busy = false; drive();
       }, 650);
       return;
@@ -3007,7 +3013,8 @@ const trainerFg = {
     roll: 'Now tap anywhere to roll the dice for the next round.',
     end: 'Win by knocking out every card on their side. A card that reaches 0 health is out right away.',
   };
-  function tipOnce(k, text) { if (!set.tips || tipsSeen[k] || ui.tip) return; tipsSeen[k] = 1; lsSet(TIPS, tipsSeen); ui.tip = { k, text: text || TIPTEXT[k] }; render(); }
+  function tipOnce(k, text) { if (!set.tips || tipsSeen[k] || ui.tip) return; if (ui.flyUntil && Date.now() < ui.flyUntil) { if (!ui.tipWait) ui.tipWait = setTimeout(() => { ui.tipWait = null; maybeTips(); }, ui.flyUntil - Date.now() + 100); return; }          // a tip waits until the card has finished coming out of the deck
+    tipsSeen[k] = 1; lsSet(TIPS, tipsSeen); ui.tip = { k, text: text || TIPTEXT[k] }; render(); }
   function maybeTips() {
     const b = G && G.battle; if (!b) return;
     if (b.isBill) tipOnce('bill');
@@ -3223,7 +3230,7 @@ const trainerFg = {
     const dk = railP && (nodeP.kind === 'loc' || nodeP.kind === 'visitor') ? 1 : 0, mD = m + dk, cwW = Math.floor((W - 8 - (mD + 1) * 4 - mD * 6) / mD), mBase = Math.max(1, b.cols.length, b.mode === 'wild' ? b.cap : Math.max(b.need[0], b.need[1])) + dk;          // a wild deck sits beside the columns, the size of a card          // the hand keeps its size while a spot is being picked
     if (placing) {          // your hand is fanned under the board, its cards the very same size as the board's
       const nH = E.handOf(b, 0).length + (b.placed ? b.placed[0] : 0), hfit = nH > 1 ? Math.floor((innerWidth - 20) / (1 + (nH - 1) * .62)) : 999;
-      FCW = Math.max(64, Math.min(320, Math.floor((W - 8 - (mBase + 1) * 4 - mBase * 6) / mBase), hfit, Math.floor((H - HEAD - STAT - (NARROW ? 64 : 44)) / (NARROW ? 3 : 2.78) / CH))); HH = Math.ceil(FCW * CH * (NARROW ? 1 : .78)) + (NARROW ? 36 : 30); HB = H - HEAD - STAT - HH;          // on a wide screen the hand's lower part runs off the screen edge, so the cards can be as big as can be
+      FCW = Math.max(64, Math.min(320, Math.floor((W - 8 - (mBase + 1) * 4 - mBase * 6) / mBase), hfit, Math.floor((H - HEAD - STAT - (NARROW ? 64 : 44)) / 3 / CH))); HH = Math.ceil(FCW * CH) + (NARROW ? 36 : 30); HB = H - HEAD - STAT - HH;          // on a wide screen the hand's lower part runs off the screen edge, so the cards can be as big as can be
     }
     const cwH = Math.floor((HB - 10 - 2) / 2 / CH);
     let cw = Math.max(insAts.length ? 90 : 120, Math.min(640, cwW, cwH)); if (placing) cw = Math.min(cw, FCW); const hcw = placing ? 0 : Math.max(80, Math.min(180, RW - 30)); if (placing) FCW = cw;
@@ -3288,7 +3295,7 @@ const trainerFg = {
     const diceHtml = !waitRoll && (assign || done || p) && hd.length ? hd.map((v, i) => [v, i]).sort((x, y) => { const lk = (b.locked && b.locked[0]) || {}; return rolling ? x[1] - y[1] : (lk[x[1]] ? 1 : 0) - (lk[y[1]] ? 1 : 0) || y[0] - x[0] || x[1] - y[1]; }).map(([v, i]) => { const tum = rolling && (!ui.rerolled || ui.rerolled.indexOf(i) >= 0); return dieHtml(tum ? '' : v, { sel: ui.die === i, used: !colM && used.has(i), tumble: tum, attr: !colM && assign && !rolling && !(b.fixed && b.fixed[0] && b.fixed[0][i]) ? `data-act="die" data-i="${i}"` : '' }); }).join('') : '';
     let status = '', btns = '';
     const opt = yourPlace && b.pl.optional, canDraw = opt && b.pl.canDraw;
-    if (placing) status = (b.sudden ? 'SUDDEN DEATH · ' : '') + (yourPlace && b.fcols && E.unmatched(b) && (b.pl.fix || opt) ? 'Everyone needs an opponent' : yourPlace ? (ui.psel != null && !selected ? 'Drag it back, or elsewhere' : selected != null ? 'Tap a spot' : opt ? (canDraw ? 'Tap the deck, add a card, or Fight!' : 'Another card, or Fight!') : 'Pick a Pokémon from your hand to put down') : 'Their turn…');
+    if (placing) status = (b.sudden ? 'SUDDEN DEATH · ' : '') + (yourPlace && b.fcols && E.unmatched(b) && (b.pl.fix || opt) ? 'Everyone needs an opponent' : yourPlace ? (ui.psel != null && !selected ? 'Drag it back, or elsewhere' : selected != null ? 'Tap a spot' : opt ? (canDraw ? 'Tap the deck, add a card, or Fight!' : (b.mode === 'wild' && E.canExpand(G) ? 'Another card, or Fight!' : 'Happy? Fight!')) : 'Pick a Pokémon from your hand to put down') : 'Their turn…');
     else if (matching) { status = yourMatch ? (msel != null ? 'Tap the empty spot to slide there' : 'Cards with no opponent may slide next to a lone enemy. Tap one.') : 'They are choosing where to slide…'; btns = yourMatch ? `<button class="btn alt" data-act="mpass">Stay put</button>` : ''; }
     else if (assign && ui.returning) { status = 'Tap the Pokémon to return'; btns = `<button class="btn alt" data-act="retmode">Cancel</button>`; }
     else if (assign && ui.slide) { status = 'Slide a neighbour over to face the opponent? Tap it.'; btns = `<button class="btn alt" data-act="slideno">Leave it empty</button>`; }
@@ -3324,7 +3331,7 @@ const trainerFg = {
     let fanHtml = '';
     if (placing) {
       const hand = teamSort(E.handOf(b, 0), hc => hc.hid != null ? hc.hid : hc.uid), n = hand.length, Hh = HH, fcw = FCW, step = Math.round(fcw * .62);
-      fanHtml = `<div class="pfan${NARROW ? '' : ' hide'}" style="height:${Hh}px">${hand.map((hc, i) => { const k = hc.hid != null ? hc.hid : hc.uid, a = Math.max(-9, Math.min(9, (i - (n - 1) / 2) * 2.6)), y = Math.round(Math.abs(a) * 1.8) + (k === selected ? -16 : 0);
+      fanHtml = `<div class="pfan" style="height:${Hh}px">${hand.map((hc, i) => { const k = hc.hid != null ? hc.hid : hc.uid, a = Math.max(-9, Math.min(9, (i - (n - 1) / 2) * 2.6)), y = Math.round(Math.abs(a) * 1.8) + (k === selected ? -16 : 0);
         return `<div class="pc${k === selected ? ' on' : ''}" style="margin-left:${i ? step - fcw : 0}px;transform:rotate(${a.toFixed(1)}deg) translateY(${y}px);z-index:${k === selected ? 20 : i}">${card(hc, { cw: fcw, sel: k === selected, attr: `data-act="tray" data-uid="${k}"` })}</div>`; }).join('')}</div>`;
       ui.fan = { html: fanHtml, h: Hh };
     }
@@ -3333,7 +3340,7 @@ const trainerFg = {
       const tr = nodeB.kind !== 'loc' && D.trainerArt && D.trainerArt[nodeB.art || nodeB.id] ? `<img class="pix" src="data:image/png;base64,${D.trainerArt[nodeB.art || nodeB.id]}" alt=""><b>${esc(nodeB.name)}</b>` : nodeB.kind === 'loc' ? '' : `<b>${esc(nodeB.name)}</b>`;
       const bar = `<button class="ib" data-act="leave" style="${ui.leaveAsk ? 'width:auto;padding:0 12px;font-size:16px;font-weight:800' : ''}" aria-label="Leave">${ui.leaveAsk ? 'Flee?' : '🏃'}</button><button class="ib" data-act="menu" aria-label="Menu">☰</button>`;
       const meHtml = nodeB.kind !== 'loc' ? `<div class="me"><img class="pix" src="data:image/png;base64,${D.trainerArt['PLAYER_B' + (set.avatar || 'M')]}" alt="You">${ballsOf(b, 0)}</div>` : '';
-      if (!NARROW) { const stat = /^Pick a Pokémon/.test(status) ? '' : status; return `<div class="bt pl"><div class="board" style="height:${HB}px;width:calc(100% - ${RW}px)">${cols}${pileHtml ? `<div class="deckcol">${pileHtml}</div>` : ''}</div><div class="prail" style="top:0;width:${RW}px"><div class="rbar">${bar}</div>${nodeB.kind !== 'loc' ? `${trainerHtml}${meHtml}` : ''}${stat ? `<div class="status small">${stat}</div>` : ''}${fight}</div>${fanHtml}</div>`; }
+      if (!NARROW) { const stat = /^Pick a Pokémon/.test(status) ? '' : status; return `<div class="bt pl"><div class="board" style="height:${HB}px;width:calc(100% - ${RW}px)">${pileHtml ? `<div class="deckcol">${pileHtml}</div>` : ''}<div class="fieldw">${cols}</div></div><div class="prail" style="top:0;width:${RW}px"><div class="rbar">${bar}</div>${nodeB.kind !== 'loc' ? `${trainerHtml}${meHtml}` : ''}${stat ? `<div class="status small">${stat}</div>` : ''}${fight}</div>${fanHtml}</div>`; }
       return `<div class="bt pl"><div class="phead"><div class="ptr">${tr}</div>${bar}</div><div class="board" style="height:${HB}px">${cols}</div><div class="pstat">${pileHtml}<div class="status">${status}</div>${fight}</div>${fanHtml}</div>`;
     }
     const railIn = placing ? `<div class="status">${status}</div>${fight}<div class="hrow handrow hcol">${heroTray}</div>${pileHtml}` : `<div class="rmid"><div class="status">${status}</div><div class="dice">${diceHtml}</div></div><div class="acts">${btns}</div>`;

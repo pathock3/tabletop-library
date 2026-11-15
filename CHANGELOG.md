@@ -1,5 +1,6 @@
 # Changelog
 
+- Pokémon Roll: the fight never starts by itself: once everything is down you press Fight! (you can still take your last card back, or in the wild bring another). The location deck sits left of a centred battlefield; every card, even the first, is drawn from it face down, waits a second, then flips (slower). The deck's i button works and is bigger, so are Flee and Menu; the hand is shown in full and in front of the board; the tip waits for the draw.
 - Pokémon Roll: the die you win is mentioned once, in the leader's speech bubble; the victory screen is bigger (leader, bubble, die, button) and fits the phone.
 - Pokémon Roll: a trainer puts down their signature Pokémon last, never before the rest of their team.
 - Pokémon Roll: visitor trainers show their icon and Poké Balls in the right column too (with the deck beside their columns).

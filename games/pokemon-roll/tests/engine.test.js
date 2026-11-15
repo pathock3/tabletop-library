@@ -202,11 +202,11 @@ test('placement: a gym fight puts out as many cards as you have dice (a trainer 
   assert.ok(E.apply(s, { t: 'go', node: 'B3' }).ok); assert.equal(s.phase, 'battle');
   const b = s.battle; assert.equal(b.nOut, 3, 'Lt. Surge is 3 on 3'); assert.equal(b.lend, 1, 'you have two dice: he lends you the third'); assert.deepEqual(b.need, [3, 3]); assert.equal(b.cols.length, 3, 'the columns are fixed and shown from the start'); assert.equal(b.hand[0].length, 4, 'your whole collection is your hand'); assert.equal(b.hand[1].length, 3); assert.equal(b.rsv[1].length, 1, 'the fourth waits (the signature)');
   assert.equal(E.slotsFor(b, 0).filter(x => x.at != null).length, 0, 'no new columns can be made');
-  let g; while ((g = B.step(s, 'normal')) || (b.stage === 'place' && b.pl.side === 0)) { if (g) E.apply(s, g); else E.apply(s, Object.assign({ t: 'place', side: 0, uid: b.hand[0][0] }, E.slotsFor(b, 0)[0])); }
+  let g; while ((g = B.step(s, 'normal')) || (b.stage === 'place' && b.pl.side === 0)) { if (g) E.apply(s, g); else if (b.pl.confirm) E.apply(s, { t: 'ready' }); else E.apply(s, Object.assign({ t: 'place', side: 0, uid: b.hand[0][0] }, E.slotsFor(b, 0)[0])); }
   assert.equal(b.stage, 'assign'); assert.equal(E.living(b, 0).length, 3); assert.equal(E.living(b, 1).length, 3); assert.equal(b.rsv[0].length, 1, 'your fourth waits in reserve');
   const foe = E.living(b, 1)[0]; foe.ko = true; foe.hp = 0; b.stage = 'resolved'; b.out = null;
   assert.ok(E.apply(s, { t: 'next' }).ok); assert.equal(b.stage, 'place', 'a replacement is brought'); assert.ok(b.refill);
-  assert.ok(E.apply(s, B.step(s, 'normal')).ok); assert.equal(b.stage, 'assign', 'only they needed one'); assert.equal(E.living(b, 1).length, 3); assert.equal(b.rsv[1].length, 0); assert.ok(E.living(b, 1).some(u => s.bosses.B3[s.bosses.B3.length - 1].id === u.id), 'the signature came out last');
+  assert.ok(E.apply(s, B.step(s, 'normal')).ok); assert.ok(E.apply(s, { t: 'ready' }).ok, 'your OK'); assert.equal(b.stage, 'assign', 'only they needed one'); assert.equal(E.living(b, 1).length, 3); assert.equal(b.rsv[1].length, 0); assert.ok(E.living(b, 1).some(u => s.bosses.B3[s.bosses.B3.length - 1].id === u.id), 'the signature came out last');
 });
 test('wild cards: one comes up, you put one down, and then you choose: fight it one on one, or bring more and they draw one more each time', (tc) => { E.faceOrder('roll'); tc.after(() => E.faceOrder('sheet'));
   const s = E.newGame({ seed: 21, starter: 'bulbasaur' }); s.done.B1 = true; s.done.B2 = true;            // three dice (the first two badges give two more)
@@ -226,7 +226,8 @@ test('wild cards: one comes up, you put one down, and then you choose: fight it 
   assert.ok(E.apply(s, B.step(s, 'normal')).ok); assert.deepEqual(b.pl, { side: 0, left: 1, optional: false }, 'now you must answer it');
   assert.equal(E.apply(s, { t: 'ready' }).ok, false, 'no fighting before you have answered');
   assert.ok(E.apply(s, Object.assign({ t: 'place', side: 0, uid: b.hand[0][0] }, E.slotsFor(b, 0)[0])).ok);
-  assert.equal(b.stage, 'assign', 'three dice, three cards: the fight starts'); assert.equal(E.living(b, 0).length, 3); assert.equal(E.living(b, 1).length, 3);
+  assert.equal(b.stage, 'place', 'three dice, three cards: they wait for your OK'); assert.ok(b.pl.confirm); assert.ok(E.apply(s, { t: 'ready' }).ok);
+  assert.equal(b.stage, 'assign', 'OK: the fight starts'); assert.equal(E.living(b, 0).length, 3); assert.equal(E.living(b, 1).length, 3);
   // one on one: put one down and fight at once
   const t = E.newGame({ seed: 22, starter: 'squirtle' }); t.done.B1 = true; t.coll.push({ uid: 9, id: '10', sh: 0 });
   E.apply(t, { t: 'go', node: 'L2' }); E.apply(t, B.step(t, 'normal')); const tb = t.battle;
@@ -234,11 +235,11 @@ test('wild cards: one comes up, you put one down, and then you choose: fight it 
   assert.ok(E.apply(t, { t: 'ready' }).ok); assert.equal(E.living(tb, 0).length, 1); assert.equal(E.living(tb, 1).length, 1);
   // with one die there is nothing to choose
   const one = E.newGame({ seed: 23, starter: 'pikachu' }); one.coll.push({ uid: 9, id: '10', sh: 0 }); E.apply(one, { t: 'go', node: 'L1' }); E.apply(one, B.step(one, 'normal'));
-  E.apply(one, Object.assign({ t: 'place', side: 0, uid: one.battle.hand[0][0] }, E.slotsFor(one.battle, 0).find(x => x.join != null))); assert.equal(one.battle.stage, 'assign', 'one die: the fight starts as soon as your card is down');
+  E.apply(one, Object.assign({ t: 'place', side: 0, uid: one.battle.hand[0][0] }, E.slotsFor(one.battle, 0).find(x => x.join != null))); assert.equal(one.battle.stage, 'place', 'one die: still your OK first'); assert.ok(E.apply(one, { t: 'ready' }).ok); assert.equal(one.battle.stage, 'assign');
 });
 test('hidden information: the computer never sees your dice, and you never see theirs until the round is played', (tc) => { E.faceOrder('roll'); tc.after(() => E.faceOrder('sheet'));
   const s = E.newGame({ seed: 9, starter: 'charmander' }); E.apply(s, { t: 'go', node: 'L1' });
-  let g; while ((g = B.step(s)) || (s.battle.stage === 'place' && s.battle.pl.side === 0)) { if (g) E.apply(s, g); else E.apply(s, Object.assign({ t: 'place', side: 0, uid: s.battle.hand[0][0] }, E.slotsFor(s.battle, 0)[0])); }
+  let g; while ((g = B.step(s)) || (s.battle.stage === 'place' && s.battle.pl.side === 0)) { if (g) E.apply(s, g); else if (s.battle.pl.confirm) E.apply(s, { t: 'ready' }); else E.apply(s, Object.assign({ t: 'place', side: 0, uid: s.battle.hand[0][0] }, E.slotsFor(s.battle, 0)[0])); }
   assert.equal(s.battle.stage, 'assign');
   const mine = E.viewFor(s, 0), theirs = E.viewFor(s, 1);
   assert.deepEqual(mine.battle.dice[1], [0]); assert.deepEqual(theirs.battle.dice[0], [0]);
