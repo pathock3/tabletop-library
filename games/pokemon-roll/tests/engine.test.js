@@ -846,3 +846,9 @@ v4('Squirtle and its evolutions get +1 attack for each damage they blocked or co
   const e = craft(['7.1'], ['19']); e.h(0).lastBlk = 2; e.g(0).hp = e.g(0).max = 9; play(e, { hero: [5], gm: [3] }, { hero: { 0: 0 }, gm: { 0: 0 } });   // its 2a becomes 4a
   assert.equal(e.g(0).hp, 9 - 4, 'two blocked last round: +2');
 });
+
+test('a trainer puts their signature (the last card of the team) down last', () => {
+  const s = E.newGame({ seed: 5, starter: 'bulbasaur' }); s.done.B1 = true; s.coll.push({ uid: 5, id: '10', sh: 0 }, { uid: 6, id: '16', sh: 0 }, { uid: 7, id: '19', sh: 0 });
+  assert.ok(E.apply(s, { t: 'go', node: 'B3' }).ok); const b = s.battle, last = b.hand[1][b.hand[1].length - 1];
+  for (const lv of ['normal', 'master']) { const m = B.placement(s, 1, lv); assert.ok(m, lv); assert.notEqual(m.uid, last, lv + ': not the signature first'); }
+});

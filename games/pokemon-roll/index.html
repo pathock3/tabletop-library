@@ -2277,7 +2277,8 @@ const Bots = (() => {
     return tot / 6 * 3;
   }
   function placement(s, side, level) {
-    const b = s.battle, units = E.handOf(b, side); if (!units.length) return null;
+    const b = s.battle; let units = E.handOf(b, side); if (!units.length) return null;
+    if (side === 1 && b.kind === 'boss' && units.length > 1) units = units.slice(0, -1);          // a trainer's signature (the last card of their team) is put down last
     const key = u => u.hid != null ? u.hid : u.uid;
     let slots = E.slotsFor(b, side);
     if (b.mode === 'wild' && side === 1) { const f = slots.filter(sl => sl.join != null && b.cols[sl.join][0] != null); if (f.length) slots = f; }          // the place answers your card across from it
