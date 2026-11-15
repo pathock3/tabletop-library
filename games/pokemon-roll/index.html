@@ -605,6 +605,8 @@ button{font:inherit;color:inherit;border:0;cursor:pointer}
 .card.grid .f.hot{box-shadow:inset 0 0 0 3px #ffd23f}.card.grid .f.hot .n{background:#ffd23f}
 .card.grid .f.pick{box-shadow:inset 0 0 0 3px #4cd964}.card.grid .f.pick .n{background:#4cd964}</style>
 <style>.card.grid .art img{width:100%!important;height:100%;max-width:none;object-fit:contain;object-position:50% 100%;image-rendering:pixelated}</style>
+<style>/* on the table a card keeps its trading-card proportions: columns never stretch it */
+.board .col .card.grid,.board .card.grid{height:calc(var(--cw)*1.4)!important;flex:none!important;min-height:0}</style>
 <script id="data">
 /* Pokémon Roll! — every rule number, the map, the bosses, the card sheet and the art live here. The engine and bots read this and hard-code none of it. */
 const GAME_DATA = {
@@ -692,8 +694,8 @@ const GAME_DATA = {
   // quotas count the signature; pts = the team's level points (a team may land anywhere in this range); other = a rank range for the other cards.
   trainers: {
     B1: { name: 'Brock', stage: 'Gym, Area 1', out: 1, n: 2, sig: { el: ['Ground'], lv: [2, 3], locs: [2], tagged: true }, pool: { locs: [1, 2], tagged: true }, quotas: [], pts: [4, 5] },
-    B2: { name: 'Misty', stage: 'Gym, Area 2', out: 2, n: 3, sig: { el: ['Water'], lv: [3, 4], locs: [4, 7] }, pool: { locs: [2, 4] }, quotas: [{ el: 'Water', n: 2 }], pts: [6, 7] },
-    B3: { name: 'Lt. Surge', stage: 'Gym, Area 2', out: 2, n: 3, sig: { el: ['Electric'], lv: [4, 5], locs: [3, 4] }, pool: { locs: [3, 2], tagged: true }, quotas: [{ el: 'Electric', n: 2 }], pts: [9, 11] },
+    B2: { name: 'Misty', stage: 'Gym, Area 2', out: 3, n: 4, sig: { el: ['Water'], lv: [3, 4], locs: [4, 7] }, pool: { locs: [2, 4] }, quotas: [{ el: 'Water', n: 2 }], pts: [8, 9] },
+    B3: { name: 'Lt. Surge', stage: 'Gym, Area 2', out: 3, n: 4, sig: { el: ['Electric'], lv: [4, 5], locs: [3, 4] }, pool: { locs: [3, 2], tagged: true }, quotas: [{ el: 'Electric', n: 2 }], pts: [10, 12] },
     B4: { name: 'Erika', stage: 'Gym, Area 3A', n: 4, sig: { el: ['Grass'], lv: [4, 5], locs: [6, 4] }, pool: { locs: [6, 5], tagged: true }, quotas: [{ el: 'Grass', n: 2 }], pts: [12, 14] },
     B5: { name: 'Koga', stage: 'Gym, Area 4A', n: 4, sig: { tags: ['bug', 'poison'], lv: [4, 5], anyLoc: true }, pool: { locs: [6, 3, 5], tags: ['bug', 'poison'] }, quotas: [{ tags: ['bug', 'poison'], n: 2 }], pts: [15, 17] },
     B6: { name: 'Sabrina', stage: 'Gym, Area 3B', n: 4, sig: { el: ['Psychic', 'Dark'], lv: [4, 5], locs: [5, 7] }, pool: { locs: [5], tagged: true }, quotas: [{ el: 'Psychic', n: 2 }], pts: [13, 15] },

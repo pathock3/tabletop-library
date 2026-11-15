@@ -145,7 +145,7 @@ Column I is the text on the card; column J (`D.abilityDetails`, keyed by the col
 - **Sleep** (status): always loses the next turn; at the start of each later round a die decides (4-6 wakes it and it acts that round, 1-3 it stays asleep); wakes at once if an attack hurts it (pierce too) or if it is healed; cannot be put to sleep twice; "10h, sleep" (Snorlax's Rest) sleeps itself after the heal, also when its heals have become attacks. The AI treats hitting a sleeper as a waste unless the hit knocks it out.
 - **Blocks** ("Has N block against each attack", "Takes N less") only reduce attacks. Recoil, poison, thorns and damage taken for a neighbour are never reduced. Kakuna and Metapod's recoil is 1.
 - A move with an element colour but no number (stun, sleep, poison, freeze, charge, dodge) has no element.
-- **Gym sizes**: Brock 2 Pokémon (one out at a time, he gives you a die at the end), Misty and Lt. Surge 3 (two out at a time). A leader's signature is only shown once it has been put down in front of you, so it is learned after beating the cards in front of it, win or lose.
+- **Gym sizes**: Brock 2 Pokémon (one out at a time, he gives you a die at the end), Misty and Lt. Surge 4 (three out at a time). A leader's signature is only shown once it has been put down in front of you, so it is learned after beating the cards in front of it, win or lose.
 - **Signature entrance**: the trainer says a line (`D.sigLines`) after the signature's card has turned over.
 - **Counters**: a counter soaks up to its number and sends that much back, as damage that cannot be dodged, blocked or countered.
 - Not done: male/female sprites for the Pokédex — the game has no source art for them (Crystal's sheet has no gender differences).
