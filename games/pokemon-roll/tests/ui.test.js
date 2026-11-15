@@ -220,7 +220,7 @@ test('ui: with two dice you can add a second Pokémon to a wild fight: there are
     await p.evaluate(() => { const s = Engine.newGame({ seed: 7, starter: 'bulbasaur' }); s.done.B1 = true; s.coll.push({ uid: 9, id: '10', sh: 0 }, { uid: 11, id: '16', sh: 0 }); window.__pokemonRoll.setG(s); });
     await p.click('[data-id=L2]');
     await p.waitForFunction(() => { const g = window.__pokemonRoll.G.battle; return g && g.stage === 'place' && g.pl.side === 0; }, null, { timeout: 6000 });
-    await p.locator('[data-act=tray]').first().click();                                    // the first card goes across from the wild card by itself (one spot)
+    await p.locator('[data-act=tray]').first().click(); await p.locator('[data-act=join]').first().click();          // any open column will do; across from the wild card is the first
     await p.waitForFunction(() => window.__pokemonRoll.G.battle.placed[0] === 1, null, { timeout: 4000 });
     assert.ok(await p.locator('[data-act=ready]').count() === 1, 'you can fight now, or bring another');
     assert.equal(await p.locator('[data-act=drawdeck]').count(), 0, 'the deck cannot be tapped yet: a second card of yours goes down first, and they answer it');

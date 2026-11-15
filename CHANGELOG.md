@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- **Pokémon Roll! — wild fights and choices:** in a wild fight a card can go in any open column, and the fight only starts when everyone has a matchup; while placing, the right strip holds the deck (location card size) or the trainer, with the buttons; no "pick a Pokémon" line in the middle; a card you must choose is now unmistakable (bright pulsing frame, TAP flag, the others dimmed); Auto-assign also shows when the only dice left are locked ones; shield abilities now say "counter" and their explanation is readable.
+
 - **Pokémon Roll! — signature Pokémon:** a trainer's signature is now always their highest-level Pokémon (a tie is fine) and plays last; before, the signature was picked first and a higher-level Pokémon could be drafted after it (e.g. Electabuzz after Jolteon).
 
 - **Pokémon Roll! — trainer panel:** while you place, the trainer's panel stays on the right (their real sprite with no background, and Poké Balls for both sides; your hand fans over it); the gym leader's card-back pile is gone; in a trainer fight you can use as many Pokémon as they have, and your Poké Balls show that number, not everything you have caught.
