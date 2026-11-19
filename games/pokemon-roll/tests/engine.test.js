@@ -927,3 +927,19 @@ test.v6('V6: "pick N": 4h pick 2 heals any two of your cards, wherever they are;
   assert.ok(E.apply(c.s, { t: 'choose', tgts: [c.h(2).uid, c.h(3).uid] }).ok); assert.deepEqual(evs(c.b, 'heal').map(e => e.u).sort(), [c.h(2).uid, c.h(3).uid].sort(), 'the two chosen cards were healed, not the third');
   E.faceOrder('sheet');
 });
+
+test.v6('V6: "3a <>, drain" and "2a <^ or ^>, drain" drain (the modifier after a comma works like "1a drain")', () => {
+  ['1a drain', '2a <>, drain', '3a <^ or ^>, drain'].forEach(m => assert.equal(E.parseMove(m).clauses[0][0].drain, true, m));
+  assert.equal(E.parseMove('2a <>').clauses[0][0].drain, false);
+});
+test.v6('V6: Hard starts every round with 1 reroll, Normal and Easy with none; the computer\'s cards add theirs on top', () => {
+  const rr = (ai, gm) => { const s = E.newGame({ seed: 1, starter: 'bulbasaur', ai }); s.phase = 'battle'; const b = T.startBattle(s, 'loc', 'L1', [{ id: '1.1', sh: 0 }], gm.map(id => ({ id, sh: 0 }))); b.hand = [[], []]; b.cols = [[b.units[0].uid, b.units[1].uid]]; T.startRound(s); return b.rr[1]; };
+  assert.equal(rr('master', ['4.1']), 1, 'Hard'); assert.equal(rr('normal', ['4.1']), 0, 'Normal'); assert.equal(rr('easy', ['4.1']), 0, 'Easy');
+  assert.equal(rr('master', ['37']), 2, 'Hard with Vulpix: 1 + 1'); assert.equal(rr('normal', ['37']), 1, 'Normal with Vulpix: 1');
+});
+test.v6('V6: with a reroll to spend, the computer throws away a die that shows a recoil face before one that shows a good attack', () => {
+  E.faceOrder('roll'); const c = craft(['1.1', '1.1'], ['4.1', '4.1']); const { s, b } = c; s.ai = 'master'; b.rr[1] = 1;
+  const rec = C['4.1'].moves.findIndex(m => /^recoil/.test(m)) + 1, good = C['4.1'].moves.map((m, i) => [m, i + 1]).filter(([m]) => /^\d+a/.test(m)).pop()[1];
+  b.dice[1] = [rec, good]; const a = B.step(s, 'master'); assert.equal(a.t, 'reroll'); assert.deepEqual([].concat(a.dice !== undefined ? a.dice : a.die), [0], 'the die on the recoil face is the one thrown again');
+  E.faceOrder('sheet');
+});

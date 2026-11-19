@@ -259,7 +259,7 @@ test('ui: Kadabra can change column and Abra can swap two of theirs, right on th
     const mine = () => p.evaluate(() => window.__pokemonRoll.G.battle.cols.map(c => c[0]));
     const before = await mine(); await p.locator('[data-act=gswstart]').click();          // tap Kadabra's ability, then the ally to swap with
     const ally = await p.evaluate(() => { const b = window.__pokemonRoll.G.battle, k = b.units.find(u => u.side === 0 && !u.ko && Engine.tags(u).some(g => g.t === 'swapSelf')); return b.units.find(u => u.side === 0 && !u.ko && u !== k).uid; });
-    await p.locator('.card[data-uid="' + ally + '"]').click(); const after = await mine();
+    await p.locator('.card[data-uid="' + ally + '"] .nm').click(); const after = await mine();          // (the middle of a card may be its own ability box)
     assert.notDeepEqual(after, before, 'Kadabra swapped places: ' + before + ' -> ' + after); assert.equal(await p.locator('[data-act=gswstart]').count(), 0, 'once a round');
     const foes = () => p.evaluate(() => window.__pokemonRoll.G.battle.cols.map(c => c[1]));
     const f0 = await foes(); await p.locator('[data-act=swapstart]').click();
@@ -620,7 +620,7 @@ test('ui: matchup phase: with two places to slide to you tap the card, then the 
   try {
     await p.goto(URL); await p.click('[data-act=new]'); await p.click('[data-act=pickst][data-k=squirtle]'); await p.click('#startbtn'); await p.locator('[data-act=tipok]').click({ timeout: 800 }).catch(() => {});
     await p.evaluate(() => { const R = window.__pokemonRoll, E = window.Engine || R.E; R.G.done.B1 = true; R.G.coll.push({ uid: 50, id: '10', sh: 0 }, { uid: 51, id: '16', sh: 0 }, { uid: 52, id: '19', sh: 0 }); R.render(); });
-    await p.click('.place[data-id=B2]');
+    await p.click('.place[data-id=B2]'); await p.waitForSelector('[data-act=lendok]', { timeout: 3000 }).catch(() => {}); await p.click('.btn[data-act=lendok]').catch(() => {});          // Misty fields three and you have two dice: the borrowed-die sheet
     await p.locator('[data-act=tipok]').click({ timeout: 800 }).catch(() => {});
     const ok = await p.evaluate(() => { const R = window.__pokemonRoll, G = R.G; let g; while ((g = Bots.step(G))) Engine.apply(G, g);
       for (let i = 0; i < 8 && G.battle.stage === 'place'; i++) { if (G.battle.pl.confirm) Engine.apply(G, { t: 'ready' }); else if (G.battle.pl.side === 0 && G.battle.hand[0].length) Engine.apply(G, Object.assign({ t: 'place', side: 0, uid: G.battle.hand[0][0] }, Engine.slotsFor(G.battle, 0).find(x => x.join != null) || Engine.slotsFor(G.battle, 0)[0])); while ((g = Bots.step(G))) Engine.apply(G, g); }
