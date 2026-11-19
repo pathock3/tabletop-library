@@ -1,7 +1,13 @@
-const test = require('node:test');
+const rawTest = require('node:test');
 const assert = require('node:assert/strict');
 const { GAME_DATA: D, Engine: E, Bots: B } = require('./load.js');
 const C = E.CARDS, T = E._t;
+// The rule tests below were written against the V4 moves of particular cards (a die number, a card that attacks on it). The game's cards are now the V6 ones, so each rule test runs with the V4 move data
+// put back on the cards (v4cards.json) and the V6 data restored afterwards; tests of the V6 data itself use test.v6.
+const V4 = require('./v4cards.json'), V6 = {}; Object.keys(V4).forEach(id => { V6[id] = { sheet: C[id].sheet.slice(), els: C[id].els.slice() }; });
+const useCards = snap => { Object.keys(snap).forEach(id => { C[id].sheet = snap[id].sheet.slice(); C[id].els = snap[id].els.slice(); }); E.faceOrder('sheet'); };
+const test = (name, fn) => rawTest(name, (tc) => { useCards(V4); tc.after(() => { useCards(V6); }); return fn(tc); });
+test.v6 = (name, fn) => rawTest(name, (tc) => { useCards(V6); return fn(tc); });
 D.rules.columns = false;      // the older rule tests resolve a whole round at once; the column-by-column tests below switch it on for their own battles
 
 // ---- a hand-built battle: the i-th hero card faces the i-th computer card; then put numbers on the dice and give them out
@@ -902,4 +908,22 @@ v4('sleep: loses the next turn, wakes on 4-6 after that, wakes at once when hurt
   const w = craft(['4.1'], ['10']); w.g(0).asleep = true; w.g(0).sleepFresh = false; play(w, { hero: [at], gm: [1] }, { hero: { 0: 0 }, gm: {} }); assert.equal(w.g(0).asleep, false, 'an attack that hurts it wakes it');
   const r = craft(['35'], ['10']); r.g(0).asleep = true; r.g(0).sleepFresh = true; play(r, { hero: [sl], gm: [1] }, { hero: { 0: 0 }, gm: {} }); assert.equal(r.g(0).sleepFresh, true, 'already asleep: nothing changes');
   const m = craft(['143'], ['10']); const rest = faceOf('143', /sleep/); play(m, { hero: [rest], gm: [C['10'].moves.indexOf('') + 1] }, { hero: { 0: 0 }, gm: { 0: 0 } }); assert.ok(m.h(0).asleep, 'Snorlax falls asleep after healing 10');
+});
+
+// ---- V6: the cards of the V6 tab (the moves were all redesigned) and "pick N"
+test.v6('V6: every move on every card is read, an element sits only on a move with a number, and the dragon and dark colours are there', () => {
+  let dragon = 0, dark = 0;
+  Object.values(C).forEach(c => c.sheet.forEach((m, i) => { if (!m || /^Use the 6/.test(m)) return; assert.ok(E.parseMove(m), c.name + ': ' + m); if (c.els[i]) assert.match(m, /\d/, c.name + ': an element needs a number (' + m + ')'); if (c.els[i] === 'dragon') dragon++; if (c.els[i] === 'dark') dark++; }));
+  assert.ok(dragon >= 5 && dark >= 10, 'dragon ' + dragon + ', dark ' + dark);
+  assert.equal(C['4.1'].sheet.length, 6); assert.equal(C['1.1'].sheet[0], '2a, poison', 'Bulbasaur 1.1: Vine Whip with poison on the Roll of 6');
+});
+test.v6('V6: "pick N": 4h pick 2 heals any two of your cards, wherever they are; the player taps them, the computer takes the two that need it most', () => {
+  assert.equal(E.parseMove('4h pick 2').clauses[0][0].spec.pick, 2);
+  E.faceOrder('roll'); const face = C['38'].moves.findIndex(m => /pick 2/.test(m)) + 1; assert.ok(face > 0, 'Ninetales has it');
+  const c = craft(['38', '10', '16', '19'], ['10', '10', '10', '10']); c.b.units.slice(0, 4).forEach(u => { u.hp = 1; }); c.h(0).hp = c.h(0).max;          // Ninetales is fine; the other three are hurt
+  c.b.dice = [[face, 1, 1, 1], [1, 1, 1, 1]]; c.b.asg = [{}, {}]; [0, 1, 2, 3].forEach(i => { c.b.asg[0][c.b.units[i].uid] = { dice: [i], tgt: null }; c.b.asg[1][c.b.units[4 + i].uid] = { dice: [i], tgt: null }; }); c.b.gmReady = true;
+  assert.ok(E.apply(c.s, { t: 'go2' }).ok); assert.equal(c.b.ask.pickN, 2, 'the player picks'); assert.equal(c.b.ask.opts.length, 6, 'any two of the four cards: six pairs');
+  assert.equal(E.apply(c.s, { t: 'choose', tgts: [c.h(1).uid] }).ok, false, 'two cards, not one');
+  assert.ok(E.apply(c.s, { t: 'choose', tgts: [c.h(2).uid, c.h(3).uid] }).ok); assert.deepEqual(evs(c.b, 'heal').map(e => e.u).sort(), [c.h(2).uid, c.h(3).uid].sort(), 'the two chosen cards were healed, not the third');
+  E.faceOrder('sheet');
 });

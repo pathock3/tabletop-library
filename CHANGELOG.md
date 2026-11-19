@@ -1,6 +1,7 @@
 # Changelog
 
 - Pokémon Roll: the layout lab grid card is now edge to edge (no gaps, number boxes, half-height number box for two-line moves, left-aligned name/health/element/level, big square art flush right).
+- Pokémon Roll: the cards are now the V6 tab (all moves redesigned; dark and dragon colours; new "pick N" for choosing any N cards). The computer has no base rerolls; Normal plays as well as it can with no bonuses.
 - Pokémon Roll: once the fight starts the cards use the whole screen (columns are no longer reserved for cards that cannot come out), so a 1 v 1 fight shows big cards.
 - Pokémon Roll: every card is now the 2×3 move grid on trading-card proportions (the design from the layout lab): numbers in white boxes at the top-left of each cell, symbols for attack, heal, block, counter and pierce, one element colour behind the top half, type and weakness in the top strip, a larger art square, cards about 11% shorter so they can be drawn bigger.
 - Pokémon Roll: a "Card layout lab" (More menu, or add #lab to the address) compares today's six-row cards with a 2×3 move grid (text or icons) on 2.5×3.5 trading-card proportions, with 3v3 and 4v4 battle mock-ups. The game itself is unchanged.
