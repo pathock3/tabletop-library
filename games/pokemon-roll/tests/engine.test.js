@@ -943,3 +943,29 @@ test.v6('V6: with a reroll to spend, the computer throws away a die that shows a
   b.dice[1] = [rec, good]; const a = B.step(s, 'master'); assert.equal(a.t, 'reroll'); assert.deepEqual([].concat(a.dice !== undefined ? a.dice : a.die), [0], 'the die on the recoil face is the one thrown again');
   E.faceOrder('sheet');
 });
+
+// ---- the Elite Four, special events and replacements
+test('map: beating Giovanni alone opens the Elite Four (not all eight gym leaders)', () => {
+  const s = E.newGame({ seed: 5, starter: 'bulbasaur' }); const e1 = E.node('E1'); assert.equal(e1.badges, undefined); assert.deepEqual(e1.needs, ['B8']);
+  assert.equal(E.unlocked(s, e1), false); s.done.B1 = s.done.B2 = s.done.B3 = s.done.B4 = s.done.B5 = s.done.B6 = s.done.B7 = true; assert.equal(E.unlocked(s, e1), false, 'seven gyms are not enough');
+  s.done.B8 = true; assert.equal(E.unlocked(s, e1), true, 'Giovanni opens it'); ['E2', 'E3', 'E4'].forEach(id => assert.equal(E.node(id).badges, undefined, id + ' has no badge rule of its own'));
+  const t = E.newGame({ seed: 5, starter: 'bulbasaur' }); t.done.B8 = true; assert.equal(E.unlocked(t, e1), true, 'only Giovanni matters');
+});
+test('specials: one event at a time, none right after an event battle, and the Dojo leaves when you have kept one', () => {
+  const s = E.newGame({ seed: 9, starter: 'bulbasaur' }); s.slotsAtGo = 3; s.visitors = ['bill'];
+  for (let i = 0; i < 300; i++) { s.phase = 'result'; s.res = { win: true, node: 'L1', kind: 'loc', gm: [], pick: null }; E.apply(s, { t: 'done' }); } assert.deepEqual(s.visitors, ['bill'], 'a visitor on the map blocks every new event');
+  const t = E.newGame({ seed: 9, starter: 'bulbasaur' }); t.slotsAtGo = 3; t.visitors = ['dojo']; t.phase = 'result'; t.res = { win: true, node: 'V_dojo', kind: 'loc', gm: [], pick: [{ id: '56', sh: 0 }, { id: '57', sh: 0 }] };
+  assert.ok(E.apply(t, { t: 'take', i: 0 }).ok); assert.deepEqual(t.visitors, [], 'the Dojo is gone once you kept one');
+  t.rng = 1; for (let i = 0; i < 200; i++) { t.phase = 'result'; t.res = { win: true, node: 'V_dojo', kind: 'loc', gm: [], pick: null }; E.apply(t, { t: 'done' }); assert.deepEqual(t.visitors, [], 'no new event right after an event battle'); }
+  const o = E.newGame({ seed: 9, starter: 'bulbasaur' }); o.visitors = ['bill', 'dojo']; E.repair(o); assert.equal(o.visitors.length, 1, 'an older save with two visitors keeps one');
+});
+test('replacements: you may use as many Pokémon as the leader has, and anyone you caught can be sent in', () => {
+  const s = E.newGame({ seed: 5, starter: 'bulbasaur' }); s.done.B1 = true; ['10', '16', '19', '21', '23'].forEach((id, i) => s.coll.push({ uid: 20 + i, id, sh: 0 }));          // six Pokémon; Surge has four, three out
+  assert.ok(E.apply(s, { t: 'go', node: 'B3' }).ok); const b = s.battle; assert.equal(b.cap0, 4, 'the same number as the leader'); assert.equal(b.nOut, 3); assert.equal(b.sendLeft, 1, 'one replacement may still be sent');
+  let g; while ((g = B.step(s, 'normal')) || (b.stage === 'place' && b.pl.side === 0)) { if (g) E.apply(s, g); else if (b.pl.confirm) E.apply(s, { t: 'ready' }); else E.apply(s, Object.assign({ t: 'place', side: 0, uid: b.hand[0][0] }, E.slotsFor(b, 0)[0])); }
+  assert.equal(b.rsv[0].length, 3, 'everyone else you caught waits, not only the strongest'); const first = E.living(b, 0)[0]; first.ko = true; first.hp = 0; b.stage = 'resolved'; b.out = null;
+  assert.ok(E.apply(s, { t: 'next' }).ok); assert.equal(b.stage, 'place'); assert.equal(b.hand[0].length, 3, 'all three are offered'); assert.equal(b.need[0] - b.placed[0], 1, 'one is needed');
+  const pickLast = b.hand[0][b.hand[0].length - 1]; assert.ok(E.apply(s, Object.assign({ t: 'place', side: 0, uid: pickLast }, E.slotsFor(b, 0)[0])).ok, 'any of them can come in');
+  while ((g = B.step(s, 'normal'))) E.apply(s, g); if (b.pl && b.pl.confirm) E.apply(s, { t: 'ready' }); assert.equal(b.sendLeft, 0, 'that was the last replacement'); assert.equal(b.rsv[0].length, 2);
+  const again = E.living(b, 0)[0]; again.ko = true; again.hp = 0; b.stage = 'resolved'; b.out = null; E.apply(s, { t: 'next' }); assert.notEqual(b.refill && b.pl && b.pl.side === 0 && b.hand[0].length > 0 && b.stage === 'place', true, 'no more replacements are offered: you have used as many as the leader has');
+});

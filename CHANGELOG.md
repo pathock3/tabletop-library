@@ -1,6 +1,7 @@
 # Changelog
 
 - Pokémon Roll: the layout lab grid card is now edge to edge (no gaps, number boxes, half-height number box for two-line moves, left-aligned name/health/element/level, big square art flush right).
+- Pokémon Roll: beating Giovanni alone opens the Elite Four; only one special event at a time (none right after one, the Dojo leaves when you keep one); "keep one" fits on one screen with OK pinned; the "i" on gym leaders and decks is a big corner button; in trainer fights you use as many Pokémon as the leader has and can send in anyone you caught.
 - Pokémon Roll: Hard starts every round with 1 reroll (Normal none); the computer throws away weak and recoil dice more readily; "3a <>, drain" now drains; the zoomed card names each move (sheet column T).
 - Pokémon Roll: the cards are now the V6 tab (all moves redesigned; dark and dragon colours; new "pick N" for choosing any N cards). The computer has no base rerolls; Normal plays as well as it can with no bonuses.
 - Pokémon Roll: once the fight starts the cards use the whole screen (columns are no longer reserved for cards that cannot come out), so a 1 v 1 fight shows big cards.
