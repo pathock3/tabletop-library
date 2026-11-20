@@ -1262,9 +1262,12 @@ const Engine = (() => {
     if (eventActive(s)) return;
     if (s.legendDue) { if (SPECIAL.legendary(s) !== false) s.legendDue = false; return; }
     if (rnd(s) >= SPEC.chance) return;
-    // the visitors (Bill, the Dojo) come one after another once you have three dice; a legendary can turn up once you hold any four badges
-    const id = (s.specialsSeen < SPEC.order.length && (s.slotsAtGo || 0) >= SPEC.fromSlots) ? SPEC.order[s.specialsSeen] : badges(s) >= SPEC.legendBadges ? SPEC.then : null; if (!id) return;
-    const d = spDef(id); if (d && SPECIAL[d.kind](s, id, d) !== false && id !== SPEC.then) s.specialsSeen++;
+    // a random one of the events that can happen now: the visitors you have not met yet (Bill, the Dojo; once you have three dice) and a legendary (once you hold any four badges)
+    const met = s.seenSpecials = s.seenSpecials || [], pool = [];
+    if ((s.slotsAtGo || 0) >= SPEC.fromSlots) SPEC.order.forEach(x => { if (met.indexOf(x) < 0) pool.push(x); });
+    if (badges(s) >= SPEC.legendBadges) pool.push(SPEC.then);
+    if (!pool.length) return; const id = pool[ri(s, pool.length)];
+    const d = spDef(id); if (d && SPECIAL[d.kind](s, id, d) !== false && id !== SPEC.then) { met.push(id); s.specialsSeen++; }
   }
   const node = id => D.nodes.find(n => n.id === id) || (/^V_/.test(id) ? visitorNode(id.slice(2)) : null);
   const starterOf = key => D.starters.find(x => x.key === key);

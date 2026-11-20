@@ -546,9 +546,10 @@ test('special events: 10% after a battle that started with three dice; the first
     const s = play1(seed, 3); if (s.visitors.length || s.notes.length) { enough++; if (!first) first = s; }
   }
   assert.equal(few, 0, 'nothing special before the first battle with three dice'); assert.ok(enough > 15 && enough < 70, 'about one battle in ten (' + enough + ')');
-  assert.deepEqual(first.visitors, ['bill']); assert.equal(first.specialsSeen, 1); assert.ok(first.notes[0].startsWith('visitor:'), 'the first one is Bill, standing on the map');
+  assert.equal(first.visitors.length, 1); assert.ok(['bill', 'dojo'].includes(first.visitors[0])); assert.equal(first.specialsSeen, 1); assert.ok(first.notes[0].startsWith('visitor:'), 'a visitor stands on the map');
+  const firsts = new Set(); for (let seed = 1; seed <= 400; seed++) { const v = play1(seed, 3); if (v.visitors.length) firsts.add(v.visitors[0]); } assert.deepEqual([...firsts].sort(), ['bill', 'dojo'], 'the first event is random: it is not always Bill');
   // after Bill and the Dojo, and once you hold four badges: a random legendary each time; its place's draw and discard piles are shuffled together with it
-  let leg = null; for (let seed = 1; seed < 400 && !leg; seed++) { const s = play1(seed, 3, g => { g.specialsSeen = 2; g.done.B1 = g.done.B2 = g.done.B4 = g.done.B5 = true; g.discard[1] = ['10', '13']; g.discard[2] = ['16']; }); if (s.notes.some(n => n.startsWith('legend:'))) leg = s; }
+  let leg = null; for (let seed = 1; seed < 400 && !leg; seed++) { const s = play1(seed, 3, g => { g.specialsSeen = 2; g.seenSpecials = ['bill', 'dojo']; g.done.B1 = g.done.B2 = g.done.B4 = g.done.B5 = true; g.discard[1] = ['10', '13']; g.discard[2] = ['16']; }); if (s.notes.some(n => n.startsWith('legend:'))) leg = s; }
   assert.ok(leg, 'then a legendary'); const id = leg.notes[0].slice(7), loc = C[id].loc; assert.ok(C[id].legend); assert.ok(leg.decks[loc].includes(id), 'it is in the new draw pile'); assert.equal(leg.discard[loc].length, 0, 'the discard pile went into it'); assert.ok(!leg.legend.includes(id));
 });
 
@@ -696,7 +697,7 @@ test('v3: a counter sends the damage it soaked back, leftover counter is wasted,
 });
 test('v3: the Fighting Dojo is a visitor with three random Fighting cards, and every event has an info line', () => {
   const dj = D.specials.defs.dojo; assert.equal(dj.pick.type, 'Fighting'); assert.equal(dj.pick.n, 3); assert.ok(dj.info && D.specials.defs.bill.info);
-  const s = E.newGame({ seed: 5, starter: 'bulbasaur' }); s.visitors = []; s.specialsSeen = 1; s.slotsAtGo = 3;
+  const s = E.newGame({ seed: 5, starter: 'bulbasaur' }); s.visitors = []; s.specialsSeen = 1; s.seenSpecials = ['bill']; s.slotsAtGo = 3;
   let got = null; for (let seed = 1; seed < 400 && !got; seed++) { s.rng = seed; s.visitors = []; s.notes = []; T.maybeSpecial && T.maybeSpecial(s); if (s.vcards && s.vcards.dojo) got = s.vcards.dojo; }
   if (got) { assert.equal(got.length, 3); got.forEach(id => assert.equal(C[id].type, 'Fighting')); assert.equal(new Set(got).size, 3); }
 });
