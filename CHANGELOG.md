@@ -1,5 +1,6 @@
 # Changelog
 
+- Pokémon Roll: moves with a keyword (poison, charge, dodge, sleep, stun…) now always show it on the card — before, Venusaur Lv 50, Vileplume, Machamp and many others had the keyword line cut off when the attack arrows took two lines.
 - Pokémon Roll: the layout lab grid card is now edge to edge (no gaps, number boxes, half-height number box for two-line moves, left-aligned name/health/element/level, big square art flush right).
 - Pokémon Roll: special events are random now (Bill, the Dojo, or a legendary once you hold four badges), not always Bill first.
 - Pokémon Roll: beating Giovanni alone opens the Elite Four; only one special event at a time (none right after one, the Dojo leaves when you keep one); "keep one" fits on one screen with OK pinned; the "i" on gym leaders and decks is a big corner button; in trainer fights you use as many Pokémon as the leader has and can send in anyone you caught.
