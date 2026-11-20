@@ -549,7 +549,7 @@ test('ui: one sliding map holds the gyms, the places, the Elite Four, Blue and R
     assert.equal(await p.locator('.place.sq[aria-label="A mystery opponent"]').count(), 2, 'Blue and Red are hidden until Lance is beaten');
     assert.equal((await p.locator('.place.sq .pl b').allInnerTexts()).some(t => /team/i.test(t)), false, 'just the name, no "team"');
     await p.evaluate(() => { document.querySelector('.mapwrap').scrollLeft = 99999; }); await p.waitForTimeout(150);
-    await p.click('.place[data-id=E1]'); assert.match(await p.innerText('.toast'), /eight gym/i);
+    await p.click('.place[data-id=E1]'); assert.match(await p.innerText('.toast'), /Giovanni/i);
     await p.click('[data-act=menu]'); await p.click('[data-act=settings]'); await p.click('[data-act=resetask]'); assert.match(await p.innerText('.sheet'), /deletes ALL/); await p.click('[data-act=resetno]'); assert.equal(await p.locator('[data-act=resetgo]').count(), 0, 'cancelling keeps everything');
     assert.deepEqual(errs, []);
   } finally { await b.close(); }

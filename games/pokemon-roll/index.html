@@ -1472,7 +1472,7 @@ const Engine = (() => {
     if (b.fcols && b.mode === 'wild') b.cols = b.cols.filter(c => c[0] != null || c[1] != null);
     nidoMax(b); if (wasRefill) enterMatch(s); else startRound(s);
   }
-  const rsvN = (b, side) => (b.rsv && b.rsv[side] ? b.rsv[side].length : 0);
+  const rsvN = (b, side) => (b.rsv && b.rsv[side] ? (side === 0 && b.sendLeft != null ? Math.min(b.rsv[side].length, b.sendLeft) : b.rsv[side].length) : 0);          // only as many as you may still send in
   // after a round, a card knocked out is replaced from the reserve: they bring theirs (the signature last), then you pick yours; it drops into any empty column
   function needRefill(b) { return !!(b.fcols && b.nOut != null && [0, 1].some(sd => living(b, sd).length < b.nOut && rsvN(b, sd) > 0 && (sd === 1 || b.sendLeft == null || b.sendLeft > 0))); }
   function startRefill(s) {
@@ -2531,6 +2531,7 @@ const Bots = (() => {
     if (b.mode === 'wild' && side === 1) { const f = slots.filter(sl => sl.join != null && b.cols[sl.join][0] != null); if (f.length) slots = f; }          // the place answers your card across from it
     if (!slots.length) return null;
     const L = lv(level);
+    if (side === 0 && b.cap0 != null && units.length > b.cap0) units = units.slice().sort((x, y) => C[y.id].level - C[x.id].level).slice(0, b.cap0);          // the test player, with everyone you caught to pick from, chooses among the strongest
     if (chance(s, L.placeRandom)) return { t: 'place', side, uid: key(pick(s, units)), ...pick(s, slots) };          // Easy always, Normal now and then: any card into any open column
     const smart = L.placeSmart || 1; let best = null, bv = -1e9;
     units.forEach(u => slots.forEach(sl => {
