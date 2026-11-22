@@ -744,8 +744,8 @@ const GAME_DATA = {
     { id: 'E2', kind: 'boss', name: 'Bruno', say: "Hoo hah! Your spirit is strong. Move on!", color: '#bf5b2c', stage: 5, lane: 2, needs: ['B8'], lvl: 5, elite: true },
     { id: 'E3', kind: 'boss', name: 'Agatha', say: "Oh, my! You really are something. Go on, child.", color: '#7e57c2', stage: 5, lane: 2, needs: ['B8'], lvl: 5, elite: true },
     { id: 'E4', kind: 'boss', name: 'Lance', say: "Magnificent! You have defeated the Elite Four.", color: '#5c6bc0', stage: 6, lane: 2, needs: ['E1', 'E2', 'E3'], any: true, lvl: 6 },
-    { id: 'F1', kind: 'boss', final: true, name: 'Blue', say: "Tch. Fine. You beat me. Don't get used to it, though.", color: '#3f51b5', stage: 7, lane: 1, needs: ['E4'], lvl: 6, mystery: true },
-    { id: 'F2', kind: 'boss', final: true, finale: true, name: 'Red', say: "...", color: '#e53935', stage: 7, lane: 3, needs: ['E4'], lvl: 6, mystery: true },
+    { id: 'F1', kind: 'boss', final: true, finale: true, name: 'Blue', say: "Tch. Fine. You beat me. Don't get used to it, though.", color: '#3f51b5', stage: 7, lane: 2, needs: ['E4'], lvl: 6, mystery: true },
+    { id: 'F2', kind: 'boss', final: true, finale: true, name: 'Red', say: "...", color: '#e53935', stage: 7, lane: 2, needs: ['E4'], lvl: 6, mystery: true },
   ],
   // ability text on the card -> what the engine does (first match wins; "$1" is the first group). Several abilities on a card are separated by ";".
   // V4 sheet column J: the full explanation of each ability, shown when the player taps the ability on a card
@@ -1282,7 +1282,7 @@ const Engine = (() => {
   const badges = s => D.nodes.filter(n => n.gym && s.done[n.id]).length;          // a badge for every gym leader beaten
   // dice: you start with one, the first two badges give a second and a third
   const slots = s => Math.min(R.maxDice, R.startSlots + R.diceRewards.filter(g => g.some(id => s.done[id])).length);
-  const unlocked = (s, n) => (!n.elite || s.elite === n.id) && (!n.badges || badges(s) >= n.badges) && (!n.dice || slots(s) >= n.dice) && (n.any ? n.needs.some(id => s.done[id]) : n.needs.every(id => s.done[id]));       // `badges`: this many gym badges; `any`: either of two paths opens it; `dice`: you also need this many dice
+  const unlocked = (s, n) => (!n.elite || s.elite === n.id) && (!n.final || s.final === n.id) && (!n.badges || badges(s) >= n.badges) && (!n.dice || slots(s) >= n.dice) && (n.any ? n.needs.some(id => s.done[id]) : n.needs.every(id => s.done[id]));       // `badges`: this many gym badges; `any`: either of two paths opens it; `dice`: you also need this many dice
   const inst = (s, id, sh) => ({ id, sh: sh ? 1 : 0 });
   // ---------------------------------------------------------------- a trainer's team: built at random when the battle starts, from the trainer's row in D.trainers
   // Signature first (it plays last), then one card at a time, only cards after which the quotas and the level points can still be met. Bosses use copies: nobody's catch pile is touched.
@@ -1350,6 +1350,7 @@ const Engine = (() => {
 
   // saves from older builds: a trainer without a team gets one, and a fight that never started (phase 'battle' with no battle) goes back to the map
   function repair(s) {
+    if (!s.final) s.final = (s.done || {}).F1 ? 'F1' : (s.done || {}).F2 ? 'F2' : ['F1', 'F2'][ri(s, 2)];          // the secret last opponent: Blue or Red, picked at random
     if (!s.elite) s.elite = ['E1', 'E2', 'E3'][ri(s, 3)];          // one Elite Four member, picked at random, stands before Lance
     s.bosses = s.bosses || {}; s.held = s.held || {}; s.legFor = s.legFor || {}; s.notes = s.notes || []; s.visitors = s.visitors || []; s.done = s.done || {};
     if (s.visitors.length > 1) s.visitors = s.visitors.slice(0, 1);          // only one visitor at a time (an older save may have had two)
@@ -1372,7 +1373,7 @@ const Engine = (() => {
   }
   function chooseStarter(s, key) {
     const st = starterOf(key); if (!st) return false;
-    s.starter = key; s.rival = rivalFor(key).key; s.lv = R.startLevel; s.elite = ['E1', 'E2', 'E3'][ri(s, 3)];
+    s.starter = key; s.rival = rivalFor(key).key; s.lv = R.startLevel; s.elite = ['E1', 'E2', 'E3'][ri(s, 3)]; s.final = ['F1', 'F2'][(Math.imul(s.seed | 0, 2654435761) >>> 16) & 1];          // random per game, from the seed so the dealing is not disturbed
     s.sh = {}; Object.keys(CARDS).forEach(id => { s.sh[id] = shiny(s); });                       // shiny or not, for the whole game, decided before anything is dealt
     const lineSh = starterShiny(s.seed) === key ? 1 : 0; st.levels.concat(st.evolve ? Object.values(st.evolve) : []).forEach(id => { s.sh[id] = lineSh; });      // a partner keeps its form as it levels up and evolves
     s.coll = [{ uid: s.nextUid++, id: st.levels[R.startLevel - 1], sh: lineSh, starter: 1 }];
@@ -2361,7 +2362,7 @@ const Engine = (() => {
       if (b.lend && slots(s) > dice0) s.res.keepDie = b.lend;
       if (nd.kind === 'boss') { s.res.cleared = s.bosses[nd.id]; s.res.wild = (wildBack || []).map(id => ({ id, sh: s.sh[id] ? 1 : 0 })); }          // the team goes back into the wild: the result screen says so
       if (nd.id === 'E4') { s.notes.push('rivals'); if (!s.legendSeen) s.legendDue = true; }          // Blue and Red turn up; a legendary is promised if none has shown yet
-      if (nd.final && D.nodes.filter(q => q.final).every(q => s.done[q.id])) { s.phase = 'won'; }
+      if (nd.final) { s.phase = 'won'; }
       const nl = Math.min(R.maxLevel, (nd.lvl || 1) + 1);
       if (!nd.finale) if (nl > s.lv) { s.lv = nl; const st = s.coll.find(c => c.starter), sd = starterOf(s.starter); st.id = s.evolved && sd.evolve[nl] ? sd.evolve[nl] : sd.levels[nl - 1]; s.res.levelUp = nl; if (sd.evolve && sd.evolve[nl] && !s.evolved && !s.evoAsked) { s.evoAsked = true; s.res.evolve = nl; } }
     }
@@ -2968,7 +2969,7 @@ const trainerFg = {
       ${trainerImg(n.id)}`;
   }
   const finaleScene = () => `<rect width="160" height="120" fill="#4527a0"/>${Array.from({ length: 12 }, (_, i) => { const a = i * Math.PI / 6; return `<path d="M80 62L${(80 + 90 * Math.cos(a - .1)).toFixed(0)} ${(62 + 90 * Math.sin(a - .1)).toFixed(0)} ${(80 + 90 * Math.cos(a + .1)).toFixed(0)} ${(62 + 90 * Math.sin(a + .1)).toFixed(0)}Z" fill="#7e57c2" opacity=".6"/>`; }).join('')}<text x="80" y="82" text-anchor="middle" font-size="66">🏆</text>`;
-  const gameEnd = nd => !!(nd.final && D.nodes.filter(q => q.final).every(q => G.done[q.id]));          // the game is won when Blue and Red are both beaten
+  const gameEnd = nd => !!nd.final;          // the game is won when the secret last opponent (Blue or Red) is beaten
   const sceneOf = n => n.kind === 'loc' ? SCENE[n.loc]() : n.finale ? finaleScene() + trainerImg(n.id) : gymScene(n);
 
   // ---------------------------------------------------------------- a location is a deck of cards: this is its back
@@ -3447,7 +3448,7 @@ const trainerFg = {
 
   // ---- the map: left to right, only what is open and one step beyond it; scaled to fill the screen, never scrolled
   const TILE_W = 160, PADX = 20, PADY = 16;
-  const shown = n => !n.elite || !G || !G.elite || G.elite === n.id;          // the whole road is on show from the start; places you cannot reach yet are shown locked
+  const shown = n => (!n.elite || !G || !G.elite || G.elite === n.id) && (!n.final || !G || !G.final || G.final === n.id);          // the whole road is on show from the start; places you cannot reach yet are shown locked
   // "Your cards" is a pile with your starter on top; tap it to turn them all face up
   function myPile() {
     const st = G.coll.find(c => c.starter) || G.coll[0], n = G.coll.length;
@@ -3674,11 +3675,10 @@ const trainerFg = {
     // two screens: first the leader's thanks (what they hand you, how long you took); then what it did for your team (the starter, a new card, a legendary)
     const hasTeam = !!(r.win && (r.levelUp || r.evolve || r.legend || r.pick || r.took));
     const placeOf = id => (D.locations.find(l => l.id === C[id].loc) || {}).name || '';
-    const wildTxt = r.win && r.wild && r.wild.length ? `<div class="wildback"><b>${esc(nd.name)}'s Pokémon went back into the wild</b><div class="wb">${r.wild.map(i => `<span><img class="pix" src="${art(i.id, i.sh)}" alt=""><small>${esc(C[i.id].name)}<br>${esc(placeOf(i.id))}</small></span>`).join('')}</div></div>` : '';
     const leadFirst = r.win && nd.kind === 'boss';
     if (ui.resFor !== G.turn + ':' + r.node) { ui.resFor = G.turn + ':' + r.node; ui.resStep = leadFirst ? 0 : 1; }
     const dest = G.phase === 'won' ? 'Hall of Fame' : 'Continue';
-    if (ui.resStep === 0 && leadFirst) return `<div class="scr" style="overflow:auto"><div class="center" style="justify-content:center;min-height:100%;padding-top:20px"><div class="banner">${gameEnd(nd) ? 'CHAMPION!' : 'Victory!'}</div>${lead}${turnsLine ? `<div class="turnsline">${turnsLine}</div>` : ''}${wildTxt}<button class="btn big" data-act="${hasTeam ? 'resnext' : 'done'}">${hasTeam ? 'Continue' : dest}</button></div></div>`;
+    if (ui.resStep === 0 && leadFirst) return `<div class="scr" style="overflow:auto"><div class="center" style="justify-content:center;min-height:100%;padding-top:20px"><div class="banner">${gameEnd(nd) ? 'CHAMPION!' : 'Victory!'}</div>${lead}${turnsLine ? `<div class="turnsline">${turnsLine}</div>` : ''}<button class="btn big" data-act="${hasTeam ? 'resnext' : 'done'}">${hasTeam ? 'Continue' : dest}</button></div></div>`;
     const st = G.coll.find(c => c.starter), room = viewH() - 360;          // the banner, the line of text and the button all share the screen with the card
     const one = (c, txt, attr) => `<div class="status">${txt}</div><div class="hrow" style="justify-content:center">${card(c, { cw: Math.max(140, Math.min(360, Math.floor(room / CH), innerWidth - 60)), attr: attr || '' })}</div>`;
     const prevId = (() => { const sd = E.starterOf(G.starter), pl = r.levelUp - 1; return pl >= 1 ? (G.evolved && sd.evolve && sd.evolve[pl] ? sd.evolve[pl] : sd.levels[pl - 1]) : st.id; })();
@@ -3691,7 +3691,7 @@ const trainerFg = {
       ${r.pick || r.evolve ? '' : `<button class="btn big" data-act="done">${dest}</button>`}</div></div>`;
   }
   function wonScreen() {
-    return `<div class="scr"><div class="center" style="flex:none;padding-top:56px"><div class="banner" style="font-size:54px">CHAMPION!</div><div style="font:800 22px system-ui">You beat the Elite Four, Blue and Red in <b>${G.turn} turns</b>.${(scores()[G.size] || {}).game != null ? ` <span class="pb">Best: ${(scores()[G.size] || {}).game}</span>` : ''}</div></div>
+    return `<div class="scr"><div class="center" style="flex:none;padding-top:56px"><div class="banner" style="font-size:54px">CHAMPION!</div><div style="font:800 22px system-ui">You beat the Elite Four and the secret champion in <b>${G.turn} turns</b>.${(scores()[G.size] || {}).game != null ? ` <span class="pb">Best: ${(scores()[G.size] || {}).game}</span>` : ''}</div></div>
       ${cardGrid(collSorted(), { max: 170, attr: c => `data-act="zoom" data-uid="${c.uid}"` })}<div class="dock" style="flex-direction:row;justify-content:center;gap:12px"><button class="btn big" data-act="keepgoing">Keep playing</button><button class="btn big alt" data-act="menu0">Main menu</button></div></div>`;
   }
 
@@ -3761,7 +3761,7 @@ const trainerFg = {
     return `<div class="sheet" style="z-index:70;flex-direction:column;gap:10px" data-act="closedexcard"><div class="dxvs2" style="max-height:${viewH() - 96}px">${cs.map(one).join('')}</div><div class="hnav"><button class="ib" data-act="dexprev" aria-label="Previous">◀</button><button class="ib" data-act="dexnext" aria-label="Next">▶</button></div>${ui.dexTip ? `<div class="sheet" style="z-index:80" data-act="dextipx"><div class="box" data-stop="1" style="max-width:420px;display:flex;flex-direction:column;gap:12px"><h2>${ui.dexTip.h}</h2><p class="hcap" style="font-size:20px">${ui.dexTip.p}</p><button class="btn" data-act="dextipx">OK</button></div></div>` : ''}</div>`;
   }
   function recordsSheet() {
-    const sz = ui.recSize || set.size, rec = scores()[sz] || {}, bosses = D.nodes.filter(n => n.kind === 'boss' && shown(n));
+    const sz = ui.recSize || set.size, rec = scores()[sz] || {}, bosses = D.nodes.filter(n => n.kind === 'boss' && ((!n.elite && !n.final) || rec[n.id] != null || shown(n)));
     const tile = (n, key, label) => `<div class="rectile${rec[key] != null ? ' got' : ''}"><div class="hmap" style="width:100%"><svg viewBox="0 0 160 120">${n ? sceneOf(n) : finaleScene()}</svg></div><b>${esc(label)}</b><div class="recn">${rec[key] != null ? rec[key] + '<small> turns</small>' : '—'}</div></div>`;
     return `<div class="sheet" data-act="closerec"><div class="box hbox" data-stop="1" style="max-width:640px"><h2>Hall of Fame</h2>
       <div class="hofl">${hofRuns()}</div>

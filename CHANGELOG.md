@@ -1,5 +1,7 @@
 # Changelog
 
+- Pokémon Roll: after beating a gym leader the result no longer says where their Pokémon went back into the wild (they still do).
+- Pokémon Roll: the secret last opponent is Blue OR Red, chosen at random when the game starts; beating them wins the game.
 - Pokémon Roll: five dice (Brock, Misty or Surge, Giovanni, Lance); cards out = your dice, but gyms are never bigger than 3 on 3; the Elite Four are 4 on 4 (six cards each) and Blue and Red 5 on 5 (seven cards each); team sizes and level points come from the Trainers tab. In every trainer fight the leader brings only as many Pokémon as you own, so the ball counts always match.
 - Pokémon Roll: only one random Elite Four member (Lorelei, Bruno or Agatha) stands before Lance.
 - Pokémon Roll: a long hand in the matchup screen starts at the left (your strongest first) and slides sideways; lift a card up or down to place it.

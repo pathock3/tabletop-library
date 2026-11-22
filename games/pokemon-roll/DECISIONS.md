@@ -171,3 +171,5 @@ The owner approved the grid card from the layout lab and it is now the only card
 - Element bonus (always ×2, face colour = element, unfilled = normal): attacks vs weakness (`wm`), heals on a same-element target, blocks and counters vs an attack of the same element (`elemX2`). Lapras (fire gets none) now covers heals, blocks and counters. The older coloured-dice bonus (+1) is untouched and stacks; `doubleHeal` abilities stack multiplicatively with the ×2 (4×); a block ×2 is measured in damage stopped (a 3-block stops 6 of the same element, and a counter sends back what it stopped).
 - Arrows clamp at two columns; no V6 move uses "all"/"any" targets (a test checks).
 - Catch animation plays for every "pick a card" screen (wild catch, Bill, Dojo); a legendary that is handed over automatically has no throw.
+
+- Final boss: `s.final` (F1 Blue or F2 Red) is derived from the game seed at the start (older saves: whichever was beaten, else seed-random); only that node is on the map, both have `finale`; beating it wins. Beaten teams still go back to the wild, silently.

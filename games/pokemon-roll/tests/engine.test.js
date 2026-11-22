@@ -284,7 +284,7 @@ test('campaign: areas open by beating the leader before them; dice come from Bro
   s.done.B7 = true; assert.ok(open().includes('L9')); delete s.done.B5; assert.ok(open().includes('B8'), 'Blaine alone opens Giovanni too'); s.done.B5 = true;
   assert.ok(!open().includes('E1')); s.done.B8 = true; assert.equal(E._t.badges(s), 8);
   assert.ok(['E1', 'E2', 'E3'].includes(s.elite)); assert.deepEqual(open().filter(id => ['E1', 'E2', 'E3'].includes(id)), [s.elite], 'only one Elite Four member stands there'); assert.ok(!open().includes('E4')); s.done[s.elite] = true; assert.ok(open().includes('E4'));
-  s.done.E4 = true; assert.ok(open().includes('F1') && open().includes('F2'));
+  s.done.E4 = true; assert.deepEqual(open().filter(id => id[0] === 'F'), [s.final], 'only the chosen secret opponent is open');
   const t = E.newGame({ seed: 4, starter: 'squirtle' }); t.done.B1 = true; t.done.B3 = true; assert.equal(E.slots(t), 3, 'Surge first works too');
 });
 test('campaign: your rival picks the partner that beats yours', () => {
@@ -319,9 +319,9 @@ test('draw pile: a place is worked through once, every card, before what was dug
 test('records: the turn each gym leader was beaten on is kept, and the whole game takes a number of turns', (tc) => { E.faceOrder('roll'); tc.after(() => E.faceOrder('sheet'));
   const s = E.newGame({ seed: 5, starter: 'larvitar', ai: 'master' }); let n = 0;
   while (s.phase !== 'won' && n++ < 40000) { let g; while ((g = B.step(s))) E.apply(s, g); const a = B.heroStep(s, 'master'); B.applyHero(s, a); }
-  assert.equal(s.phase, 'won'); const ids = D.nodes.filter(x => x.kind === 'boss' && (!x.elite || x.id === s.elite)).map(x => x.id);
+  assert.equal(s.phase, 'won'); const ids = D.nodes.filter(x => x.kind === 'boss' && (!x.elite || x.id === s.elite) && (!x.final || x.id === s.final)).map(x => x.id);
   ids.forEach(id => { assert.ok(s.bossTurns[id] >= 1 && s.bossTurns[id] <= s.turn, id + ' beaten on turn ' + s.bossTurns[id]); });
-  assert.ok(s.bossTurns.B1 <= s.bossTurns.B2 || s.bossTurns.B1 <= s.bossTurns.B3); assert.ok(s.bossTurns.F2 === s.turn, 'the game was won on the last turn: beating Red ends it');
+  assert.ok(s.bossTurns.B1 <= s.bossTurns.B2 || s.bossTurns.B1 <= s.bossTurns.B3); assert.ok(s.bossTurns[s.final] === s.turn, 'the game was won on the last turn: beating Red ends it');
 });
 test('shiny: your partner keeps its form through every level and evolution', () => {
   for (let seed = 1; seed <= 60; seed++) {
@@ -386,7 +386,7 @@ test('Haunter: when a teammate falls you may keep its ability, once per battle',
   if (g.b.units[1].ko) assert.equal(g.b.units[2].ghost || null, null);
 });
 test('campaign: nobody has a rival at the end; beating Lance wins the game', () => {
-  assert.equal(D.nodes.filter(n => n.finale).map(n => n.id).join(), 'F2'); assert.ok(!('rivalFinalExtra' in D));
+  assert.equal(D.nodes.filter(n => n.finale).map(n => n.id).join(), 'F1,F2'); assert.ok(!('rivalFinalExtra' in D));
 });
 test('campaign: a gym leader you have faced is no longer a secret', () => {
   const s = E.newGame({ seed: 4, starter: 'charmander' }); s.done.B1 = true; assert.ok(!(s.seen && s.seen.B2));
@@ -715,8 +715,8 @@ test('v3: beating Lance brings Blue and Red (a note, then a promised legendary);
   s.res.pick = null; s.res.evolve = 0; E.apply(s, { t: 'done' }); assert.ok(s.legendMarker, 'it appears, in the event slot'); assert.ok(T.eventActive(s)); const seen = s.notes.length;
   for (let i = 1; i < 60; i++) { s.rng = i; T.maybeSpecial(s); } assert.equal(s.notes.length, seen, 'no second event while one is waiting');
   s.coll.push({ uid: 99, id: s.legendMarker, sh: 0 }); assert.ok(!T.eventActive(s), 'caught: the slot is free again');
-  assert.ok(open().includes('F1') && open().includes('F2')); s.done.F1 = true; s.phase = 'battle'; const c = T.startBattle(s, 'boss', 'F2', [{ id: '4.2', sh: 0 }], [{ id: '10', sh: 0 }]); c.hand = [[], []]; c.units[1].ko = true; c.units[1].hp = 0; c.cols = [[c.units[0].uid, c.units[1].uid]]; c.stage = 'resolved'; c.out = 'hero'; s.bosses.F2 = [{ id: '10', sh: 0 }];
-  assert.ok(E.apply(s, { t: 'next' }).ok); assert.equal(s.phase, 'won', 'both beaten: the game is won');
+  assert.deepEqual(open().filter(id => id[0] === 'F'), [s.final]); const fin = s.final; s.phase = 'battle'; const c = T.startBattle(s, 'boss', fin, [{ id: '4.2', sh: 0 }], [{ id: '10', sh: 0 }]); c.hand = [[], []]; c.units[1].ko = true; c.units[1].hp = 0; c.cols = [[c.units[0].uid, c.units[1].uid]]; c.stage = 'resolved'; c.out = 'hero'; s.bosses[fin] = [{ id: '10', sh: 0 }];
+  assert.ok(E.apply(s, { t: 'next' }).ok); assert.equal(s.phase, 'won', 'the secret opponent is beaten: the game is won');
 });
 test('v3: a heal that can reach neighbours may also be aimed at a ghost across from a neighbour', () => {
   const c = craft(['1.2', '1.1'], ['10', '92']); const e = { k: 'h', n: 2, spec: { opts: [[-1, 0, 1]], spread: false, all: false } }; e.spec = E.parseSpec('< or v or >'); c.h(0).hp = 1;
@@ -987,9 +987,13 @@ test('dice and sizes: a die from Brock, Misty or Surge, Giovanni and Lance; gyms
   const g = E.newGame({ seed: 9, starter: 'bulbasaur' }); ['B1', 'B2', 'B8', 'E4'].forEach(k => { g.done[k] = true; }); Object.keys(C).filter(id => C[id].loc > 0).slice(0, 8).forEach((id, i) => g.coll.push({ uid: 90 + i, id, sh: 0 }));
   g.done.B4 = false; assert.ok(E.apply(g, { t: 'go', node: 'B4' }).ok); assert.equal(g.battle.nOut, 3, 'five dice, but a gym is 3 on 3');
   const h = E.newGame({ seed: 9, starter: 'bulbasaur' }); ['B1', 'B2', 'B3', 'B4', 'B5', 'B6', 'B7', 'B8', 'E1', 'E2', 'E3', 'E4'].forEach(k => { h.done[k] = true; }); Object.keys(C).filter(id => C[id].loc > 0).slice(0, 8).forEach((id, i) => h.coll.push({ uid: 90 + i, id, sh: 0 }));
-  assert.ok(E.apply(h, { t: 'go', node: 'F1' }).ok); assert.equal(h.battle.nOut, 5); assert.equal(h.battle.cap0, 7);
+  assert.ok(E.apply(h, { t: 'go', node: h.final }).ok); assert.equal(h.battle.nOut, 5); assert.equal(h.battle.cap0, 7);
   const k = E.newGame({ seed: 9, starter: 'bulbasaur' }); assert.ok(E.apply(k, { t: 'go', node: 'B1' }).ok); assert.equal(k.battle.cap0, 1, 'one Pokémon against one: the leader brings only as many as you have');
 });
 test('elite four: one random member stands before Lance, the other two are not on the map', () => {
   const seen = new Set(); for (let seed = 1; seed <= 40; seed++) { const s = E.newGame({ seed, starter: 'bulbasaur' }); seen.add(s.elite); } assert.deepEqual([...seen].sort(), ['E1', 'E2', 'E3']);
+});
+test('final: Blue or Red is picked at random for each game, and only that one is on the map', () => {
+  const seen = new Set(); for (let seed = 1; seed <= 40; seed++) { const s = E.newGame({ seed, starter: 'bulbasaur' }); seen.add(s.final); ['B8', 'E1', 'E2', 'E3', 'E4'].forEach(k => { s.done[k] = true; }); const other = s.final === 'F1' ? 'F2' : 'F1'; assert.equal(E.unlocked(s, E.node(s.final)), true); assert.equal(E.unlocked(s, E.node(other)), false); }
+  assert.deepEqual([...seen].sort(), ['F1', 'F2']);
 });
