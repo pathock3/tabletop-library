@@ -56,7 +56,7 @@ test('data: moves read the way the sheet means them', () => {
   const o = E.parseMove('7a over <^>').clauses[0][0]; assert.equal(o.spec.spread, true); assert.deepEqual(o.spec.opts, [[-1, 0, 1]]);
   const two = E.parseMove('2a, +2a <>').clauses[0]; assert.equal(two.length, 2); assert.equal(two[1].bonus, true); assert.deepEqual(two[1].spec.opts, [[-1, 1]]);
   const alt = E.parseMove('3a <^> or 3h <v>').clauses; assert.equal(alt.length, 2); assert.equal(alt[1][0].k, 'h');
-  const ray = E.parseMove('5a <<<<^ or ^>>>>').clauses[0][0]; assert.deepEqual(ray.spec.opts, [[-4, -3, -2, -1, 0], [0, 1, 2, 3, 4]]);
+  const ray = E.parseMove('5a <<<<^ or ^>>>>').clauses[0][0]; assert.deepEqual(ray.spec.opts, [[-2, -1, 0], [0, 1, 2]], 'arrows reach two columns at most');
   const heal = E.parseMove('6h over <v>').clauses[0][0]; assert.deepEqual(heal.spec.opts, [[-1, 0, 1]], '<v> is the left neighbour, itself and the right neighbour');
   assert.equal(E.parseMove('recoil 1').clauses[0][0].k, 'd'); const dr = E.parseMove('2a drain').clauses[0][0]; assert.ok(dr.drain && dr.k === 'a'); const pz = E.parseMove('3p, poison').clauses[0][0]; assert.ok(pz.pierce && pz.sts.indexOf('poison') >= 0, 'pierce with a poison that rides on the attack'); assert.equal(E.parseMove('charge <>').clauses[0][0].k, 'g'); assert.equal(E.parseMove('stun').clauses[0][0].k, 's');
   const sp = E.parseSpecial('66: 12a'); assert.deepEqual([sp.face, sp.count, sp.effs[0].n], [6, 2, 12]);

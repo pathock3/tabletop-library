@@ -46,7 +46,7 @@ test('ui: menu, new game, map, and a whole first fight through real taps, with n
     assert.ok(await p.evaluate(() => document.documentElement.scrollWidth <= innerWidth && document.documentElement.scrollHeight <= innerHeight), 'the page does not scroll');
     await p.click('[data-id=L1]'); assert.equal(await p.locator('[data-act=pickc]').count(), 0, 'no team to pick first');
     assert.ok(await playFight(p), 'the fight reached a result');
-    assert.match(await p.innerText('.banner, .kos'), /Victory|KO|Choose a card|Level up|Evolution/);
+    assert.match(await p.innerText('.banner, .kos'), /Victory|KO|Catch one|Level up|Evolution/);
     await p.click('[data-act=done]').catch(() => {});
     if (await p.locator('[data-act=pickcard]').count()) { await p.locator('[data-act=pickcard]').first().click(); await p.click('[data-act=pickok]'); if (await p.locator('.catchfx').count()) await p.mouse.click(10, 10); }
     assert.deepEqual(errs, []);
@@ -545,11 +545,11 @@ test('ui: one sliding map holds the gyms, the places, the Elite Four, Blue and R
   try {
     await p.goto(URL); await p.click('[data-act=new]'); await p.click('[data-act=pickst][data-k=squirtle]'); await p.click('#startbtn');
     await p.locator('[data-act=tipok]').click({ timeout: 800 }).catch(() => {});
-    assert.equal(await p.locator('.place.sq').count(), 14, 'fourteen trainers, all squares'); assert.equal(await p.locator('.place.deck').count(), 9, 'nine places, all card piles');
+    assert.equal(await p.locator('.place.sq').count(), 12, 'twelve trainers (one Elite Four member), all squares'); assert.equal(await p.locator('.place.deck').count(), 9, 'nine places, all card piles');
     assert.equal(await p.locator('.place.sq[aria-label="A mystery opponent"]').count(), 2, 'Blue and Red are hidden until Lance is beaten');
     assert.equal((await p.locator('.place.sq .pl b').allInnerTexts()).some(t => /team/i.test(t)), false, 'just the name, no "team"');
     await p.evaluate(() => { document.querySelector('.mapwrap').scrollLeft = 99999; }); await p.waitForTimeout(150);
-    await p.click('.place[data-id=E1]'); assert.match(await p.innerText('.toast'), /Giovanni/i);
+    await p.click('.place[data-id=' + await p.evaluate(() => window.__pokemonRoll.G.elite) + ']'); assert.match(await p.innerText('.toast'), /Giovanni/i);
     await p.click('[data-act=menu]'); await p.click('[data-act=settings]'); await p.click('[data-act=resetask]'); assert.match(await p.innerText('.sheet'), /deletes ALL/); await p.click('[data-act=resetno]'); assert.equal(await p.locator('[data-act=resetgo]').count(), 0, 'cancelling keeps everything');
     assert.deepEqual(errs, []);
   } finally { await b.close(); }
