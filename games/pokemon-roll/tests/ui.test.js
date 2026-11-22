@@ -34,10 +34,10 @@ test('ui: menu, new game, map, and a whole first fight through real taps, with n
   const errs = []; p.on('pageerror', e => errs.push(e.message)); p.on('console', m => { if (m.type() === 'error') errs.push(m.text()); });
   try {
     await p.goto(URL);
-    assert.match(await p.innerText('.logo'), /Roll!/); assert.equal(await p.locator('.mm2 .mapin .place').count(), 23, 'the map is dealt out right on the menu'); assert.equal(await p.locator('.arena').count(), 0, 'no toy table'); assert.equal(await p.locator('[data-act=help]').count(), 0, 'help lives under More'); assert.ok(await p.locator('[data-act=more]').count() === 1, 'a More button');
+    assert.match(await p.innerText('.logo'), /Roll!/); assert.equal(await p.locator('.mm2 .mapin .place').count(), 21, 'the map is dealt out right on the menu'); assert.equal(await p.locator('.arena').count(), 0, 'no toy table'); assert.equal(await p.locator('[data-act=help]').count(), 0, 'help lives under More'); assert.ok(await p.locator('[data-act=more]').count() === 1, 'a More button');
     await p.click('[data-act=new]'); assert.equal(await p.locator('[data-act=pickst]').count(), 5); assert.match(await p.innerText('.oakov .bubble'), /Professor Oak[\s\S]*level up and evolve[\s\S]*static cards/, 'Oak offers the starters and says only they evolve'); assert.equal(await p.locator('.oakov').count(), 1);
     await p.click('[data-act=pickst][data-k=charmander]'); await p.click('#startbtn');
-    assert.equal(await p.locator('.oakov').count(), 0, 'Oak goes away and you are back on the map'); assert.equal(await p.locator('.place').count(), 23, 'the whole road is on show from the start, locked places included');
+    assert.equal(await p.locator('.oakov').count(), 0, 'Oak goes away and you are back on the map'); assert.equal(await p.locator('.place').count(), 21, 'the whole road is on show from the start, locked places included');
     assert.equal(await p.locator('.place:not(.lock)').count(), 3, 'Area 1: Viridian Forest, Brock and Mt. Moon are open from the start');
     assert.equal(await p.locator('.place > svg, .place .ptop > svg').count(), await p.locator('.place').count(), 'each place is drawn as a picture (a gym, or the back of a deck)');
     assert.ok(await p.evaluate(() => { const w = document.querySelector('.mapwrap'); return w.scrollWidth > w.clientWidth + 50 && w.scrollHeight <= w.clientHeight + 1; }), 'the whole road is one strip that slides sideways, and fills the height');
@@ -48,7 +48,7 @@ test('ui: menu, new game, map, and a whole first fight through real taps, with n
     assert.ok(await playFight(p), 'the fight reached a result');
     assert.match(await p.innerText('.banner, .kos'), /Victory|KO|Choose a card|Level up|Evolution/);
     await p.click('[data-act=done]').catch(() => {});
-    if (await p.locator('[data-act=pickcard]').count()) { await p.locator('[data-act=pickcard]').first().click(); await p.click('[data-act=pickok]'); }
+    if (await p.locator('[data-act=pickcard]').count()) { await p.locator('[data-act=pickcard]').first().click(); await p.click('[data-act=pickok]'); if (await p.locator('.catchfx').count()) await p.mouse.click(10, 10); }
     assert.deepEqual(errs, []);
   } finally { await b.close(); }
 });
@@ -114,7 +114,7 @@ test('ui: the game is saved, and Continue brings it back', { skip: !chromium }, 
     await p.goto(URL); assert.equal(await p.locator('[data-act=continue]').count(), 0);
     await p.click('[data-act=new]'); await p.click('[data-act=pickst][data-k=pikachu]'); await p.click('#startbtn');
     await p.reload(); assert.equal(await p.locator('[data-act=continue]').count(), 1);
-    await p.click('[data-act=continue]'); assert.equal(await p.locator('.place').count(), 23); assert.equal(await p.locator('.top').count(), 1, 'the same map, now with its top bar: no new screen');
+    await p.click('[data-act=continue]'); assert.equal(await p.locator('.place').count(), 21); assert.equal(await p.locator('.top').count(), 1, 'the same map, now with its top bar: no new screen');
     assert.equal(await p.evaluate(() => window.__pokemonRoll.G.starter), 'pikachu');
   } finally { await b.close(); }
 });
@@ -400,10 +400,10 @@ test('ui: choosing a card asks below the cards, goes straight to the map; a loss
     await p.click('[data-act=pickcard] >> nth=0'); assert.equal(await p.locator('[data-act=pickok]:not([disabled])').count(), 1, 'a card chosen: OK is ready'); await p.click('[data-act=pickcard] >> nth=0'); assert.equal(await p.locator('[data-act=pickok][disabled]').count(), 1, 'tapping it again lets go'); assert.equal(await p.locator('[data-act=pickno]').count(), 0, 'no Choose again button'); assert.doesNotMatch(await p.innerText('.scr'), /Tap OK|Choose one to join/i, 'nothing said twice'); await p.click('[data-act=pickcard] >> nth=0');
     const r = await p.evaluate(() => { const bar = document.querySelector('.pickbar').getBoundingClientRect(), cards = [...document.querySelectorAll('[data-act=pickcard]')].map(c => c.getBoundingClientRect().bottom); return { bar: bar.top, cards: Math.max(...cards), sheet: document.querySelectorAll('.sheet').length }; });
     assert.ok(r.bar >= r.cards - 1, 'the question sits below the cards'); assert.equal(r.sheet, 0, 'not over them');
-    await p.click('[data-act=pickok]'); assert.equal(await p.locator('.top').count(), 1, 'straight back to the map'); assert.equal(await p.locator('.place').count(), 23);
+    await p.click('[data-act=pickok]'); assert.equal(await p.locator('.catchfx .cball').count(), 1, 'a Poké Ball is thrown at it'); await p.waitForTimeout(700); assert.equal(await p.locator('.catchfx').count(), 1, 'it takes a moment'); await p.mouse.click(10, 10); assert.equal(await p.locator('.top').count(), 1, 'a tap skips the throw: straight back to the map'); assert.equal(await p.locator('.catchfx').count(), 0); assert.equal(await p.locator('.place').count(), 21);
     await p.evaluate(() => { const s = Engine.newGame({ seed: 5, starter: 'charmander' }); s.phase = 'result'; s.res = { win: false, node: 'L1' }; window.__pokemonRoll.setG(s); });
     assert.match(await p.innerText('.kos'), /You are KO'd!/); assert.match(await p.innerText('.kos'), /Tap anywhere to continue/);
-    await p.mouse.click(400, 600); assert.equal(await p.locator('.place').count(), 23, 'the map comes back');
+    await p.mouse.click(400, 600); assert.equal(await p.locator('.place').count(), 21, 'the map comes back');
     assert.deepEqual(errs, []);
   } finally { await b.close(); }
 });

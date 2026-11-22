@@ -548,6 +548,7 @@ button{font:inherit;color:inherit;border:0;cursor:pointer}
 <style>.board .deckcol{flex:none;align-self:flex-start;display:flex;justify-content:center}.pfan.hide{align-items:flex-start;padding:8px 0 0}</style>
 <style>.leadtalk{width:min(780px,calc(100vw - 24px));gap:12px}.leadtalk .bubble{min-width:0;box-sizing:border-box}.leadimg{width:clamp(96px,27vw,250px)}.leadtalk .bubble{font-size:clamp(18px,3.1vw,28px);padding:18px 22px;border-radius:24px}.leadtalk .bubble .who{font-size:clamp(22px,3.6vw,34px)}.leadtalk .gift{gap:14px;margin-top:10px}.leadtalk .gift .die{width:clamp(56px,9vw,76px);height:clamp(56px,9vw,76px);font-size:clamp(32px,5vw,44px)}.turnsline{font:800 clamp(22px,3.6vw,34px) system-ui}.wildback{padding:14px 18px;font-size:clamp(18px,2.8vw,26px)}.wildback .wb span{width:clamp(92px,15vw,130px);font-size:clamp(12px,1.9vw,17px)}.wildback .wb img{width:clamp(56px,10vw,96px);height:clamp(56px,10vw,96px)}.scr .center .btn.big{min-width:clamp(220px,34vw,320px);min-height:72px;font-size:clamp(24px,3.6vw,34px)}.scr .center .banner{font-size:clamp(46px,8vw,78px)}.scr .center{gap:clamp(14px,2.6vh,28px)}</style>
 <style>.board .deckcol{position:relative}.pilebay .eye{width:46px;height:46px;font-size:28px;bottom:8px;right:8px;pointer-events:auto;z-index:9;cursor:pointer}.board .fieldw{flex:1;min-width:0;height:100%;display:flex;justify-content:center;align-items:stretch;gap:6px}.prail .rbar .ib{width:68px;height:68px;font-size:34px;border-radius:18px}.prail .rbar .ib[style*='auto']{height:68px;font-size:20px!important}.phead .ib,.top .ib{width:60px;height:60px;font-size:30px;border-radius:16px}</style>
+<style>.catchfx{position:fixed;inset:0;z-index:900;touch-action:none}.catchfx .cball{position:absolute;border-radius:50%;border:4px solid #14110f;background:linear-gradient(#e5383b 0 46%,#14110f 46% 54%,#fff 54%);box-shadow:0 6px 16px #0006;display:grid;place-items:center;opacity:0}.catchfx .cball i{width:34%;height:34%;border-radius:50%;background:#fff;border:4px solid #14110f;box-sizing:border-box}.catchfx .cball.on i{background:#ffd23f;box-shadow:0 0 14px #ffd23f}.catchfx .cring{position:absolute;border-radius:50%;border:5px solid #ffd23f;opacity:0;pointer-events:none}.catchfx .ctxt{position:absolute;transform:translate(-50%,0);font:900 30px system-ui;color:#fff;text-shadow:0 2px 0 #14110f,0 0 10px #14110f;opacity:0;white-space:nowrap}</style>
 <style>.bt.pl .pfan.scr{overflow-x:auto;overflow-y:hidden;justify-content:flex-start;padding:16px 10px 16px;-webkit-overflow-scrolling:touch;scrollbar-width:none;touch-action:pan-x;overscroll-behavior-x:contain}.pfan.scr::-webkit-scrollbar{display:none}.pfan.scr .pc{touch-action:pan-x}.pfan.scr.fr{-webkit-mask-image:linear-gradient(90deg,#000 90%,transparent);mask-image:linear-gradient(90deg,#000 90%,transparent)}.pfan.scr.fl{-webkit-mask-image:linear-gradient(90deg,transparent,#000 10%);mask-image:linear-gradient(90deg,transparent,#000 10%)}.pfan.scr.fl.fr{-webkit-mask-image:linear-gradient(90deg,transparent,#000 8%,#000 90%,transparent);mask-image:linear-gradient(90deg,transparent,#000 8%,#000 90%,transparent)}</style>
 <style>.bt.pl .pfan{position:relative;z-index:20;overflow:visible}.bt.pl .board{z-index:1}.pfan .pc.sel,.pfan .pc.up{z-index:30}</style>
 <style>.prail .btn.big{width:calc(100% - 8px);min-width:0;box-sizing:border-box;padding:0 6px;min-height:64px;font-size:26px}</style>
@@ -3499,7 +3500,7 @@ const trainerFg = {
         lines += arrow(pos[id], [xs0 - 96, Math.max(top + 40, Math.min(bot - 40, pos[id][1]))], col, on);
       } else mem.forEach(m => { lines += arrow(pos[id], [pos[m.id][0] - 84, pos[m.id][1]], col, on); });
     });
-    vis.filter(n => n.any && n.needs.length > 1).forEach(n => n.needs.forEach(id => { const L = D.nodes.find(q => q.id === id); lines += arrow(pos[id], [pos[n.id][0] - 84, pos[n.id][1]], L.color || '#cfd8dc', stateOf(id)); }));
+    vis.filter(n => n.any && n.needs.length > 1).forEach(n => n.needs.filter(id => pos[id]).forEach(id => { const L = D.nodes.find(q => q.id === id); lines += arrow(pos[id], [pos[n.id][0] - 84, pos[n.id][1]], L.color || '#cfd8dc', stateOf(id)); }));
     const links = `<svg class="mapsvg" width="${W0}" height="${H0}" viewBox="0 0 ${W0} ${H0}">${panels}${lines}</svg>`;
     return `${menu ? '' : `<div class="top maptop"><div class="topl"></div><div class="t mapt"></div><div class="topr"><button class="chip" data-act="chipinfo" aria-label="Your dice">🎲 ×${E.slots(G)}</button><button class="mypile${ui.coll ? ' away' : ''}" data-act="coll" aria-label="Your cards">${myPile()}</button><button class="ib mbtn" data-act="menu" aria-label="Menu">☰</button></div></div>`}
       <div class="mapwrap${menu ? ' mmapbox' : ''}" data-k="${k}" style="${menu ? `height:${availH}px` : ''}"><div class="mapsp" style="width:${Math.round(W0 * k)}px;height:${Math.round(H0 * k)}px"></div><div class="mapin" style="width:${W0}px;height:${H0}px;transform:scale(${k})">${links}${slot}${tiles}</div></div>`;
@@ -3656,7 +3657,7 @@ const trainerFg = {
   // choosing a card to keep: tap a card, then OK (tap it again to let go). Under the cards, never over them.
   function pickBar(r) {
     const k = ui.pickSel, ok = k != null && r.pick && r.pick[k], top = Math.max(...r.pick.map(i => C[i.id].level)), weak = ok && C[r.pick[k].id].level < top;
-    return `<div class="pickbar"><button class="btn big" data-act="pickok" ${ok ? '' : 'disabled'}>OK</button>${weak ? `<span class="pwarn">⚠ ${esc(C[r.pick[k].id].name)} is not the highest level here</span>` : ''}</div>`;
+    return `<div class="pickbar"><button class="btn big" data-act="pickok" ${ok ? '' : 'disabled'}>⚾ Throw a Poké Ball</button>${weak ? `<span class="pwarn">⚠ ${esc(C[r.pick[k].id].name)} is not the highest level here</span>` : ''}</div>`;
   }
   function resultScreen() {
     const r = G.res, nd = E.node(r.node), sdv = E.starterOf(G.starter);
@@ -3683,7 +3684,7 @@ const trainerFg = {
     const lvTxt = r.win && r.levelUp && !r.evolve ? `<div class="status">Your starter grew to level ${lvName(r.levelUp)}!</div><div class="hrow lvrow" style="justify-content:center;align-items:center;gap:16px;flex-wrap:nowrap">${card({ id: prevId, sh: st.sh }, { cw: lcw })}<span class="lvarrow">➜</span>${card({ id: st.id, sh: st.sh }, { cw: lcw, attr: `data-act="zoom" data-only="1" data-uid="${st.uid}"` })}</div>` : '';
     const legTxt = r.win && r.legend ? one(r.legend, `${esc(C[r.legend.id].name)}${r.legend.sh ? ' ✨' : ''} joins your team!`) : '';
     const handBtn = r.pick || r.evolve ? `<button class="mypile respile${ui.coll ? ' away' : ''}" data-act="coll" aria-label="Your cards">${myPile()}</button>` : '';          // while you choose, you can look at the cards you already have
-    return `${handBtn}<div class="scr" style="overflow:auto"><div class="center" style="justify-content:center;min-height:100%;padding-top:20px"><div class="banner">${r.pick ? 'Choose a card' : r.evolve ? 'Evolution!' : r.levelUp ? 'Level up!' : gameEnd(nd) ? 'CHAMPION!' : 'Victory!'}</div>
+    return `${handBtn}<div class="scr" style="overflow:auto"><div class="center" style="justify-content:center;min-height:100%;padding-top:20px"><div class="banner">${r.pick ? 'Catch one!' : r.evolve ? 'Evolution!' : r.levelUp ? 'Level up!' : gameEnd(nd) ? 'CHAMPION!' : 'Victory!'}</div>
       ${nd.kind === 'visitor' ? lead : ''}${lvTxt}${legTxt}${evo}${take}
       ${r.pick || r.evolve ? '' : `<button class="btn big" data-act="done">${dest}</button>`}</div></div>`;
   }
@@ -4091,7 +4092,7 @@ const trainerFg = {
     go() { if (ui.die != null || ui.tweak != null) { ui.die = null; ui.tweak = null; render(); return; } if (G.battle && !E.readyToGo(G.battle, 0) && noDecision(G.battle)) autoAssign(); if (act({ t: 'go2' })) startPlay(); },
     skip() { skipPlay(); },
     next() { ui.die = null; act({ t: 'next' }); },
-    pickcard(el) { const k = +el.dataset.i; ui.pickSel = ui.pickSel === k ? null : k; render(); }, pickok() { const k = ui.pickSel; ui.pickSel = null; if (k != null && act({ t: 'take', i: k }) && G.phase === 'result' && G.res && !G.res.evolve && !G.res.pick) { ui.mapX = null; act({ t: 'done' }); render(); } },
+    pickcard(el) { const k = +el.dataset.i; ui.pickSel = ui.pickSel === k ? null : k; render(); }, pickok() { const k = ui.pickSel; if (k == null) return; catchThrow(k); },
     take(el) { act({ t: 'take', i: +el.dataset.i }); },
     evolve(el) { act({ t: 'evolve', yes: el.dataset.yes === '1' }); },
     keepgoing() { G.phase = 'map'; G.res = null; G.battle = null; ui.mapX = null; save(); render(); },
@@ -4166,6 +4167,26 @@ const trainerFg = {
     ui.sel = null; render();
   });
   document.addEventListener('pointercancel', endPd);
+  // catching a new card: a Poké Ball is thrown at the one you picked, it wobbles, clicks, and the card is yours (about two seconds; a tap skips it)
+  function catchThrow(k) {
+    if (ui.catching) return;
+    const el = document.querySelector('.card[data-act=pickcard][data-i="' + k + '"]');
+    const finish = () => { const c = ui.catching; if (c) { ui.catching = null; clearTimeout(c.t); c.ov.remove(); } ui.pickSel = null; if (act({ t: 'take', i: k }) && G.phase === 'result' && G.res && !G.res.evolve && !G.res.pick) { ui.mapX = null; act({ t: 'done' }); } render(); };
+    if (!el || !el.animate || (window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches)) { finish(); return; }
+    const r = el.getBoundingClientRect(), cx = r.left + r.width / 2, cy = r.top + r.height / 2, S = Math.max(46, Math.min(86, r.width * .4));
+    const ov = document.createElement('div'); ov.className = 'catchfx'; ov.innerHTML = '<div class="cball"><i></i></div><div class="cring"></div><div class="ctxt">Gotcha!</div>'; document.body.appendChild(ov);
+    const ball = ov.querySelector('.cball'), ring = ov.querySelector('.cring'), txt = ov.querySelector('.ctxt');
+    ball.style.cssText = `width:${S}px;height:${S}px;left:${cx - S / 2}px;top:${cy - S / 2}px`; ring.style.cssText = `left:${cx - S / 2}px;top:${cy - S / 2}px;width:${S}px;height:${S}px`; txt.style.cssText = `left:${cx}px;top:${r.bottom - 10}px`;
+    ui.catching = { ov, t: setTimeout(finish, 2600) }; ov.addEventListener('pointerdown', e => { e.stopPropagation(); finish(); }, true);
+    const start = innerHeight - cy + S;
+    ball.animate([{ transform: `translate(0,${start}px) rotate(0)`, opacity: 1 }, { transform: `translate(0,${start * .35}px) rotate(260deg)`, opacity: 1, offset: .6 }, { transform: 'translate(0,0) rotate(540deg)', opacity: 1 }], { duration: 480, easing: 'cubic-bezier(.2,.7,.3,1)', fill: 'forwards' }).finished.then(() => {
+      if (!ui.catching) return;
+      el.animate([{ filter: 'brightness(1)', transform: 'scale(1)', opacity: 1 }, { filter: 'brightness(4)', transform: 'scale(.9)', opacity: 1, offset: .35 }, { filter: 'brightness(4)', transform: 'scale(.05)', opacity: 0 }], { duration: 340, easing: 'ease-in', fill: 'forwards' });
+      return new Promise(res => setTimeout(res, 360));
+    }).then(() => { if (!ui.catching) return; return ball.animate([{ transform: 'rotate(0)' }, { transform: 'rotate(-28deg)' }, { transform: 'rotate(26deg)' }, { transform: 'rotate(-20deg)' }, { transform: 'rotate(16deg)' }, { transform: 'rotate(-8deg)' }, { transform: 'rotate(0)' }], { duration: 950, easing: 'ease-in-out', fill: 'forwards' }).finished; })
+      .then(() => { if (!ui.catching) return; ball.classList.add('on'); ring.animate([{ transform: 'scale(1)', opacity: .9 }, { transform: 'scale(3.2)', opacity: 0 }], { duration: 380, easing: 'ease-out' }); txt.animate([{ opacity: 0, transform: 'translate(-50%,6px)' }, { opacity: 1, transform: 'translate(-50%,0)' }], { duration: 260, fill: 'forwards' }); return new Promise(res => setTimeout(res, 420)); })
+      .then(() => { if (ui.catching) finish(); }).catch(() => { if (ui.catching) finish(); });
+  }
   function resetSel() { ui.noAuto = false; ui.returning = false; ui.recall = null; ui.slide = null; ui.pickSel = null; ui.more = false; ui.gsw = null; ui.chip = false; ui.tweak = null; ui.sel = null; ui.die = null; ui.aim = null; ui.pick = []; ui.chooser = null; ui.play = null; ui.rolledFor = 0; ui.rollTap = null; ui.rolling = 0; ui.mapX = null; }
   // a long press on any card, anywhere, shows it big
   { let lp = null; document.addEventListener('pointerdown', ev => { const c = ev.target.closest && ev.target.closest('.card[data-cid]'); if (!c || ui.big) return; const x0 = ev.clientX, y0 = ev.clientY; clearTimeout(lp); lp = setTimeout(() => { ui.big = { id: c.dataset.cid, sh: +c.dataset.csh }; ui.longp = Date.now(); render(); }, 480); const cancel = e2 => { if (e2.type === 'pointermove' && Math.hypot(e2.clientX - x0, e2.clientY - y0) < 10) return; clearTimeout(lp); removeEventListener('pointermove', cancel); removeEventListener('pointerup', cancel); removeEventListener('pointercancel', cancel); }; addEventListener('pointermove', cancel); addEventListener('pointerup', cancel); addEventListener('pointercancel', cancel); }); }
