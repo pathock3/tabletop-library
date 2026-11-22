@@ -555,15 +555,6 @@ button{font:inherit;color:inherit;border:0;cursor:pointer}
 <style>.mS-sleep{background:#3949ab;color:#fff}.mS-dodge{background:#00838f;color:#fff}.st-sleep{border-color:#7986cb}.st-dodge{border-color:#4dd0e1}</style>
 <style>.card .pips{display:none!important}.aiblurb{font:600 16px/1.3 system-ui;opacity:.9;margin-top:6px;max-width:420px}</style>
 <style>
-.lab{position:fixed;inset:0;overflow:auto;background:#3b2815;color:#fff;font-family:system-ui;-webkit-overflow-scrolling:touch;z-index:5}
-.labtop{display:flex;align-items:center;gap:10px;padding:calc(10px + env(safe-area-inset-top)) 12px 8px;position:sticky;top:0;background:#2b1d10;z-index:6;flex-wrap:wrap}.labtop b{font-size:20px}
-.labsp{flex:1}.labbar{display:flex;gap:8px;align-items:center;padding:8px 12px;flex-wrap:wrap}.labbar .chip{min-height:44px;font-size:17px}
-.labbody{padding:0 12px 40px}.labsample{margin:12px 0 22px}.labwhy{font:800 18px system-ui;margin-bottom:6px;color:#ffd23f}
-.labtri{display:flex;gap:10px;justify-content:center;align-items:flex-start}.labcol small{display:block;text-align:center;font:700 14px system-ui;margin-bottom:4px;opacity:.9}
-.labframe-wrap{margin:8px auto;position:relative}.labframe{position:absolute;left:0;top:0;transform-origin:top left;background:#8a5d30;display:flex}
-.labboard{display:flex;flex-direction:column;justify-content:center;align-items:center;box-sizing:border-box}.labrow{display:flex;justify-content:center}
-.labrail{background:#0003;display:grid;place-items:center;font-size:20px;opacity:.8}.labtray{position:absolute;left:0;right:0;bottom:0;background:#0003;display:grid;place-items:center;font-size:20px}
-.labnote{text-align:center;font:600 16px system-ui;opacity:.9;margin-bottom:10px}
 </style><style>
 /* LAB grid card, one coherent design on trading-card proportions (1.4): strip, art square touching the strip, ability, six move cells edge to edge */
 .card.grid{--hb:max(1px,calc(var(--cw)*.011));height:calc(var(--cw)*1.4);padding:0;gap:0;flex-wrap:nowrap;justify-content:flex-start;box-sizing:border-box}
@@ -591,17 +582,14 @@ button{font:inherit;color:inherit;border:0;cursor:pointer}
 .card.grid .f.hot .n{background:#ffd23f}
 </style>
 <style>.card.grid .ab{height:calc(var(--cw)*.15);font-size:calc(var(--cw)*.048)!important}</style>
-<style>.labrow2{display:grid;grid-template-columns:repeat(3,auto);gap:12px;justify-content:center;padding:8px 0 30px}</style>
 <style>.card.grid .f.blank{opacity:1;background:repeating-linear-gradient(135deg,#b9b9b9 0 5px,#c9c9c9 5px 10px)}.card.grid .f.blank .n{background:#d9d9d9;color:#7a7a7a;opacity:1}</style>
 <style>.card.grid .wkt2 .wt{flex:4 1 0}.card.grid .wkt2 .ww{flex:6 1 0}</style>
-<style>/* LAB: one colour for the whole top half (the element's light shade, the same one behind its moves): no box for the art, the type label is part of it */
-.card.grid .art{background:none!important;border-left:0;box-shadow:none}
+<style>/* the old gradient square behind the art is back; LAB: one colour for the whole top half (the element's light shade, the same one behind its moves): no box for the art, the type label is part of it */
+.card.grid .art{border-left:var(--hb) solid var(--ink);border-bottom:var(--hb) solid var(--ink)}
 .card.grid .cbox{background:var(--bg)}
 .card.grid .wkt2 .wt{color:#14110f;text-shadow:none}
 </style>
-<style>/* the square behind the art is a darker shade of the card's element colour again */
-.card.grid .art{background:color-mix(in srgb,var(--c) 42%,var(--bg))!important;border-left:var(--hb) solid var(--ink);border-bottom:var(--hb) solid var(--ink)}
-.card.grid .f .eic{position:absolute;right:calc(var(--cw)*.012);bottom:calc(var(--cw)*.006);font-style:normal;font-size:calc(var(--cw)*.062);line-height:1;filter:drop-shadow(0 0 1px #fff)}</style>
+<style>.card.grid .f .eic{position:absolute;right:calc(var(--cw)*.012);bottom:calc(var(--cw)*.006);font-style:normal;font-size:calc(var(--cw)*.062);line-height:1;filter:drop-shadow(0 0 1px #fff)}</style>
 <style>.card.grid .art img{filter:drop-shadow(0 0 1px #0008) drop-shadow(0 2px 0 #0003)}</style>
 <style>.card.grid .lv{font-size:calc(var(--cw)*.048);font-weight:700;opacity:.65}
 .card.grid .f.blank{background:repeating-linear-gradient(135deg,#dcdcdc 0 6px,#e3e3e3 6px 12px)}.card.grid .f.blank .n{background:#ebebeb;color:#b4b4b4;border-color:#9a9a9a}</style>
@@ -2886,7 +2874,7 @@ const Bots = (() => {
   };
   // THE card: one design at every size, a standard portrait card. o: cw, face (the number lit), pf (a number on offer), sp (special in use), die (the die shown as a badge), dieAttr, heroDie, mark (a cover: out / loses a round), extra, pop, hp, ko, foe, sel, cls, attr
   function card(u, o) {
-    o = o || {}; const grid = o.grid === undefined ? 'icon' : o.grid;          // the card is the 2x3 grid by default; null is the old six rows (only the lab shows it)
+    o = o || {}; const grid = o.grid === undefined ? 'icon' : o.grid;          // the card is the 2x3 grid by default; null is the old six rows (nothing uses it now)
     const c = C[u.id], e = el(c.type), cw = o.cw || 180, mx = u.max || c.hp + (u.sh ? D.rules.shinyHp : 0), hp = o.hp != null ? o.hp : (u.hp != null ? u.hp : mx);
     const pct = Math.max(0, Math.min(100, hp / mx * 100)), lvl = pct <= 33 ? ' lo' : pct <= 66 ? ' mid' : '';
     const sp = E.parseSpecial(c.special);
@@ -3310,38 +3298,6 @@ const trainerFg = {
       <div class="oakgo"><button class="btn ghost" data-act="menu0">Back</button><button class="btn big" data-act="starter" data-k="${ui.pickSt || ''}" id="startbtn" ${ui.pickSt ? '' : 'disabled'}>Start</button></div></div></div>`;
   // the main menu: the map itself, dealt out on the table, with the title and the buttons above it
 
-  // ---------------------------------------------------------------- LAB: the 2x3 move grid, side by side with today's six rows (a preview only: the game itself does not use it)
-  const LAB_IDS = [['1.1', 'Bulbasaur: several blank rolls'], ['94', 'Gengar: inverted, pierce, drain, sleep'], ['110', 'Weezing: a long move and combined keywords'], ['25.5', 'Pikachu: long "or" moves'], ['12', 'Butterfree: boost moves'], ['107', 'Hitmonchan: all six rolls filled'], ['26.5', 'Raichu: long-range arrows'], ['151', 'Mew: a custom text move'], ['132', 'Ditto: only the Roll of 1'], ['129', 'Magikarp: inverted, almost all blank']];
-  const LAB_CH = 1.4;          // a standard trading card is 2.5 x 3.5 in: 1.4 card-widths tall (today's card is 1.58)
-  function labSize(n, orient, grid) {
-    const W = orient === 'land' ? 1180 : 820, H = orient === 'land' ? 820 : 1180, gap = 10, railW = orient === 'land' ? 160 : 0, trayH = orient === 'land' ? 0 : 150;          // the rail (flee / menu / fight) on the right in landscape, the dice tray at the bottom in portrait
-    const bw = W - railW - gap, bh = H - trayH - gap, ch = grid ? LAB_CH : 1.58;
-    return { W, H, railW, trayH, gap, cw: Math.floor(Math.min((bw - (n + 1) * gap) / n, (bh - 3 * gap) / (2 * ch))), ch };
-  }
-  function labBoard(n, orient, grid) {
-    const z = labSize(n, orient, grid), ids = LAB_IDS.map(x => x[0]), foes = ['25.5', '12', '107', '26.5'].slice(0, n), mine = ['1.1', '94', '110', '132'].slice(0, n);
-    const row = (list, foe) => `<div class="labrow" style="gap:${z.gap}px">${list.map(id => `<div data-zc="${id}">${card({ id, sh: 0 }, { cw: z.cw, grid: grid || null, foe })}</div>`).join('')}</div>`;
-    const sc = Math.min(1, (innerWidth - 24) / z.W);
-    return `<div class="labframe-wrap" style="width:${Math.round(z.W * sc)}px;height:${Math.round(z.H * sc)}px"><div class="labframe" style="width:${z.W}px;height:${z.H}px;transform:scale(${sc})"><div class="labboard" style="width:${z.W - z.railW}px;height:${z.H - z.trayH}px;gap:${z.gap}px;padding:${z.gap}px">${row(foes, true)}${row(mine, false)}</div>${z.railW ? `<div class="labrail" style="width:${z.railW}px">▢ rail</div>` : ''}${z.trayH ? `<div class="labtray" style="height:${z.trayH}px">dice tray</div>` : ''}</div></div><div class="labnote">${n}v${n} · ${z.W}×${z.H}${sc < 1 ? ` (shown at ${Math.round(sc * 100)}%)` : ' (real size)'} · card width <b>${z.cw}px</b> × ${Math.round(z.cw * z.ch)}px</div>`;
-  }
-  // a cell whose text needs more than one line gets a half-height number box, so the text can use the full width on its second line
-  function labFit() { document.querySelectorAll('.card.grid .f:not(.blank)').forEach(f => { f.classList.remove('two'); const mt = f.querySelector('.mt'); if (!mt) return; const fs = parseFloat(getComputedStyle(f).fontSize); const r = document.createRange(); r.selectNodeContents(mt); if (r.getBoundingClientRect().height > fs * 1.5) f.classList.add('two'); }); }
-  function labScreen() {
-    const t = ui.labTab || 'cards', mv = ui.labMv || 'text', orient = ui.labOr || 'port', cur = ui.labCur ? null : mv, n = ui.labN || 3;
-    const seg = (k, v, items) => items.map(([x, l]) => `<button class="chip${v === x ? ' on' : ''}" data-act="labset" data-k="${k}" data-v="${x}">${l}</button>`).join('');
-    let body;
-    if (t === 'random') {
-      if (!ui.labRand) ui.labRand = Object.keys(C).filter(id => !C[id].legend).sort(() => Math.random() - .5).slice(0, 6);
-      const cw = Math.min(256, Math.floor((innerWidth - 40) / 3));
-      body = `<div class="labbar">${seg('labMv', mv, [['text', 'Text'], ['icon', 'Icons']])}<span class="labsp"></span><button class="btn" data-act="labshuffle">Show 6 more</button></div><div class="labrow2">${ui.labRand.map(id => `<div data-zc="${id}">${card({ id, sh: 0 }, { cw, grid: mv })}</div>`).join('')}</div>`;
-    } else if (t === 'cards') {
-      const cw = Math.min(250, Math.floor((innerWidth - 56) / 3));
-      body = LAB_IDS.map(([id, why]) => `<div class="labsample"><div class="labwhy">${esc(why)}</div><div class="labtri">${[['Current (6 rows)', null], ['Grid · text', 'text'], ['Grid · icons', 'icon']].map(([l, g]) => `<div class="labcol"><small>${l}</small><div data-zc="${id}">${card({ id, sh: 0 }, { cw, grid: g })}</div></div>`).join('')}</div></div>`).join('');
-    } else {
-      body = `<div class="labbar">${seg('labN', n, [[3, '3 v 3'], [4, '4 v 4']])}<span class="labsp"></span>${seg('labOr', orient, [['port', 'Portrait'], ['land', 'Landscape']])}</div><div class="labbar">${seg('labCur', ui.labCur ? 1 : 0, [[0, 'Grid card'], [1, 'Current card']])}<span class="labsp"></span>${ui.labCur ? '' : seg('labMv', mv, [['text', 'Text'], ['icon', 'Icons']])}</div>${labBoard(n, orient, cur)}`;
-    }
-    return `<div class="lab"><div class="labtop"><button class="btn alt" data-act="labback">‹ Back</button><b>Card layout lab</b><span class="labsp"></span>${seg('labTab', t, [['cards', 'Sample cards'], ['random', 'Random 6'], ['board', 'Battle mock-up']])}</div>${t === 'cards' ? `<div class="labbar">Tap a move to read it. The game itself is not changed.</div>` : ''}<div class="labbody">${body}</div></div>`;
-  }
   function menuScreen() {
     const sv = saved(), keep = G; G = ui.prevG || (ui.prevG = E.newGame({ seed: 1, starter: 'bulbasaur' }));
     let map; try { map = mapScreen(true); } finally { G = keep; }
@@ -3364,7 +3320,7 @@ const trainerFg = {
       <button class="btn ghost" data-act="closeslots">Close</button></div></div>`;
   }
   const moreSheet = () => `<div class="sheet" data-act="closemore"><div class="box" data-stop="1" style="max-width:420px;display:flex;flex-direction:column;gap:12px"><h2>More</h2>
-    <button class="btn alt" data-act="help">How to Play</button><button class="btn alt" data-act="records">Hall of Fame</button><button class="btn alt" data-act="dex">Pokédex</button><button class="btn alt" data-act="settings">Settings</button><button class="btn alt" data-act="lab">Card layout lab</button><button class="btn ghost" data-act="closemore">Close</button></div></div>`;
+    <button class="btn alt" data-act="help">How to Play</button><button class="btn alt" data-act="records">Hall of Fame</button><button class="btn alt" data-act="dex">Pokédex</button><button class="btn alt" data-act="settings">Settings</button><button class="btn ghost" data-act="closemore">Close</button></div></div>`;
 
   // ---------------------------------------------------------------- the toy table on the main menu: dice, letter blocks and starters you can pick up, throw and knock about
   const TOY = { bodies: null, raf: 0, last: 0, W: 0, H: 0, drag: null };
@@ -3711,7 +3667,7 @@ const trainerFg = {
   function menuSheet() {
     const inB = !!G.battle;
     return `<div class="sheet" data-act="closemenu"><div class="box" data-stop="1" style="max-width:420px;display:flex;flex-direction:column;gap:12px"><h2>Menu</h2>
-      <button class="btn alt" data-act="help">How to Play</button><button class="btn alt" data-act="settings">Settings</button><button class="btn alt" data-act="dex">Pokédex</button><button class="btn alt" data-act="lab">Card layout lab</button>${inB ? '' : '<button class="btn alt" data-act="records">Hall of Fame</button>'}
+      <button class="btn alt" data-act="help">How to Play</button><button class="btn alt" data-act="settings">Settings</button><button class="btn alt" data-act="dex">Pokédex</button>${inB ? '' : '<button class="btn alt" data-act="records">Hall of Fame</button>'}
       <button class="btn" data-act="menu0">Save &amp; main menu</button><button class="btn ghost" data-act="closemenu">Close</button></div></div>`;
   }
   const settingsSheet = () => `<div class="sheet" data-act="closesettings"><div class="box" data-stop="1" style="max-width:460px;display:flex;flex-direction:column;gap:16px"><h2>Settings</h2>
@@ -3916,8 +3872,7 @@ const trainerFg = {
   function render() {
     if (!$app) return;
     let h = '';
-    if (ui.screen === 'lab') h = labScreen();
-    else if (ui.screen === 'new' || ui.screen === 'menu' || !G) h = menuScreen();
+    if (ui.screen === 'new' || ui.screen === 'menu' || !G) h = menuScreen();
     else if (G.phase === 'map') h = mapScreen();
     else if (G.phase === 'battle') h = battleScreen();
     else if (G.phase === 'result') h = resultScreen();
@@ -3946,7 +3901,7 @@ const trainerFg = {
     const oldHand = document.querySelector('.handrow'), oldRect = oldHand && oldHand.getBoundingClientRect(), oldHtml = oldHand && oldHand.innerHTML;
     const oldPileEl = document.querySelector('.pilebay'), oldPileRect = oldPileEl && oldPileEl.getBoundingClientRect(), oldPileHtml = oldPileEl && oldPileEl.outerHTML;
     const dxTop = (document.querySelector('.dexbox') || {}).scrollTop;
-    markDex(); $app.innerHTML = h; if (ui.screen === 'lab') labFit(); if (dxTop) { const nb = document.querySelector('.dexbox'); if (nb) nb.scrollTop = dxTop; }
+    markDex(); $app.innerHTML = h; if (dxTop) { const nb = document.querySelector('.dexbox'); if (nb) nb.scrollTop = dxTop; }
     { const ms = Date.now(), gd = -(ms % 2600) / 1000 + 's', td = -(ms % 1600) / 1000 + 's'; document.querySelectorAll('.card.shiny .art, .shw').forEach(e => { e.style.setProperty('--gd', gd); e.style.setProperty('--td', td); }); }      // a redraw must not restart the shine flicker(); toyMount();
     if (oldPileEl && !document.querySelector('.pilebay') && G && G.battle && G.battle.stage !== 'place') {        // done drawing: the pile flies away with the rest of your hand
       const pg = document.createElement('div'); pg.innerHTML = oldPileHtml; const pe = pg.firstChild; pe.style.cssText += `;position:fixed;left:${oldPileRect.left}px;top:${oldPileRect.top}px;width:${oldPileRect.width}px;z-index:36;pointer-events:none;right:auto;bottom:auto`; document.body.appendChild(pe);
@@ -3982,9 +3937,6 @@ const trainerFg = {
     dextipx() { ui.dexTip = null; render(); },
     lendok() { ui.lendSeen = G.turn; render(); },
     expx() { ui.exp = null; render(); },
-    lab() { ui.menu = false; ui.more = false; ui.labPrev = ui.screen; ui.screen = 'lab'; render(); }, labback() { ui.screen = ui.labPrev && ui.labPrev !== 'lab' ? ui.labPrev : 'menu'; render(); },
-    labshuffle() { ui.labRand = null; render(); },
-    labset(el) { const k = el.dataset.k, v = el.dataset.v; ui[k] = k === 'labN' || k === 'labCur' ? +v : v; render(); },
     resetask() { ui.resetAsk = true; render(); }, resetno() { ui.resetAsk = false; render(); },
     resetgo() { try { Object.keys(localStorage).filter(k => k.indexOf('pokemon-roll') === 0).forEach(k => localStorage.removeItem(k)); } catch (e) { /* nothing to clear */ } location.reload(); },
     legmark() { const id = E.hidingLegend(G); if (!id) return; ui.exp = { h: '✨ A legendary is hiding', p: esc(C[id].name) + ' was spotted at ' + esc(D.locations.find(l => l.id === C[id].loc).name) + '. Find it there and it can be yours.' }; render(); },
@@ -4223,7 +4175,6 @@ const trainerFg = {
   });
   document.addEventListener('contextmenu', e => e.preventDefault());
   let rz = null; window.addEventListener('resize', () => { clearTimeout(rz); rz = setTimeout(() => { if (G && ui.screen === 'play' && G.phase === 'map') render(); }, 120); });
-  if (/#lab/.test(location.hash)) ui.screen = 'lab';
   render();
   window.__deckPile = (l, w) => deckPile(l, { pw: w, count: 9 }); window.__pokemonRoll = { card, noDecision, setSeed(x) { ui.seed = x; render(); }, fitCards, short, abText, recordResult, get G() { return G; }, setG(x) { G = x; ui.screen = 'play'; resetSel(); save(); drive(); }, ui, A, render, act, get set() { return set; } };
 })();

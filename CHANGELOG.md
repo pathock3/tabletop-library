@@ -1,5 +1,6 @@
 # Changelog
 
+- Pokémon Roll: the Card layout lab is gone (the grid card is the card); the old gradient square behind the card art is back.
 - Pokémon Roll: the square behind a card's art is a darker shade of its element colour again, and every elemental move shows its element's symbol in the corner of its cell.
 - Pokémon Roll: you start with two dice; beating Brock gives a third, Misty or Surge a fourth and Giovanni a fifth (Lance no longer gives one).
 - Pokémon Roll: more legendaries can keep appearing and be shuffled into locations, even while one is already hiding.
