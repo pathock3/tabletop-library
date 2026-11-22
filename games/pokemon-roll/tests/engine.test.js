@@ -585,6 +585,10 @@ test('elements: each move has its own element: a card of one type can have a pla
   const d = craft(['144'], ['148']), b2 = play(d, { hero: [5], gm: [1] }, { hero: { 0: 0 }, gm: {} });      // die 5: a plain 1a: normal, no weakness
   assert.equal(evs(b2, 'dmg')[0].n, 1); assert.ok(!evs(b2, 'dmg')[0].weak, 'a plain move from an Ice card is not an ice attack');
 });
+test('elements: with Lapras in play, fire gets no elemental bonus on blocks either', () => {
+  const lap = Object.keys(C).find(id => C[id].name === 'Lapras'); const b = craft(['1.1', lap], ['4.1']).b; b.moveEl = { 1: 'fire' };
+  assert.equal(E._t.blkMult(b, { el: 'fire' }, E.U(b, 1)), 1, 'Lapras switches fire off'); assert.equal(E._t.blkMult(b, { el: 'water' }, (b.moveEl = { 1: 'water' }, E.U(b, 1))), 2, 'other elements still double');
+});
 test('elements: a heal of the same element as the card it heals is twice as good; a block is twice as good against an attack of its own element', () => {
   const save = C['1.1'].movEls.slice(); C['1.1'].movEls[3] = 'grass';                // pretend the sheet colours Bulbasaur's 1 heal green
   try {
@@ -969,4 +973,23 @@ test('replacements: you may use as many Pokémon as the leader has, and anyone y
   const pickLast = b.hand[0][b.hand[0].length - 1]; assert.ok(E.apply(s, Object.assign({ t: 'place', side: 0, uid: pickLast }, E.slotsFor(b, 0)[0])).ok, 'any of them can come in');
   while ((g = B.step(s, 'normal'))) E.apply(s, g); if (b.pl && b.pl.confirm) E.apply(s, { t: 'ready' }); assert.equal(b.sendLeft, 0, 'that was the last replacement'); assert.equal(b.rsv[0].length, 2);
   const again = E.living(b, 0)[0]; again.ko = true; again.hp = 0; b.stage = 'resolved'; b.out = null; E.apply(s, { t: 'next' }); assert.notEqual(b.refill && b.pl && b.pl.side === 0 && b.hand[0].length > 0 && b.stage === 'place', true, 'no more replacements are offered: you have used as many as the leader has');
+});
+test('targeting: arrows top out at two columns over, and no V6 move targets "all" or "any" enemy', () => {
+  const m = E.parseMove('3a <<<^>>>').clauses[0][0]; assert.deepEqual([...m.spec.opts[0]].sort((a, b) => a - b), [-2, -1, 0, 1, 2], 'three arrows still reach only two columns');
+  Object.values(C).forEach(c => c.moves.forEach(mv => { if (mv) { assert.ok(!/<<<|>>>/.test(mv), c.name + ': ' + mv); assert.ok(!/\b(all|any enemy)\b/i.test(mv), c.name + ': ' + mv); } }));
+});
+test('dice and sizes: a die from Brock, Misty or Surge, Giovanni and Lance; gyms never bigger than 3 on 3; Elite Four 4 on 4 with six cards; Blue and Red 5 on 5 with seven', () => {
+  const s = E.newGame({ seed: 8, starter: 'bulbasaur' }); assert.equal(E.slots(s), 1);
+  s.done.B1 = true; assert.equal(E.slots(s), 2); s.done.B3 = true; assert.equal(E.slots(s), 3); s.done.B2 = true; assert.equal(E.slots(s), 3, 'Misty and Surge give one die between them');
+  s.done.B8 = true; assert.equal(E.slots(s), 4); s.done.E4 = true; assert.equal(E.slots(s), 5);
+  const T = D.trainers; ['E1', 'E2', 'E3', 'E4'].forEach(id => { assert.equal(T[id].n, 6, id); assert.equal(T[id].out, 4, id); }); ['F1', 'F2'].forEach(id => { assert.equal(T[id].n, 7, id); assert.equal(T[id].out, 5, id); });
+  ['B1', 'B2', 'B3', 'B4', 'B5', 'B6', 'B7', 'B8'].forEach(id => assert.equal(T[id].out, undefined, id + ': cards out follow your dice, capped by D.rules.gymMax')); assert.equal(D.rules.gymMax, 3);
+  const g = E.newGame({ seed: 9, starter: 'bulbasaur' }); ['B1', 'B2', 'B8', 'E4'].forEach(k => { g.done[k] = true; }); Object.keys(C).filter(id => C[id].loc > 0).slice(0, 8).forEach((id, i) => g.coll.push({ uid: 90 + i, id, sh: 0 }));
+  g.done.B4 = false; assert.ok(E.apply(g, { t: 'go', node: 'B4' }).ok); assert.equal(g.battle.nOut, 3, 'five dice, but a gym is 3 on 3');
+  const h = E.newGame({ seed: 9, starter: 'bulbasaur' }); ['B1', 'B2', 'B3', 'B4', 'B5', 'B6', 'B7', 'B8', 'E1', 'E2', 'E3', 'E4'].forEach(k => { h.done[k] = true; }); Object.keys(C).filter(id => C[id].loc > 0).slice(0, 8).forEach((id, i) => h.coll.push({ uid: 90 + i, id, sh: 0 }));
+  assert.ok(E.apply(h, { t: 'go', node: 'F1' }).ok); assert.equal(h.battle.nOut, 5); assert.equal(h.battle.cap0, 7);
+  const k = E.newGame({ seed: 9, starter: 'bulbasaur' }); assert.ok(E.apply(k, { t: 'go', node: 'B1' }).ok); assert.equal(k.battle.cap0, 1, 'one Pokémon against one: the leader brings only as many as you have');
+});
+test('elite four: one random member stands before Lance, the other two are not on the map', () => {
+  const seen = new Set(); for (let seed = 1; seed <= 40; seed++) { const s = E.newGame({ seed, starter: 'bulbasaur' }); seen.add(s.elite); } assert.deepEqual([...seen].sort(), ['E1', 'E2', 'E3']);
 });

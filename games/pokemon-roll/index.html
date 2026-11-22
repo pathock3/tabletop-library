@@ -635,7 +635,7 @@ const GAME_DATA = {
     columns: false,              // (a different way to roll, one die per card, one column at a time: switched off; the pool of dice is the game)
     locationMax: 5,
     diceRewards: [['B1'], ['B2', 'B3'], ['B8'], ['E4']], gymMax: 3,          // your 2nd die comes from beating Brock, your 3rd from Misty or Lt. Surge (whichever first)
-    maxDice: 5,                 // the player's dice: 1 at the start, a 2nd and a 3rd from the first two badges (Blue and Red are 4 on 4)             // never more than five cards a side (and five dice): the biggest fight is 5 on 5
+    maxDice: 5,                 // the player's dice: 1 at the start, a 2nd and a 3rd from the first two badges              // never more than five cards a side (and five dice): the biggest fight is 5 on 5
     typeShield: 3,              // "Immune to ground" now means: takes 3 less damage from ground attacks
     maxLevel: 6,
     maxRounds: 60, stallRounds: 6,   // a fight that goes nowhere is lost (a tie is a loss for the hero)
@@ -1142,7 +1142,7 @@ const Engine = (() => {
 
   // ---------------------------------------------------------------- reading a move
   // arrows: < the column to the left, ^ the opposing card (an attack's matchup), v yourself, > the column to the right; "<<" reaches two columns.
-  const runs = s => { const out = new Set(); const re = /(<+)|(>+)|([\^v])/g; let m; while ((m = re.exec(s))) { if (m[1]) for (let i = 1; i <= m[1].length; i++) out.add(-i); else if (m[2]) for (let i = 1; i <= m[2].length; i++) out.add(i); else out.add(0); } return [...out].sort((a, b) => a - b); };
+  const runs = s => { const out = new Set(); const re = /(<+)|(>+)|([\^v])/g; let m; while ((m = re.exec(s))) { if (m[1]) for (let i = 1; i <= Math.min(2, m[1].length); i++) out.add(-i); else if (m[2]) for (let i = 1; i <= Math.min(2, m[2].length); i++) out.add(i); else out.add(0); } return [...out].sort((a, b) => a - b); };
   function parseSpec(sp) {
     sp = (sp || '').trim(); let spread = false;
     { const pk = /^pick\s+(\d+)$/.exec(sp); if (pk) return { opts: [[0]], spread: false, all: false, pick: +pk[1] }; }          // "4h pick 2": any 2 cards on that side, wherever they are (allies for heals, enemies for attacks and statuses)
@@ -1776,9 +1776,9 @@ const Engine = (() => {
     if (foe) { ev(b, { t: 'text', msg: CARDS[foe.id].name + ' stops the healing' }); return 0; }
     if (t.poison || t.poisonNew || t.skipNext || t.asleep || t.fzBy != null) { t.poison = t.poisonNew = false; t.skipNext = false; t.asleep = false; t.sleepFresh = false; t.fzBy = null; ev(b, { t: 'status', u: t.uid, st: 'cured' }); }          // a heal removes every status
     if (has(t, 'doubleHeal')) n *= 2;
-    if (mv && src && atkEl(b, src) === typeOf(t) && atkEl(b, src) !== 'normal') n *= 2;                 // a heal of the element of the card it heals is twice as good
+    const x2 = !!(mv && src && elemX2(b, atkEl(b, src), typeOf(t))); if (x2) n *= 2;                 // a heal of the element of the card it heals is twice as good
     const got = Math.min(n, t.max - t.hp); if (got <= 0) return 0;
-    t.hp += got; ev(b, { t: 'heal', u: t.uid, n: got, hp: t.hp, by: src ? src.uid : null }); return got;
+    t.hp += got; ev(b, { t: 'heal', u: t.uid, n: got, hp: t.hp, by: src ? src.uid : null, x2 }); return got;
   }
 
   // ---- moving cards between columns (Kadabra, Celebi, Abra, the Machop line, Rhyhorn and Rhydon); Golbat and Tangela forbid it for the other side
@@ -1939,7 +1939,7 @@ const Engine = (() => {
     if (!opt.pierce && !has(A, 'pierce') && !has(A, 'pierceAll')) {          // a pierce is damage that blocks and counters cannot stop
       const ti = colIdx(b, T.uid);
       const own = b.pools.filter(p => p.uid === T.uid && p.n > 0 && p.cover.indexOf(0) >= 0);
-      own.forEach(p => { if (n <= 0) return; const mu = blkMult(b, p, A), take = Math.min(p.n * mu, n); p.n -= Math.ceil(take / mu); n -= take; T.blk += take; ev(b, { t: 'blocked', u: T.uid, n: take }); if (p.counter && take > 0) reflect(s, b, A, T, take); });
+      own.forEach(p => { if (n <= 0) return; const mu = blkMult(b, p, A), take = Math.min(p.n * mu, n); p.n -= Math.ceil(take / mu); n -= take; T.blk += take; ev(b, { t: 'blocked', u: T.uid, n: take, x2: mu > 1 }); if (p.counter && take > 0) reflect(s, b, A, T, take, mu > 1); });
       if (n > 0) {
         let best = null;
         b.pools.forEach(p => {
@@ -1948,7 +1948,7 @@ const Engine = (() => {
           const nb = raw * (weakOnly(b, A, B)), mu = blkMult(b, p, A); const take = Math.min(p.n * mu, nb), left = nb - take;
           if (left < n && B.hp > left && (!best || take > best.take)) best = { p, B, take, left };
         });
-        if (best) { best.p.n -= Math.ceil(best.take / blkMult(b, best.p, A)); best.B.blk += best.take; ev(b, { t: 'blocked', u: best.B.uid, n: best.take, for: T.uid }); n = 0; if (best.left > 0) dealDamage(s, b, best.B, best.left, A, true); if (best.p.counter && best.take > 0) reflect(s, b, A, best.B, best.take); }
+        if (best) { best.p.n -= Math.ceil(best.take / blkMult(b, best.p, A)); best.B.blk += best.take; const x2b = blkMult(b, best.p, A) > 1; ev(b, { t: 'blocked', u: best.B.uid, n: best.take, for: T.uid, x2: x2b }); n = 0; if (best.left > 0) dealDamage(s, b, best.B, best.left, A, true); if (best.p.counter && best.take > 0) reflect(s, b, A, best.B, best.take, x2b); }
       }
     }
     if (n > 0) {
@@ -1960,7 +1960,7 @@ const Engine = (() => {
     }
   }
   // a counter sends the damage it soaked up straight back to the attacker
-  function reflect(s, b, A, T, n) { if (A.ko || n <= 0) return; T.cnt = (T.cnt || 0) + n; ev(b, { t: 'counter', u: T.uid, to: A.uid, n }); dealDamage(s, b, A, n, T, true); }
+  function reflect(s, b, A, T, n, x2) { if (A.ko || n <= 0) return; T.cnt = (T.cnt || 0) + n; ev(b, { t: 'counter', u: T.uid, to: A.uid, n, x2: !!x2 }); dealDamage(s, b, A, n, T, true); }
   // statuses: poison (1 damage at the end of every round from the next one on, no stacking), stun (loses its next turn), freeze (the one who froze it decides at the end of the round whether its die is locked)
   function applyStatus(b, A, T, st) {
     if (T.ko) return;
@@ -1969,7 +1969,9 @@ const Engine = (() => {
     else if (st === 'sleep') { if (!T.asleep) { T.asleep = true; T.sleepFresh = true; ev(b, { t: 'status', u: T.uid, st: 'sleep' }); } }          // a sleeping card cannot be put to sleep again
     else if (st === 'freeze') { T.fzBy = A ? A.side : other(T.side); ev(b, { t: 'status', u: T.uid, st: 'freeze' }); }
   }
-  const blkMult = (b, p, A) => p.el && p.el !== 'normal' && p.el === atkEl(b, A) ? 2 : 1;       // a block is twice as good against an attack of its own element
+  // the elemental bonus (always x2): the same element on both sides; unfilled faces are normal and never get one; with Lapras out, fire gets none of it
+  const elemX2 = (b, a, t) => !!a && a !== 'normal' && a === t && !(noFireBonus(b) && a === 'fire');
+  const blkMult = (b, p, A) => elemX2(b, p.el, atkEl(b, A)) ? 2 : 1;       // a block is twice as good against an attack of its own element
   const weakOnly = (b, A, B) => wm(b, A, B);
 
   // spread points one at a time to wherever they do the most good
@@ -3123,7 +3125,7 @@ const trainerFg = {
     const seen = {};
     beat.evs.forEach(e => {
       if (e.t === 'dmg') { const from = hpv[e.u], key = 'd' + e.u; hpv[e.u] = e.hp; seen[key] = (seen[key] || { u: e.u, n: 0, from, weak: false }); seen[key].n += e.n; seen[key].to = e.hp; seen[key].weak = seen[key].weak || e.weak; }
-      else if (e.t === 'heal') { const from = hpv[e.u], key = 'h' + e.u; hpv[e.u] = e.hp; seen[key] = (seen[key] || { u: e.u, n: 0, from, heal: true }); seen[key].n += e.n; seen[key].to = e.hp; }
+      else if (e.t === 'heal') { const from = hpv[e.u], key = 'h' + e.u; hpv[e.u] = e.hp; seen[key] = (seen[key] || { u: e.u, n: 0, from, heal: true }); seen[key].n += e.n; seen[key].to = e.hp; if (e.x2) seen[key].x2 = true; }
     });
     const bits = [];
     if (beat.kind === 'special') bits.push('<b class="capx">SPECIAL!</b>');
@@ -3133,11 +3135,11 @@ const trainerFg = {
     if (actor != null) bits.push(faceOf(actor));
     tgtIds.forEach(k => {
       const s = seen[k];
-      if (s.heal) bits.push(`<b class="caph">✚</b> ${faceOf(s.u)} <b class="caph">+${s.n}</b> <span class="caphp">${s.from}➜${s.to}</span>`);
+      if (s.heal) bits.push(`<b class="caph">✚</b> ${faceOf(s.u)} <b class="caph">+${s.n}</b>${s.x2 ? ' <b class="capw">×2</b>' : ''} <span class="caphp">${s.from}➜${s.to}</span>`);
       else bits.push(`<span class="arrowc">➜</span> ${faceOf(s.u)} <b class="capd">−${s.n}</b> 💥${s.weak ? ' <b class="capw">×2 weak!</b>' : ''} <span class="caphp">${s.from}➜${s.to}</span>`);
     });
     beat.evs.forEach(e => {
-      if (e.t === 'blocked' && e.n) bits.push(`<b class="capb">🛡 −${e.n}</b>`);
+      if (e.t === 'blocked' && e.n) bits.push(`<b class="capb">🛡 −${e.n}${e.x2 ? ' ×2' : ''}</b>`);
       else if (e.t === 'blocked') bits.push('<b class="capb">🛡 no damage</b>');
       else if (e.t === 'dodge') bits.push('<b class="capx">dodged!</b>');
       else if (e.t === 'immune') bits.push('<b class="capx">no effect</b>');
@@ -3208,8 +3210,8 @@ const trainerFg = {
     beat.evs.forEach(e => {
       const el = e.u != null && cardEl(e.u); if (!el) return;
       if (e.t === 'dmg') { el.classList.add('hurt2'); add(el, 'pop', '−' + e.n); if (e.weak) add(el, 'weakb', 'WEAK ×2'); to[e.u] = e.hp; }
-      else if (e.t === 'heal') { el.classList.add('heal2'); add(el, 'pop heal', '+' + e.n); for (let i = 0; i < 6; i++) add(el, 'plus', '✚', `left:${10 + i * 15}%;animation-delay:${i * 0.07}s`); to[e.u] = e.hp; }
-      else if (e.t === 'blocked') add(el, 'pop txt', e.n ? '🛡 −' + e.n : '🛡 Blocked');
+      else if (e.t === 'heal') { el.classList.add('heal2'); add(el, 'pop heal', '+' + e.n); if (e.x2) add(el, 'weakb', '×2 element'); for (let i = 0; i < 6; i++) add(el, 'plus', '✚', `left:${10 + i * 15}%;animation-delay:${i * 0.07}s`); to[e.u] = e.hp; }
+      else if (e.t === 'blocked') { add(el, 'pop txt', e.n ? '🛡 −' + e.n : '🛡 Blocked'); if (e.x2) add(el, 'weakb', '×2 element'); }
       else if (e.t === 'dodge') add(el, 'pop txt', 'Dodged!');
       else if (e.t === 'immune') add(el, 'pop txt', 'No effect');
       else if (e.t === 'skip') add(el, 'pop txt', 'Loses a round');

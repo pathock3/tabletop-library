@@ -1,5 +1,10 @@
 # Changelog
 
+- Pokémon Roll: five dice (Brock, Misty or Surge, Giovanni, Lance); cards out = your dice, but gyms are never bigger than 3 on 3; the Elite Four are 4 on 4 (six cards each) and Blue and Red 5 on 5 (seven cards each); team sizes and level points come from the Trainers tab. In every trainer fight the leader brings only as many Pokémon as you own, so the ball counts always match.
+- Pokémon Roll: only one random Elite Four member (Lorelei, Bruno or Agatha) stands before Lance.
+- Pokémon Roll: a long hand in the matchup screen starts at the left (your strongest first) and slides sideways; lift a card up or down to place it.
+- Pokémon Roll: every new card is caught: pick one, throw a Poké Ball, it wobbles and clicks (about two seconds; tap to skip).
+- Pokémon Roll: the ×2 element bonus now shows on heals, blocks and counters too; Lapras switches off fire's bonus everywhere; arrows never reach past two columns.
 - Pokémon Roll: moves with a keyword (poison, charge, dodge, sleep, stun…) now always show it on the card — before, Venusaur Lv 50, Vileplume, Machamp and many others had the keyword line cut off when the attack arrows took two lines.
 - Pokémon Roll: the layout lab grid card is now edge to edge (no gaps, number boxes, half-height number box for two-line moves, left-aligned name/health/element/level, big square art flush right).
 - Pokémon Roll: special events are random now (Bill, the Dojo, or a legendary once you hold four badges), not always Bill first.

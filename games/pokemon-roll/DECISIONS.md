@@ -163,3 +163,11 @@ The owner approved the grid card from the layout lab and it is now the only card
 - **Special events:** one at a time. A new one cannot start while a visitor is on the map or a legendary is not yet caught, none is rolled right after an event battle ends, the Dojo leaves when you keep one of its fighters, and an older save with two visitors keeps only the first.
 - **Team size and replacements:** in every trainer fight you may use as many Pokémon in all as the leader has (`cap0`); the ones past those on the field are replacements you may still send (`sendLeft`). The reserve is everyone else you caught, so when one is knocked out you pick ANYONE from it, not just the strongest.
 - Gym leader tiles: the "i" sits in the bottom-right corner under the art with a 60px hit area (decks the same) so a tap aimed at it never starts the battle.
+
+## Dice, sizes, Elite Four, element bonus (latest brief)
+- Dice: 1, +1 Brock, +1 Misty or Surge (first of them), +1 Giovanni, +1 Lance (`D.rules.diceRewards`, `maxDice 5`). Cards out = dice, gyms capped at 3 (`D.rules.gymMax`); Elite Four out 4, Blue/Red out 5 (trainers lend dice if you have fewer and enough cards).
+- If you own fewer Pokémon than the leader's team, the leader brings only that many (its signature always stays), so both sides always show the same number of balls.
+- Elite Four: `s.elite` (E1/E2/E3) is picked at random when the game starts (older saves get one in `repair`); only that member is on the map and Lance needs just that one.
+- Element bonus (always ×2, face colour = element, unfilled = normal): attacks vs weakness (`wm`), heals on a same-element target, blocks and counters vs an attack of the same element (`elemX2`). Lapras (fire gets none) now covers heals, blocks and counters. The older coloured-dice bonus (+1) is untouched and stacks; `doubleHeal` abilities stack multiplicatively with the ×2 (4×); a block ×2 is measured in damage stopped (a 3-block stops 6 of the same element, and a counter sends back what it stopped).
+- Arrows clamp at two columns; no V6 move uses "all"/"any" targets (a test checks).
+- Catch animation plays for every "pick a card" screen (wild catch, Bill, Dojo); a legendary that is handed over automatically has no throw.
