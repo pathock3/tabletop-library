@@ -1,5 +1,6 @@
 # Changelog
 
+- Pokémon Roll: you start with two dice; beating Brock gives a third, Misty or Surge a fourth and Giovanni a fifth (Lance no longer gives one).
 - Pokémon Roll: more legendaries can keep appearing and be shuffled into locations, even while one is already hiding.
 - Pokémon Roll: a hiding legendary no longer blocks other events (it is just a card in a pile); Bill and the Dojo can come while one hides, and a visitor does not stop a legendary being shuffled in. Beating Lance now says that Blue OR Red appears (the one chosen for your game). The champion screen shows only the cards you used in the final battle, big. The main-menu road now fits the whole screen width.
 - Pokémon Roll: after beating a gym leader the result no longer says where their Pokémon went back into the wild (they still do).

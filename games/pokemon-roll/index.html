@@ -630,11 +630,11 @@ const GAME_DATA = {
     starterShinyChance: 0.10,   // a 10% chance that ONE starter (picked at random) is shiny, with all its levels and evolutions; never more than one. The starters are not rolled with the others
     shinyChance: 0.10,          // each card is rolled once, before anything is dealt, and keeps its form for the whole game (a partner keeps its form through every level and evolution)
     levelLabels: [1, 10, 20, 30, 40, 50],   // what a card's level 1-6 is called on screen (the rules still count 1-6)
-    startSlots: 1, startLevel: 2,   // you begin with your partner at level 2 (the level the first rival fight gave in the paper game)
+    startSlots: 2, startLevel: 2,   // you begin with your partner at level 2 (the level the first rival fight gave in the paper game)
                  // cards you may challenge a location with; each boss beaten adds one
     columns: false,              // (a different way to roll, one die per card, one column at a time: switched off; the pool of dice is the game)
     locationMax: 5,
-    diceRewards: [['B1'], ['B2', 'B3'], ['B8'], ['E4']], gymMax: 3,          // your 2nd die comes from beating Brock, your 3rd from Misty or Lt. Surge (whichever first)
+    diceRewards: [['B1'], ['B2', 'B3'], ['B8']], gymMax: 3,          // you start with two dice; Brock gives a 3rd, Misty or Lt. Surge (whichever first) a 4th, Giovanni a 5th
     maxDice: 5,                 // the player's dice: 1 at the start, a 2nd and a 3rd from the first two badges              // never more than five cards a side (and five dice): the biggest fight is 5 on 5
     typeShield: 3,              // "Immune to ground" now means: takes 3 less damage from ground attacks
     maxLevel: 6,
@@ -1280,7 +1280,7 @@ const Engine = (() => {
   const rivalFor = key => { const mine = CARDS[starterOf(key).levels[0]].weak; return D.starters.find(x => CARDS[x.levels[0]].type === mine) || D.starters[0]; };
   const bossesBeaten = s => D.nodes.filter(n => n.kind === 'boss' && s.done[n.id]).length;
   const badges = s => D.nodes.filter(n => n.gym && s.done[n.id]).length;          // a badge for every gym leader beaten
-  // dice: you start with one, the first two badges give a second and a third
+  // dice: you start with two, the first badge gives a third, then Misty or Surge a fourth and Giovanni a fifth
   const slots = s => Math.min(R.maxDice, R.startSlots + R.diceRewards.filter(g => g.some(id => s.done[id])).length);
   const unlocked = (s, n) => (!n.elite || s.elite === n.id) && (!n.final || s.final === n.id) && (!n.badges || badges(s) >= n.badges) && (!n.dice || slots(s) >= n.dice) && (n.any ? n.needs.some(id => s.done[id]) : n.needs.every(id => s.done[id]));       // `badges`: this many gym badges; `any`: either of two paths opens it; `dice`: you also need this many dice
   const inst = (s, id, sh) => ({ id, sh: sh ? 1 : 0 });

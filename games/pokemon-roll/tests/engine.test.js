@@ -217,7 +217,7 @@ test('placement: a gym fight puts out as many cards as you have dice (a trainer 
   assert.ok(E.apply(s, B.step(s, 'normal')).ok); assert.ok(E.apply(s, { t: 'ready' }).ok, 'your OK'); assert.equal(b.stage, 'assign', 'only they needed one'); assert.equal(E.living(b, 1).length, 3); assert.equal(b.rsv[1].length, 0); assert.ok(E.living(b, 1).some(u => s.bosses.B3[s.bosses.B3.length - 1].id === u.id), 'the signature came out last');
 });
 test('wild cards: one comes up, you put one down, and then you choose: fight it one on one, or bring more and they draw one more each time', (tc) => { E.faceOrder('roll'); tc.after(() => E.faceOrder('sheet'));
-  const s = E.newGame({ seed: 21, starter: 'bulbasaur' }); s.done.B1 = true; s.done.B2 = true;            // three dice (the first two badges give two more)
+  const s = E.newGame({ seed: 21, starter: 'bulbasaur' }); s.done.B1 = true;            // three dice (you start with two, Brock gives the third)
   ['74', '56', '100'].forEach((id, i) => s.coll.push({ uid: 10 + i, id, sh: 0 }));
   assert.ok(E.apply(s, { t: 'go', node: 'L1' }).ok); const b = s.battle;
   assert.equal(b.mode, 'wild'); assert.equal(b.cap, 3); assert.equal(b.hand[1].length, 1, 'one wild card has come up'); assert.deepEqual(b.pl, { side: 1, left: 1 });
@@ -274,18 +274,18 @@ test('campaign: every trainer builds a random team from its row: size, signature
 });
 test('campaign: areas open by beating the leader before them; dice come from Brock and then Misty or Lt. Surge; the endgame needs all eight badges', () => {
   const s = E.newGame({ seed: 4, starter: 'squirtle' }); const open = () => D.nodes.filter(n => E.unlocked(s, n)).map(n => n.id).sort();
-  assert.deepEqual(open(), ['B1', 'L1', 'L2'], 'Area 1: Viridian Forest, Mt. Moon and Brock'); assert.equal(E.slots(s), 1); assert.equal(s.lv, 2, 'your partner starts at level 2');
-  s.done.B1 = true; assert.equal(E.slots(s), 2, 'Brock gives the 2nd die');
+  assert.deepEqual(open(), ['B1', 'L1', 'L2'], 'Area 1: Viridian Forest, Mt. Moon and Brock'); assert.equal(E.slots(s), 2, 'you start with two dice'); assert.equal(s.lv, 2, 'your partner starts at level 2');
+  s.done.B1 = true; assert.equal(E.slots(s), 3, 'Brock gives the 3rd die');
   assert.ok(open().includes('B2') && open().includes('B3') && open().includes('L3') && !open().includes('B4') && !open().includes('L4'));
-  s.done.B2 = true; assert.equal(E.slots(s), 3, 'Misty (or Surge, whichever first) gives the 3rd'); assert.ok(open().includes('B4') && open().includes('L4') && !open().includes('B6') && !open().includes('L5'));
-  s.done.B3 = true; assert.equal(E.slots(s), 3); assert.ok(open().includes('B6') && open().includes('L5'), 'Surge opens the Pokémon Tower and Sabrina');
+  s.done.B2 = true; assert.equal(E.slots(s), 4, 'Misty (or Surge, whichever first) gives the 4th'); assert.ok(open().includes('B4') && open().includes('L4') && !open().includes('B6') && !open().includes('L5'));
+  s.done.B3 = true; assert.equal(E.slots(s), 4); assert.ok(open().includes('B6') && open().includes('L5'), 'Surge opens the Pokémon Tower and Sabrina');
   s.done.B4 = true; assert.ok(open().includes('B5') && open().includes('L6')); assert.ok(!open().includes('L8') && !open().includes('B8'));
   s.done.B6 = true; assert.ok(open().includes('B7') && open().includes('L7')); s.done.B5 = true; assert.ok(open().includes('L8') && open().includes('B8'), 'Koga opens Seafoam and Giovanni'); assert.ok(!open().includes('L9'));
   s.done.B7 = true; assert.ok(open().includes('L9')); delete s.done.B5; assert.ok(open().includes('B8'), 'Blaine alone opens Giovanni too'); s.done.B5 = true;
   assert.ok(!open().includes('E1')); s.done.B8 = true; assert.equal(E._t.badges(s), 8);
   assert.ok(['E1', 'E2', 'E3'].includes(s.elite)); assert.deepEqual(open().filter(id => ['E1', 'E2', 'E3'].includes(id)), [s.elite], 'only one Elite Four member stands there'); assert.ok(!open().includes('E4')); s.done[s.elite] = true; assert.ok(open().includes('E4'));
   s.done.E4 = true; assert.deepEqual(open().filter(id => id[0] === 'F'), [s.final], 'only the chosen secret opponent is open');
-  const t = E.newGame({ seed: 4, starter: 'squirtle' }); t.done.B1 = true; t.done.B3 = true; assert.equal(E.slots(t), 3, 'Surge first works too');
+  const t = E.newGame({ seed: 4, starter: 'squirtle' }); t.done.B1 = true; t.done.B3 = true; assert.equal(E.slots(t), 4, 'Surge first works too');
 });
 test('campaign: your rival picks the partner that beats yours', () => {
   const beats = { bulbasaur: 'charmander', charmander: 'squirtle', squirtle: 'pikachu', pikachu: 'larvitar', larvitar: 'bulbasaur' };
@@ -542,12 +542,12 @@ test('special events: 10% after a battle that started with three dice; the first
   const play1 = (seed, dice, setup) => { const s = E.newGame({ seed, starter: 'bulbasaur' }); for (let i = 0; i < dice - 1; i++) s.done['B' + [1, 2, 4, 5][i]] = true; s.slotsAtGo = E.slots ? E.slots(s) : dice; if (setup) setup(s); s.phase = 'result'; s.res = { win: true, node: 'L1', kind: 'loc' }; assert.ok(E.apply(s, { t: 'done' }).ok); return s; };
   let few = 0, enough = 0, first = null;
   for (let seed = 1; seed <= 400; seed++) {
-    const a = play1(seed, 2); if (a.visitors.length || a.notes.length) few++;
-    const s = play1(seed, 3); if (s.visitors.length || s.notes.length) { enough++; if (!first) first = s; }
+    const a = play1(seed, 1); if (a.visitors.length || a.notes.length) few++;
+    const s = play1(seed, 2); if (s.visitors.length || s.notes.length) { enough++; if (!first) first = s; }
   }
   assert.equal(few, 0, 'nothing special before the first battle with three dice'); assert.ok(enough > 15 && enough < 70, 'about one battle in ten (' + enough + ')');
   assert.equal(first.visitors.length, 1); assert.ok(['bill', 'dojo'].includes(first.visitors[0])); assert.equal(first.specialsSeen, 1); assert.ok(first.notes[0].startsWith('visitor:'), 'a visitor stands on the map');
-  const firsts = new Set(); for (let seed = 1; seed <= 400; seed++) { const v = play1(seed, 3); if (v.visitors.length) firsts.add(v.visitors[0]); } assert.deepEqual([...firsts].sort(), ['bill', 'dojo'], 'the first event is random: it is not always Bill');
+  const firsts = new Set(); for (let seed = 1; seed <= 400; seed++) { const v = play1(seed, 2); if (v.visitors.length) firsts.add(v.visitors[0]); } assert.deepEqual([...firsts].sort(), ['bill', 'dojo'], 'the first event is random: it is not always Bill');
   // after Bill and the Dojo, and once you hold four badges: a random legendary each time; its place's draw and discard piles are shuffled together with it
   let leg = null; for (let seed = 1; seed < 400 && !leg; seed++) { const s = play1(seed, 3, g => { g.specialsSeen = 2; g.seenSpecials = ['bill', 'dojo']; g.done.B1 = g.done.B2 = g.done.B4 = g.done.B5 = true; g.discard[1] = ['10', '13']; g.discard[2] = ['16']; }); if (s.notes.some(n => n.startsWith('legend:'))) leg = s; }
   assert.ok(leg, 'then a legendary'); const id = leg.notes[0].slice(7), loc = C[id].loc; assert.ok(C[id].legend); assert.ok(leg.decks[loc].includes(id), 'it is in the new draw pile'); assert.equal(leg.discard[loc].length, 0, 'the discard pile went into it'); assert.ok(!leg.legend.includes(id));
@@ -978,10 +978,10 @@ test('targeting: arrows top out at two columns over, and no V6 move targets "all
   const m = E.parseMove('3a <<<^>>>').clauses[0][0]; assert.deepEqual([...m.spec.opts[0]].sort((a, b) => a - b), [-2, -1, 0, 1, 2], 'three arrows still reach only two columns');
   Object.values(C).forEach(c => c.moves.forEach(mv => { if (mv) { assert.ok(!/<<<|>>>/.test(mv), c.name + ': ' + mv); assert.ok(!/\b(all|any enemy)\b/i.test(mv), c.name + ': ' + mv); } }));
 });
-test('dice and sizes: a die from Brock, Misty or Surge, Giovanni and Lance; gyms never bigger than 3 on 3; Elite Four 4 on 4 with six cards; Blue and Red 5 on 5 with seven', () => {
-  const s = E.newGame({ seed: 8, starter: 'bulbasaur' }); assert.equal(E.slots(s), 1);
-  s.done.B1 = true; assert.equal(E.slots(s), 2); s.done.B3 = true; assert.equal(E.slots(s), 3); s.done.B2 = true; assert.equal(E.slots(s), 3, 'Misty and Surge give one die between them');
-  s.done.B8 = true; assert.equal(E.slots(s), 4); s.done.E4 = true; assert.equal(E.slots(s), 5);
+test('dice and sizes: two to start, then a die from Brock, Misty or Surge and Giovanni; gyms never bigger than 3 on 3; Elite Four 4 on 4 with six cards; Blue and Red 5 on 5 with seven', () => {
+  const s = E.newGame({ seed: 8, starter: 'bulbasaur' }); assert.equal(E.slots(s), 2, 'you start with two');
+  s.done.B1 = true; assert.equal(E.slots(s), 3); s.done.B3 = true; assert.equal(E.slots(s), 4); s.done.B2 = true; assert.equal(E.slots(s), 4, 'Misty and Surge give one die between them');
+  s.done.B8 = true; assert.equal(E.slots(s), 5); s.done.E4 = true; assert.equal(E.slots(s), 5, 'five is the most');
   const T = D.trainers; ['E1', 'E2', 'E3', 'E4'].forEach(id => { assert.equal(T[id].n, 6, id); assert.equal(T[id].out, 4, id); }); ['F1', 'F2'].forEach(id => { assert.equal(T[id].n, 7, id); assert.equal(T[id].out, 5, id); });
   ['B1', 'B2', 'B3', 'B4', 'B5', 'B6', 'B7', 'B8'].forEach(id => assert.equal(T[id].out, undefined, id + ': cards out follow your dice, capped by D.rules.gymMax')); assert.equal(D.rules.gymMax, 3);
   const g = E.newGame({ seed: 9, starter: 'bulbasaur' }); ['B1', 'B2', 'B8', 'E4'].forEach(k => { g.done[k] = true; }); Object.keys(C).filter(id => C[id].loc > 0).slice(0, 8).forEach((id, i) => g.coll.push({ uid: 90 + i, id, sh: 0 }));
