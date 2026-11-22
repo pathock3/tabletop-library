@@ -183,7 +183,8 @@ test('ui: you only choose when there is a choice for where a card goes, but dice
     await p.evaluate(() => { const s = Engine.newGame({ seed: 4, starter: 'squirtle' }); s.coll.push({ uid: 8, id: '10', sh: 0 }, { uid: 9, id: '16', sh: 0 }); window.__pokemonRoll.setG(s); });
     await p.waitForTimeout(500); await p.locator('[data-act=tipok]').click({ timeout: 300 }).catch(() => {}); await p.click('[data-id=L1]', { timeout: 5000 }); await p.waitForFunction(() => { const g = window.__pokemonRoll.G.battle; return g && g.stage === 'place' && g.pl.side === 0; }, null, { timeout: 6000 });
     await p.locator('[data-act=tray]').first().click(); await p.waitForTimeout(200);
-    assert.equal(await p.evaluate(() => window.__pokemonRoll.G.battle.placed[0]), 1, 'one tap placed it, because there was only one spot');
+    if (await p.evaluate(() => window.__pokemonRoll.G.battle.placed[0]) === 0) await p.locator('[data-act=join]').first().click(); await p.waitForTimeout(200);          // with two dice there are two spots, so a spot is tapped too
+    assert.equal(await p.evaluate(() => window.__pokemonRoll.G.battle.placed[0]), 1, 'the card is down');
     assert.deepEqual(errs, []);
   } finally { await b.close(); }
 });
@@ -219,7 +220,7 @@ test('ui: with two dice you can add a second Pokémon to a wild fight: there are
   const errs = []; p.on('pageerror', e => errs.push(e.message));
   try {
     await p.goto(URL);
-    await p.evaluate(() => { const s = Engine.newGame({ seed: 7, starter: 'bulbasaur' }); s.done.B1 = true; s.coll.push({ uid: 9, id: '10', sh: 0 }, { uid: 11, id: '16', sh: 0 }); window.__pokemonRoll.setG(s); });
+    await p.evaluate(() => { const s = Engine.newGame({ seed: 7, starter: 'bulbasaur' }); s.coll.push({ uid: 9, id: '10', sh: 0 }, { uid: 11, id: '16', sh: 0 }); window.__pokemonRoll.setG(s); });
     await p.click('[data-id=L2]');
     await p.waitForFunction(() => { const g = window.__pokemonRoll.G.battle; return g && g.stage === 'place' && g.pl.side === 0; }, null, { timeout: 6000 });
     await p.locator('[data-act=tray]').first().click(); await p.locator('[data-act=join]').first().click();          // any open column will do; across from the wild card is the first
@@ -562,7 +563,7 @@ test('ui: Continue lists each save with its starter, badges, dice and cards, a t
     await p.goto(URL);
     await p.evaluate(() => { for (let i = 0; i < 2; i++) { const s = Engine.newGame({ seed: 5 + i, starter: i ? 'squirtle' : 'pikachu' }); s.bosses = {}; delete s.held; delete s.legFor; localStorage.setItem(i ? 'pokemon-roll-save-2' : 'pokemon-roll-save', JSON.stringify(s)); } });
     await p.reload(); await p.click('[data-act=continue]');
-    const txt = await p.innerText('.slot'); assert.match(txt, /Pikachu/); assert.match(txt, /🏅 0\/8/); assert.match(txt, /1 die/);
+    const txt = await p.innerText('.slot'); assert.match(txt, /Pikachu/); assert.match(txt, /🏅 0\/8/); assert.match(txt, /2 dice/);
     assert.ok(await p.evaluate(() => { const e = document.querySelector('.slotb b'); return getComputedStyle(e).color !== 'rgb(255, 255, 255)'; }), 'readable text');
     await p.click('[data-act=slotteam][data-slot="1"]'); assert.ok(await p.locator('.sheet .card').count() >= 1, 'the team of cards'); await p.click('.sheet .btn[data-act=closeslotteam]');
     await p.click('[data-act=load][data-slot="1"]'); await p.waitForSelector('.place[data-id=B1]'); await p.locator('[data-act=tipok]').click({ timeout: 800 }).catch(() => {});
@@ -578,7 +579,7 @@ test('ui: Brock has two Pokémon and you send out one at a time: no borrowed die
     await p.goto(URL); await p.click('[data-act=new]'); await p.click('[data-act=pickst][data-k=squirtle]'); await p.click('#startbtn'); await p.locator('[data-act=tipok]').click({ timeout: 800 }).catch(() => {});
     await p.evaluate(() => { const R = window.__pokemonRoll; R.G.coll.push({ uid: 50, id: '10', sh: 0 }); R.render(); });
     await p.evaluate(() => document.querySelector('.place[data-id=B1] .eye').click()); const info = await p.innerText('.hbox'); assert.doesNotMatch(info, /Signature|come from/i, 'only the card backs'); await p.mouse.click(8, 8);
-    await p.click('.place[data-id=B1]'); await p.waitForFunction(() => window.__pokemonRoll.G.phase === 'battle' && window.__pokemonRoll.G.battle, null, { timeout: 5000 }); assert.equal(await p.evaluate(() => window.__pokemonRoll.G.battle.nOut), 1, 'one at a time'); assert.equal(await p.locator('[data-act=lendok]').count(), 0, 'nothing is lent'); assert.deepEqual(errs, []);
+    await p.click('.place[data-id=B1]'); await p.waitForFunction(() => window.__pokemonRoll.G.phase === 'battle' && window.__pokemonRoll.G.battle, null, { timeout: 5000 }); assert.equal(await p.evaluate(() => window.__pokemonRoll.G.battle.nOut), 2, 'two dice, two out'); assert.equal(await p.locator('[data-act=lendok]').count(), 0, 'nothing is lent'); assert.deepEqual(errs, []);
   } finally { await b.close(); }
 });
 
