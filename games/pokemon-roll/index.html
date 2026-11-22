@@ -1257,13 +1257,13 @@ const Engine = (() => {
     visitor(s, id, d) { if (eventActive(s)) return false; if (d && d.pick) { const pool = Object.values(CARDS).filter(c => c.type === d.pick.type && c.loc !== 0 && !c.legend).map(c => c.id); (s.vcards = s.vcards || {})[id] = shuffle(s, pool).slice(0, d.pick.n); }          // an event that draws its own cards (the Fighting Dojo: three random Fighting cards)
       s.visitors.push(id); s.notes.push('visitor:' + id); return true; },                       // someone turns up on the map: tap them to meet them
     legendary(s) {                                                                                           // a random legendary: shuffled with what is left of its place's piles into one new draw pile
-      if (legendHiding(s) || !s.legend.length) return false; const id = s.legend.shift(), loc = CARDS[id].loc; s.legendSeen = true; s.legendMarker = id;
+      if (!s.legend.length) return false; const id = s.legend.shift(), loc = CARDS[id].loc; s.legendSeen = true; s.legendMarker = id; (s.legendsHiding = s.legendsHiding || []).push(id);
       s.decks[loc] = shuffle(s, s.decks[loc].concat(s.discard[loc], [id])); s.discard[loc] = []; s.notes.push('legend:' + id); return true;
     },
   };
   // one special event at a time, in its fixed place on the map: nothing new comes until the one that is there is finished (a visitor met, a legendary caught)
   const eventActive = s => !!(s.visitors && s.visitors.length);          // a visitor (Bill, the Dojo) on the map; a legendary hiding in a deck is only a card in a pile and blocks nothing
-  const legendHiding = s => !!(s.legendMarker && !s.coll.some(c => c.id === s.legendMarker));          // the map has one marker, so a second legendary waits until the first is caught
+  const hidingLegend = s => { const l = (s.legendsHiding || []).concat(s.legendMarker ? [s.legendMarker] : []).filter(id => !s.coll.some(c => c.id === id)); return l.length ? l[l.length - 1] : null; };          // the newest legendary still hiding (the map shows one marker; any number can be hiding)
   function maybeSpecial(s) {
     s.visitors = s.visitors || []; s.specialsSeen = s.specialsSeen || 0;
     if (s.legendDue) { if (SPECIAL.legendary(s) !== false) s.legendDue = false; return; }
@@ -1271,7 +1271,7 @@ const Engine = (() => {
     // a random one of the events that can happen now: the visitors you have not met yet (Bill, the Dojo; once you have three dice) and a legendary (once you hold any four badges)
     const met = s.seenSpecials = s.seenSpecials || [], pool = [];
     if (!eventActive(s) && (s.slotsAtGo || 0) >= SPEC.fromSlots) SPEC.order.forEach(x => { if (met.indexOf(x) < 0) pool.push(x); });
-    if (badges(s) >= SPEC.legendBadges && !legendHiding(s)) pool.push(SPEC.then);
+    if (badges(s) >= SPEC.legendBadges) pool.push(SPEC.then);
     if (!pool.length) return; const id = pool[ri(s, pool.length)];
     const d = spDef(id); if (d && SPECIAL[d.kind](s, id, d) !== false && id !== SPEC.then) { met.push(id); s.specialsSeen++; }
   }
@@ -2502,7 +2502,7 @@ const Engine = (() => {
     if (v.battle && v.battle.stage === 'assign') { const o = other(side); v.battle.dice[o] = v.battle.dice[o].map(() => 0); v.battle.asg[o] = {}; }
     return v;
   }
-  return { fzKeep, unmatched, matchMoves, starterShiny, repair, endBattle, visitorNode, slideOpts, autoChoice, hauntAsk, dittoPick, moveName, blocksMove, colorBonus, faceOrder: layMoves, _t: { blkMult, buildTeam, badges, repair, maybeSpecial, eventActive, releaseTeam, startBattle, startRound, resolveRound, cleanUp, drawWild }, handOf, canExpand, apply, newGame, chooseStarter, viewFor, CARDS, parseMove, parseSpecial, tagsOf, tags, preview, bestClause, chosenMove, candidates, pickTargets, amountOf, slotsFor, readyToGo, assignedDice, living, colIdx, U, rnd, ri, shuffle, node, starterOf, rivalFor, slots, unlocked, deckSize, heroCount, gmCount, typeOf, wm, hitValue, parseSpec, clauseValue, effectsOf, D, R };
+  return { hidingLegend, fzKeep, unmatched, matchMoves, starterShiny, repair, endBattle, visitorNode, slideOpts, autoChoice, hauntAsk, dittoPick, moveName, blocksMove, colorBonus, faceOrder: layMoves, _t: { blkMult, buildTeam, badges, repair, maybeSpecial, eventActive, releaseTeam, startBattle, startRound, resolveRound, cleanUp, drawWild }, handOf, canExpand, apply, newGame, chooseStarter, viewFor, CARDS, parseMove, parseSpecial, tagsOf, tags, preview, bestClause, chosenMove, candidates, pickTargets, amountOf, slotsFor, readyToGo, assignedDice, living, colIdx, U, rnd, ri, shuffle, node, starterOf, rivalFor, slots, unlocked, deckSize, heroCount, gmCount, typeOf, wm, hitValue, parseSpec, clauseValue, effectsOf, D, R };
 })();
 
 </script>
@@ -3475,7 +3475,7 @@ const trainerFg = {
     const H0 = availH / k, W0 = cxs[stages - 1] + 100 + PADX, rowH = (H0 - 16) / LANES;
     const xy = n => [cxs[n.stage], 8 + (n.lane + 0.5) * rowH];
     const visitors = (G.visitors || []).map(id => E.visitorNode(id)).filter(Boolean);
-    const [sx, sy] = xy({ stage: 0, lane: 4 }), [lx, ly] = xy({ stage: 1, lane: 4 }), mk = G.legendMarker && !G.coll.some(c => c.id === G.legendMarker) ? G.legendMarker : null;          // the one fixed place for a special event
+    const [sx, sy] = xy({ stage: 0, lane: 4 }), [lx, ly] = xy({ stage: 1, lane: 4 }), mk = E.hidingLegend(G);          // the one fixed place for a special event
     const slot = mk ? `<button class="place visitor next" style="left:${lx - TILE_W / 2}px;top:${ly - 92}px" data-act="legmark"><div class="vsc"><img class="pix" src="${art(mk, 0)}" alt="" style="filter:brightness(0)"></div><div class="vbang">!</div><div class="pl"><b>Legendary!</b></div></button>` : '';          // the event space only exists while there is an event
     const tiles = vis.concat(visitors).map(n => {
       if (n.kind === 'visitor') return `<button class="place visitor next" style="left:${sx - TILE_W / 2}px;top:${sy - 92}px" data-act="node" data-id="${n.id}"><div class="vsc"><img class="pix" src="data:image/png;base64,${D.trainerArt[n.art]}" alt="${esc(n.name)}"></div><div class="vbang">!</div><div class="pl"><b>${esc(n.name)}</b></div></button>`;
@@ -3984,7 +3984,7 @@ const trainerFg = {
     labset(el) { const k = el.dataset.k, v = el.dataset.v; ui[k] = k === 'labN' || k === 'labCur' ? +v : v; render(); },
     resetask() { ui.resetAsk = true; render(); }, resetno() { ui.resetAsk = false; render(); },
     resetgo() { try { Object.keys(localStorage).filter(k => k.indexOf('pokemon-roll') === 0).forEach(k => localStorage.removeItem(k)); } catch (e) { /* nothing to clear */ } location.reload(); },
-    legmark() { const id = G.legendMarker; if (!id) return; ui.exp = { h: '✨ A legendary is hiding', p: esc(C[id].name) + ' was spotted at ' + esc(D.locations.find(l => l.id === C[id].loc).name) + '. Find it there and it can be yours. No other event comes until you do.' }; render(); },
+    legmark() { const id = E.hidingLegend(G); if (!id) return; ui.exp = { h: '✨ A legendary is hiding', p: esc(C[id].name) + ' was spotted at ' + esc(D.locations.find(l => l.id === C[id].loc).name) + '. Find it there and it can be yours.' }; render(); },
     gzoom(el) { ui.gz = +el.dataset.k; render(); }, gzclose() { ui.gz = null; render(); },
     gzprev() { const n = (ui.gseen || []).length; ui.gz = (ui.gz + n - 1) % n; render(); }, gznext() { const n = (ui.gseen || []).length; ui.gz = (ui.gz + 1) % n; render(); },
     closeslots() { ui.slots = false; ui.delAsk = null; render(); },

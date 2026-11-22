@@ -174,4 +174,4 @@ The owner approved the grid card from the layout lab and it is now the only card
 
 - Final boss: `s.final` (F1 Blue or F2 Red) is derived from the game seed at the start (older saves: whichever was beaten, else seed-random); only that node is on the map, both have `finale`; beating it wins. Beaten teams still go back to the wild, silently.
 
-- Specials: `eventActive` is visitors only; a legendary is held back only while a previous one is still uncaught (one map marker, now in its own slot at stage 1, lane 4). The champion screen shows `res.team`, the cards of the final battle.
+- Specials: `eventActive` is visitors only; any number of legendaries can be hiding in decks at once (`s.legendsHiding`); the map's marker, in its own slot at stage 1, lane 4, shows the newest uncaught one. The champion screen shows `res.team`, the cards of the final battle.
