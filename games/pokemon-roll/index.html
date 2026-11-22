@@ -1257,21 +1257,21 @@ const Engine = (() => {
     visitor(s, id, d) { if (eventActive(s)) return false; if (d && d.pick) { const pool = Object.values(CARDS).filter(c => c.type === d.pick.type && c.loc !== 0 && !c.legend).map(c => c.id); (s.vcards = s.vcards || {})[id] = shuffle(s, pool).slice(0, d.pick.n); }          // an event that draws its own cards (the Fighting Dojo: three random Fighting cards)
       s.visitors.push(id); s.notes.push('visitor:' + id); return true; },                       // someone turns up on the map: tap them to meet them
     legendary(s) {                                                                                           // a random legendary: shuffled with what is left of its place's piles into one new draw pile
-      if (eventActive(s) || !s.legend.length) return false; const id = s.legend.shift(), loc = CARDS[id].loc; s.legendSeen = true; s.legendMarker = id;
+      if (legendHiding(s) || !s.legend.length) return false; const id = s.legend.shift(), loc = CARDS[id].loc; s.legendSeen = true; s.legendMarker = id;
       s.decks[loc] = shuffle(s, s.decks[loc].concat(s.discard[loc], [id])); s.discard[loc] = []; s.notes.push('legend:' + id); return true;
     },
   };
   // one special event at a time, in its fixed place on the map: nothing new comes until the one that is there is finished (a visitor met, a legendary caught)
-  const eventActive = s => !!((s.visitors && s.visitors.length) || (s.legendMarker && !s.coll.some(c => c.id === s.legendMarker)));
+  const eventActive = s => !!(s.visitors && s.visitors.length);          // a visitor (Bill, the Dojo) on the map; a legendary hiding in a deck is only a card in a pile and blocks nothing
+  const legendHiding = s => !!(s.legendMarker && !s.coll.some(c => c.id === s.legendMarker));          // the map has one marker, so a second legendary waits until the first is caught
   function maybeSpecial(s) {
     s.visitors = s.visitors || []; s.specialsSeen = s.specialsSeen || 0;
-    if (eventActive(s)) return;
     if (s.legendDue) { if (SPECIAL.legendary(s) !== false) s.legendDue = false; return; }
     if (rnd(s) >= SPEC.chance) return;
     // a random one of the events that can happen now: the visitors you have not met yet (Bill, the Dojo; once you have three dice) and a legendary (once you hold any four badges)
     const met = s.seenSpecials = s.seenSpecials || [], pool = [];
-    if ((s.slotsAtGo || 0) >= SPEC.fromSlots) SPEC.order.forEach(x => { if (met.indexOf(x) < 0) pool.push(x); });
-    if (badges(s) >= SPEC.legendBadges) pool.push(SPEC.then);
+    if (!eventActive(s) && (s.slotsAtGo || 0) >= SPEC.fromSlots) SPEC.order.forEach(x => { if (met.indexOf(x) < 0) pool.push(x); });
+    if (badges(s) >= SPEC.legendBadges && !legendHiding(s)) pool.push(SPEC.then);
     if (!pool.length) return; const id = pool[ri(s, pool.length)];
     const d = spDef(id); if (d && SPECIAL[d.kind](s, id, d) !== false && id !== SPEC.then) { met.push(id); s.specialsSeen++; }
   }
@@ -3475,8 +3475,8 @@ const trainerFg = {
     const H0 = availH / k, W0 = cxs[stages - 1] + 100 + PADX, rowH = (H0 - 16) / LANES;
     const xy = n => [cxs[n.stage], 8 + (n.lane + 0.5) * rowH];
     const visitors = (G.visitors || []).map(id => E.visitorNode(id)).filter(Boolean);
-    const [sx, sy] = xy({ stage: 0, lane: 4 }), mk = G.legendMarker && !G.coll.some(c => c.id === G.legendMarker) ? G.legendMarker : null;          // the one fixed place for a special event
-    const slot = mk ? `<button class="place visitor next" style="left:${sx - TILE_W / 2}px;top:${sy - 92}px" data-act="legmark"><div class="vsc"><img class="pix" src="${art(mk, 0)}" alt="" style="filter:brightness(0)"></div><div class="vbang">!</div><div class="pl"><b>Legendary!</b></div></button>` : '';          // the event space only exists while there is an event
+    const [sx, sy] = xy({ stage: 0, lane: 4 }), [lx, ly] = xy({ stage: 1, lane: 4 }), mk = G.legendMarker && !G.coll.some(c => c.id === G.legendMarker) ? G.legendMarker : null;          // the one fixed place for a special event
+    const slot = mk ? `<button class="place visitor next" style="left:${lx - TILE_W / 2}px;top:${ly - 92}px" data-act="legmark"><div class="vsc"><img class="pix" src="${art(mk, 0)}" alt="" style="filter:brightness(0)"></div><div class="vbang">!</div><div class="pl"><b>Legendary!</b></div></button>` : '';          // the event space only exists while there is an event
     const tiles = vis.concat(visitors).map(n => {
       if (n.kind === 'visitor') return `<button class="place visitor next" style="left:${sx - TILE_W / 2}px;top:${sy - 92}px" data-act="node" data-id="${n.id}"><div class="vsc"><img class="pix" src="data:image/png;base64,${D.trainerArt[n.art]}" alt="${esc(n.name)}"></div><div class="vbang">!</div><div class="pl"><b>${esc(n.name)}</b></div></button>`;
       const open = E.unlocked(G, n), done = n.kind !== 'loc' && G.done[n.id], [cx, cy] = xy(n), next = open && !done && n.kind === 'boss';
@@ -3506,7 +3506,7 @@ const trainerFg = {
     vis.filter(n => n.any && n.needs.length > 1).forEach(n => n.needs.filter(id => pos[id]).forEach(id => { const L = D.nodes.find(q => q.id === id); lines += arrow(pos[id], [pos[n.id][0] - 84, pos[n.id][1]], L.color || '#cfd8dc', stateOf(id)); }));
     const links = `<svg class="mapsvg" width="${W0}" height="${H0}" viewBox="0 0 ${W0} ${H0}">${panels}${lines}</svg>`;
     return `${menu ? '' : `<div class="top maptop"><div class="topl"></div><div class="t mapt"></div><div class="topr"><button class="chip" data-act="chipinfo" aria-label="Your dice">🎲 ×${E.slots(G)}</button><button class="mypile${ui.coll ? ' away' : ''}" data-act="coll" aria-label="Your cards">${myPile()}</button><button class="ib mbtn" data-act="menu" aria-label="Menu">☰</button></div></div>`}
-      <div class="mapwrap${menu ? ' mmapbox' : ''}" data-k="${k}" style="${menu ? `height:${availH}px` : ''}"><div class="mapsp" style="width:${Math.round(W0 * k)}px;height:${Math.round(H0 * k)}px"></div><div class="mapin" style="width:${W0}px;height:${H0}px;transform:scale(${k})">${links}${slot}${tiles}</div></div>`;
+      <div class="mapwrap${menu ? ' mmapbox' : ''}" data-k="${k}" style="${menu ? `height:${availH}px;left:8px;right:auto;width:${Math.round(W0 * k)}px;transform:scale(${Math.min(0.8, (innerWidth - 16) / ((W0 - PADX - 10) * k)).toFixed(3)});transform-origin:0 100%` : ''}"><div class="mapsp" style="width:${Math.round(W0 * k)}px;height:${Math.round(H0 * k)}px"></div><div class="mapin" style="width:${W0}px;height:${H0}px;transform:scale(${k})">${links}${slot}${tiles}</div></div>`;
   }
 
   // a wrapping grid of whole cards, as big as the screen allows
@@ -3691,8 +3691,9 @@ const trainerFg = {
       ${r.pick || r.evolve ? '' : `<button class="btn big" data-act="done">${dest}</button>`}</div></div>`;
   }
   function wonScreen() {
+    const champTeam = ((G.res && G.res.team && G.res.team.length) ? G.res.team : G.coll.slice(0, 5)).map(i => ({ id: i.id, sh: i.sh })), champCw = Math.max(110, Math.min(300, Math.floor((innerWidth - 24 - (Math.min(champTeam.length, 5) - 1) * 12) / Math.min(champTeam.length, 5)), Math.floor((viewH() - 250) / 1.4 / Math.ceil(champTeam.length / 5))));          // only the cards of the final battle, big
     return `<div class="scr"><div class="center" style="flex:none;padding-top:56px"><div class="banner" style="font-size:54px">CHAMPION!</div><div style="font:800 22px system-ui">You beat the Elite Four and the secret champion in <b>${G.turn} turns</b>.${(scores()[G.size] || {}).game != null ? ` <span class="pb">Best: ${(scores()[G.size] || {}).game}</span>` : ''}</div></div>
-      ${cardGrid(collSorted(), { max: 170, attr: c => `data-act="zoom" data-uid="${c.uid}"` })}<div class="dock" style="flex-direction:row;justify-content:center;gap:12px"><button class="btn big" data-act="keepgoing">Keep playing</button><button class="btn big alt" data-act="menu0">Main menu</button></div></div>`;
+      <div class="hrow" style="flex-wrap:wrap;justify-content:center;overflow:visible;gap:12px;padding:10px 12px">${champTeam.map(i => card(i, { cw: champCw })).join('')}</div><div class="dock" style="flex-direction:row;justify-content:center;gap:12px"><button class="btn big" data-act="keepgoing">Keep playing</button><button class="btn big alt" data-act="menu0">Main menu</button></div></div>`;
   }
 
   // ---- overlays
@@ -3898,7 +3899,7 @@ const trainerFg = {
   function legendSheet() {
     const n = G.notes[0]; if (!n) return '';
     if (n.indexOf('visitor:') === 0) { const d = D.specials.defs[n.slice(8)]; if (!d) return ''; return `<div class="sheet" data-act="clearnote"><div class="banner">${esc(d.name)} is here!</div><img class="pix" style="width:224px;height:224px" src="data:image/png;base64,${D.trainerArt[d.art]}" alt=""><div style="font:800 24px system-ui;max-width:520px;text-align:center">${esc(d.say || '')}</div><button class="btn big" data-act="clearnote">Go see ${esc(d.name)}!</button></div>`; }
-    if (n === 'rivals') return `<div class="sheet" data-act="clearnote"><div class="banner">Blue and Red are here!</div><div style="display:flex;gap:18px">${['F1', 'F2'].map(k => `<img class="pix" style="width:150px;height:150px" src="data:image/png;base64,${D.trainerArt[k]}" alt="">`).join('')}</div><div style="font:800 24px system-ui;max-width:520px;text-align:center">You beat the Elite Four! Blue and Red heard and came to challenge you. They are waiting on the Indigo Plateau.</div><button class="btn big" data-act="clearnote">Go see them!</button></div>`;
+    if (n === 'rivals') { const f = G.final || 'F2', nm = E.node(f).name; return `<div class="sheet" data-act="clearnote"><div class="banner">${esc(nm)} is here!</div><div style="display:flex;gap:18px"><img class="pix" style="width:150px;height:150px" src="data:image/png;base64,${D.trainerArt[f]}" alt=""></div><div style="font:800 24px system-ui;max-width:520px;text-align:center">You beat the Elite Four! ${esc(nm)} heard and came to challenge you. ${nm} is waiting on the Indigo Plateau.</div><button class="btn big" data-act="clearnote">Go see ${esc(nm)}!</button></div>`; }
     if (n.indexOf('legend:') !== 0) return '';
     const id = n.slice(7), c = C[id];
     return `<div class="sheet" data-act="clearnote"><div class="banner">A legendary was spotted!</div><img class="pix" style="width:224px;height:224px" src="${art(id, 0)}" alt=""><div style="font:800 24px system-ui">${esc(c.name)} is hiding at ${esc(D.locations.find(l => l.id === c.loc).name)}</div><button class="btn big" data-act="clearnote">Go find it!</button></div>`;
