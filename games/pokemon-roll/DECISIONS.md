@@ -175,3 +175,6 @@ The owner approved the grid card from the layout lab and it is now the only card
 - Final boss: `s.final` (F1 Blue or F2 Red) is derived from the game seed at the start (older saves: whichever was beaten, else seed-random); only that node is on the map, both have `finale`; beating it wins. Beaten teams still go back to the wild, silently.
 
 - Specials: `eventActive` is visitors only; any number of legendaries can be hiding in decks at once (`s.legendsHiding`); the map's marker, in its own slot at stage 1, lane 4, shows the newest uncaught one. The champion screen shows `res.team`, the cards of the final battle.
+
+- Placing: `b.fresh` = your cards put down in this placing phase. Any of them can be taken back (`pickup`), moved or swapped (`rearrange`) until Fight!; the computer does not answer again; moving a card does not repeat an entry burn. Earlier cards (previous rounds) stay locked.
+- Entrance animation: units carry `pseq` (stamped on place/rearrange); the UI plays the sprite hop once per new stamp (never on a plain redraw, silent on the first draw after page load). Big cards (`[data-zc]`) play it when a different card becomes big. `[data-seqkey]` containers (catch picks, evolution pair, champion team) reveal one card at a time.

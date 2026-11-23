@@ -4193,7 +4193,7 @@ const trainerFg = {
   // a long press on any card, anywhere, shows it big
   { let lp = null; document.addEventListener('pointerdown', ev => { const c = ev.target.closest && ev.target.closest('.card[data-cid]'); if (!c || ui.big) return; const x0 = ev.clientX, y0 = ev.clientY; clearTimeout(lp); lp = setTimeout(() => { ui.big = { id: c.dataset.cid, sh: +c.dataset.csh }; ui.longp = Date.now(); render(); }, 480); const cancel = e2 => { if (e2.type === 'pointermove' && Math.hypot(e2.clientX - x0, e2.clientY - y0) < 10) return; clearTimeout(lp); removeEventListener('pointermove', cancel); removeEventListener('pointerup', cancel); removeEventListener('pointercancel', cancel); }; addEventListener('pointermove', cancel); addEventListener('pointerup', cancel); addEventListener('pointercancel', cancel); }); }
   document.addEventListener('click', ev => {
-    if (skipSeq()) return;          // a tap while cards are coming in shows them all
+    { const inBox = !!(ev.target.closest && ev.target.closest('[data-seqkey]')); if (skipSeq() && inBox) return; }          // a tap while cards are coming in shows them all (a tap on the cards only does that; a button still works)
     if (ui.longp && Date.now() - ui.longp < 700) return;                    // that was the end of a long press
     if (ui.dragged && Date.now() - ui.dragged < 400) return;                 // that was the end of a drag, not a tap
     if (ui.rolling && Date.now() < ui.rolling) return;                       // the dice are still tumbling

@@ -683,3 +683,24 @@ test('ui: V4 statuses and charges show as icons on the card (tap one to read it)
     assert.deepEqual(errs, []);
   } finally { await b.close(); }
 });
+
+test('ui: a placed card plays its entrance once (a redraw does not), cards come in one at a time and a tap shows them all, and placed cards stay movable until Fight!', { skip: !chromium }, async () => {
+  const b = await chromium.launch(), p = await b.newPage({ viewport: { width: 820, height: 1180 } });
+  const errs = []; p.on('pageerror', e => errs.push(e.message));
+  try {
+    await p.goto(URL); await p.waitForTimeout(400);
+    await p.evaluate(() => { const R = window.__pokemonRoll; const s = Engine.newGame({ seed: 5, starter: 'charmander' }); s.done.B1 = s.done.B2 = true; Object.keys(Engine.CARDS).filter(id => Engine.CARDS[id].loc > 0 && Engine.CARDS[id].level >= 3).slice(0, 4).forEach((id, i) => s.coll.push({ uid: 50 + i, id, sh: 0 })); Engine.apply(s, { t: 'go', node: 'B3' }); R.setG(s); let g; while ((g = Bots.step(s, 'normal'))) Engine.apply(s, g); R.setG(s); });
+    await p.locator('[data-act=tipok]').click({ timeout: 800 }).catch(() => {}); await p.waitForTimeout(900);
+    await p.locator('[data-act=tray]').first().click(); await p.waitForTimeout(150);
+    for (let i = 0; i < 2 && await p.locator('[data-act=join]').count(); i++) { await p.locator('[data-act=join]').first().click({ force: true }); await p.waitForTimeout(60); }
+    assert.ok((await p.evaluate(() => [...document.querySelectorAll('.card[data-act=unit] .art img')].map(i => i.getAnimations().length))).some(n => n > 0), 'the card you put down plays its entrance');
+    await p.waitForTimeout(900); await p.evaluate(() => window.__pokemonRoll.render());
+    assert.equal(await p.evaluate(() => [...document.querySelectorAll('.card[data-act=unit] .art img')].reduce((a, i) => a + i.getAnimations().length, 0)), 0, 'a plain redraw plays nothing');
+    assert.ok(await p.evaluate(() => window.__pokemonRoll.G.battle.fresh.length >= 1), 'the card is still free to move');
+    await p.evaluate(() => { const R = window.__pokemonRoll; const s = Engine.newGame({ seed: 5, starter: 'charmander' }); s.phase = 'won'; s.turn = 40; s.res = { win: true, node: s.final, kind: 'boss', team: ['150', '146', '3.6', '68', '131'].map(id => ({ id, sh: 0 })) }; R.setG(s); });
+    await p.waitForTimeout(150); const vis = () => p.evaluate(() => [...document.querySelectorAll('[data-seqkey] .card')].filter(c => c.style.visibility !== 'hidden').length);
+    const first = await vis(); assert.ok(first >= 1 && first < 5, 'only the first cards are in so far (' + first + ')');
+    await p.mouse.click(20, 300); assert.equal(await vis(), 5, 'a tap brings in all of them');
+    assert.deepEqual(errs, []);
+  } finally { await b.close(); }
+});

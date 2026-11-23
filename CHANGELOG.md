@@ -1,5 +1,8 @@
 # Changelog
 
+- Pokémon Roll: every card you put down while placing stays movable until you tap Fight! — drag it to another spot, onto another of your cards to swap, or back to your hand (the AI's answer no longer locks it).
+- Pokémon Roll: the placing board has no empty rows above and below the cards any more, and the board's cards are no longer held down to the hand's size, so they are bigger on iPhone and iPad portrait.
+- Pokémon Roll: Crystal-style entrance — the Pokémon inside a card hops in whenever a card is placed on the table (yours, the computer's, replacements, wild) and whenever a card becomes big (long-press, Pokédex, trainer info, swiping). Catch choices, the cards on result screens and the champion team come in one at a time; a tap shows them all.
 - Pokémon Roll: the Card layout lab is gone (the grid card is the card); the old gradient square behind the card art is back.
 - Pokémon Roll: the square behind a card's art is a darker shade of its element colour again, and every elemental move shows its element's symbol in the corner of its cell.
 - Pokémon Roll: you start with two dice; beating Brock gives a third, Misty or Surge a fourth and Giovanni a fifth (Lance no longer gives one).
