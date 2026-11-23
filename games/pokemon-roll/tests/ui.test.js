@@ -193,7 +193,7 @@ test('ui: a gym leader has an eye that explains how their team was made; dice ca
   const b = await chromium.launch(), p = await b.newPage({ viewport: { width: 820, height: 1180 } });
   try {
     await p.goto(URL); await p.click('[data-act=new]'); await p.click('[data-act=pickst][data-k=larvitar]'); await p.click('#startbtn');
-    assert.equal(await p.locator('.place.sq .eye').count(), await p.locator('.place.sq:not([aria-label="A mystery opponent"])').count(), 'every trainer you can see has an eye');
+    assert.equal(await p.locator('.place.sq .eye').count(), await p.locator('.place.sq').count(), 'every trainer square has an eye (the mystery ones too: they say how many it could be)');
     assert.equal(await p.locator('.place.deck:not(.lock) .eye').count(), await p.locator('.place.deck:not(.lock)').count(), 'every open location has the info button too');
     assert.equal((await p.locator('.place[data-id=B1] .eye').innerText()).trim(), 'i', 'an i for information, not an eyeball');
     await p.click('.place.deck[data-id=L1] .eye'); const total = await p.evaluate(() => window.__pokemonRoll.G.decks[1].length + window.__pokemonRoll.G.discard[1].length);
