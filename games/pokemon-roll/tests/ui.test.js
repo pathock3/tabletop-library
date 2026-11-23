@@ -547,7 +547,7 @@ test('ui: one sliding map holds the gyms, the places, the Elite Four, Blue and R
     await p.goto(URL); await p.click('[data-act=new]'); await p.click('[data-act=pickst][data-k=squirtle]'); await p.click('#startbtn');
     await p.locator('[data-act=tipok]').click({ timeout: 800 }).catch(() => {});
     assert.equal(await p.locator('.place.sq').count(), 11, 'eleven trainers (one Elite Four member, one secret opponent), all squares'); assert.equal(await p.locator('.place.deck').count(), 9, 'nine places, all card piles');
-    assert.equal(await p.locator('.place.sq[aria-label="A mystery opponent"]').count(), 1, 'the secret last opponent is hidden until Lance is beaten');
+    assert.equal(await p.locator('.place.sq[aria-label="A mystery opponent"]').count(), 2, 'the Elite Four member and the secret last opponent are hidden until they open');
     assert.equal((await p.locator('.place.sq .pl b').allInnerTexts()).some(t => /team/i.test(t)), false, 'just the name, no "team"');
     await p.evaluate(() => { document.querySelector('.mapwrap').scrollLeft = 99999; }); await p.waitForTimeout(150);
     await p.click('.place[data-id=' + await p.evaluate(() => window.__pokemonRoll.G.elite) + ']'); assert.match(await p.innerText('.toast'), /Giovanni/i);
@@ -693,17 +693,36 @@ test('ui: a placed card plays its entrance once (a redraw does not), cards come 
     await p.locator('[data-act=tipok]').click({ timeout: 800 }).catch(() => {}); await p.waitForTimeout(900);
     await p.locator('[data-act=tray]').first().click(); await p.waitForTimeout(150);
     for (let i = 0; i < 2 && await p.locator('[data-act=join]').count(); i++) { await p.locator('[data-act=join]').first().click({ force: true }); await p.waitForTimeout(60); }
-    const loops = () => p.evaluate(() => [...document.querySelectorAll('.card[data-cid] .art .canim')].map(d => { const a = d.getAnimations()[0]; return a ? [a.effect.getComputedTiming().iterations, Math.round(a.currentTime)] : null; }));
-    const l0 = await loops(); assert.ok(l0.length >= 2 && l0.every(x => x && x[0] === Infinity), 'every card on screen loops its Crystal animation forever (' + l0.length + ')');
-    const newest = await p.evaluate(() => { const b = window.__pokemonRoll.G.battle, u = b.units.filter(x => x.side === 0).pop(); const c = document.querySelector('.card[data-act=unit][data-uid="' + u.uid + '"] .canim'); return Math.round(c.getAnimations()[0].currentTime); });
-    assert.ok(newest < 700, 'the card you just put down starts its loop from the beginning (' + newest + ' ms in)');
-    await p.waitForTimeout(500); await p.evaluate(() => window.__pokemonRoll.render()); const l1 = await loops(); assert.equal(l1.length, l0.length, 'a redraw keeps every loop');
-    assert.ok(l1.some((x, i) => x[1] >= l0[i][1] + 300 || x[1] < l0[i][1]), 'and the loops carried on rather than restarting at 0 together');
+    const layers = sel => p.evaluate(s2 => [...document.querySelectorAll(s2)].map(d => { const a = d.getAnimations()[0]; return a ? [a.effect.getComputedTiming().iterations, Math.round(a.currentTime)] : null; }), sel);
+    const l0 = await layers('.board .card[data-cid] .art .canim'); assert.ok(l0.length >= 1 && l0.every(x => x && x[0] === 1), 'cards just placed play their short Crystal entrance once (' + l0.length + ')');
+    assert.equal((await layers('.pfan .card .art .canim')).length, 0, 'the cards in your hand stay still');
+    await p.waitForTimeout(150); await p.evaluate(() => window.__pokemonRoll.render()); const l1 = await layers('.board .card[data-cid] .art .canim'); assert.ok(l1.length >= 1 && l1.every((x, i) => x && x[1] >= 100), 'a redraw carries the entrance on instead of restarting it');
+    await p.waitForTimeout(2600); assert.equal((await layers('.board .card[data-cid] .art .canim')).length, 0, 'and afterwards the cards stay still');
     assert.ok(await p.evaluate(() => window.__pokemonRoll.G.battle.fresh.length >= 1), 'the card is still free to move');
     await p.evaluate(() => { const R = window.__pokemonRoll; const s = Engine.newGame({ seed: 5, starter: 'charmander' }); s.phase = 'won'; s.turn = 40; s.res = { win: true, node: s.final, kind: 'boss', team: ['150', '146', '3.6', '68', '131'].map(id => ({ id, sh: 0 })) }; R.setG(s); });
     await p.waitForTimeout(150); const vis = () => p.evaluate(() => [...document.querySelectorAll('[data-seqkey] .card')].filter(c => c.style.visibility !== 'hidden').length);
     const first = await vis(); assert.ok(first >= 1 && first < 5, 'only the first cards are in so far (' + first + ')');
     await p.mouse.click(20, 300); assert.equal(await vis(), 5, 'a tap brings in all of them');
+    assert.deepEqual(errs, []);
+  } finally { await b.close(); }
+});
+
+test('ui: the two "one of several" slots have an info button that shows how many trainers could be there, lists the ones you have met, and opens their info', { skip: !chromium }, async () => {
+  const b = await chromium.launch(), p = await b.newPage({ viewport: { width: 820, height: 1180 } });
+  const errs = []; p.on('pageerror', e => errs.push(e.message));
+  try {
+    await p.goto(URL); await p.evaluate(() => localStorage.removeItem('pokemon-roll-trainers-seen'));
+    await p.evaluate(() => { const R = window.__pokemonRoll; const s = Engine.newGame({ seed: 5, starter: 'charmander' }); R.setG(s); });
+    await p.waitForTimeout(300); await p.evaluate(() => { document.querySelector('.mapwrap').scrollLeft = 99999; }); await p.waitForTimeout(150);
+    const eyes = await p.evaluate(() => [...document.querySelectorAll('.place.sq[aria-label="A mystery opponent"] .eye')].length); assert.equal(eyes, 2, 'both mystery tiles have an info button');
+    assert.equal(await p.evaluate(() => /Lorelei|Bruno|Agatha|Blue|Red|Oak/.test(document.querySelector('.mapwrap').innerText)), false, 'no name gives the answer away');
+    await p.evaluate(() => document.querySelector('.place.sq[aria-label="A mystery opponent"] .eye').click()); await p.waitForTimeout(150);
+    let txt = await p.innerText('.hbox'); assert.match(txt, /One of 3 possible trainers/); assert.equal(await p.locator('.slotc.unk').count(), 3, 'nobody met yet: three question marks');
+    await p.mouse.click(8, 8); await p.evaluate(() => { localStorage.setItem('pokemon-roll-trainers-seen', JSON.stringify({ E1: 1 })); window.__pokemonRoll.render(); }); await p.waitForTimeout(150);
+    await p.evaluate(() => { document.querySelector('.mapwrap').scrollLeft = 99999; }); await p.evaluate(() => document.querySelector('.place.sq[aria-label="A mystery opponent"] .eye').click()); await p.waitForTimeout(150);
+    assert.equal(await p.locator('.slotc:not(.unk)').count(), 1, 'one trainer met'); assert.equal(await p.locator('.slotc.unk').count(), 2);
+    await p.click('.slotc:not(.unk)'); await p.waitForTimeout(150); assert.ok(await p.locator('[data-act=slotback]').count() === 1, 'tapping a met trainer opens their info, with a way back');
+    await p.click('[data-act=slotback]'); assert.match(await p.innerText('.hbox'), /One of 3/);
     assert.deepEqual(errs, []);
   } finally { await b.close(); }
 });

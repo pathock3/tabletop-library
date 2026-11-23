@@ -256,7 +256,7 @@ test('hidden information: the computer never sees your dice, and you never see t
 
 // ================================================================ the campaign
 test('campaign: every trainer builds a random team from its row: size, signature last, quotas, level points, no repeats, no starters, copies', () => {
-  assert.deepEqual(Object.values(D.trainers).map(t => t.n), [2, 3, 4, 4, 4, 4, 5, 5, 6, 6, 6, 6, 7, 7]);
+  assert.deepEqual(Object.values(D.trainers).map(t => t.n), [2, 3, 4, 4, 4, 4, 5, 5, 6, 6, 6, 6, 7, 7, 6]);
   const tagOf = c => c.tags;
   for (let seed = 1; seed <= 60; seed++) {
     const s = E.newGame({ seed, starter: 'bulbasaur' }); const used = [];
@@ -265,10 +265,10 @@ test('campaign: every trainer builds a random team from its row: size, signature
       assert.equal(team.length, Tr.n, Tr.name); const pts = cs.reduce((a, c) => a + c.level, 0); assert.ok(pts >= Tr.pts[0] && pts <= Tr.pts[1], Tr.name + ' level points ' + pts);
       assert.equal(new Set(cs.map(c => c.name)).size, cs.length, Tr.name + ': no two with the same name');
       Tr.quotas.forEach(q => assert.ok(cs.filter(c => q.el ? c.type.toLowerCase() === q.el.toLowerCase() : q.tags.some(t => tagOf(c).includes(t))).length >= q.n, Tr.name + ' quota'));
-      cs.forEach(c => { if (c.loc === 0) assert.ok(c.tags.includes(Tr.name.toLowerCase()) || (c === sig && c.trainerLegend), Tr.name + ' only uses a starter card that carries its name (or as a legendary signature)'); if (c.trainerLegend) assert.ok(c === sig && Tr.sig.legendary, 'legendaries only as Lance, Blue and Red\'s signature'); });
+      cs.forEach(c => { if (c.loc === 0 && Tr.fixed == null) assert.ok(c.tags.includes(Tr.name.toLowerCase()) || (c === sig && c.trainerLegend), Tr.name + ' only uses a starter card that carries its name (or as a legendary signature)'); if (c.trainerLegend) assert.ok(c === sig && Tr.sig.legendary, 'legendaries only as Lance, Blue and Red\'s signature'); });
       if (Tr.sig.legendary) used.push(sig.id);
     });
-    assert.equal(new Set(used).size, 3, 'Lance, Blue and Red never share a legendary');
+    assert.equal(new Set(used).size, 4, 'Lance, Blue, Red and Oak never share a legendary');
     assert.ok(!T.buildTeam(s, 'E2').some(i => C[i.id].name === 'Onix'), 'Bruno never gets Onix');
   }
 });
@@ -386,7 +386,7 @@ test('Haunter: when a teammate falls you may keep its ability, once per battle',
   if (g.b.units[1].ko) assert.equal(g.b.units[2].ghost || null, null);
 });
 test('campaign: nobody has a rival at the end; beating Lance wins the game', () => {
-  assert.equal(D.nodes.filter(n => n.finale).map(n => n.id).join(), 'F1,F2'); assert.ok(!('rivalFinalExtra' in D));
+  assert.equal(D.nodes.filter(n => n.finale).map(n => n.id).join(), 'F1,F2,F3'); assert.ok(!('rivalFinalExtra' in D));
 });
 test('campaign: a gym leader you have faced is no longer a secret', () => {
   const s = E.newGame({ seed: 4, starter: 'charmander' }); s.done.B1 = true; assert.ok(!(s.seen && s.seen.B2));
@@ -993,9 +993,9 @@ test('dice and sizes: two to start, then a die from Brock, Misty or Surge and Gi
 test('elite four: one random member stands before Lance, the other two are not on the map', () => {
   const seen = new Set(); for (let seed = 1; seed <= 40; seed++) { const s = E.newGame({ seed, starter: 'bulbasaur' }); seen.add(s.elite); } assert.deepEqual([...seen].sort(), ['E1', 'E2', 'E3']);
 });
-test('final: Blue or Red is picked at random for each game, and only that one is on the map', () => {
+test('final: Blue, Red or Professor Oak is picked at random for each game, and only that one is on the map', () => {
   const seen = new Set(); for (let seed = 1; seed <= 40; seed++) { const s = E.newGame({ seed, starter: 'bulbasaur' }); seen.add(s.final); ['B8', 'E1', 'E2', 'E3', 'E4'].forEach(k => { s.done[k] = true; }); const other = s.final === 'F1' ? 'F2' : 'F1'; assert.equal(E.unlocked(s, E.node(s.final)), true); assert.equal(E.unlocked(s, E.node(other)), false); }
-  assert.deepEqual([...seen].sort(), ['F1', 'F2']);
+  assert.deepEqual([...seen].sort(), ['F1', 'F2', 'F3']);
 });
 test('placing: every card you put down in this phase stays movable until Fight! (take back any, move, swap), even after the AI has answered', () => {
   E.faceOrder('roll');
@@ -1016,4 +1016,16 @@ test('crystal animations: every Pokémon on a card has its Crystal frames, an en
     assert.ok(a.n && a.s && a.w >= 40 && a.f >= 2, 'dex ' + d + ' frames'); [].concat(a.enter, a.idle).forEach(([f, ms]) => { assert.ok(Number.isInteger(f) && f >= 0 && f < a.f, 'dex ' + d + ' uses frame ' + f); assert.ok(ms > 0 && ms < 3000); });
     assert.ok(a.enter.length >= 1, 'dex ' + d + ' has an entrance'); assert.ok(a.box[2] > 0 && a.box[3] > 0); });
   assert.ok(n >= 150);
+});
+test('Professor Oak: the level-40 card of every starter line plus a random legendary (last); five out, one waits', () => {
+  const s = E.newGame({ seed: 7, starter: 'bulbasaur' }), t = T.buildTeam(s, 'F3'), cs = t.map(i => C[i.id]);
+  assert.equal(t.length, 6); assert.deepEqual(cs.slice(0, 5).map(c => c.id), D.starters.map(x => x.levels[4]), 'one card per starter line, level 40'); assert.ok(cs[5].trainerLegend && cs[5].level === 6, 'a legendary plays last');
+  assert.equal(D.trainers.F3.out, 5); const f = D.nodes.find(n => n.id === 'F3'); assert.ok(f.final && f.finale && f.mystery);
+});
+test('Professor Oak holds his legendary and the starter cards that live in the wild: they are out of the piles until he is beaten, then they go back', () => {
+  for (let seed = 1; seed <= 12; seed++) {
+    const s = E.newGame({ seed, starter: 'bulbasaur' }), h = s.held.F3.slice(), wild = () => [].concat(...Object.values(s.decks), ...Object.values(s.discard), s.legend);
+    assert.ok(h.some(id => C[id].legend), 'his legendary is held (seed ' + seed + ')'); h.forEach(id => assert.ok(!wild().includes(id), C[id].name + ' is not in the wild while Oak holds it'));
+    T.releaseTeam(s, 'F3', true); h.filter(id => !C[id].legend || true).forEach(id => assert.ok(wild().includes(id) || C[id].legend, C[id].name + ' returns'));
+  }
 });
