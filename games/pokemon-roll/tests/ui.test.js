@@ -693,9 +693,9 @@ test('ui: a placed card plays its entrance once (a redraw does not), cards come 
     await p.locator('[data-act=tipok]').click({ timeout: 800 }).catch(() => {}); await p.waitForTimeout(900);
     await p.locator('[data-act=tray]').first().click(); await p.waitForTimeout(150);
     for (let i = 0; i < 2 && await p.locator('[data-act=join]').count(); i++) { await p.locator('[data-act=join]').first().click({ force: true }); await p.waitForTimeout(60); }
-    assert.ok((await p.evaluate(() => [...document.querySelectorAll('.card[data-act=unit] .art img')].map(i => i.getAnimations().length))).some(n => n > 0), 'the card you put down plays its entrance');
+    assert.ok(await p.evaluate(() => document.querySelectorAll('.card[data-act=unit] .art .canim').length > 0), "the card you put down plays its Crystal entrance animation");
     await p.waitForTimeout(900); await p.evaluate(() => window.__pokemonRoll.render());
-    assert.equal(await p.evaluate(() => [...document.querySelectorAll('.card[data-act=unit] .art img')].reduce((a, i) => a + i.getAnimations().length, 0)), 0, 'a plain redraw plays nothing');
+    assert.equal(await p.evaluate(() => document.querySelectorAll('.art .canim').length), 0, 'a plain redraw plays nothing'); assert.equal(await p.evaluate(() => [...document.querySelectorAll('.card[data-act=unit] .art img')].every(i => i.style.visibility === '')), true, 'and the still picture is back');
     assert.ok(await p.evaluate(() => window.__pokemonRoll.G.battle.fresh.length >= 1), 'the card is still free to move');
     await p.evaluate(() => { const R = window.__pokemonRoll; const s = Engine.newGame({ seed: 5, starter: 'charmander' }); s.phase = 'won'; s.turn = 40; s.res = { win: true, node: s.final, kind: 'boss', team: ['150', '146', '3.6', '68', '131'].map(id => ({ id, sh: 0 })) }; R.setG(s); });
     await p.waitForTimeout(150); const vis = () => p.evaluate(() => [...document.querySelectorAll('[data-seqkey] .card')].filter(c => c.style.visibility !== 'hidden').length);

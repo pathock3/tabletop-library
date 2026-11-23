@@ -1009,3 +1009,11 @@ test('placing: every card you put down in this phase stays movable until Fight! 
   const foe = b.units.find(u => u.side === 1); assert.equal(E.apply(s, { t: 'rearrange', side: 0, uid: foe.uid, join: 0 }).ok, false, 'their cards are never yours to move');
   assert.ok(E.apply(s, { t: 'pickup', uid: b.fresh[0] }).ok, 'any of them can be taken back, not only the last'); assert.equal(b.fresh.length, 2); assert.equal(b.pl.optional, false, 'and then another goes down before Fight!');
 });
+test('crystal animations: every Pokémon on a card has its Crystal frames, an enter sequence and an idle loop that only use frames it has', () => {
+  const A = D.anim; assert.ok(A && Object.keys(A).length >= 150, 'frames for the species on the cards');
+  const dexes = new Set(Object.values(C).map(c => c.dex)); let n = 0;
+  dexes.forEach(d => { const a = A[d]; assert.ok(a, 'dex ' + d + ' has an animation'); n++;
+    assert.ok(a.n && a.s && a.w >= 40 && a.f >= 2, 'dex ' + d + ' frames'); [].concat(a.enter, a.idle).forEach(([f, ms]) => { assert.ok(Number.isInteger(f) && f >= 0 && f < a.f, 'dex ' + d + ' uses frame ' + f); assert.ok(ms > 0 && ms < 3000); });
+    assert.ok(a.enter.length >= 1, 'dex ' + d + ' has an entrance'); assert.ok(a.box[2] > 0 && a.box[3] > 0); });
+  assert.ok(n >= 150);
+});
