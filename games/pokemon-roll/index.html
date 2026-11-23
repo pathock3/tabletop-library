@@ -3056,7 +3056,7 @@ const trainerFg = {
   // ---------------------------------------------------------------- the game loop
   function toast(t) { ui.toast = t; render(); setTimeout(() => { if (ui.toast === t) { ui.toast = ''; const x = document.querySelector('.toast'); if (x) x.remove(); } }, 2400); }
   function act(a) {
-    if (a.t === 'place') ui.noAuto = false;
+    if (a.t === 'place') ui.noAuto = false; if (a.t === 'pickup') ui.noAuto = true;
     const r = E.apply(G, a); if (!r.ok) { toast(r.error); return false; }
     recordResult(); save(); showEntered(); drive(); return true;
   }
