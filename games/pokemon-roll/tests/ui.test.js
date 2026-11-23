@@ -693,9 +693,12 @@ test('ui: a placed card plays its entrance once (a redraw does not), cards come 
     await p.locator('[data-act=tipok]').click({ timeout: 800 }).catch(() => {}); await p.waitForTimeout(900);
     await p.locator('[data-act=tray]').first().click(); await p.waitForTimeout(150);
     for (let i = 0; i < 2 && await p.locator('[data-act=join]').count(); i++) { await p.locator('[data-act=join]').first().click({ force: true }); await p.waitForTimeout(60); }
-    assert.ok(await p.evaluate(() => document.querySelectorAll('.card[data-act=unit] .art .canim').length > 0), "the card you put down plays its Crystal entrance animation");
-    await p.waitForTimeout(900); await p.evaluate(() => window.__pokemonRoll.render());
-    assert.equal(await p.evaluate(() => document.querySelectorAll('.art .canim').length), 0, 'a plain redraw plays nothing'); assert.equal(await p.evaluate(() => [...document.querySelectorAll('.card[data-act=unit] .art img')].every(i => i.style.visibility === '')), true, 'and the still picture is back');
+    const loops = () => p.evaluate(() => [...document.querySelectorAll('.card[data-cid] .art .canim')].map(d => { const a = d.getAnimations()[0]; return a ? [a.effect.getComputedTiming().iterations, Math.round(a.currentTime)] : null; }));
+    const l0 = await loops(); assert.ok(l0.length >= 2 && l0.every(x => x && x[0] === Infinity), 'every card on screen loops its Crystal animation forever (' + l0.length + ')');
+    const newest = await p.evaluate(() => { const b = window.__pokemonRoll.G.battle, u = b.units.filter(x => x.side === 0).pop(); const c = document.querySelector('.card[data-act=unit][data-uid="' + u.uid + '"] .canim'); return Math.round(c.getAnimations()[0].currentTime); });
+    assert.ok(newest < 700, 'the card you just put down starts its loop from the beginning (' + newest + ' ms in)');
+    await p.waitForTimeout(500); await p.evaluate(() => window.__pokemonRoll.render()); const l1 = await loops(); assert.equal(l1.length, l0.length, 'a redraw keeps every loop');
+    assert.ok(l1.some((x, i) => x[1] >= l0[i][1] + 300 || x[1] < l0[i][1]), 'and the loops carried on rather than restarting at 0 together');
     assert.ok(await p.evaluate(() => window.__pokemonRoll.G.battle.fresh.length >= 1), 'the card is still free to move');
     await p.evaluate(() => { const R = window.__pokemonRoll; const s = Engine.newGame({ seed: 5, starter: 'charmander' }); s.phase = 'won'; s.turn = 40; s.res = { win: true, node: s.final, kind: 'boss', team: ['150', '146', '3.6', '68', '131'].map(id => ({ id, sh: 0 })) }; R.setG(s); });
     await p.waitForTimeout(150); const vis = () => p.evaluate(() => [...document.querySelectorAll('[data-seqkey] .card')].filter(c => c.style.visibility !== 'hidden').length);

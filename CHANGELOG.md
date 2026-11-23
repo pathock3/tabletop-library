@@ -1,5 +1,6 @@
 # Changelog
 
+- Pokémon Roll: every card now plays one Crystal animation (its entrance followed by its idle loop) and loops it for as long as it is on screen, in every context. When cards come in one at a time (Hall of Fame, evolution) each waits one full cycle; the catch choices wait half a cycle. Knocked-out cards stay still.
 - Pokémon Roll: the real Pokémon Crystal animations. Every Pokémon plays its own battle-entrance animation (frame by frame, original timing) when a card lands on the table and when cards come in one at a time (catch choices, evolution, champion team); when a card is shown big (long press, Pokédex, trainer info, swiping) it plays that animation and then its idle loop. Mew now has a picture too.
 - Pokémon Roll: every card you put down while placing stays movable until you tap Fight! — drag it to another spot, onto another of your cards to swap, or back to your hand (the AI's answer no longer locks it).
 - Pokémon Roll: the placing board has no empty rows above and below the cards any more, and the board's cards are no longer held down to the hand's size, so they are bigger on iPhone and iPad portrait.

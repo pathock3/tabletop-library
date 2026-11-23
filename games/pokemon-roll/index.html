@@ -4153,36 +4153,49 @@ const trainerFg = {
   // ---- the Crystal-style entrance: only the Pokémon inside the card moves (one shared squash-and-hop, about 0.4 s)
   const POPKF = [{ transform: 'translateY(45%) scale(.15,.05)', opacity: 0, offset: 0 }, { transform: 'translateY(-16%) scale(1.14,.88)', opacity: 1, offset: .5 }, { transform: 'translateY(0) scale(.94,1.08)', opacity: 1, offset: .76 }, { transform: 'none', opacity: 1, offset: 1 }];
   const bounceSprite = img => { if (!img || !img.animate) return Promise.resolve(); img.style.transformOrigin = '50% 100%'; return img.animate(POPKF, { duration: 420, easing: 'ease-out' }).finished.catch(() => {}); };          // fallback for a Pokémon without Crystal frames
-  // the real Crystal animation of the Pokémon in this card (frames cut from the original sprite sheet, original timings): 'enter' = what plays when it comes into battle (short; used wherever the player waits for it), 'profile' = that, then its idle loop twice (used when the card is shown big). Resolves when it is over.
-  function popSprite(card, kind) {
-    const img = card && card.querySelector && card.querySelector('.art img'); if (!img) return Promise.resolve();
-    const c = C[card.dataset.cid], A = c && D.anim && D.anim[c.dex], strip = A && A[+card.dataset.csh ? 's' : 'n'];
-    if (!A || !strip || !img.animate || !img.offsetWidth) return bounceSprite(img);
+  // the real Crystal animation of the Pokémon in every card (frames cut from the original sprite sheet, original timings): its entrance followed by its idle loop, repeated for as long as the card is on screen. One animation everywhere.
+  const loopOf = A => A.enter.concat(A.idle), cycleOf = A => loopOf(A).reduce((a, x) => a + x[1], 0) || 1;
+  const animOf = el => { const c = C[el.dataset.cid], A = c && D.anim && D.anim[c.dex]; return A && A[+el.dataset.csh ? 's' : 'n'] ? A : null; };
+  // `restart`: the loop begins again at its first frame (a card that has just entered, become big or been revealed); otherwise it carries on where the clock says it is, so a redraw of the screen does not make anything jump
+  function attachLoop(card, restart, key, now) {
+    const img = card && card.querySelector && card.querySelector('.art img'); if (!img || card.classList.contains('ko') || card.classList.contains('cghost')) return false;
+    const A = animOf(card); if (!A) { if (restart) bounceSprite(img); return false; }
+    if (!img.animate || img.offsetWidth < 40) return false;
     const art = img.parentElement, old = art.querySelector('.canim'); if (old) old.remove();
-    const seq = kind === 'profile' ? A.enter.concat(A.idle, A.idle) : A.enter, tot = seq.reduce((a, x) => a + x[1], 0) || 1;
-    const bw = A.box[2], bh = A.box[3], W = img.offsetWidth, H = img.offsetHeight, k = Math.min(W / bw, H / bh), fs = A.w * k;          // the static sprite is the first frame's visible part, shown at the bottom centre of the square: the frames sit exactly over it
+    ui.sprT = ui.sprT || {}; if (restart || ui.sprT[key] == null) ui.sprT[key] = now;
+    const seq = loopOf(A), tot = cycleOf(A);
+    const bw = A.box[2], bh = A.box[3], W = img.offsetWidth, H = img.offsetHeight, k = Math.min(W / bw, H / bh), fs = A.w * k;          // the still picture is the first frame's visible part at the bottom centre of the square: the frames sit exactly over it
     const d = document.createElement('div'); d.className = 'canim';
-    d.style.cssText = `position:absolute;left:${img.offsetLeft + (W - bw * k) / 2 - A.box[0] * k}px;top:${img.offsetTop + (H - bh * k) - A.box[1] * k}px;width:${fs}px;height:${fs}px;background:url(data:image/png;base64,${strip}) 0 0/${fs}px ${fs * A.f}px no-repeat;image-rendering:pixelated;pointer-events:none`;
+    d.style.cssText = `position:absolute;left:${img.offsetLeft + (W - bw * k) / 2 - A.box[0] * k}px;top:${img.offsetTop + (H - bh * k) - A.box[1] * k}px;width:${fs}px;height:${fs}px;background:url(data:image/png;base64,${A[+card.dataset.csh ? 's' : 'n']}) 0 0/${fs}px ${fs * A.f}px no-repeat;image-rendering:pixelated;pointer-events:none`;
     art.appendChild(d); img.style.visibility = 'hidden';
     let t = 0; const kf = seq.map(([f, ms]) => { const o = { offset: t / tot, backgroundPositionY: -f * fs + 'px', easing: 'steps(1, jump-end)' }; t += ms; return o; }); kf.push({ offset: 1, backgroundPositionY: -seq[seq.length - 1][0] * fs + 'px' });
-    const done = () => { d.remove(); img.style.visibility = ''; };
-    return d.animate(kf, { duration: tot, fill: 'forwards' }).finished.then(done, done);
+    const an = d.animate(kf, { duration: tot, iterations: Infinity }); an.currentTime = (now - ui.sprT[key]) % tot; return true;
   }
-  // cards that come in one at a time: the next one appears when the one before has finished its animation (a tap skips them all)
+  // cards that come in one at a time: each one starts its loop when it appears and the next comes in after one whole cycle (half a cycle for the catch choices); a tap shows them all
   function runSeq() {
     const box = document.querySelector('[data-seqkey]'); if (!box) { ui.seq = null; return; }
     const key = box.dataset.seqkey; if (!ui.seq || ui.seq.key !== key) ui.seq = { key, shown: 0, running: false }; const S = ui.seq;
     [...box.querySelectorAll('.card')].forEach((c, i) => { if (i >= S.shown) c.style.visibility = 'hidden'; });
     if (S.running || S.shown >= box.querySelectorAll('.card').length) return; S.running = true;
-    const step = () => { const bx = document.querySelector('[data-seqkey="' + key + '"]'); if (!bx || ui.seq !== S) { S.running = false; return; } const cs = [...bx.querySelectorAll('.card')]; if (S.shown >= cs.length) { S.running = false; return; } const c = cs[S.shown++]; c.style.visibility = ''; popSprite(c, 'enter').then(() => setTimeout(step, 50)); };
+    const step = () => { const bx = document.querySelector('[data-seqkey="' + key + '"]'); if (!bx || ui.seq !== S) { S.running = false; return; } const cs = [...bx.querySelectorAll('.card')]; if (S.shown >= cs.length) { S.running = false; return; }
+      const c = cs[S.shown++]; c.style.visibility = ''; const A = animOf(c); attachLoop(c, true, cardKey(c, S.shown - 1), performance.now());
+      setTimeout(step, A ? Math.round(cycleOf(A) * (/^pick:/.test(key) ? .5 : 1)) : 500); };
     step();
   }
   function skipSeq() { const S = ui.seq; if (!S || !S.running) return false; const box = document.querySelector('[data-seqkey]'); S.running = false; if (box) { const cs = [...box.querySelectorAll('.card')]; S.shown = cs.length; cs.forEach(c => { c.style.visibility = ''; }); } return true; }
-  // after every draw: a card placed (or moved) on the table, and a card that has just become the big one, plays its entrance once; a plain redraw plays nothing
+  const cardKey = (el, n) => el.dataset.act === 'unit' && el.dataset.uid ? 'u' + G.turn + ':' + el.dataset.uid : el.closest('[data-seqkey]') ? 'q' + el.closest('[data-seqkey]').dataset.seqkey + ':' + n : el.closest('[data-zc]') ? 'z:' + el.dataset.cid + ':' + el.dataset.csh : 'c' + el.dataset.cid + ':' + el.dataset.csh + ':' + n;
+  // after every draw: every card on screen plays its loop; a card placed (or moved) on the table, or one that has just become the big one, starts from its first frame; a plain redraw carries on seamlessly
   function animateAfterRender() {
-    const boot = !ui.animBoot; ui.animBoot = true; ui.animSeq = ui.animSeq || {};
-    const b = G && G.battle; if (b) document.querySelectorAll('.card[data-act=unit][data-uid]').forEach(el => { const u = E.U(b, +el.dataset.uid), k = G.turn + ':' + el.dataset.uid; if (u && u.pseq && ui.animSeq[k] !== u.pseq) { ui.animSeq[k] = u.pseq; if (!boot) popSprite(el, 'enter'); } });
-    const zc = document.querySelector('[data-zc]'); const zk = zc ? zc.dataset.zc + ':' + (zc.querySelector('.card') || {}).className : ''; if (!zc) ui.zcKey = ''; else if (ui.zcKey !== zk) { ui.zcKey = zk; popSprite(zc.querySelector('.card'), 'profile'); }
+    ui.animBoot = true; ui.animSeq = ui.animSeq || {}; const now = performance.now(), fresh = new Set();
+    const b = G && G.battle; if (b) document.querySelectorAll('.card[data-act=unit][data-uid]').forEach(el => { const u = E.U(b, +el.dataset.uid), k = G.turn + ':' + el.dataset.uid; if (u && u.pseq && ui.animSeq[k] !== u.pseq) { ui.animSeq[k] = u.pseq; fresh.add(el); } });
+    const zc = document.querySelector('[data-zc]'); const zk = zc ? zc.dataset.zc + ':' + (zc.querySelector('.card') || {}).className : ''; if (!zc) ui.zcKey = ''; else if (ui.zcKey !== zk) { ui.zcKey = zk; fresh.add(zc.querySelector('.card')); }
+    const seen = {}; let layers = 0;
+    document.querySelectorAll('.card[data-cid]').forEach(el => {
+      const ck = el.dataset.cid + ':' + el.dataset.csh, n = seen[ck] = (seen[ck] || 0) + 1, inSeq = el.closest('[data-seqkey]');
+      if (inSeq && (ui.seq ? [...inSeq.querySelectorAll('.card')].indexOf(el) >= ui.seq.shown : true) && inSeq.querySelector('.card') && ui.seq && ui.seq.key === inSeq.dataset.seqkey && ui.seq.shown < inSeq.querySelectorAll('.card').length) return;          // not revealed yet: it starts when it appears
+      const img = el.querySelector('.art img'); if (layers > 30 && img && img.offsetWidth < 90) return;
+      if (attachLoop(el, fresh.has(el), cardKey(el, inSeq ? [...inSeq.querySelectorAll('.card')].indexOf(el) : n), now)) layers++;
+    });
     runSeq();
   }
   // catching a new card: a Poké Ball is thrown at the one you picked, it wobbles, clicks, and the card is yours (about two seconds; a tap skips it)
@@ -4237,7 +4250,7 @@ const trainerFg = {
   document.addEventListener('contextmenu', e => e.preventDefault());
   let rz = null; window.addEventListener('resize', () => { clearTimeout(rz); rz = setTimeout(() => { if (G && ui.screen === 'play' && G.phase === 'map') render(); }, 120); });
   render();
-  window.__deckPile = (l, w) => deckPile(l, { pw: w, count: 9 }); window.__pokemonRoll = { popSprite, card, noDecision, setSeed(x) { ui.seed = x; render(); }, fitCards, short, abText, recordResult, get G() { return G; }, setG(x) { G = x; ui.screen = 'play'; resetSel(); save(); drive(); }, ui, A, render, act, get set() { return set; } };
+  window.__deckPile = (l, w) => deckPile(l, { pw: w, count: 9 }); window.__pokemonRoll = { popSprite: (c, r) => attachLoop(c, true, 'test:' + Math.random(), performance.now()), card, noDecision, setSeed(x) { ui.seed = x; render(); }, fitCards, short, abText, recordResult, get G() { return G; }, setG(x) { G = x; ui.screen = 'play'; resetSel(); save(); drive(); }, ui, A, render, act, get set() { return set; } };
 })();
 
 </script>
