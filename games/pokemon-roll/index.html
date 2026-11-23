@@ -548,6 +548,8 @@ button{font:inherit;color:inherit;border:0;cursor:pointer}
 <style>.board .deckcol{flex:none;align-self:flex-start;display:flex;justify-content:center}.pfan.hide{align-items:flex-start;padding:8px 0 0}</style>
 <style>.leadtalk{width:min(780px,calc(100vw - 24px));gap:12px}.leadtalk .bubble{min-width:0;box-sizing:border-box}.leadimg{width:clamp(96px,27vw,250px)}.leadtalk .bubble{font-size:clamp(18px,3.1vw,28px);padding:18px 22px;border-radius:24px}.leadtalk .bubble .who{font-size:clamp(22px,3.6vw,34px)}.leadtalk .gift{gap:14px;margin-top:10px}.leadtalk .gift .die{width:clamp(56px,9vw,76px);height:clamp(56px,9vw,76px);font-size:clamp(32px,5vw,44px)}.turnsline{font:800 clamp(22px,3.6vw,34px) system-ui}.wildback{padding:14px 18px;font-size:clamp(18px,2.8vw,26px)}.wildback .wb span{width:clamp(92px,15vw,130px);font-size:clamp(12px,1.9vw,17px)}.wildback .wb img{width:clamp(56px,10vw,96px);height:clamp(56px,10vw,96px)}.scr .center .btn.big{min-width:clamp(220px,34vw,320px);min-height:72px;font-size:clamp(24px,3.6vw,34px)}.scr .center .banner{font-size:clamp(46px,8vw,78px)}.scr .center{gap:clamp(14px,2.6vh,28px)}</style>
 <style>.board .deckcol{position:relative}.pilebay .eye{width:46px;height:46px;font-size:28px;bottom:8px;right:8px;pointer-events:auto;z-index:9;cursor:pointer}.board .fieldw{flex:1;min-width:0;height:100%;display:flex;justify-content:center;align-items:stretch;gap:6px}.prail .rbar .ib{width:68px;height:68px;font-size:34px;border-radius:18px}.prail .rbar .ib[style*='auto']{height:68px;font-size:20px!important}.phead .ib,.top .ib{width:60px;height:60px;font-size:30px;border-radius:16px}</style>
+<style>.bt.pl .board,.board .fieldw{align-items:center}.bt.pl .board .col,.board .fieldw .col{justify-content:center;height:auto;align-self:center;gap:8px;padding:6px 3px}</style>
+<style>.board .card.mov{box-shadow:0 0 0 3px #ffffffaa,0 8px 14px #0007;cursor:grab}</style>
 <style>.catchfx{position:fixed;inset:0;z-index:900;touch-action:none}.catchfx .cball{position:absolute;border-radius:50%;border:4px solid #14110f;background:linear-gradient(#e5383b 0 46%,#14110f 46% 54%,#fff 54%);box-shadow:0 6px 16px #0006;display:grid;place-items:center;opacity:0}.catchfx .cball i{width:34%;height:34%;border-radius:50%;background:#fff;border:4px solid #14110f;box-sizing:border-box}.catchfx .cball.on i{background:#ffd23f;box-shadow:0 0 14px #ffd23f}.catchfx .cring{position:absolute;border-radius:50%;border:5px solid #ffd23f;opacity:0;pointer-events:none}.catchfx .ctxt{position:absolute;transform:translate(-50%,0);font:900 30px system-ui;color:#fff;text-shadow:0 2px 0 #14110f,0 0 10px #14110f;opacity:0;white-space:nowrap}</style>
 <style>.bt.pl .pfan.pslide{overflow-x:auto;overflow-y:hidden;justify-content:flex-start;padding:16px 10px 16px;-webkit-overflow-scrolling:touch;scrollbar-width:none;touch-action:pan-x;overscroll-behavior-x:contain}.pfan.pslide::-webkit-scrollbar{display:none}.pfan.pslide .pc{touch-action:pan-x}.pfan.pslide.fr{-webkit-mask-image:linear-gradient(90deg,#000 90%,transparent);mask-image:linear-gradient(90deg,#000 90%,transparent)}.pfan.pslide.fl{-webkit-mask-image:linear-gradient(90deg,transparent,#000 10%);mask-image:linear-gradient(90deg,transparent,#000 10%)}.pfan.pslide.fl.fr{-webkit-mask-image:linear-gradient(90deg,transparent,#000 8%,#000 90%,transparent);mask-image:linear-gradient(90deg,transparent,#000 8%,#000 90%,transparent)}</style>
 <style>.bt.pl .pfan{position:relative;z-index:20;overflow:visible}.bt.pl .board{z-index:1}.pfan .pc.sel,.pfan .pc.up{z-index:30}</style>
@@ -1423,7 +1425,7 @@ const Engine = (() => {
   // opt.lazy: your hand is your whole collection and a card becomes a unit when it is put down. opt.wild: { loc, cap }: the wild cards come up one at a time.
   function startBattle(s, kind, nodeId, heroI, gmI, opt) {
     opt = opt || {};
-    const b = s.battle = { colMode: !!R.columns, kind, node: nodeId, units: [], cols: [], hand: [[], []], pl: null, stage: 'place', round: 0, nextUid: 1, limit: opt.need ? Math.max(opt.need[0], opt.need[1]) : Math.max(heroI.length, gmI.length), dice: [[], []], asg: [{}, {}], gmReady: false, events: [], before: {}, out: null, stall: 0, dealt: [0, 0], dealtRound: [0, 0], actType: {}, sudden: false, tries: 0, rr: [0, 0], rrFace: [[], []], rrUsed: [{}, {}], pools: [], firstChosen: false, hold: null, placed: [0, 0], need: opt.need || [heroI.length, gmI.length], mode: opt.wild ? 'wild' : 'fixed', cap: opt.wild ? opt.wild.cap : 0, loc: opt.wild ? opt.wild.loc : 0 };
+    const b = s.battle = { fresh: [], seq: 0, colMode: !!R.columns, kind, node: nodeId, units: [], cols: [], hand: [[], []], pl: null, stage: 'place', round: 0, nextUid: 1, limit: opt.need ? Math.max(opt.need[0], opt.need[1]) : Math.max(heroI.length, gmI.length), dice: [[], []], asg: [{}, {}], gmReady: false, events: [], before: {}, out: null, stall: 0, dealt: [0, 0], dealtRound: [0, 0], actType: {}, sudden: false, tries: 0, rr: [0, 0], rrFace: [[], []], rrUsed: [{}, {}], pools: [], firstChosen: false, hold: null, placed: [0, 0], need: opt.need || [heroI.length, gmI.length], mode: opt.wild ? 'wild' : 'fixed', cap: opt.wild ? opt.wild.cap : 0, loc: opt.wild ? opt.wild.loc : 0 };
     if (opt.lazy) {
       b.hcards = {}; b.nextH = 1; heroI.forEach(i => addHand(b, 0, i));
       if (opt.nOut != null) { b.nOut = opt.nOut; b.rsv = [[], gmI.slice(opt.nOut).map(i => ({ id: i.id, sh: i.sh }))]; gmI.slice(0, opt.nOut).forEach(i => addHand(b, 1, i)); }          // only as many cards as the player has dice are out; the rest of the team waits (the signature last)
@@ -1463,7 +1465,7 @@ const Engine = (() => {
   function beginFight(s) {
     const b = s.battle, wasRefill = !!b.refill;
     if (b.nOut != null && b.hcards) { const rest = b.hand[0].map(h => ({ id: b.hcards[h].id, sh: b.hcards[h].sh })); b.rsv[0] = rest; b.refill = false; if (wasRefill && b.sendLeft != null) b.sendLeft = Math.max(0, b.sendLeft - (b.refillSent || 0)); b.refillSent = 0; }          // everyone you caught who is not out waits (you may send in ANYONE of them); how many replacements you may still send is `sendLeft` (the leader's team size is the most you can use in all)          // in a trainer fight you can use as many as they have: the rest stay home (the strongest of the ones you did not put out come along)          // the cards you did not put out wait in reserve
-    b.hand = [[], []]; if (b.hcards) b.hcards = {};
+    b.hand = [[], []]; if (b.hcards) b.hcards = {}; b.fresh = [];
     if (b.fcols && b.mode === 'wild') b.cols = b.cols.filter(c => c[0] != null || c[1] != null);
     nidoMax(b); if (wasRefill) enterMatch(s); else startRound(s);
   }
@@ -1471,7 +1473,7 @@ const Engine = (() => {
   // after a round, a card knocked out is replaced from the reserve: they bring theirs (the signature last), then you pick yours; it drops into any empty column
   function needRefill(b) { return !!(b.fcols && b.nOut != null && [0, 1].some(sd => living(b, sd).length < b.nOut && rsvN(b, sd) > 0 && (sd === 1 || b.sendLeft == null || b.sendLeft > 0))); }
   function startRefill(s) {
-    const b = s.battle; b.refill = true; b.lastMine = null; b.stage = 'place'; b.events = []; b.hand = [[], []]; b.hcards = {}; b.nextH = 1;
+    const b = s.battle; b.refill = true; b.lastMine = null; b.fresh = []; b.stage = 'place'; b.events = []; b.hand = [[], []]; b.hcards = {}; b.nextH = 1;
     const miss = sd => Math.min(b.nOut - living(b, sd).length, rsvN(b, sd), sd === 0 && b.sendLeft != null ? b.sendLeft : 99), m0 = miss(0), m1 = miss(1); b.refillSent = m0;
     for (let k = 0; k < m1; k++) { const i = b.rsv[1].shift(); addHand(b, 1, i); }
     if (m0 > 0) { b.rsv[0].forEach(i => addHand(b, 0, i)); b.rsv[0] = []; }
@@ -1504,7 +1506,7 @@ const Engine = (() => {
     if (a.side === 1) { const nd0 = node(b.node); if (nd0 && nd0.kind === 'boss') { const u1 = U(b, uid), seen = (s.seenCards = s.seenCards || {}); (seen[nd0.id] = seen[nd0.id] || []).push({ id: u1.id, sh: u1.sh }); } }          // a gym leader's card is only known once it has been put down in front of you
     let ci;
     if (a.join != null) { b.cols[a.join][a.side] = uid; ci = a.join; } else { const c = [null, null]; c[a.side] = uid; b.cols.splice(a.at, 0, c); ci = a.at; }
-    b.hand[a.side].splice(b.hand[a.side].indexOf(a.uid), 1); b.pl.left--; b.firstChosen = true; b.placed[a.side]++; b.lastMine = a.side === 0 ? uid : null;          // your latest card is not locked in until someone else moves
+    b.hand[a.side].splice(b.hand[a.side].indexOf(a.uid), 1); b.pl.left--; b.firstChosen = true; b.placed[a.side]++; b.lastMine = a.side === 0 ? uid : null; if (a.side === 0) (b.fresh = b.fresh || []).push(uid); U(b, uid).pseq = b.seq = (b.seq || 0) + 1;          // your latest card is not locked in until someone else moves
     enterHit(s, b, U(b, uid), ci);
     afterPlace(s, a.side); return null;
   }
@@ -2428,8 +2430,16 @@ const Engine = (() => {
       case 'place': return doPlace(s, a);
       case 'pickup': {                                                // take your latest card back (not locked in yet), or, while replacing a fallen card, retreat any card of yours to the reserve
         if (b.stage !== 'place' || !b.pl || b.pl.side !== 0 || !b.hcards) return 'not now'; const u = U(b, a.uid);
-        if (!u || u.side !== 0 || u.ko || (u.uid !== b.lastMine && !(b.pl && b.pl.fix))) return 'that card is locked in'; const ci = colIdx(b, u.uid);
+        if (!u || u.side !== 0 || u.ko || ((b.fresh || []).indexOf(u.uid) < 0 && !(b.pl && b.pl.fix))) return 'that card is locked in'; b.fresh = (b.fresh || []).filter(x => x !== u.uid); const ci = colIdx(b, u.uid);
         if (ci >= 0) b.cols[ci][0] = null; u.ko = true; u.gone = true; const hid = addHand(b, 0, { id: u.id, sh: u.sh }); b.placed[0]--; b.pl.left++; if (b.pl.optional) b.pl = { side: 0, left: 1, optional: false }; if (b.lastMine === u.uid) b.lastMine = null; return null;
+      }
+      case 'rearrange': {                                              // any card you put down in this placing phase can still be moved to another spot (or swapped with another of yours) until you tap Fight!
+        if (b.stage !== 'place' || !b.pl || b.pl.side !== 0) return 'not now'; const u = U(b, a.uid);
+        if (!u || u.side !== 0 || u.ko || (b.fresh || []).indexOf(u.uid) < 0) return 'that card is locked in';
+        const t = b.cols[a.join], ci = colIdx(b, u.uid); if (!t || ci < 0) return 'choose a space'; if (ci === a.join) return 'it is already there';
+        if (t[0] == null) { b.cols[ci][0] = null; t[0] = u.uid; if (!b.fcols && b.cols[ci][0] == null && b.cols[ci][1] == null) b.cols.splice(ci, 1); }
+        else { const w = U(b, t[0]); if (!w || w.ko || (b.fresh || []).indexOf(w.uid) < 0) return 'that space is taken'; b.cols[ci][0] = w.uid; t[0] = u.uid; w.pseq = b.seq = (b.seq || 0) + 1; }
+        u.pseq = b.seq = (b.seq || 0) + 1; return null;
       }
       case 'roll': return doRoll(s);
       case 'assign': if (b.colMode) return 'each card has its own die'; return doAssign(s, a);
@@ -3494,13 +3504,13 @@ const trainerFg = {
     const matching = b.stage === 'match' && !!b.mt, yourMatch = matching && b.mt.side === 0, mvs = yourMatch ? E.matchMoves(b, 0) : [], movers = new Set(mvs.map(m => m.uid)), msel = ui.msel != null && movers.has(ui.msel) ? ui.msel : null;
     const insAts = yourPlace && selected != null ? E.slotsFor(b, 0).filter(sl => sl.at != null).map(sl => sl.at) : [];       // where a new column could go: each one is shown as a spot the size of a card
     const m = placing ? Math.max(1, b.cols.length + insAts.length, b.mode === 'wild' ? b.cap : Math.max(b.need[0], b.need[1])) : Math.max(1, b.cols.length);          // while you place, room is kept for every spot that may be used; once the fight is on, the cards use the whole screen
-    const dk = railP && (nodeP.kind === 'loc' || nodeP.kind === 'visitor') ? 1 : 0, mD = m + dk, cwW = Math.floor((W - 8 - (mD + 1) * 4 - mD * 6) / mD), mBase = Math.max(1, b.cols.length, b.mode === 'wild' ? b.cap : Math.max(b.need[0], b.need[1])) + dk;          // a wild deck sits beside the columns, the size of a card          // the hand keeps its size while a spot is being picked
+    const dk = railP && (nodeP.kind === 'loc' || nodeP.kind === 'visitor') ? 1 : 0, mD = m + dk, cwW = Math.floor((W - 8 - (mD + 1) * 4 - mD * 11) / mD), mBase = Math.max(1, b.cols.length, b.mode === 'wild' ? b.cap : Math.max(b.need[0], b.need[1])) + dk;          // a wild deck sits beside the columns, the size of a card          // the hand keeps its size while a spot is being picked
     if (placing) {          // your hand is fanned under the board, its cards the very same size as the board's
       const nH = E.handOf(b, 0).length + (b.placed ? b.placed[0] : 0), nV = Math.min(nH, 6), hfit = nV > 1 ? Math.floor((innerWidth - 20) / (1 + (nV - 1) * .62)) : 999;
-      FCW = Math.max(64, Math.min(320, Math.floor((W - 8 - (mBase + 1) * 4 - mBase * 6) / mBase), hfit, Math.floor((H - HEAD - STAT - (NARROW ? 64 : 44)) / 3 / CH))); HH = Math.ceil(FCW * CH) + (NARROW ? 36 : 30) + (nH > 6 ? 14 : 0); HB = H - HEAD - STAT - HH;          // on a wide screen the hand's lower part runs off the screen edge, so the cards can be as big as can be
+      FCW = Math.max(64, Math.min(320, Math.floor((W - 8 - (mBase + 1) * 4 - mBase * 6) / mBase), hfit, Math.floor(H * 0.27 / CH), Math.floor((H - HEAD - STAT - (NARROW ? 64 : 44)) / 3 / CH))); HH = Math.ceil(FCW * CH) + (NARROW ? 36 : 30) + (nH > 6 ? 14 : 0); HB = H - HEAD - STAT - HH;          // on a wide screen the hand's lower part runs off the screen edge, so the cards can be as big as can be
     }
     const cwH = Math.floor((HB - 10 - 2) / 2 / CH);
-    let cw = Math.max(insAts.length ? 90 : 120, Math.min(640, cwW, cwH)); if (placing) cw = Math.min(cw, FCW); const hcw = placing ? 0 : Math.max(80, Math.min(180, RW - 30)); if (placing) FCW = cw;
+    let cw = Math.max(placing ? 50 : insAts.length ? 90 : 120, Math.min(640, cwW, cwH)); const hcw = placing ? 0 : Math.max(80, Math.min(180, RW - 30)); if (placing) FCW = Math.min(FCW, cw);          // the hand is never bigger than the board's cards, but the board's cards are no longer held down by the hand
     if (ui.lastTurn === G.turn && ui.lastCw && ui.lastCw !== cw) ui.zoomFrom = ui.lastCw / cw; ui.lastCw = cw; ui.lastTurn = G.turn;       // if the board changes size, it zooms rather than jumps
     const colM = !!b.colMode, waitRoll = assign && (colM ? !b.rolled : ui.rollTap !== G.turn + ':' + b.round);                       // every card's roll is a tap
     const rollKey = colM ? b.round + ':' + b.cur : b.round;
@@ -3540,7 +3550,7 @@ const trainerFg = {
       }
       const pf = assign && !waitRoll && u.side === 0 && !ko && ui.die != null ? b.dice[0][ui.die] : 0;
       const dcol1 = null, dbonus = false;
-      return card(u, { cw, dieCol: dcol1, dieBonus: dbonus, foe: u.side === 1, ko: koOf(u), hp: hpOf(u), start: (b.stage === 'assign' || b.stage === 'place') ? hpOf(u) : (b.before && b.before[u.uid] != null ? b.before[u.uid] : hpOf(u)), shield: u.shield || 0, sts: stsHtml(u), face, sp: spOn, pf, die, chg: chgOf(u), land: ui.landed === u.uid, heroDie: u.side === 0, dieAttr: !colM && u.side === 0 && assign && !(info && b.fixed && b.fixed[0] && info.die.some(i => b.fixed[0][i])) ? `data-act="unmv" data-uid="${u.uid}"${info && info.die.length === 1 ? ` data-i="${info.die[0]}"` : ''}` : '', mark, ab: abil, recall: '', cls: clsOf(u) + (ui.returning && u.side === 0 && !ko ? ' sel act' : '') + (ui.slide && ui.slide.opts.indexOf(u.uid) >= 0 ? ' sel act' : '') + (movers.has(u.uid) ? (msel === u.uid ? ' sel act' : ' sel') : '') + (yourPlace && ui.psel === u.uid ? ' sel act' : '') + (ui.swap && u.side === 1 && !ko ? (ui.swap.picks.indexOf(u.uid) >= 0 ? ' sel act' : ' sel') : ''), pop: popOf(u), attr: ui.returning && u.side === 0 && !ko ? `data-act="recallpick" data-uid="${u.uid}"` : ui.slide && ui.slide.opts.indexOf(u.uid) >= 0 ? `data-act="slide" data-uid="${u.uid}"` : `data-act="unit" data-uid="${u.uid}"` });
+      return card(u, { cw, dieCol: dcol1, dieBonus: dbonus, foe: u.side === 1, ko: koOf(u), hp: hpOf(u), start: (b.stage === 'assign' || b.stage === 'place') ? hpOf(u) : (b.before && b.before[u.uid] != null ? b.before[u.uid] : hpOf(u)), shield: u.shield || 0, sts: stsHtml(u), face, sp: spOn, pf, die, chg: chgOf(u), land: ui.landed === u.uid, heroDie: u.side === 0, dieAttr: !colM && u.side === 0 && assign && !(info && b.fixed && b.fixed[0] && info.die.some(i => b.fixed[0][i])) ? `data-act="unmv" data-uid="${u.uid}"${info && info.die.length === 1 ? ` data-i="${info.die[0]}"` : ''}` : '', mark, ab: abil, recall: '', cls: clsOf(u) + (ui.returning && u.side === 0 && !ko ? ' sel act' : '') + (ui.slide && ui.slide.opts.indexOf(u.uid) >= 0 ? ' sel act' : '') + (movers.has(u.uid) ? (msel === u.uid ? ' sel act' : ' sel') : '') + (yourPlace && ui.psel === u.uid ? ' sel act' : '') + (yourPlace && u.side === 0 && (b.fresh || []).indexOf(u.uid) >= 0 ? ' mov' : '') + (ui.swap && u.side === 1 && !ko ? (ui.swap.picks.indexOf(u.uid) >= 0 ? ' sel act' : ' sel') : ''), pop: popOf(u), attr: ui.returning && u.side === 0 && !ko ? `data-act="recallpick" data-uid="${u.uid}"` : ui.slide && ui.slide.opts.indexOf(u.uid) >= 0 ? `data-act="slide" data-uid="${u.uid}"` : `data-act="unit" data-uid="${u.uid}"` });
     };
     const slotHtml = (ci, side) => {
       const uid = b.cols[ci][side];
@@ -3561,7 +3571,7 @@ const trainerFg = {
     const diceHtml = !waitRoll && (assign || done || p) && hd.length ? hd.map((v, i) => [v, i]).sort((x, y) => { const lk = (b.locked && b.locked[0]) || {}; return rolling ? x[1] - y[1] : (lk[x[1]] ? 1 : 0) - (lk[y[1]] ? 1 : 0) || y[0] - x[0] || x[1] - y[1]; }).map(([v, i]) => { const tum = rolling && (!ui.rerolled || ui.rerolled.indexOf(i) >= 0); return dieHtml(tum ? '' : v, { sel: ui.die === i, used: !colM && used.has(i), tumble: tum, attr: !colM && assign && !rolling && !(b.fixed && b.fixed[0] && b.fixed[0][i]) ? `data-act="die" data-i="${i}"` : '' }); }).join('') : '';
     let status = '', btns = '';
     const opt = yourPlace && b.pl.optional, canDraw = opt && b.pl.canDraw;
-    if (placing) status = (b.sudden ? 'SUDDEN DEATH · ' : '') + (yourPlace && b.mode === 'wild' && b.fcols && E.unmatched(b) && (b.pl.fix || opt) ? 'Everyone needs an opponent' : yourPlace ? (ui.psel != null && !selected ? 'Drag it back, or elsewhere' : selected != null ? 'Tap a spot' : opt ? (canDraw ? 'Tap the deck, add a card, or Fight!' : (b.mode === 'wild' && E.canExpand(G) ? 'Another card, or Fight!' : 'Happy? Fight!')) : 'Pick a Pokémon from your hand to put down') : 'Their turn…');
+    if (placing) status = (b.sudden ? 'SUDDEN DEATH · ' : '') + (yourPlace && b.mode === 'wild' && b.fcols && E.unmatched(b) && (b.pl.fix || opt) ? 'Everyone needs an opponent' : yourPlace ? (ui.psel != null && !selected ? 'Tap a spot or another card of yours to move it, or drag it back to your hand' : selected != null ? 'Tap a spot' : opt ? (canDraw ? 'Tap the deck, add a card, or Fight!' : (b.mode === 'wild' && E.canExpand(G) ? 'Another card, or Fight!' : 'Drag your cards to rearrange · Fight! when you are happy')) : 'Pick a Pokémon from your hand to put down') : 'Their turn…');
     else if (matching) { status = yourMatch ? (msel != null ? 'Tap the empty spot to slide there' : 'Cards with no opponent may slide next to a lone enemy. Tap one.') : 'They are choosing where to slide…'; btns = yourMatch ? `<button class="btn alt" data-act="mpass">Stay put</button>` : ''; }
     else if (assign && ui.returning) { status = 'Tap the Pokémon to return'; btns = `<button class="btn alt" data-act="retmode">Cancel</button>`; }
     else if (assign && ui.slide) { status = 'Slide a neighbour over to face the opponent? Tap it.'; btns = `<button class="btn alt" data-act="slideno">Leave it empty</button>`; }
@@ -3626,8 +3636,8 @@ const trainerFg = {
     // the cards you choose between are as big as they can be while ALL of them fit on the screen at once (no scrolling, nothing cut off)
     const fitCw = (n, w, h) => { let best = 120; for (let rows = 1; rows <= 3; rows++) { const per = Math.ceil(n / rows), c = Math.min(Math.floor((w - (per - 1) * 12) / per), Math.floor((h - (rows - 1) * 12) / rows / CH)); if (c > best * (rows > 1 ? 1.12 : 1)) best = c; } return Math.min(best, 420); };          // more rows only when that makes the cards clearly bigger
     const pickN = r.pick ? r.pick.length : r.evolve ? 2 : 0, cw = pickN ? fitCw(pickN, innerWidth - 84, viewH() - (r.pick ? (nd.kind === 'visitor' ? 470 : 360) : 230)) : 230;          // the banner, the leader's speech bubble and the OK bar all share the screen with the cards
-    const take = r.pick ? `<div class="hrow" style="flex-wrap:wrap;justify-content:center;overflow:visible;gap:12px">${r.pick.map((i, k) => card(i, { cw, sel: ui.pickSel === k, mark: r.have && r.have.indexOf(i.id) >= 0 ? 'You have it' : '', cls: r.have && r.have.indexOf(i.id) >= 0 ? 'owned' : '', attr: r.have && r.have.indexOf(i.id) >= 0 ? '' : `data-act="pickcard" data-i="${k}"` })).join('')}</div>${pickBar(r)}` : (r.took ? `<div class="status">You caught ${esc(C[r.took.id].name)}${r.took.sh ? ' ✨' : ''}!</div><div class="hrow">${card(r.took, { cw })}</div>` : '');
-    const evo = r.evolve ? `<div class="status">${esc(C[sdv.levels[r.evolve - 1]].name)} is ready to evolve! Which will it be?</div><div class="hrow">${[[sdv.levels[r.evolve - 1], 0], [sdv.evolve[r.evolve], 1]].map(([id, y]) => card({ id, sh: 0 }, { cw, attr: `data-act="evolve" data-yes="${y}"` })).join('')}</div>` : '';
+    const take = r.pick ? `<div class="hrow" data-seqkey="pick:${G.turn}:${r.node}" style="flex-wrap:wrap;justify-content:center;overflow:visible;gap:12px">${r.pick.map((i, k) => card(i, { cw, sel: ui.pickSel === k, mark: r.have && r.have.indexOf(i.id) >= 0 ? 'You have it' : '', cls: r.have && r.have.indexOf(i.id) >= 0 ? 'owned' : '', attr: r.have && r.have.indexOf(i.id) >= 0 ? '' : `data-act="pickcard" data-i="${k}"` })).join('')}</div>${pickBar(r)}` : (r.took ? `<div class="status">You caught ${esc(C[r.took.id].name)}${r.took.sh ? ' ✨' : ''}!</div><div class="hrow">${card(r.took, { cw })}</div>` : '');
+    const evo = r.evolve ? `<div class="status">${esc(C[sdv.levels[r.evolve - 1]].name)} is ready to evolve! Which will it be?</div><div class="hrow" data-seqkey="evo:${G.turn}:${r.node}">${[[sdv.levels[r.evolve - 1], 0], [sdv.evolve[r.evolve], 1]].map(([id, y]) => card({ id, sh: 0 }, { cw, attr: `data-act="evolve" data-yes="${y}"` })).join('')}</div>` : '';
     const lead = r.win && nd.kind === 'visitor' ? `<div class="leadtalk"><img class="pix leadimg" src="data:image/png;base64,${D.trainerArt[nd.art]}" alt="${esc(nd.name)}"><div class="bubble"><b class="who">${esc(nd.name)}</b><p>${r.allHave ? '“Wow, you already have all the evolutions!”' : r.fallback ? '“You have all three already! Here, take an Eevee.”' : '“Take your pick!”'}</p></div></div>` : r.win && nd.kind === 'boss' ? `<div class="leadtalk">${D.trainerArt && D.trainerArt[nd.id] ? `<img class="pix leadimg" src="data:image/png;base64,${D.trainerArt[nd.id]}" alt="${esc(nd.name)}">` : ''}<div class="bubble"><b class="who">${esc(nd.name)}</b><p>“${esc(nd.say || 'Well fought!')}”</p>${r.newDie || r.keepDie ? `<div class="gift">${dieHtml(6, {})}<span>${esc(nd.name)} ${r.newDie ? 'hands you a die' : 'lets you keep the die'}. <i>“${esc(D.dieLine)}”</i></span></div>` : ''}</div></div>` : '';
     if (!r.win) { const st = G.coll.find(c => c.starter) || G.coll[0]; return `<div class="scr kos" data-act="done"><div class="kobox"><div class="kopic"><img class="pix" src="${art(st.id, st.sh)}" alt=""><i>✦</i><i>✦</i><i>✦</i></div><div class="kotxt">You are KO'd!</div><div class="kotap">Tap anywhere to continue</div></div></div>`; }
     const turnsLine = r.turns != null ? `${gameEnd(nd) ? 'You beat the game' : 'You beat ' + esc(nd.name)} in <b>${r.turns} turn${r.turns === 1 ? '' : 's'}</b>${r.newBest ? ' <span class="nb">New best!</span>' : (r.best != null ? ` <span class="pb">(best ${r.best})</span>` : '')}` : '';
@@ -3652,7 +3662,7 @@ const trainerFg = {
   function wonScreen() {
     const champTeam = ((G.res && G.res.team && G.res.team.length) ? G.res.team : G.coll.slice(0, 5)).map(i => ({ id: i.id, sh: i.sh })), champCw = Math.max(110, Math.min(300, Math.floor((innerWidth - 24 - (Math.min(champTeam.length, 5) - 1) * 12) / Math.min(champTeam.length, 5)), Math.floor((viewH() - 250) / 1.4 / Math.ceil(champTeam.length / 5))));          // only the cards of the final battle, big
     return `<div class="scr"><div class="center" style="flex:none;padding-top:56px"><div class="banner" style="font-size:54px">CHAMPION!</div><div style="font:800 22px system-ui">You beat the Elite Four and the secret champion in <b>${G.turn} turns</b>.${(scores()[G.size] || {}).game != null ? ` <span class="pb">Best: ${(scores()[G.size] || {}).game}</span>` : ''}</div></div>
-      <div class="hrow" style="flex-wrap:wrap;justify-content:center;overflow:visible;gap:12px;padding:10px 12px">${champTeam.map(i => card(i, { cw: champCw })).join('')}</div><div class="dock" style="flex-direction:row;justify-content:center;gap:12px"><button class="btn big" data-act="keepgoing">Keep playing</button><button class="btn big alt" data-act="menu0">Main menu</button></div></div>`;
+      <div class="hrow" data-seqkey="won:${G.turn}" style="flex-wrap:wrap;justify-content:center;overflow:visible;gap:12px;padding:10px 12px">${champTeam.map(i => card(i, { cw: champCw })).join('')}</div><div class="dock" style="flex-direction:row;justify-content:center;gap:12px"><button class="btn big" data-act="keepgoing">Keep playing</button><button class="btn big alt" data-act="menu0">Main menu</button></div></div>`;
   }
 
   // ---- overlays
@@ -3901,7 +3911,7 @@ const trainerFg = {
     const oldHand = document.querySelector('.handrow'), oldRect = oldHand && oldHand.getBoundingClientRect(), oldHtml = oldHand && oldHand.innerHTML;
     const oldPileEl = document.querySelector('.pilebay'), oldPileRect = oldPileEl && oldPileEl.getBoundingClientRect(), oldPileHtml = oldPileEl && oldPileEl.outerHTML;
     const dxTop = (document.querySelector('.dexbox') || {}).scrollTop;
-    markDex(); $app.innerHTML = h; if (dxTop) { const nb = document.querySelector('.dexbox'); if (nb) nb.scrollTop = dxTop; }
+    markDex(); $app.innerHTML = h; animateAfterRender(); if (dxTop) { const nb = document.querySelector('.dexbox'); if (nb) nb.scrollTop = dxTop; }
     { const ms = Date.now(), gd = -(ms % 2600) / 1000 + 's', td = -(ms % 1600) / 1000 + 's'; document.querySelectorAll('.card.shiny .art, .shw').forEach(e => { e.style.setProperty('--gd', gd); e.style.setProperty('--td', td); }); }      // a redraw must not restart the shine flicker(); toyMount();
     if (oldPileEl && !document.querySelector('.pilebay') && G && G.battle && G.battle.stage !== 'place') {        // done drawing: the pile flies away with the rest of your hand
       const pg = document.createElement('div'); pg.innerHTML = oldPileHtml; const pe = pg.firstChild; pe.style.cssText += `;position:fixed;left:${oldPileRect.left}px;top:${oldPileRect.top}px;width:${oldPileRect.width}px;z-index:36;pointer-events:none;right:auto;bottom:auto`; document.body.appendChild(pe);
@@ -3994,6 +4004,7 @@ const trainerFg = {
       render();
     },
     join(el) {
+      if (ui.psel != null && ui.sel == null) { const u0 = ui.psel; ui.psel = null; act({ t: 'rearrange', side: 0, uid: u0, join: +el.dataset.col }); return; }          // a card of yours that is already down: tap it, then tap another spot
       const uid = ui.sel, b0 = G.battle, col = +el.dataset.col, foeU = b0 && b0.cols[col] && b0.cols[col][1] != null ? E.U(b0, b0.cols[col][1]) : null, hid = b0 && b0.hcards && b0.hcards[uid] ? b0.hcards[uid].id : (E.U(b0, uid) || {}).id;
       if (foeU && hid && !(ui.weakAsk && ui.weakAsk.uid === uid && ui.weakAsk.col === col) && String(C[hid].weak).toLowerCase() === C[foeU.id].type.toLowerCase()) {          // a card that is weak to the element of the card it would face: are you sure?
         ui.weakAsk = { uid, col }; toast(`${C[hid].name} is weak to ${C[foeU.id].type} (${C[foeU.id].name} is ${C[foeU.id].type}). Are you sure? Tap the spot again, or pick another card.`); return;
@@ -4004,7 +4015,8 @@ const trainerFg = {
     unit(el) {
       const b = G.battle, u = E.U(b, +el.dataset.uid); if (!u) return;
       if (b.copyAsk && b.copyAsk.length && !u.ko) { act({ t: 'copy', uid: b.copyAsk[0], tgt: u.uid }); return; }          // Ditto: tap the card to copy
-      if (b.stage === 'place' && u.side === 0 && b.pl && b.pl.side === 0 && (u.uid === b.lastMine || b.pl.fix)) { ui.psel = ui.psel === u.uid ? null : u.uid; render(); return; }          // a card you may still take back: a tap only lights it up; drag it to your hand to take it back, or to another spot to move it
+      if (b.stage === 'place' && u.side === 0 && b.pl && b.pl.side === 0 && ui.psel != null && ui.psel !== u.uid && (b.fresh || []).indexOf(u.uid) >= 0) { const u0 = ui.psel; ui.psel = null; act({ t: 'rearrange', side: 0, uid: u0, join: E.colIdx(b, u.uid) }); return; }          // tap one placed card, then another: they swap
+      if (b.stage === 'place' && u.side === 0 && b.pl && b.pl.side === 0 && ((b.fresh || []).indexOf(u.uid) >= 0 || b.pl.fix)) { ui.psel = ui.psel === u.uid ? null : u.uid; render(); return; }          // a card you may still take back: a tap only lights it up; drag it to your hand to take it back, or to another spot to move it
       if (b.stage === 'match' && b.mt && b.mt.side === 0) { const mv = E.matchMoves(b, 0).filter(m => m.uid === u.uid); if (mv.length) { ui.msel = ui.msel === u.uid ? null : u.uid; render(); return; } }
       if (b.ask && b.ask.kind === 'yn') return;
       if (b.ask && b.ask.kind === 'alloc') { if (b.ask.opts.some(o => o[0] === u.uid) && act({ t: 'alloc', tgt: u.uid })) { const p = ui.play; if (p && !b.ask) { absorbEvents(); p.waiting = false; nextBeat(); } else if (!p && !b.ask) startPlay(); } return; }
@@ -4096,7 +4108,7 @@ const trainerFg = {
     const b = G && G.battle; if (!b || b.stage !== 'place' || !b.pl || b.pl.side !== 0 || ui.big) return;
     const c = ev.target.closest && ev.target.closest('.card[data-act=tray], .card[data-act=unit]'); if (!c) return;
     let key = +c.dataset.uid, from = null;
-    if (c.dataset.act === 'unit') { const u = E.U(b, key); if (!u || u.side !== 0 || u.ko || !(u.uid === b.lastMine || b.pl.fix)) return; from = u.uid; }
+    if (c.dataset.act === 'unit') { const u = E.U(b, key); if (!u || u.side !== 0 || u.ko || !((b.fresh || []).indexOf(u.uid) >= 0 || b.pl.fix)) return; from = u.uid; }
     pd = { key, from, x: ev.clientX, y: ev.clientY, moved: false, ghost: null, origin: null, slide: !!c.closest('.pfan.pslide') };
   });
   document.addEventListener('pointermove', ev => {
@@ -4105,19 +4117,31 @@ const trainerFg = {
       if (Math.hypot(ev.clientX - pd.x, ev.clientY - pd.y) < 10) return;
       if (pd.slide && Math.abs(ev.clientX - pd.x) > Math.abs(ev.clientY - pd.y) * 0.8) { pd = null; return; }          // a sideways swipe in a long hand slides the hand; lifting a card out is an upward/downward drag
       pd.moved = true; const b = G.battle;
-      if (pd.from != null) { const ci = b.cols.findIndex(c => c[0] === pd.from), before = new Set(b.hand[0]); pd.origin = ci; ui.noAuto = true; if (!act({ t: 'pickup', uid: pd.from })) { ui.noAuto = false; pd = null; return; } const nb = G.battle.hand[0].find(h => !before.has(h)); pd.key = nb != null ? nb : null; }
-      ui.sel = pd.key; ui.psel = null; render();
-      const src = document.querySelector('.card[data-act=tray][data-uid="' + pd.key + '"]'); if (!src) { pd = null; return; }
+      let src;
+      if (pd.from != null) { pd.origin = b.cols.findIndex(c => c[0] === pd.from); ui.psel = null; src = document.querySelector('.card[data-act=unit][data-uid="' + pd.from + '"]'); if (src) src.style.opacity = '.35'; }          // a card already down is dragged where it is: it only moves when you let go (a spot, another of your cards, or your hand)
+      else { ui.sel = pd.key; ui.psel = null; render(); src = document.querySelector('.card[data-act=tray][data-uid="' + pd.key + '"]'); }
+      if (!src) { pd = null; return; }
       const g = src.cloneNode(true); g.removeAttribute('data-act'); g.classList.add('cghost'); const r = src.getBoundingClientRect(); g.style.width = r.width + 'px'; g.style.height = r.height + 'px'; pd.w = r.width; pd.h = r.height; document.body.appendChild(g); pd.ghost = g;
     }
     if (!pd || !pd.ghost) return;
     pd.ghost.style.left = (ev.clientX - pd.w / 2) + 'px'; pd.ghost.style.top = (ev.clientY - pd.h / 2) + 'px';
-    document.querySelectorAll('.dropok').forEach(x => x.classList.remove('dropok')); const t = document.elementFromPoint(ev.clientX, ev.clientY), sl = t && t.closest('[data-act=join], [data-act=ins]'); if (sl) sl.classList.add('dropok');
+    document.querySelectorAll('.dropok').forEach(x => x.classList.remove('dropok')); const t = document.elementFromPoint(ev.clientX, ev.clientY), sl = t && (t.closest('[data-act=join], [data-act=ins]') || (pd.from != null ? swapTarget(t) : null)); if (sl) sl.classList.add('dropok');
   });
+  // dropping a placed card on another of your cards from this phase swaps them
+  const swapTarget = t => { const c = t && t.closest && t.closest('.card[data-act=unit]'); if (!c || !G.battle) return null; const b = G.battle, u = E.U(b, +c.dataset.uid); return u && u.side === 0 && !u.ko && (b.fresh || []).indexOf(u.uid) >= 0 && (!pd || u.uid !== pd.from) ? c : null; };
   const endPd = () => { if (pd && pd.ghost) pd.ghost.remove(); document.querySelectorAll('.dropok').forEach(x => x.classList.remove('dropok')); pd = null; };
   document.addEventListener('pointerup', ev => {
     if (!pd) return; const d = pd; const t = d.moved ? document.elementFromPoint(ev.clientX, ev.clientY) : null; endPd(); if (!d.moved) return;
     ui.dragged = Date.now(); const sl = t && t.closest('[data-act=join], [data-act=ins]');
+    if (d.from != null) {          // moving a card that is already down
+      const b = G.battle; ui.sel = null; ui.noAuto = false;
+      if (sl && sl.dataset.act === 'join') { act({ t: 'rearrange', side: 0, uid: d.from, join: +sl.dataset.col }); return; }
+      const sw = (pd = d, swapTarget(t)); pd = null;
+      if (sw) { act({ t: 'rearrange', side: 0, uid: d.from, join: E.colIdx(b, +sw.dataset.uid) }); return; }
+      if (sl && sl.dataset.act === 'ins') { const before = new Set(b.hand[0]); if (act({ t: 'pickup', uid: d.from })) { const nb = G.battle.hand[0].find(h => !before.has(h)); ui.sel = nb; A.ins(sl); } return; }
+      if (t && t.closest('.pfan, .handrow')) { act({ t: 'pickup', uid: d.from }); return; }
+      render(); return;
+    }
     ui.sel = d.key;
     if (sl) { A[sl.dataset.act](sl); return; }
     if (t && t.closest('.pfan, .handrow')) { ui.sel = null; render(); return; }          // back in your hand
@@ -4125,6 +4149,26 @@ const trainerFg = {
     ui.sel = null; render();
   });
   document.addEventListener('pointercancel', endPd);
+  // ---- the Crystal-style entrance: only the Pokémon inside the card moves (one shared squash-and-hop, about 0.4 s)
+  const POPKF = [{ transform: 'translateY(45%) scale(.15,.05)', opacity: 0, offset: 0 }, { transform: 'translateY(-16%) scale(1.14,.88)', opacity: 1, offset: .5 }, { transform: 'translateY(0) scale(.94,1.08)', opacity: 1, offset: .76 }, { transform: 'none', opacity: 1, offset: 1 }];
+  function popSprite(card) { const img = card && card.querySelector && card.querySelector('.art img'); if (!img || !img.animate) return Promise.resolve(); img.style.transformOrigin = '50% 100%'; return img.animate(POPKF, { duration: 420, easing: 'ease-out' }).finished.catch(() => {}); }
+  // cards that come in one at a time: the next one appears when the one before has finished its animation (a tap skips them all)
+  function runSeq() {
+    const box = document.querySelector('[data-seqkey]'); if (!box) { ui.seq = null; return; }
+    const key = box.dataset.seqkey; if (!ui.seq || ui.seq.key !== key) ui.seq = { key, shown: 0, running: false }; const S = ui.seq;
+    [...box.querySelectorAll('.card')].forEach((c, i) => { if (i >= S.shown) c.style.visibility = 'hidden'; });
+    if (S.running || S.shown >= box.querySelectorAll('.card').length) return; S.running = true;
+    const step = () => { const bx = document.querySelector('[data-seqkey="' + key + '"]'); if (!bx || ui.seq !== S) { S.running = false; return; } const cs = [...bx.querySelectorAll('.card')]; if (S.shown >= cs.length) { S.running = false; return; } const c = cs[S.shown++]; c.style.visibility = ''; popSprite(c).then(() => setTimeout(step, 50)); };
+    step();
+  }
+  function skipSeq() { const S = ui.seq; if (!S || !S.running) return false; const box = document.querySelector('[data-seqkey]'); S.running = false; if (box) { const cs = [...box.querySelectorAll('.card')]; S.shown = cs.length; cs.forEach(c => { c.style.visibility = ''; }); } return true; }
+  // after every draw: a card placed (or moved) on the table, and a card that has just become the big one, plays its entrance once; a plain redraw plays nothing
+  function animateAfterRender() {
+    const boot = !ui.animBoot; ui.animBoot = true; ui.animSeq = ui.animSeq || {};
+    const b = G && G.battle; if (b) document.querySelectorAll('.card[data-act=unit][data-uid]').forEach(el => { const u = E.U(b, +el.dataset.uid), k = G.turn + ':' + el.dataset.uid; if (u && u.pseq && ui.animSeq[k] !== u.pseq) { ui.animSeq[k] = u.pseq; if (!boot) popSprite(el); } });
+    const zc = document.querySelector('[data-zc]'); const zk = zc ? zc.dataset.zc + ':' + (zc.querySelector('.card') || {}).className : ''; if (!zc) ui.zcKey = ''; else if (ui.zcKey !== zk) { ui.zcKey = zk; popSprite(zc.querySelector('.card')); }
+    runSeq();
+  }
   // catching a new card: a Poké Ball is thrown at the one you picked, it wobbles, clicks, and the card is yours (about two seconds; a tap skips it)
   function catchThrow(k) {
     if (ui.catching) return;
@@ -4149,6 +4193,7 @@ const trainerFg = {
   // a long press on any card, anywhere, shows it big
   { let lp = null; document.addEventListener('pointerdown', ev => { const c = ev.target.closest && ev.target.closest('.card[data-cid]'); if (!c || ui.big) return; const x0 = ev.clientX, y0 = ev.clientY; clearTimeout(lp); lp = setTimeout(() => { ui.big = { id: c.dataset.cid, sh: +c.dataset.csh }; ui.longp = Date.now(); render(); }, 480); const cancel = e2 => { if (e2.type === 'pointermove' && Math.hypot(e2.clientX - x0, e2.clientY - y0) < 10) return; clearTimeout(lp); removeEventListener('pointermove', cancel); removeEventListener('pointerup', cancel); removeEventListener('pointercancel', cancel); }; addEventListener('pointermove', cancel); addEventListener('pointerup', cancel); addEventListener('pointercancel', cancel); }); }
   document.addEventListener('click', ev => {
+    if (skipSeq()) return;          // a tap while cards are coming in shows them all
     if (ui.longp && Date.now() - ui.longp < 700) return;                    // that was the end of a long press
     if (ui.dragged && Date.now() - ui.dragged < 400) return;                 // that was the end of a drag, not a tap
     if (ui.rolling && Date.now() < ui.rolling) return;                       // the dice are still tumbling

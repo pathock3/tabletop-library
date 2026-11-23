@@ -997,3 +997,15 @@ test('final: Blue or Red is picked at random for each game, and only that one is
   const seen = new Set(); for (let seed = 1; seed <= 40; seed++) { const s = E.newGame({ seed, starter: 'bulbasaur' }); seen.add(s.final); ['B8', 'E1', 'E2', 'E3', 'E4'].forEach(k => { s.done[k] = true; }); const other = s.final === 'F1' ? 'F2' : 'F1'; assert.equal(E.unlocked(s, E.node(s.final)), true); assert.equal(E.unlocked(s, E.node(other)), false); }
   assert.deepEqual([...seen].sort(), ['F1', 'F2']);
 });
+test('placing: every card you put down in this phase stays movable until Fight! (take back any, move, swap), even after the AI has answered', () => {
+  E.faceOrder('roll');
+  const s = E.newGame({ seed: 5, starter: 'charmander' }); ['B1', 'B2', 'B3'].forEach(k => { s.done[k] = true; });
+  Object.keys(C).filter(id => C[id].loc > 0 && C[id].level >= 3).slice(0, 6).forEach((id, i) => s.coll.push({ uid: 50 + i, id, sh: 0 }));
+  assert.ok(E.apply(s, { t: 'go', node: 'B4' }).ok); const b = s.battle; let g; while ((g = B.step(s, 'normal'))) E.apply(s, g);
+  for (let i = 0; i < 6 && b.pl && b.pl.side === 0 && !b.pl.confirm && b.hand[0].length; i++) { assert.ok(E.apply(s, Object.assign({ t: 'place', side: 0, uid: b.hand[0][0] }, E.slotsFor(b, 0)[0])).ok); while ((g = B.step(s, 'normal'))) E.apply(s, g); }
+  assert.equal(b.stage, 'place'); assert.ok(b.pl.confirm, 'it waits for Fight!: nothing locks by itself'); assert.equal(b.fresh.length, 3, 'all three of mine are still free');
+  const [a, c0] = b.fresh, colA = E.colIdx(b, a), colC = E.colIdx(b, c0);
+  assert.ok(E.apply(s, { t: 'rearrange', side: 0, uid: a, join: colC }).ok); assert.equal(E.colIdx(b, a), colC); assert.equal(E.colIdx(b, c0), colA, 'they swapped');
+  const foe = b.units.find(u => u.side === 1); assert.equal(E.apply(s, { t: 'rearrange', side: 0, uid: foe.uid, join: 0 }).ok, false, 'their cards are never yours to move');
+  assert.ok(E.apply(s, { t: 'pickup', uid: b.fresh[0] }).ok, 'any of them can be taken back, not only the last'); assert.equal(b.fresh.length, 2); assert.equal(b.pl.optional, false, 'and then another goes down before Fight!');
+});
