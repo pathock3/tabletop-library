@@ -173,6 +173,17 @@ const LIBRARY = {
       path: 'games/mini-roll-writes/index.html',
       listed: true,
     },
+    {
+      id: 'kingslayer',
+      title: 'Kingslayer',
+      tagline: 'A negotiation game of thrones: swear, bribe, betray, take the crown. Play against computer houses and playtest your own rules.',
+      players: '1 player + 3–9 computer houses',
+      icon: '👑',
+      art: 'kingslayer',
+      accent: '#a3222f',
+      path: 'games/kingslayer/index.html',
+      listed: true,
+    },
   ],
 };
 </script>
@@ -270,6 +281,17 @@ const LIBRARY = {
         <g transform="rotate(-12 96 310)"><rect x="70" y="284" width="52" height="52" rx="11" fill="#fff" stroke="#2a1f3d" stroke-width="3"/>${pips(96, 310, 5)}</g><g transform="rotate(14 206 304)"><rect x="180" y="278" width="52" height="52" rx="11" fill="#fff" stroke="#2a1f3d" stroke-width="3"/>${pips(206, 304, 3)}</g>
         ${title('MINI ROLL', 60, 46)}${title('&amp; WRITES', 108, 38)}
         <rect x="30" y="344" width="240" height="26" rx="13" fill="#0b0820" fill-opacity=".88" stroke="#f2c14e" stroke-opacity=".7"/><text x="150" y="358" text-anchor="middle" dominant-baseline="central" font-size="12.5" font-weight="800" textLength="206" lengthAdjust="spacing" fill="#ffe9a8">FOUR TINY DICE GAMES</text></svg>`;
+    },
+    // Kingslayer: a crown over a dagger on a blood-red field
+    'kingslayer': () => {
+      const title = (t, y, sz) => `<text x="150" y="${y}" text-anchor="middle" font-size="${sz}" font-weight="900" letter-spacing="2" fill="#fff1cc" stroke="#2a0710" stroke-width="8" stroke-linejoin="round" paint-order="stroke" font-family="Georgia,serif">${t}</text>`;
+      return `<svg viewBox="0 0 300 380" role="img" aria-label="Kingslayer"><defs><linearGradient id="ksB" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#8a1e32"/><stop offset=".6" stop-color="#3a0c19"/><stop offset="1" stop-color="#1a0d12"/></linearGradient><linearGradient id="ksG" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffe9a8"/><stop offset=".6" stop-color="#e8b84a"/><stop offset="1" stop-color="#a87518"/></linearGradient></defs>
+        <rect width="300" height="380" fill="url(#ksB)"/>
+        <g transform="translate(150 230) rotate(18)"><path d="M0 120 L-14 -70 L0 -118 L14 -70Z" fill="#dfe5ec" stroke="#1a0d12" stroke-width="4" stroke-linejoin="round"/><rect x="-34" y="-72" width="68" height="12" rx="5" fill="url(#ksG)" stroke="#1a0d12" stroke-width="4"/></g>
+        <g transform="translate(0 40)"><path d="M62 190 L50 96 L100 136 L150 66 L200 136 L250 96 L238 190Z" fill="url(#ksG)" stroke="#1a0d12" stroke-width="6" stroke-linejoin="round"/><rect x="60" y="184" width="180" height="26" rx="6" fill="url(#ksG)" stroke="#1a0d12" stroke-width="6"/>
+          <circle cx="150" cy="62" r="11" fill="#c8322f" stroke="#1a0d12" stroke-width="4"/><circle cx="50" cy="92" r="9" fill="#3a74c2" stroke="#1a0d12" stroke-width="4"/><circle cx="250" cy="92" r="9" fill="#4e9a43" stroke="#1a0d12" stroke-width="4"/><circle cx="150" cy="197" r="8" fill="#c8322f" stroke="#1a0d12" stroke-width="3"/><circle cx="104" cy="197" r="6" fill="#fff" stroke="#1a0d12" stroke-width="3"/><circle cx="196" cy="197" r="6" fill="#fff" stroke="#1a0d12" stroke-width="3"/></g>
+        ${title('KINGSLAYER', 62, 40)}
+        <rect x="30" y="344" width="240" height="26" rx="13" fill="#1a0d12" fill-opacity=".88" stroke="#e8b84a" stroke-opacity=".7"/><text x="150" y="358" text-anchor="middle" dominant-baseline="central" font-size="12.5" font-weight="800" textLength="206" lengthAdjust="spacing" fill="#ffe9a8">A GAME OF THRONES NEGOTIATION</text></svg>`;
     },
     'this-means-war': () => {
       const hexPts = (cx, cy, r) => Array.from({ length: 6 }, (_, i) => { const a = Math.PI / 180 * (60 * i - 30); return (cx + r * Math.cos(a)).toFixed(1) + ',' + (cy + r * Math.sin(a)).toFixed(1); }).join(' ');

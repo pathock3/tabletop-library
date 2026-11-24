@@ -1,0 +1,1023 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Kingslayer">
+<meta name="build" content="__BUILD__">
+<meta name="theme-color" content="#1a0d12">
+<title>Kingslayer</title>
+<meta property="og:type" content="website">
+<meta property="og:title" content="Kingslayer">
+<meta name="description" content="A negotiation game of thrones: swear allegiance, bribe, betray, and take the crown. A playtest table against computer houses, with a Rules Lab.">
+<link rel="icon" type="image/png" href="../../assets/favicon.png">
+<link rel="apple-touch-icon" href="../../assets/apple-touch-icon.png">
+<style>
+:root { --ink: #1a0d12; --wine: #5c1426; --wine-d: #3a0c19; --gold: #e8b84a; --gold-d: #9c6f1c; --paper: #f3e6c4; --paper-d: #d8c595; --steel: #2a2e38; --text: #f6ecd8; --dim: #c9b79a; --green: #5fb36b; --red: #e0585a;
+  --sans: -apple-system, BlinkMacSystemFont, "SF Pro Text", system-ui, "Segoe UI", Roboto, sans-serif; --serif: "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, serif; }
+* { box-sizing: border-box; -webkit-tap-highlight-color: transparent; -webkit-touch-callout: none; user-select: none; -webkit-user-select: none; }
+html, body { margin: 0; height: 100%; width: 100%; position: fixed; inset: 0; overflow: hidden; overscroll-behavior: none; color: var(--text); font-family: var(--sans); touch-action: manipulation; background: var(--ink); }
+body::before { content: ""; position: absolute; inset: 0; pointer-events: none; background: radial-gradient(ellipse 100% 60% at 50% 0%, #6e1a30 0%, #3a0c19 45%, #1a0d12 80%); }
+#app { position: absolute; inset: 0; z-index: 1; }
+button { font: inherit; color: inherit; border: 0; background: none; padding: 0; cursor: pointer; touch-action: manipulation; }
+a { color: inherit; }
+h1, h2, h3, p { margin: 0; }
+h1, h2, h3 { font-family: var(--serif); }
+.screen { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; gap: 10px; padding: max(10px, env(safe-area-inset-top)) max(12px, env(safe-area-inset-right)) max(12px, env(safe-area-inset-bottom)) max(12px, env(safe-area-inset-left)); }
+@keyframes fadein { from { opacity: 0 } to { opacity: 1 } }
+.btn { min-height: 56px; padding: 0 22px; border-radius: 14px; font-size: 20px; font-weight: 800; background: linear-gradient(#ffffff22, #ffffff08), #4a1a2a; border: 2px solid #ffffff3a; box-shadow: 0 5px 0 #0008; display: inline-flex; align-items: center; justify-content: center; gap: 8px; text-align: center; }
+.btn:active { transform: translateY(3px); box-shadow: 0 2px 0 #0008; }
+.btn.gold { background: linear-gradient(#ffe6a0, #e8b84a 55%, #c4902a); color: var(--ink); border: 0; box-shadow: 0 6px 0 #7a5410, 0 12px 22px #0008; font-size: 24px; min-height: 66px; }
+.btn.gold:active { transform: translateY(5px); box-shadow: 0 1px 0 #7a5410; }
+.btn.alt { background: #ffffff14; }
+.btn.sm { min-height: 48px; font-size: 17px; padding: 0 16px; }
+.btn[disabled] { opacity: .4; pointer-events: none; }
+.chip { min-height: 48px; padding: 0 16px; border-radius: 24px; font-size: 17px; font-weight: 700; background: #ffffff14; border: 2px solid #ffffff30; display: inline-flex; align-items: center; justify-content: center; gap: 6px; text-align: center; }
+.chip.on { background: linear-gradient(#ffe6a0, #e8b84a); color: var(--ink); border-color: #fff3; }
+.row { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; align-items: center; }
+.libback { position: absolute; z-index: 3; top: max(10px, env(safe-area-inset-top)); left: max(12px, env(safe-area-inset-left)); padding: 10px 16px; border-radius: 22px; background: #0008; border: 2px solid var(--gold-d); font-weight: 700; font-size: 16px; text-decoration: none; min-height: 44px; display: flex; align-items: center; }
+
+/* menu */
+.menu { justify-content: flex-start; padding-top: max(60px, env(safe-area-inset-top)); }
+.crest { width: min(420px, 70vw); flex: none; filter: drop-shadow(0 10px 18px #000a); }
+.menu h1 { font-size: clamp(40px, 9vw, 74px); letter-spacing: 3px; line-height: 1; text-align: center; color: #fff1cc; text-shadow: 0 3px 0 var(--wine), 0 0 24px #e8b84a66; text-transform: uppercase; }
+.menu .sub { font-size: clamp(16px, 3vw, 22px); color: var(--dim); text-align: center; max-width: 560px; }
+.menu .stack { display: flex; flex-direction: column; gap: 14px; width: min(460px, 92vw); margin-top: 8px; }
+.credit { font-size: 13px; color: var(--dim); text-align: center; opacity: .8; margin-top: auto; }
+
+/* setup / lab */
+.panel { width: min(760px, 100%); background: #00000040; border: 2px solid #ffffff22; border-radius: 18px; padding: 14px; display: flex; flex-direction: column; gap: 10px; }
+.panel h3 { font-size: 22px; color: #fff1cc; }
+.panel .hint { font-size: 15px; color: var(--dim); line-height: 1.35; }
+.scroll { flex: 1; min-height: 0; width: min(760px, 100%); overflow-y: auto; -webkit-overflow-scrolling: touch; display: flex; flex-direction: column; gap: 12px; padding-bottom: 8px; touch-action: pan-y; }
+.top { width: min(760px, 100%); display: flex; align-items: center; gap: 10px; min-height: 48px; }
+.top h2 { flex: 1; font-size: 26px; color: #fff1cc; }
+.ctl { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 6px 0; border-top: 1px solid #ffffff18; }
+.ctl label { font-size: 16px; flex: 1; line-height: 1.25; }
+.ctl.chg label { color: var(--gold); }
+.step { display: flex; align-items: center; gap: 6px; }
+.step b { min-width: 44px; text-align: center; font-size: 24px; font-family: var(--serif); }
+.step button { width: 48px; height: 48px; border-radius: 12px; background: #ffffff1a; border: 2px solid #ffffff30; font-size: 26px; font-weight: 800; }
+.wrapchips { display: flex; flex-wrap: wrap; gap: 6px; justify-content: flex-end; }
+.wrapchips .chip { min-height: 44px; font-size: 15px; padding: 0 12px; }
+table.cmp { width: 100%; border-collapse: collapse; font-size: 16px; }
+table.cmp td, table.cmp th { padding: 7px 6px; border-top: 1px solid #ffffff18; text-align: right; }
+table.cmp td:first-child, table.cmp th:first-child { text-align: left; }
+table.cmp td.d { font-size: 13px; color: var(--gold); }
+.bar { height: 10px; border-radius: 5px; background: #ffffff20; overflow: hidden; } .bar i { display: block; height: 100%; background: var(--gold); }
+input[type=text], textarea { width: 100%; border-radius: 12px; border: 2px solid #ffffff30; background: #00000050; color: var(--text); padding: 10px 12px; font: inherit; font-size: 17px; user-select: text; -webkit-user-select: text; }
+
+/* table */
+.game { padding-top: max(8px, env(safe-area-inset-top)); gap: 8px; }
+.bar-top { width: 100%; display: flex; align-items: center; gap: 10px; flex: none; }
+.menubtn { width: 52px; height: 52px; border-radius: 14px; background: #0008; border: 2px solid var(--gold-d); font-size: 26px; flex: none; }
+.status { flex: 1; text-align: center; line-height: 1.15; }
+.status b { font-family: var(--serif); font-size: 22px; color: #fff1cc; display: block; }
+.status span { font-size: 15px; color: var(--dim); }
+.vault { flex: none; min-width: 84px; height: 52px; border-radius: 14px; background: linear-gradient(#ffe6a0, #e8b84a); color: var(--ink); font-weight: 900; font-size: 24px; display: flex; align-items: center; justify-content: center; gap: 6px; padding: 0 12px; border: 0; }
+.throne { width: 100%; display: flex; gap: 8px; flex: none; }
+.throne > div { flex: 1; border-radius: 14px; background: #00000050; border: 2px solid #ffffff20; padding: 6px 8px; text-align: center; line-height: 1.1; }
+.throne small { display: block; font-size: 12px; color: var(--dim); text-transform: uppercase; letter-spacing: 1px; }
+.throne b { font-size: 24px; font-family: var(--serif); color: #fff1cc; }
+.throne .dur b { font-size: 20px; }
+.dur.assassins { background: #5b1010; border-color: #e0585a; }
+.houses { width: 100%; display: grid; grid-template-columns: repeat(var(--cols, 3), 1fr); gap: 8px; flex: 1; min-height: 0; align-content: stretch; grid-auto-rows: minmax(0, 1fr); }
+.house { position: relative; border-radius: 14px; background: linear-gradient(160deg, #ffffff12, #00000040); border: 3px solid #ffffff25; padding: 6px 8px; text-align: center; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; overflow: hidden; min-height: 0; }
+.shield { display: block; width: clamp(34px, 8vw, 62px); aspect-ratio: 5 / 6; background: var(--c); clip-path: polygon(0 0, 100% 0, 100% 62%, 50% 100%, 0 62%); box-shadow: inset 0 0 0 3px #ffffff55; flex: none; }
+.house.sov .shield { filter: drop-shadow(0 0 6px #e8b84a); }
+.house b { font-family: var(--serif); font-size: clamp(16px, 3.2vw, 26px); color: #fff1cc; line-height: 1.1; }
+.house small { font-size: clamp(12px, 1.8vw, 14px); color: var(--dim); }
+.house.sov { border-color: var(--gold); box-shadow: 0 0 0 2px #e8b84a55, 0 0 18px #e8b84a44; }
+.house.sel { border-color: #fff; background: linear-gradient(160deg, #ffffff30, #ffffff10); transform: translateY(-3px); }
+.house.target { border-color: #fff9; animation: pulse 1.2s infinite; }
+@keyframes pulse { 50% { border-color: var(--gold); } }
+.house .crown { position: absolute; right: 6px; top: 2px; font-size: 24px; }
+.house .badge { position: absolute; right: 6px; bottom: 4px; font-size: 13px; font-weight: 800; background: var(--gold); color: var(--ink); border-radius: 10px; padding: 1px 7px; }
+.house.voted { opacity: .75; }
+.inbox { width: 100%; flex: none; max-height: 20%; overflow-y: auto; display: flex; flex-direction: column; gap: 4px; touch-action: pan-y; }
+.raven { background: var(--paper); color: var(--ink); border-radius: 10px; padding: 6px 10px 6px 14px; font-size: 16px; font-weight: 700; border-left: 10px solid var(--c); line-height: 1.2; }
+.raven em { font-style: normal; font-size: 13px; color: #6b4a1a; display: block; font-weight: 600; }
+.hand { width: 100%; flex: none; display: flex; gap: 8px; overflow-x: auto; touch-action: pan-x; padding-bottom: 2px; }
+.ccard { flex: 0 0 min(300px, 78%); background: linear-gradient(170deg, #f6ebc9, #e2cf9c); color: var(--ink); border-radius: 14px; border: 3px solid var(--gold-d); padding: 8px 12px 10px; display: flex; flex-direction: column; gap: 4px; text-align: left; }
+.ccard.empty { background: #ffffff10; color: var(--dim); border: 2px dashed #ffffff30; justify-content: center; text-align: center; font-size: 17px; min-height: 90px; }
+.ccard h4 { margin: 0; font-family: var(--serif); font-size: 21px; line-height: 1.1; }
+.ccard i { font-style: normal; font-size: 12px; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; color: #7a5410; }
+.ccard p { font-size: 16px; line-height: 1.25; }
+.ccard .btn { min-height: 44px; font-size: 16px; margin-top: 2px; color: var(--ink); background: linear-gradient(#ffe6a0, #e8b84a); border: 0; box-shadow: 0 3px 0 #7a5410; }
+.ccard .btn.on { background: var(--ink); color: var(--gold); }
+.actions { width: 100%; flex: none; display: flex; flex-direction: column; gap: 8px; }
+.actions .row { flex-wrap: nowrap; } .actions .btn { flex: 1; }
+.say { width: 100%; text-align: center; font-size: 17px; color: #fff1cc; background: #00000050; border-radius: 12px; padding: 7px 10px; line-height: 1.25; }
+.say b { color: var(--gold); }
+
+/* sheets and overlays */
+.sheet-bg { position: absolute; inset: 0; z-index: 40; background: #000a; display: flex; align-items: flex-end; justify-content: center; }
+.sheet { width: min(760px, 100%); max-height: 92%; background: linear-gradient(#3a0c19, #240810); border: 2px solid var(--gold-d); border-bottom: 0; border-radius: 22px 22px 0 0; padding: 14px 14px max(14px, env(safe-area-inset-bottom)); display: flex; flex-direction: column; gap: 10px; overflow-y: auto; touch-action: pan-y; -webkit-overflow-scrolling: touch; }
+.sheet h3 { font-size: 24px; color: #fff1cc; }
+.sheet.full { height: 92%; }
+.ravens { display: flex; flex-wrap: wrap; gap: 8px; }
+.ravens .chip { min-height: 52px; font-size: 17px; background: var(--paper); color: var(--ink); border-color: var(--paper-d); }
+.howto h3 { margin-top: 6px; } .howto p, .howto li { font-size: 17px; line-height: 1.4; color: #f0e3c8; } .howto ul { margin: 4px 0; padding-left: 22px; }
+.over-bg { position: absolute; inset: 0; z-index: 30; background: linear-gradient(#240810, #14070c); display: flex; flex-direction: column; align-items: center; gap: 10px; padding: max(14px, env(safe-area-inset-top)) 14px max(14px, env(safe-area-inset-bottom)); overflow-y: auto; touch-action: pan-y; }
+.over-bg > * { width: min(720px, 100%); flex: none; }
+.over-bg h2 { font-size: clamp(26px, 5vw, 38px); text-align: center; color: #fff1cc; }
+.vrow { display: flex; align-items: center; gap: 8px; padding: 6px 10px; border-radius: 10px; background: #ffffff10; font-size: 17px; border-left: 12px solid var(--c); animation: flip .45s backwards; }
+.vrow b { flex: 1; } .vrow .arrow { color: var(--gold); font-weight: 800; }
+.vrow .to { display: flex; align-items: center; gap: 6px; font-weight: 800; border-left: 10px solid var(--c2); padding-left: 8px; }
+@keyframes flip { from { transform: rotateX(90deg); opacity: 0; } }
+.tallyrow { display: flex; align-items: center; gap: 8px; font-size: 16px; } .tallyrow .nm { width: 38%; text-align: right; } .tallyrow .bar { flex: 1; height: 16px; } .tallyrow .n { width: 38px; font-weight: 800; }
+.events { font-size: 17px; line-height: 1.4; } .events div { padding: 3px 0; border-top: 1px solid #ffffff18; }
+.toast { position: absolute; left: 50%; bottom: 120px; transform: translateX(-50%); z-index: 50; background: var(--gold); color: var(--ink); padding: 10px 18px; border-radius: 22px; font-weight: 800; font-size: 17px; animation: fadein .15s; pointer-events: none; max-width: 90%; text-align: center; }
+@media (max-width: 520px) { .btn.gold { font-size: 21px; min-height: 60px; } .ccard { flex-basis: 84%; } .ccard p { font-size: 15px; } }
+</style>
+</head>
+<body>
+<div id="app"></div>
+<script id="data">
+// All Kingslayer rules, numbers, cards, ravens and lab controls live here. Engine and bots read these; they hard-code none.
+const GAME_DATA = {
+  title: 'Kingslayer',
+  library: { href: '../../index.html' },
+  // The rules. Every key can be changed in the Rules Lab; `RULES_DEFAULT` is the 2022 rulebook plus my gap-fillers (see DECISIONS.md).
+  rules: {
+    winCoins: 10,            // first to this many coins wins (ties: all win)
+    startCoins: 2,           // not in the rulebook: my default
+    treasuryStart: 1,        // coins on the Royal Treasury at the start
+    treasuryAddRepeat: 1,    // a repeat sovereign adds this from the bank to the treasury
+    treasuryAddNew: 1,       // a new sovereign leaves this much in the treasury (from the bank)
+    tracker: [1, 2, 3, 4, 5],// payout for a repeat sovereign, in order; reset to the start on a new sovereign
+    trackerWrap: 5,          // past the end: the amount above plus this (6, 7, 8 ...)
+    supporterCoins: 1,       // each house that voted for a new sovereign takes this from the bank
+    assassinLoss: 1,         // an Assassins round: coins lost per vote received
+    sovereignBlocksByVote: false, // reading B of "unless the sovereign voted to block their coup": the sovereign voting for the top usurper blocks them
+    councilEvery: 'round',   // 'round' = the sovereign names a house to the council every round; 'newReign' = only after a coup
+    duration: [              // the six duration cards (secs is only the length of the argument: one beat per beatSecs)
+      { kind: 'sovereign', secs: 90 }, { kind: 'sovereign', secs: 120 }, { kind: 'assassins', secs: 60 },
+      { kind: 'sovereign', secs: 60 }, { kind: 'sovereign', secs: 90 }, { kind: 'assassins', secs: 90 },
+    ],
+    beatSecs: 30,
+    bribes: true,            // coins may be given with a raven
+    openVaults: false,       // lab: every vault is face up
+    cards: ['fundraising', 'grandMaester', 'handOfTheQueen', 'highSparrow', 'kingslayer', 'lordCommander', 'masterOfCoin', 'masterOfWar', 'masterOfWhispers', 'decoy', 'opportunist', 'peacefulTransition', 'propaganda', 'psychopath', 'royalExecutioner', 'royalSpy', 'prince'],
+  },
+  houseRange: { min: 4, max: 10, default: 6 },
+  // House names, banner colours (also used for the banners you fly).
+  houses: [
+    ['Stark', '#7d8a99'], ['Lannister', '#c8322f'], ['Targaryen', '#222'], ['Baratheon', '#e6b422'], ['Tyrell', '#4e9a43'],
+    ['Martell', '#e8772b'], ['Greyjoy', '#2b3f5c'], ['Tully', '#3a74c2'], ['Arryn', '#8fc7e8'], ['Mormont', '#2f6b4a'],
+  ],
+  // The 17 Small Council cards. `hook` is how the engine uses the card; the numbers are its parameters.
+  cards: {
+    fundraising: { title: 'Fundraising', type: 'Opportunity', text: 'If you get precisely one non-sovereign vote, gain a coin and discard this card.', hook: 'exactVotes', votes: 1, gain: 1 },
+    grandMaester: { title: 'Grand Maester', type: 'Opportunity', text: 'At the vote, you may reveal this card instead of a banner. After seeing how the other players voted, play a banner and discard this card.', hook: 'lateVote' },
+    handOfTheQueen: { title: 'Hand of the Queen/King', type: 'Opportunity', text: 'If the sovereign reaches a payout of 3 or more coins, gain 3 coins and discard this card.', hook: 'bigPayout', payout: 3, gain: 3 },
+    highSparrow: { title: 'High Sparrow', type: 'Role', text: 'Once per round, you may accuse two players of having exchanged a bribe this round. If correct, they must pay it to you.', hook: 'accuse' },
+    kingslayer: { title: 'Kingslayer', type: 'Opportunity', text: 'If the sovereign votes for you, become the sovereign.', hook: 'sovereignVotesYou' },
+    lordCommander: { title: 'Lord Commander of the Kingsguard', type: 'Advantage', text: "Right after the vote, discard this card to change one player's vote.", hook: 'changeVote' },
+    masterOfCoin: { title: 'Master of Coin', type: 'Opportunity', text: 'If someone pays you a bribe, discard this card to gain a coin.', hook: 'bribed', gain: 1 },
+    masterOfWar: { title: 'Master of War', type: 'Advantage', text: 'Reveal this with your vote. Add 1.5 votes for yourself and discard this card.', hook: 'extraVotes', votes: 1.5 },
+    masterOfWhispers: { title: 'Master of Whispers', type: 'Role', text: 'Reveal this card to peek at other players\' council cards. Once per round, you may "cut off" a player\'s tongue, preventing them from speaking until the vote.', hook: 'whispers' },
+    decoy: { title: 'Decoy', type: 'Opportunity', text: 'If the sovereign votes for you, gain a coin and discard this card.', hook: 'decoy', gain: 1 },
+    opportunist: { title: 'Opportunist', type: 'Opportunity', text: 'Next round, if you vote for a successful revolt, gain an extra coin. Either way, discard this card.', hook: 'armed', gain: 1 },
+    peacefulTransition: { title: 'Peaceful Transition', type: 'Opportunity', text: 'If named sovereign unanimously, gain 2 coins.', hook: 'unanimous', gain: 2 },
+    propaganda: { title: 'Propaganda', type: 'Opportunity', text: 'Next round, if the sovereign gets the most votes, gain 2 extra coins. Either way, discard this card.', hook: 'armed', gain: 2 },
+    psychopath: { title: 'Psychopath', type: 'Opportunity', text: 'Next round, all players who vote for you must pay you one coin. Those votes are invalidated. Then discard this card.', hook: 'armed', fee: 1 },
+    royalExecutioner: { title: 'Royal Executioner', type: 'Advantage', text: "Discard this card to steal any player's council cards.", hook: 'steal' },
+    royalSpy: { title: 'Royal Spy', type: 'Opportunity', text: 'Next round, if the sovereign stays in power, gain a coin. Either way, discard this card.', hook: 'armed', gain: 1 },
+    prince: { title: 'The Prince who was Promised', type: 'Advantage', text: 'Next round, all votes for you are worth double. If you become the sovereign, dispense the royal treasury to other players. Either way, discard this card.', hook: 'armed', mult: 2 },
+  },
+  // Ravens: the preset messages (from the Ravens sheet). `intent` tells the computer houses what a raven means.
+  ravens: [
+    { id: 'vote', text: 'Vote for me', intent: 'askVote' },
+    { id: 'support', text: 'Support me', intent: 'askVote' },
+    { id: 'crown', text: "You'd look good in a crown", intent: 'pledge' },
+    { id: 'mysupport', text: 'You have my support', intent: 'pledge' },
+    { id: 'back', text: "I've got your back", intent: 'pledge' },
+    { id: 'votes', text: 'I have the votes', intent: 'boast' },
+    { id: 'down', text: 'Down with the king!', intent: 'revolt' },
+    { id: 'kill', text: 'Kill the king!', intent: 'revolt' },
+    { id: 'follow', text: 'Follow my lead', intent: 'askVote' },
+    { id: 'secret', text: 'Secret alliance!', intent: 'ally' },
+    { id: 'long', text: 'Long term alliance?', intent: 'ally' },
+    { id: 'hand', text: "I'll make you Hand", intent: 'askVote' },
+    { id: 'worth', text: "What's it worth to you?", intent: 'haggle' },
+    { id: 'monies', text: 'Monies please!', intent: 'haggle' },
+    { id: 'scratch', text: 'Scratch my back', intent: 'haggle' },
+    { id: 'half', text: 'Half now, half after', intent: 'haggle' },
+    { id: 'bluff', text: "I'm bluffing", intent: 'banter' },
+    { id: 'played', text: "You're being played!", intent: 'warn' },
+    { id: 'liar', text: 'Liar!', intent: 'warn' },
+    { id: 'vote2', text: 'Call a vote', intent: 'banter' },
+    { id: 'sowwy', text: "I'm sowwy", intent: 'banter' },
+    { id: 'where', text: "Where's my money?!", intent: 'banter' },
+  ],
+  // How the computer houses behave (all levers here; nothing in the bots hard-codes them).
+  ai: {
+    personalities: ['loyal', 'greedy', 'schemer', 'wild'],
+    levels: {
+      easy:   { noise: 1.6, memory: 0.0, trust: 0.2, ravens: 1, bribeChance: 0.1 },
+      normal: { noise: 0.8, memory: 0.5, trust: 0.6, ravens: 2, bribeChance: 0.3 },
+      hard:   { noise: 0.25, memory: 1.0, trust: 1.0, ravens: 3, bribeChance: 0.5 },
+    },
+    incumbentLoyalty: { loyal: 0.4, greedy: 0.1, schemer: 0.2, wild: 0.25 }, // chance a house backs the sitting sovereign anyway (fear, habit, a past favour)
+    lieChance: { loyal: 0, greedy: 0.15, schemer: 0.5, wild: 0.3 },
+    bribeMax: { loyal: 1, greedy: 0, schemer: 2, wild: 1 },
+    sparrowChance: 0.5, whisperChance: 0.5, executionChance: 0.7, lateTongueChance: 0.3,
+  },
+  // Rules Lab controls: key, label, kind, bounds. 'list' edits an array of numbers, 'cards' picks council cards, 'duration' the six cards.
+  lab: [
+    { key: 'winCoins', label: 'Coins to win', kind: 'num', min: 4, max: 40, step: 1 },
+    { key: 'startCoins', label: 'Starting coins', kind: 'num', min: 0, max: 10, step: 1 },
+    { key: 'treasuryStart', label: 'Royal Treasury at the start', kind: 'num', min: 0, max: 10, step: 1 },
+    { key: 'treasuryAddRepeat', label: 'Added to the treasury when the sovereign stays', kind: 'num', min: 0, max: 5, step: 1 },
+    { key: 'treasuryAddNew', label: 'Left in the treasury after a coup', kind: 'num', min: 0, max: 5, step: 1 },
+    { key: 'supporterCoins', label: 'Coins for each supporter of a new sovereign', kind: 'num', min: 0, max: 5, step: 1 },
+    { key: 'assassinLoss', label: 'Coins lost per Assassins vote', kind: 'num', min: 0, max: 5, step: 1 },
+    { key: 'tracker', label: 'Payout tracker (a staying sovereign takes these in order)', kind: 'list', min: 0, max: 12 },
+    { key: 'trackerWrap', label: 'Added to the tracker after its end', kind: 'num', min: 0, max: 10, step: 1 },
+    { key: 'sovereignBlocksByVote', label: "The sovereign's vote for the top usurper blocks the coup", kind: 'toggle' },
+    { key: 'councilEvery', label: 'A house joins the council…', kind: 'choice', options: [['round', 'every round'], ['newReign', 'only after a coup']] },
+    { key: 'bribes', label: 'Bribes (coins with a raven)', kind: 'toggle' },
+    { key: 'openVaults', label: 'Vaults face up (see everyone’s coins)', kind: 'toggle' },
+    { key: 'duration', label: 'The six duration cards', kind: 'duration' },
+    { key: 'cards', label: 'Small Council cards in the game', kind: 'cards' },
+  ],
+  sim: { games: 200, maxRounds: 500 },
+};
+</script>
+<script id="engine">
+// Kingslayer rules: pure, no DOM. State is plain JSON mutated in place by apply(); the RNG state lives in the state.
+const Engine = (() => {
+  const D = GAME_DATA;
+  const clone = o => JSON.parse(JSON.stringify(o));
+  const rnd = s => { s.rng = (s.rng + 0x6D2B79F5) | 0; let t = s.rng; t = Math.imul(t ^ (t >>> 15), t | 1); t ^= t + Math.imul(t ^ (t >>> 7), t | 61); return ((t ^ (t >>> 14)) >>> 0) / 4294967296; };
+  const pick = (s, n) => Math.floor(rnd(s) * n);
+  const shuffle = (s, a) => { for (let i = a.length - 1; i > 0; i--) { const j = pick(s, i + 1); [a[i], a[j]] = [a[j], a[i]]; } return a; };
+  const mergeRules = over => Object.assign(clone(D.rules), clone(over || {}));
+  const card = id => D.cards[id];
+  const nm = (s, i) => s.houses[i].name;
+  const log = (s, t) => { s.log.push(t); if (s.log.length > 60) s.log.shift(); };
+
+  function newGame(opts = {}) {
+    const o = Object.assign({ houses: D.houseRange.default, humans: [0], seed: (Math.random() * 2 ** 31) | 0, level: 'normal', rules: {} }, opts);
+    const rules = mergeRules(o.rules);
+    const n = Math.max(D.houseRange.min, Math.min(D.houseRange.max, o.houses));
+    const s = { v: 1, rules, rng: o.seed | 0, n, level: o.level, humans: o.humans.slice(), round: 0, phase: 'negotiate', houses: [], sov: 0, treasury: rules.treasuryStart, tracker: 0,
+      durDeck: [], durPos: 0, dur: null, deck: [], discard: [], beat: 1, maxBeat: 1, done: [], early: [], msgs: [], bribes: [], tongues: [], sparrowUsed: [], whispered: [], armed: [],
+      votes: {}, flags: {}, afterPass: [], last: null, history: [], log: [], winners: null, stats: { repeats: 0, coups: 0, assassins: 0 } };
+    const order = shuffle(s, D.houses.map((_, i) => i)).slice(0, n);
+    for (let i = 0; i < n; i++) {
+      const h = D.houses[order[i]];
+      s.houses.push({ name: h[0], color: h[1], coins: rules.startCoins, hand: [], open: false, human: o.humans.includes(i),
+        persona: D.ai.personalities[pick(s, D.ai.personalities.length)], mem: {} });
+    }
+    s.sov = pick(s, n); s.startSov = s.sov;
+    s.deck = shuffle(s, rules.cards.slice());
+    startRound(s);
+    return s;
+  }
+
+  function drawDuration(s) {
+    if (s.durPos >= s.durDeck.length) { s.durDeck = shuffle(s, s.rules.duration.map((_, i) => i)); s.durPos = 0; }
+    return s.rules.duration[s.durDeck[s.durPos++]];
+  }
+  function startRound(s) {
+    s.round++; s.dur = drawDuration(s); s.maxBeat = Math.max(1, Math.round(s.dur.secs / s.rules.beatSecs)); s.beat = 1;
+    if (s.msgs.length > 400) s.msgs = s.msgs.filter(m => m.round >= s.round - 6);
+    s.done = []; s.early = []; s.bribes = []; s.tongues = []; s.sparrowUsed = []; s.armed = []; s.votes = {}; s.flags = {}; s.afterPass = []; s.phase = 'negotiate';
+  }
+
+  const sovereignRound = s => s.dur.kind === 'sovereign';
+  const holds = (s, i, id) => s.houses[i].hand.includes(id);
+  const discardCard = (s, i, id) => { const h = s.houses[i].hand, k = h.indexOf(id); if (k >= 0) { h.splice(k, 1); s.discard.push(id); } };
+  const gain = (s, i, n) => { s.houses[i].coins += n; };
+  const pay = (s, from, to, n) => { const t = Math.min(n, s.houses[from].coins); s.houses[from].coins -= t; s.houses[to].coins += t; return t; };
+
+  // Who has to act right now (seats), by phase.
+  function pending(s) {
+    const all = s.houses.map((_, i) => i);
+    if (s.phase === 'negotiate') return all.filter(i => !s.done.includes(i));
+    if (s.phase === 'vote') {
+      const rest = all.filter(i => !(i in s.votes) && !s.flags['late' + i]);
+      if (rest.length) return rest;
+      return all.filter(i => s.flags['late' + i] && !(i in s.votes));
+    }
+    if (s.phase === 'after') return all.filter(i => holds(s, i, 'lordCommander') && !s.afterPass.includes(i)).slice(0, 1);
+    if (s.phase === 'name') return [s.sov];
+    return [];
+  }
+
+  function payoutAmount(s, step) {
+    const t = s.rules.tracker; if (!t.length) return 0;
+    return t[step % t.length] + s.rules.trackerWrap * Math.floor(step / t.length);
+  }
+
+  function err(e) { return { ok: false, error: e }; }
+  function apply(s, a) {
+    if (s.phase === 'over') return err('over');
+    const i = a.seat, H = s.houses[i];
+    if (!H) return err('seat');
+    switch (a.type) {
+      case 'raven': {
+        if (s.phase !== 'negotiate') return err('phase');
+        if (a.to === i || !s.houses[a.to]) return err('to');
+        if (s.tongues.includes(i)) return err('tongue');
+        const coins = s.rules.bribes ? Math.max(0, Math.min(a.coins | 0, H.coins)) : 0;
+        const r = D.ravens.find(x => x.id === a.msg); if (!r) return err('raven');
+        if (coins) { pay(s, i, a.to, coins); s.bribes.push({ from: i, to: a.to, coins }); const to = s.houses[a.to]; if (holds(s, a.to, 'masterOfCoin')) { discardCard(s, a.to, 'masterOfCoin'); gain(s, a.to, card('masterOfCoin').gain); log(s, to.name + ' used the Master of Coin.'); } }
+        s.msgs.push({ round: s.round, beat: s.beat, from: i, to: a.to, msg: a.msg, coins });
+        return { ok: true };
+      }
+      case 'play': { // arm a "next round" card
+        if (s.phase !== 'negotiate' || !holds(s, i, a.card) || card(a.card).hook !== 'armed') return err('card');
+        if (!sovereignRound(s)) return err('round');
+        discardCard(s, i, a.card); s.armed.push({ seat: i, id: a.card }); return { ok: true };
+      }
+      case 'sparrow': {
+        if (s.phase !== 'negotiate' || !holds(s, i, 'highSparrow') || s.sparrowUsed.includes(i) || a.a === a.b || a.a === i || a.b === i) return err('sparrow');
+        s.sparrowUsed.push(i);
+        const b = s.bribes.find(x => (x.from === a.a && x.to === a.b) || (x.from === a.b && x.to === a.a));
+        if (b) { const got = pay(s, b.to, i, b.coins); log(s, nm(s, i) + ' caught ' + nm(s, b.from) + ' and ' + nm(s, b.to) + ' in a bribe: ' + got + ' to the High Sparrow.'); return { ok: true, correct: true, got }; }
+        log(s, nm(s, i) + ' accused ' + nm(s, a.a) + ' and ' + nm(s, a.b) + ', wrongly.'); return { ok: true, correct: false };
+      }
+      case 'reveal': { // Master of Whispers: show the card, peek at the council
+        if (!holds(s, i, 'masterOfWhispers')) return err('card'); H.open = true; if (!s.whispered.includes(i)) s.whispered.push(i); return { ok: true };
+      }
+      case 'tongue': {
+        if (s.phase !== 'negotiate' || !holds(s, i, 'masterOfWhispers') || !H.open || s.flags['tg' + i] || a.target === i) return err('tongue');
+        s.flags['tg' + i] = 1; if (!s.tongues.includes(a.target)) s.tongues.push(a.target); return { ok: true };
+      }
+      case 'execute': {
+        if (!holds(s, i, 'royalExecutioner') || a.target === i || !s.houses[a.target] || !['negotiate', 'vote', 'name'].includes(s.phase)) return err('card');
+        discardCard(s, i, 'royalExecutioner'); const T = s.houses[a.target]; H.hand.push(...T.hand); log(s, nm(s, i) + ' stole ' + T.hand.length + ' card(s) from ' + T.name + '.'); T.hand = []; return { ok: true };
+      }
+      case 'beat': case 'early': {
+        if (s.phase !== 'negotiate' || s.done.includes(i)) return err('done');
+        s.done.push(i); if (a.type === 'early') s.early.push(i);
+        if (s.done.length === s.n) {
+          if (s.early.length === s.n || s.beat >= s.maxBeat) { s.phase = 'vote'; s.tongues = []; }
+          else { s.beat++; s.done = s.early.slice(); }
+        }
+        return { ok: true };
+      }
+      case 'vote': {
+        if (s.phase !== 'vote' || (i in s.votes) || !pending(s).includes(i)) return err('vote');
+        if (a.late) { if (!holds(s, i, 'grandMaester') || s.flags['late' + i] || !sovereignRound(s) && false) return err('late'); s.flags['late' + i] = 1; s.houses[i].open = s.houses[i].open; discardCard(s, i, 'grandMaester'); log(s, nm(s, i) + ' reveals the Grand Maester and votes last.'); return { ok: true, late: true }; }
+        if (a.target === i || !s.houses[a.target]) return err('target');
+        if (a.mow) { if (!holds(s, i, 'masterOfWar') || !sovereignRound(s)) return err('mow'); discardCard(s, i, 'masterOfWar'); s.flags['mow' + i] = 1; log(s, nm(s, i) + ' reveals the Master of War.'); }
+        s.votes[i] = a.target;
+        if (!pending(s).length) afterVote(s);
+        return { ok: true };
+      }
+      case 'lc': {
+        if (s.phase !== 'after' || !pending(s).includes(i)) return err('lc');
+        if (a.pass) { s.afterPass.push(i); } else {
+          if (a.voter === i || !(a.voter in s.votes) || a.target === a.voter || !s.houses[a.target]) return err('lc');
+          discardCard(s, i, 'lordCommander'); s.votes[a.voter] = a.target; log(s, nm(s, i) + ' made ' + nm(s, a.voter) + ' vote for ' + nm(s, a.target) + '.');
+        }
+        if (!pending(s).length) resolve(s);
+        return { ok: true };
+      }
+      case 'name': {
+        if (s.phase !== 'name' || i !== s.sov) return err('name');
+        if (a.target === i && s.n > 1 || !s.houses[a.target]) return err('target');
+        nameToCouncil(s, a.target); startRound(s); return { ok: true };
+      }
+      default: return err('type');
+    }
+  }
+
+  function afterVote(s) { s.phase = 'after'; s.afterPass = []; if (!pending(s).length) resolve(s); }
+
+  function drawCouncil(s) {
+    if (!s.deck.length) { s.deck = shuffle(s, s.discard.splice(0)); }
+    return s.deck.pop();
+  }
+  function nameToCouncil(s, t) {
+    const c = drawCouncil(s);
+    if (c) { s.houses[t].hand.push(c); s.last.named = t; log(s, nm(s, s.sov) + ' names ' + nm(s, t) + ' to the small council.'); }
+  }
+
+  function resolve(s) {
+    const n = s.n, R = s.rules, ev = [], old = s.sov;
+    const before = s.houses.map(h => h.coins), tally = Array(n).fill(0), valid = {}; let outcome, winner = old, payout = 0, rps = false;
+    const armed = id => s.armed.filter(x => x.id === id).map(x => x.seat);
+    const psy = armed('psychopath'), prince = armed('prince');
+    for (const v of Object.keys(s.votes).map(Number)) {
+      const t = s.votes[v]; let w = 1;
+      if (psy.includes(t)) { w = 0; const got = pay(s, v, t, card('psychopath').fee); ev.push(nm(s, v) + ' pays the Psychopath ' + nm(s, t) + ' ' + got + '; the vote is void.'); }
+      else if (prince.includes(t)) w = card('prince').mult;
+      valid[v] = w > 0; tally[t] += w;
+    }
+    for (let i = 0; i < n; i++) if (s.flags['mow' + i]) tally[i] += card('masterOfWar').votes;
+    const result = { before, round: s.round, kind: s.dur.kind, votes: Object.assign({}, s.votes), tally: tally.slice(), sovBefore: old, events: ev, supporters: [], flags: {} };
+    s.last = result;
+    if (s.dur.kind === 'assassins') {
+      outcome = 'assassins'; s.stats.assassins++;
+      for (let i = 0; i < n; i++) { const loss = Math.min(s.houses[i].coins, Math.ceil(tally[i]) * R.assassinLoss); if (loss) { s.houses[i].coins -= loss; ev.push(nm(s, i) + ' loses ' + loss + '.'); } }
+      result.losses = tally.map(t => Math.ceil(t) * R.assassinLoss);
+    } else {
+      const top = Math.max(...tally), tops = tally.map((t, i) => t === top ? i : -1).filter(i => i >= 0);
+      if (tops.includes(old)) winner = old;
+      else if (tops.length === 1) winner = tops[0];
+      else { winner = tops[pick(s, tops.length)]; rps = true; }
+      if (R.sovereignBlocksByVote && winner !== old && s.votes[old] === winner) { winner = old; ev.push(nm(s, old) + ' blocked the coup by voting for ' + nm(s, winner) + '.'); }
+      // Kingslayer: the sovereign voted for the holder
+      const ks = s.houses.findIndex((h, i) => i !== old && holds(s, i, 'kingslayer') && s.votes[old] === i);
+      if (ks >= 0 && winner !== ks) { winner = ks; ev.push(nm(s, ks) + ' the Kingslayer takes the throne.'); }
+      result.rps = rps && winner !== old;
+      const repeat = winner === old;
+      outcome = repeat ? 'repeat' : 'new';
+      const sup = Object.keys(s.votes).map(Number).filter(v => s.votes[v] === winner && valid[v]);
+      result.supporters = sup;
+      if (repeat) {
+        payout = payoutAmount(s, s.tracker); s.tracker++; gain(s, old, payout); s.treasury += R.treasuryAddRepeat; s.stats.repeats++;
+        ev.push(nm(s, old) + ' stays sovereign and takes ' + payout + '.');
+      } else {
+        s.stats.coups++;
+        const tr = s.treasury;
+        if (prince.includes(winner)) {
+          let k = winner; for (let c = 0; c < tr; c++) { k = (k + 1) % n; if (k === winner) k = (k + 1) % n; gain(s, k, 1); }
+          ev.push(nm(s, winner) + ' the Prince who was Promised gives the treasury (' + tr + ') to the other houses.');
+        } else { gain(s, winner, tr); ev.push(nm(s, winner) + ' is the new sovereign and takes the treasury (' + tr + ').'); }
+        payout = tr; s.treasury = R.treasuryAddNew; s.tracker = 0;
+        for (const v of sup) gain(s, v, R.supporterCoins);
+        if (R.supporterCoins) ev.push(sup.length + ' supporter(s) take ' + R.supporterCoins + ' each.');
+        s.sov = winner;
+      }
+      // council cards that fire now
+      for (let i = 0; i < n; i++) {
+        if (holds(s, i, 'fundraising')) { const f = card('fundraising'); const cnt = Object.keys(s.votes).filter(v => s.votes[v] === i && +v !== old && valid[v]).length; if (cnt === f.votes) { discardCard(s, i, 'fundraising'); gain(s, i, f.gain); ev.push(nm(s, i) + ' gains ' + f.gain + ' (Fundraising).'); } }
+        if (holds(s, i, 'handOfTheQueen') && repeat && payout >= card('handOfTheQueen').payout) { const c = card('handOfTheQueen'); discardCard(s, i, 'handOfTheQueen'); gain(s, i, c.gain); ev.push(nm(s, i) + ' the Hand gains ' + c.gain + '.'); }
+        if (holds(s, i, 'decoy') && i !== old && s.votes[old] === i) { discardCard(s, i, 'decoy'); gain(s, i, card('decoy').gain); ev.push(nm(s, i) + ' gains ' + card('decoy').gain + ' (Decoy).'); }
+        if (holds(s, i, 'peacefulTransition') && !repeat && winner === i && Object.keys(s.votes).filter(v => s.votes[v] === i).length === n - 1) { gain(s, i, card('peacefulTransition').gain); ev.push(nm(s, i) + ' is named unanimously: +' + card('peacefulTransition').gain + '.'); }
+      }
+      for (const a of s.armed) {
+        const c = card(a.id);
+        if (a.id === 'opportunist' && !repeat && s.votes[a.seat] === winner && valid[a.seat]) { gain(s, a.seat, c.gain); ev.push(nm(s, a.seat) + ' the Opportunist gains ' + c.gain + '.'); }
+        if (a.id === 'propaganda' && repeat) { gain(s, a.seat, c.gain); ev.push(nm(s, a.seat) + ' (Propaganda) gains ' + c.gain + '.'); }
+        if (a.id === 'royalSpy' && repeat) { gain(s, a.seat, c.gain); ev.push(nm(s, a.seat) + ' the Royal Spy gains ' + c.gain + '.'); }
+      }
+      if (!repeat) { // a coup: all council cards are discarded and shuffled together
+        for (const h of s.houses) { s.discard.push(...h.hand); h.hand = []; }
+        s.deck = shuffle(s, s.deck.concat(s.discard.splice(0)));
+      }
+    }
+    for (const a of s.armed) s.discard.push(a.id);
+    s.armed = [];
+    result.outcome = outcome; result.winner = outcome === 'assassins' ? null : winner; result.payout = payout; result.sovAfter = s.sov; result.coins = s.houses.map(h => h.coins);
+    s.history.push({ round: s.round, kind: s.dur.kind, votes: Object.assign({}, s.votes), sov: old, winner: result.winner });
+    if (s.history.length > 8) s.history.shift();
+    const top = Math.max(...s.houses.map(h => h.coins));
+    if (top >= R.winCoins) { s.winners = s.houses.map((h, i) => h.coins >= R.winCoins ? i : -1).filter(i => i >= 0); s.phase = 'over'; log(s, 'Game over.'); return; }
+    if (R.councilEvery === 'newReign' && outcome !== 'new') { startRound(s); return; }
+    s.phase = 'name';
+  }
+
+  // What a seat may see: others' vaults and cards are hidden (unless open); votes stay hidden until all are cast.
+  function viewFor(s, seat) {
+    const peek = s.whispered.includes(seat);
+    const v = { n: s.n, rules: s.rules, round: s.round, phase: s.phase, sov: s.sov, treasury: s.treasury, tracker: s.tracker, dur: s.dur, beat: s.beat, maxBeat: s.maxBeat, history: s.history, seat, level: s.level,
+      armed: s.armed, tongues: s.tongues, last: s.last, winners: s.winners, done: s.done, early: s.early, log: s.log, sparrowUsed: s.sparrowUsed, flags: s.flags };
+    v.houses = s.houses.map((h, i) => {
+      if (i === seat) return { name: h.name, color: h.color, coins: h.coins, hand: h.hand.slice(), open: h.open, human: h.human, handCount: h.hand.length };
+      const hidden = !(peek || h.open);
+      return { name: h.name, color: h.color, coins: s.rules.openVaults ? h.coins : null, hand: hidden ? h.hand.map(() => null) : h.hand.slice(), open: h.open, human: h.human, handCount: h.hand.length };
+    });
+    v.msgs = s.msgs.filter(m => m.from === seat || m.to === seat);
+    v.bribes = s.bribes.filter(b => b.from === seat || b.to === seat);
+    v.votes = {};
+    if (s.phase === 'vote') { const seen = s.flags['late' + seat]; for (const k of Object.keys(s.votes)) if (+k === seat || seen) v.votes[k] = s.votes[k]; v.voted = Object.keys(s.votes).map(Number); }
+    else Object.assign(v.votes, s.votes);
+    return v;
+  }
+
+  // Bot-only playout helper (used by tests and the Simulate lab).
+  function playOut(s, level, max) {
+    let g = 0; max = max || 400000;
+    while (s.phase !== 'over' && g++ < max) { if (s.round > D.sim.maxRounds) break; if (!Bots.step(s, level)) break; }
+    return s;
+  }
+  return { newGame, apply, pending, viewFor, clone, playOut, card, payoutAmount, startRound, sovereignRound, holds };
+})();
+</script>
+<script id="bots">
+// Computer houses. They read only Engine.viewFor (public table + their own vault/cards/ravens + past votes), never a rival's coins or hand.
+const Bots = (() => {
+  const D = GAME_DATA, A = D.ai;
+  const rawRnd = s => { const x = Math.sin((s.rng = (s.rng + 1) | 0) * 12.9898 + s.round * 78.233) * 43758.5453; return x - Math.floor(x); };
+  const intentOf = id => (D.ravens.find(r => r.id === id) || {}).intent;
+  const ravenFor = intent => D.ravens.filter(r => r.intent === intent);
+  const pickOne = (s, a) => a[Math.floor(rawRnd(s) * a.length)];
+
+  // How far j's pledges to me have been kept (0..1), from the votes everyone saw.
+  function trust(v, me, j, lv) {
+    let kept = 0, made = 0;
+    for (const h of v.history) {
+      if (h.kind !== 'sovereign') continue;
+      if (v.msgs.some(m => m.round === h.round && m.from === j && m.to === me && intentOf(m.msg) === 'pledge')) { made++; if (h.votes[j] == me) kept++; }
+    }
+    const t = made ? (kept + 0.5) / (made + 1) : 0.6;
+    return 1 - lv.trust + lv.trust * t;
+  }
+
+  // Guess how many votes each house will get this round.
+  function estimate(s, v, me, lv) {
+    const est = Array(v.n).fill(0), last = v.history.filter(h => h.kind === 'sovereign').slice(-1)[0];
+    if (last && lv.memory) for (const k of Object.keys(last.votes)) est[last.votes[k]] += lv.memory * 0.6;
+    for (const m of v.msgs) {
+      if (m.round !== v.round || m.to !== me) continue;
+      const intent = intentOf(m.msg), t = trust(v, me, m.from, lv);
+      if (intent === 'askVote' || intent === 'boast') est[m.from] += 0.7 * t;
+      if (intent === 'revolt') est[v.sov] -= 0.4 * t;
+      if (m.coins) est[m.from] += m.coins * 0.9;
+    }
+    est[v.sov] = Math.min(est[v.sov], 0) - 0.3; // voting for the incumbent earns the voter nothing
+    for (let i = 0; i < v.n; i++) est[i] += (rawRnd(s) - 0.5) * 2 * lv.noise;
+    return est;
+  }
+  const best = (arr, me, sign) => { let b = -1; for (let i = 0; i < arr.length; i++) if (i !== me && (b < 0 || sign * arr[i] > sign * arr[b])) b = i; return b; };
+
+  function chooseVote(s, v, me, lv, persona) {
+    const est = estimate(s, v, me, lv);
+    if (v.dur.kind === 'sovereign') {
+      const pledged = v.msgs.filter(m => m.round === v.round && m.from === me && intentOf(m.msg) === 'pledge').map(m => m.to);
+      const plan = s.houses[me].mem.plan;
+      if (plan != null && plan !== me && !(rawRnd(s) < A.lieChance[persona] && pledged.includes(plan))) return plan;
+      if (me === v.sov) return persona === 'loyal' || persona === 'wild' ? best(est, me, -1) : best(est, me, 1);
+      return best(est, me, 1);
+    }
+    // Assassins: hurt whoever is not my friend
+    const score = Array(v.n).fill(0);
+    for (const m of v.msgs) {
+      if (m.round !== v.round) continue;
+      if (m.from !== me && m.to === me) { score[m.from] -= (intentOf(m.msg) === 'pledge' ? 1.2 : 0.4) * trust(v, me, m.from, lv); if (m.coins) score[m.from] -= 1 + m.coins; }
+      if (m.from === me && m.to !== me) score[m.to] -= 1.5;
+    }
+    for (let i = 0; i < v.n; i++) score[i] += est[i] * 0.4 + (i === v.sov ? 0.8 : 0) + (v.rules.openVaults && v.houses[i].coins != null ? v.houses[i].coins * 0.3 : 0) + (rawRnd(s) - 0.5) * lv.noise;
+    return best(score, me, 1);
+  }
+
+  function seatAct(s, me) {
+    const lv = A.levels[s.level] || A.levels.normal, h = s.houses[me], v = Engine.viewFor(s, me), persona = h.persona;
+    if (s.phase === 'negotiate') {
+      const key = s.round + ':' + s.beat;
+      if (h.mem.key !== key) { h.mem.key = key; h.mem.sent = 0; const est = estimate(s, v, me, lv); h.mem.plan = v.dur.kind === 'sovereign' ? (me !== v.sov && rawRnd(s) < A.incumbentLoyalty[persona] ? v.sov : best(est, me, me === v.sov ? -1 : 1)) : null; }
+      if (v.dur.kind === 'sovereign' && s.beat === 1) {
+        const arm = h.hand.find(id => Engine.card(id).hook === 'armed'); if (arm) return { type: 'play', seat: me, card: arm };
+      }
+      if (s.beat === 1 && Engine.holds(s, me, 'royalExecutioner') && rawRnd(s) < A.executionChance) {
+        const t = s.houses.map((x, i) => [i, x.hand.length]).filter(([i, c]) => i !== me && c > 0).sort((a, b) => b[1] - a[1])[0]; if (t) return { type: 'execute', seat: me, target: t[0] };
+      }
+      if (Engine.holds(s, me, 'masterOfWhispers')) {
+        if (!h.open && rawRnd(s) < A.whisperChance) return { type: 'reveal', seat: me };
+        if (h.open && !s.flags['tg' + me] && rawRnd(s) < A.lateTongueChance) return { type: 'tongue', seat: me, target: pickOne(s, s.houses.map((_, i) => i).filter(i => i !== me)) };
+      }
+      if (Engine.holds(s, me, 'highSparrow') && !s.sparrowUsed.includes(me) && s.beat === s.maxBeat && rawRnd(s) < A.sparrowChance) {
+        const o = s.houses.map((_, i) => i).filter(i => i !== me), a = pickOne(s, o), b = pickOne(s, o.filter(i => i !== a)); return { type: 'sparrow', seat: me, a, b };
+      }
+      if (h.mem.sent < lv.ravens && !s.tongues.includes(me)) {
+        h.mem.sent++;
+        const others = s.houses.map((_, i) => i).filter(i => i !== me);
+        if (v.dur.kind === 'sovereign') {
+          const plan = h.mem.plan, k = h.mem.sent;
+          if (k === 1 && plan != null && rawRnd(s) < 0.9) return { type: 'raven', seat: me, to: plan, msg: pickOne(s, ravenFor('pledge')).id, coins: 0 };
+          if (k === 2 && me !== v.sov && persona !== 'greedy') return { type: 'raven', seat: me, to: pickOne(s, others), msg: pickOne(s, ravenFor('revolt')).id, coins: 0 };
+          const t = pickOne(s, others.filter(i => i !== plan)), maxB = Math.min(A.bribeMax[persona], h.coins - 1);
+          const coins = maxB > 0 && rawRnd(s) < lv.bribeChance ? 1 + Math.floor(rawRnd(s) * maxB) : 0;
+          return { type: 'raven', seat: me, to: t, msg: pickOne(s, ravenFor(coins || rawRnd(s) > 0.3 ? 'askVote' : 'boast')).id, coins };
+        }
+        return { type: 'raven', seat: me, to: pickOne(s, others), msg: pickOne(s, ravenFor(rawRnd(s) < 0.6 ? 'pledge' : 'haggle')).id, coins: 0 };
+      }
+      return { type: 'beat', seat: me };
+    }
+    if (s.phase === 'vote') {
+      if (Engine.holds(s, me, 'grandMaester') && !s.flags['late' + me] && !(me in s.votes) && Engine.pending(s).length > 1 && rawRnd(s) < 0.75) return { type: 'vote', seat: me, late: true };
+      const t = chooseVote(s, v, me, lv, persona);
+      const mow = Engine.holds(s, me, 'masterOfWar') && v.dur.kind === 'sovereign' && rawRnd(s) < 0.7;
+      return { type: 'vote', seat: me, target: t, mow };
+    }
+    if (s.phase === 'after') {
+      const tally = Array(s.n).fill(0); for (const k of Object.keys(s.votes)) tally[s.votes[k]]++;
+      if (s.dur.kind === 'sovereign') {
+        const top = Math.max(...tally);
+        if (tally[me] < top) {
+          const from = Object.keys(s.votes).map(Number).find(k => k !== me && s.votes[k] !== me && tally[s.votes[k]] === top);
+          if (from != null && tally[me] + 1 >= top) return { type: 'lc', seat: me, voter: from, target: me };
+        }
+      } else if (tally[me] > 0) {
+        const from = Object.keys(s.votes).map(Number).find(k => k !== me && s.votes[k] === me);
+        const other = s.houses.map((_, i) => i).find(i => i !== me && i !== from);
+        if (from != null && other != null) return { type: 'lc', seat: me, voter: from, target: other };
+      }
+      return { type: 'lc', seat: me, pass: true };
+    }
+    if (s.phase === 'name') {
+      const sup = ((s.last && s.last.supporters) || []).filter(i => i !== me);
+      const pool = sup.length && persona !== 'schemer' ? sup : s.houses.map((_, i) => i).filter(i => i !== me);
+      return { type: 'name', seat: me, target: pickOne(s, pool) };
+    }
+    return null;
+  }
+
+  // Next bot action (one at a time); null when only humans (or nobody) are left to act.
+  function next(s) {
+    for (const seat of Engine.pending(s)) if (!s.houses[seat].human) { const a = seatAct(s, seat); if (a) return a; }
+    return null;
+  }
+  function step(s) {
+    const a = next(s); if (!a) return false;
+    const r = Engine.apply(s, a);
+    if (!r.ok) { // never stall: fall back to the safest legal action
+      const f = s.phase === 'negotiate' ? { type: 'beat', seat: a.seat } : s.phase === 'vote' ? { type: 'vote', seat: a.seat, target: (a.seat + 1) % s.n } : s.phase === 'after' ? { type: 'lc', seat: a.seat, pass: true } : { type: 'name', seat: a.seat, target: (a.seat + 1) % s.n };
+      Engine.apply(s, f);
+    }
+    return true;
+  }
+  return { next, step, seatAct };
+})();
+
+// Simulate: bots play many whole games on a rule set and report numbers (the playtest lab uses this).
+const Sim = (() => {
+  function summarize(rec) {
+    const n = rec.length, fin = rec.filter(r => r.done), q = (a, p) => { const x = a.slice().sort((p1, p2) => p1 - p2); return x.length ? x[Math.min(x.length - 1, Math.floor(p * x.length))] : 0; };
+    const rounds = fin.map(r => r.rounds), sumR = rounds.reduce((a, b) => a + b, 0), coupR = fin.reduce((a, r) => a + r.coups, 0), repR = fin.reduce((a, r) => a + r.repeats, 0), assR = fin.reduce((a, r) => a + r.assassins, 0);
+    const win = fin.reduce((a, r) => a + r.winners, 0) || 1;
+    return {
+      games: n, finished: fin.length,
+      avgRounds: fin.length ? sumR / fin.length : 0, p10: q(rounds, 0.1), median: q(rounds, 0.5), p90: q(rounds, 0.9),
+      coupShare: coupR + repR ? coupR / (coupR + repR) : 0, assassinShare: sumR ? assR / sumR : 0,
+      startSovWin: fin.length ? fin.filter(r => r.startSovWon).length / fin.length : 0,
+      winnerWasSov: fin.length ? fin.filter(r => r.sovWon).length / fin.length : 0,
+      winByStaying: fin.length ? fin.filter(r => r.stayWin).length / fin.length : 0,
+      avgWinnerCoins: fin.length ? fin.reduce((a, r) => a + r.winCoins, 0) / win : 0,
+      avgOthersCoins: fin.length ? fin.reduce((a, r) => a + r.others, 0) / fin.length : 0,
+      ties: fin.length ? fin.filter(r => r.winners > 1).length / fin.length : 0,
+    };
+  }
+  function one(rules, o, seed) {
+    const s = Engine.newGame({ humans: [], houses: o.houses, level: o.level, rules, seed });
+    Engine.playOut(s, o.level);
+    const w = s.winners || [], oth = s.houses.filter((h, i) => !w.includes(i));
+    return { done: s.phase === 'over', rounds: s.round, coups: s.stats.coups, repeats: s.stats.repeats, assassins: s.stats.assassins, winners: w.length,
+      startSovWon: w.includes(s.startSov), sovWon: w.includes(s.sov), stayWin: s.last && s.last.outcome === 'repeat' && w.includes(s.sov),
+      winCoins: w.reduce((a, i) => a + s.houses[i].coins, 0), others: oth.length ? oth.reduce((a, h) => a + h.coins, 0) / oth.length : 0 };
+  }
+  // Runs `games` games, `chunk` at a time, calling back so the page can breathe. Returns a cancel function.
+  function run(rules, o, progress, done) {
+    const rec = [], base = (o.seed || 1) * 1000; let g = 0, stop = false;
+    (function tick() {
+      if (stop) return;
+      for (let k = 0; k < 8 && g < o.games; k++, g++) rec.push(one(rules, o, base + g));
+      if (progress) progress(g / o.games);
+      if (g < o.games) setTimeout(tick, 0); else done(summarize(rec));
+    })();
+    return () => { stop = true; };
+  }
+  function runSync(rules, o) { const rec = []; for (let g = 0; g < o.games; g++) rec.push(one(rules, o, (o.seed || 1) * 1000 + g)); return summarize(rec); }
+  return { run, runSync };
+})();
+</script>
+<script id="ui">
+// Screens: menu, setup, the table, the Rules Lab and the Simulate lab. All numbers shown come from the rules in play (GAME_DATA.rules + the lab's changes).
+(() => {
+  const D = GAME_DATA, E = Engine, B = Bots, ME = 0;
+  const $ = document.getElementById('app');
+  const esc = t => String(t == null ? '' : t).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+  const store = { get(k, d) { try { const v = localStorage.getItem('kingslayer-' + k); return v == null ? d : JSON.parse(v); } catch (e) { return d; } }, set(k, v) { try { localStorage.setItem('kingslayer-' + k, JSON.stringify(v)); } catch (e) { /* no storage */ } } };
+  const fromLibrary = () => { let came = /[?&]from=library\b/.test(location.search); try { if (came) sessionStorage.setItem('tabletop-library-from', '1'); else { const nav = (performance.getEntriesByType && performance.getEntriesByType('navigation')[0]) || {}; if (nav.type === 'navigate') sessionStorage.removeItem('tabletop-library-from'); else came = sessionStorage.getItem('tabletop-library-from') === '1'; } } catch (e) { /* no storage */ } return /^https?:$/.test(location.protocol) && came; };
+  const LIB = fromLibrary();
+  const buildStamp = () => { const m = document.querySelector('meta[name=build]'), b = m ? m.content : ''; return b === '__BUILD__' ? 'local file' : b; };
+  const same = (a, b) => JSON.stringify(a) === JSON.stringify(b);
+  const clone = o => JSON.parse(JSON.stringify(o));
+  const narrow = () => innerWidth < 560;
+
+  const ui = { screen: 'menu', s: null, ack: 0, sheet: null, mode: null, sel: null, mow: false, toast: '', rules: store.get('rules', {}), houses: store.get('houses', D.houseRange.default), level: store.get('level', 'normal'), teach: store.get('teach', true),
+    note: store.get('note', ''), presets: store.get('presets', []), simSet: { houses: 6, level: 'normal', games: 100 }, sim: null, simBase: {}, quit: false, lcVoter: null, presetName: '' };
+  const rules = () => Object.assign(clone(D.rules), clone(ui.rules));
+  const saveRules = () => store.set('rules', ui.rules);
+  function setRule(k, val) { if (same(val, D.rules[k])) delete ui.rules[k]; else ui.rules[k] = clone(val); saveRules(); }
+  const changed = () => Object.keys(ui.rules).length;
+  const kindName = k => k === 'sovereign' ? 'Sovereign' : 'Assassins';
+  const rv = id => D.ravens.find(r => r.id === id);
+  const toast = t => { ui.toast = t; render(); clearTimeout(toast.t); toast.t = setTimeout(() => { ui.toast = ''; render(); }, 1600); };
+
+  // ---------- art ----------
+  const crest = () => `<svg class="crest" viewBox="0 0 300 250" role="img" aria-label="Crown and dagger"><defs><linearGradient id="gg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffe9a8"/><stop offset=".6" stop-color="#e8b84a"/><stop offset="1" stop-color="#a87518"/></linearGradient></defs>
+    <path d="M150 238 L136 70 L150 30 L164 70Z" fill="#cfd6df" stroke="#1a0d12" stroke-width="4" stroke-linejoin="round" transform="rotate(14 150 140)"/>
+    <rect x="118" y="180" width="64" height="12" rx="5" fill="url(#gg)" stroke="#1a0d12" stroke-width="4" transform="rotate(14 150 186)"/>
+    <path d="M60 170 L48 70 L98 112 L150 40 L202 112 L252 70 L240 170Z" fill="url(#gg)" stroke="#1a0d12" stroke-width="6" stroke-linejoin="round"/>
+    <rect x="58" y="164" width="184" height="26" rx="6" fill="url(#gg)" stroke="#1a0d12" stroke-width="6"/>
+    <circle cx="150" cy="38" r="11" fill="#c8322f" stroke="#1a0d12" stroke-width="4"/><circle cx="48" cy="66" r="9" fill="#3a74c2" stroke="#1a0d12" stroke-width="4"/><circle cx="252" cy="66" r="9" fill="#4e9a43" stroke="#1a0d12" stroke-width="4"/>
+    <circle cx="150" cy="177" r="8" fill="#c8322f" stroke="#1a0d12" stroke-width="3"/><circle cx="100" cy="177" r="6" fill="#fff" stroke="#1a0d12" stroke-width="3"/><circle cx="200" cy="177" r="6" fill="#fff" stroke="#1a0d12" stroke-width="3"/></svg>`;
+
+  // ---------- text generated from the rules ----------
+  function rulesText() {
+    const R = rules(), tr = R.tracker.join(', ') + (R.trackerWrap ? ', then +' + R.trackerWrap + ' each time round' : '');
+    return `<h3>The goal</h3><p>Be the first house to hold <b>${R.winCoins} coins</b>. If several get there together, they all win. Everyone starts with ${R.startCoins}.</p>
+    <h3>A round</h3><ul><li>A duration card says <b>Sovereign</b> or <b>Assassins</b> and how long the arguing lasts (here: a beat of ${R.beatSecs} seconds each, set by the card).</li>
+    <li><b>Argue.</b> Tap a house to send it a raven (a ready-made message).${R.bribes ? ' Add coins to make it a bribe.' : ''} Computer houses answer, plot and lie. “Vote now” skips the wait.</li>
+    <li><b>Vote.</b> Everyone flies the banner of one <i>other</i> house at the same moment, the sovereign too.</li></ul>
+    <h3>Sovereign round</h3><ul><li>Most votes becomes sovereign. A tie with the sitting sovereign: the sovereign stays. A tie between challengers is decided by rock-paper-scissors (the app draws it).${R.sovereignBlocksByVote ? ' <b>Lab rule:</b> the sovereign voting for the top challenger blocks the coup.' : ''}</li>
+    <li><b>Sovereign stays:</b> takes the next payout on the tracker (${tr}), the tracker moves on, and ${R.treasuryAddRepeat} coin${R.treasuryAddRepeat === 1 ? '' : 's'} from the bank goes into the Royal Treasury.</li>
+    <li><b>New sovereign:</b> takes the whole Royal Treasury, then ${R.treasuryAddNew} from the bank is left in it and the tracker resets. Every house that voted for them takes ${R.supporterCoins} from the bank. All council cards are shuffled back.</li>
+    <li>${R.councilEvery === 'round' ? 'Every round' : 'After a coup'} the sovereign names one house to the <b>small council</b>: it draws a council card.</li></ul>
+    <h3>Assassins round</h3><p>Every house loses ${R.assassinLoss} coin${R.assassinLoss === 1 ? '' : 's'} for each vote it receives (down to an empty vault).</p>
+    <h3>Small council cards</h3><p>${R.cards.length} cards are in the game. Each says what it does; the ones that work by themselves do so when the round is counted.</p>
+    <h3>What this app is</h3><p>A playtest table, not a replacement for people. Ravens stand in for talking; there is no timer; the computer houses reason from their ravens, past votes and bribes, and some lie. The <b>Rules Lab</b> lets you change any number above and <b>Simulate</b> has the computer houses play whole games to see what the change does.</p>
+    <h3>My calls where the rulebook is silent</h3><ul><li>Payout tracker numbers, starting coins and the duration cards’ lengths are my guesses; change them in the Rules Lab.</li><li>The sovereign’s own vote counts like anyone’s.</li><li>The empty-vault fee for late voters does not apply: nobody can be late here.</li></ul>`;
+  }
+  function labelCards() { return rules().cards.map(id => D.cards[id].title).join(', '); }
+
+  // ---------- menu / setup ----------
+  function menuHTML() {
+    return `<div class="screen menu">${LIB ? `<a class="libback" href="${D.library.href}">‹ Library</a>` : ''}${crest()}<h1>Kingslayer</h1>
+      <div class="sub">A negotiation game of thrones. Swear, bribe, betray, take the crown.</div>
+      <div class="stack"><button class="btn gold" data-act="setup">Take the throne</button>
+        <button class="btn" data-act="lab">⚙ Rules Lab &amp; Simulate${changed() ? ` · ${changed()} changed` : ''}</button>
+        <button class="btn alt" data-act="sheet" data-s="how">How to play</button></div>
+      <div class="credit">A game by Patrick Blim-Hockberger · ${esc(buildStamp())}</div></div>`;
+  }
+  function setupHTML() {
+    const lv = [['easy', 'Easy', 'Plots clumsily'], ['normal', 'Normal', 'Remembers favours'], ['hard', 'Hard', 'Holds grudges, hunts bribes']];
+    return `<div class="screen"><div class="top"><button class="btn sm alt" data-act="menu">‹ Back</button><h2>New game</h2></div>
+      <div class="scroll"><div class="panel"><h3>Houses at the table</h3><div class="row">${Array.from({ length: D.houseRange.max - D.houseRange.min + 1 }, (_, i) => D.houseRange.min + i).map(n => `<button class="chip ${ui.houses === n ? 'on' : ''}" data-act="houses" data-n="${n}">${n}</button>`).join('')}</div>
+        <div class="hint">You and ${ui.houses - 1} computer houses.</div></div>
+      <div class="panel"><h3>Computer houses</h3><div class="row">${lv.map(([k, n]) => `<button class="chip ${ui.level === k ? 'on' : ''}" data-act="level" data-k="${k}">${n}</button>`).join('')}</div><div class="hint">${lv.find(l => l[0] === ui.level)[2]}.</div></div>
+      <div class="panel"><h3>Rules</h3><div class="hint">${changed() ? `<b style="color:var(--gold)">${changed()} rule${changed() > 1 ? 's' : ''} changed</b> from the 2022 rulebook.` : 'The 2022 rulebook (with my guesses where it is silent).'}</div><button class="btn sm alt" data-act="lab">Open the Rules Lab</button></div>
+      <div class="panel"><div class="ctl" style="border:0"><label>Teach me: short tips the first time something comes up</label><button class="chip ${ui.teach ? 'on' : ''}" data-act="teach">${ui.teach ? 'On' : 'Off'}</button></div></div></div>
+      <button class="btn gold" style="width:min(760px,100%)" data-act="start">Begin</button></div>`;
+  }
+
+  // ---------- Rules Lab ----------
+  function ctlHTML(c) {
+    const R = rules(), val = R[c.key], chg = !same(val, D.rules[c.key]), k = esc(c.key);
+    let right = '';
+    if (c.kind === 'num') right = `<div class="step"><button data-act="num" data-k="${k}" data-d="-${c.step}" aria-label="less">−</button><b>${val}</b><button data-act="num" data-k="${k}" data-d="${c.step}" aria-label="more">+</button></div>`;
+    else if (c.kind === 'toggle') right = `<button class="chip ${val ? 'on' : ''}" data-act="tog" data-k="${k}">${val ? 'On' : 'Off'}</button>`;
+    else if (c.kind === 'choice') right = `<div class="wrapchips">${c.options.map(o => `<button class="chip ${val === o[0] ? 'on' : ''}" data-act="choice" data-k="${k}" data-v="${o[0]}">${o[1]}</button>`).join('')}</div>`;
+    else if (c.kind === 'list') right = `<div class="wrapchips">${val.map((x, i) => `<button class="chip on" data-act="listitem" data-k="${k}" data-i="${i}">${x}</button>`).join('')}<button class="chip" data-act="listadd" data-k="${k}" data-d="1">＋</button><button class="chip" data-act="listadd" data-k="${k}" data-d="-1">－</button></div>`;
+    let below = '';
+    if (c.kind === 'duration') below = `<div style="width:100%;display:flex;flex-direction:column;gap:6px">${val.map((d, i) => `<div class="ctl" style="border:0;padding:2px 0"><button class="chip ${d.kind === 'assassins' ? '' : 'on'}" data-act="durkind" data-i="${i}" style="min-width:130px">${kindName(d.kind)}</button><div class="step"><button data-act="dursecs" data-i="${i}" data-d="-30">−</button><b style="min-width:70px;font-size:20px">${d.secs} s</b><button data-act="dursecs" data-i="${i}" data-d="30">+</button></div></div>`).join('')}<div class="row"><button class="chip" data-act="duradd">＋ Add a card</button><button class="chip" data-act="durdel">－ Remove the last</button></div></div>`;
+    if (c.kind === 'cards') below = `<div class="wrapchips" style="justify-content:flex-start">${Object.keys(D.cards).map(id => `<button class="chip ${val.includes(id) ? 'on' : ''}" data-act="cardtog" data-id="${id}">${esc(D.cards[id].title)}</button>`).join('')}</div>`;
+    return `<div class="ctl ${chg ? 'chg' : ''}" style="flex-wrap:wrap"><label>${esc(c.label)}${chg ? ' · changed' : ''}</label>${right}${below}</div>`;
+  }
+  const fmt = {
+    avgRounds: v => v.toFixed(1), p10: v => v, median: v => v, p90: v => v,
+    pct: v => Math.round(v * 100) + '%', one: v => v.toFixed(1),
+  };
+  const METRICS = [
+    ['Rounds per game (average)', 'avgRounds', fmt.avgRounds], ['Shortest 10% / median / longest 10%', null, r => r.p10 + ' / ' + r.median + ' / ' + r.p90],
+    ['Sovereign rounds that were a coup', 'coupShare', fmt.pct], ['Rounds that were Assassins', 'assassinShare', fmt.pct],
+    ['Winner held the throne at the end', 'winnerWasSov', fmt.pct], ['Won by a sovereign who stayed on', 'winByStaying', fmt.pct],
+    ['Starting sovereign won', 'startSovWin', fmt.pct], ['Winner’s coins', 'avgWinnerCoins', fmt.one], ['Other houses’ coins at the end', 'avgOthersCoins', fmt.one], ['Games ending in a tie', 'ties', fmt.pct],
+  ];
+  function simHTML() {
+    const S = ui.simSet, sm = ui.sim, base = sm && sm.base, mine = sm && sm.mine;
+    let out = '';
+    if (sm && sm.running) out = `<div class="bar"><i style="width:${Math.round(sm.progress * 100)}%"></i></div><div class="hint">The computer houses are playing… ${Math.round(sm.progress * 100)}%</div>`;
+    else if (base && mine) {
+      out = `<table class="cmp"><tr><th></th><th>2022 rules</th><th>Your rules</th></tr>${METRICS.map(([l, k, f]) => { const a = k ? base[k] : null, b = k ? mine[k] : null; return `<tr><td>${l}</td><td>${k ? f(base[k]) : f(base)}</td><td>${k ? f(mine[k]) : f(mine)}${k && Math.abs(b - a) > 1e-9 ? `<br><span class="d" style="font-size:13px;color:var(--gold)">${b > a ? '▲' : '▼'} ${k.includes('Share') || ['winnerWasSov', 'winByStaying', 'startSovWin', 'ties'].includes(k) ? Math.round(Math.abs(b - a) * 100) + ' pts' : Math.abs(b - a).toFixed(1)}</span>` : ''}</td></tr>`; }).join('')}
+        <tr><td>Games finished</td><td>${base.finished}/${base.games}</td><td>${mine.finished}/${mine.games}</td></tr></table>
+        <div class="hint">${S.games} games each, ${S.houses} computer houses at ${S.level}. Same dice and seats for both. Computer houses are not people: read the swing, not the exact number.${same(rules(), D.rules) ? ' (You have not changed any rules yet, so both columns match.)' : ''}</div>`;
+    }
+    return `<div class="panel"><h3>Simulate</h3><div class="hint">The computer houses play whole games on your rules and on the 2022 rules, so you can see what an idea does.</div>
+      <div class="row">${[4, 6, 8, 10].map(n => `<button class="chip ${S.houses === n ? 'on' : ''}" data-act="simset" data-k="houses" data-v="${n}">${n} houses</button>`).join('')}</div>
+      <div class="row">${['easy', 'normal', 'hard'].map(k => `<button class="chip ${S.level === k ? 'on' : ''}" data-act="simset" data-k="level" data-v="${k}">${k[0].toUpperCase() + k.slice(1)}</button>`).join('')}</div>
+      <div class="row">${[50, 100, 300].map(n => `<button class="chip ${S.games === n ? 'on' : ''}" data-act="simset" data-k="games" data-v="${n}">${n} games</button>`).join('')}</div>
+      <button class="btn gold" data-act="simrun" ${sm && sm.running ? 'disabled' : ''}>Run the simulation</button>${out}</div>`;
+  }
+  function labHTML() {
+    return `<div class="screen"><div class="top"><button class="btn sm alt" data-act="menu">‹ Back</button><h2>Rules Lab</h2><button class="btn sm alt" data-act="resetrules" ${changed() ? '' : 'disabled'}>Reset to 2022</button></div>
+      <div class="scroll"><div class="panel"><div class="hint">Change any rule, then <b>Simulate</b> to see what it does or <b>Play</b> to feel it. Your changes are kept on this device.</div>
+        <button class="btn gold" data-act="setup">Play with these rules</button></div>
+      ${simHTML()}
+      <div class="panel"><h3>Rules</h3>${D.lab.map(ctlHTML).join('')}</div>
+      <div class="panel"><h3>Notes &amp; presets</h3><textarea id="note" rows="3" placeholder="What are you testing?">${esc(ui.note)}</textarea>
+        <div class="row" style="flex-wrap:nowrap"><input type="text" id="presetname" placeholder="Preset name" value="${esc(ui.presetName)}"><button class="btn sm" data-act="savepreset">Save</button></div>
+        ${ui.presets.map((p, i) => `<div class="ctl"><label><b>${esc(p.name)}</b><br><span style="font-size:13px;color:var(--dim)">${esc(p.note || '')}</span></label><button class="chip" data-act="loadpreset" data-i="${i}">Load</button><button class="chip" data-act="delpreset" data-i="${i}" aria-label="Delete">✕</button></div>`).join('')}</div></div></div>`;
+  }
+
+  // ---------- the table ----------
+  const sName = (v, i) => v.houses[i].name;
+  const sup = s => s.last && s.last.round > ui.ack;
+  const needSummary = s => !!(s.last && ui.ack < s.last.round && (s.phase === 'name' || s.phase === 'over' || s.round > s.last.round));
+  function statusHTML(s, v) {
+    const k = s.dur.kind === 'sovereign' ? 'Sovereign vote' : 'Assassins';
+    let sub = s.phase === 'negotiate' ? `Argue · beat ${s.beat} of ${s.maxBeat}` : s.phase === 'vote' ? 'Fly a banner' : s.phase === 'after' ? 'The banners are up' : 'Round counted';
+    return `<div class="status"><b>Round ${s.round} · ${k}</b><span>${sub}</span></div>`;
+  }
+  function houseTile(s, v, i) {
+    const h = v.houses[i], isSov = i === s.sov, mine = i === ME;
+    const ravens = v.msgs.filter(m => m.round === s.round && m.from === i && m.to === ME).length;
+    const coins = h.coins != null ? `🪙 ${h.coins}` : '';
+    const tgt = ui.mode && !mine && ui.mode.type !== 'lc' || (s.phase === 'name' && s.sov === ME && !mine && ui.ack >= (s.last ? s.last.round : 0));
+    const voted = s.phase === 'vote' && (v.voted || []).includes(i);
+    const cards = h.handCount ? `📜${h.handCount}` : '';
+    const lbl = mine ? 'Your house' : h.open ? h.hand.map(c => c ? D.cards[c].title : '').join(', ') : '';
+    return `<button class="house ${isSov ? 'sov' : ''} ${ui.sel === i && s.phase === 'vote' ? 'sel' : ''} ${tgt ? 'target' : ''} ${voted ? 'voted' : ''}" style="--c:${h.color}" data-act="tile" data-i="${i}" ${mine ? 'disabled' : ''}>
+      ${isSov ? '<span class="crown">👑</span>' : ''}<span class="shield"></span><b>${esc(h.name)}</b><small>${[mine ? 'Your house' : '', isSov ? 'Sovereign' : '', coins, cards, voted ? 'banner flown' : '', mine ? '' : lbl].filter(Boolean).join(' · ')}</small>${ravens ? `<span class="badge">✉ ${ravens}</span>` : ''}</button>`;
+  }
+  function inboxHTML(s, v) {
+    if (s.phase === 'vote' && s.flags['late' + ME]) {
+      return `<div class="inbox">${Object.keys(v.votes).map(k => `<div class="vrow" style="--c:${v.houses[k].color}"><b>${esc(sName(v, k))}</b><span class="arrow">flies</span><span class="to" style="--c2:${v.houses[v.votes[k]].color}">${esc(sName(v, v.votes[k]))}</span></div>`).join('')}</div>`;
+    }
+    const m = v.msgs.filter(x => x.round === s.round).slice().reverse();
+    if (!m.length) return '';
+    return `<div class="inbox">${m.slice(0, 6).map(x => {
+      const mine = x.from === ME, o = mine ? x.to : x.from;
+      return `<div class="raven" style="--c:${v.houses[o].color}">${mine ? 'You → ' + esc(sName(v, x.to)) : esc(sName(v, x.from))}: “${esc(rv(x.msg).text)}”${x.coins ? `<em>${mine ? 'you paid' : 'paid you'} ${x.coins} 🪙</em>` : ''}</div>`;
+    }).join('')}</div>`;
+  }
+  function cardHTML(s, v, id) {
+    const c = D.cards[id], ph = s.phase, me = v.houses[ME], sovR = s.dur.kind === 'sovereign';
+    let btn = '';
+    if (ph === 'negotiate' && !ui.mode) {
+      if (c.hook === 'armed' && sovR) btn = `<button class="btn" data-act="playcard" data-id="${id}">Play it for this round</button>`;
+      else if (c.hook === 'accuse' && !s.sparrowUsed.includes(ME)) btn = `<button class="btn" data-act="mode" data-m="sparrow">Accuse two houses</button>`;
+      else if (c.hook === 'whispers') btn = !me.open ? `<button class="btn" data-act="reveal">Reveal and peek at the council</button>` : (s.flags['tg' + ME] ? '' : `<button class="btn" data-act="mode" data-m="tongue">Cut off a tongue</button>`);
+      else if (c.hook === 'steal') btn = `<button class="btn" data-act="mode" data-m="execute">Steal a house’s cards</button>`;
+    }
+    if (ph === 'vote' && !(ME in s.votes)) {
+      if (c.hook === 'lateVote' && !s.flags['late' + ME] && E.pending(s).length > 1) btn = `<button class="btn" data-act="late">Vote last, after seeing the others</button>`;
+      if (c.hook === 'extraVotes' && sovR) btn = `<button class="btn ${ui.mow ? 'on' : ''}" data-act="mow">${ui.mow ? '✓ Revealed with my vote' : 'Reveal with my vote (+' + c.votes + ')'}</button>`;
+    }
+    return `<div class="ccard"><i>${esc(c.type)}</i><h4>${esc(c.title)}</h4><p>${esc(c.text)}</p>${btn}</div>`;
+  }
+  function sayHTML(s, v) {
+    const me = v.houses[ME];
+    if (ui.mode) {
+      const m = ui.mode, t = { sparrow: m.a == null ? 'High Sparrow: tap the first house' : 'Now tap the second house', tongue: 'Tap the house to silence', execute: 'Tap the house whose cards you steal' }[m.type];
+      return `<div class="say">${t}</div><button class="btn sm alt" data-act="cancelmode">Cancel</button>`;
+    }
+    if (s.phase === 'negotiate') {
+      const tongued = s.tongues.includes(ME);
+      return `<div class="say">${tongued ? 'Your tongue is cut off: no ravens until the vote.' : `Tap a house to send a raven${s.rules.bribes && me.coins ? ' (and coins as a bribe)' : ''}.`}</div>
+        <div class="row"><button class="btn" data-act="beat">${s.beat < s.maxBeat ? 'Listen: next beat' : 'Time! To the vote'}</button><button class="btn gold" data-act="early" style="font-size:20px">Vote now</button></div>`;
+    }
+    if (s.phase === 'vote') {
+      if (ME in s.votes) return `<div class="say">Banner flown. Waiting for the others…</div>`;
+      const assn = s.dur.kind === 'assassins';
+      if (ui.sel == null) return `<div class="say">${assn ? 'Tap the house that should <b>lose a coin</b>.' : 'Tap the house whose banner you fly.'}${s.flags['late' + ME] ? ' (You see how the others voted.)' : ''}</div>`;
+      return `<div class="say">Tap <b>${esc(sName(v, ui.sel))}</b> again to ${assn ? 'send the assassins' : 'fly their banner'}${ui.mow ? ' (Master of War revealed)' : ''}.</div>`;
+    }
+    if (s.phase === 'name' && s.sov === ME) return `<div class="say">You are the sovereign: tap a house to name it to the small council.</div>`;
+    return `<div class="say">…</div>`;
+  }
+  function gameHTML() {
+    const s = ui.s, v = E.viewFor(s, ME), me = v.houses[ME], R = s.rules;
+    const next = E.payoutAmount(s, s.tracker);
+    const order = v.houses.map((_, i) => i).filter(i => i !== ME).concat([ME]);
+    return `<div class="screen game"><div class="bar-top"><button class="menubtn" data-act="sheet" data-s="menu" aria-label="Menu">☰</button>${statusHTML(s, v)}<div class="vault" aria-label="Your vault">🪙 ${me.coins}</div></div>
+      <div class="throne"><div><small>Royal Treasury</small><b>🪙 ${s.treasury}</b></div><div><small>Next payout</small><b>${next}</b></div><div class="dur ${s.dur.kind}"><small>Duration card</small><b>${kindName(s.dur.kind)} · ${s.dur.secs}s</b></div></div>
+      <div class="houses" style="--cols:${narrow() ? 2 : 3}">${order.map(i => houseTile(s, v, i)).join('')}</div>
+      ${inboxHTML(s, v)}
+      <div class="hand">${me.hand.length ? me.hand.map(id => cardHTML(s, v, id)).join('') : '<div class="ccard empty">No council card.<br>The sovereign may name you to the small council.</div>'}</div>
+      <div class="actions">${sayHTML(s, v)}</div></div>`;
+  }
+
+  // ---------- overlays ----------
+  function summaryHTML(s) {
+    const L = s.last, v = E.viewFor(s, ME), hs = v.houses, over = s.phase === 'over';
+    const title = L.outcome === 'assassins' ? 'The assassins strike' : L.outcome === 'repeat' ? `${esc(hs[L.winner].name)} stays sovereign` : `${esc(hs[L.winner].name)} takes the throne`;
+    const votes = hs.map((h, i) => `<div class="vrow" style="--c:${h.color};animation-delay:${i * 90}ms"><b>${esc(h.name)}${i === ME ? ' (you)' : ''}</b><span class="arrow">${L.kind === 'assassins' ? 'strikes' : 'flies'}</span><span class="to" style="--c2:${hs[L.votes[i]].color}">${esc(hs[L.votes[i]].name)}</span></div>`).join('');
+    const mx = Math.max(1, ...L.tally);
+    const tally = hs.map((h, i) => ({ i, t: L.tally[i] })).sort((a, b) => b.t - a.t).map(({ i, t }) => `<div class="tallyrow"><span class="nm">${esc(hs[i].name)}</span><div class="bar"><i style="width:${t / mx * 100}%;background:${hs[i].color}"></i></div><span class="n">${t}</span></div>`).join('');
+    const mine = L.before[ME], now = hs[ME].coins;
+    const win = over ? `<h2>👑 ${s.winners.map(i => esc(hs[i].name) + (i === ME ? ' (you)' : '')).join(' and ')} ${s.winners.length > 1 ? 'win' : 'wins'}!</h2><p style="text-align:center;color:var(--dim)">${s.winners.includes(ME) ? 'Your savvy and ruthlessness have broken your fellow houses.' : 'They will despise you, and you them.'} ${s.round} rounds.</p>` : '';
+    return `<div class="over-bg">${win}<h2>${over ? 'Last round' : `Round ${L.round}: ${title}`}</h2>${L.rps ? '<div class="say">Challengers tied: rock-paper-scissors decided it.</div>' : ''}${votes}<div class="panel" style="padding:10px">${tally}</div>
+      <div class="events">${L.events.map(e => `<div>${esc(e)}</div>`).join('')}<div><b>Your vault: ${mine} → ${now}</b></div></div>
+      ${over ? `<div class="row"><button class="btn gold" data-act="start">Play again</button><button class="btn" data-act="menu">Menu</button>${changed() ? '<button class="btn alt" data-act="lab">Rules Lab</button>' : ''}</div>` : `<button class="btn gold" data-act="continue">Continue</button>`}</div>`;
+  }
+  function lcHTML(s) {
+    const v = E.viewFor(s, ME), hs = v.houses;
+    const rows = ui.lcVoter == null
+      ? Object.keys(s.votes).map(Number).filter(k => k !== ME).map(k => `<button class="vrow" style="--c:${hs[k].color};width:100%;text-align:left" data-act="lcvoter" data-i="${k}"><b>${esc(hs[k].name)}</b><span class="arrow">flies</span><span class="to" style="--c2:${hs[s.votes[k]].color}">${esc(hs[s.votes[k]].name)}</span></button>`).join('')
+      : hs.map((h, i) => i !== ui.lcVoter ? `<button class="vrow" style="--c:${h.color};width:100%;text-align:left" data-act="lctarget" data-i="${i}"><b>${esc(h.name)}</b></button>` : '').join('');
+    return `<div class="over-bg"><h2>The banners are up</h2><div class="say">${ui.lcVoter == null ? 'You hold the Lord Commander: tap a vote to change it…' : `…and tap who ${esc(hs[ui.lcVoter].name)} will vote for instead.`}</div>${rows}<button class="btn gold" data-act="lcpass">${ui.lcVoter == null ? 'Keep every vote' : 'Back'}</button></div>`;
+  }
+  function sheetHTML() {
+    const sh = ui.sheet; if (!sh) return '';
+    let body = '';
+    if (sh.t === 'raven') {
+      const s = ui.s, v = E.viewFor(s, ME), me = v.houses[ME], to = v.houses[sh.to];
+      body = `<h3>Raven to <span style="color:${to.color === '#222' ? '#fff' : to.color}">House ${esc(to.name)}</span></h3>
+        ${s.rules.bribes ? `<div class="ctl" style="border:0"><label>Bribe</label><div class="step"><button data-act="coin" data-d="-1">−</button><b>${sh.coins}</b><button data-act="coin" data-d="1">+</button></div><span>🪙 of ${me.coins}</span></div>` : ''}
+        <div class="ravens">${D.ravens.map(r => `<button class="chip" data-act="send" data-id="${r.id}">${esc(r.text)}</button>`).join('')}</div><button class="btn alt" data-act="closesheet">Never mind</button>`;
+    } else if (sh.t === 'how') body = `<div class="howto"><h3 style="font-size:28px">How to play Kingslayer</h3>${rulesText()}</div><button class="btn gold" data-act="closesheet">Got it</button>`;
+    else if (sh.t === 'menu') body = `<h3>Menu</h3><button class="btn" data-act="sheet" data-s="how">How to play</button><div class="hint" style="font-size:15px;color:var(--dim)">Rules in this game: ${changed() ? changed() + ' changed from the 2022 rulebook' : 'the 2022 rulebook'}. Council cards: ${esc(labelCards())}.</div>
+        <button class="btn ${ui.quit ? 'gold' : ''}" data-act="newgame">${ui.quit ? 'Tap again to abandon this game' : 'New game'}</button><button class="btn" data-act="menu">Main menu</button>${LIB ? `<a class="btn" href="${D.library.href}">‹ Library</a>` : ''}<button class="btn alt" data-act="closesheet">Back to the table</button>`;
+    else if (sh.t === 'tip') body = `<h3>${esc(sh.title)}</h3><p style="font-size:19px;line-height:1.4">${esc(sh.text)}</p><button class="btn gold" data-act="closesheet">Got it</button>${sh.more ? '<button class="btn alt" data-act="sheet" data-s="how">Full rules</button>' : ''}`;
+    return `<div class="sheet-bg" data-act="bg"><div class="sheet ${sh.t === 'how' ? 'full' : ''}" data-stop="1">${body}</div></div>`;
+  }
+
+  // ---------- render + drive ----------
+  function render() {
+    let h = ui.screen === 'menu' ? menuHTML() : ui.screen === 'setup' ? setupHTML() : ui.screen === 'lab' ? labHTML() : gameHTML();
+    if (ui.screen === 'game') {
+      const s = ui.s;
+      if (needSummary(s)) h += summaryHTML(s);
+      else if (s.phase === 'after' && E.pending(s).includes(ME)) h += lcHTML(s);
+    }
+    h += sheetHTML();
+    if (ui.toast) h += `<div class="toast">${esc(ui.toast)}</div>`;
+    const keep = $.querySelector('.scroll'), top = keep ? keep.scrollTop : 0;
+    $.innerHTML = h;
+    const sc = $.querySelector('.scroll'); if (sc && top) sc.scrollTop = top;
+  }
+  const tipsSeen = {};
+  function tipOnce(key, title, text, more) { if (!ui.teach || tipsSeen[key] || store.get('tip-' + key, false)) return false; tipsSeen[key] = true; store.set('tip-' + key, true); ui.sheet = { t: 'tip', title, text, more }; return true; }
+  function drive() {
+    const s = ui.s; if (!s) return render();
+    for (let g = 0; g < 600; g++) { if (s.phase === 'over' || needSummary(s)) break; if (!B.step(s)) break; }
+    if (!ui.sheet && s.phase === 'negotiate' && !needSummary(s)) {
+      if (s.round === 1 && tipOnce('first', 'Your first round', 'Argue first: tap a house to send it a raven, with coins if you want to bribe. When everyone is ready, you each fly one other house’s banner at the same time. A new sovereign takes the Royal Treasury, and everyone who backed them gets a coin.', true)) { /* shown */ }
+      else if (s.dur.kind === 'assassins') tipOnce('assassins', 'Assassins round', 'This round nobody becomes sovereign. Each vote a house receives costs it coins, so vote for the house you want to hurt, and make friends so they do not vote for you.');
+      else if (E.viewFor(s, ME).houses[ME].hand.length) tipOnce('card', 'A council card', 'The sovereign named you to the small council. The card says what it does; some work by themselves, others have a button on the card.');
+    }
+    render();
+  }
+  function startGame() {
+    ui.s = E.newGame({ houses: ui.houses, level: ui.level, humans: [ME], rules: ui.rules });
+    ui.ack = 0; ui.sheet = null; ui.mode = null; ui.sel = null; ui.mow = false; ui.quit = false; ui.screen = 'game'; drive();
+  }
+  const act = a => { const r = E.apply(ui.s, a); if (!r.ok) { toast('Not allowed: ' + r.error); return r; } ui.sel = null; ui.mow = false; return r; };
+
+  function onTile(i) {
+    const s = ui.s;
+    if (needSummary(s)) return;
+    if (ui.mode) {
+      const m = ui.mode;
+      if (m.type === 'sparrow') { if (m.a == null) { m.a = i; return render(); } const r = act({ type: 'sparrow', seat: ME, a: m.a, b: i }); ui.mode = null; if (r.ok) toast(r.correct ? `Caught them! ${r.got} coins to you.` : 'Wrong: nobody paid you.'); return drive(); }
+      if (m.type === 'tongue') { act({ type: 'tongue', seat: ME, target: i }); ui.mode = null; return drive(); }
+      if (m.type === 'execute') { act({ type: 'execute', seat: ME, target: i }); ui.mode = null; return drive(); }
+    }
+    if (s.phase === 'negotiate') { if (s.tongues.includes(ME)) return toast('Your tongue is cut off.'); ui.sheet = { t: 'raven', to: i, coins: 0 }; return render(); }
+    if (s.phase === 'vote' && !(ME in s.votes) && !(E.pending(s).length && !E.pending(s).includes(ME))) {
+      if (ui.sel !== i) { ui.sel = i; return render(); }
+      const r = E.apply(s, { type: 'vote', seat: ME, target: i, mow: ui.mow }); if (!r.ok) return toast('Not allowed');
+      ui.sel = null; ui.mow = false; return drive();
+    }
+    if (s.phase === 'name' && s.sov === ME) { act({ type: 'name', seat: ME, target: i }); return drive(); }
+  }
+
+  const H = {
+    setup() { ui.screen = 'setup'; render(); }, menu() { ui.screen = 'menu'; ui.sheet = null; ui.quit = false; if (ui.simCancel) ui.simCancel(); render(); }, lab() { ui.screen = 'lab'; ui.sheet = null; render(); },
+    houses(d) { ui.houses = +d.n; store.set('houses', ui.houses); render(); }, level(d) { ui.level = d.k; store.set('level', ui.level); render(); },
+    teach() { ui.teach = !ui.teach; store.set('teach', ui.teach); if (ui.teach) for (const k of ['first', 'assassins', 'card']) { store.set('tip-' + k, false); delete tipsSeen[k]; } render(); },
+    start() { startGame(); },
+    sheet(d) { ui.sheet = { t: d.s }; render(); }, closesheet() { ui.sheet = null; if (ui.screen === 'game') drive(); else render(); }, bg(d, e) { if (e.target.dataset.act === 'bg') { ui.sheet = null; render(); } },
+    newgame() { if (!ui.quit) { ui.quit = true; return render(); } ui.quit = false; ui.sheet = null; startGame(); },
+    tile(d) { onTile(+d.i); },
+    coin(d) { const me = ui.s.houses[ME]; ui.sheet.coins = Math.max(0, Math.min(me.coins, ui.sheet.coins + (+d.d))); render(); },
+    send(d) { const to = ui.sheet.to, coins = ui.sheet.coins; const r = act({ type: 'raven', seat: ME, to, msg: d.id, coins }); ui.sheet = null; if (r.ok) toast('Raven sent' + (coins ? ' with ' + coins + ' 🪙' : '')); render(); },
+    beat() { act({ type: 'beat', seat: ME }); drive(); }, early() { act({ type: 'early', seat: ME }); drive(); },
+    playcard(d) { act({ type: 'play', seat: ME, card: d.id }); toast('Played for this round'); drive(); },
+    reveal() { act({ type: 'reveal', seat: ME }); const s = ui.s; toast('Council cards: ' + s.houses.map((h, i) => i !== ME && h.hand.length ? h.name + ': ' + h.hand.map(c => D.cards[c].title).join(', ') : '').filter(Boolean).join(' · ') || 'Nobody holds a card'); drive(); },
+    mode(d) { ui.mode = { type: d.m, a: null }; render(); }, cancelmode() { ui.mode = null; render(); },
+    late() { act({ type: 'vote', seat: ME, late: true }); drive(); }, mow() { ui.mow = !ui.mow; render(); },
+    lcvoter(d) { ui.lcVoter = +d.i; render(); }, lctarget(d) { const r = act({ type: 'lc', seat: ME, voter: ui.lcVoter, target: +d.i }); ui.lcVoter = null; drive(); },
+    lcpass() { if (ui.lcVoter != null) { ui.lcVoter = null; return render(); } act({ type: 'lc', seat: ME, pass: true }); drive(); },
+    continue() { ui.ack = ui.s.last.round; drive(); },
+    // lab
+    num(d) { const c = D.lab.find(x => x.key === d.k), R = rules(); setRule(d.k, Math.max(c.min, Math.min(c.max, R[d.k] + (+d.d)))); render(); },
+    tog(d) { setRule(d.k, !rules()[d.k]); render(); }, choice(d) { setRule(d.k, d.v); render(); },
+    listitem(d) { const c = D.lab.find(x => x.key === d.k), a = rules()[d.k]; a[+d.i] = a[+d.i] >= c.max ? c.min : a[+d.i] + 1; setRule(d.k, a); render(); },
+    listadd(d) { const a = rules()[d.k]; if (+d.d > 0) a.push(a.length ? a[a.length - 1] + 1 : 1); else if (a.length > 1) a.pop(); setRule(d.k, a); render(); },
+    durkind(d) { const a = rules().duration; a[+d.i].kind = a[+d.i].kind === 'sovereign' ? 'assassins' : 'sovereign'; if (!a.some(x => x.kind === 'sovereign')) a[+d.i].kind = 'sovereign'; setRule('duration', a); render(); },
+    dursecs(d) { const a = rules().duration, x = a[+d.i]; x.secs = Math.max(30, Math.min(180, x.secs + (+d.d))); setRule('duration', a); render(); },
+    duradd() { const a = rules().duration; if (a.length < 12) a.push({ kind: 'sovereign', secs: 90 }); setRule('duration', a); render(); },
+    durdel() { const a = rules().duration; if (a.length > 2) a.pop(); if (!a.some(x => x.kind === 'sovereign')) a[0].kind = 'sovereign'; setRule('duration', a); render(); },
+    cardtog(d) { const a = rules().cards, k = a.indexOf(d.id); if (k >= 0) a.splice(k, 1); else a.push(d.id); setRule('cards', Object.keys(D.cards).filter(id => a.includes(id))); render(); },
+    resetrules() { ui.rules = {}; saveRules(); render(); },
+    savepreset() { const name = (document.getElementById('presetname').value || '').trim() || 'Preset ' + (ui.presets.length + 1); ui.presets.push({ name, rules: clone(ui.rules), note: ui.note }); store.set('presets', ui.presets); ui.presetName = ''; toast('Saved “' + name + '”'); },
+    loadpreset(d) { const p = ui.presets[+d.i]; ui.rules = clone(p.rules); ui.note = p.note || ''; saveRules(); store.set('note', ui.note); render(); },
+    delpreset(d) { ui.presets.splice(+d.i, 1); store.set('presets', ui.presets); render(); },
+    simset(d) { ui.simSet[d.k] = d.k === 'level' ? d.v : +d.v; render(); },
+    simrun() {
+      const S = Object.assign({}, ui.simSet), key = JSON.stringify(S);
+      ui.sim = { running: true, progress: 0, base: ui.simBase[key] || null, mine: null }; render();
+      const o = { houses: S.houses, level: S.level, games: S.games, seed: 7 };
+      const fin = () => { ui.sim.running = false; render(); };
+      const mine = () => { ui.simCancel = Sim.run(rules(), o, p => { ui.sim.progress = (ui.sim.base ? 0 : 0.5) + p * (ui.sim.base ? 1 : 0.5); if (ui.screen === 'lab') render(); }, r => { ui.sim.mine = r; fin(); }); };
+      if (ui.sim.base) mine(); else ui.simCancel = Sim.run({}, o, p => { ui.sim.progress = p * 0.5; if (ui.screen === 'lab') render(); }, r => { ui.sim.base = ui.simBase[key] = r; mine(); });
+    },
+  };
+  $.addEventListener('click', e => {
+    const el = e.target.closest('[data-act]'); if (!el) return;
+    if (el.dataset.act === 'bg' && e.target !== el) return;
+    if (el.closest('[data-stop]') && el.dataset.act === 'bg') return;
+    const f = H[el.dataset.act]; if (!f) return; if (el.dataset.act !== 'newgame' && el.dataset.act !== 'sheet') ui.quit = false;
+    f(el.dataset, e);
+  });
+  $.addEventListener('input', e => { if (e.target.id === 'note') { ui.note = e.target.value; store.set('note', ui.note); } if (e.target.id === 'presetname') ui.presetName = e.target.value; });
+  addEventListener('resize', () => { if (ui.screen !== 'lab') render(); });
+  window.__ks = { ui, E, B, Sim };
+  render();
+})();
+</script>
+</body>
+</html>
