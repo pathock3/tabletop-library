@@ -1,0 +1,151 @@
+Card,Type,Important,Cool,Cute,Wacky,Spooky,Total,Prints in the art,Power,Ability
+Tiara,Head,5,,1,,,6,crowns,Star,
+Powdered Judge's Wig,Head,4,-1,,,,3,,Solid,
+Top Hat,Head,3,,,,,3,pinstripes,Solid,
+Monocle,Head,2,,,,,2,,Ordinary,
+Yacht Captain's Hat,Head,2,1,,,,3,stripes,Ordinary,
+Mohawk,Head,,4,,,2,6,flames,Star,
+Backwards Cap,Head,,3,,,,3,checkerboard,Solid,
+Aviator Sunglasses,Head,1,3,,,,4,,Solid,
+Skull Bandana,Head,,2,,,1,3,skulls,Ordinary,
+Lightning Bolt Headphones,Head,,2,,,,2,lightning bolts,Ordinary,
+Bunny Ears,Head,,,4,,-2,2,animals,Solid,
+Pigtails with Polka Dot Bows,Head,,,3,,,3,polka dots,Solid,
+Flower Crown,Head,1,,3,,,4,flowers,Solid,
+Kitty Ear Headband,Head,,,2,,1,3,leopard,Ordinary,
+Baby Bonnet,Head,,-2,5,,,3,hearts,Star,
+Propeller Beanie,Head,,,1,4,,5,stripes,Solid,
+Rainbow Clown Wig,Head,,,,5,1,6,polka dots,Star,
+Fruit Basket Hat,Head,1,,,3,,4,bananas,Solid,
+Googly-Eye Glasses,Head,,,,2,-1,1,,Ordinary,
+Shark Hat,Head,,,1,2,,3,animals,Ordinary,
+Vampire Fangs,Head,,1,,,4,5,,Solid,
+Witch Hat,Head,,,,,3,3,"stars, bats",Solid,
+Skull Face Paint,Head,,,-2,,5,3,skulls,Star,
+Black Lace Veil,Head,,,,-1,3,2,spiderwebs,Solid,
+Bat Hair Clips,Head,,,1,,2,3,bats,Ordinary,
+Fedora,Head,1,1,1,1,1,5,pinstripes,Generalist,
+Leopard Shower Cap,Head,,-2,1,,,-1,leopard,Dud,
+Lampshade,Head,-2,,,1,,-1,,Dud,
+Flame Decal Bike Helmet,Head,,-1,1,,,0,flames,Dud,
+Paper Fast-Food Crown,Head,,-1,,1,,0,crowns,Dud,
+Sequin Gown,Top,5,1,,,,6,stars,Star,
+Pinstripe Blazer,Top,4,,,-1,,3,pinstripes,Solid,
+Leopard Fur Coat,Top,4,1,,,,5,leopard,Solid,
+Tuxedo Jacket,Top,3,1,,,,4,pinstripes,Solid,
+Striped Polo Shirt,Top,2,-1,,,,1,stripes,Ordinary,
+Leather Jacket,Top,,5,,,1,6,flames,Star,
+Band Tee,Top,,3,,,1,4,"skulls, checkerboard",Solid,
+Varsity Jacket,Top,1,3,,,,4,lightning bolts,Solid,
+Camo Hoodie,Top,,2,,,,2,camo,Ordinary,
+Hockey Jersey,Top,,2,,,,2,"crowns, stripes",Ordinary,
+Grandma's Kitten Cardigan,Top,-1,,4,,,3,animals,Solid,
+Heart Sweater,Top,,,3,,-1,2,hearts,Solid,
+Teddy Bear Onesie,Top,,,5,1,,6,"animals, hearts",Star,
+Puff-Sleeve Flower Blouse,Top,1,,2,,,3,flowers,Ordinary,
+Sailor Shirt,Top,,,2,,,2,stripes,Ordinary,
+Hawaiian Shirt,Top,,1,,4,,5,"flowers, bananas",Solid,
+Barrel,Top,-2,,,5,,3,,Star,
+Tie-Dye Tee,Top,,1,,3,,4,lightning bolts,Solid,
+Banana Costume,Top,,,1,3,,4,bananas,Solid,
+Lobster Bib,Top,-1,,,2,,1,animals,Ordinary,
+Vampire Cape,Top,2,,,,5,7,bats,Star,
+Spiderweb Sweater,Top,,,-1,,3,2,spiderwebs,Solid,
+Skeleton Shirt,Top,,1,,,3,4,skulls,Solid,
+Black Lace Blouse,Top,1,,,,2,3,"spiderwebs, bats",Ordinary,
+Mummy Wrap Top,Top,,,-1,,2,1,,Ordinary,
+Plain White T-Shirt,Top,1,1,1,1,1,5,,Generalist,
+Stinky Gym Shirt,Top,,,-1,,,-1,camo,Dud,
+Ketchup-Stained Flannel,Top,-2,,,1,,-1,plaid,Dud,
+Itchy Reindeer Sweater,Top,,-2,,1,,-1,animals,Dud,
+Trash Bag Poncho,Top,,,-1,1,,0,,Dud,
+Ball Gown Skirt,Bottom,5,,1,,,6,crowns,Star,
+Pinstripe Trousers,Bottom,3,,,-1,,2,pinstripes,Solid,
+Plaid Pleated Slacks,Bottom,3,,,-1,,2,plaid,Solid,
+Leopard Pencil Skirt,Bottom,2,1,,,,3,leopard,Ordinary,
+Khakis,Bottom,2,-1,,,,1,,Ordinary,
+Ripped Jeans,Bottom,-1,4,,,,3,lightning bolts,Solid,
+Leather Pants,Bottom,,4,,,2,6,flames,Star,
+Camo Cargo Pants,Bottom,,3,,,,3,camo,Solid,
+Checkered Skate Shorts,Bottom,,2,,1,,3,checkerboard,Ordinary,
+Striped Track Pants,Bottom,,2,,,,2,stripes,Ordinary,
+Tutu,Bottom,,,4,1,,5,stars,Solid,
+Heart-Patch Overalls,Bottom,-1,,3,,,2,"hearts, plaid",Solid,
+Polka Dot Skirt,Bottom,,,2,1,,3,polka dots,Ordinary,
+Footie Pajama Bottoms,Bottom,,-1,3,,,2,animals,Solid,
+Flower Print Shorts,Bottom,,,2,,,2,flowers,Ordinary,
+Clown Pants,Bottom,-1,,1,5,,5,"polka dots, checkerboard",Star,
+Banana Print Shorts,Bottom,,,,3,,3,bananas,Solid,
+Kilt,Bottom,1,,,2,,3,plaid,Ordinary,
+Flamingo Pool Floatie,Bottom,,,1,3,,4,animals,Solid,
+Grass Skirt,Bottom,,,,2,,2,flowers,Ordinary,
+Witch's Striped Tights,Bottom,,1,,,3,4,stripes,Solid,
+Skeleton Leggings,Bottom,,,-1,,4,3,skulls,Solid,
+Tattered Mummy Pants,Bottom,,,,-1,2,1,,Ordinary,
+Black Velvet Skirt,Bottom,,1,,,2,3,crowns,Ordinary,
+Cobweb Ball Skirt,Bottom,2,,,,4,6,spiderwebs,Star,
+Classic Jeans,Bottom,1,1,1,1,1,5,,Generalist,
+Stinky Gym Shorts,Bottom,,,-1,,,-1,camo,Dud,
+Holey Plaid Pajama Pants,Bottom,-2,,1,,,-1,plaid,Dud,
+Flame Swim Trunks,Bottom,-1,,,1,,0,flames,Dud,
+Corduroy Pants,Bottom,,,,,,0,,Dud,
+Glass Slippers,Shoes,4,,2,,,6,,Star,
+Shiny Dress Shoes,Shoes,3,,,-1,,2,,Solid,
+Gold Shoes,Shoes,3,1,,,,4,crowns,Solid,
+Leopard Heels,Shoes,2,1,,,,3,leopard,Ordinary,
+Boat Shoes,Shoes,2,,,,,2,crowns,Ordinary,
+Light-Up Sneakers,Shoes,,5,-1,,,4,lightning bolts,Star,
+High-Top Sneakers,Shoes,,4,,,,4,"lightning bolts, checkerboard",Solid,
+Checkered Slip-Ons,Shoes,,3,,,,3,checkerboard,Solid,
+Cowboy Boots,Shoes,1,2,,,,3,stars,Ordinary,
+Combat Boots,Shoes,,2,,,1,3,camo,Ordinary,
+Bunny Slippers,Shoes,,,4,,-1,3,animals,Solid,
+Mary Janes,Shoes,1,,3,,,4,hearts,Solid,
+Duck Rain Boots,Shoes,,,3,,-1,2,animals,Solid,
+Jelly Sandals,Shoes,,,2,,,2,flowers,Ordinary,
+Glitter Toddler Shoes,Shoes,,,2,1,,3,stars,Ordinary,
+Clown Shoes,Shoes,-2,,,5,,3,polka dots,Star,
+Flippers,Shoes,,,,3,-1,2,,Solid,
+Striped Roller Skates,Shoes,,1,,3,,4,stripes,Solid,
+Tissue Box Shoes,Shoes,,,,2,,2,polka dots,Ordinary,
+Banana Slippers,Shoes,,,1,2,,3,bananas,Ordinary,
+Pointy Witch Boots,Shoes,1,,,,4,5,"spiderwebs, stars",Solid,
+Skull Sneakers,Shoes,,1,,,3,4,"skulls, flames",Solid,
+Coffin-Toe Boots,Shoes,,,,-1,3,2,bats,Solid,
+Bat Wing Heels,Shoes,1,,,,2,3,bats,Ordinary,
+Rubber Zombie Feet,Shoes,,,-1,,3,2,,Ordinary,
+White Sneakers,Shoes,1,1,1,1,1,5,,Generalist,
+Plaid Socks with Sandals,Shoes,,-2,,1,,-1,plaid,Dud,
+Fuzzy Heart Slippers,Shoes,,-2,1,,,-1,hearts,Dud,
+One Flip-Flop,Shoes,,,,1,-1,0,,Dud,
+Muddy Galoshes,Shoes,-1,,,,,-1,,Dud,
+Briefcase,Accessory,,,,,,,,Common,+2 Important per item with pinstripes
+Royal Scepter,Accessory,,,,,,,,Common,+2 Important per item with crowns
+Feather Boa,Accessory,,,,,,,,Common,+2 Important per item with leopard
+Pocket Dog in a Designer Bag,Accessory,,,,,,,,Common,+1 Important per animal pictured in your outfit
+Personal Assistant with Clipboard,Accessory,,,,,,,,Common,Add your Cool to your Important
+Golden Trophy,Accessory,,,,,,,,Rare,Your highest Impression counts double
+Skateboard,Accessory,,,,,,,,Common,+2 Cool per item with checkerboard
+Boombox,Accessory,,,,,,,,Common,+2 Cool per item with lightning bolts
+Motorcycle Helmet,Accessory,,,,,,,,Common,+2 Cool per item with flames
+Walkie-Talkie,Accessory,,,,,,,,Common,+2 Cool per item with camo
+Microphone,Accessory,,,,,,,,Common,+2 Cool per item with stars
+Electric Guitar,Accessory,,,,,,,,Common,Add your Wacky to your Cool
+Puppy on a Leash,Accessory,,,,,,,,Common,+1 Cute per animal pictured in your outfit
+Heart Balloon,Accessory,,,,,,,,Common,+2 Cute per item with hearts
+Flower Basket,Accessory,,,,,,,,Common,+2 Cute per item with flowers
+Picnic Basket,Accessory,,,,,,,,Common,+2 Cute per item with plaid
+Candy Cane,Accessory,,,,,,,,Common,+2 Cute per item with stripes
+Teddy Bear,Accessory,,,,,,,,Common,Add your Spooky to your Cute (creepy-cute counts)
+Rubber Chicken,Accessory,,,,,,,,Common,+2 Wacky per item with polka dots
+Unicycle,Accessory,,,,,,,,Common,+2 Wacky per item with stripes
+Banana Phone,Accessory,,,,,,,,Common,+1 Wacky per banana pictured in your outfit
+Bagpipes,Accessory,,,,,,,,Common,+2 Wacky per item with plaid
+Whoopee Cushion,Accessory,,,,,,,,Common,Add your Important to your Wacky
+Mystery Shopping Bag,Accessory,,,,,,,,Common,+2 Wacky per empty clothing slot
+Pet Bat,Accessory,,,,,,,,Common,+1 Spooky per bat pictured in your outfit
+Crystal Ball,Accessory,,,,,,,,Common,+2 Spooky per item with skulls
+Candelabra,Accessory,,,,,,,,Common,+2 Spooky per item with spiderwebs
+Broomstick,Accessory,,,,,,,,Common,+2 Spooky per item with stripes
+Black Cat,Accessory,,,,,,,,Common,Add your Cute to your Spooky
+Magic Wand,Accessory,,,,,,,,Rare,Add your Spooky to any one other Impression

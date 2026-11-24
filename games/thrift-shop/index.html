@@ -71,570 +71,699 @@ table.cmp td.d { font-size: 13px; color: var(--gold); }
 input[type=text], textarea { width: 100%; border-radius: 12px; border: 2px solid #ffffff30; background: #00000050; color: var(--text); padding: 10px 12px; font: inherit; font-size: 17px; user-select: text; -webkit-user-select: text; }
 
 
-/* table */
-.game { padding-top: max(8px, env(safe-area-inset-top)); gap: 8px; }
-.bar-top { width: 100%; display: flex; align-items: center; gap: 10px; flex: none; }
-.menubtn { width: 52px; height: 52px; border-radius: 14px; background: #0008; border: 2px solid var(--gold-d); font-size: 26px; flex: none; }
-.status { flex: 1; text-align: center; line-height: 1.15; }
-.status b { font-family: var(--serif); font-size: 24px; color: #fff1cc; display: block; }
-.status span { font-size: 15px; color: var(--dim); }
-.vault { flex: none; min-width: 84px; height: 52px; border-radius: 14px; background: linear-gradient(#ffe6a0, #f2b63a); color: var(--ink); font-weight: 900; font-size: 24px; display: flex; align-items: center; justify-content: center; gap: 6px; padding: 0 12px; }
-.shoppers { width: 100%; display: flex; gap: 6px; flex: none; }
-.shopper { flex: 1; min-width: 0; border-radius: 12px; background: #00000050; border: 2px solid #ffffff20; padding: 5px 6px; text-align: center; line-height: 1.15; }
-.shopper b { display: block; font-size: 16px; color: #fff1cc; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.shopper span { font-size: 14px; color: var(--dim); }
-.stacks { width: 100%; display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; flex: none; }
-.stack { position: relative; border-radius: 14px; background: linear-gradient(160deg, var(--c), #0007); border: 3px solid #fff5; color: #fff; padding: 6px 4px 8px; text-align: center; min-height: 92px; display: flex; flex-direction: column; justify-content: center; gap: 2px; box-shadow: 5px 5px 0 #0006, 3px 3px 0 var(--c); }
-.stack:active { transform: translate(3px, 3px); box-shadow: 2px 2px 0 #0006; }
-.stack b { font-family: var(--serif); font-size: clamp(16px, 3.4vw, 24px); text-shadow: 0 2px 0 #0006; }
-.stack span { font-size: 15px; font-weight: 800; }
-.stack[disabled] { opacity: .45; }
-.logline { width: 100%; text-align: center; font-size: 14px; color: var(--dim); min-height: 18px; flex: none; }
-.lookbar { width: 100%; display: flex; align-items: center; justify-content: space-between; gap: 10px; flex: none; background: #00000050; border-radius: 12px; padding: 6px 12px; font-size: 17px; }
-.lookbar b { color: var(--gold); font-size: 22px; font-family: var(--serif); }
-.hand { width: 100%; flex: 1; min-height: 0; overflow-y: auto; display: grid; grid-template-columns: repeat(var(--cols, 3), 1fr); gap: 8px; align-content: start; touch-action: pan-y; padding: 2px 2px 6px; }
-.tcard { position: relative; border-radius: 12px; background: linear-gradient(170deg, #fff8e4, #f0e1b8); color: var(--ink); border: 3px solid var(--c); padding: 6px 8px 8px; text-align: left; display: flex; flex-direction: column; gap: 4px; min-height: 124px; box-shadow: 0 3px 0 #0006; }
-.tcard.sel { transform: translateY(-4px); box-shadow: 0 0 0 3px #fff, 0 8px 0 #0006; }
-.tcard h4 { margin: 0; font-family: var(--serif); font-size: clamp(15px, 2.6vw, 19px); line-height: 1.1; padding-right: 30px; }
-.tcard i { font-style: normal; font-size: 11px; font-weight: 800; letter-spacing: 1px; text-transform: uppercase; color: var(--c); filter: brightness(.7); }
-.tcard .nums { display: grid; grid-template-columns: repeat(4, 1fr); gap: 3px; margin-top: auto; }
-.tcard .nums span { text-align: center; background: #00000012; border-radius: 6px; padding: 2px 0; font-weight: 900; font-size: clamp(16px, 3vw, 22px); line-height: 1.1; }
-.tcard .nums span small { display: block; font-size: 9px; font-weight: 800; color: #6b5a2a; letter-spacing: .5px; }
-.tcard .nums span.now { background: var(--c); color: #fff; } .tcard .nums span.now small { color: #fff; }
-.tcard .nums span.neg { color: #b02a2a; } .tcard .nums span.now.neg { color: #fff; }
-.tcard .res { position: absolute; right: 6px; top: 4px; font-size: 14px; font-weight: 900; background: var(--ink); color: var(--gold); border-radius: 10px; padding: 1px 7px; }
-.tcard .ab { font-size: 12px; line-height: 1.2; color: #7a2a1a; font-weight: 700; }
-.tcard .worn { align-self: flex-start; font-size: 11px; font-weight: 900; letter-spacing: .5px; background: var(--gold); border-radius: 8px; padding: 1px 8px; }
-.tcard .sell { margin-top: 4px; min-height: 44px; border-radius: 10px; background: linear-gradient(#ffe6a0, #f2b63a); font-weight: 900; font-size: 17px; box-shadow: 0 3px 0 #7a5410; color: var(--ink); }
-.actions { width: 100%; flex: none; display: flex; gap: 8px; }
-.actions .btn { flex: 1; }
-.clock { font-variant-numeric: tabular-nums; }
-.deal { display: grid; grid-template-columns: repeat(var(--cols, 2), 1fr); gap: 10px; }
-.deal .tcard { min-height: 150px; animation: dealin .35s backwards; }
-@keyframes dealin { from { transform: translateY(-30px) rotate(-6deg); opacity: 0; } }
-.say { width: 100%; text-align: center; font-size: 17px; color: #fff1cc; background: #00000050; border-radius: 12px; padding: 7px 10px; line-height: 1.25; }
-.sheet-bg { position: absolute; inset: 0; z-index: 40; background: #000a; display: flex; align-items: flex-end; justify-content: center; }
+/* game stage: a fixed 1180 x 820 table scaled to fit the screen */
+#stage { position: absolute; left: 50%; top: 50%; width: 1180px; height: 820px; transform: translate(-50%, -50%) scale(var(--s, 1)); transform-origin: center; display: flex; flex-direction: column; gap: 6px; padding: 8px 10px 8px; }
+#stage > .topbar, #stage > .handwrap { flex: none; }
+.rotate { position: fixed; left: 8px; right: 8px; top: 8px; z-index: 60; background: var(--gold); color: var(--ink); border-radius: 14px; padding: 8px 12px; font-weight: 800; font-size: 14px; display: flex; gap: 10px; align-items: center; justify-content: space-between; }
+.topbar { height: 106px; display: flex; gap: 8px; align-items: stretch; }
+.menubtn { width: 56px; border-radius: 14px; background: #0008; border: 2px solid var(--gold-d); font-size: 28px; flex: none; }
+.invitecard { flex: 1; min-width: 0; border-radius: 14px; background: linear-gradient(170deg, #fff8e4, #ecdcae); color: var(--ink); border: 3px solid var(--gold-d); padding: 5px 12px; display: flex; flex-direction: column; gap: 2px; justify-content: center; }
+.invitecard h2 { font-size: 26px; line-height: 1.05; display: flex; align-items: baseline; gap: 10px; }
+.invitecard h2 small { font-family: var(--sans); font-size: 12px; font-weight: 800; letter-spacing: 1px; text-transform: uppercase; color: #7a5410; }
+.invitecard .story { font-size: 14px; font-style: italic; line-height: 1.15; color: #4b3a14; }
+.invitecard .pay { font-size: 14px; font-weight: 700; line-height: 1.15; }
+.impchips { display: flex; gap: 4px; flex-wrap: wrap; }
+.ichip { display: inline-flex; align-items: center; gap: 3px; font-size: 12px; font-weight: 900; padding: 1px 7px; border-radius: 10px; background: #0001; color: #7b6b3a; }
+.ichip.on { background: var(--c); color: #fff; } .ichip.minus { background: #fff; color: var(--c); outline: 2px solid var(--c); outline-offset: -2px; }
+.roundbox, .timerbox { width: 108px; border-radius: 14px; background: #00000055; border: 2px solid #ffffff25; display: flex; flex-direction: column; align-items: center; justify-content: center; line-height: 1.05; flex: none; }
+.roundbox small, .timerbox small { font-size: 11px; font-weight: 800; letter-spacing: 1px; color: var(--dim); text-transform: uppercase; }
+.roundbox b { font-family: var(--serif); font-size: 32px; color: #fff1cc; }
+.timerbox { width: 130px; flex-direction: row; gap: 8px; } .timerbox b { font-family: var(--serif); font-size: 42px; color: #fff1cc; font-variant-numeric: tabular-nums; } .timerbox.low b { color: var(--red); animation: blink .5s infinite alternate; }
+@keyframes blink { to { opacity: .45; } }
+.board { width: 236px; border-radius: 14px; background: #00000055; border: 2px solid #ffffff25; padding: 4px 8px; display: grid; grid-template-columns: 1fr 1fr; gap: 0 10px; align-content: center; font-size: 13px; flex: none; }
+.board div { display: flex; justify-content: space-between; gap: 4px; line-height: 1.35; } .board b { color: var(--gold); } .board .me { color: #fff1cc; font-weight: 800; }
+.mess { flex: 1; min-height: 0; display: grid; grid-template-columns: repeat(var(--cols, 15), 1fr); grid-template-rows: repeat(10, 1fr); gap: 2px; position: relative; touch-action: none; }
+.tile { border-radius: 6px; position: relative; overflow: hidden; min-width: 0; min-height: 0; touch-action: none; }
+.tile.empty { background: #00000030; border: 1px dashed #ffffff14; }
+.tile.down { background: repeating-linear-gradient(45deg, #1d6f72, #1d6f72 5px, #2a8a8c 5px, #2a8a8c 10px); border: 2px solid #0a2a2b; box-shadow: inset 0 0 0 1px #ffffff30; }
+.tile.down::after { content: "🧥"; position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-size: 20px; opacity: .55; }
+.tile.up { background: linear-gradient(170deg, #fff8e4, #ecdcae); border: 2px solid var(--c); color: var(--ink); padding: 1px 3px; display: flex; flex-direction: column; justify-content: space-between; }
+.tile.up b { font-size: 10px; line-height: 1.03; font-weight: 800; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.tile .vals { display: flex; gap: 3px; flex-wrap: nowrap; font-size: 11px; font-weight: 900; line-height: 1; }
+.tile .vals span { color: var(--c2); } .tile .vals span.neg { color: #c0262d; }
+.tile.dbg { opacity: .8; } .tile.dbg::after { display: none; }
+.tile.flash { animation: flashring 1.1s; } @keyframes flashring { 0% { box-shadow: 0 0 0 4px #fff, 0 0 14px 6px var(--gold); } 100% { box-shadow: 0 0 0 0 transparent; } }
+.tile.gone { animation: flipout .36s forwards; } @keyframes flipout { 0% { transform: rotateY(0); } 50% { transform: rotateY(90deg) scale(1.1); background: #fff8e4; } 100% { transform: scale(.2) translateY(160px); opacity: 0; } }
+.tile.landed { animation: landin .35s; } @keyframes landin { from { transform: scale(1.5) rotate(-8deg); opacity: .3; } }
+.handwrap { height: 196px; display: flex; gap: 8px; }
+.handrow { flex: 1; display: grid; grid-template-columns: repeat(6, 1fr); gap: 6px; }
+.hc { position: relative; border-radius: 12px; background: linear-gradient(170deg, #fff8e4, #ecdcae); color: var(--ink); border: 4px solid var(--t); padding: 5px 6px 6px; display: flex; gap: 6px; min-width: 0; touch-action: none; box-shadow: 0 3px 0 #0006; }
+.hc.sel { transform: translateY(-8px); box-shadow: 0 0 0 3px #fff, 0 10px 0 #0006; }
+.hc.arrive { animation: arrive .4s; } @keyframes arrive { from { transform: translateY(60px) scale(.8); opacity: 0; } }
+.hc.dragging { opacity: .25; } .hc.dropbefore { box-shadow: -8px 0 0 -2px var(--gold); } .hc.dropafter { box-shadow: 8px 0 0 -2px var(--gold); }
+.hc.slotcard { cursor: default; }
+.hc.played::after { content: "ON"; position: absolute; right: 6px; top: 4px; background: var(--ink); color: var(--gold); font-weight: 900; font-size: 11px; padding: 0 6px; border-radius: 8px; }
+.hc.empty { background: #ffffff0e; border: 3px dashed #ffffff25; box-shadow: none; }
+.hc .imps { display: flex; flex-direction: column; gap: 4px; width: 56px; flex: none; justify-content: flex-start; }
+.im { display: flex; align-items: center; justify-content: space-between; gap: 2px; background: var(--c); color: #fff; border-radius: 8px; padding: 1px 6px; font-size: 17px; font-weight: 900; line-height: 1.3; }
+.im b.neg { color: #ffd0d0; background: #a3151d; border-radius: 5px; padding: 0 3px; }
+.im i { font-style: normal; font-size: 14px; }
+.hc .info { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+.hc .nm { font-family: var(--serif); font-size: 18px; line-height: 1.05; overflow-wrap: anywhere; }
+.hc .ty { font-style: normal; font-size: 11px; font-weight: 900; letter-spacing: 1px; text-transform: uppercase; color: #6b5a2a; }
+.hc .pr { display: flex; flex-wrap: wrap; gap: 3px; } .hc .pr span { font-size: 12px; font-weight: 800; background: #00000018; border-radius: 6px; padding: 0 5px; }
+.hc .ab { font-size: 14px; font-weight: 700; line-height: 1.15; color: #7a2a1a; }
+.handside { width: 150px; flex: none; border-radius: 14px; background: #00000055; border: 2px solid #ffffff25; padding: 8px; display: flex; flex-direction: column; gap: 8px; justify-content: center; text-align: center; }
+.handside b { font-family: var(--serif); font-size: 26px; color: #fff1cc; } .handside small { color: var(--dim); font-size: 12px; font-weight: 700; }
+.handside .btn { min-height: 52px; font-size: 18px; }
+.hint { position: absolute; left: 50%; top: 40%; transform: translateX(-50%); z-index: 20; background: var(--gold); color: var(--ink); border-radius: 22px; padding: 10px 20px; font-weight: 900; font-size: 20px; pointer-events: none; }
+.invitepanel { position: absolute; inset: 0; z-index: 15; background: #0f2a2bf0; border-radius: 14px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 14px; text-align: center; padding: 20px; }
+.invitepanel h1 { font-size: 54px; color: #fff1cc; } .invitepanel .story { font-size: 22px; font-style: italic; color: #f0e3c8; max-width: 760px; } .invitepanel .pay { font-size: 22px; font-weight: 800; color: var(--gold); max-width: 760px; }
+.invitepanel .impchips .ichip { font-size: 18px; padding: 3px 14px; }
+.preview { position: absolute; left: 50%; top: 14px; transform: translateX(-50%); z-index: 25; width: 360px; height: 190px; pointer-events: none; }
+.preview .hc { height: 100%; font-size: 130%; }
+.build { flex: 1; min-height: 0; display: flex; gap: 10px; }
+.build .handrow { grid-template-columns: 1fr 1fr; grid-template-rows: repeat(3, 1fr); flex: none; width: 520px; gap: 6px; }
+.figure { flex: 1; border-radius: 16px; background: #00000040; border: 2px solid #ffffff22; display: grid; grid-template-columns: 1fr 190px; gap: 10px; padding: 10px; }
+.fig { display: flex; flex-direction: column; gap: 6px; }
+.slot { flex: 1; border-radius: 12px; border: 3px dashed #ffffff40; background: #ffffff0d; display: flex; align-items: center; justify-content: center; text-align: center; color: var(--dim); font-weight: 800; font-size: 15px; position: relative; min-height: 0; }
+.slot .bare { display: flex; flex-direction: column; align-items: center; gap: 0; font-size: 14px; } .slot .bare i { font-style: normal; font-size: 36px; }
+.slot .lab { position: absolute; left: 8px; top: 3px; font-size: 11px; letter-spacing: 1px; text-transform: uppercase; opacity: .8; }
+.slot.target { border-color: var(--gold); background: #f2b63a22; } .slot.bad { animation: shake .3s; border-color: var(--red); } @keyframes shake { 25% { transform: translateX(-6px); } 75% { transform: translateX(6px); } }
+.slot .hc { width: 100%; height: 100%; box-shadow: none; }
+.accwrap { display: flex; flex-direction: column; gap: 8px; }
+.accwrap .slot { flex: none; height: 150px; }
+.totals { border-radius: 12px; background: #00000055; padding: 8px; display: flex; flex-direction: column; gap: 5px; }
+.totals .im { font-size: 18px; } .totals .metric { font-size: 14px; color: var(--dim); text-align: center; } .totals .metric b { color: var(--gold); font-size: 22px; }
+.reveal { flex: 1; min-height: 0; display: flex; flex-direction: column; gap: 8px; }
+.rvrow { flex: 1; min-height: 0; display: flex; gap: 6px; }
+.rv { flex: 1; min-width: 0; border-radius: 14px; background: #00000050; border: 2px solid #ffffff25; padding: 6px; display: flex; flex-direction: column; gap: 4px; animation: pop .5s backwards; }
+.rv.me { border-color: var(--gold); } .rv.win { background: linear-gradient(#f2b63a40, #00000050); border-color: var(--gold); box-shadow: 0 0 24px #f2b63a66; }
+@keyframes pop { from { transform: translateY(40px) scale(.9); opacity: 0; } }
+.rv h4 { margin: 0; display: flex; justify-content: space-between; align-items: baseline; font-family: var(--serif); font-size: 18px; color: #fff1cc; } .rv h4 em { font-style: normal; font-size: 26px; color: var(--gold); }
+.mini { border-radius: 8px; border: 3px solid var(--t); background: linear-gradient(170deg, #fff8e4, #ecdcae); color: var(--ink); padding: 2px 4px; flex: 1; min-height: 0; display: flex; flex-direction: column; justify-content: center; line-height: 1.05; }
+.mini b { font-size: 11px; } .mini .vals { display: flex; gap: 4px; font-size: 12px; font-weight: 900; } .mini .vals span.neg { color: #c0262d; }
+.mini.none { background: #ffffff0e; border: 2px dashed #ffffff25; color: var(--dim); font-size: 11px; text-align: center; align-items: center; }
+.rv .tot { display: flex; gap: 3px; flex-wrap: wrap; } .rv .tot .ichip { font-size: 12px; background: var(--c); color: #fff; } .rv .tot .ichip.zero { opacity: .35; }
+.rv .fx { font-size: 11px; color: var(--gold); font-weight: 800; min-height: 14px; } .rv .parts { font-size: 11px; color: #e6f3ee; line-height: 1.25; } .rv .parts span { color: var(--gold); font-weight: 900; }
+.final { display: flex; flex-direction: column; gap: 6px; }
+.final .row2 { display: flex; align-items: center; gap: 10px; background: #00000050; border-radius: 12px; padding: 8px 12px; border: 2px solid #ffffff25; } .final .row2.win { border-color: var(--gold); background: #f2b63a33; }
+.final .row2 b { width: 120px; font-family: var(--serif); font-size: 22px; color: #fff1cc; } .final .row2 span { flex: 1; font-size: 15px; color: var(--dim); } .final .row2 em { font-style: normal; font-size: 32px; font-weight: 900; color: var(--gold); font-family: var(--serif); }
+.dbgpanel { position: absolute; right: 168px; bottom: 206px; width: 330px; max-height: 190px; overflow: auto; z-index: 18; background: #000c; border-radius: 10px; padding: 6px 8px; font-size: 11px; line-height: 1.3; color: #ffd; pointer-events: none; }
+textarea.log { width: 100%; height: 320px; font-size: 13px; font-family: ui-monospace, Menlo, monospace; }
+.toast { position: absolute; left: 50%; bottom: 28px; transform: translateX(-50%); z-index: 70; background: var(--gold); color: var(--ink); padding: 10px 18px; border-radius: 22px; font-weight: 800; font-size: 17px; pointer-events: none; max-width: 90%; text-align: center; }
+.ghost { position: fixed; z-index: 90; pointer-events: none; opacity: .92; transform: rotate(-3deg) scale(1.04); box-shadow: 0 16px 24px #0009; }
+.sheetwide { width: min(900px, 100%); }
+@media (max-width: 520px) { .btn.gold { font-size: 21px; min-height: 60px; } }
+.sheet-bg { position: absolute; inset: 0; z-index: 80; background: #000a; display: flex; align-items: flex-end; justify-content: center; }
 .sheet { width: min(760px, 100%); max-height: 94%; background: linear-gradient(#17595a, #0f3a3c); border: 2px solid var(--gold-d); border-bottom: 0; border-radius: 22px 22px 0 0; padding: 14px 14px max(14px, env(safe-area-inset-bottom)); display: flex; flex-direction: column; gap: 10px; overflow-y: auto; touch-action: pan-y; -webkit-overflow-scrolling: touch; }
 .sheet h3 { font-size: 24px; color: #fff1cc; } .sheet.full { height: 92%; }
 .howto h3 { margin-top: 6px; } .howto p, .howto li { font-size: 17px; line-height: 1.4; color: #e6f3ee; } .howto ul { margin: 4px 0; padding-left: 22px; }
-.over-bg { position: absolute; inset: 0; z-index: 30; background: linear-gradient(#17595a, #0f2a2b); display: flex; flex-direction: column; align-items: center; gap: 10px; padding: max(14px, env(safe-area-inset-top)) 14px max(14px, env(safe-area-inset-bottom)); overflow-y: auto; touch-action: pan-y; }
-.over-bg > * { width: min(720px, 100%); flex: none; }
-.over-bg h2 { font-size: clamp(26px, 5vw, 38px); text-align: center; color: #fff1cc; }
-.look { border-radius: 14px; background: #00000050; border: 2px solid #ffffff25; padding: 8px; display: flex; flex-direction: column; gap: 6px; }
-.look.me { border-color: var(--gold); }
-.look .hd { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; }
-.look .hd b { font-family: var(--serif); font-size: 21px; color: #fff1cc; } .look .hd span { font-size: 15px; color: var(--dim); }
-.look .hd em { font-style: normal; font-weight: 900; font-size: 24px; color: var(--gold); font-family: var(--serif); }
-.slots { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; }
-.slot { border-radius: 10px; border: 3px solid var(--c); background: #fff8e4; color: var(--ink); padding: 4px 5px; min-height: 64px; display: flex; flex-direction: column; justify-content: space-between; text-align: left; }
-.slot.empty { background: #ffffff12; color: var(--dim); border-style: dashed; justify-content: center; text-align: center; }
-.slot b { font-size: clamp(12px, 2.4vw, 15px); line-height: 1.1; } .slot span { font-weight: 900; font-size: 20px; text-align: right; } .slot span.neg { color: #b02a2a; }
-button.slot { cursor: pointer; }
-table.cmp { width: 100%; border-collapse: collapse; font-size: 16px; } table.cmp td, table.cmp th { padding: 7px 6px; border-top: 1px solid #ffffff18; text-align: right; } table.cmp td:first-child, table.cmp th:first-child { text-align: left; }
-.bar { height: 10px; border-radius: 5px; background: #ffffff20; overflow: hidden; } .bar i { display: block; height: 100%; background: var(--gold); }
-.toast { position: absolute; left: 50%; bottom: 110px; transform: translateX(-50%); z-index: 50; background: var(--gold); color: var(--ink); padding: 10px 18px; border-radius: 22px; font-weight: 800; font-size: 17px; pointer-events: none; max-width: 90%; text-align: center; }
-@media (max-width: 520px) { .btn.gold { font-size: 21px; min-height: 60px; } }
+.say { width: 100%; text-align: center; font-size: 17px; color: #fff1cc; background: #00000050; border-radius: 12px; padding: 7px 10px; line-height: 1.25; }
+.stagehost { position: absolute; inset: 0; overflow: hidden; }
 </style>
 </head>
 <body>
 <div id="app"></div>
 <script id="data">
-// All Thrift Shop rules, numbers and cards live here. Engine and bots read these; they hard-code none.
+// Thrift Shop 2026: every tunable number and label lives here (the cards and invites come from the generated "sheet" script).
 const GAME_DATA = {
   title: 'Thrift Shop',
   library: { href: '../../index.html' },
-  seasons: ['Winter', 'Spring', 'Summer', 'Fall'],
-  types: [
-    { id: 'top', name: 'Tops', one: 'Top', color: '#e0584f' },
-    { id: 'bottom', name: 'Bottoms', one: 'Bottom', color: '#3f7fd0' },
-    { id: 'shoes', name: 'Shoes', one: 'Shoes', color: '#4aa56a' },
-    { id: 'accessory', name: 'Accessories', one: 'Accessory', color: '#d9a21b' },
+  // The five Impressions, always in this order.
+  impressions: [
+    { id: 'Important', icon: '👑', color: '#d9a21b' },
+    { id: 'Cool', icon: '😎', color: '#3f7fd0' },
+    { id: 'Cute', icon: '🧸', color: '#e0589f' },
+    { id: 'Wacky', icon: '🤪', color: '#ee8a22' },
+    { id: 'Spooky', icon: '👻', color: '#8a55d0' },
   ],
-  rules: {
-    startCoins: 5,        // each player starts with this many coins ...
-    startCards: 1,        // ... and this many cards from each stack
-    copies: 2,            // copies of each card in the stacks (the sheet lists one of each; the rulebook says about 25 a stack)
-    seasonCount: 4,       // Winter, Spring, Summer, Fall
-    pricePerCard: 1,      // coins per card drawn when buying
-    maxBuy: 6,            // most cards you may draw in one purchase
-    penaltyCards: true,   // the four gym cards are in the stacks
-    coinPoints: 0,        // points per coin left at the end (the rulebook gives none)
-    wornOnceHold: 0.5,    // how much of a card's later value counts against wearing a discard-after-wearing card now (the outfit picker)
-    clockSecs: 120,       // the real game's clock; used only when "Timed" is on
+  // The board slots, in order. A card only fits the slot of its own type. The last one is the accessory slot.
+  slots: [
+    { id: 'Head', icon: '🎩', bare: 'Bald' }, { id: 'Top', icon: '👕', bare: 'Plain undershirt' }, { id: 'Bottom', icon: '👖', bare: 'Heart boxers' },
+    { id: 'Shoes', icon: '👟', bare: 'Barefoot' }, { id: 'Accessory', icon: '👜', bare: 'Empty hand' },
+  ],
+  // Settings (the settings panel edits these; stored on the device). min / max are the panel's limits.
+  settings: {
+    bots: 3, rounds: 7, thriftSecs: 60, startHand: 5, handLimit: 6, maxPlayed: 5, botSpeed: 'normal', debug: false,
   },
-  playerRange: { min: 2, max: 6, default: 3 },
+  limits: {
+    bots: [1, 7], rounds: [1, 40], thriftSecs: [10, 180], startHand: [1, 6], handLimit: [2, 8], maxPlayed: [1, 5],
+  },
+  steps: { bots: 1, rounds: 1, thriftSecs: 10, startHand: 1, handLimit: 1, maxPlayed: 1 },
+  botSpeeds: { slow: { label: 'Slow', min: 2.5, max: 5 }, normal: { label: 'Normal', min: 1.5, max: 3.5 }, fast: { label: 'Fast', min: 0.8, max: 2 } },
+  mess: { cols: 15 },                 // the mess is a grid with one space per card (150); this many columns
+  bot: { takeFaceUpGain: 2 },         // a bot takes a face-up card if it raises its outfit score by at least this much
   names: ['Maya', 'Theo', 'Priya', 'Jonas', 'Alma', 'Ravi', 'Lena'],
-  // [name, Winter, Spring, Summer, Fall, resale, type, ability]  (Thrift Shop cards, sheet "cards 1.1")
-  // ability: 'once' = discard after wearing once; ['hand', n] = lose n points if still in your hand at the end of a round (not worn)
-  cards: [
-    ['PJ Pants', 3, 0, -1, 0, 2, 'bottom'], ['Ripped Jeans', 2, 3, 2, 3, 1, 'bottom', 'once'], ['Capris', 0, 4, 1, 2, 2, 'bottom'], ['Leggings', 1, 1, 0, 2, 1, 'bottom'],
-    ['Swim Trunks', 0, 1, 5, 1, 1, 'bottom'], ['Denim Overalls', 2, 3, 0, 3, 3, 'bottom'], ['Tights', 2, 0, 0, 1, 2, 'bottom'], ['Jeans', 3, 3, 0, 3, 2, 'bottom'],
-    ['Booty Shorts', -2, 0, 1, 0, 2, 'bottom'], ['Lined Jeans', 4, 0, 0, 0, 4, 'bottom'], ['Clown Pants', 1, 1, 1, 4, 2, 'bottom'], ['Jean Skirt', -1, 0, 1, 0, 1, 'bottom'],
-    ['Carbo Pants', 1, 2, 1, 1, 1, 'bottom'], ['Khaki Pants', 0, 1, 0, 0, 2, 'bottom'], ['Ski Pants', 4, 0, 0, 1, 3, 'bottom'],
-    ['Rope Belt', 0, 1, 2, 1, 1, 'accessory'], ['Sheep Dog', 1, 3, 3, 3, 5, 'accessory'], ['Silk Scarf', -1, -1, -1, -1, 1, 'accessory'], ['Red Wagon', 0, 2, 2, 2, 2, 'accessory'],
-    ['Gold Top Hat', 0, 0, 0, 1, 5, 'accessory'], ['Chain Neckless', 1, 4, 2, 1, 2, 'accessory'], ['Handkerchief', 0, 1, 1, 1, 1, 'accessory'], ['Straw Hat', 0, 1, 3, 1, 2, 'accessory'],
-    ['Wool Socks', 3, 0, 0, 0, 2, 'accessory'], ['Balaclava', 3, 1, 0, 1, 2, 'accessory'], ['Sunglasses', 1, 1, 3, 1, 1, 'accessory'], ['Fake Rolex', 3, 2, 1, 0, 1, 'accessory'],
-    ['Rake', 1, 0, 0, 3, 2, 'accessory'], ['Ear Muffs', 3, 0, 0, 0, 1, 'accessory'], ['Thermal Underwear', 3, 1, 0, 1, 2, 'accessory'], ['Pitchfork', 0, 1, 3, 5, 3, 'accessory'],
-    ['Barn Cat', 2, 2, 2, 2, 5, 'accessory'], ['Santa Hat', 4, 0, 0, 0, 1, 'accessory'],
-    ['Lifetime Warranty Sweatshirt', 2, 2, 0, 4, 3, 'top'], ['Canada Goose Jacket', 2, 0, -1, 0, 4, 'top'], ['Sleeveless', -2, 2, 5, 1, 1, 'top'], ['Denim Jacket', 1, 2, 0, 3, 3, 'top'],
-    ['Flannel', 2, 2, 0, 3, 3, 'top'], ['Sun Dress', 0, 0, 1, 0, 3, 'top'], ['Oilers Jersey', 0, 3, 4, 2, 2, 'top'], ['Barrel', 1, 3, 2, 1, 2, 'top'], ['Lace Crop Top', -1, -1, 0, -1, 1, 'top'],
-    ['T-shirt', 0, 2, 2, 1, 1, 'top'], ['Down Coat', 5, 1, -2, 2, 4, 'top'], ['Tank Top', 0, 1, 2, 0, 1, 'top'], ['Turtleneck', 3, 1, 0, 3, 2, 'top'], ['Knitted Sweater', 4, 0, 0, 1, 3, 'top'],
-    ['Shiny Shoes', 1, 2, 2, 2, 4, 'shoes'], ['Converse', 1, 2, 2, 2, 2, 'shoes'], ['Gold Shoes', 1, 3, 5, 2, 5, 'shoes'], ['High Heels', -1, -1, -1, -1, 1, 'shoes'], ['Flip Flops', -2, -1, 0, -1, 1, 'shoes'],
-    ['Flippers', 0, 0, 4, 0, 1, 'shoes'], ['Birkenstocks', 0, 0, 0, 0, 4, 'shoes'], ['Tissue Box', 0, 1, 0, 1, 1, 'shoes'], ['Rain Boots', 1, 4, 2, 2, 2, 'shoes'], ['Uggs', 2, 0, -2, 0, 2, 'shoes'],
-    ['Galoshes', 1, 2, 1, 0, 2, 'shoes'], ['Work Boots', 2, 3, 2, 3, 3, 'shoes'], ['Water-Resistent Boots', 3, 3, 1, 1, 4, 'shoes'], ['Fuzzy Slippers', -3, -2, -2, -2, 1, 'shoes'],
-  ],
-  // The four gym cards: one of each, negative resale, a penalty if still in your hand when a round ends.
-  penaltyCards: [
-    ['Stinky Gym Shirt', 0, 0, 0, 0, -4, 'top', ['hand', 2]], ['Repulsive Gym Socks', 0, 0, 0, 0, -2, 'accessory', ['hand', 4]],
-    ['Smelly Gym Shorts', 0, 0, 0, 0, -3, 'bottom', ['hand', 3]], ['Stinky Gym Shoes', 0, 0, 0, 0, -1, 'shoes', ['hand', 5]],
-  ],
-  // The computer shoppers. `weights` = how much each coming season's value counts when judging a card (this season first).
-  ai: {
-    levels: {
-      easy:   { weights: [1], actions: 6, buyMax: 2, sloppy: 0.35, passChance: 0.25 },
-      normal: { weights: [1, 0.4], actions: 10, buyMax: 3, sloppy: 0.08, passChance: 0.1 },
-      hard:   { weights: [1, 0.6, 0.4, 0.3], actions: 14, buyMax: 4, sloppy: 0, passChance: 0.03 },
-    },
-    timedEverySecs: 4,   // timed mode: a shopper acts this often
-  },
-  lab: [
-    { key: 'startCoins', label: 'Starting coins', kind: 'num', min: 0, max: 20, step: 1 },
-    { key: 'startCards', label: 'Starting cards from each stack', kind: 'num', min: 0, max: 3, step: 1 },
-    { key: 'copies', label: 'Copies of each card', kind: 'num', min: 1, max: 4, step: 1 },
-    { key: 'seasonCount', label: 'Seasons played', kind: 'num', min: 1, max: 4, step: 1 },
-    { key: 'pricePerCard', label: 'Coins per card drawn', kind: 'num', min: 1, max: 3, step: 1 },
-    { key: 'maxBuy', label: 'Most cards in one purchase', kind: 'num', min: 1, max: 10, step: 1 },
-    { key: 'coinPoints', label: 'Points per coin left at the end', kind: 'num', min: 0, max: 3, step: 1 },
-    { key: 'penaltyCards', label: 'The four gym cards (stinky penalty cards)', kind: 'toggle' },
-  ],
-  sim: { games: 100 },
+  holdPreviewMs: 450,                 // press and hold a face-up card in the mess to see it large without taking it
 };
 </script>
+<script id="sheet">
+// Generated by games/thrift-shop/tools/sync-sheet.js from the Thrift Shop cards sheet (tabs Cards 2026 and Invites 2026) and data/scoring.json. Do not edit by hand.
+const SHEET = {"cards":[{"name":"Tiara","type":"Head","v":[5,0,1,0,0],"prints":["crowns"],"power":"Star","abilityText":"","ability":null},{"name":"Powdered Judge's Wig","type":"Head","v":[4,-1,0,0,0],"prints":[],"power":"Solid","abilityText":"","ability":null},{"name":"Top Hat","type":"Head","v":[3,0,0,0,0],"prints":["pinstripes"],"power":"Solid","abilityText":"","ability":null},{"name":"Monocle","type":"Head","v":[2,0,0,0,0],"prints":[],"power":"Ordinary","abilityText":"","ability":null},{"name":"Yacht Captain's Hat","type":"Head","v":[2,1,0,0,0],"prints":["stripes"],"power":"Ordinary","abilityText":"","ability":null},{"name":"Mohawk","type":"Head","v":[0,4,0,0,2],"prints":["flames"],"power":"Star","abilityText":"","ability":null},{"name":"Backwards Cap","type":"Head","v":[0,3,0,0,0],"prints":["checkerboard"],"power":"Solid","abilityText":"","ability":null},{"name":"Aviator Sunglasses","type":"Head","v":[1,3,0,0,0],"prints":[],"power":"Solid","abilityText":"","ability":null},{"name":"Skull Bandana","type":"Head","v":[0,2,0,0,1],"prints":["skulls"],"power":"Ordinary","abilityText":"","ability":null},{"name":"Lightning Bolt Headphones","type":"Head","v":[0,2,0,0,0],"prints":["lightning bolts"],"power":"Ordinary","abilityText":"","ability":null},{"name":"Bunny Ears","type":"Head","v":[0,0,4,0,-2],"prints":["animals"],"power":"Solid","abilityText":"","ability":null},{"name":"Pigtails with Polka Dot Bows","type":"Head","v":[0,0,3,0,0],"prints":["polka dots"],"power":"Solid","abilityText":"","ability":null},{"name":"Flower Crown","type":"Head","v":[1,0,3,0,0],"prints":["flowers"],"power":"Solid","abilityText":"","ability":null},{"name":"Kitty Ear Headband","type":"Head","v":[0,0,2,0,1],"prints":["leopard"],"power":"Ordinary","abilityText":"","ability":null},{"name":"Baby Bonnet","type":"Head","v":[0,-2,5,0,0],"prints":["hearts"],"power":"Star","abilityText":"","ability":null},{"name":"Propeller Beanie","type":"Head","v":[0,0,1,4,0],"prints":["stripes"],"power":"Solid","abilityText":"","ability":null},{"name":"Rainbow Clown Wig","type":"Head","v":[0,0,0,5,1],"prints":["polka dots"],"power":"Star","abilityText":"","ability":null},{"name":"Fruit Basket Hat","type":"Head","v":[1,0,0,3,0],"prints":["bananas"],"power":"Solid","abilityText":"","ability":null},{"name":"Googly-Eye Glasses","type":"Head","v":[0,0,0,2,-1],"prints":[],"power":"Ordinary","abilityText":"","ability":null},{"name":"Shark Hat","type":"Head","v":[0,0,1,2,0],"prints":["animals"],"power":"Ordinary","abilityText":"","ability":null},{"name":"Vampire Fangs","type":"Head","v":[0,1,0,0,4],"prints":[],"power":"Solid","abilityText":"","ability":null},{"name":"Witch Hat","type":"Head","v":[0,0,0,0,3],"prints":["stars","bats"],"power":"Solid","abilityText":"","ability":null},{"name":"Skull Face Paint","type":"Head","v":[0,0,-2,0,5],"prints":["skulls"],"power":"Star","abilityText":"","ability":null},{"name":"Black Lace Veil","type":"Head","v":[0,0,0,-1,3],"prints":["spiderwebs"],"power":"Solid","abilityText":"","ability":null},{"name":"Bat Hair Clips","type":"Head","v":[0,0,1,0,2],"prints":["bats"],"power":"Ordinary","abilityText":"","ability":null},{"name":"Fedora","type":"Head","v":[1,1,1,1,1],"prints":["pinstripes"],"power":"Generalist","abilityText":"","ability":null},{"name":"Leopard Shower Cap","type":"Head","v":[0,-2,1,0,0],"prints":["leopard"],"power":"Dud","abilityText":"","ability":null},{"name":"Lampshade","type":"Head","v":[-2,0,0,1,0],"prints":[],"power":"Dud","abilityText":"","ability":null},{"name":"Flame Decal Bike Helmet","type":"Head","v":[0,-1,1,0,0],"prints":["flames"],"power":"Dud","abilityText":"","ability":null},{"name":"Paper Fast-Food Crown","type":"Head","v":[0,-1,0,1,0],"prints":["crowns"],"power":"Dud","abilityText":"","ability":null},{"name":"Sequin Gown","type":"Top","v":[5,1,0,0,0],"prints":["stars"],"power":"Star","abilityText":"","ability":null},{"name":"Pinstripe Blazer","type":"Top","v":[4,0,0,-1,0],"prints":["pinstripes"],"power":"Solid","abilityText":"","ability":null},{"name":"Leopard Fur Coat","type":"Top","v":[4,1,0,0,0],"prints":["leopard"],"power":"Solid","abilityText":"","ability":null},{"name":"Tuxedo Jacket","type":"Top","v":[3,1,0,0,0],"prints":["pinstripes"],"power":"Solid","abilityText":"","ability":null},{"name":"Striped Polo Shirt","type":"Top","v":[2,-1,0,0,0],"prints":["stripes"],"power":"Ordinary","abilityText":"","ability":null},{"name":"Leather Jacket","type":"Top","v":[0,5,0,0,1],"prints":["flames"],"power":"Star","abilityText":"","ability":null},{"name":"Band Tee","type":"Top","v":[0,3,0,0,1],"prints":["skulls","checkerboard"],"power":"Solid","abilityText":"","ability":null},{"name":"Varsity Jacket","type":"Top","v":[1,3,0,0,0],"prints":["lightning bolts"],"power":"Solid","abilityText":"","ability":null},{"name":"Camo Hoodie","type":"Top","v":[0,2,0,0,0],"prints":["camo"],"power":"Ordinary","abilityText":"","ability":null},{"name":"Hockey Jersey","type":"Top","v":[0,2,0,0,0],"prints":["crowns","stripes"],"power":"Ordinary","abilityText":"","ability":null},{"name":"Grandma's Kitten Cardigan","type":"Top","v":[-1,0,4,0,0],"prints":["animals"],"power":"Solid","abilityText":"","ability":null},{"name":"Heart Sweater","type":"Top","v":[0,0,3,0,-1],"prints":["hearts"],"power":"Solid","abilityText":"","ability":null},{"name":"Teddy Bear Onesie","type":"Top","v":[0,0,5,1,0],"prints":["animals","hearts"],"power":"Star","abilityText":"","ability":null},{"name":"Puff-Sleeve Flower Blouse","type":"Top","v":[1,0,2,0,0],"prints":["flowers"],"power":"Ordinary","abilityText":"","ability":null},{"name":"Sailor Shirt","type":"Top","v":[0,0,2,0,0],"prints":["stripes"],"power":"Ordinary","abilityText":"","ability":null},{"name":"Hawaiian Shirt","type":"Top","v":[0,1,0,4,0],"prints":["flowers","bananas"],"power":"Solid","abilityText":"","ability":null},{"name":"Barrel","type":"Top","v":[-2,0,0,5,0],"prints":[],"power":"Star","abilityText":"","ability":null},{"name":"Tie-Dye Tee","type":"Top","v":[0,1,0,3,0],"prints":["lightning bolts"],"power":"Solid","abilityText":"","ability":null},{"name":"Banana Costume","type":"Top","v":[0,0,1,3,0],"prints":["bananas"],"power":"Solid","abilityText":"","ability":null},{"name":"Lobster Bib","type":"Top","v":[-1,0,0,2,0],"prints":["animals"],"power":"Ordinary","abilityText":"","ability":null},{"name":"Vampire Cape","type":"Top","v":[2,0,0,0,5],"prints":["bats"],"power":"Star","abilityText":"","ability":null},{"name":"Spiderweb Sweater","type":"Top","v":[0,0,-1,0,3],"prints":["spiderwebs"],"power":"Solid","abilityText":"","ability":null},{"name":"Skeleton Shirt","type":"Top","v":[0,1,0,0,3],"prints":["skulls"],"power":"Solid","abilityText":"","ability":null},{"name":"Black Lace Blouse","type":"Top","v":[1,0,0,0,2],"prints":["spiderwebs","bats"],"power":"Ordinary","abilityText":"","ability":null},{"name":"Mummy Wrap Top","type":"Top","v":[0,0,-1,0,2],"prints":[],"power":"Ordinary","abilityText":"","ability":null},{"name":"Plain White T-Shirt","type":"Top","v":[1,1,1,1,1],"prints":[],"power":"Generalist","abilityText":"","ability":null},{"name":"Stinky Gym Shirt","type":"Top","v":[0,0,-1,0,0],"prints":["camo"],"power":"Dud","abilityText":"","ability":null},{"name":"Ketchup-Stained Flannel","type":"Top","v":[-2,0,0,1,0],"prints":["plaid"],"power":"Dud","abilityText":"","ability":null},{"name":"Itchy Reindeer Sweater","type":"Top","v":[0,-2,0,1,0],"prints":["animals"],"power":"Dud","abilityText":"","ability":null},{"name":"Trash Bag Poncho","type":"Top","v":[0,0,-1,1,0],"prints":[],"power":"Dud","abilityText":"","ability":null},{"name":"Ball Gown Skirt","type":"Bottom","v":[5,0,1,0,0],"prints":["crowns"],"power":"Star","abilityText":"","ability":null},{"name":"Pinstripe Trousers","type":"Bottom","v":[3,0,0,-1,0],"prints":["pinstripes"],"power":"Solid","abilityText":"","ability":null},{"name":"Plaid Pleated Slacks","type":"Bottom","v":[3,0,0,-1,0],"prints":["plaid"],"power":"Solid","abilityText":"","ability":null},{"name":"Leopard Pencil Skirt","type":"Bottom","v":[2,1,0,0,0],"prints":["leopard"],"power":"Ordinary","abilityText":"","ability":null},{"name":"Khakis","type":"Bottom","v":[2,-1,0,0,0],"prints":[],"power":"Ordinary","abilityText":"","ability":null},{"name":"Ripped Jeans","type":"Bottom","v":[-1,4,0,0,0],"prints":["lightning bolts"],"power":"Solid","abilityText":"","ability":null},{"name":"Leather Pants","type":"Bottom","v":[0,4,0,0,2],"prints":["flames"],"power":"Star","abilityText":"","ability":null},{"name":"Camo Cargo Pants","type":"Bottom","v":[0,3,0,0,0],"prints":["camo"],"power":"Solid","abilityText":"","ability":null},{"name":"Checkered Skate Shorts","type":"Bottom","v":[0,2,0,1,0],"prints":["checkerboard"],"power":"Ordinary","abilityText":"","ability":null},{"name":"Striped Track Pants","type":"Bottom","v":[0,2,0,0,0],"prints":["stripes"],"power":"Ordinary","abilityText":"","ability":null},{"name":"Tutu","type":"Bottom","v":[0,0,4,1,0],"prints":["stars"],"power":"Solid","abilityText":"","ability":null},{"name":"Heart-Patch Overalls","type":"Bottom","v":[-1,0,3,0,0],"prints":["hearts","plaid"],"power":"Solid","abilityText":"","ability":null},{"name":"Polka Dot Skirt","type":"Bottom","v":[0,0,2,1,0],"prints":["polka dots"],"power":"Ordinary","abilityText":"","ability":null},{"name":"Footie Pajama Bottoms","type":"Bottom","v":[0,-1,3,0,0],"prints":["animals"],"power":"Solid","abilityText":"","ability":null},{"name":"Flower Print Shorts","type":"Bottom","v":[0,0,2,0,0],"prints":["flowers"],"power":"Ordinary","abilityText":"","ability":null},{"name":"Clown Pants","type":"Bottom","v":[-1,0,1,5,0],"prints":["polka dots","checkerboard"],"power":"Star","abilityText":"","ability":null},{"name":"Banana Print Shorts","type":"Bottom","v":[0,0,0,3,0],"prints":["bananas"],"power":"Solid","abilityText":"","ability":null},{"name":"Kilt","type":"Bottom","v":[1,0,0,2,0],"prints":["plaid"],"power":"Ordinary","abilityText":"","ability":null},{"name":"Flamingo Pool Floatie","type":"Bottom","v":[0,0,1,3,0],"prints":["animals"],"power":"Solid","abilityText":"","ability":null},{"name":"Grass Skirt","type":"Bottom","v":[0,0,0,2,0],"prints":["flowers"],"power":"Ordinary","abilityText":"","ability":null},{"name":"Witch's Striped Tights","type":"Bottom","v":[0,1,0,0,3],"prints":["stripes"],"power":"Solid","abilityText":"","ability":null},{"name":"Skeleton Leggings","type":"Bottom","v":[0,0,-1,0,4],"prints":["skulls"],"power":"Solid","abilityText":"","ability":null},{"name":"Tattered Mummy Pants","type":"Bottom","v":[0,0,0,-1,2],"prints":[],"power":"Ordinary","abilityText":"","ability":null},{"name":"Black Velvet Skirt","type":"Bottom","v":[0,1,0,0,2],"prints":["crowns"],"power":"Ordinary","abilityText":"","ability":null},{"name":"Cobweb Ball Skirt","type":"Bottom","v":[2,0,0,0,4],"prints":["spiderwebs"],"power":"Star","abilityText":"","ability":null},{"name":"Classic Jeans","type":"Bottom","v":[1,1,1,1,1],"prints":[],"power":"Generalist","abilityText":"","ability":null},{"name":"Stinky Gym Shorts","type":"Bottom","v":[0,0,-1,0,0],"prints":["camo"],"power":"Dud","abilityText":"","ability":null},{"name":"Holey Plaid Pajama Pants","type":"Bottom","v":[-2,0,1,0,0],"prints":["plaid"],"power":"Dud","abilityText":"","ability":null},{"name":"Flame Swim Trunks","type":"Bottom","v":[-1,0,0,1,0],"prints":["flames"],"power":"Dud","abilityText":"","ability":null},{"name":"Corduroy Pants","type":"Bottom","v":[0,0,0,0,0],"prints":[],"power":"Dud","abilityText":"","ability":null},{"name":"Glass Slippers","type":"Shoes","v":[4,0,2,0,0],"prints":[],"power":"Star","abilityText":"","ability":null},{"name":"Shiny Dress Shoes","type":"Shoes","v":[3,0,0,-1,0],"prints":[],"power":"Solid","abilityText":"","ability":null},{"name":"Gold Shoes","type":"Shoes","v":[3,1,0,0,0],"prints":["crowns"],"power":"Solid","abilityText":"","ability":null},{"name":"Leopard Heels","type":"Shoes","v":[2,1,0,0,0],"prints":["leopard"],"power":"Ordinary","abilityText":"","ability":null},{"name":"Boat Shoes","type":"Shoes","v":[2,0,0,0,0],"prints":["crowns"],"power":"Ordinary","abilityText":"","ability":null},{"name":"Light-Up Sneakers","type":"Shoes","v":[0,5,-1,0,0],"prints":["lightning bolts"],"power":"Star","abilityText":"","ability":null},{"name":"High-Top Sneakers","type":"Shoes","v":[0,4,0,0,0],"prints":["lightning bolts","checkerboard"],"power":"Solid","abilityText":"","ability":null},{"name":"Checkered Slip-Ons","type":"Shoes","v":[0,3,0,0,0],"prints":["checkerboard"],"power":"Solid","abilityText":"","ability":null},{"name":"Cowboy Boots","type":"Shoes","v":[1,2,0,0,0],"prints":["stars"],"power":"Ordinary","abilityText":"","ability":null},{"name":"Combat Boots","type":"Shoes","v":[0,2,0,0,1],"prints":["camo"],"power":"Ordinary","abilityText":"","ability":null},{"name":"Bunny Slippers","type":"Shoes","v":[0,0,4,0,-1],"prints":["animals"],"power":"Solid","abilityText":"","ability":null},{"name":"Mary Janes","type":"Shoes","v":[1,0,3,0,0],"prints":["hearts"],"power":"Solid","abilityText":"","ability":null},{"name":"Duck Rain Boots","type":"Shoes","v":[0,0,3,0,-1],"prints":["animals"],"power":"Solid","abilityText":"","ability":null},{"name":"Jelly Sandals","type":"Shoes","v":[0,0,2,0,0],"prints":["flowers"],"power":"Ordinary","abilityText":"","ability":null},{"name":"Glitter Toddler Shoes","type":"Shoes","v":[0,0,2,1,0],"prints":["stars"],"power":"Ordinary","abilityText":"","ability":null},{"name":"Clown Shoes","type":"Shoes","v":[-2,0,0,5,0],"prints":["polka dots"],"power":"Star","abilityText":"","ability":null},{"name":"Flippers","type":"Shoes","v":[0,0,0,3,-1],"prints":[],"power":"Solid","abilityText":"","ability":null},{"name":"Striped Roller Skates","type":"Shoes","v":[0,1,0,3,0],"prints":["stripes"],"power":"Solid","abilityText":"","ability":null},{"name":"Tissue Box Shoes","type":"Shoes","v":[0,0,0,2,0],"prints":["polka dots"],"power":"Ordinary","abilityText":"","ability":null},{"name":"Banana Slippers","type":"Shoes","v":[0,0,1,2,0],"prints":["bananas"],"power":"Ordinary","abilityText":"","ability":null},{"name":"Pointy Witch Boots","type":"Shoes","v":[1,0,0,0,4],"prints":["spiderwebs","stars"],"power":"Solid","abilityText":"","ability":null},{"name":"Skull Sneakers","type":"Shoes","v":[0,1,0,0,3],"prints":["skulls","flames"],"power":"Solid","abilityText":"","ability":null},{"name":"Coffin-Toe Boots","type":"Shoes","v":[0,0,0,-1,3],"prints":["bats"],"power":"Solid","abilityText":"","ability":null},{"name":"Bat Wing Heels","type":"Shoes","v":[1,0,0,0,2],"prints":["bats"],"power":"Ordinary","abilityText":"","ability":null},{"name":"Rubber Zombie Feet","type":"Shoes","v":[0,0,-1,0,3],"prints":[],"power":"Ordinary","abilityText":"","ability":null},{"name":"White Sneakers","type":"Shoes","v":[1,1,1,1,1],"prints":[],"power":"Generalist","abilityText":"","ability":null},{"name":"Plaid Socks with Sandals","type":"Shoes","v":[0,-2,0,1,0],"prints":["plaid"],"power":"Dud","abilityText":"","ability":null},{"name":"Fuzzy Heart Slippers","type":"Shoes","v":[0,-2,1,0,0],"prints":["hearts"],"power":"Dud","abilityText":"","ability":null},{"name":"One Flip-Flop","type":"Shoes","v":[0,0,0,1,-1],"prints":[],"power":"Dud","abilityText":"","ability":null},{"name":"Muddy Galoshes","type":"Shoes","v":[-1,0,0,0,0],"prints":[],"power":"Dud","abilityText":"","ability":null},{"name":"Briefcase","type":"Accessory","v":[0,0,0,0,0],"prints":[],"power":"Common","abilityText":"+2 Important per item with pinstripes","ability":{"kind":"perPrint","n":2,"imp":"Important","prints":["pinstripes"]}},{"name":"Royal Scepter","type":"Accessory","v":[0,0,0,0,0],"prints":[],"power":"Common","abilityText":"+2 Important per item with crowns","ability":{"kind":"perPrint","n":2,"imp":"Important","prints":["crowns"]}},{"name":"Feather Boa","type":"Accessory","v":[0,0,0,0,0],"prints":[],"power":"Common","abilityText":"+2 Important per item with leopard","ability":{"kind":"perPrint","n":2,"imp":"Important","prints":["leopard"]}},{"name":"Pocket Dog in a Designer Bag","type":"Accessory","v":[0,0,0,0,0],"prints":[],"power":"Common","abilityText":"+1 Important per animal pictured in your outfit","ability":{"kind":"perPrint","n":1,"imp":"Important","prints":["animals","bats"]}},{"name":"Personal Assistant with Clipboard","type":"Accessory","v":[0,0,0,0,0],"prints":[],"power":"Common","abilityText":"Add your Cool to your Important","ability":{"kind":"add","from":"Cool","to":"Important"}},{"name":"Golden Trophy","type":"Accessory","v":[0,0,0,0,0],"prints":[],"power":"Rare","abilityText":"Your highest Impression counts double","ability":{"kind":"doubleHighest"}},{"name":"Skateboard","type":"Accessory","v":[0,0,0,0,0],"prints":[],"power":"Common","abilityText":"+2 Cool per item with checkerboard","ability":{"kind":"perPrint","n":2,"imp":"Cool","prints":["checkerboard"]}},{"name":"Boombox","type":"Accessory","v":[0,0,0,0,0],"prints":[],"power":"Common","abilityText":"+2 Cool per item with lightning bolts","ability":{"kind":"perPrint","n":2,"imp":"Cool","prints":["lightning bolts"]}},{"name":"Motorcycle Helmet","type":"Accessory","v":[0,0,0,0,0],"prints":[],"power":"Common","abilityText":"+2 Cool per item with flames","ability":{"kind":"perPrint","n":2,"imp":"Cool","prints":["flames"]}},{"name":"Walkie-Talkie","type":"Accessory","v":[0,0,0,0,0],"prints":[],"power":"Common","abilityText":"+2 Cool per item with camo","ability":{"kind":"perPrint","n":2,"imp":"Cool","prints":["camo"]}},{"name":"Microphone","type":"Accessory","v":[0,0,0,0,0],"prints":[],"power":"Common","abilityText":"+2 Cool per item with stars","ability":{"kind":"perPrint","n":2,"imp":"Cool","prints":["stars"]}},{"name":"Electric Guitar","type":"Accessory","v":[0,0,0,0,0],"prints":[],"power":"Common","abilityText":"Add your Wacky to your Cool","ability":{"kind":"add","from":"Wacky","to":"Cool"}},{"name":"Puppy on a Leash","type":"Accessory","v":[0,0,0,0,0],"prints":[],"power":"Common","abilityText":"+1 Cute per animal pictured in your outfit","ability":{"kind":"perPrint","n":1,"imp":"Cute","prints":["animals","bats"]}},{"name":"Heart Balloon","type":"Accessory","v":[0,0,0,0,0],"prints":[],"power":"Common","abilityText":"+2 Cute per item with hearts","ability":{"kind":"perPrint","n":2,"imp":"Cute","prints":["hearts"]}},{"name":"Flower Basket","type":"Accessory","v":[0,0,0,0,0],"prints":[],"power":"Common","abilityText":"+2 Cute per item with flowers","ability":{"kind":"perPrint","n":2,"imp":"Cute","prints":["flowers"]}},{"name":"Picnic Basket","type":"Accessory","v":[0,0,0,0,0],"prints":[],"power":"Common","abilityText":"+2 Cute per item with plaid","ability":{"kind":"perPrint","n":2,"imp":"Cute","prints":["plaid"]}},{"name":"Candy Cane","type":"Accessory","v":[0,0,0,0,0],"prints":[],"power":"Common","abilityText":"+2 Cute per item with stripes","ability":{"kind":"perPrint","n":2,"imp":"Cute","prints":["stripes"]}},{"name":"Teddy Bear","type":"Accessory","v":[0,0,0,0,0],"prints":[],"power":"Common","abilityText":"Add your Spooky to your Cute (creepy-cute counts)","ability":{"kind":"add","from":"Spooky","to":"Cute"}},{"name":"Rubber Chicken","type":"Accessory","v":[0,0,0,0,0],"prints":[],"power":"Common","abilityText":"+2 Wacky per item with polka dots","ability":{"kind":"perPrint","n":2,"imp":"Wacky","prints":["polka dots"]}},{"name":"Unicycle","type":"Accessory","v":[0,0,0,0,0],"prints":[],"power":"Common","abilityText":"+2 Wacky per item with stripes","ability":{"kind":"perPrint","n":2,"imp":"Wacky","prints":["stripes"]}},{"name":"Banana Phone","type":"Accessory","v":[0,0,0,0,0],"prints":[],"power":"Common","abilityText":"+1 Wacky per banana pictured in your outfit","ability":{"kind":"perPrint","n":1,"imp":"Wacky","prints":["bananas"]}},{"name":"Bagpipes","type":"Accessory","v":[0,0,0,0,0],"prints":[],"power":"Common","abilityText":"+2 Wacky per item with plaid","ability":{"kind":"perPrint","n":2,"imp":"Wacky","prints":["plaid"]}},{"name":"Whoopee Cushion","type":"Accessory","v":[0,0,0,0,0],"prints":[],"power":"Common","abilityText":"Add your Important to your Wacky","ability":{"kind":"add","from":"Important","to":"Wacky"}},{"name":"Mystery Shopping Bag","type":"Accessory","v":[0,0,0,0,0],"prints":[],"power":"Common","abilityText":"+2 Wacky per empty clothing slot","ability":{"kind":"perEmptySlot","n":2,"imp":"Wacky"}},{"name":"Pet Bat","type":"Accessory","v":[0,0,0,0,0],"prints":[],"power":"Common","abilityText":"+1 Spooky per bat pictured in your outfit","ability":{"kind":"perPrint","n":1,"imp":"Spooky","prints":["bats"]}},{"name":"Crystal Ball","type":"Accessory","v":[0,0,0,0,0],"prints":[],"power":"Common","abilityText":"+2 Spooky per item with skulls","ability":{"kind":"perPrint","n":2,"imp":"Spooky","prints":["skulls"]}},{"name":"Candelabra","type":"Accessory","v":[0,0,0,0,0],"prints":[],"power":"Common","abilityText":"+2 Spooky per item with spiderwebs","ability":{"kind":"perPrint","n":2,"imp":"Spooky","prints":["spiderwebs"]}},{"name":"Broomstick","type":"Accessory","v":[0,0,0,0,0],"prints":[],"power":"Common","abilityText":"+2 Spooky per item with stripes","ability":{"kind":"perPrint","n":2,"imp":"Spooky","prints":["stripes"]}},{"name":"Black Cat","type":"Accessory","v":[0,0,0,0,0],"prints":[],"power":"Common","abilityText":"Add your Cute to your Spooky","ability":{"kind":"add","from":"Cute","to":"Spooky"}},{"name":"Magic Wand","type":"Accessory","v":[0,0,0,0,0],"prints":[],"power":"Rare","abilityText":"Add your Spooky to any one other Impression","ability":{"kind":"wand"}}],"invites":[{"name":"Prom","category":"School","rewards":["Cool","Important"],"penalizes":[],"shape":"Two winners","payout":"Coolest is crowned Prom King/Queen: 5. Most Important: 3.","story":"The crown goes to the coolest kid; the photographer wants the best dressed.","notes":""},{"name":"Student Council Election","category":"School","rewards":["Cool"],"penalizes":[],"shape":"Winner and runner-up","payout":"Coolest (President): 5. 2nd Coolest (Vice President): 3.","story":"Nobody reads the platforms.","notes":""},{"name":"Homecoming Court","category":"School","rewards":["Cool","Cute"],"penalizes":[],"shape":"Combined","payout":"Add Cool and Cute. 1st 4, 2nd 3, 3rd 1.","story":"Royalty needs status and charm.","notes":""},{"name":"School Picture Day","category":"School","rewards":["Cute"],"penalizes":[],"shape":"Consolation prize","payout":"Cutest 4, 2nd 2, last place 3.","story":"The yearbook gives last place the Most Memorable award.","notes":"At 2 players: Cutest 4, the other player 3."},{"name":"Science Fair","category":"School","rewards":["Important"],"penalizes":["Cool"],"shape":"Subtract","payout":"Score Important minus Cool. 1st 4, 2nd 3, 3rd 1.","story":"The lab coat wins; the judges don't trust anyone in sunglasses.","notes":""},{"name":"Field Trip","category":"School","rewards":["Wacky"],"penalizes":[],"shape":"Second place wins","payout":"2nd Wackiest 5, 3rd 2. Wackiest 0.","story":"The wackiest kid spends the trip on the bus.","notes":"At 2 players: the less Wacky player scores 3."},{"name":"Talent Show","category":"School","rewards":["Wacky"],"penalizes":[],"shape":"Shoot the moon","payout":"Least Wacky 4. Wackiest 3, 2nd Wackiest 1.","story":"The most boring act goes viral.","notes":"If 3 or more players tie for least, they each score 2."},{"name":"Battle of the Bands","category":"School","rewards":["Cool","Wacky"],"penalizes":[],"shape":"Combined","payout":"Add Cool and Wacky. 1st 5, 2nd 2.","story":"Rock stars need attitude and showmanship.","notes":""},{"name":"Fall Fling","category":"School","rewards":["Cute","Wacky"],"penalizes":[],"shape":"No winner","payout":"Everyone scores 1 Like for every 3 Cute and Wacky combined, up to 3.","story":"It's just a dance; everyone posts their fit.","notes":""},{"name":"Yearbook Superlatives","category":"School","rewards":["Wacky","Spooky"],"penalizes":[],"shape":"Two winners","payout":"Wackiest is Class Clown: 4. Spookiest is Most Likely to Haunt the School: 4.","story":"Two awards nobody campaigns for.","notes":""},{"name":"Detention","category":"School","rewards":["Cool"],"penalizes":["Cute"],"shape":"Subtract","payout":"Score Cool minus Cute. 1st 4, 2nd 2, 3rd 1.","story":"Rebels get respect; teacher's pets don't.","notes":""},{"name":"Club Officer Election","category":"School","rewards":["Important","Cute"],"penalizes":[],"shape":"Two winners","payout":"Most Important (President): 4. Cutest (Social Chair): 4.","story":"One runs the meetings, one runs the parties.","notes":""},{"name":"Up for a Promotion","category":"Work","rewards":["Important"],"penalizes":["Wacky"],"shape":"Subtract","payout":"Score Important minus Wacky. 1st 5, 2nd 2.","story":"Dress for the job you want, not the circus you want.","notes":""},{"name":"Job Interview","category":"Work","rewards":["Important"],"penalizes":[],"shape":"Threshold","payout":"Everyone with 4+ Important is hired: 2. Most Important also gets the corner office: 2 more.","story":"Nobody checked the resumes.","notes":""},{"name":"Meeting the In-Laws","category":"Family","rewards":["Cute"],"penalizes":["Spooky"],"shape":"Subtract","payout":"Score Cute minus Spooky. 1st 4, 2nd 2, 3rd 1.","story":"They want someone sweet, not someone who brought a bat.","notes":""},{"name":"Baby Shower","category":"Family","rewards":["Cute"],"penalizes":["Spooky"],"shape":"Podium plus bonus","payout":"Cutest 4, 2nd 2. Everyone with 0 Spooky gets 1 more.","story":"Nobody wants fangs near the baby.","notes":""},{"name":"Wedding","category":"Family","rewards":["Important"],"penalizes":[],"shape":"Second place wins","payout":"2nd most Important 4, 3rd 2. Most Important 0.","story":"Never upstage the couple.","notes":"At 2 players: the less Important player scores 3."},{"name":"Reading of the Will","category":"Family","rewards":["Important","Spooky"],"penalizes":[],"shape":"Two winners","payout":"Most Important inherits the company: 4. Spookiest inherits the haunted mansion: 4.","story":"Great-aunt had two kinds of heirs in mind.","notes":""},{"name":"Family Photo Day","category":"Family","rewards":["Cute"],"penalizes":[],"shape":"Rivalry","payout":"Out-Cute the player on your right: 3.","story":"Grandma is comparing.","notes":""},{"name":"Kid's Birthday Party","category":"Celebration","rewards":["Wacky"],"penalizes":[],"shape":"Threshold","payout":"Everyone with 3+ Wacky: 2. Wackiest also gets booked for next year: 2 more.","story":"The kids decide who's fun.","notes":""},{"name":"21st Birthday","category":"Celebration","rewards":["Cool","Wacky"],"penalizes":[],"shape":"Balance (lower of two)","payout":"Score your lower of Cool and Wacky. 1st 4, 2nd 2.","story":"Be fun, but not a mess.","notes":"The only balance invite; slower to score."},{"name":"Halloween Party","category":"Holiday","rewards":["Spooky","Wacky"],"penalizes":[],"shape":"Combined","payout":"Add Spooky and Wacky. 1st 5, 2nd 3, 3rd 1.","story":"The costume contest.","notes":""},{"name":"New Year's Eve","category":"Holiday","rewards":["Important","Wacky"],"penalizes":[],"shape":"Two winners","payout":"Most Important gets the VIP table: 4. Wackiest leads the countdown: 4.","story":"Two ways to own midnight.","notes":""},{"name":"4th of July","category":"Holiday","rewards":["Wacky"],"penalizes":["Important"],"shape":"Subtract","payout":"Score Wacky minus Important. 1st 4, 2nd 2, 3rd 1.","story":"Nobody wears a suit to a barbecue.","notes":""},{"name":"Turkey Trot","category":"Holiday","rewards":["Cute"],"penalizes":[],"shape":"No winner","payout":"Everyone scores 1 Like for every 2 Cute, up to 3.","story":"Nobody's racing; everyone's posting.","notes":""},{"name":"Ugly Sweater Party","category":"Holiday","rewards":["Wacky"],"penalizes":["Cool"],"shape":"Subtract","payout":"Score Wacky minus Cool. 1st 4, 2nd 2, 3rd 1.","story":"Trying to look cool is the one way to lose.","notes":""},{"name":"Haunted House Tour","category":"Outing","rewards":["Spooky"],"penalizes":[],"shape":"Both ends","payout":"Spookiest 4. Least Spooky 3.","story":"The staff think the spookiest guest works there; the least spooky guest's scream goes viral.","notes":"If 3 or more players tie for least, they each score 2."},{"name":"Ski Trip","category":"Outing","rewards":["Cool"],"penalizes":[],"shape":"Consolation prize","payout":"Coolest 4, 2nd 2, last place 3.","story":"Last place's wipeout video goes viral.","notes":"At 2 players: Coolest 4, the other player 3."},{"name":"Beach Day","category":"Outing","rewards":["Cool"],"penalizes":["Important"],"shape":"Subtract","payout":"Score Cool minus Important. 1st 4, 2nd 2, 3rd 1.","story":"Leave the briefcase at home.","notes":""},{"name":"Fancy Restaurant","category":"Outing","rewards":["Important"],"penalizes":[],"shape":"Threshold","payout":"Everyone with 3+ Important gets seated: 3. Most Important scores 0 instead.","story":"The most important-looking guest gets stuck with the bill.","notes":""},{"name":"Camping Trip","category":"Outing","rewards":["Spooky"],"penalizes":["Important"],"shape":"Podium plus bonus","payout":"Spookiest 3, 2nd 2. Everyone with 0 Important gets 1 more.","story":"Best campfire ghost story, plus points for roughing it.","notes":""},{"name":"Sleepover","category":"Outing","rewards":["Cute","Spooky"],"penalizes":[],"shape":"Combined","payout":"Add Cute and Spooky. 1st 4, 2nd 2, 3rd 1.","story":"Ghost stories in onesies.","notes":""},{"name":"Art Gallery Opening","category":"Outing","rewards":["Spooky"],"penalizes":["Wacky"],"shape":"Subtract","payout":"Score Spooky minus Wacky. 1st 4, 2nd 2, 3rd 1.","story":"The art crowd wants moody, not loud.","notes":""},{"name":"Goth Concert","category":"Outing","rewards":["Spooky"],"penalizes":["Cute"],"shape":"Subtract","payout":"Score Spooky minus Cute. 1st 4, 2nd 2, 3rd 1.","story":"The bunny ears are a dealbreaker.","notes":""},{"name":"Vampire Movie Premiere","category":"Social","rewards":["Cool","Spooky"],"penalizes":[],"shape":"Combined","payout":"Add Cool and Spooky. 1st 5, 2nd 2.","story":"The fans dress like the vampires they love.","notes":""},{"name":"First Date","category":"Social","rewards":["Cool"],"penalizes":[],"shape":"Second place wins","payout":"2nd Coolest 5, 3rd 2. Coolest 0.","story":"Don't try too hard.","notes":"At 2 players: the less Cool player scores 3."},{"name":"Red Carpet Premiere","category":"Social","rewards":["Important"],"penalizes":[],"shape":"Both ends","payout":"Most Important 4. Least Important 2.","story":"Least Important tops the worst-dressed list, and that's still press.","notes":"If 3 or more players tie for least, they each score 1."},{"name":"Circus Audition","category":"Social","rewards":["Wacky"],"penalizes":[],"shape":"Winner takes all","payout":"Wackiest 6. Everyone else 0.","story":"There's only one opening.","notes":""},{"name":"Pet Adoption Day","category":"Social","rewards":["Cute"],"penalizes":[],"shape":"Winner takes all","payout":"Cutest 6. Everyone else 0.","story":"The puppy picks the cutest person in the room.","notes":""},{"name":"Mystery Dinner Party","category":"Social","rewards":["Spooky"],"penalizes":[],"shape":"Second place wins","payout":"2nd Spookiest 5, 3rd 2. Spookiest 0.","story":"The spookiest guest obviously did it.","notes":"At 2 players: the less Spooky player scores 3."}],"scoring":{"Prom":[{"kind":"rank","metric":"Cool","places":[5]},{"kind":"rank","metric":"Important","places":[3]}],"Student Council Election":[{"kind":"rank","metric":"Cool","places":[5,3]}],"Homecoming Court":[{"kind":"rank","metric":{"sum":["Cool","Cute"]},"places":[4,3,1]}],"School Picture Day":[{"kind":"rank","metric":"Cute","places":[4,2],"last":3,"twoPlayer":{"places":[4],"last":3}}],"Science Fair":[{"kind":"rank","metric":{"diff":["Important","Cool"]},"places":[4,3,1]}],"Field Trip":[{"kind":"rank","metric":"Wacky","places":[0,5,2],"twoPlayer":{"places":[0,3]}}],"Talent Show":[{"kind":"rank","metric":"Wacky","places":[3,1],"last":4,"leastTie3":2}],"Battle of the Bands":[{"kind":"rank","metric":{"sum":["Cool","Wacky"]},"places":[5,2]}],"Fall Fling":[{"kind":"perPoints","metric":{"sum":["Cute","Wacky"]},"per":3,"cap":3}],"Yearbook Superlatives":[{"kind":"rank","metric":"Wacky","places":[4]},{"kind":"rank","metric":"Spooky","places":[4]}],"Detention":[{"kind":"rank","metric":{"diff":["Cool","Cute"]},"places":[4,2,1]}],"Club Officer Election":[{"kind":"rank","metric":"Important","places":[4]},{"kind":"rank","metric":"Cute","places":[4]}],"Up for a Promotion":[{"kind":"rank","metric":{"diff":["Important","Wacky"]},"places":[5,2]}],"Job Interview":[{"kind":"threshold","metric":"Important","atLeast":4,"award":2},{"kind":"rank","metric":"Important","places":[2]}],"Meeting the In-Laws":[{"kind":"rank","metric":{"diff":["Cute","Spooky"]},"places":[4,2,1]}],"Baby Shower":[{"kind":"rank","metric":"Cute","places":[4,2]},{"kind":"ifAtMost","metric":"Spooky","atMost":0,"award":1}],"Wedding":[{"kind":"rank","metric":"Important","places":[0,4,2],"twoPlayer":{"places":[0,3]}}],"Reading of the Will":[{"kind":"rank","metric":"Important","places":[4]},{"kind":"rank","metric":"Spooky","places":[4]}],"Family Photo Day":[{"kind":"rivalry","metric":"Cute","neighbor":"right","award":3}],"Kid's Birthday Party":[{"kind":"threshold","metric":"Wacky","atLeast":3,"award":2},{"kind":"rank","metric":"Wacky","places":[2]}],"21st Birthday":[{"kind":"rank","metric":{"min":["Cool","Wacky"]},"places":[4,2]}],"Halloween Party":[{"kind":"rank","metric":{"sum":["Spooky","Wacky"]},"places":[5,3,1]}],"New Year's Eve":[{"kind":"rank","metric":"Important","places":[4]},{"kind":"rank","metric":"Wacky","places":[4]}],"4th of July":[{"kind":"rank","metric":{"diff":["Wacky","Important"]},"places":[4,2,1]}],"Turkey Trot":[{"kind":"perPoints","metric":"Cute","per":2,"cap":3}],"Ugly Sweater Party":[{"kind":"rank","metric":{"diff":["Wacky","Cool"]},"places":[4,2,1]}],"Haunted House Tour":[{"kind":"rank","metric":"Spooky","places":[4],"last":3,"leastTie3":2}],"Ski Trip":[{"kind":"rank","metric":"Cool","places":[4,2],"last":3,"twoPlayer":{"places":[4],"last":3}}],"Beach Day":[{"kind":"rank","metric":{"diff":["Cool","Important"]},"places":[4,2,1]}],"Fancy Restaurant":[{"kind":"threshold","metric":"Important","atLeast":3,"award":3,"topGetsZero":true}],"Camping Trip":[{"kind":"rank","metric":"Spooky","places":[3,2]},{"kind":"ifAtMost","metric":"Important","atMost":0,"award":1}],"Sleepover":[{"kind":"rank","metric":{"sum":["Cute","Spooky"]},"places":[4,2,1]}],"Art Gallery Opening":[{"kind":"rank","metric":{"diff":["Spooky","Wacky"]},"places":[4,2,1]}],"Goth Concert":[{"kind":"rank","metric":{"diff":["Spooky","Cute"]},"places":[4,2,1]}],"Vampire Movie Premiere":[{"kind":"rank","metric":{"sum":["Cool","Spooky"]},"places":[5,2]}],"First Date":[{"kind":"rank","metric":"Cool","places":[0,5,2],"twoPlayer":{"places":[0,3]}}],"Red Carpet Premiere":[{"kind":"rank","metric":"Important","places":[4],"last":2,"leastTie3":1}],"Circus Audition":[{"kind":"rank","metric":"Wacky","places":[6]}],"Pet Adoption Day":[{"kind":"rank","metric":"Cute","places":[6]}],"Mystery Dinner Party":[{"kind":"rank","metric":"Spooky","places":[0,5,2],"twoPlayer":{"places":[0,3]}}]}};
+</script>
 <script id="engine">
-// Thrift Shop rules: pure, no DOM. State is plain JSON, changed in place by apply(); the RNG state lives in it.
+// Thrift Shop rules: pure, no DOM, no clock. State is plain JSON changed in place by apply(); the RNG state lives in it.
+// The UI (or a simulator) decides when the thrifting time is up by calling { type: 'endThrift' }.
 const Engine = (() => {
-  const D = GAME_DATA, TYPES = D.types.map(t => t.id);
-  const defs = {};
-  for (const r of D.cards.concat(D.penaltyCards)) defs[r[0]] = { name: r[0], v: r.slice(1, 5), resale: r[5], type: r[6], ability: r[7] || null };
-  const def = n => defs[n];
+  const D = GAME_DATA, SH = SHEET, CARDS = SH.cards;
+  const IMPS = D.impressions.map(i => i.id), SLOTS = D.slots.map(s => s.id), CLOTHING = SLOTS.slice(0, 4), ACC = SLOTS[4];
   const clone = o => JSON.parse(JSON.stringify(o));
   const rnd = s => { s.rng = (s.rng + 0x6D2B79F5) | 0; let t = s.rng; t = Math.imul(t ^ (t >>> 15), t | 1); t ^= t + Math.imul(t ^ (t >>> 7), t | 61); return ((t ^ (t >>> 14)) >>> 0) / 4294967296; };
   const shuffle = (s, a) => { for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(rnd(s) * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
-  const isOnce = n => def(n).ability === 'once';
-  const handPenalty = n => { const a = def(n).ability; return Array.isArray(a) && a[0] === 'hand' ? a[1] : 0; };
-  const log = (s, seat, text) => { s.log.push({ seat, text }); if (s.log.length > 40) s.log.shift(); };
+  const clamp = (v, [lo, hi]) => Math.max(lo, Math.min(hi, v));
+  const cardOf = i => CARDS[i];
+  const ordinal = n => ['1st', '2nd', '3rd'][n] || (n + 1) + 'th';
+
+  function cleanSettings(o) {
+    const s = Object.assign(clone(D.settings), o || {});
+    for (const k of Object.keys(D.limits)) s[k] = clamp(Math.round(+s[k] || D.settings[k]), D.limits[k]);
+    s.rounds = Math.min(s.rounds, SH.invites.length);
+    s.startHand = Math.min(s.startHand, s.handLimit);
+    if (!D.botSpeeds[s.botSpeed]) s.botSpeed = D.settings.botSpeed;
+    s.debug = !!s.debug; return s;
+  }
 
   function newGame(opts = {}) {
-    const o = Object.assign({ players: D.playerRange.default, humans: [0], seed: (Math.random() * 2 ** 31) | 0, level: 'normal', rules: {} }, opts);
-    const rules = Object.assign(clone(D.rules), clone(o.rules));
-    const n = Math.max(D.playerRange.min, Math.min(D.playerRange.max, o.players));
-    const s = { v: 1, rules, rng: o.seed | 0, n, level: o.level, humans: o.humans.slice(), season: 0, phase: 'shop', stacks: {}, houses: [], done: [], ready: [], drawn: {}, looks: {}, scores: [], log: [], winners: null, actions: 0 };
-    for (const t of TYPES) s.stacks[t] = [];
-    for (const r of D.cards) for (let c = 0; c < rules.copies; c++) s.stacks[r[6]].push(r[0]);
-    if (rules.penaltyCards) for (const r of D.penaltyCards) s.stacks[r[6]].push(r[0]);
-    for (const t of TYPES) shuffle(s, s.stacks[t]);
-    for (let i = 0; i < n; i++) {
-      const h = { name: i === 0 && o.humans.includes(0) ? 'You' : D.names[i % D.names.length], coins: rules.startCoins, hand: [], human: o.humans.includes(i), budget: 0 };
-      for (const t of TYPES) for (let k = 0; k < rules.startCards; k++) h.hand.push(s.stacks[t].shift());
-      s.houses.push(h); s.scores.push([]);
-    }
-    startSeason(s);
-    return s;
+    const o = Object.assign({ seed: (Math.random() * 2 ** 31) | 0, humans: [0], settings: {} }, opts);
+    const cfg = cleanSettings(o.settings), n = cfg.bots + 1;
+    const s = { v: 2, cfg, rng: o.seed | 0, n, round: 0, phase: 'invite', cells: [], invites: [], players: [], results: null, roundLog: [], ready: [], lastTake: null };
+    for (let i = 0; i < n; i++) s.players.push({ name: i === 0 && o.humans.includes(0) ? 'You' : D.names[(i - 1) % D.names.length], human: o.humans.includes(i), hand: [], board: Object.fromEntries(SLOTS.map(k => [k, null])), wand: null, done: false, likes: [], mem: {} });
+    // the whole thrift deck laid out in a grid, face down; the dealt hands leave empty spaces
+    const deck = shuffle(s, CARDS.map((_, i) => i)); s.cells = deck.map(c => ({ c, up: false }));
+    const spots = shuffle(s, s.cells.map((_, i) => i)); let k = 0;
+    for (const p of s.players) for (let j = 0; j < cfg.startHand; j++) { const cell = spots[k++]; p.hand.push(s.cells[cell].c); s.cells[cell] = null; }
+    s.invites = shuffle(s, SH.invites.map((_, i) => i)).slice(0, cfg.rounds);
+    startRound(s); return s;
   }
-  function startSeason(s) {
-    s.phase = 'shop'; s.done = []; s.ready = []; s.drawn = {}; s.looks = {};
-    const lv = D.ai.levels[s.level] || D.ai.levels.normal; s.houses.forEach(h => { h.budget = h.human ? 0 : lv.actions; });
+  function startRound(s) {
+    s.round++; s.phase = 'invite'; s.results = null; s.ready = []; s.lastTake = null;
+    for (const p of s.players) { p.done = false; p.wand = null; for (const k of SLOTS) p.board[k] = null; }
   }
+  const inviteOf = s => SH.invites[s.invites[s.round - 1]];
+  const handFull = (s, p) => p.hand.length >= s.cfg.handLimit;
+  const filled = p => SLOTS.filter(k => p.board[k] != null).length;
 
-  const seasonValue = (name, season) => def(name).v[season];
-  // The best look from a hand for a season: per type the card with the best worth (a card's points, plus the penalty it spares you).
-  function bestLook(hand, season, rules, hold) {
-    const picks = {};
-    for (const t of TYPES) {
-      let best = null, bv = 0;
-      for (const c of hand) {
-        if (def(c).type !== t) continue;
-        let w = seasonValue(c, season) + handPenalty(c);
-        if (isOnce(c)) { let fut = 0; for (let k = season + 1; k < rules.seasonCount; k++) fut = Math.max(fut, seasonValue(c, k)); w -= (hold == null ? rules.wornOnceHold : hold) * fut; }
-        if (w > bv) { bv = w; best = c; }
+  // ---------------- scoring ----------------
+  // The invite's Impressions in the order its rule names them (used for Golden Trophy ties and the bots' Magic Wand).
+  const metricImps = m => typeof m === 'string' ? [m] : Object.values(m)[0];
+  function inviteImpOrder(name) { const out = []; for (const b of SH.scoring[name] || []) for (const x of metricImps(b.metric)) if (!out.includes(x)) out.push(x); return out; }
+  function metricValue(m, t) {
+    if (typeof m === 'string') return t[m];
+    if (m.sum) return m.sum.reduce((a, x) => a + t[x], 0);
+    if (m.diff) return t[m.diff[0]] - t[m.diff[1]];
+    return Math.min(...m.min.map(x => t[x]));
+  }
+  // Clothing first, then the accessory, then (elsewhere) the invite. `wand` is the target Impression of a Magic Wand.
+  function impressionTotals(board, wand, inviteName) {
+    const t = Object.fromEntries(IMPS.map(i => [i, 0])); let effect = '';
+    const clothes = CLOTHING.map(k => board[k]).filter(c => c != null).map(cardOf);
+    for (const c of clothes) IMPS.forEach((imp, i) => { t[imp] += c.v[i]; });
+    const acc = board[ACC] != null ? cardOf(board[ACC]) : null;
+    if (acc && acc.ability) {
+      const a = acc.ability;
+      if (a.kind === 'perPrint') { const cnt = clothes.filter(c => c.prints.some(p => a.prints.includes(p))).length; t[a.imp] += a.n * cnt; effect = `+${a.n * cnt} ${a.imp}`; }
+      else if (a.kind === 'perEmptySlot') { const cnt = CLOTHING.filter(k => board[k] == null).length; t[a.imp] += a.n * cnt; effect = `+${a.n * cnt} ${a.imp}`; }
+      else if (a.kind === 'add') { t[a.to] += t[a.from]; effect = `+${t[a.from]} ${a.to}`; }
+      else if (a.kind === 'doubleHighest') {
+        const top = Math.max(...IMPS.map(i => t[i]));
+        if (top > 0) { const tied = IMPS.filter(i => t[i] === top), order = inviteImpOrder(inviteName || ''), pick = order.find(x => tied.includes(x)) || tied[0]; t[pick] += top; effect = `${pick} doubled (+${top})`; }
+        else effect = 'nothing to double';
+      } else if (a.kind === 'wand') {
+        const target = wand && wand !== 'Spooky' && IMPS.includes(wand) ? wand : defaultWand(inviteName);
+        t[target] += t.Spooky; effect = `+${t.Spooky} ${target} (from Spooky)`;
       }
-      picks[t] = best;
     }
-    return picks;
+    return { totals: t, effect };
   }
-  function scoreLook(hand, picks, season) {
-    let pts = 0, penalty = 0; const worn = Object.values(picks).filter(Boolean);
-    for (const c of worn) pts += seasonValue(c, season);
-    const left = hand.slice(); for (const c of worn) { const k = left.indexOf(c); if (k >= 0) left.splice(k, 1); }
-    for (const c of left) penalty -= handPenalty(c);
-    return { pts, penalty, total: pts + penalty };
+  // The Impression a Magic Wand feeds by default: the first one the invite rewards, not Spooky if possible.
+  function defaultWand(inviteName) {
+    const inv = SH.invites.find(i => i.name === inviteName), list = (inv && inv.rewards.length ? inv.rewards : inviteImpOrder(inviteName)).filter(x => x !== 'Spooky');
+    return list[0] || 'Cool';
   }
-  function lookFor(s, seat, picks) {
-    const h = s.houses[seat]; picks = picks || bestLook(h.hand, s.season, s.rules);
-    return Object.assign({ picks }, scoreLook(h.hand, picks, s.season));
+  // Dense ranking: equal values share a place; the next distinct value takes the next place.
+  function denseRanks(values) { const d = [...new Set(values)].sort((a, b) => b - a); return values.map(v => d.indexOf(v)); }
+
+  // Likes for every player, with the reasons. totalsList is in seat order.
+  function scoreInvite(name, totalsList) {
+    const blocks = SH.scoring[name]; if (!blocks) throw new Error('no scoring rule for ' + name);
+    const n = totalsList.length, likes = Array(n).fill(0), parts = totalsList.map(() => []);
+    const label = m => typeof m === 'string' ? m : Object.keys(m)[0] === 'sum' ? m.sum.join('+') : Object.keys(m)[0] === 'diff' ? m.diff.join('−') : 'lower of ' + m.min.join(' & ');
+    for (const b of blocks) {
+      const vals = totalsList.map(t => metricValue(b.metric, t)), L = label(b.metric);
+      if (b.kind === 'rank') {
+        const p = n === 2 && b.twoPlayer ? b.twoPlayer : b, ranks = denseRanks(vals), min = Math.min(...vals), lastCount = vals.filter(v => v === min).length;
+        for (let i = 0; i < n; i++) {
+          const placeLikes = p.places[ranks[i]] || 0; let lastLikes = 0;
+          if (p.last != null && vals[i] === min) lastLikes = p.leastTie3 != null && lastCount >= 3 ? p.leastTie3 : p.last;
+          const g = Math.max(placeLikes, lastLikes); likes[i] += g;
+          parts[i].push({ text: `${L} ${vals[i]}: ${lastLikes > placeLikes ? 'last' : ordinal(ranks[i])}`, likes: g });
+        }
+      } else if (b.kind === 'threshold') {
+        const top = Math.max(...vals);
+        for (let i = 0; i < n; i++) { const g = vals[i] >= b.atLeast && !(b.topGetsZero && vals[i] === top) ? b.award : 0; likes[i] += g; parts[i].push({ text: `${L} ${vals[i]} (needs ${b.atLeast})`, likes: g }); }
+      } else if (b.kind === 'perPoints') {
+        for (let i = 0; i < n; i++) { const g = Math.min(b.cap, Math.floor(Math.max(vals[i], 0) / b.per)); likes[i] += g; parts[i].push({ text: `${L} ${vals[i]} (1 per ${b.per})`, likes: g }); }
+      } else if (b.kind === 'rivalry') {
+        for (let i = 0; i < n; i++) { const nb = b.neighbor === 'right' ? (i - 1 + n) % n : (i + 1) % n, g = vals[i] > vals[nb] ? b.award : 0; likes[i] += g; parts[i].push({ text: `${L} ${vals[i]} vs ${vals[nb]}`, likes: g }); }
+      } else if (b.kind === 'ifAtMost') {
+        for (let i = 0; i < n; i++) { const g = vals[i] <= b.atMost ? b.award : 0; likes[i] += g; parts[i].push({ text: `${L} ${vals[i]} (${b.atMost} or less)`, likes: g }); }
+      }
+    }
+    return { likes, parts };
   }
 
-  function pending(s) {
-    const all = s.houses.map((_, i) => i);
-    if (s.phase === 'shop') return all.filter(i => !s.done.includes(i));
-    if (s.phase === 'reveal') return all.filter(i => !s.ready.includes(i));
-    return [];
+  function scoreRound(s) {
+    const inv = inviteOf(s), calc = s.players.map(p => impressionTotals(p.board, p.wand, inv.name)), sc = scoreInvite(inv.name, calc.map(c => c.totals));
+    s.results = { invite: inv.name, players: s.players.map((p, i) => ({ totals: calc[i].totals, effect: calc[i].effect, likes: sc.likes[i], parts: sc.parts[i], board: clone(p.board) })) };
+    s.players.forEach((p, i) => p.likes.push(sc.likes[i]));
+    s.roundLog.push({ round: s.round, invite: inv.name, story: inv.story, payout: inv.payout, players: s.players.map((p, i) => ({ name: p.name, board: Object.fromEntries(SLOTS.map(k => [k, p.board[k] != null ? cardOf(p.board[k]).name : null])), totals: calc[i].totals, effect: calc[i].effect, likes: sc.likes[i] })) });
+    s.phase = 'reveal';
   }
+  const totalLikes = (s, i) => s.players[i].likes.reduce((a, b) => a + b, 0);
+
+  // ---------------- actions ----------------
   const err = e => ({ ok: false, error: e });
-
   function apply(s, a) {
-    if (s.phase === 'over') return err('over');
-    const H = s.houses[a.seat]; if (!H) return err('seat');
-    const R = s.rules;
+    const p = s.players[a.seat];
     switch (a.type) {
-      case 'draw': {
-        if (s.phase !== 'shop' || s.done.includes(a.seat) || s.drawn[a.seat] || !s.stacks[a.stack]) return err('draw');
-        const n = a.n | 0, st = s.stacks[a.stack];
-        if (n < 1 || n > R.maxBuy || n > st.length || n * R.pricePerCard > H.coins) return err('amount');
-        H.coins -= n * R.pricePerCard; s.drawn[a.seat] = { stack: a.stack, cards: st.splice(0, n) }; s.actions++;
-        return { ok: true, cards: s.drawn[a.seat].cards.slice() };
+      case 'start': { // the human is ready; the bots always are
+        if (s.phase !== 'invite') return err('phase'); if (!s.ready.includes(a.seat)) s.ready.push(a.seat);
+        if (s.players.every((q, i) => !q.human || s.ready.includes(i))) s.phase = 'thrift'; return { ok: true };
       }
-      case 'keep': {
-        const d = s.drawn[a.seat]; if (!d || !(a.i >= 0 && a.i < d.cards.length)) return err('keep');
-        const kept = d.cards[a.i]; H.hand.push(kept); d.cards.forEach((c, i) => { if (i !== a.i) s.stacks[d.stack].push(c); });
-        log(s, a.seat, 'bought ' + d.cards.length + ' from ' + d.stack); delete s.drawn[a.seat]; return { ok: true, kept };
+      case 'take': {
+        if (s.phase !== 'thrift' || !p) return err('phase'); const cell = s.cells[a.cell];
+        if (!cell) return err('empty'); if (handFull(s, p)) return err('full');
+        p.hand.push(cell.c); s.cells[a.cell] = null; s.lastTake = { seat: a.seat, cell: a.cell }; return { ok: true, card: cell.c, wasUp: cell.up };
       }
-      case 'sell': {
-        if (s.phase !== 'shop' || s.done.includes(a.seat) || s.drawn[a.seat]) return err('sell');
-        const k = H.hand.indexOf(a.card); if (k < 0) return err('card');
-        const r = def(a.card).resale; if (H.coins + r < 0) return err('coins');
-        H.hand.splice(k, 1); H.coins += r; s.stacks[def(a.card).type].push(a.card); s.actions++; log(s, a.seat, 'sold ' + a.card); return { ok: true, got: r };
+      case 'putBack': {
+        if (s.phase !== 'thrift' || !p) return err('phase'); const k = p.hand.indexOf(a.card); if (k < 0) return err('card');
+        const empty = []; s.cells.forEach((c, i) => { if (!c) empty.push(i); }); if (!empty.length) return err('nospace');
+        const cell = empty[Math.floor(rnd(s) * empty.length)]; p.hand.splice(k, 1); s.cells[cell] = { c: a.card, up: true }; return { ok: true, cell };
       }
+      case 'reorder': {
+        if (!p || a.from === a.to || a.from < 0 || a.to < 0 || a.from >= p.hand.length || a.to >= p.hand.length) return err('reorder');
+        const [c] = p.hand.splice(a.from, 1); p.hand.splice(a.to, 0, c); return { ok: true };
+      }
+      case 'endThrift': {
+        if (s.phase !== 'thrift') return err('phase'); s.phase = 'build'; return { ok: true };
+      }
+      case 'place': {
+        if (s.phase !== 'build' || !p || p.done || !p.hand.includes(a.card)) return err('place'); const c = cardOf(a.card), slot = c.type;
+        if (a.slot && a.slot !== slot) return err('slot');
+        for (const k of SLOTS) if (p.board[k] === a.card) p.board[k] = null;
+        if (p.board[slot] == null && filled(p) >= s.cfg.maxPlayed) return err('limit');
+        p.board[slot] = a.card; return { ok: true, slot };
+      }
+      case 'unplace': { if (s.phase !== 'build' || !p || p.done) return err('phase'); p.board[a.slot] = null; return { ok: true }; }
+      case 'setWand': { if (!p || !IMPS.includes(a.imp) || a.imp === 'Spooky') return err('wand'); p.wand = a.imp; return { ok: true }; }
       case 'done': {
-        if (s.phase !== 'shop' || s.done.includes(a.seat) || s.drawn[a.seat]) return err('done');
-        s.done.push(a.seat); if (s.done.length === s.n) endSeason(s); return { ok: true };
-      }
-      case 'setlook': {
-        if (s.phase !== 'reveal' || s.ready.includes(a.seat)) return err('look');
-        const picks = {}; for (const t of TYPES) { const c = a.picks[t] || null; if (c && (!H.hand.includes(c) || def(c).type !== t)) return err('pick'); picks[t] = c; }
-        s.looks[a.seat] = lookFor(s, a.seat, picks); return { ok: true };
+        if (s.phase !== 'build' || !p || p.done) return err('phase'); p.done = true;
+        if (s.players.every(q => q.done)) scoreRound(s); return { ok: true };
       }
       case 'next': {
-        if (s.phase !== 'reveal' || s.ready.includes(a.seat)) return err('next');
-        s.ready.push(a.seat); if (s.ready.length === s.n) finishSeason(s); return { ok: true };
+        if (s.phase !== 'reveal') return err('phase');
+        if (s.round >= s.invites.length) { s.phase = 'over'; return { ok: true }; }
+        startRound(s); return { ok: true };
       }
       default: return err('type');
     }
   }
-  function endSeason(s) { s.phase = 'reveal'; s.ready = []; s.houses.forEach((h, i) => { s.looks[i] = lookFor(s, i); }); }
-  function finishSeason(s) {
-    s.houses.forEach((h, i) => {
-      const L = s.looks[i]; s.scores[i].push(L.total);
-      for (const c of Object.values(L.picks)) if (c && isOnce(c)) { const k = h.hand.indexOf(c); if (k >= 0) { h.hand.splice(k, 1); s.stacks[def(c).type].push(c); } }
-    });
-    s.season++;
-    if (s.season >= s.rules.seasonCount) {
-      s.phase = 'over'; const tot = s.houses.map((h, i) => total(s, i)), top = Math.max(...tot); s.winners = tot.map((t, i) => t === top ? i : -1).filter(i => i >= 0);
-    } else startSeason(s);
-  }
-  const total = (s, i) => s.scores[i].reduce((a, b) => a + b, 0) + (s.phase === 'over' ? s.houses[i].coins * s.rules.coinPoints : 0);
 
-  // What a seat may see: its own hand and any cards it has drawn; everyone's coins and card counts; only the size of each stack.
-  function viewFor(s, seat) {
-    return { n: s.n, seat, rules: s.rules, season: s.season, phase: s.phase, level: s.level, scores: s.scores, done: s.done, ready: s.ready, winners: s.winners,
-      stacks: Object.fromEntries(TYPES.map(t => [t, s.stacks[t].length])), drawn: s.drawn[seat] || null, log: s.log,
-      looks: s.phase === 'reveal' || s.phase === 'over' ? s.looks : { [seat]: s.looks[seat] },
-      houses: s.houses.map((h, i) => ({ name: h.name, coins: h.coins, human: h.human, handCount: h.hand.length, hand: i === seat || s.phase === 'reveal' ? h.hand.slice() : null })) };
+  // What a seat may see: its own hand and board, the face-up cards of the mess (the face-down ones are only a count), others' hands as counts.
+  function viewFor(s, seat, reveal) {
+    return { n: s.n, seat, cfg: s.cfg, round: s.round, phase: s.phase, invite: inviteOf(s), likes: s.players.map(p => p.likes.slice()), lastTake: s.lastTake,
+      cells: s.cells.map(c => c ? (c.up || reveal ? { c: c.c, up: c.up } : { c: null, up: false }) : null),
+      players: s.players.map((p, i) => ({ name: p.name, handCount: p.hand.length, done: p.done, hand: i === seat || reveal ? p.hand.slice() : null, board: i === seat || s.phase === 'reveal' || reveal ? Object.assign({}, p.board) : null })),
+      results: s.phase === 'reveal' ? s.results : null };
   }
-  return { newGame, apply, pending, viewFor, bestLook, scoreLook, lookFor, total, def, isOnce, handPenalty, seasonValue, TYPES, clone };
+  function logText(s) {
+    const lines = [];
+    for (const r of s.roundLog) {
+      lines.push(`Round ${r.round}: ${r.invite} — ${r.payout}`);
+      for (const p of r.players) lines.push(`  ${p.name}: ${SLOTS.map(k => `${k}=${p.board[k] || '-'}`).join(', ')} | ${IMPS.map(i => `${i} ${p.totals[i]}`).join(', ')}${p.effect ? ' | ' + p.effect : ''} | +${p.likes} Likes`);
+    }
+    if (s.phase === 'over') lines.push('Final: ' + s.players.map((p, i) => `${p.name} ${totalLikes(s, i)}`).join(', '));
+    return lines.join('\n');
+  }
+  return { newGame, apply, viewFor, cleanSettings, impressionTotals, scoreInvite, scoreRound, metricValue, denseRanks, defaultWand, inviteImpOrder, inviteOf, handFull, filled, totalLikes, logText, cardOf, shuffle, rnd, clone, IMPS, SLOTS, CLOTHING, ACC };
 })();
 </script>
 <script id="bots">
-// Computer shoppers. They see only Engine.viewFor: their own hand, everyone's coins and card counts, the size of each stack.
+// Computer shoppers. Pure decisions (no timers): the UI asks for one action at a time at the pace in the settings.
+// A bot sees its own hand, the face-up cards of the mess and how many face-down cards remain; never a face-down card or another hand.
 const Bots = (() => {
-  const D = GAME_DATA, E = Engine, TYPES = E.TYPES;
-  const level = s => D.ai.levels[s.level] || D.ai.levels.normal;
-  const rnd = s => { s.rng = (s.rng + 0x9E3779B9) | 0; let t = s.rng; t = Math.imul(t ^ (t >>> 15), t | 1); t ^= t + Math.imul(t ^ (t >>> 7), t | 61); return ((t ^ (t >>> 14)) >>> 0) / 4294967296; };
-  // How good a card is for me: this season's number, and the coming seasons' numbers at lower weight; penalty cards are bad to hold.
-  function worth(s, card, lv) {
-    let w = 0; const cnt = s.rules.seasonCount;
-    lv.weights.forEach((wt, k) => { const se = s.season + k; if (se < cnt) w += wt * E.seasonValue(card, se); });
-    return w - E.handPenalty(card) * 1.2;
+  const D = GAME_DATA, E = Engine, SH = SHEET, CARDS = SH.cards;
+  const SLOTS = E.SLOTS;
+  const firstMetric = name => SH.scoring[name][0].metric;
+  // The best look from a hand for an invite: one card per slot, at most maxPlayed cards; scored by the invite's first metric.
+  function bestLook(hand, inviteName, maxPlayed) {
+    const metric = firstMetric(inviteName), wand = E.defaultWand(inviteName);
+    const byType = {}; for (const k of SLOTS) byType[k] = [null];
+    for (const c of [...new Set(hand)]) byType[CARDS[c].type].push(c);
+    let best = { score: -Infinity, board: null };
+    const board = Object.fromEntries(SLOTS.map(k => [k, null]));
+    (function go(i, used) {
+      if (i === SLOTS.length) { const score = E.metricValue(metric, E.impressionTotals(board, wand, inviteName).totals); if (score > best.score) best = { score, board: Object.assign({}, board) }; return; }
+      for (const c of byType[SLOTS[i]]) { if (c != null && used >= maxPlayed) continue; board[SLOTS[i]] = c; go(i + 1, used + (c != null ? 1 : 0)); }
+      board[SLOTS[i]] = null;
+    })(0, 0);
+    return best;
   }
-  // The best card I own in each type, by worth.
-  function bestByType(s, hand, lv) {
-    const b = {}; for (const t of TYPES) { let best = null, bw = -Infinity; for (const c of hand) if (E.def(c).type === t) { const w = worth(s, c, lv); if (w > bw) { bw = w; best = c; } } b[t] = { card: best, w: best ? bw : 0 }; }
-    return b;
+  // How much one card contributes to the metric on its own (a cheap filter for the face-up cards worth a full look).
+  const proxy = (c, name) => { const card = CARDS[c]; const t = Object.fromEntries(E.IMPS.map((i, k) => [i, card.v[k]])); return E.metricValue(firstMetric(name), t); };
+
+  // One action for a bot during thrifting, or null when there is nothing to do.
+  function decide(s, seat) {
+    const p = s.players[seat], name = E.inviteOf(s).name, mp = s.cfg.maxPlayed, mem = p.mem, full = E.handFull(s, p);
+    const ups = [], downs = []; s.cells.forEach((c, i) => { if (c) (c.up ? ups : downs).push(i); });
+    if (mem.plan != null && !full) { const cell = mem.plan; mem.plan = null; if (s.cells[cell]) return { type: 'take', seat, cell }; }
+    const base = bestLook(p.hand, name, mp).score;
+    const skipUp = mem.skipUp; mem.skipUp = false;
+    if (!skipUp && ups.length) {
+      const clothes = ups.filter(i => CARDS[s.cells[i].c].type !== 'Accessory').sort((a, b) => proxy(s.cells[b].c, name) - proxy(s.cells[a].c, name)).slice(0, 8);
+      const cands = clothes.concat(ups.filter(i => CARDS[s.cells[i].c].type === 'Accessory'));
+      let bestGain = 0, pick = null, drop = null;
+      for (const cell of cands) {
+        const c = s.cells[cell].c;
+        if (!full) { const g = bestLook(p.hand.concat(c), name, mp).score - base; if (g > bestGain) { bestGain = g; pick = cell; drop = null; } }
+        else for (const r of p.hand) { const rest = p.hand.slice(); rest.splice(rest.indexOf(r), 1); const g = bestLook(rest.concat(c), name, mp).score - base; if (g > bestGain) { bestGain = g; pick = cell; drop = r; } }
+      }
+      if (pick != null && bestGain >= D.bot.takeFaceUpGain) { if (drop == null) return { type: 'take', seat, cell: pick }; mem.plan = pick; return { type: 'putBack', seat, card: drop }; }
+    }
+    if (!full) {
+      if (downs.length) return { type: 'take', seat, cell: downs[Math.floor(E.rnd(s) * downs.length)] };
+      if (ups.length) return { type: 'take', seat, cell: ups[Math.floor(E.rnd(s) * ups.length)] };
+      return null;
+    }
+    // hand full: put back the card whose removal lowers the outfit score least, then take a random face-down card next time
+    let worst = null, keep = -Infinity;
+    for (const r of p.hand) { const rest = p.hand.slice(); rest.splice(rest.indexOf(r), 1); const sc = bestLook(rest, name, mp).score; if (sc > keep) { keep = sc; worst = r; } }
+    mem.skipUp = true; return { type: 'putBack', seat, card: worst };
   }
-  // One action for a shopper: sell, buy (draw and keep), or stop. Returns false when it has finished the season.
-  function act(s, seat) {
-    const H = s.houses[seat], lv = level(s);
-    if (s.phase !== 'shop' || s.done.includes(seat)) return false;
-    if (H.budget <= 0 || rnd(s) < lv.passChance) { E.apply(s, { type: 'done', seat }); return false; }
-    H.budget--;
-    const best = bestByType(s, H.hand, lv);
-    // sell a card that is not my best of its type, or a penalty card, when it brings coins in
-    const keep = new Set(Object.values(best).map(x => x.card));
-    const sellable = H.hand.filter(c => !keep.has(c) && E.def(c).resale > 0 || E.handPenalty(c) && H.coins + E.def(c).resale >= 0);
-    if (sellable.length && (H.coins < 4 || rnd(s) < 0.5)) { sellable.sort((a, b) => E.def(b).resale - E.def(a).resale); E.apply(s, { type: 'sell', seat, card: sellable[0] }); return true; }
-    // buy where my look has the most room (lowest worth), paying what I can spare
-    const price = s.rules.pricePerCard, maxN = Math.min(lv.buyMax, s.rules.maxBuy, Math.floor(H.coins / price));
-    if (maxN < 1) { const spare = H.hand.filter(c => E.def(c).resale > 0 && !keep.has(c)); if (spare.length) { E.apply(s, { type: 'sell', seat, card: spare[0] }); return true; } if (H.hand.some(c => E.def(c).resale > 0)) { const c = H.hand.slice().sort((a, b) => worth(s, a, lv) - worth(s, b, lv))[0]; if (E.def(c).resale > 0) { E.apply(s, { type: 'sell', seat, card: c }); return true; } } E.apply(s, { type: 'done', seat }); return false; }
-    const order = TYPES.filter(t => s.stacks[t].length >= 1).sort((a, b) => best[a].w - best[b].w + (rnd(s) - 0.5) * (lv.sloppy * 6));
-    const stack = order[0]; if (!stack) { E.apply(s, { type: 'done', seat }); return false; }
-    const n = Math.max(1, Math.min(maxN, s.stacks[stack].length, 1 + Math.floor(rnd(s) * maxN)));
-    const r = E.apply(s, { type: 'draw', seat, stack, n }); if (!r.ok) { E.apply(s, { type: 'done', seat }); return false; }
-    let bi = 0, bw = -Infinity; r.cards.forEach((c, i) => { const w = worth(s, c, lv) + (rnd(s) - 0.5) * lv.sloppy * 6; if (w > bw) { bw = w; bi = i; } });
-    E.apply(s, { type: 'keep', seat, i: bi }); return true;
+  // A bot plays its best look at once.
+  function build(s, seat) {
+    const p = s.players[seat], name = E.inviteOf(s).name, b = bestLook(p.hand, name, s.cfg.maxPlayed);
+    for (const k of SLOTS) if (b.board[k] != null) E.apply(s, { type: 'place', seat, card: b.board[k] });
+    E.apply(s, { type: 'setWand', seat, imp: E.defaultWand(name) }); E.apply(s, { type: 'done', seat });
   }
-  // The look a shopper wears: the best one (the engine's picker); it is already in place when the season ends.
-  const tickAll = s => { let any = false; for (let i = 0; i < s.n; i++) if (!s.houses[i].human && s.phase === 'shop' && !s.done.includes(i)) any = act(s, i) || any; return any; };
-  const finish = s => { for (let g = 0; g < 500 && s.phase === 'shop' && s.houses.some((h, i) => !h.human && !s.done.includes(i)); g++) tickAll(s); };
-  const autoReady = s => { if (s.phase === 'reveal') s.houses.forEach((h, i) => { if (!h.human && !s.ready.includes(i)) E.apply(s, { type: 'next', seat: i }); }); };
-  function playOut(s) {
+  const buildAll = s => { for (let i = 0; i < s.n; i++) if (!s.players[i].human && !s.players[i].done) build(s, i); };
+  const delaySecs = (cfg, r) => { const sp = D.botSpeeds[cfg.botSpeed] || D.botSpeeds.normal; return sp.min + r * (sp.max - sp.min); };
+  // A whole game played by bots (tests and later simulations): each bot acts a fixed number of times per round.
+  function playGame(s, actionsPerRound) {
+    const per = actionsPerRound || Math.round(s.cfg.thriftSecs / 2.5);
     for (let g = 0; g < 10000 && s.phase !== 'over'; g++) {
-      if (s.phase === 'shop') { if (!tickAll(s) && s.phase === 'shop' && s.houses.every((h, i) => h.human || s.done.includes(i))) { s.houses.forEach((h, i) => { if (h.human) E.apply(s, { type: 'done', seat: i }); }); } }
-      else if (s.phase === 'reveal') { autoReady(s); s.houses.forEach((h, i) => { if (h.human) E.apply(s, { type: 'next', seat: i }); }); }
+      if (s.phase === 'invite') { for (let i = 0; i < s.n; i++) E.apply(s, { type: 'start', seat: i }); }
+      else if (s.phase === 'thrift') { for (let k = 0; k < per; k++) for (let i = 0; i < s.n; i++) { const a = decide(s, i); if (a) E.apply(s, a); } E.apply(s, { type: 'endThrift' }); }
+      else if (s.phase === 'build') { for (let i = 0; i < s.n; i++) if (!s.players[i].done) build(s, i); }
+      else if (s.phase === 'reveal') E.apply(s, { type: 'next', seat: 0 });
     }
     return s;
   }
-  return { act, tickAll, finish, autoReady, playOut };
-})();
-
-// Simulate: shoppers play many whole games on a rule set and report numbers (the Rules Lab uses this).
-const Sim = (() => {
-  function one(rules, o, seed) {
-    const s = Engine.newGame({ humans: [], players: o.players, level: o.level, rules, seed }); Bots.playOut(s);
-    const tot = s.houses.map((h, i) => Engine.total(s, i)), sorted = tot.slice().sort((a, b) => b - a);
-    return { done: s.phase === 'over', top: sorted[0], last: sorted[sorted.length - 1], mean: tot.reduce((a, b) => a + b, 0) / tot.length, seasons: s.scores[0].map((_, k) => s.scores.reduce((a, r) => a + (r[k] || 0), 0) / s.n), seat0: s.winners && s.winners.includes(0), ties: s.winners && s.winners.length > 1, actions: s.actions, coins: s.houses.reduce((a, h) => a + h.coins, 0) / s.n };
-  }
-  function summarize(rec) {
-    const f = rec.filter(r => r.done), m = k => f.length ? f.reduce((a, r) => a + r[k], 0) / f.length : 0, sc = []; for (let k = 0; k < 4; k++) sc.push(f.length ? f.reduce((a, r) => a + (r.seasons[k] || 0), 0) / f.length : 0);
-    return { games: rec.length, finished: f.length, top: m('top'), last: m('last'), mean: m('mean'), margin: m('top') - m('last'), seasons: sc, seat0: f.length ? f.filter(r => r.seat0).length / f.length : 0, ties: f.length ? f.filter(r => r.ties).length / f.length : 0, actions: m('actions'), coins: m('coins') };
-  }
-  function runSync(rules, o) { const rec = []; for (let g = 0; g < o.games; g++) rec.push(one(rules, o, (o.seed || 1) * 1000 + g)); return summarize(rec); }
-  function run(rules, o, progress, done) {
-    const rec = []; let g = 0, stop = false;
-    (function tick() { if (stop) return; for (let k = 0; k < 6 && g < o.games; k++, g++) rec.push(one(rules, o, (o.seed || 1) * 1000 + g)); if (progress) progress(g / o.games); if (g < o.games) setTimeout(tick, 0); else done(summarize(rec)); })();
-    return () => { stop = true; };
-  }
-  return { run, runSync };
+  return { bestLook, decide, build, buildAll, delaySecs, playGame };
 })();
 </script>
 <script id="ui">
-// Screens: menu, setup, the shop, the season reveal, the Rules Lab and Simulate. Numbers shown come from the rules in play.
+// Screens: menu, settings, the thrift table, build, reveal and the final standings. Plays in a fixed 1180 x 820 landscape stage scaled to fit.
 (() => {
-  const D = GAME_DATA, E = Engine, B = Bots, ME = 0, TYPES = D.types;
+  const D = GAME_DATA, E = Engine, B = Bots, SH = SHEET, CARDS = SH.cards, ME = 0;
   const $ = document.getElementById('app');
   const esc = t => String(t == null ? '' : t).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
-  const store = { get(k, d) { try { const v = localStorage.getItem('thriftshop-' + k); return v == null ? d : JSON.parse(v); } catch (e) { return d; } }, set(k, v) { try { localStorage.setItem('thriftshop-' + k, JSON.stringify(v)); } catch (e) { /* no storage */ } } };
+  const store = { get(k, d) { try { const v = localStorage.getItem('thriftshop26-' + k); return v == null ? d : JSON.parse(v); } catch (e) { return d; } }, set(k, v) { try { localStorage.setItem('thriftshop26-' + k, JSON.stringify(v)); } catch (e) { /* no storage */ } } };
   const fromLibrary = () => { let came = /[?&]from=library\b/.test(location.search); try { if (came) sessionStorage.setItem('tabletop-library-from', '1'); else { const nav = (performance.getEntriesByType && performance.getEntriesByType('navigation')[0]) || {}; if (nav.type === 'navigate') sessionStorage.removeItem('tabletop-library-from'); else came = sessionStorage.getItem('tabletop-library-from') === '1'; } } catch (e) { /* no storage */ } return /^https?:$/.test(location.protocol) && came; };
   const LIB = fromLibrary();
   const buildStamp = () => { const m = document.querySelector('meta[name=build]'), b = m ? m.content : ''; return b === '__BUILD__' ? 'local file' : b; };
-  const same = (a, b) => JSON.stringify(a) === JSON.stringify(b);
-  const clone = o => JSON.parse(JSON.stringify(o));
-  const tcolor = id => TYPES.find(t => t.id === id).color;
-  const SEASON_ICON = ['❄️', '🌷', '☀️', '🍂'];
-  const ui = { screen: 'menu', s: null, sheet: null, sel: null, toast: '', rules: store.get('rules', {}), players: store.get('players', D.playerRange.default), level: store.get('level', 'normal'), timed: store.get('timed', false), teach: store.get('teach', true),
-    simSet: { players: 3, level: 'normal', games: 100 }, sim: null, simBase: {}, quit: false, clock: 0, timer: null, tipsSeen: {}, deal: null };
-  const rules = () => Object.assign(clone(D.rules), clone(ui.rules));
-  const changed = () => Object.keys(ui.rules).length;
-  function setRule(k, v) { if (same(v, D.rules[k])) delete ui.rules[k]; else ui.rules[k] = clone(v); store.set('rules', ui.rules); }
-  const toast = t => { ui.toast = t; render(); clearTimeout(toast.t); toast.t = setTimeout(() => { ui.toast = ''; render(); }, 1500); };
-  const narrow = () => innerWidth < 560;
+  const IMP = Object.fromEntries(D.impressions.map(i => [i.id, i]));
+  const TYPE_COLOR = { Head: '#8a55d0', Top: '#e0584f', Bottom: '#3f7fd0', Shoes: '#4aa56a', Accessory: '#d9a21b' };
+  const SLOT = Object.fromEntries(D.slots.map(s => [s.id, s]));
+  const ui = { screen: 'menu', s: null, sel: null, sheet: null, paused: false, elapsed: 0, botNext: [], arrive: null, drag: false, handDirty: false, rotateOff: false, quit: false, last: 0, settings: E.cleanSettings(store.get('settings', {})) };
+  const saveSettings = () => store.set('settings', ui.settings);
 
-  // ---------- art ----------
-  const crest = () => `<svg class="crest" viewBox="0 0 300 220" role="img" aria-label="A clothes rack"><rect x="30" y="20" width="240" height="10" rx="5" fill="#e9d9a8" stroke="#0f2a2b" stroke-width="4"/><path d="M150 20 V6 q0 -8 10 -8" fill="none" stroke="#e9d9a8" stroke-width="5"/>
-    <g stroke="#0f2a2b" stroke-width="4" stroke-linejoin="round"><path d="M50 30 l-18 14 12 14 14 -8 V120 H100 V50 l14 8 12 -14 -18 -14 q-18 10 -32 0Z" fill="#e0584f" transform="translate(6 6)"/>
-    <path d="M150 34 l-18 14 12 14 14 -8 V124 H200 V54 l14 8 12 -14 -18 -14 q-18 10 -32 0Z" fill="#3f7fd0" transform="translate(-4 2)"/>
-    <path d="M212 36 h50 l8 90 h-30 l-3 -50 -3 50 h-30Z" fill="#4aa56a" transform="translate(-6 4)"/></g>
-    <g stroke="#0f2a2b" stroke-width="4"><rect x="40" y="150" width="64" height="40" rx="8" fill="#f2b63a"/><circle cx="56" cy="198" r="10" fill="#fff"/><circle cx="88" cy="198" r="10" fill="#fff"/><path d="M130 190 h44 v-16 h-44Z" fill="#d9a21b"/><path d="M200 186 q10 -34 40 -34 v34Z" fill="#e0584f"/></g></svg>`;
-
-  // ---------- text from the rules ----------
-  function rulesText() {
-    const R = rules();
-    return `<h3>The goal</h3><p>Build the highest-scoring look: one <b>top, bottom, shoes and accessory</b>. Each card is worth a different number in each season. After ${R.seasonCount === 4 ? 'Winter, Spring, Summer and Fall' : R.seasonCount + ' season' + (R.seasonCount > 1 ? 's' : '')} the most points wins.</p>
-    <h3>Each season</h3><ul><li>Everyone starts with <b>${R.startCoins} coins</b> and ${R.startCards} card from each stack. Coins and cards carry over from season to season.</li>
-    <li><b>Buy:</b> tap a stack, pay ${R.pricePerCard} coin${R.pricePerCard > 1 ? 's' : ''} per card (up to ${R.maxBuy}), draw that many, <b>keep one</b>; the rest go to the bottom of the stack.</li>
-    <li><b>Sell:</b> tap a card, then Sell: it goes to the bottom of its stack and you take its resale value (the small number in the corner).</li>
-    <li>Buy and sell in any order and keep any number of cards. The computer shoppers do the same at the same time${ui.timed ? '; the clock runs out in ' + R.clockSecs + ' seconds' : '. You end the season with “Done shopping”'}.</li>
-    <li><b>Reveal:</b> your best look is chosen for you, one card of each type from your hand. You can tap a slot to wear something else. Add up the four numbers for the season.</li></ul>
-    <h3>Special cards</h3><ul><li><b>Ripped Jeans</b> are thrown away after you wear them once.</li>${R.penaltyCards ? '<li><b>The four gym cards</b> (stinky shirt, shorts, socks, shoes) cost coins to sell and lose you points if still in your hand when a season ends. Wearing one spares you the penalty.</li>' : ''}</ul>
-    <h3>What this app is</h3><p>A playtest table against computer shoppers. Coins are worth ${R.coinPoints ? R.coinPoints + ' point' + (R.coinPoints > 1 ? 's' : '') + ' each' : 'nothing'} at the end. The <b>Rules Lab</b> changes any number and <b>Simulate</b> has the shoppers play whole games to show what a change does.</p>
-    <h3>My calls where the rulebook is silent</h3><ul><li>${R.copies} copies of every card in the stacks; you play ${ui.players}.</li><li>The shoppers act once for every move you make (no clock unless you turn on Timed).</li><li>A gym card you wear counts as 0 points and is not penalised.</li></ul>`;
+  // ---------- small pieces ----------
+  const impsOf = c => D.impressions.map((im, i) => [im, c.v[i]]).filter(([, v]) => v !== 0);
+  const accIcon = c => { const a = c.ability; if (!a) return ''; if (a.imp) return IMP[a.imp].icon; if (a.kind === 'add') return IMP[a.to].icon; if (a.kind === 'doubleHighest') return '×2'; return '🪄'; };
+  const hint = t => { const st = document.getElementById('stage'); if (!st) return; const old = st.querySelector('.hint'); if (old) old.remove(); const h = document.createElement('div'); h.className = 'hint'; h.textContent = t; st.appendChild(h); setTimeout(() => h.remove(), 1500); };
+  const impChips = card => impsOf(card).map(([im, v]) => `<span class="im" style="--c:${im.color}"><i>${im.icon}</i><b class="${v < 0 ? 'neg' : ''}">${v}</b></span>`).join('');
+  function handCardHTML(idx, hi, o = {}) {
+    const c = CARDS[idx], acc = c.type === 'Accessory';
+    return `<div class="hc ${o.sel ? 'sel' : ''} ${o.played ? 'played' : ''} ${o.arrive ? 'arrive' : ''} ${o.cls || ''}" style="--t:${TYPE_COLOR[c.type]}" ${hi >= 0 ? `data-hand="${hi}"` : ''} data-card="${idx}">${acc ? '' : `<div class="imps">${impChips(c)}</div>`}
+      <div class="info"><b class="nm">${esc(c.name)}</b><em class="ty">${c.type}</em>${c.prints.length ? `<div class="pr">${c.prints.map(p => `<span>${esc(p)}</span>`).join('')}</div>` : ''}${acc ? `<div class="ab">${esc(c.abilityText)}</div>` : ''}</div></div>`;
+  }
+  function tileHTML(i, extra = '') {
+    const s = ui.s, cell = s.cells[i];
+    if (!cell) return `<div class="tile empty ${extra}" data-cell="${i}"></div>`;
+    if (!cell.up && !ui.settings.debug) return `<div class="tile down ${extra}" data-cell="${i}"></div>`;
+    return faceTile(cell.c, i, (cell.up ? '' : 'dbg ') + extra);
+  }
+  function faceTile(cardIdx, i, extra = '') {
+    const c = CARDS[cardIdx], vals = c.type === 'Accessory' ? `<span style="--c2:#7a2a1a">${accIcon(c)}</span>` : impsOf(c).map(([im, v]) => `<span class="${v < 0 ? 'neg' : ''}" style="--c2:${im.color}">${im.icon}${v}</span>`).join('');
+    return `<div class="tile up ${extra}" data-cell="${i}" style="--c:${TYPE_COLOR[c.type]}"><b>${esc(c.name)}</b><div class="vals">${vals}</div></div>`;
+  }
+  const inviteChips = inv => D.impressions.map(im => inv.rewards.includes(im.id) ? `<span class="ichip on" style="--c:${im.color}">${im.icon} ${im.id}</span>` : inv.penalizes.includes(im.id) ? `<span class="ichip minus" style="--c:${im.color}">− ${im.icon} ${im.id}</span>` : '').join('');
+  const sandSVG = () => `<svg viewBox="0 0 40 56" width="36" height="52"><defs><clipPath id="hgT"><path d="M6 4H34L20 28Z"/></clipPath><clipPath id="hgB"><path d="M20 28L34 52H6Z"/></clipPath></defs>
+    <path d="M6 4H34L20 28L34 52H6L20 28Z" fill="#ffffff14" stroke="#fff1cc" stroke-width="2.5" stroke-linejoin="round"/><rect id="sandT" x="0" y="4" width="40" height="24" fill="#f2b63a" clip-path="url(#hgT)"/><rect id="sandB" x="0" y="52" width="40" height="0" fill="#f2b63a" clip-path="url(#hgB)"/></svg>`;
+  const boardRows = s => s.players.map((p, i) => `<div class="${i === ME ? 'me' : ''}"><span>${esc(p.name)}</span><b>${E.totalLikes(s, i)}</b></div>`).join('');
+  function topBar(s, mode) {
+    const inv = E.inviteOf(s), left = Math.max(0, Math.ceil(s.cfg.thriftSecs - ui.elapsed));
+    return `<div class="topbar"><button class="menubtn" data-act="sheet" data-s="menu" aria-label="Menu">☰</button>
+      <div class="invitecard"><h2>${esc(inv.name)}<small>${esc(inv.category)}</small></h2><div class="story">${esc(inv.story)}</div><div class="pay">${esc(inv.payout)}</div><div class="impchips">${inviteChips(inv)}</div></div>
+      <div class="roundbox"><small>Round</small><b>${s.round}/${s.invites.length}</b></div>
+      ${mode === 'thrift' ? `<div class="timerbox ${left <= 10 ? 'low' : ''}" id="timerbox">${sandSVG()}<b id="secs">${left}</b></div>` : `<div class="timerbox"><small>${mode === 'build' ? 'Build your look' : mode === 'invite' ? 'Get ready' : 'Likes'}</small></div>`}
+      <div class="board" id="board">${boardRows(s)}</div></div>`;
   }
 
-  // ---------- menu / setup ----------
+  // ---------- thrift screen ----------
+  function handInner() {
+    const s = ui.s, p = s.players[ME], full = E.handFull(s, p), cols = Math.max(6, s.cfg.handLimit);
+    const cards = p.hand.map((c, i) => handCardHTML(c, i, { sel: ui.sel === i, arrive: ui.arrive === c })).join('');
+    return `<div class="handrow" style="grid-template-columns:repeat(${cols},1fr)">${cards}</div><div class="handside"><small>Your hand</small><b>${p.hand.length}/${s.cfg.handLimit}</b>
+      <button class="btn gold" data-act="putback" ${ui.sel == null || s.phase !== 'thrift' ? 'disabled' : ''}>Put back</button><small>${full ? 'Hand full' : ui.sel != null ? 'Tap Put back to confirm' : 'Tap a card to select'}</small></div>`;
+  }
+  const patchHand = () => { if (ui.drag) { ui.handDirty = true; return; } const el = document.getElementById('handwrap'); if (el) { el.innerHTML = handInner(); ui.arrive = null; } };
+  function patchTile(i, extra) { const el = document.querySelector(`.tile[data-cell="${i}"]`); if (el) el.outerHTML = tileHTML(i, extra || ''); }
+  function patchDebug() {
+    const el = document.getElementById('dbg'), s = ui.s; if (!el) return;
+    el.innerHTML = s.players.map((p, i) => i === ME ? '' : `<div><b>${esc(p.name)}</b>: ${p.hand.map(c => esc(CARDS[c].name)).join(', ')}</div>`).join('');
+  }
+  function thriftHTML() {
+    const s = ui.s, inv = E.inviteOf(s), n = s.cells.length;
+    const tiles = s.cells.map((_, i) => tileHTML(i)).join('');
+    const panel = s.phase === 'invite' ? `<div class="invitepanel"><small style="letter-spacing:2px;font-weight:800;color:var(--dim)">ROUND ${s.round} OF ${s.invites.length}</small><h1>${esc(inv.name)}</h1><div class="story">${esc(inv.story)}</div><div class="pay">${esc(inv.payout)}</div><div class="impchips">${inviteChips(inv)}</div>
+      <div class="say" style="width:auto;padding:8px 18px">Look over your hand, then start the ${s.cfg.thriftSecs}-second scramble.</div><button class="btn gold" data-act="begin" style="min-width:300px">Start</button></div>` : '';
+    return `${topBar(s, s.phase === 'invite' ? 'invite' : 'thrift')}<div style="position:relative;flex:1;min-height:0;display:flex"><div class="mess" id="mess" style="--cols:${D.mess.cols};grid-template-rows:repeat(${Math.ceil(n / D.mess.cols)},1fr)">${tiles}</div>${panel}</div>
+      <div class="handwrap" id="handwrap">${handInner()}</div>${ui.settings.debug ? '<div class="dbgpanel" id="dbg"></div>' : ''}`;
+  }
+
+  // ---------- build screen ----------
+  function totalsPanel(s) {
+    const p = s.players[ME], inv = E.inviteOf(s), { totals, effect } = E.impressionTotals(p.board, p.wand, inv.name), m = SH.scoring[inv.name][0].metric;
+    const hasWand = p.board.Accessory != null && CARDS[p.board.Accessory].ability.kind === 'wand', target = p.wand && p.wand !== 'Spooky' ? p.wand : E.defaultWand(inv.name);
+    const lbl = typeof m === 'string' ? m : Object.keys(m)[0] === 'sum' ? m.sum.join(' + ') : Object.keys(m)[0] === 'diff' ? m.diff.join(' − ') : 'lower of ' + m.min.join(' & ');
+    return `<div class="totals">${D.impressions.map(im => `<div class="im" style="--c:${im.color}"><span><i>${im.icon}</i> ${im.id}</span><b class="${totals[im.id] < 0 ? 'neg' : ''}">${totals[im.id]}</b></div>`).join('')}
+      <div class="metric">${esc(lbl)}<br><b>${E.metricValue(m, totals)}</b></div>${effect ? `<div class="metric" style="color:var(--gold)">${esc(effect)}</div>` : ''}
+      ${hasWand ? `<div class="metric">Wand feeds:</div><div style="display:flex;gap:4px;flex-wrap:wrap;justify-content:center">${D.impressions.filter(i => i.id !== 'Spooky').map(i => `<button class="chip ${target === i.id ? 'on' : ''}" style="min-height:44px;padding:0 10px" data-act="wand" data-imp="${i.id}">${i.icon}</button>`).join('')}</div>` : ''}</div>`;
+  }
+  function slotHTML(s, k) {
+    const p = s.players[ME], c = p.board[k], sl = SLOT[k], selCard = ui.sel != null ? p.hand[ui.sel] : null, target = selCard != null && CARDS[selCard].type === k;
+    return `<div class="slot ${target ? 'target' : ''}" data-slot="${k}" data-act="slot"><span class="lab">${k}</span>${c != null ? handCardHTML(c, -1, { cls: 'slotcard' }) : `<div class="bare"><i>${sl.icon}</i>${esc(sl.bare)}</div>`}</div>`;
+  }
+  function buildInner() {
+    const s = ui.s, p = s.players[ME];
+    const cards = p.hand.map((c, i) => handCardHTML(c, i, { sel: ui.sel === i, played: p.board[CARDS[c].type] === c })).join('');
+    return `<div class="handrow" id="handrow">${cards}</div><div class="figure"><div class="fig">${E.CLOTHING.map(k => slotHTML(s, k)).join('')}</div><div class="accwrap">${slotHTML(s, E.ACC)}${totalsPanel(s)}<button class="btn gold" data-act="done" style="min-height:64px">Done</button></div></div>`;
+  }
+  const buildHTML = () => `${topBar(ui.s, 'build')}<div class="build" id="build">${buildInner()}</div>`;
+  const patchBuild = () => { if (ui.drag) { ui.handDirty = true; return; } const el = document.getElementById('build'); if (el) el.innerHTML = buildInner(); };
+
+  // ---------- reveal and final ----------
+  function revealHTML() {
+    const s = ui.s, R = s.results, inv = E.inviteOf(s), best = Math.max(...R.players.map(r => r.likes));
+    const cols = R.players.map((r, i) => {
+      const win = r.likes === best && best > 0;
+      const slots = E.SLOTS.map(k => { const c = r.board[k]; if (c == null) return `<div class="mini none">${esc(SLOT[k].bare)}</div>`; const cd = CARDS[c]; return `<div class="mini" style="--t:${TYPE_COLOR[cd.type]}"><b>${esc(cd.name)}</b><div class="vals">${cd.type === 'Accessory' ? `<span>${accIcon(cd)}</span>` : impsOf(cd).map(([im, v]) => `<span class="${v < 0 ? 'neg' : ''}" style="color:${v < 0 ? '#c0262d' : im.color}">${im.icon}${v}</span>`).join('')}</div></div>`; }).join('');
+      return `<div class="rv ${i === ME ? 'me' : ''} ${win ? 'win' : ''}" style="animation-delay:${i * 120}ms"><h4><span>${esc(s.players[i].name)}${win ? ' 🎉' : ''}</span><em>+${r.likes}</em></h4>${slots}
+        <div class="tot">${D.impressions.map(im => `<span class="ichip ${r.totals[im.id] === 0 ? 'zero' : ''}" style="--c:${im.color}">${im.icon}${r.totals[im.id]}</span>`).join('')}</div><div class="fx">${esc(r.effect)}</div>
+        <div class="parts">${r.parts.map(pt => `<div>${esc(pt.text)} <span>${pt.likes ? '+' + pt.likes : '0'}</span></div>`).join('')}</div></div>`;
+    }).join('');
+    const last = s.round >= s.invites.length;
+    return `${topBar(s, 'reveal')}<div class="reveal"><div class="say" style="font-size:20px"><b>${esc(inv.name)}</b> — ${esc(inv.story)}</div><div class="rvrow">${cols}</div><button class="btn gold" data-act="next" style="align-self:center;min-width:320px">${last ? 'See final results' : 'Next round'}</button></div>`;
+  }
+  function finalHTML() {
+    const s = ui.s, tot = s.players.map((p, i) => E.totalLikes(s, i)), top = Math.max(...tot), order = tot.map((_, i) => i).sort((a, b) => tot[b] - tot[a]);
+    const win = tot.map((t, i) => t === top ? i : -1).filter(i => i >= 0);
+    return `<div class="reveal" style="padding-top:10px"><h2 style="text-align:center;font-size:40px;color:#fff1cc">👑 ${win.map(i => i === ME ? 'You' : esc(s.players[i].name)).join(' and ')} ${win.length > 1 ? 'share the crown' : win[0] === ME ? 'win' : 'wins'}!</h2>
+      <div class="final">${order.map(i => `<div class="row2 ${tot[i] === top ? 'win' : ''}"><b>${i === ME ? 'You' : esc(s.players[i].name)}</b><span>${s.players[i].likes.join(' + ')}</span><em>${tot[i]}</em></div>`).join('')}</div>
+      <div class="row" style="margin-top:auto"><button class="btn gold" data-act="again">Play again</button><button class="btn" data-act="log">Round log</button><button class="btn alt" data-act="menu">Menu</button></div></div>`;
+  }
+
+  // ---------- menu / settings / sheets ----------
+  const crest = () => `<svg class="crest" viewBox="0 0 300 200" role="img" aria-label="A clothes rack"><rect x="30" y="20" width="240" height="10" rx="5" fill="#e9d9a8" stroke="#0f2a2b" stroke-width="4"/><path d="M150 20 V6 q0 -8 10 -8" fill="none" stroke="#e9d9a8" stroke-width="5"/>
+    <g stroke="#0f2a2b" stroke-width="4" stroke-linejoin="round"><path d="M50 36 l-18 14 12 14 14 -8 V126 H100 V56 l14 8 12 -14 -18 -14 q-18 10 -32 0Z" fill="#e0584f"/><path d="M146 40 h50 l6 100 h-26 l-5 -52 -5 52 h-26Z" fill="#3f7fd0"/><path d="M222 40 q28 4 40 14 l-10 14 -8 -4 18 84 h-60 l18 -84 -8 4 -10 -14 q12 -10 20 -14Z" fill="#4aa56a"/></g></svg>`;
   function menuHTML() {
-    return `<div class="screen menu">${LIB ? `<a class="libback" href="${D.library.href}">‹ Library</a>` : ''}${crest()}<h1>Thrift Shop</h1>
-      <div class="sub">Dig through the racks. Buy, sell, and build the best look for every season.</div>
-      <div class="stack-btns" style="display:flex;flex-direction:column;gap:14px;width:min(460px,92vw);margin-top:8px"><button class="btn gold" data-act="setup">Go thrifting</button>
-        <button class="btn" data-act="lab">⚙ Rules Lab &amp; Simulate${changed() ? ` · ${changed()} changed` : ''}</button><button class="btn alt" data-act="sheet" data-s="how">How to play</button></div>
+    return `<div class="screen menu">${LIB ? `<a class="libback" href="${D.library.href}">‹ Library</a>` : ''}${crest()}<h1>Thrift Shop</h1><div class="sub">Grab clothes from the pile, build a look, and win the most Likes at seven events.</div>
+      <div style="display:flex;flex-direction:column;gap:14px;width:min(460px,92vw);margin-top:8px"><button class="btn gold" data-act="play">Go thrifting</button><button class="btn" data-act="settings">⚙ Settings</button><button class="btn alt" data-act="sheet" data-s="how">How to play</button></div>
       <div class="credit">A game by Latrelle Bright, Emily Blim &amp; Patrick Blim-Hockberger · ${esc(buildStamp())}</div></div>`;
   }
-  function setupHTML() {
-    const lv = [['easy', 'Easy', 'Impulse buyers'], ['normal', 'Normal', 'Know a bargain'], ['hard', 'Hard', 'Plan every season']];
-    return `<div class="screen"><div class="top"><button class="btn sm alt" data-act="menu">‹ Back</button><h2>New game</h2></div>
-      <div class="scroll"><div class="panel"><h3>Shoppers</h3><div class="row">${Array.from({ length: D.playerRange.max - D.playerRange.min + 1 }, (_, i) => D.playerRange.min + i).map(n => `<button class="chip ${ui.players === n ? 'on' : ''}" data-act="players" data-n="${n}">${n} players</button>`).join('')}</div><div class="hint">You and ${ui.players - 1} computer shopper${ui.players > 2 ? 's' : ''}.</div></div>
-      <div class="panel"><h3>Computer shoppers</h3><div class="row">${lv.map(([k, n]) => `<button class="chip ${ui.level === k ? 'on' : ''}" data-act="level" data-k="${k}">${n}</button>`).join('')}</div><div class="hint">${lv.find(l => l[0] === ui.level)[2]}.</div></div>
-      <div class="panel"><h3>Clock</h3><div class="row"><button class="chip ${!ui.timed ? 'on' : ''}" data-act="timed" data-v="0">Relaxed</button><button class="chip ${ui.timed ? 'on' : ''}" data-act="timed" data-v="1">Timed ${Math.floor(rules().clockSecs / 60)}:${String(rules().clockSecs % 60).padStart(2, '0')}</button></div><div class="hint">${ui.timed ? 'A real countdown each season, like the table game.' : 'No clock: the shoppers move when you do, and you end the season yourself.'}</div></div>
-      <div class="panel"><h3>Rules</h3><div class="hint">${changed() ? `<b style="color:var(--gold)">${changed()} rule${changed() > 1 ? 's' : ''} changed</b> from the rulebook.` : 'The rulebook (with my guesses where it is silent).'}</div><button class="btn sm alt" data-act="lab">Open the Rules Lab</button></div>
-      <div class="panel"><div class="ctl" style="border:0"><label>Teach me: short tips the first time something comes up</label><button class="chip ${ui.teach ? 'on' : ''}" data-act="teach">${ui.teach ? 'On' : 'Off'}</button></div></div></div>
-      <button class="btn gold" style="width:min(760px,100%)" data-act="start">Begin</button></div>`;
+  const LABELS = { bots: 'Computer shoppers', rounds: 'Rounds per game', thriftSecs: 'Thrifting timer (seconds)', startHand: 'Starting hand', handLimit: 'Hand limit', maxPlayed: 'Most cards in a look' };
+  function settingsHTML() {
+    const S = ui.settings, rows = Object.keys(LABELS).map(k => `<div class="ctl ${S[k] !== D.settings[k] ? 'chg' : ''}"><label>${LABELS[k]}</label><div class="step"><button data-act="num" data-k="${k}" data-d="-${D.steps[k]}" aria-label="less">−</button><b>${S[k]}</b><button data-act="num" data-k="${k}" data-d="${D.steps[k]}" aria-label="more">+</button></div></div>`).join('');
+    return `<div class="screen"><div class="top"><button class="btn sm alt" data-act="menu">‹ Back</button><h2>Settings</h2><button class="btn sm alt" data-act="resetsettings">Defaults</button></div><div class="scroll"><div class="panel"><div style="color:var(--dim);font-size:15px">Changes apply to the next game. They are kept on this device.</div>${rows}
+      <div class="ctl"><label>Bot speed</label><div class="row">${Object.keys(D.botSpeeds).map(k => `<button class="chip ${S.botSpeed === k ? 'on' : ''}" data-act="speed" data-k="${k}">${D.botSpeeds[k].label}</button>`).join('')}</div></div>
+      <div class="ctl"><label>Debug: show every face-down card and the bots’ hands</label><button class="chip ${S.debug ? 'on' : ''}" data-act="debug">${S.debug ? 'On' : 'Off'}</button></div></div></div>
+      <button class="btn gold" style="width:min(760px,100%)" data-act="play">Play with these settings</button></div>`;
   }
-
-  // ---------- Rules Lab ----------
-  function ctlHTML(c) {
-    const R = rules(), val = R[c.key], chg = !same(val, D.rules[c.key]), k = esc(c.key);
-    const right = c.kind === 'num' ? `<div class="step"><button data-act="num" data-k="${k}" data-d="-${c.step}" aria-label="less">−</button><b>${val}</b><button data-act="num" data-k="${k}" data-d="${c.step}" aria-label="more">+</button></div>`
-      : `<button class="chip ${val ? 'on' : ''}" data-act="tog" data-k="${k}">${val ? 'On' : 'Off'}</button>`;
-    return `<div class="ctl ${chg ? 'chg' : ''}"><label>${esc(c.label)}${chg ? ' · changed' : ''}</label>${right}</div>`;
-  }
-  const f1 = v => v.toFixed(1), pct = v => Math.round(v * 100) + '%';
-  const METRICS = [['Winner’s points', 'top', f1], ['Last place’s points', 'last', f1], ['Gap between first and last', 'margin', f1], ['Average points per player', 'mean', f1],
-    ['Average points in a season (1st–4th)', null, r => r.seasons.map(f1).join(' · ')], ['Seat 1 wins', 'seat0', pct], ['Games ending in a tie', 'ties', pct], ['Buys and sells per game', 'actions', f1], ['Coins left per player', 'coins', f1]];
-  function simHTML() {
-    const S = ui.simSet, sm = ui.sim, base = sm && sm.base, mine = sm && sm.mine; let out = '';
-    if (sm && sm.running) out = `<div class="bar"><i style="width:${Math.round(sm.progress * 100)}%"></i></div><div class="hint">The shoppers are shopping… ${Math.round(sm.progress * 100)}%</div>`;
-    else if (base && mine) out = `<table class="cmp"><tr><th></th><th>Rulebook</th><th>Your rules</th></tr>${METRICS.map(([l, k, f]) => { const a = k ? base[k] : null, b = k ? mine[k] : null; return `<tr><td>${l}</td><td>${k ? f(base[k]) : f(base)}</td><td>${k ? f(mine[k]) : f(mine)}${k && Math.abs(b - a) > 1e-9 ? `<br><span style="font-size:13px;color:var(--gold)">${b > a ? '▲' : '▼'} ${f === pct ? Math.round(Math.abs(b - a) * 100) + ' pts' : Math.abs(b - a).toFixed(1)}</span>` : ''}</td></tr>`; }).join('')}</table>
-      <div class="hint">${S.games} games each, ${S.players} players at ${S.level}. Same seeds for both. The shoppers are not people: read the swing, not the exact number.${same(rules(), D.rules) ? ' (No rules changed yet, so both columns match.)' : ''}</div>`;
-    return `<div class="panel"><h3>Simulate</h3><div class="hint">The computer shoppers play whole games on your rules and on the rulebook, so you can see what an idea does.</div>
-      <div class="row">${[2, 3, 4, 6].map(n => `<button class="chip ${S.players === n ? 'on' : ''}" data-act="simset" data-k="players" data-v="${n}">${n} players</button>`).join('')}</div>
-      <div class="row">${['easy', 'normal', 'hard'].map(k => `<button class="chip ${S.level === k ? 'on' : ''}" data-act="simset" data-k="level" data-v="${k}">${k[0].toUpperCase() + k.slice(1)}</button>`).join('')}</div>
-      <div class="row">${[50, 100, 300].map(n => `<button class="chip ${S.games === n ? 'on' : ''}" data-act="simset" data-k="games" data-v="${n}">${n} games</button>`).join('')}</div>
-      <button class="btn gold" data-act="simrun" ${sm && sm.running ? 'disabled' : ''}>Run the simulation</button>${out}</div>`;
-  }
-  function labHTML() {
-    return `<div class="screen"><div class="top"><button class="btn sm alt" data-act="menu">‹ Back</button><h2>Rules Lab</h2><button class="btn sm alt" data-act="resetrules" ${changed() ? '' : 'disabled'}>Reset</button></div>
-      <div class="scroll"><div class="panel"><div class="hint">Change any rule, then <b>Simulate</b> to see what it does or <b>Play</b> to feel it. Changes are kept on this device.</div><button class="btn gold" data-act="setup">Play with these rules</button></div>${simHTML()}<div class="panel"><h3>Rules</h3>${D.lab.map(ctlHTML).join('')}</div></div></div>`;
-  }
-
-  // ---------- the shop ----------
-  const cardNums = (name, season) => { const d = E.def(name); return d.v.map((v, i) => `<span class="${i === season ? 'now' : ''} ${v < 0 ? 'neg' : ''}"><small>${D.seasons[i].slice(0, 3).toUpperCase()}</small>${v}</span>`).join(''); };
-  function cardHTML(name, o = {}) {
-    const d = E.def(name), c = tcolor(d.type), ab = d.ability === 'once' ? 'Thrown away after you wear it once' : Array.isArray(d.ability) ? `−${d.ability[1]} points if left in your hand` : '';
-    return `<div class="tcard ${o.sel ? 'sel' : ''}" style="--c:${c}" ${o.act ? `data-act="${o.act}" data-i="${o.i}" data-c="${esc(name)}" role="button" tabindex="0"` : ''}><i>${esc(D.types.find(t => t.id === d.type).one)}</i><h4>${esc(name)}</h4><span class="res">${d.resale < 0 ? '−' + Math.abs(d.resale) : d.resale}🪙</span>${ab ? `<div class="ab">${esc(ab)}</div>` : ''}<div class="nums">${cardNums(name, o.season)}</div>${o.worn ? '<span class="worn">✓ IN YOUR LOOK</span>' : ''}${o.sell || ''}</div>`;
-  }
-  const fmtClock = n => Math.floor(n / 60) + ':' + String(n % 60).padStart(2, '0');
-  function shopHTML() {
-    const s = ui.s, v = E.viewFor(s, ME), me = v.houses[ME], R = s.rules;
-    const picks = E.bestLook(s.houses[ME].hand, s.season, R), L = E.scoreLook(s.houses[ME].hand, picks, s.season), worn = new Set(Object.values(picks).filter(Boolean));
-    const hand = s.houses[ME].hand.slice().sort((a, b) => TYPES.findIndex(t => t.id === E.def(a).type) - TYPES.findIndex(t => t.id === E.def(b).type) || a.localeCompare(b));
-    const wornLeft = new Set(worn);
-    const tiles = hand.map((c, i) => { const w = wornLeft.has(c); if (w) wornLeft.delete(c); const sel = ui.sel === i; const sell = sel ? `<button class="sell" data-act="sell" data-c="${esc(c)}">Sell for ${E.def(c).resale < 0 ? '−' + Math.abs(E.def(c).resale) : E.def(c).resale} 🪙</button>` : ''; return cardHTML(c, { act: 'selcard', i, sel, season: s.season, worn: w, sell }); }).join('');
-    const last = v.log.length ? v.log[v.log.length - 1] : null;
-    return `<div class="screen game"><div class="bar-top"><button class="menubtn" data-act="sheet" data-s="menu" aria-label="Menu">☰</button>
-      <div class="status"><b>${SEASON_ICON[s.season]} ${D.seasons[s.season]}</b><span>Season ${s.season + 1} of ${R.seasonCount}${ui.timed ? ` · <span class="clock">${fmtClock(Math.max(0, ui.clock))}</span>` : ''}</span></div><div class="vault" aria-label="Your coins">🪙 ${me.coins}</div></div>
-      <div class="shoppers">${v.houses.map((h, i) => i === ME ? '' : `<div class="shopper"><b>${esc(h.name)}</b><span>🪙 ${h.coins} · 👚 ${h.handCount}${v.done.includes(i) ? ' · ✓' : ''}</span></div>`).join('')}</div>
-      <div class="stacks">${TYPES.map(t => `<button class="stack" style="--c:${t.color}" data-act="stack" data-t="${t.id}" ${v.stacks[t.id] ? '' : 'disabled'}><b>${t.name}</b><span>${v.stacks[t.id]} cards</span></button>`).join('')}</div>
-      <div class="logline">${last ? esc(v.houses[last.seat].name + ' ' + last.text) : '&nbsp;'}</div>
-      <div class="lookbar"><span>Your look this season</span><b>${L.total >= 0 ? '+' : ''}${L.total}</b></div>
-      <div class="hand" style="--cols:${narrow() ? 2 : 3}">${tiles || '<div class="say" style="grid-column:1/-1">Your hand is empty. Tap a stack to buy.</div>'}</div>
-      <div class="actions"><button class="btn gold" data-act="doneshop">Done shopping</button></div></div>`;
-  }
-  function buySheet() {
-    const sh = ui.sheet, s = ui.s, R = s.rules, t = TYPES.find(x => x.id === sh.kind), me = s.houses[ME], maxN = Math.min(R.maxBuy, s.stacks[sh.kind].length, Math.floor(me.coins / R.pricePerCard));
-    if (s.drawn[ME]) return `<h3>Keep one</h3><div class="say">Tap the card you keep. The rest go to the bottom of the ${esc(t.name.toLowerCase())} stack.</div><div class="deal" style="--cols:${narrow() ? 2 : Math.min(3, s.drawn[ME].cards.length)}">${s.drawn[ME].cards.map((c, i) => cardHTML(c, { act: 'keep', i, season: s.season })).join('')}</div>`;
-    if (maxN < 1) return `<h3>${esc(t.name)}</h3><div class="say">You cannot afford a card here.</div><button class="btn alt" data-act="closesheet">Back</button>`;
-    sh.n = Math.max(1, Math.min(sh.n || 1, maxN));
-    return `<h3>Buy ${esc(t.name.toLowerCase())}</h3><div class="say">Pay ${R.pricePerCard} coin${R.pricePerCard > 1 ? 's' : ''} per card, draw that many, keep one. More cards means a better choice.</div>
-      <div class="ctl" style="border:0;justify-content:center;gap:20px"><div class="step"><button data-act="buyn" data-d="-1">−</button><b style="font-size:34px">${sh.n}</b><button data-act="buyn" data-d="1">+</button></div></div>
-      <button class="btn gold" data-act="draw">Draw ${sh.n} for ${sh.n * R.pricePerCard} 🪙</button><button class="btn alt" data-act="closesheet">Never mind</button>`;
-  }
-  function revealHTML() {
-    const s = ui.s, v = E.viewFor(s, ME), done = s.phase === 'over', seasonIdx = done ? s.season - 1 : s.season;
-    const rows = s.houses.map((h, i) => {
-      const L = s.looks[i], mine = i === ME && !done && !s.ready.includes(ME);
-      const slots = TYPES.map(t => { const c = L && L.picks[t.id]; const inner = c ? `<b>${esc(c)}</b><span class="${E.seasonValue(c, s.season) < 0 ? 'neg' : ''}">${E.seasonValue(c, s.season)}</span>` : `<b>${esc(t.one)}</b><span>–</span>`; return mine ? `<button class="slot ${c ? '' : 'empty'}" style="--c:${t.color}" data-act="slot" data-t="${t.id}">${inner}</button>` : `<div class="slot ${c ? '' : 'empty'}" style="--c:${t.color}">${inner}</div>`; }).join('');
-      return `<div class="look ${i === ME ? 'me' : ''}"><div class="hd"><b>${i === ME ? 'Your look' : esc(h.name)}</b><span>${L && L.penalty ? `penalty ${L.penalty} · ` : ''}running ${E.total(s, i) + (done ? 0 : (L ? L.total : 0))}</span><em>${L ? (L.total >= 0 ? '+' : '') + L.total : ''}</em></div><div class="slots">${slots}</div></div>`;
-    }).join('');
-    return rows;
-  }
-  function overlayHTML() {
-    const s = ui.s; if (s.phase === 'shop') return '';
-    if (s.phase === 'over') {
-      const tot = s.houses.map((h, i) => E.total(s, i)), order = tot.map((t, i) => i).sort((a, b) => tot[b] - tot[a]);
-      return `<div class="over-bg"><h2>👑 ${s.winners.map(i => i === ME ? 'You' : esc(s.houses[i].name)).join(' and ')} ${s.winners.length > 1 || s.winners[0] === ME && false ? 'are' : (s.winners[0] === ME ? 'are' : 'is')} the Ultimate Thrifter!</h2>
-        ${order.map(i => `<div class="look ${i === ME ? 'me' : ''}"><div class="hd"><b>${i === ME ? 'You' : esc(s.houses[i].name)}</b><span>${s.scores[i].join(' + ')}${s.rules.coinPoints ? ' + ' + s.houses[i].coins * s.rules.coinPoints + ' coins' : ''}</span><em>${tot[i]}</em></div></div>`).join('')}
-        <div class="row"><button class="btn gold" data-act="start">Play again</button><button class="btn" data-act="menu">Menu</button>${changed() ? '<button class="btn alt" data-act="lab">Rules Lab</button>' : ''}</div></div>`;
-    }
-    return `<div class="over-bg"><h2>${SEASON_ICON[s.season]} ${D.seasons[s.season]} is over</h2><div class="say">Your best look is on. Tap a slot to wear something else.</div>${revealHTML()}<button class="btn gold" data-act="nextseason">${s.season + 1 >= s.rules.seasonCount ? 'See the final scores' : 'On to ' + D.seasons[s.season + 1]}</button></div>`;
+  function howText() {
+    const S = ui.settings;
+    return `<h3>The goal</h3><p>Win the most <b>Likes</b> over ${S.rounds} events. Each round has an <b>Invite</b> that says which Impressions earn Likes: 👑 Important, 😎 Cool, 🧸 Cute, 🤪 Wacky and 👻 Spooky.</p>
+    <h3>Thrift (${S.thriftSecs} seconds, everyone at once)</h3><ul><li>Tap any card in the mess to take it. Face-down cards are a surprise: you cannot peek. Face-up cards can be looked at by pressing and holding.</li>
+    <li>Your hand holds ${S.handLimit} cards. To take another, select a card in your hand and press <b>Put back</b>: it goes back into the mess face up.</li><li>Drag cards in your hand to reorder them.</li></ul>
+    <h3>Build (no timer)</h3><ul><li>Play up to ${S.maxPlayed} cards: one Head, Top, Bottom, Shoes and Accessory. Drag a card to its slot, or tap the card and then the slot. An empty slot is allowed (bald, undershirt, heart boxers, barefoot…).</li>
+    <li>Clothes add their Impressions. The accessory then adds its bonus. The Invite turns everyone’s totals into Likes.</li></ul>
+    <h3>Reveal</h3><p>Everyone’s look is shown with the totals, the accessory effect and the Likes earned. Your whole hand carries into the next round; the mess is not reshuffled.</p>
+    <h3>Ties</h3><p>Tied players share a place and both get the better payout.</p>`;
   }
   function sheetHTML() {
     const sh = ui.sheet; if (!sh) return '';
     let body = '';
-    if (sh.t === 'how') body = `<div class="howto"><h3 style="font-size:28px">How to play Thrift Shop</h3>${rulesText()}</div><button class="btn gold" data-act="closesheet">Got it</button>`;
-    else if (sh.t === 'menu') body = `<h3>Menu</h3><button class="btn" data-act="sheet" data-s="how">How to play</button><div class="hint" style="font-size:15px;color:var(--dim)">${changed() ? changed() + ' rule' + (changed() > 1 ? 's' : '') + ' changed from the rulebook.' : 'The rulebook rules.'}</div><button class="btn ${ui.quit ? 'gold' : ''}" data-act="newgame">${ui.quit ? 'Tap again to abandon this game' : 'New game'}</button><button class="btn" data-act="menu">Main menu</button>${LIB ? `<a class="btn" href="${D.library.href}">‹ Library</a>` : ''}<button class="btn alt" data-act="closesheet">Back to the shop</button>`;
-    else if (sh.t === 'tip') body = `<h3>${esc(sh.title)}</h3><p style="font-size:19px;line-height:1.4">${esc(sh.text)}</p><button class="btn gold" data-act="closesheet">Got it</button>`;
-    else body = buySheet();
-    const locked = ui.s && ui.s.drawn && ui.s.drawn[ME];
-    return `<div class="sheet-bg" data-act="${locked ? 'none' : 'bg'}"><div class="sheet ${sh.t === 'how' ? 'full' : ''}">${body}</div></div>`;
+    if (sh.t === 'how') body = `<div class="howto"><h3 style="font-size:28px">How to play Thrift Shop</h3>${howText()}</div><button class="btn gold" data-act="closesheet">Got it</button>`;
+    else if (sh.t === 'menu') body = `<h3>Menu</h3><button class="btn" data-act="sheet" data-s="how">How to play</button><button class="btn" data-act="log">Round log</button><div class="ctl" style="border:0"><label>Debug view (show all cards)</label><button class="chip ${ui.settings.debug ? 'on' : ''}" data-act="debug">${ui.settings.debug ? 'On' : 'Off'}</button></div>
+      <button class="btn ${ui.quit ? 'gold' : ''}" data-act="newgame">${ui.quit ? 'Tap again to abandon this game' : 'New game'}</button><button class="btn" data-act="menu">Main menu</button>${LIB ? `<a class="btn" href="${D.library.href}">‹ Library</a>` : ''}<button class="btn alt" data-act="closesheet">Back to the table</button>`;
+    else if (sh.t === 'log') body = `<h3>Round log</h3><textarea class="log" id="logtext" readonly>${esc(ui.s ? E.logText(ui.s) : '')}</textarea><div class="row"><button class="btn gold" data-act="copylog">Copy</button><button class="btn alt" data-act="closesheet">Close</button></div>`;
+    else if (sh.t === 'wand') body = `<h3>🪄 Magic Wand</h3><p style="font-size:18px">Add your Spooky to which Impression?</p><div class="row">${D.impressions.filter(i => i.id !== 'Spooky').map(i => `<button class="chip" style="min-height:64px;font-size:22px" data-act="wand" data-imp="${i.id}">${i.icon} ${i.id}</button>`).join('')}</div>`;
+    return `<div class="sheet-bg" data-act="bg"><div class="sheet ${sh.t === 'how' ? 'full' : ''} ${sh.t === 'log' ? 'sheetwide' : ''}">${body}</div></div>`;
   }
 
-  // ---------- render + flow ----------
+  // ---------- render ----------
+  function fit() { const st = document.getElementById('stage'); const k = Math.min(innerWidth / 1180, innerHeight / 820); if (st) st.style.setProperty('--s', k); }
   function render() {
-    let h = ui.screen === 'menu' ? menuHTML() : ui.screen === 'setup' ? setupHTML() : ui.screen === 'lab' ? labHTML() : shopHTML() + overlayHTML();
-    h += sheetHTML(); if (ui.toast) h += `<div class="toast">${esc(ui.toast)}</div>`;
-    const sc = $.querySelector('.scroll,.hand,.over-bg'), top = sc ? sc.scrollTop : 0;
-    $.innerHTML = h; const n = $.querySelector('.scroll,.hand,.over-bg'); if (n && top) n.scrollTop = top;
+    let h;
+    if (ui.screen === 'menu') h = menuHTML();
+    else if (ui.screen === 'settings') h = settingsHTML();
+    else {
+      const s = ui.s, body = s.phase === 'invite' || s.phase === 'thrift' ? thriftHTML() : s.phase === 'build' ? buildHTML() : s.phase === 'reveal' ? revealHTML() : finalHTML();
+      const portrait = innerHeight > innerWidth && !ui.rotateOff;
+      h = `<div id="stage">${body}</div>${portrait ? '<div class="rotate"><span>Thrift Shop is built for a sideways iPad.</span><button class="btn sm" data-act="rotateoff" style="min-height:40px">Carry on</button></div>' : ''}`;
+    }
+    h += sheetHTML(); $.innerHTML = h; fit(); if (ui.screen === 'game') { patchDebug(); updateTimer(); }
   }
-  function tipOnce(key, title, text) { if (!ui.teach || ui.tipsSeen[key] || store.get('tip-' + key, false)) return false; ui.tipsSeen[key] = true; store.set('tip-' + key, true); ui.sheet = { t: 'tip', title, text }; return true; }
-  function stopClock() { clearInterval(ui.timer); ui.timer = null; }
-  function afterAction() {
-    const s = ui.s;
-    if (s.phase === 'reveal') { stopClock(); B.autoReady(s); }
-    if (!ui.sheet && s.phase === 'shop' && s.season === 0) tipOnce('first', 'Your first season', 'Tap a stack to buy: pay coins, draw cards, keep one. Tap a card in your hand to sell it for its small corner number. The coloured numbers show what each card scores this season; your best look is picked for you.');
-    if (!ui.sheet && s.phase === 'reveal') tipOnce('reveal', 'Reveal', 'Everyone shows a look. Yours was chosen for you; tap a slot to wear a different card. Ripped Jeans are thrown away after one wearing.');
+  function updateTimer() {
+    const s = ui.s; if (!s || s.phase !== 'thrift') return; const f = Math.max(0, 1 - ui.elapsed / s.cfg.thriftSecs), left = Math.max(0, Math.ceil(s.cfg.thriftSecs - ui.elapsed));
+    const t = document.getElementById('secs'); if (t) t.textContent = left; const box = document.getElementById('timerbox'); if (box) box.classList.toggle('low', left <= 10);
+    const top = document.getElementById('sandT'), bot = document.getElementById('sandB'); if (top) { top.setAttribute('y', 4 + (1 - f) * 24); top.setAttribute('height', f * 24); } if (bot) { bot.setAttribute('y', 52 - (1 - f) * 24); bot.setAttribute('height', (1 - f) * 24); }
+  }
+
+  // ---------- game flow ----------
+  function startGame() { ui.s = E.newGame({ settings: ui.settings }); ui.screen = 'game'; ui.sel = null; ui.sheet = null; ui.paused = false; ui.elapsed = 0; ui.botNext = []; ui.quit = false; ui.last = Date.now(); render(); }
+  function beginThrift() { const s = ui.s; E.apply(s, { type: 'start', seat: ME }); ui.elapsed = 0; ui.botNext = s.players.map((p, i) => i === ME ? 0 : Date.now() + B.delaySecs(s.cfg, E.rnd(s)) * 1000); ui.last = Date.now(); render(); }
+  function endThrift() {
+    const s = ui.s; if (s.phase !== 'thrift') return; cancelGesture(); ui.sel = null; E.apply(s, { type: 'endThrift' }); B.buildAll(s); ui.sheet = null; ui.paused = false;
+    const me = s.players[ME]; if (me.hand.some(c => CARDS[c].ability && CARDS[c].ability.kind === 'wand')) me.wand = E.defaultWand(E.inviteOf(s).name);
     render();
   }
-  function startClock() {
-    stopClock(); if (!ui.timed) return; const s = ui.s; ui.clock = s.rules.clockSecs; let t = 0;
-    ui.timer = setInterval(() => {
-      if (ui.screen !== 'game' || s.phase !== 'shop' || ui.sheet && ui.sheet.t !== 'buy') { if (ui.screen !== 'game' || s.phase !== 'shop') stopClock(); return; }
-      ui.clock--; t++; if (t % D.ai.timedEverySecs === 0) B.tickAll(s);
-      if (ui.clock <= 0) { if (s.drawn[ME]) E.apply(s, { type: 'keep', seat: ME, i: 0 }); ui.sheet = null; endShop(); } else render();
-    }, 1000);
+  function animateTake(i, cellData) { const el = document.querySelector(`.tile[data-cell="${i}"]`); if (el) el.outerHTML = faceTile(cellData.c, i, 'gone'); setTimeout(() => patchTile(i), 380); }
+  function botAct(i) {
+    const s = ui.s, a = B.decide(s, i); if (!a) return;
+    const cellBefore = a.type === 'take' ? s.cells[a.cell] : null, r = E.apply(s, a); if (!r.ok) return;
+    if (a.type === 'take') animateTake(a.cell, cellBefore); else if (a.type === 'putBack') { patchTile(r.cell, 'landed flash'); setTimeout(() => patchTile(r.cell), 1200); }
+    if (ui.settings.debug) patchDebug();
   }
-  function endShop() { const s = ui.s; if (s.phase === 'shop') { if (!s.done.includes(ME)) E.apply(s, { type: 'done', seat: ME }); B.finish(s); if (s.phase === 'shop') s.houses.forEach((h, i) => { if (!s.done.includes(i)) E.apply(s, { type: 'done', seat: i }); }); } afterAction(); }
-  function startGame() {
-    stopClock(); ui.s = E.newGame({ players: ui.players, level: ui.level, humans: [ME], rules: ui.rules }); ui.sheet = null; ui.sel = null; ui.quit = false; ui.screen = 'game'; startClock(); afterAction();
+  function tick() {
+    const s = ui.s, now = Date.now(), dt = Math.min(500, now - ui.last); ui.last = now;
+    if (ui.screen !== 'game' || !s || s.phase !== 'thrift' || ui.paused || ui.sheet) return;
+    ui.elapsed += dt / 1000; updateTimer();
+    for (let i = 1; i < s.n; i++) if (now >= ui.botNext[i]) { botAct(i); ui.botNext[i] = now + B.delaySecs(s.cfg, E.rnd(s)) * 1000; }
+    if (ui.elapsed >= s.cfg.thriftSecs) endThrift();
   }
-  const bots = () => { if (!ui.timed) B.tickAll(ui.s); };
+  setInterval(tick, 100);
 
+  // human moves
+  function takeCell(i) {
+    const s = ui.s, cell = s.cells[i]; if (!cell || s.phase !== 'thrift' || ui.paused) return;
+    if (E.handFull(s, s.players[ME])) { hint('Hand full. Put a card back first.'); return; }
+    const r = E.apply(s, { type: 'take', seat: ME, cell: i }); if (!r.ok) return;
+    animateTake(i, cell); ui.arrive = r.card; ui.sel = null; patchHand(); if (ui.settings.debug) patchDebug();
+  }
+  function putBack() {
+    const s = ui.s, p = s.players[ME]; if (ui.sel == null || s.phase !== 'thrift') return; const card = p.hand[ui.sel]; if (card == null) { ui.sel = null; return patchHand(); }
+    const r = E.apply(s, { type: 'putBack', seat: ME, card }); ui.sel = null; if (r.ok) patchTile(r.cell, 'landed'); patchHand();
+  }
+  function placeCard(handIdx, slot) {
+    const s = ui.s, p = s.players[ME], card = p.hand[handIdx]; if (card == null) return false;
+    const r = E.apply(s, { type: 'place', seat: ME, card, slot });
+    if (!r.ok) { hint(r.error === 'limit' ? `You can only play ${s.cfg.maxPlayed} cards.` : `That slot takes a ${slot}.`); patchBuild(); const el = document.querySelector(`.slot[data-slot="${slot}"]`); if (el) { el.classList.add('bad'); setTimeout(() => el.classList.remove('bad'), 350); } return false; }
+    ui.sel = null;
+    if (CARDS[card].ability && CARDS[card].ability.kind === 'wand') { p.wand = p.wand || E.defaultWand(E.inviteOf(s).name); ui.sheet = { t: 'wand' }; render(); return true; }
+    patchBuild(); return true;
+  }
+
+  // ---------- touch: taps, holds and drags (Pointer Events; HTML5 drag-and-drop is unreliable on iPad Safari) ----------
+  let g = null, ghost = null;
+  function hidePreview() { const p = document.getElementById('preview'); if (p) p.remove(); }
+  function cancelGesture() { if (g && g.timer) clearTimeout(g.timer); hidePreview(); if (ghost) { ghost.remove(); ghost = null; } ui.drag = false; g = null; }
+  function showPreview(cardIdx) { const st = document.getElementById('stage'); if (!st) return; hidePreview(); const d = document.createElement('div'); d.className = 'preview'; d.id = 'preview'; d.innerHTML = handCardHTML(cardIdx, -1); st.appendChild(d); }
+  const repatch = () => { if (ui.s.phase === 'build') patchBuild(); else patchHand(); };
+  $.addEventListener('pointerdown', e => {
+    if (ui.screen !== 'game' || ui.sheet || e.button > 0) return; const s = ui.s;
+    if (ui.sel != null && !e.target.closest('.hc, [data-act=putback], .slot')) { ui.sel = null; repatch(); }
+    const tile = e.target.closest('.tile[data-cell]');
+    if (tile && s.phase === 'thrift') {
+      const cell = +tile.dataset.cell, c = s.cells[cell]; if (!c) return; g = { kind: 'tile', id: e.pointerId, cell, x0: e.clientX, y0: e.clientY, moved: false, held: false };
+      if (c.up) g.timer = setTimeout(() => { if (g && g.kind === 'tile') { g.held = true; showPreview(c.c); } }, D.holdPreviewMs); return;
+    }
+    const hc = e.target.closest('.hc[data-hand]');
+    if (hc && (s.phase === 'thrift' || s.phase === 'build')) { g = { kind: 'hand', id: e.pointerId, hand: +hc.dataset.hand, el: hc, x0: e.clientX, y0: e.clientY, drag: false, ox: 0, oy: 0 }; try { hc.setPointerCapture(e.pointerId); } catch (err) { /* ok */ } }
+  });
+  function hitAt(x, y, selfHand) { const els = document.elementsFromPoint(x, y); return { over: els.find(el => el.classList && el.classList.contains('hc') && el.dataset.hand != null && +el.dataset.hand !== selfHand), slot: els.find(el => el.dataset && el.dataset.slot) }; }
+  document.addEventListener('pointermove', e => {
+    if (!g || e.pointerId !== g.id) return; const moved = Math.hypot(e.clientX - g.x0, e.clientY - g.y0) > 12;
+    if (g.kind === 'tile') { if (moved) { g.moved = true; if (g.timer) clearTimeout(g.timer); } return; }
+    if (!g.drag && moved) {
+      g.drag = true; ui.drag = true; const r = g.el.getBoundingClientRect(); g.ox = g.x0 - r.left; g.oy = g.y0 - r.top;
+      ghost = g.el.cloneNode(true); ghost.classList.add('ghost'); ghost.style.width = r.width + 'px'; ghost.style.height = r.height + 'px'; document.body.appendChild(ghost); g.el.classList.add('dragging');
+    }
+    if (g.drag && ghost) {
+      ghost.style.left = (e.clientX - g.ox) + 'px'; ghost.style.top = (e.clientY - g.oy) + 'px';
+      document.querySelectorAll('.hc.dropbefore, .hc.dropafter').forEach(x => x.classList.remove('dropbefore', 'dropafter'));
+      const { over } = hitAt(e.clientX, e.clientY, g.hand); if (over) over.classList.add(+over.dataset.hand > g.hand ? 'dropafter' : 'dropbefore');
+    }
+  });
+  function endGesture(e, cancel) {
+    if (!g || e.pointerId !== g.id) return; const gg = g, s = ui.s; if (gg.timer) clearTimeout(gg.timer); const held = gg.held; hidePreview(); g = null;
+    if (gg.kind === 'tile') { if (!cancel && !held && !gg.moved) takeCell(gg.cell); return; }
+    if (ghost) { ghost.remove(); ghost = null; } ui.drag = false;
+    if (cancel) { repatch(); return; }
+    if (gg.drag) {
+      const { over, slot } = hitAt(e.clientX, e.clientY, gg.hand);
+      if (over) { E.apply(s, { type: 'reorder', seat: ME, from: gg.hand, to: +over.dataset.hand }); ui.sel = null; }
+      else if (slot && s.phase === 'build') { placeCard(gg.hand, slot.dataset.slot); return; }
+      repatch(); return;
+    }
+    const p = s.players[ME], card = p.hand[gg.hand];   // a tap on a hand card
+    if (s.phase === 'build' && card != null && p.board[CARDS[card].type] === card) { E.apply(s, { type: 'unplace', seat: ME, slot: CARDS[card].type }); ui.sel = null; patchBuild(); return; }
+    ui.sel = ui.sel === gg.hand ? null : gg.hand; repatch();
+  }
+  document.addEventListener('pointerup', e => endGesture(e, false));
+  document.addEventListener('pointercancel', e => endGesture(e, true));
+
+  // ---------- clicks ----------
   const H = {
-    setup() { ui.screen = 'setup'; render(); }, menu() { stopClock(); ui.screen = 'menu'; ui.sheet = null; ui.quit = false; if (ui.simCancel) ui.simCancel(); render(); }, lab() { ui.screen = 'lab'; ui.sheet = null; render(); },
-    players(d) { ui.players = +d.n; store.set('players', ui.players); render(); }, level(d) { ui.level = d.k; store.set('level', ui.level); render(); },
-    timed(d) { ui.timed = d.v === '1'; store.set('timed', ui.timed); render(); },
-    teach() { ui.teach = !ui.teach; store.set('teach', ui.teach); if (ui.teach) for (const k of ['first', 'reveal']) { store.set('tip-' + k, false); delete ui.tipsSeen[k]; } render(); },
-    start() { startGame(); },
-    sheet(d) { ui.sheet = { t: d.s }; render(); }, closesheet() { ui.sheet = null; render(); }, bg() { ui.sheet = null; render(); }, none() {},
-    newgame() { if (!ui.quit) { ui.quit = true; return render(); } ui.quit = false; ui.sheet = null; startGame(); },
-    selcard(d) { ui.sel = ui.sel === +d.i ? null : +d.i; render(); },
-    sell(d) { const r = E.apply(ui.s, { type: 'sell', seat: ME, card: d.c }); if (!r.ok) return toast(r.error === 'coins' ? 'You cannot afford to sell that' : 'Not allowed'); ui.sel = null; bots(); afterAction(); },
-    stack(d) { ui.sheet = { t: 'buy', kind: d.t, n: 1 }; render(); },
-    buyn(d) { ui.sheet.n = (ui.sheet.n || 1) + (+d.d); render(); },
-    draw() { const r = E.apply(ui.s, { type: 'draw', seat: ME, stack: ui.sheet.kind, n: ui.sheet.n }); if (!r.ok) return toast('Cannot draw that many'); render(); },
-    keep(d) { E.apply(ui.s, { type: 'keep', seat: ME, i: +d.i }); ui.sheet = null; ui.sel = null; bots(); afterAction(); },
-    doneshop() { ui.sel = null; endShop(); },
+    play() { startGame(); }, settings() { ui.screen = 'settings'; render(); }, menu() { ui.screen = 'menu'; ui.sheet = null; ui.paused = false; ui.quit = false; cancelGesture(); render(); },
+    num(d) { const [lo, hi] = D.limits[d.k]; ui.settings = E.cleanSettings(Object.assign({}, ui.settings, { [d.k]: Math.max(lo, Math.min(hi, ui.settings[d.k] + (+d.d))) })); saveSettings(); render(); },
+    speed(d) { ui.settings.botSpeed = d.k; saveSettings(); render(); },
+    debug() { ui.settings.debug = !ui.settings.debug; saveSettings(); render(); },
+    resetsettings() { ui.settings = E.cleanSettings({}); saveSettings(); render(); },
+    sheet(d) { ui.sheet = { t: d.s }; ui.paused = true; render(); }, closesheet() { ui.sheet = null; ui.paused = false; ui.last = Date.now(); render(); }, bg() { H.closesheet(); },
+    newgame() { if (!ui.quit) { ui.quit = true; return render(); } ui.quit = false; startGame(); },
+    begin() { beginThrift(); }, putback() { putBack(); },
     slot(d) {
-      const s = ui.s, hand = s.houses[ME].hand, L = s.looks[ME], cur = L.picks[d.t]; const opts = [...new Set(hand.filter(c => E.def(c).type === d.t))]; const choices = [null].concat(opts);
-      const nx = choices[(choices.indexOf(cur || null) + 1) % choices.length]; E.apply(s, { type: 'setlook', seat: ME, picks: Object.assign({}, L.picks, { [d.t]: nx }) }); render();
+      const s = ui.s; if (s.phase !== 'build') return; const p = s.players[ME];
+      if (ui.sel != null) { placeCard(ui.sel, d.slot); return; }
+      if (p.board[d.slot] != null) { E.apply(s, { type: 'unplace', seat: ME, slot: d.slot }); patchBuild(); }
     },
-    nextseason() { const s = ui.s; E.apply(s, { type: 'next', seat: ME }); B.autoReady(s); if (s.phase === 'shop') { ui.sel = null; startClock(); } afterAction(); },
-    num(d) { const c = D.lab.find(x => x.key === d.k), R = rules(); setRule(d.k, Math.max(c.min, Math.min(c.max, R[d.k] + (+d.d)))); render(); },
-    tog(d) { setRule(d.k, !rules()[d.k]); render(); },
-    resetrules() { ui.rules = {}; store.set('rules', ui.rules); render(); },
-    simset(d) { ui.simSet[d.k] = d.k === 'level' ? d.v : +d.v; render(); },
-    simrun() {
-      const S = Object.assign({}, ui.simSet), key = JSON.stringify(S); ui.sim = { running: true, progress: 0, base: ui.simBase[key] || null, mine: null }; render();
-      const o = { players: S.players, level: S.level, games: S.games, seed: 7 }, fin = () => { ui.sim.running = false; render(); };
-      const mine = () => { ui.simCancel = Sim.run(rules(), o, p => { ui.sim.progress = (ui.sim.base ? 0 : 0.5) + p * (ui.sim.base ? 1 : 0.5); if (ui.screen === 'lab') render(); }, r => { ui.sim.mine = r; fin(); }); };
-      if (ui.sim.base) mine(); else ui.simCancel = Sim.run({}, o, p => { ui.sim.progress = p * 0.5; if (ui.screen === 'lab') render(); }, r => { ui.sim.base = ui.simBase[key] = r; mine(); });
-    },
+    wand(d) { E.apply(ui.s, { type: 'setWand', seat: ME, imp: d.imp }); if (ui.sheet && ui.sheet.t === 'wand') { ui.sheet = null; render(); } else patchBuild(); },
+    done() { E.apply(ui.s, { type: 'done', seat: ME }); ui.sel = null; render(); },
+    next() { E.apply(ui.s, { type: 'next', seat: ME }); ui.elapsed = 0; ui.sel = null; render(); },
+    again() { startGame(); }, log() { ui.sheet = { t: 'log' }; ui.paused = true; render(); },
+    copylog() { const ta = document.getElementById('logtext'); if (!ta) return; ta.select(); let ok = false; try { if (navigator.clipboard) { navigator.clipboard.writeText(ta.value); ok = true; } else ok = document.execCommand('copy'); } catch (err) { /* the text stays selected */ } const b = document.querySelector('[data-act=copylog]'); if (b) b.textContent = ok ? 'Copied' : 'Selected: copy it'; },
+    rotateoff() { ui.rotateOff = true; render(); },
   };
   $.addEventListener('click', e => {
     const el = e.target.closest('[data-act]'); if (!el) return;
     if (el.dataset.act === 'bg' && e.target !== el) return;
-    const f = H[el.dataset.act]; if (!f) return; if (!['newgame', 'sheet'].includes(el.dataset.act)) ui.quit = false;
-    f(el.dataset, e);
+    const f = H[el.dataset.act]; if (!f) return; if (!['newgame', 'sheet'].includes(el.dataset.act)) ui.quit = false; f(el.dataset, e);
   });
-  addEventListener('resize', () => { if (ui.screen !== 'lab') render(); });
-  window.__ts = { ui, E, B, Sim };
+  addEventListener('resize', fit);
+  window.__t2 = { ui, E, B, endThrift, takeCell, tick };
   render();
 })();
 </script>

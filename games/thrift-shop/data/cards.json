@@ -1,0 +1,2645 @@
+[
+ {
+  "name": "Tiara",
+  "type": "Head",
+  "v": [
+   5,
+   0,
+   1,
+   0,
+   0
+  ],
+  "prints": [
+   "crowns"
+  ],
+  "power": "Star",
+  "abilityText": "",
+  "ability": null
+ },
+ {
+  "name": "Powdered Judge's Wig",
+  "type": "Head",
+  "v": [
+   4,
+   -1,
+   0,
+   0,
+   0
+  ],
+  "prints": [],
+  "power": "Solid",
+  "abilityText": "",
+  "ability": null
+ },
+ {
+  "name": "Top Hat",
+  "type": "Head",
+  "v": [
+   3,
+   0,
+   0,
+   0,
+   0
+  ],
+  "prints": [
+   "pinstripes"
+  ],
+  "power": "Solid",
+  "abilityText": "",
+  "ability": null
+ },
+ {
+  "name": "Monocle",
+  "type": "Head",
+  "v": [
+   2,
+   0,
+   0,
+   0,
+   0
+  ],
+  "prints": [],
+  "power": "Ordinary",
+  "abilityText": "",
+  "ability": null
+ },
+ {
+  "name": "Yacht Captain's Hat",
+  "type": "Head",
+  "v": [
+   2,
+   1,
+   0,
+   0,
+   0
+  ],
+  "prints": [
+   "stripes"
+  ],
+  "power": "Ordinary",
+  "abilityText": "",
+  "ability": null
+ },
+ {
+  "name": "Mohawk",
+  "type": "Head",
+  "v": [
+   0,
+   4,
+   0,
+   0,
+   2
+  ],
+  "prints": [
+   "flames"
+  ],
+  "power": "Star",
+  "abilityText": "",
+  "ability": null
+ },
+ {
+  "name": "Backwards Cap",
+  "type": "Head",
+  "v": [
+   0,
+   3,
+   0,
+   0,
+   0
+  ],
+  "prints": [
+   "checkerboard"
+  ],
+  "power": "Solid",
+  "abilityText": "",
+  "ability": null
+ },
+ {
+  "name": "Aviator Sunglasses",
+  "type": "Head",
+  "v": [
+   1,
+   3,
+   0,
+   0,
+   0
+  ],
+  "prints": [],
+  "power": "Solid",
+  "abilityText": "",
+  "ability": null
+ },
+ {
+  "name": "Skull Bandana",
+  "type": "Head",
+  "v": [
+   0,
+   2,
+   0,
+   0,
+   1
+  ],
+  "prints": [
+   "skulls"
+  ],
+  "power": "Ordinary",
+  "abilityText": "",
+  "ability": null
+ },
+ {
+  "name": "Lightning Bolt Headphones",
+  "type": "Head",
+  "v": [
+   0,
+   2,
+   0,
+   0,
+   0
+  ],
+  "prints": [
+   "lightning bolts"
+  ],
+  "power": "Ordinary",
+  "abilityText": "",
+  "ability": null
+ },
+ {
+  "name": "Bunny Ears",
+  "type": "Head",
+  "v": [
+   0,
+   0,
+   4,
+   0,
+   -2
+  ],
+  "prints": [
+   "animals"
+  ],
+  "power": "Solid",
+  "abilityText": "",
+  "ability": null
+ },
+ {
+  "name": "Pigtails with Polka Dot Bows",
+  "type": "Head",
+  "v": [
+   0,
+   0,
+   3,
+   0,
+   0
+  ],
+  "prints": [
+   "polka dots"
+  ],
+  "power": "Solid",
+  "abilityText": "",
+  "ability": null
+ },
+ {
+  "name": "Flower Crown",
+  "type": "Head",
+  "v": [
+   1,
+   0,
+   3,
+   0,
+   0
+  ],
+  "prints": [
+   "flowers"
+  ],
+  "power": "Solid",
+  "abilityText": "",
+  "ability": null
+ },
+ {
+  "name": "Kitty Ear Headband",
+  "type": "Head",
+  "v": [
+   0,
+   0,
+   2,
+   0,
+   1
+  ],
+  "prints": [
+   "leopard"
+  ],
+  "power": "Ordinary",
+  "abilityText": "",
+  "ability": null
+ },
+ {
+  "name": "Baby Bonnet",
+  "type": "Head",
+  "v": [
+   0,
+   -2,
+   5,
+   0,
+   0
+  ],
+  "prints": [
+   "hearts"
+  ],
+  "power": "Star",
+  "abilityText": "",
+  "ability": null
+ },
+ {
+  "name": "Propeller Beanie",
+  "type": "Head",
+  "v": [
+   0,
+   0,
+   1,
+   4,
+   0
+  ],
+  "prints": [
+   "stripes"
+  ],
+  "power": "Solid",
+  "abilityText": "",
+  "ability": null
+ },
+ {
+  "name": "Rainbow Clown Wig",
+  "type": "Head",
+  "v": [
+   0,
+   0,
+   0,
+   5,
+   1
+  ],
+  "prints": [
+   "polka dots"
+  ],
+  "power": "Star",
+  "abilityText": "",
+  "ability": null
+ },
+ {
+  "name": "Fruit Basket Hat",
+  "type": "Head",
+  "v": [
+   1,
+   0,
+   0,
+   3,
+   0
+  ],
+  "prints": [
+   "bananas"
+  ],
+  "power": "Solid",
+  "abilityText": "",
+  "ability": null
+ },
+ {
+  "name": "Googly-Eye Glasses",
+  "type": "Head",
+  "v": [
+   0,
+   0,
+   0,
+   2,
+   -1
+  ],
+  "prints": [],
+  "power": "Ordinary",
+  "abilityText": "",
+  "ability": null
+ },
+ {
+  "name": "Shark Hat",
+  "type": "Head",
+  "v": [
+   0,
+   0,
+   1,
+   2,
+   0
+  ],
+  "prints": [
+   "animals"
+  ],
+  "power": "Ordinary",
+  "abilityText": "",
+  "ability": null
+ },
+ {
+  "name": "Vampire Fangs",
+  "type": "Head",
+  "v": [
+   0,
+   1,
+   0,
+   0,
+   4
+  ],
+  "prints": [],
+  "power": "Solid",
+  "abilityText": "",
+  "ability": null
+ },
+ {
+  "name": "Witch Hat",
+  "type": "Head",
+  "v": [
+   0,
+   0,
+   0,
+   0,
+   3
+  ],
+  "prints": [
+   "stars",
+   "bats"
+  ],
+  "power": "Solid",
+  "abilityText": "",
+  "ability": null
+ },
+ {
+  "name": "Skull Face Paint",
+  "type": "Head",
+  "v": [
+   0,
+   0,
+   -2,
+   0,
+   5
+  ],
+  "prints": [
+   "skulls"
+  ],
+  "power": "Star",
+  "abilityText": "",
+  "ability": null
+ },
+ {
+  "name": "Black Lace Veil",
+  "type": "Head",
+  "v": [
+   0,
+   0,
+   0,
+   -1,
+   3
+  ],
+  "prints": [
+   "spiderwebs"
+  ],
+  "power": "Solid",
+  "abilityText": "",
+  "ability": null
+ },
+ {
+  "name": "Bat Hair Clips",
+  "type": "Head",
+  "v": [
+   0,
+   0,
+   1,
+   0,
+   2
+  ],
+  "prints": [
+   "bats"
+  ],
+  "power": "Ordinary",
+  "abilityText": "",
+  "ability": null
+ },
+ {
+  "name": "Fedora",
+  "type": "Head",
+  "v": [
+   1,
+   1,
+   1,
+   1,
+   1
+  ],
+  "prints": [
+   "pinstripes"
+  ],
+  "power": "Generalist",
+  "abilityText": "",
+  "ability": null
+ },
+ {
+  "name": "Leopard Shower Cap",
+  "type": "Head",
+  "v": [
+   0,
+   -2,
+   1,
+   0,
+   0
+  ],
+  "prints": [
+   "leopard"
+  ],
+  "power": "Dud",
+  "abilityText": "",
+  "ability": null
+ },
+ {
+  "name": "Lampshade",
+  "type": "Head",
+  "v": [
+   -2,
+   0,
+   0,
+   1,
+   0
+  ],
+  "prints": [],
+  "power": "Dud",
+  "abilityText": "",
+  "ability": null
+ },
+ {
+  "name": "Flame Decal Bike Helmet",
+  "type": "Head",
+  "v": [
+   0,
+   -1,
+   1,
+   0,
+   0
+  ],
+  "prints": [
+   "flames"
+  ],
+  "power": "Dud",
+  "abilityText": "",
+  "ability": null
+ },
+ {
+  "name": "Paper Fast-Food Crown",
+  "type": "Head",
+  "v": [
+   0,
+   -1,
+   0,
+   1,
+   0
+  ],
+  "prints": [
+   "crowns"
+  ],
+  "power": "Dud",
+  "abilityText": "",
+  "ability": null
+ },
+ {
+  "name": "Sequin Gown",
+  "type": "Top",
+  "v": [
+   5,
+   1,
+   0,
+   0,
+   0
+  ],
+  "prints": [
+   "stars"
+  ],
+  "power": "Star",
+  "abilityText": "",
+  "ability": null
+ },
+ {
+  "name": "Pinstripe Blazer",
+  "type": "Top",
+  "v": [
+   4,
+   0,
+   0,
+   -1,
+   0
+  ],
+  "prints": [
+   "pinstripes"
+  ],
+  "power": "Solid",
+  "abilityText": "",
+  "ability": null
+ },
+ {
+  "name": "Leopard Fur Coat",
+  "type": "Top",
+  "v": [
+   4,
+   1,
+   0,
+   0,
+   0
+  ],
+  "prints": [
+   "leopard"
+  ],
+  "power": "Solid",
+  "abilityText": "",
+  "ability": null
+ },
+ {
+  "name": "Tuxedo Jacket",
+  "type": "Top",
+  "v": [
+   3,
+   1,
+   0,
+   0,
+   0
+  ],
+  "prints": [
+   "pinstripes"
+  ],
+  "power": "Solid",
+  "abilityText": "",
+  "ability": null
+ },
+ {
+  "name": "Striped Polo Shirt",
+  "type": "Top",
+  "v": [
+   2,
+   -1,
+   0,
+   0,
+   0
+  ],
+  "prints": [
+   "stripes"
+  ],
+  "power": "Ordinary",
+  "abilityText": "",
+  "ability": null
+ },
+ {
+  "name": "Leather Jacket",
+  "type": "Top",
+  "v": [
+   0,
+   5,
+   0,
+   0,
+   1
+  ],
+  "prints": [
+   "flames"
+  ],
+  "power": "Star",
+  "abilityText": "",
+  "ability": null
+ },
+ {
+  "name": "Band Tee",
+  "type": "Top",
+  "v": [
+   0,
+   3,
+   0,
+   0,
+   1
+  ],
+  "prints": [
+   "skulls",
+   "checkerboard"
+  ],
+  "power": "Solid",
+  "abilityText": "",
+  "ability": null
+ },
+ {
+  "name": "Varsity Jacket",
+  "type": "Top",
+  "v": [
+   1,
+   3,
+   0,
+   0,
+   0
+  ],
+  "prints": [
+   "lightning bolts"
+  ],
+  "power": "Solid",
+  "abilityText": "",
+  "ability": null
+ },
+ {
+  "name": "Camo Hoodie",
+  "type": "Top",
+  "v": [
+   0,
+   2,
+   0,
+   0,
+   0
+  ],
+  "prints": [
+   "camo"
+  ],
+  "power": "Ordinary",
+  "abilityText": "",
+  "ability": null
+ },
+ {
+  "name": "Hockey Jersey",
+  "type": "Top",
+  "v": [
+   0,
+   2,
+   0,
+   0,
+   0
+  ],
+  "prints": [
+   "crowns",
+   "stripes"
+  ],
+  "power": "Ordinary",
+  "abilityText": "",
+  "ability": null
+ },
+ {
+  "name": "Grandma's Kitten Cardigan",
+  "type": "Top",
+  "v": [
+   -1,
+   0,
+   4,
+   0,
+   0
+  ],
+  "prints": [
+   "animals"
+  ],
+  "power": "Solid",
+  "abilityText": "",
+  "ability": null
+ },
+ {
+  "name": "Heart Sweater",
+  "type": "Top",
+  "v": [
+   0,
+   0,
+   3,
+   0,
+   -1
+  ],
+  "prints": [
+   "hearts"
+  ],
+  "power": "Solid",
+  "abilityText": "",
+  "ability": null
+ },
+ {
+  "name": "Teddy Bear Onesie",
+  "type": "Top",
+  "v": [
+   0,
+   0,
+   5,
+   1,
+   0
+  ],
+  "prints": [
+   "animals",
+   "hearts"
+  ],
+  "power": "Star",
+  "abilityText": "",
+  "ability": null
+ },
+ {
+  "name": "Puff-Sleeve Flower Blouse",
+  "type": "Top",
+  "v": [
+   1,
+   0,
+   2,
+   0,
+   0
+  ],
+  "prints": [
+   "flowers"
+  ],
+  "power": "Ordinary",
+  "abilityText": "",
+  "ability": null
+ },
+ {
+  "name": "Sailor Shirt",
+  "type": "Top",
+  "v": [
+   0,
+   0,
+   2,
+   0,
+   0
+  ],
+  "prints": [
+   "stripes"
+  ],
+  "power": "Ordinary",
+  "abilityText": "",
+  "ability": null
+ },
+ {
+  "name": "Hawaiian Shirt",
+  "type": "Top",
+  "v": [
+   0,
+   1,
+   0,
+   4,
+   0
+  ],
+  "prints": [
+   "flowers",
+   "bananas"
+  ],
+  "power": "Solid",
+  "abilityText": "",
+  "ability": null
+ },
+ {
+  "name": "Barrel",
+  "type": "Top",
+  "v": [
+   -2,
+   0,
+   0,
+   5,
+   0
+  ],
+  "prints": [],
+  "power": "Star",
+  "abilityText": "",
+  "ability": null
+ },
+ {
+  "name": "Tie-Dye Tee",
+  "type": "Top",
+  "v": [
+   0,
+   1,
+   0,
+   3,
+   0
+  ],
+  "prints": [
+   "lightning bolts"
+  ],
+  "power": "Solid",
+  "abilityText": "",
+  "ability": null
+ },
+ {
+  "name": "Banana Costume",
+  "type": "Top",
+  "v": [
+   0,
+   0,
+   1,
+   3,
+   0
+  ],
+  "prints": [
+   "bananas"
+  ],
+  "power": "Solid",
+  "abilityText": "",
+  "ability": null
+ },
+ {
+  "name": "Lobster Bib",
+  "type": "Top",
+  "v": [
+   -1,
+   0,
+   0,
+   2,
+   0
+  ],
+  "prints": [
+   "animals"
+  ],
+  "power": "Ordinary",
+  "abilityText": "",
+  "ability": null
+ },
+ {
+  "name": "Vampire Cape",
+  "type": "Top",
+  "v": [
+   2,
+   0,
+   0,
+   0,
+   5
+  ],
+  "prints": [
+   "bats"
+  ],
+  "power": "Star",
+  "abilityText": "",
+  "ability": null
+ },
+ {
+  "name": "Spiderweb Sweater",
+  "type": "Top",
+  "v": [
+   0,
+   0,
+   -1,
+   0,
+   3
+  ],
+  "prints": [
+   "spiderwebs"
+  ],
+  "power": "Solid",
+  "abilityText": "",
+  "ability": null
+ },
+ {
+  "name": "Skeleton Shirt",
+  "type": "Top",
+  "v": [
+   0,
+   1,
+   0,
+   0,
+   3
+  ],
+  "prints": [
+   "skulls"
+  ],
+  "power": "Solid",
+  "abilityText": "",
+  "ability": null
+ },
+ {
+  "name": "Black Lace Blouse",
+  "type": "Top",
+  "v": [
+   1,
+   0,
+   0,
+   0,
+   2
+  ],
+  "prints": [
+   "spiderwebs",
+   "bats"
+  ],
+  "power": "Ordinary",
+  "abilityText": "",
+  "ability": null
+ },
+ {
+  "name": "Mummy Wrap Top",
+  "type": "Top",
+  "v": [
+   0,
+   0,
+   -1,
+   0,
+   2
+  ],
+  "prints": [],
+  "power": "Ordinary",
+  "abilityText": "",
+  "ability": null
+ },
+ {
+  "name": "Plain White T-Shirt",
+  "type": "Top",
+  "v": [
+   1,
+   1,
+   1,
+   1,
+   1
+  ],
+  "prints": [],
+  "power": "Generalist",
+  "abilityText": "",
+  "ability": null
+ },
+ {
+  "name": "Stinky Gym Shirt",
+  "type": "Top",
+  "v": [
+   0,
+   0,
+   -1,
+   0,
+   0
+  ],
+  "prints": [
+   "camo"
+  ],
+  "power": "Dud",
+  "abilityText": "",
+  "ability": null
+ },
+ {
+  "name": "Ketchup-Stained Flannel",
+  "type": "Top",
+  "v": [
+   -2,
+   0,
+   0,
+   1,
+   0
+  ],
+  "prints": [
+   "plaid"
+  ],
+  "power": "Dud",
+  "abilityText": "",
+  "ability": null
+ },
+ {
+  "name": "Itchy Reindeer Sweater",
+  "type": "Top",
+  "v": [
+   0,
+   -2,
+   0,
+   1,
+   0
+  ],
+  "prints": [
+   "animals"
+  ],
+  "power": "Dud",
+  "abilityText": "",
+  "ability": null
+ },
+ {
+  "name": "Trash Bag Poncho",
+  "type": "Top",
+  "v": [
+   0,
+   0,
+   -1,
+   1,
+   0
+  ],
+  "prints": [],
+  "power": "Dud",
+  "abilityText": "",
+  "ability": null
+ },
+ {
+  "name": "Ball Gown Skirt",
+  "type": "Bottom",
+  "v": [
+   5,
+   0,
+   1,
+   0,
+   0
+  ],
+  "prints": [
+   "crowns"
+  ],
+  "power": "Star",
+  "abilityText": "",
+  "ability": null
+ },
+ {
+  "name": "Pinstripe Trousers",
+  "type": "Bottom",
+  "v": [
+   3,
+   0,
+   0,
+   -1,
+   0
+  ],
+  "prints": [
+   "pinstripes"
+  ],
+  "power": "Solid",
+  "abilityText": "",
+  "ability": null
+ },
+ {
+  "name": "Plaid Pleated Slacks",
+  "type": "Bottom",
+  "v": [
+   3,
+   0,
+   0,
+   -1,
+   0
+  ],
+  "prints": [
+   "plaid"
+  ],
+  "power": "Solid",
+  "abilityText": "",
+  "ability": null
+ },
+ {
+  "name": "Leopard Pencil Skirt",
+  "type": "Bottom",
+  "v": [
+   2,
+   1,
+   0,
+   0,
+   0
+  ],
+  "prints": [
+   "leopard"
+  ],
+  "power": "Ordinary",
+  "abilityText": "",
+  "ability": null
+ },
+ {
+  "name": "Khakis",
+  "type": "Bottom",
+  "v": [
+   2,
+   -1,
+   0,
+   0,
+   0
+  ],
+  "prints": [],
+  "power": "Ordinary",
+  "abilityText": "",
+  "ability": null
+ },
+ {
+  "name": "Ripped Jeans",
+  "type": "Bottom",
+  "v": [
+   -1,
+   4,
+   0,
+   0,
+   0
+  ],
+  "prints": [
+   "lightning bolts"
+  ],
+  "power": "Solid",
+  "abilityText": "",
+  "ability": null
+ },
+ {
+  "name": "Leather Pants",
+  "type": "Bottom",
+  "v": [
+   0,
+   4,
+   0,
+   0,
+   2
+  ],
+  "prints": [
+   "flames"
+  ],
+  "power": "Star",
+  "abilityText": "",
+  "ability": null
+ },
+ {
+  "name": "Camo Cargo Pants",
+  "type": "Bottom",
+  "v": [
+   0,
+   3,
+   0,
+   0,
+   0
+  ],
+  "prints": [
+   "camo"
+  ],
+  "power": "Solid",
+  "abilityText": "",
+  "ability": null
+ },
+ {
+  "name": "Checkered Skate Shorts",
+  "type": "Bottom",
+  "v": [
+   0,
+   2,
+   0,
+   1,
+   0
+  ],
+  "prints": [
+   "checkerboard"
+  ],
+  "power": "Ordinary",
+  "abilityText": "",
+  "ability": null
+ },
+ {
+  "name": "Striped Track Pants",
+  "type": "Bottom",
+  "v": [
+   0,
+   2,
+   0,
+   0,
+   0
+  ],
+  "prints": [
+   "stripes"
+  ],
+  "power": "Ordinary",
+  "abilityText": "",
+  "ability": null
+ },
+ {
+  "name": "Tutu",
+  "type": "Bottom",
+  "v": [
+   0,
+   0,
+   4,
+   1,
+   0
+  ],
+  "prints": [
+   "stars"
+  ],
+  "power": "Solid",
+  "abilityText": "",
+  "ability": null
+ },
+ {
+  "name": "Heart-Patch Overalls",
+  "type": "Bottom",
+  "v": [
+   -1,
+   0,
+   3,
+   0,
+   0
+  ],
+  "prints": [
+   "hearts",
+   "plaid"
+  ],
+  "power": "Solid",
+  "abilityText": "",
+  "ability": null
+ },
+ {
+  "name": "Polka Dot Skirt",
+  "type": "Bottom",
+  "v": [
+   0,
+   0,
+   2,
+   1,
+   0
+  ],
+  "prints": [
+   "polka dots"
+  ],
+  "power": "Ordinary",
+  "abilityText": "",
+  "ability": null
+ },
+ {
+  "name": "Footie Pajama Bottoms",
+  "type": "Bottom",
+  "v": [
+   0,
+   -1,
+   3,
+   0,
+   0
+  ],
+  "prints": [
+   "animals"
+  ],
+  "power": "Solid",
+  "abilityText": "",
+  "ability": null
+ },
+ {
+  "name": "Flower Print Shorts",
+  "type": "Bottom",
+  "v": [
+   0,
+   0,
+   2,
+   0,
+   0
+  ],
+  "prints": [
+   "flowers"
+  ],
+  "power": "Ordinary",
+  "abilityText": "",
+  "ability": null
+ },
+ {
+  "name": "Clown Pants",
+  "type": "Bottom",
+  "v": [
+   -1,
+   0,
+   1,
+   5,
+   0
+  ],
+  "prints": [
+   "polka dots",
+   "checkerboard"
+  ],
+  "power": "Star",
+  "abilityText": "",
+  "ability": null
+ },
+ {
+  "name": "Banana Print Shorts",
+  "type": "Bottom",
+  "v": [
+   0,
+   0,
+   0,
+   3,
+   0
+  ],
+  "prints": [
+   "bananas"
+  ],
+  "power": "Solid",
+  "abilityText": "",
+  "ability": null
+ },
+ {
+  "name": "Kilt",
+  "type": "Bottom",
+  "v": [
+   1,
+   0,
+   0,
+   2,
+   0
+  ],
+  "prints": [
+   "plaid"
+  ],
+  "power": "Ordinary",
+  "abilityText": "",
+  "ability": null
+ },
+ {
+  "name": "Flamingo Pool Floatie",
+  "type": "Bottom",
+  "v": [
+   0,
+   0,
+   1,
+   3,
+   0
+  ],
+  "prints": [
+   "animals"
+  ],
+  "power": "Solid",
+  "abilityText": "",
+  "ability": null
+ },
+ {
+  "name": "Grass Skirt",
+  "type": "Bottom",
+  "v": [
+   0,
+   0,
+   0,
+   2,
+   0
+  ],
+  "prints": [
+   "flowers"
+  ],
+  "power": "Ordinary",
+  "abilityText": "",
+  "ability": null
+ },
+ {
+  "name": "Witch's Striped Tights",
+  "type": "Bottom",
+  "v": [
+   0,
+   1,
+   0,
+   0,
+   3
+  ],
+  "prints": [
+   "stripes"
+  ],
+  "power": "Solid",
+  "abilityText": "",
+  "ability": null
+ },
+ {
+  "name": "Skeleton Leggings",
+  "type": "Bottom",
+  "v": [
+   0,
+   0,
+   -1,
+   0,
+   4
+  ],
+  "prints": [
+   "skulls"
+  ],
+  "power": "Solid",
+  "abilityText": "",
+  "ability": null
+ },
+ {
+  "name": "Tattered Mummy Pants",
+  "type": "Bottom",
+  "v": [
+   0,
+   0,
+   0,
+   -1,
+   2
+  ],
+  "prints": [],
+  "power": "Ordinary",
+  "abilityText": "",
+  "ability": null
+ },
+ {
+  "name": "Black Velvet Skirt",
+  "type": "Bottom",
+  "v": [
+   0,
+   1,
+   0,
+   0,
+   2
+  ],
+  "prints": [
+   "crowns"
+  ],
+  "power": "Ordinary",
+  "abilityText": "",
+  "ability": null
+ },
+ {
+  "name": "Cobweb Ball Skirt",
+  "type": "Bottom",
+  "v": [
+   2,
+   0,
+   0,
+   0,
+   4
+  ],
+  "prints": [
+   "spiderwebs"
+  ],
+  "power": "Star",
+  "abilityText": "",
+  "ability": null
+ },
+ {
+  "name": "Classic Jeans",
+  "type": "Bottom",
+  "v": [
+   1,
+   1,
+   1,
+   1,
+   1
+  ],
+  "prints": [],
+  "power": "Generalist",
+  "abilityText": "",
+  "ability": null
+ },
+ {
+  "name": "Stinky Gym Shorts",
+  "type": "Bottom",
+  "v": [
+   0,
+   0,
+   -1,
+   0,
+   0
+  ],
+  "prints": [
+   "camo"
+  ],
+  "power": "Dud",
+  "abilityText": "",
+  "ability": null
+ },
+ {
+  "name": "Holey Plaid Pajama Pants",
+  "type": "Bottom",
+  "v": [
+   -2,
+   0,
+   1,
+   0,
+   0
+  ],
+  "prints": [
+   "plaid"
+  ],
+  "power": "Dud",
+  "abilityText": "",
+  "ability": null
+ },
+ {
+  "name": "Flame Swim Trunks",
+  "type": "Bottom",
+  "v": [
+   -1,
+   0,
+   0,
+   1,
+   0
+  ],
+  "prints": [
+   "flames"
+  ],
+  "power": "Dud",
+  "abilityText": "",
+  "ability": null
+ },
+ {
+  "name": "Corduroy Pants",
+  "type": "Bottom",
+  "v": [
+   0,
+   0,
+   0,
+   0,
+   0
+  ],
+  "prints": [],
+  "power": "Dud",
+  "abilityText": "",
+  "ability": null
+ },
+ {
+  "name": "Glass Slippers",
+  "type": "Shoes",
+  "v": [
+   4,
+   0,
+   2,
+   0,
+   0
+  ],
+  "prints": [],
+  "power": "Star",
+  "abilityText": "",
+  "ability": null
+ },
+ {
+  "name": "Shiny Dress Shoes",
+  "type": "Shoes",
+  "v": [
+   3,
+   0,
+   0,
+   -1,
+   0
+  ],
+  "prints": [],
+  "power": "Solid",
+  "abilityText": "",
+  "ability": null
+ },
+ {
+  "name": "Gold Shoes",
+  "type": "Shoes",
+  "v": [
+   3,
+   1,
+   0,
+   0,
+   0
+  ],
+  "prints": [
+   "crowns"
+  ],
+  "power": "Solid",
+  "abilityText": "",
+  "ability": null
+ },
+ {
+  "name": "Leopard Heels",
+  "type": "Shoes",
+  "v": [
+   2,
+   1,
+   0,
+   0,
+   0
+  ],
+  "prints": [
+   "leopard"
+  ],
+  "power": "Ordinary",
+  "abilityText": "",
+  "ability": null
+ },
+ {
+  "name": "Boat Shoes",
+  "type": "Shoes",
+  "v": [
+   2,
+   0,
+   0,
+   0,
+   0
+  ],
+  "prints": [
+   "crowns"
+  ],
+  "power": "Ordinary",
+  "abilityText": "",
+  "ability": null
+ },
+ {
+  "name": "Light-Up Sneakers",
+  "type": "Shoes",
+  "v": [
+   0,
+   5,
+   -1,
+   0,
+   0
+  ],
+  "prints": [
+   "lightning bolts"
+  ],
+  "power": "Star",
+  "abilityText": "",
+  "ability": null
+ },
+ {
+  "name": "High-Top Sneakers",
+  "type": "Shoes",
+  "v": [
+   0,
+   4,
+   0,
+   0,
+   0
+  ],
+  "prints": [
+   "lightning bolts",
+   "checkerboard"
+  ],
+  "power": "Solid",
+  "abilityText": "",
+  "ability": null
+ },
+ {
+  "name": "Checkered Slip-Ons",
+  "type": "Shoes",
+  "v": [
+   0,
+   3,
+   0,
+   0,
+   0
+  ],
+  "prints": [
+   "checkerboard"
+  ],
+  "power": "Solid",
+  "abilityText": "",
+  "ability": null
+ },
+ {
+  "name": "Cowboy Boots",
+  "type": "Shoes",
+  "v": [
+   1,
+   2,
+   0,
+   0,
+   0
+  ],
+  "prints": [
+   "stars"
+  ],
+  "power": "Ordinary",
+  "abilityText": "",
+  "ability": null
+ },
+ {
+  "name": "Combat Boots",
+  "type": "Shoes",
+  "v": [
+   0,
+   2,
+   0,
+   0,
+   1
+  ],
+  "prints": [
+   "camo"
+  ],
+  "power": "Ordinary",
+  "abilityText": "",
+  "ability": null
+ },
+ {
+  "name": "Bunny Slippers",
+  "type": "Shoes",
+  "v": [
+   0,
+   0,
+   4,
+   0,
+   -1
+  ],
+  "prints": [
+   "animals"
+  ],
+  "power": "Solid",
+  "abilityText": "",
+  "ability": null
+ },
+ {
+  "name": "Mary Janes",
+  "type": "Shoes",
+  "v": [
+   1,
+   0,
+   3,
+   0,
+   0
+  ],
+  "prints": [
+   "hearts"
+  ],
+  "power": "Solid",
+  "abilityText": "",
+  "ability": null
+ },
+ {
+  "name": "Duck Rain Boots",
+  "type": "Shoes",
+  "v": [
+   0,
+   0,
+   3,
+   0,
+   -1
+  ],
+  "prints": [
+   "animals"
+  ],
+  "power": "Solid",
+  "abilityText": "",
+  "ability": null
+ },
+ {
+  "name": "Jelly Sandals",
+  "type": "Shoes",
+  "v": [
+   0,
+   0,
+   2,
+   0,
+   0
+  ],
+  "prints": [
+   "flowers"
+  ],
+  "power": "Ordinary",
+  "abilityText": "",
+  "ability": null
+ },
+ {
+  "name": "Glitter Toddler Shoes",
+  "type": "Shoes",
+  "v": [
+   0,
+   0,
+   2,
+   1,
+   0
+  ],
+  "prints": [
+   "stars"
+  ],
+  "power": "Ordinary",
+  "abilityText": "",
+  "ability": null
+ },
+ {
+  "name": "Clown Shoes",
+  "type": "Shoes",
+  "v": [
+   -2,
+   0,
+   0,
+   5,
+   0
+  ],
+  "prints": [
+   "polka dots"
+  ],
+  "power": "Star",
+  "abilityText": "",
+  "ability": null
+ },
+ {
+  "name": "Flippers",
+  "type": "Shoes",
+  "v": [
+   0,
+   0,
+   0,
+   3,
+   -1
+  ],
+  "prints": [],
+  "power": "Solid",
+  "abilityText": "",
+  "ability": null
+ },
+ {
+  "name": "Striped Roller Skates",
+  "type": "Shoes",
+  "v": [
+   0,
+   1,
+   0,
+   3,
+   0
+  ],
+  "prints": [
+   "stripes"
+  ],
+  "power": "Solid",
+  "abilityText": "",
+  "ability": null
+ },
+ {
+  "name": "Tissue Box Shoes",
+  "type": "Shoes",
+  "v": [
+   0,
+   0,
+   0,
+   2,
+   0
+  ],
+  "prints": [
+   "polka dots"
+  ],
+  "power": "Ordinary",
+  "abilityText": "",
+  "ability": null
+ },
+ {
+  "name": "Banana Slippers",
+  "type": "Shoes",
+  "v": [
+   0,
+   0,
+   1,
+   2,
+   0
+  ],
+  "prints": [
+   "bananas"
+  ],
+  "power": "Ordinary",
+  "abilityText": "",
+  "ability": null
+ },
+ {
+  "name": "Pointy Witch Boots",
+  "type": "Shoes",
+  "v": [
+   1,
+   0,
+   0,
+   0,
+   4
+  ],
+  "prints": [
+   "spiderwebs",
+   "stars"
+  ],
+  "power": "Solid",
+  "abilityText": "",
+  "ability": null
+ },
+ {
+  "name": "Skull Sneakers",
+  "type": "Shoes",
+  "v": [
+   0,
+   1,
+   0,
+   0,
+   3
+  ],
+  "prints": [
+   "skulls",
+   "flames"
+  ],
+  "power": "Solid",
+  "abilityText": "",
+  "ability": null
+ },
+ {
+  "name": "Coffin-Toe Boots",
+  "type": "Shoes",
+  "v": [
+   0,
+   0,
+   0,
+   -1,
+   3
+  ],
+  "prints": [
+   "bats"
+  ],
+  "power": "Solid",
+  "abilityText": "",
+  "ability": null
+ },
+ {
+  "name": "Bat Wing Heels",
+  "type": "Shoes",
+  "v": [
+   1,
+   0,
+   0,
+   0,
+   2
+  ],
+  "prints": [
+   "bats"
+  ],
+  "power": "Ordinary",
+  "abilityText": "",
+  "ability": null
+ },
+ {
+  "name": "Rubber Zombie Feet",
+  "type": "Shoes",
+  "v": [
+   0,
+   0,
+   -1,
+   0,
+   3
+  ],
+  "prints": [],
+  "power": "Ordinary",
+  "abilityText": "",
+  "ability": null
+ },
+ {
+  "name": "White Sneakers",
+  "type": "Shoes",
+  "v": [
+   1,
+   1,
+   1,
+   1,
+   1
+  ],
+  "prints": [],
+  "power": "Generalist",
+  "abilityText": "",
+  "ability": null
+ },
+ {
+  "name": "Plaid Socks with Sandals",
+  "type": "Shoes",
+  "v": [
+   0,
+   -2,
+   0,
+   1,
+   0
+  ],
+  "prints": [
+   "plaid"
+  ],
+  "power": "Dud",
+  "abilityText": "",
+  "ability": null
+ },
+ {
+  "name": "Fuzzy Heart Slippers",
+  "type": "Shoes",
+  "v": [
+   0,
+   -2,
+   1,
+   0,
+   0
+  ],
+  "prints": [
+   "hearts"
+  ],
+  "power": "Dud",
+  "abilityText": "",
+  "ability": null
+ },
+ {
+  "name": "One Flip-Flop",
+  "type": "Shoes",
+  "v": [
+   0,
+   0,
+   0,
+   1,
+   -1
+  ],
+  "prints": [],
+  "power": "Dud",
+  "abilityText": "",
+  "ability": null
+ },
+ {
+  "name": "Muddy Galoshes",
+  "type": "Shoes",
+  "v": [
+   -1,
+   0,
+   0,
+   0,
+   0
+  ],
+  "prints": [],
+  "power": "Dud",
+  "abilityText": "",
+  "ability": null
+ },
+ {
+  "name": "Briefcase",
+  "type": "Accessory",
+  "v": [
+   0,
+   0,
+   0,
+   0,
+   0
+  ],
+  "prints": [],
+  "power": "Common",
+  "abilityText": "+2 Important per item with pinstripes",
+  "ability": {
+   "kind": "perPrint",
+   "n": 2,
+   "imp": "Important",
+   "prints": [
+    "pinstripes"
+   ]
+  }
+ },
+ {
+  "name": "Royal Scepter",
+  "type": "Accessory",
+  "v": [
+   0,
+   0,
+   0,
+   0,
+   0
+  ],
+  "prints": [],
+  "power": "Common",
+  "abilityText": "+2 Important per item with crowns",
+  "ability": {
+   "kind": "perPrint",
+   "n": 2,
+   "imp": "Important",
+   "prints": [
+    "crowns"
+   ]
+  }
+ },
+ {
+  "name": "Feather Boa",
+  "type": "Accessory",
+  "v": [
+   0,
+   0,
+   0,
+   0,
+   0
+  ],
+  "prints": [],
+  "power": "Common",
+  "abilityText": "+2 Important per item with leopard",
+  "ability": {
+   "kind": "perPrint",
+   "n": 2,
+   "imp": "Important",
+   "prints": [
+    "leopard"
+   ]
+  }
+ },
+ {
+  "name": "Pocket Dog in a Designer Bag",
+  "type": "Accessory",
+  "v": [
+   0,
+   0,
+   0,
+   0,
+   0
+  ],
+  "prints": [],
+  "power": "Common",
+  "abilityText": "+1 Important per animal pictured in your outfit",
+  "ability": {
+   "kind": "perPrint",
+   "n": 1,
+   "imp": "Important",
+   "prints": [
+    "animals",
+    "bats"
+   ]
+  }
+ },
+ {
+  "name": "Personal Assistant with Clipboard",
+  "type": "Accessory",
+  "v": [
+   0,
+   0,
+   0,
+   0,
+   0
+  ],
+  "prints": [],
+  "power": "Common",
+  "abilityText": "Add your Cool to your Important",
+  "ability": {
+   "kind": "add",
+   "from": "Cool",
+   "to": "Important"
+  }
+ },
+ {
+  "name": "Golden Trophy",
+  "type": "Accessory",
+  "v": [
+   0,
+   0,
+   0,
+   0,
+   0
+  ],
+  "prints": [],
+  "power": "Rare",
+  "abilityText": "Your highest Impression counts double",
+  "ability": {
+   "kind": "doubleHighest"
+  }
+ },
+ {
+  "name": "Skateboard",
+  "type": "Accessory",
+  "v": [
+   0,
+   0,
+   0,
+   0,
+   0
+  ],
+  "prints": [],
+  "power": "Common",
+  "abilityText": "+2 Cool per item with checkerboard",
+  "ability": {
+   "kind": "perPrint",
+   "n": 2,
+   "imp": "Cool",
+   "prints": [
+    "checkerboard"
+   ]
+  }
+ },
+ {
+  "name": "Boombox",
+  "type": "Accessory",
+  "v": [
+   0,
+   0,
+   0,
+   0,
+   0
+  ],
+  "prints": [],
+  "power": "Common",
+  "abilityText": "+2 Cool per item with lightning bolts",
+  "ability": {
+   "kind": "perPrint",
+   "n": 2,
+   "imp": "Cool",
+   "prints": [
+    "lightning bolts"
+   ]
+  }
+ },
+ {
+  "name": "Motorcycle Helmet",
+  "type": "Accessory",
+  "v": [
+   0,
+   0,
+   0,
+   0,
+   0
+  ],
+  "prints": [],
+  "power": "Common",
+  "abilityText": "+2 Cool per item with flames",
+  "ability": {
+   "kind": "perPrint",
+   "n": 2,
+   "imp": "Cool",
+   "prints": [
+    "flames"
+   ]
+  }
+ },
+ {
+  "name": "Walkie-Talkie",
+  "type": "Accessory",
+  "v": [
+   0,
+   0,
+   0,
+   0,
+   0
+  ],
+  "prints": [],
+  "power": "Common",
+  "abilityText": "+2 Cool per item with camo",
+  "ability": {
+   "kind": "perPrint",
+   "n": 2,
+   "imp": "Cool",
+   "prints": [
+    "camo"
+   ]
+  }
+ },
+ {
+  "name": "Microphone",
+  "type": "Accessory",
+  "v": [
+   0,
+   0,
+   0,
+   0,
+   0
+  ],
+  "prints": [],
+  "power": "Common",
+  "abilityText": "+2 Cool per item with stars",
+  "ability": {
+   "kind": "perPrint",
+   "n": 2,
+   "imp": "Cool",
+   "prints": [
+    "stars"
+   ]
+  }
+ },
+ {
+  "name": "Electric Guitar",
+  "type": "Accessory",
+  "v": [
+   0,
+   0,
+   0,
+   0,
+   0
+  ],
+  "prints": [],
+  "power": "Common",
+  "abilityText": "Add your Wacky to your Cool",
+  "ability": {
+   "kind": "add",
+   "from": "Wacky",
+   "to": "Cool"
+  }
+ },
+ {
+  "name": "Puppy on a Leash",
+  "type": "Accessory",
+  "v": [
+   0,
+   0,
+   0,
+   0,
+   0
+  ],
+  "prints": [],
+  "power": "Common",
+  "abilityText": "+1 Cute per animal pictured in your outfit",
+  "ability": {
+   "kind": "perPrint",
+   "n": 1,
+   "imp": "Cute",
+   "prints": [
+    "animals",
+    "bats"
+   ]
+  }
+ },
+ {
+  "name": "Heart Balloon",
+  "type": "Accessory",
+  "v": [
+   0,
+   0,
+   0,
+   0,
+   0
+  ],
+  "prints": [],
+  "power": "Common",
+  "abilityText": "+2 Cute per item with hearts",
+  "ability": {
+   "kind": "perPrint",
+   "n": 2,
+   "imp": "Cute",
+   "prints": [
+    "hearts"
+   ]
+  }
+ },
+ {
+  "name": "Flower Basket",
+  "type": "Accessory",
+  "v": [
+   0,
+   0,
+   0,
+   0,
+   0
+  ],
+  "prints": [],
+  "power": "Common",
+  "abilityText": "+2 Cute per item with flowers",
+  "ability": {
+   "kind": "perPrint",
+   "n": 2,
+   "imp": "Cute",
+   "prints": [
+    "flowers"
+   ]
+  }
+ },
+ {
+  "name": "Picnic Basket",
+  "type": "Accessory",
+  "v": [
+   0,
+   0,
+   0,
+   0,
+   0
+  ],
+  "prints": [],
+  "power": "Common",
+  "abilityText": "+2 Cute per item with plaid",
+  "ability": {
+   "kind": "perPrint",
+   "n": 2,
+   "imp": "Cute",
+   "prints": [
+    "plaid"
+   ]
+  }
+ },
+ {
+  "name": "Candy Cane",
+  "type": "Accessory",
+  "v": [
+   0,
+   0,
+   0,
+   0,
+   0
+  ],
+  "prints": [],
+  "power": "Common",
+  "abilityText": "+2 Cute per item with stripes",
+  "ability": {
+   "kind": "perPrint",
+   "n": 2,
+   "imp": "Cute",
+   "prints": [
+    "stripes"
+   ]
+  }
+ },
+ {
+  "name": "Teddy Bear",
+  "type": "Accessory",
+  "v": [
+   0,
+   0,
+   0,
+   0,
+   0
+  ],
+  "prints": [],
+  "power": "Common",
+  "abilityText": "Add your Spooky to your Cute (creepy-cute counts)",
+  "ability": {
+   "kind": "add",
+   "from": "Spooky",
+   "to": "Cute"
+  }
+ },
+ {
+  "name": "Rubber Chicken",
+  "type": "Accessory",
+  "v": [
+   0,
+   0,
+   0,
+   0,
+   0
+  ],
+  "prints": [],
+  "power": "Common",
+  "abilityText": "+2 Wacky per item with polka dots",
+  "ability": {
+   "kind": "perPrint",
+   "n": 2,
+   "imp": "Wacky",
+   "prints": [
+    "polka dots"
+   ]
+  }
+ },
+ {
+  "name": "Unicycle",
+  "type": "Accessory",
+  "v": [
+   0,
+   0,
+   0,
+   0,
+   0
+  ],
+  "prints": [],
+  "power": "Common",
+  "abilityText": "+2 Wacky per item with stripes",
+  "ability": {
+   "kind": "perPrint",
+   "n": 2,
+   "imp": "Wacky",
+   "prints": [
+    "stripes"
+   ]
+  }
+ },
+ {
+  "name": "Banana Phone",
+  "type": "Accessory",
+  "v": [
+   0,
+   0,
+   0,
+   0,
+   0
+  ],
+  "prints": [],
+  "power": "Common",
+  "abilityText": "+1 Wacky per banana pictured in your outfit",
+  "ability": {
+   "kind": "perPrint",
+   "n": 1,
+   "imp": "Wacky",
+   "prints": [
+    "bananas"
+   ]
+  }
+ },
+ {
+  "name": "Bagpipes",
+  "type": "Accessory",
+  "v": [
+   0,
+   0,
+   0,
+   0,
+   0
+  ],
+  "prints": [],
+  "power": "Common",
+  "abilityText": "+2 Wacky per item with plaid",
+  "ability": {
+   "kind": "perPrint",
+   "n": 2,
+   "imp": "Wacky",
+   "prints": [
+    "plaid"
+   ]
+  }
+ },
+ {
+  "name": "Whoopee Cushion",
+  "type": "Accessory",
+  "v": [
+   0,
+   0,
+   0,
+   0,
+   0
+  ],
+  "prints": [],
+  "power": "Common",
+  "abilityText": "Add your Important to your Wacky",
+  "ability": {
+   "kind": "add",
+   "from": "Important",
+   "to": "Wacky"
+  }
+ },
+ {
+  "name": "Mystery Shopping Bag",
+  "type": "Accessory",
+  "v": [
+   0,
+   0,
+   0,
+   0,
+   0
+  ],
+  "prints": [],
+  "power": "Common",
+  "abilityText": "+2 Wacky per empty clothing slot",
+  "ability": {
+   "kind": "perEmptySlot",
+   "n": 2,
+   "imp": "Wacky"
+  }
+ },
+ {
+  "name": "Pet Bat",
+  "type": "Accessory",
+  "v": [
+   0,
+   0,
+   0,
+   0,
+   0
+  ],
+  "prints": [],
+  "power": "Common",
+  "abilityText": "+1 Spooky per bat pictured in your outfit",
+  "ability": {
+   "kind": "perPrint",
+   "n": 1,
+   "imp": "Spooky",
+   "prints": [
+    "bats"
+   ]
+  }
+ },
+ {
+  "name": "Crystal Ball",
+  "type": "Accessory",
+  "v": [
+   0,
+   0,
+   0,
+   0,
+   0
+  ],
+  "prints": [],
+  "power": "Common",
+  "abilityText": "+2 Spooky per item with skulls",
+  "ability": {
+   "kind": "perPrint",
+   "n": 2,
+   "imp": "Spooky",
+   "prints": [
+    "skulls"
+   ]
+  }
+ },
+ {
+  "name": "Candelabra",
+  "type": "Accessory",
+  "v": [
+   0,
+   0,
+   0,
+   0,
+   0
+  ],
+  "prints": [],
+  "power": "Common",
+  "abilityText": "+2 Spooky per item with spiderwebs",
+  "ability": {
+   "kind": "perPrint",
+   "n": 2,
+   "imp": "Spooky",
+   "prints": [
+    "spiderwebs"
+   ]
+  }
+ },
+ {
+  "name": "Broomstick",
+  "type": "Accessory",
+  "v": [
+   0,
+   0,
+   0,
+   0,
+   0
+  ],
+  "prints": [],
+  "power": "Common",
+  "abilityText": "+2 Spooky per item with stripes",
+  "ability": {
+   "kind": "perPrint",
+   "n": 2,
+   "imp": "Spooky",
+   "prints": [
+    "stripes"
+   ]
+  }
+ },
+ {
+  "name": "Black Cat",
+  "type": "Accessory",
+  "v": [
+   0,
+   0,
+   0,
+   0,
+   0
+  ],
+  "prints": [],
+  "power": "Common",
+  "abilityText": "Add your Cute to your Spooky",
+  "ability": {
+   "kind": "add",
+   "from": "Cute",
+   "to": "Spooky"
+  }
+ },
+ {
+  "name": "Magic Wand",
+  "type": "Accessory",
+  "v": [
+   0,
+   0,
+   0,
+   0,
+   0
+  ],
+  "prints": [],
+  "power": "Rare",
+  "abilityText": "Add your Spooky to any one other Impression",
+  "ability": {
+   "kind": "wand"
+  }
+ }
+]

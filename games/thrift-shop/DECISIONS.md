@@ -1,22 +1,22 @@
-# Thrift Shop — decisions
+# Thrift Shop (2026) — decisions
 
-Source: Patrick's "Thrift Shop rules" (2–10 players in the current copy, 2–4 in the old one) and the "Thrift Shop cards" sheet, tab "cards 1.1". Every number is in `GAME_DATA.rules` and editable in the Rules Lab.
+Source: the designer's "Thrift Shop: digital prototype spec" and the Thrift Shop cards sheet, tabs **Cards 2026** and **Invites 2026** (the older tabs are ignored). Every tunable number is in `GAME_DATA` (the `data` script); the cards and invites are in the generated `sheet` script.
 
-1. **Players**: you + 1–5 computer shoppers (2–6 players), default 3.
-2. **Copies of each card**: the sheet has one of each (14–18 per stack); the rulebook counts about 25 per type. Default 2 of each (about 30 per stack). The four gym cards are one each.
-3. **Cards**: all rows of "cards 1.1" (the Santa Hat and the four gym cards from the bottom of the sheet included). Spelling of card names is as in the sheet ("Chain Neckless", "Water-Resistent Boots").
-4. **The clock**: the table game is a 2-minute scramble. Default is *Relaxed*: the shoppers take one action for every purchase or sale you make and finish their share when you tap Done shopping. *Timed* (setup screen) runs a 2:00 countdown; a shopper acts every 4 seconds. A shopper's total actions per season is its level's `actions` lever.
-5. **Buying**: pay `pricePerCard` (1) per card, up to `maxBuy` (6) cards; you must keep one drawn card, the others go to the bottom in the order drawn. Nothing you draw is hidden from you; other players' draws are not shown (only a log line, "bought 3 from shoes").
-6. **Selling**: the card goes to the bottom of its stack. A gym card has a negative resale value: you need that many coins to sell it.
-7. **The look**: one card of each type, any card in hand. The app picks the best look and shows it; at the reveal you can tap a slot to cycle through your cards of that type (or none). The picker holds back Ripped Jeans if they score more later (`wornOnceHold`).
-8. **Ripped Jeans** are discarded (to the bottom of the bottoms stack) when they were worn in the season's look.
-9. **Gym cards**: −2 (shirt), −3 (shorts), −4 (socks), −5 (shoes) points if still in your hand when the round ends. A gym card you wear counts as 0 points and is not penalised (so wearing one is a way to avoid the penalty).
-10. **Scoring**: the sum of a season's four numbers (negatives count) plus penalties; four seasons added up; coins score `coinPoints` (0) each at the end. Ties share the win.
-11. **Hidden information**: hands are hidden until the reveal; coin and card counts are public (as on a table); the order of a stack is unknown. The computer shoppers use only that view.
-12. Brand names on the sheet (Converse, Uggs, Birkenstocks, Oilers) are kept as written.
+## Where the spec and the repo's rules meet
+1. **One file, no fetch.** The game is a single `index.html`; the "JSON snapshots + sync script" live in `data/` and `tools/`, and the sync command also regenerates the `<script id="sheet">` block inside `index.html`. A test fails if the embedded copy differs from `data/*.json` or the CSVs.
+2. **Landscape.** The stage is a fixed 1180×820 table scaled to fit. In portrait or on a phone it is the same table smaller, with a dismissible "built for a sideways iPad" strip.
+3. **The clock.** The 60-second scramble is the one place a clock runs (the owner's general rule is "nothing advances on a timer"). The clock pauses while the menu is open. Everything else is player-paced.
+4. **The old Thrift Shop** (four seasons, Rules Lab, Simulate) was replaced, not kept alongside; it is in git history.
 
-## Not in v1
-The Halloween variant (Scary / Cute / Funny / Cool values and a Head slot), real-time simultaneous play for several people on one device.
-
-## Playtest notes
-Simulated at 4 players: Hard shoppers average about 45 points, Normal 38, Easy 29 over four seasons; the gap between first and last place is about 14 points at every level.
+## Where the spec is silent (my defaults)
+- **Mess**: a 15 × 10 grid with one space for each of the 150 cards. Every card is laid out face down and the dealt hands (5 each) leave empty spaces, so a put-back always finds a space. A put-back goes into a **random** empty space, face up. Cards the bots or you take leave an empty space; nothing is reshuffled.
+- **Press-and-hold** a face-up mess card to see it large without taking it (small extra). Face-down cards can never be previewed.
+- **Golden Trophy** doubles the highest Impression only if it is above 0. A tie goes to the tied Impression the invite's rule names first, then the fixed order.
+- **Magic Wand**: you choose the target (a picker opens when you place it, Spooky is not allowed); the default and the bots' choice is the first Impression in the invite's "Rewards" column that is not Spooky.
+- **Accessory abilities** only look at the clothing on the board; a print counts once per card ("pictured" = "per item with"); animals count `animals` or `bats`.
+- **Rivalry** ("on your right"): the previous seat in order, wrapping; you are seat 1.
+- **Rounds** are drawn from the 40 invites without repeats (capped at 40 if a bigger number is set).
+- **Before Start** the mess is visible but nothing can be taken; the timer starts at Start.
+- **Bots** act every 1.5–3.5 s (normal; slow 2.5–5, fast 0.8–2), read only face-up cards and their own hand, maximise the invite's first-block metric, and build their best look instantly. A bot with a full hand puts a card back first, then takes (its planned card, or a random face-down one).
+- A wrong slot keeps your card selected; a played card in the hand is marked ON and a tap takes it off the board.
+- Settings are saved on the device (`thriftshop26-settings`) and clamped to sane limits.

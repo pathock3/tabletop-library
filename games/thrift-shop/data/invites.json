@@ -1,0 +1,516 @@
+[
+ {
+  "name": "Prom",
+  "category": "School",
+  "rewards": [
+   "Cool",
+   "Important"
+  ],
+  "penalizes": [],
+  "shape": "Two winners",
+  "payout": "Coolest is crowned Prom King/Queen: 5. Most Important: 3.",
+  "story": "The crown goes to the coolest kid; the photographer wants the best dressed.",
+  "notes": ""
+ },
+ {
+  "name": "Student Council Election",
+  "category": "School",
+  "rewards": [
+   "Cool"
+  ],
+  "penalizes": [],
+  "shape": "Winner and runner-up",
+  "payout": "Coolest (President): 5. 2nd Coolest (Vice President): 3.",
+  "story": "Nobody reads the platforms.",
+  "notes": ""
+ },
+ {
+  "name": "Homecoming Court",
+  "category": "School",
+  "rewards": [
+   "Cool",
+   "Cute"
+  ],
+  "penalizes": [],
+  "shape": "Combined",
+  "payout": "Add Cool and Cute. 1st 4, 2nd 3, 3rd 1.",
+  "story": "Royalty needs status and charm.",
+  "notes": ""
+ },
+ {
+  "name": "School Picture Day",
+  "category": "School",
+  "rewards": [
+   "Cute"
+  ],
+  "penalizes": [],
+  "shape": "Consolation prize",
+  "payout": "Cutest 4, 2nd 2, last place 3.",
+  "story": "The yearbook gives last place the Most Memorable award.",
+  "notes": "At 2 players: Cutest 4, the other player 3."
+ },
+ {
+  "name": "Science Fair",
+  "category": "School",
+  "rewards": [
+   "Important"
+  ],
+  "penalizes": [
+   "Cool"
+  ],
+  "shape": "Subtract",
+  "payout": "Score Important minus Cool. 1st 4, 2nd 3, 3rd 1.",
+  "story": "The lab coat wins; the judges don't trust anyone in sunglasses.",
+  "notes": ""
+ },
+ {
+  "name": "Field Trip",
+  "category": "School",
+  "rewards": [
+   "Wacky"
+  ],
+  "penalizes": [],
+  "shape": "Second place wins",
+  "payout": "2nd Wackiest 5, 3rd 2. Wackiest 0.",
+  "story": "The wackiest kid spends the trip on the bus.",
+  "notes": "At 2 players: the less Wacky player scores 3."
+ },
+ {
+  "name": "Talent Show",
+  "category": "School",
+  "rewards": [
+   "Wacky"
+  ],
+  "penalizes": [],
+  "shape": "Shoot the moon",
+  "payout": "Least Wacky 4. Wackiest 3, 2nd Wackiest 1.",
+  "story": "The most boring act goes viral.",
+  "notes": "If 3 or more players tie for least, they each score 2."
+ },
+ {
+  "name": "Battle of the Bands",
+  "category": "School",
+  "rewards": [
+   "Cool",
+   "Wacky"
+  ],
+  "penalizes": [],
+  "shape": "Combined",
+  "payout": "Add Cool and Wacky. 1st 5, 2nd 2.",
+  "story": "Rock stars need attitude and showmanship.",
+  "notes": ""
+ },
+ {
+  "name": "Fall Fling",
+  "category": "School",
+  "rewards": [
+   "Cute",
+   "Wacky"
+  ],
+  "penalizes": [],
+  "shape": "No winner",
+  "payout": "Everyone scores 1 Like for every 3 Cute and Wacky combined, up to 3.",
+  "story": "It's just a dance; everyone posts their fit.",
+  "notes": ""
+ },
+ {
+  "name": "Yearbook Superlatives",
+  "category": "School",
+  "rewards": [
+   "Wacky",
+   "Spooky"
+  ],
+  "penalizes": [],
+  "shape": "Two winners",
+  "payout": "Wackiest is Class Clown: 4. Spookiest is Most Likely to Haunt the School: 4.",
+  "story": "Two awards nobody campaigns for.",
+  "notes": ""
+ },
+ {
+  "name": "Detention",
+  "category": "School",
+  "rewards": [
+   "Cool"
+  ],
+  "penalizes": [
+   "Cute"
+  ],
+  "shape": "Subtract",
+  "payout": "Score Cool minus Cute. 1st 4, 2nd 2, 3rd 1.",
+  "story": "Rebels get respect; teacher's pets don't.",
+  "notes": ""
+ },
+ {
+  "name": "Club Officer Election",
+  "category": "School",
+  "rewards": [
+   "Important",
+   "Cute"
+  ],
+  "penalizes": [],
+  "shape": "Two winners",
+  "payout": "Most Important (President): 4. Cutest (Social Chair): 4.",
+  "story": "One runs the meetings, one runs the parties.",
+  "notes": ""
+ },
+ {
+  "name": "Up for a Promotion",
+  "category": "Work",
+  "rewards": [
+   "Important"
+  ],
+  "penalizes": [
+   "Wacky"
+  ],
+  "shape": "Subtract",
+  "payout": "Score Important minus Wacky. 1st 5, 2nd 2.",
+  "story": "Dress for the job you want, not the circus you want.",
+  "notes": ""
+ },
+ {
+  "name": "Job Interview",
+  "category": "Work",
+  "rewards": [
+   "Important"
+  ],
+  "penalizes": [],
+  "shape": "Threshold",
+  "payout": "Everyone with 4+ Important is hired: 2. Most Important also gets the corner office: 2 more.",
+  "story": "Nobody checked the resumes.",
+  "notes": ""
+ },
+ {
+  "name": "Meeting the In-Laws",
+  "category": "Family",
+  "rewards": [
+   "Cute"
+  ],
+  "penalizes": [
+   "Spooky"
+  ],
+  "shape": "Subtract",
+  "payout": "Score Cute minus Spooky. 1st 4, 2nd 2, 3rd 1.",
+  "story": "They want someone sweet, not someone who brought a bat.",
+  "notes": ""
+ },
+ {
+  "name": "Baby Shower",
+  "category": "Family",
+  "rewards": [
+   "Cute"
+  ],
+  "penalizes": [
+   "Spooky"
+  ],
+  "shape": "Podium plus bonus",
+  "payout": "Cutest 4, 2nd 2. Everyone with 0 Spooky gets 1 more.",
+  "story": "Nobody wants fangs near the baby.",
+  "notes": ""
+ },
+ {
+  "name": "Wedding",
+  "category": "Family",
+  "rewards": [
+   "Important"
+  ],
+  "penalizes": [],
+  "shape": "Second place wins",
+  "payout": "2nd most Important 4, 3rd 2. Most Important 0.",
+  "story": "Never upstage the couple.",
+  "notes": "At 2 players: the less Important player scores 3."
+ },
+ {
+  "name": "Reading of the Will",
+  "category": "Family",
+  "rewards": [
+   "Important",
+   "Spooky"
+  ],
+  "penalizes": [],
+  "shape": "Two winners",
+  "payout": "Most Important inherits the company: 4. Spookiest inherits the haunted mansion: 4.",
+  "story": "Great-aunt had two kinds of heirs in mind.",
+  "notes": ""
+ },
+ {
+  "name": "Family Photo Day",
+  "category": "Family",
+  "rewards": [
+   "Cute"
+  ],
+  "penalizes": [],
+  "shape": "Rivalry",
+  "payout": "Out-Cute the player on your right: 3.",
+  "story": "Grandma is comparing.",
+  "notes": ""
+ },
+ {
+  "name": "Kid's Birthday Party",
+  "category": "Celebration",
+  "rewards": [
+   "Wacky"
+  ],
+  "penalizes": [],
+  "shape": "Threshold",
+  "payout": "Everyone with 3+ Wacky: 2. Wackiest also gets booked for next year: 2 more.",
+  "story": "The kids decide who's fun.",
+  "notes": ""
+ },
+ {
+  "name": "21st Birthday",
+  "category": "Celebration",
+  "rewards": [
+   "Cool",
+   "Wacky"
+  ],
+  "penalizes": [],
+  "shape": "Balance (lower of two)",
+  "payout": "Score your lower of Cool and Wacky. 1st 4, 2nd 2.",
+  "story": "Be fun, but not a mess.",
+  "notes": "The only balance invite; slower to score."
+ },
+ {
+  "name": "Halloween Party",
+  "category": "Holiday",
+  "rewards": [
+   "Spooky",
+   "Wacky"
+  ],
+  "penalizes": [],
+  "shape": "Combined",
+  "payout": "Add Spooky and Wacky. 1st 5, 2nd 3, 3rd 1.",
+  "story": "The costume contest.",
+  "notes": ""
+ },
+ {
+  "name": "New Year's Eve",
+  "category": "Holiday",
+  "rewards": [
+   "Important",
+   "Wacky"
+  ],
+  "penalizes": [],
+  "shape": "Two winners",
+  "payout": "Most Important gets the VIP table: 4. Wackiest leads the countdown: 4.",
+  "story": "Two ways to own midnight.",
+  "notes": ""
+ },
+ {
+  "name": "4th of July",
+  "category": "Holiday",
+  "rewards": [
+   "Wacky"
+  ],
+  "penalizes": [
+   "Important"
+  ],
+  "shape": "Subtract",
+  "payout": "Score Wacky minus Important. 1st 4, 2nd 2, 3rd 1.",
+  "story": "Nobody wears a suit to a barbecue.",
+  "notes": ""
+ },
+ {
+  "name": "Turkey Trot",
+  "category": "Holiday",
+  "rewards": [
+   "Cute"
+  ],
+  "penalizes": [],
+  "shape": "No winner",
+  "payout": "Everyone scores 1 Like for every 2 Cute, up to 3.",
+  "story": "Nobody's racing; everyone's posting.",
+  "notes": ""
+ },
+ {
+  "name": "Ugly Sweater Party",
+  "category": "Holiday",
+  "rewards": [
+   "Wacky"
+  ],
+  "penalizes": [
+   "Cool"
+  ],
+  "shape": "Subtract",
+  "payout": "Score Wacky minus Cool. 1st 4, 2nd 2, 3rd 1.",
+  "story": "Trying to look cool is the one way to lose.",
+  "notes": ""
+ },
+ {
+  "name": "Haunted House Tour",
+  "category": "Outing",
+  "rewards": [
+   "Spooky"
+  ],
+  "penalizes": [],
+  "shape": "Both ends",
+  "payout": "Spookiest 4. Least Spooky 3.",
+  "story": "The staff think the spookiest guest works there; the least spooky guest's scream goes viral.",
+  "notes": "If 3 or more players tie for least, they each score 2."
+ },
+ {
+  "name": "Ski Trip",
+  "category": "Outing",
+  "rewards": [
+   "Cool"
+  ],
+  "penalizes": [],
+  "shape": "Consolation prize",
+  "payout": "Coolest 4, 2nd 2, last place 3.",
+  "story": "Last place's wipeout video goes viral.",
+  "notes": "At 2 players: Coolest 4, the other player 3."
+ },
+ {
+  "name": "Beach Day",
+  "category": "Outing",
+  "rewards": [
+   "Cool"
+  ],
+  "penalizes": [
+   "Important"
+  ],
+  "shape": "Subtract",
+  "payout": "Score Cool minus Important. 1st 4, 2nd 2, 3rd 1.",
+  "story": "Leave the briefcase at home.",
+  "notes": ""
+ },
+ {
+  "name": "Fancy Restaurant",
+  "category": "Outing",
+  "rewards": [
+   "Important"
+  ],
+  "penalizes": [],
+  "shape": "Threshold",
+  "payout": "Everyone with 3+ Important gets seated: 3. Most Important scores 0 instead.",
+  "story": "The most important-looking guest gets stuck with the bill.",
+  "notes": ""
+ },
+ {
+  "name": "Camping Trip",
+  "category": "Outing",
+  "rewards": [
+   "Spooky"
+  ],
+  "penalizes": [
+   "Important"
+  ],
+  "shape": "Podium plus bonus",
+  "payout": "Spookiest 3, 2nd 2. Everyone with 0 Important gets 1 more.",
+  "story": "Best campfire ghost story, plus points for roughing it.",
+  "notes": ""
+ },
+ {
+  "name": "Sleepover",
+  "category": "Outing",
+  "rewards": [
+   "Cute",
+   "Spooky"
+  ],
+  "penalizes": [],
+  "shape": "Combined",
+  "payout": "Add Cute and Spooky. 1st 4, 2nd 2, 3rd 1.",
+  "story": "Ghost stories in onesies.",
+  "notes": ""
+ },
+ {
+  "name": "Art Gallery Opening",
+  "category": "Outing",
+  "rewards": [
+   "Spooky"
+  ],
+  "penalizes": [
+   "Wacky"
+  ],
+  "shape": "Subtract",
+  "payout": "Score Spooky minus Wacky. 1st 4, 2nd 2, 3rd 1.",
+  "story": "The art crowd wants moody, not loud.",
+  "notes": ""
+ },
+ {
+  "name": "Goth Concert",
+  "category": "Outing",
+  "rewards": [
+   "Spooky"
+  ],
+  "penalizes": [
+   "Cute"
+  ],
+  "shape": "Subtract",
+  "payout": "Score Spooky minus Cute. 1st 4, 2nd 2, 3rd 1.",
+  "story": "The bunny ears are a dealbreaker.",
+  "notes": ""
+ },
+ {
+  "name": "Vampire Movie Premiere",
+  "category": "Social",
+  "rewards": [
+   "Cool",
+   "Spooky"
+  ],
+  "penalizes": [],
+  "shape": "Combined",
+  "payout": "Add Cool and Spooky. 1st 5, 2nd 2.",
+  "story": "The fans dress like the vampires they love.",
+  "notes": ""
+ },
+ {
+  "name": "First Date",
+  "category": "Social",
+  "rewards": [
+   "Cool"
+  ],
+  "penalizes": [],
+  "shape": "Second place wins",
+  "payout": "2nd Coolest 5, 3rd 2. Coolest 0.",
+  "story": "Don't try too hard.",
+  "notes": "At 2 players: the less Cool player scores 3."
+ },
+ {
+  "name": "Red Carpet Premiere",
+  "category": "Social",
+  "rewards": [
+   "Important"
+  ],
+  "penalizes": [],
+  "shape": "Both ends",
+  "payout": "Most Important 4. Least Important 2.",
+  "story": "Least Important tops the worst-dressed list, and that's still press.",
+  "notes": "If 3 or more players tie for least, they each score 1."
+ },
+ {
+  "name": "Circus Audition",
+  "category": "Social",
+  "rewards": [
+   "Wacky"
+  ],
+  "penalizes": [],
+  "shape": "Winner takes all",
+  "payout": "Wackiest 6. Everyone else 0.",
+  "story": "There's only one opening.",
+  "notes": ""
+ },
+ {
+  "name": "Pet Adoption Day",
+  "category": "Social",
+  "rewards": [
+   "Cute"
+  ],
+  "penalizes": [],
+  "shape": "Winner takes all",
+  "payout": "Cutest 6. Everyone else 0.",
+  "story": "The puppy picks the cutest person in the room.",
+  "notes": ""
+ },
+ {
+  "name": "Mystery Dinner Party",
+  "category": "Social",
+  "rewards": [
+   "Spooky"
+  ],
+  "penalizes": [],
+  "shape": "Second place wins",
+  "payout": "2nd Spookiest 5, 3rd 2. Spookiest 0.",
+  "story": "The spookiest guest obviously did it.",
+  "notes": "At 2 players: the less Spooky player scores 3."
+ }
+]
