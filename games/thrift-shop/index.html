@@ -1,0 +1,642 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Thrift Shop">
+<meta name="build" content="__BUILD__">
+<meta name="theme-color" content="#0f2a2b">
+<title>Thrift Shop</title>
+<meta property="og:type" content="website">
+<meta property="og:title" content="Thrift Shop">
+<meta name="description" content="A negotiation game of thrones: swear allegiance, bribe, betray, and take the crown. A playtest table against computer houses, with a Rules Lab.">
+<link rel="icon" type="image/png" href="../../assets/favicon.png">
+<link rel="apple-touch-icon" href="../../assets/apple-touch-icon.png">
+<style>
+:root { --ink: #0f2a2b; --wine: #1c5558; --wine-d: #0f3a3c; --gold: #f2b63a; --gold-d: #a9741a; --paper: #f3e6c4; --paper-d: #d8c595; --steel: #2a2e38; --text: #f6ecd8; --dim: #c9b79a; --green: #5fb36b; --red: #e0585a;
+  --sans: -apple-system, BlinkMacSystemFont, "SF Pro Text", system-ui, "Segoe UI", Roboto, sans-serif; --serif: "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, serif; }
+* { box-sizing: border-box; -webkit-tap-highlight-color: transparent; -webkit-touch-callout: none; user-select: none; -webkit-user-select: none; }
+html, body { margin: 0; height: 100%; width: 100%; position: fixed; inset: 0; overflow: hidden; overscroll-behavior: none; color: var(--text); font-family: var(--sans); touch-action: manipulation; background: var(--ink); }
+body::before { content: ""; position: absolute; inset: 0; pointer-events: none; background: radial-gradient(ellipse 100% 60% at 50% 0%, #2d8a85 0%, #17595a 45%, #0f2a2b 80%); }
+#app { position: absolute; inset: 0; z-index: 1; }
+button { font: inherit; color: inherit; border: 0; background: none; padding: 0; cursor: pointer; touch-action: manipulation; }
+a { color: inherit; }
+h1, h2, h3, p { margin: 0; }
+h1, h2, h3 { font-family: var(--serif); }
+.screen { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; gap: 10px; padding: max(10px, env(safe-area-inset-top)) max(12px, env(safe-area-inset-right)) max(12px, env(safe-area-inset-bottom)) max(12px, env(safe-area-inset-left)); }
+@keyframes fadein { from { opacity: 0 } to { opacity: 1 } }
+.btn { min-height: 56px; padding: 0 22px; border-radius: 14px; font-size: 20px; font-weight: 800; background: linear-gradient(#ffffff22, #ffffff08), #1f6d70; border: 2px solid #ffffff3a; box-shadow: 0 5px 0 #0008; display: inline-flex; align-items: center; justify-content: center; gap: 8px; text-align: center; }
+.btn:active { transform: translateY(3px); box-shadow: 0 2px 0 #0008; }
+.btn.gold { background: linear-gradient(#ffe6a0, #f2b63a 55%, #d19320); color: var(--ink); border: 0; box-shadow: 0 6px 0 #7a5410, 0 12px 22px #0008; font-size: 24px; min-height: 66px; }
+.btn.gold:active { transform: translateY(5px); box-shadow: 0 1px 0 #7a5410; }
+.btn.alt { background: #ffffff14; }
+.btn.sm { min-height: 48px; font-size: 17px; padding: 0 16px; }
+.btn[disabled] { opacity: .4; pointer-events: none; }
+.chip { min-height: 48px; padding: 0 16px; border-radius: 24px; font-size: 17px; font-weight: 700; background: #ffffff14; border: 2px solid #ffffff30; display: inline-flex; align-items: center; justify-content: center; gap: 6px; text-align: center; }
+.chip.on { background: linear-gradient(#ffe6a0, #f2b63a); color: var(--ink); border-color: #fff3; }
+.row { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; align-items: center; }
+.libback { position: absolute; z-index: 3; top: max(10px, env(safe-area-inset-top)); left: max(12px, env(safe-area-inset-left)); padding: 10px 16px; border-radius: 22px; background: #0008; border: 2px solid var(--gold-d); font-weight: 700; font-size: 16px; text-decoration: none; min-height: 44px; display: flex; align-items: center; }
+
+/* menu */
+.menu { justify-content: flex-start; padding-top: max(60px, env(safe-area-inset-top)); }
+.crest { width: min(380px, 66vw); flex: none; filter: drop-shadow(0 10px 18px #000a); }
+.menu h1 { font-size: clamp(40px, 9vw, 74px); letter-spacing: 3px; line-height: 1; text-align: center; color: #fff1cc; text-shadow: 0 3px 0 var(--wine-d), 0 0 24px #f2b63a66; text-transform: uppercase; }
+.menu .sub { font-size: clamp(16px, 3vw, 22px); color: var(--dim); text-align: center; max-width: 560px; }
+.menu .stack { display: flex; flex-direction: column; gap: 14px; width: min(460px, 92vw); margin-top: 8px; }
+.credit { font-size: 13px; color: var(--dim); text-align: center; opacity: .8; margin-top: auto; }
+
+/* setup / lab */
+.panel { width: min(760px, 100%); background: #00000040; border: 2px solid #ffffff22; border-radius: 18px; padding: 14px; display: flex; flex-direction: column; gap: 10px; }
+.panel h3 { font-size: 22px; color: #fff1cc; }
+.panel .hint { font-size: 15px; color: var(--dim); line-height: 1.35; }
+.scroll { flex: 1; min-height: 0; width: min(760px, 100%); overflow-y: auto; -webkit-overflow-scrolling: touch; display: flex; flex-direction: column; gap: 12px; padding-bottom: 8px; touch-action: pan-y; }
+.top { width: min(760px, 100%); display: flex; align-items: center; gap: 10px; min-height: 48px; }
+.top h2 { flex: 1; font-size: 26px; color: #fff1cc; }
+.ctl { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 6px 0; border-top: 1px solid #ffffff18; }
+.ctl label { font-size: 16px; flex: 1; line-height: 1.25; }
+.ctl.chg label { color: var(--gold); }
+.step { display: flex; align-items: center; gap: 6px; }
+.step b { min-width: 44px; text-align: center; font-size: 24px; font-family: var(--serif); }
+.step button { width: 48px; height: 48px; border-radius: 12px; background: #ffffff1a; border: 2px solid #ffffff30; font-size: 26px; font-weight: 800; }
+.wrapchips { display: flex; flex-wrap: wrap; gap: 6px; justify-content: flex-end; }
+.wrapchips .chip { min-height: 44px; font-size: 15px; padding: 0 12px; }
+table.cmp { width: 100%; border-collapse: collapse; font-size: 16px; }
+table.cmp td, table.cmp th { padding: 7px 6px; border-top: 1px solid #ffffff18; text-align: right; }
+table.cmp td:first-child, table.cmp th:first-child { text-align: left; }
+table.cmp td.d { font-size: 13px; color: var(--gold); }
+.bar { height: 10px; border-radius: 5px; background: #ffffff20; overflow: hidden; } .bar i { display: block; height: 100%; background: var(--gold); }
+input[type=text], textarea { width: 100%; border-radius: 12px; border: 2px solid #ffffff30; background: #00000050; color: var(--text); padding: 10px 12px; font: inherit; font-size: 17px; user-select: text; -webkit-user-select: text; }
+
+
+/* table */
+.game { padding-top: max(8px, env(safe-area-inset-top)); gap: 8px; }
+.bar-top { width: 100%; display: flex; align-items: center; gap: 10px; flex: none; }
+.menubtn { width: 52px; height: 52px; border-radius: 14px; background: #0008; border: 2px solid var(--gold-d); font-size: 26px; flex: none; }
+.status { flex: 1; text-align: center; line-height: 1.15; }
+.status b { font-family: var(--serif); font-size: 24px; color: #fff1cc; display: block; }
+.status span { font-size: 15px; color: var(--dim); }
+.vault { flex: none; min-width: 84px; height: 52px; border-radius: 14px; background: linear-gradient(#ffe6a0, #f2b63a); color: var(--ink); font-weight: 900; font-size: 24px; display: flex; align-items: center; justify-content: center; gap: 6px; padding: 0 12px; }
+.shoppers { width: 100%; display: flex; gap: 6px; flex: none; }
+.shopper { flex: 1; min-width: 0; border-radius: 12px; background: #00000050; border: 2px solid #ffffff20; padding: 5px 6px; text-align: center; line-height: 1.15; }
+.shopper b { display: block; font-size: 16px; color: #fff1cc; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.shopper span { font-size: 14px; color: var(--dim); }
+.stacks { width: 100%; display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; flex: none; }
+.stack { position: relative; border-radius: 14px; background: linear-gradient(160deg, var(--c), #0007); border: 3px solid #fff5; color: #fff; padding: 6px 4px 8px; text-align: center; min-height: 92px; display: flex; flex-direction: column; justify-content: center; gap: 2px; box-shadow: 5px 5px 0 #0006, 3px 3px 0 var(--c); }
+.stack:active { transform: translate(3px, 3px); box-shadow: 2px 2px 0 #0006; }
+.stack b { font-family: var(--serif); font-size: clamp(16px, 3.4vw, 24px); text-shadow: 0 2px 0 #0006; }
+.stack span { font-size: 15px; font-weight: 800; }
+.stack[disabled] { opacity: .45; }
+.logline { width: 100%; text-align: center; font-size: 14px; color: var(--dim); min-height: 18px; flex: none; }
+.lookbar { width: 100%; display: flex; align-items: center; justify-content: space-between; gap: 10px; flex: none; background: #00000050; border-radius: 12px; padding: 6px 12px; font-size: 17px; }
+.lookbar b { color: var(--gold); font-size: 22px; font-family: var(--serif); }
+.hand { width: 100%; flex: 1; min-height: 0; overflow-y: auto; display: grid; grid-template-columns: repeat(var(--cols, 3), 1fr); gap: 8px; align-content: start; touch-action: pan-y; padding: 2px 2px 6px; }
+.tcard { position: relative; border-radius: 12px; background: linear-gradient(170deg, #fff8e4, #f0e1b8); color: var(--ink); border: 3px solid var(--c); padding: 6px 8px 8px; text-align: left; display: flex; flex-direction: column; gap: 4px; min-height: 124px; box-shadow: 0 3px 0 #0006; }
+.tcard.sel { transform: translateY(-4px); box-shadow: 0 0 0 3px #fff, 0 8px 0 #0006; }
+.tcard h4 { margin: 0; font-family: var(--serif); font-size: clamp(15px, 2.6vw, 19px); line-height: 1.1; padding-right: 30px; }
+.tcard i { font-style: normal; font-size: 11px; font-weight: 800; letter-spacing: 1px; text-transform: uppercase; color: var(--c); filter: brightness(.7); }
+.tcard .nums { display: grid; grid-template-columns: repeat(4, 1fr); gap: 3px; margin-top: auto; }
+.tcard .nums span { text-align: center; background: #00000012; border-radius: 6px; padding: 2px 0; font-weight: 900; font-size: clamp(16px, 3vw, 22px); line-height: 1.1; }
+.tcard .nums span small { display: block; font-size: 9px; font-weight: 800; color: #6b5a2a; letter-spacing: .5px; }
+.tcard .nums span.now { background: var(--c); color: #fff; } .tcard .nums span.now small { color: #fff; }
+.tcard .nums span.neg { color: #b02a2a; } .tcard .nums span.now.neg { color: #fff; }
+.tcard .res { position: absolute; right: 6px; top: 4px; font-size: 14px; font-weight: 900; background: var(--ink); color: var(--gold); border-radius: 10px; padding: 1px 7px; }
+.tcard .ab { font-size: 12px; line-height: 1.2; color: #7a2a1a; font-weight: 700; }
+.tcard .worn { align-self: flex-start; font-size: 11px; font-weight: 900; letter-spacing: .5px; background: var(--gold); border-radius: 8px; padding: 1px 8px; }
+.tcard .sell { margin-top: 4px; min-height: 44px; border-radius: 10px; background: linear-gradient(#ffe6a0, #f2b63a); font-weight: 900; font-size: 17px; box-shadow: 0 3px 0 #7a5410; color: var(--ink); }
+.actions { width: 100%; flex: none; display: flex; gap: 8px; }
+.actions .btn { flex: 1; }
+.clock { font-variant-numeric: tabular-nums; }
+.deal { display: grid; grid-template-columns: repeat(var(--cols, 2), 1fr); gap: 10px; }
+.deal .tcard { min-height: 150px; animation: dealin .35s backwards; }
+@keyframes dealin { from { transform: translateY(-30px) rotate(-6deg); opacity: 0; } }
+.say { width: 100%; text-align: center; font-size: 17px; color: #fff1cc; background: #00000050; border-radius: 12px; padding: 7px 10px; line-height: 1.25; }
+.sheet-bg { position: absolute; inset: 0; z-index: 40; background: #000a; display: flex; align-items: flex-end; justify-content: center; }
+.sheet { width: min(760px, 100%); max-height: 94%; background: linear-gradient(#17595a, #0f3a3c); border: 2px solid var(--gold-d); border-bottom: 0; border-radius: 22px 22px 0 0; padding: 14px 14px max(14px, env(safe-area-inset-bottom)); display: flex; flex-direction: column; gap: 10px; overflow-y: auto; touch-action: pan-y; -webkit-overflow-scrolling: touch; }
+.sheet h3 { font-size: 24px; color: #fff1cc; } .sheet.full { height: 92%; }
+.howto h3 { margin-top: 6px; } .howto p, .howto li { font-size: 17px; line-height: 1.4; color: #e6f3ee; } .howto ul { margin: 4px 0; padding-left: 22px; }
+.over-bg { position: absolute; inset: 0; z-index: 30; background: linear-gradient(#17595a, #0f2a2b); display: flex; flex-direction: column; align-items: center; gap: 10px; padding: max(14px, env(safe-area-inset-top)) 14px max(14px, env(safe-area-inset-bottom)); overflow-y: auto; touch-action: pan-y; }
+.over-bg > * { width: min(720px, 100%); flex: none; }
+.over-bg h2 { font-size: clamp(26px, 5vw, 38px); text-align: center; color: #fff1cc; }
+.look { border-radius: 14px; background: #00000050; border: 2px solid #ffffff25; padding: 8px; display: flex; flex-direction: column; gap: 6px; }
+.look.me { border-color: var(--gold); }
+.look .hd { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; }
+.look .hd b { font-family: var(--serif); font-size: 21px; color: #fff1cc; } .look .hd span { font-size: 15px; color: var(--dim); }
+.look .hd em { font-style: normal; font-weight: 900; font-size: 24px; color: var(--gold); font-family: var(--serif); }
+.slots { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; }
+.slot { border-radius: 10px; border: 3px solid var(--c); background: #fff8e4; color: var(--ink); padding: 4px 5px; min-height: 64px; display: flex; flex-direction: column; justify-content: space-between; text-align: left; }
+.slot.empty { background: #ffffff12; color: var(--dim); border-style: dashed; justify-content: center; text-align: center; }
+.slot b { font-size: clamp(12px, 2.4vw, 15px); line-height: 1.1; } .slot span { font-weight: 900; font-size: 20px; text-align: right; } .slot span.neg { color: #b02a2a; }
+button.slot { cursor: pointer; }
+table.cmp { width: 100%; border-collapse: collapse; font-size: 16px; } table.cmp td, table.cmp th { padding: 7px 6px; border-top: 1px solid #ffffff18; text-align: right; } table.cmp td:first-child, table.cmp th:first-child { text-align: left; }
+.bar { height: 10px; border-radius: 5px; background: #ffffff20; overflow: hidden; } .bar i { display: block; height: 100%; background: var(--gold); }
+.toast { position: absolute; left: 50%; bottom: 110px; transform: translateX(-50%); z-index: 50; background: var(--gold); color: var(--ink); padding: 10px 18px; border-radius: 22px; font-weight: 800; font-size: 17px; pointer-events: none; max-width: 90%; text-align: center; }
+@media (max-width: 520px) { .btn.gold { font-size: 21px; min-height: 60px; } }
+</style>
+</head>
+<body>
+<div id="app"></div>
+<script id="data">
+// All Thrift Shop rules, numbers and cards live here. Engine and bots read these; they hard-code none.
+const GAME_DATA = {
+  title: 'Thrift Shop',
+  library: { href: '../../index.html' },
+  seasons: ['Winter', 'Spring', 'Summer', 'Fall'],
+  types: [
+    { id: 'top', name: 'Tops', one: 'Top', color: '#e0584f' },
+    { id: 'bottom', name: 'Bottoms', one: 'Bottom', color: '#3f7fd0' },
+    { id: 'shoes', name: 'Shoes', one: 'Shoes', color: '#4aa56a' },
+    { id: 'accessory', name: 'Accessories', one: 'Accessory', color: '#d9a21b' },
+  ],
+  rules: {
+    startCoins: 5,        // each player starts with this many coins ...
+    startCards: 1,        // ... and this many cards from each stack
+    copies: 2,            // copies of each card in the stacks (the sheet lists one of each; the rulebook says about 25 a stack)
+    seasonCount: 4,       // Winter, Spring, Summer, Fall
+    pricePerCard: 1,      // coins per card drawn when buying
+    maxBuy: 6,            // most cards you may draw in one purchase
+    penaltyCards: true,   // the four gym cards are in the stacks
+    coinPoints: 0,        // points per coin left at the end (the rulebook gives none)
+    wornOnceHold: 0.5,    // how much of a card's later value counts against wearing a discard-after-wearing card now (the outfit picker)
+    clockSecs: 120,       // the real game's clock; used only when "Timed" is on
+  },
+  playerRange: { min: 2, max: 6, default: 3 },
+  names: ['Maya', 'Theo', 'Priya', 'Jonas', 'Alma', 'Ravi', 'Lena'],
+  // [name, Winter, Spring, Summer, Fall, resale, type, ability]  (Thrift Shop cards, sheet "cards 1.1")
+  // ability: 'once' = discard after wearing once; ['hand', n] = lose n points if still in your hand at the end of a round (not worn)
+  cards: [
+    ['PJ Pants', 3, 0, -1, 0, 2, 'bottom'], ['Ripped Jeans', 2, 3, 2, 3, 1, 'bottom', 'once'], ['Capris', 0, 4, 1, 2, 2, 'bottom'], ['Leggings', 1, 1, 0, 2, 1, 'bottom'],
+    ['Swim Trunks', 0, 1, 5, 1, 1, 'bottom'], ['Denim Overalls', 2, 3, 0, 3, 3, 'bottom'], ['Tights', 2, 0, 0, 1, 2, 'bottom'], ['Jeans', 3, 3, 0, 3, 2, 'bottom'],
+    ['Booty Shorts', -2, 0, 1, 0, 2, 'bottom'], ['Lined Jeans', 4, 0, 0, 0, 4, 'bottom'], ['Clown Pants', 1, 1, 1, 4, 2, 'bottom'], ['Jean Skirt', -1, 0, 1, 0, 1, 'bottom'],
+    ['Carbo Pants', 1, 2, 1, 1, 1, 'bottom'], ['Khaki Pants', 0, 1, 0, 0, 2, 'bottom'], ['Ski Pants', 4, 0, 0, 1, 3, 'bottom'],
+    ['Rope Belt', 0, 1, 2, 1, 1, 'accessory'], ['Sheep Dog', 1, 3, 3, 3, 5, 'accessory'], ['Silk Scarf', -1, -1, -1, -1, 1, 'accessory'], ['Red Wagon', 0, 2, 2, 2, 2, 'accessory'],
+    ['Gold Top Hat', 0, 0, 0, 1, 5, 'accessory'], ['Chain Neckless', 1, 4, 2, 1, 2, 'accessory'], ['Handkerchief', 0, 1, 1, 1, 1, 'accessory'], ['Straw Hat', 0, 1, 3, 1, 2, 'accessory'],
+    ['Wool Socks', 3, 0, 0, 0, 2, 'accessory'], ['Balaclava', 3, 1, 0, 1, 2, 'accessory'], ['Sunglasses', 1, 1, 3, 1, 1, 'accessory'], ['Fake Rolex', 3, 2, 1, 0, 1, 'accessory'],
+    ['Rake', 1, 0, 0, 3, 2, 'accessory'], ['Ear Muffs', 3, 0, 0, 0, 1, 'accessory'], ['Thermal Underwear', 3, 1, 0, 1, 2, 'accessory'], ['Pitchfork', 0, 1, 3, 5, 3, 'accessory'],
+    ['Barn Cat', 2, 2, 2, 2, 5, 'accessory'], ['Santa Hat', 4, 0, 0, 0, 1, 'accessory'],
+    ['Lifetime Warranty Sweatshirt', 2, 2, 0, 4, 3, 'top'], ['Canada Goose Jacket', 2, 0, -1, 0, 4, 'top'], ['Sleeveless', -2, 2, 5, 1, 1, 'top'], ['Denim Jacket', 1, 2, 0, 3, 3, 'top'],
+    ['Flannel', 2, 2, 0, 3, 3, 'top'], ['Sun Dress', 0, 0, 1, 0, 3, 'top'], ['Oilers Jersey', 0, 3, 4, 2, 2, 'top'], ['Barrel', 1, 3, 2, 1, 2, 'top'], ['Lace Crop Top', -1, -1, 0, -1, 1, 'top'],
+    ['T-shirt', 0, 2, 2, 1, 1, 'top'], ['Down Coat', 5, 1, -2, 2, 4, 'top'], ['Tank Top', 0, 1, 2, 0, 1, 'top'], ['Turtleneck', 3, 1, 0, 3, 2, 'top'], ['Knitted Sweater', 4, 0, 0, 1, 3, 'top'],
+    ['Shiny Shoes', 1, 2, 2, 2, 4, 'shoes'], ['Converse', 1, 2, 2, 2, 2, 'shoes'], ['Gold Shoes', 1, 3, 5, 2, 5, 'shoes'], ['High Heels', -1, -1, -1, -1, 1, 'shoes'], ['Flip Flops', -2, -1, 0, -1, 1, 'shoes'],
+    ['Flippers', 0, 0, 4, 0, 1, 'shoes'], ['Birkenstocks', 0, 0, 0, 0, 4, 'shoes'], ['Tissue Box', 0, 1, 0, 1, 1, 'shoes'], ['Rain Boots', 1, 4, 2, 2, 2, 'shoes'], ['Uggs', 2, 0, -2, 0, 2, 'shoes'],
+    ['Galoshes', 1, 2, 1, 0, 2, 'shoes'], ['Work Boots', 2, 3, 2, 3, 3, 'shoes'], ['Water-Resistent Boots', 3, 3, 1, 1, 4, 'shoes'], ['Fuzzy Slippers', -3, -2, -2, -2, 1, 'shoes'],
+  ],
+  // The four gym cards: one of each, negative resale, a penalty if still in your hand when a round ends.
+  penaltyCards: [
+    ['Stinky Gym Shirt', 0, 0, 0, 0, -4, 'top', ['hand', 2]], ['Repulsive Gym Socks', 0, 0, 0, 0, -2, 'accessory', ['hand', 4]],
+    ['Smelly Gym Shorts', 0, 0, 0, 0, -3, 'bottom', ['hand', 3]], ['Stinky Gym Shoes', 0, 0, 0, 0, -1, 'shoes', ['hand', 5]],
+  ],
+  // The computer shoppers. `weights` = how much each coming season's value counts when judging a card (this season first).
+  ai: {
+    levels: {
+      easy:   { weights: [1], actions: 6, buyMax: 2, sloppy: 0.35, passChance: 0.25 },
+      normal: { weights: [1, 0.4], actions: 10, buyMax: 3, sloppy: 0.08, passChance: 0.1 },
+      hard:   { weights: [1, 0.6, 0.4, 0.3], actions: 14, buyMax: 4, sloppy: 0, passChance: 0.03 },
+    },
+    timedEverySecs: 4,   // timed mode: a shopper acts this often
+  },
+  lab: [
+    { key: 'startCoins', label: 'Starting coins', kind: 'num', min: 0, max: 20, step: 1 },
+    { key: 'startCards', label: 'Starting cards from each stack', kind: 'num', min: 0, max: 3, step: 1 },
+    { key: 'copies', label: 'Copies of each card', kind: 'num', min: 1, max: 4, step: 1 },
+    { key: 'seasonCount', label: 'Seasons played', kind: 'num', min: 1, max: 4, step: 1 },
+    { key: 'pricePerCard', label: 'Coins per card drawn', kind: 'num', min: 1, max: 3, step: 1 },
+    { key: 'maxBuy', label: 'Most cards in one purchase', kind: 'num', min: 1, max: 10, step: 1 },
+    { key: 'coinPoints', label: 'Points per coin left at the end', kind: 'num', min: 0, max: 3, step: 1 },
+    { key: 'penaltyCards', label: 'The four gym cards (stinky penalty cards)', kind: 'toggle' },
+  ],
+  sim: { games: 100 },
+};
+</script>
+<script id="engine">
+// Thrift Shop rules: pure, no DOM. State is plain JSON, changed in place by apply(); the RNG state lives in it.
+const Engine = (() => {
+  const D = GAME_DATA, TYPES = D.types.map(t => t.id);
+  const defs = {};
+  for (const r of D.cards.concat(D.penaltyCards)) defs[r[0]] = { name: r[0], v: r.slice(1, 5), resale: r[5], type: r[6], ability: r[7] || null };
+  const def = n => defs[n];
+  const clone = o => JSON.parse(JSON.stringify(o));
+  const rnd = s => { s.rng = (s.rng + 0x6D2B79F5) | 0; let t = s.rng; t = Math.imul(t ^ (t >>> 15), t | 1); t ^= t + Math.imul(t ^ (t >>> 7), t | 61); return ((t ^ (t >>> 14)) >>> 0) / 4294967296; };
+  const shuffle = (s, a) => { for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(rnd(s) * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
+  const isOnce = n => def(n).ability === 'once';
+  const handPenalty = n => { const a = def(n).ability; return Array.isArray(a) && a[0] === 'hand' ? a[1] : 0; };
+  const log = (s, seat, text) => { s.log.push({ seat, text }); if (s.log.length > 40) s.log.shift(); };
+
+  function newGame(opts = {}) {
+    const o = Object.assign({ players: D.playerRange.default, humans: [0], seed: (Math.random() * 2 ** 31) | 0, level: 'normal', rules: {} }, opts);
+    const rules = Object.assign(clone(D.rules), clone(o.rules));
+    const n = Math.max(D.playerRange.min, Math.min(D.playerRange.max, o.players));
+    const s = { v: 1, rules, rng: o.seed | 0, n, level: o.level, humans: o.humans.slice(), season: 0, phase: 'shop', stacks: {}, houses: [], done: [], ready: [], drawn: {}, looks: {}, scores: [], log: [], winners: null, actions: 0 };
+    for (const t of TYPES) s.stacks[t] = [];
+    for (const r of D.cards) for (let c = 0; c < rules.copies; c++) s.stacks[r[6]].push(r[0]);
+    if (rules.penaltyCards) for (const r of D.penaltyCards) s.stacks[r[6]].push(r[0]);
+    for (const t of TYPES) shuffle(s, s.stacks[t]);
+    for (let i = 0; i < n; i++) {
+      const h = { name: i === 0 && o.humans.includes(0) ? 'You' : D.names[i % D.names.length], coins: rules.startCoins, hand: [], human: o.humans.includes(i), budget: 0 };
+      for (const t of TYPES) for (let k = 0; k < rules.startCards; k++) h.hand.push(s.stacks[t].shift());
+      s.houses.push(h); s.scores.push([]);
+    }
+    startSeason(s);
+    return s;
+  }
+  function startSeason(s) {
+    s.phase = 'shop'; s.done = []; s.ready = []; s.drawn = {}; s.looks = {};
+    const lv = D.ai.levels[s.level] || D.ai.levels.normal; s.houses.forEach(h => { h.budget = h.human ? 0 : lv.actions; });
+  }
+
+  const seasonValue = (name, season) => def(name).v[season];
+  // The best look from a hand for a season: per type the card with the best worth (a card's points, plus the penalty it spares you).
+  function bestLook(hand, season, rules, hold) {
+    const picks = {};
+    for (const t of TYPES) {
+      let best = null, bv = 0;
+      for (const c of hand) {
+        if (def(c).type !== t) continue;
+        let w = seasonValue(c, season) + handPenalty(c);
+        if (isOnce(c)) { let fut = 0; for (let k = season + 1; k < rules.seasonCount; k++) fut = Math.max(fut, seasonValue(c, k)); w -= (hold == null ? rules.wornOnceHold : hold) * fut; }
+        if (w > bv) { bv = w; best = c; }
+      }
+      picks[t] = best;
+    }
+    return picks;
+  }
+  function scoreLook(hand, picks, season) {
+    let pts = 0, penalty = 0; const worn = Object.values(picks).filter(Boolean);
+    for (const c of worn) pts += seasonValue(c, season);
+    const left = hand.slice(); for (const c of worn) { const k = left.indexOf(c); if (k >= 0) left.splice(k, 1); }
+    for (const c of left) penalty -= handPenalty(c);
+    return { pts, penalty, total: pts + penalty };
+  }
+  function lookFor(s, seat, picks) {
+    const h = s.houses[seat]; picks = picks || bestLook(h.hand, s.season, s.rules);
+    return Object.assign({ picks }, scoreLook(h.hand, picks, s.season));
+  }
+
+  function pending(s) {
+    const all = s.houses.map((_, i) => i);
+    if (s.phase === 'shop') return all.filter(i => !s.done.includes(i));
+    if (s.phase === 'reveal') return all.filter(i => !s.ready.includes(i));
+    return [];
+  }
+  const err = e => ({ ok: false, error: e });
+
+  function apply(s, a) {
+    if (s.phase === 'over') return err('over');
+    const H = s.houses[a.seat]; if (!H) return err('seat');
+    const R = s.rules;
+    switch (a.type) {
+      case 'draw': {
+        if (s.phase !== 'shop' || s.done.includes(a.seat) || s.drawn[a.seat] || !s.stacks[a.stack]) return err('draw');
+        const n = a.n | 0, st = s.stacks[a.stack];
+        if (n < 1 || n > R.maxBuy || n > st.length || n * R.pricePerCard > H.coins) return err('amount');
+        H.coins -= n * R.pricePerCard; s.drawn[a.seat] = { stack: a.stack, cards: st.splice(0, n) }; s.actions++;
+        return { ok: true, cards: s.drawn[a.seat].cards.slice() };
+      }
+      case 'keep': {
+        const d = s.drawn[a.seat]; if (!d || !(a.i >= 0 && a.i < d.cards.length)) return err('keep');
+        const kept = d.cards[a.i]; H.hand.push(kept); d.cards.forEach((c, i) => { if (i !== a.i) s.stacks[d.stack].push(c); });
+        log(s, a.seat, 'bought ' + d.cards.length + ' from ' + d.stack); delete s.drawn[a.seat]; return { ok: true, kept };
+      }
+      case 'sell': {
+        if (s.phase !== 'shop' || s.done.includes(a.seat) || s.drawn[a.seat]) return err('sell');
+        const k = H.hand.indexOf(a.card); if (k < 0) return err('card');
+        const r = def(a.card).resale; if (H.coins + r < 0) return err('coins');
+        H.hand.splice(k, 1); H.coins += r; s.stacks[def(a.card).type].push(a.card); s.actions++; log(s, a.seat, 'sold ' + a.card); return { ok: true, got: r };
+      }
+      case 'done': {
+        if (s.phase !== 'shop' || s.done.includes(a.seat) || s.drawn[a.seat]) return err('done');
+        s.done.push(a.seat); if (s.done.length === s.n) endSeason(s); return { ok: true };
+      }
+      case 'setlook': {
+        if (s.phase !== 'reveal' || s.ready.includes(a.seat)) return err('look');
+        const picks = {}; for (const t of TYPES) { const c = a.picks[t] || null; if (c && (!H.hand.includes(c) || def(c).type !== t)) return err('pick'); picks[t] = c; }
+        s.looks[a.seat] = lookFor(s, a.seat, picks); return { ok: true };
+      }
+      case 'next': {
+        if (s.phase !== 'reveal' || s.ready.includes(a.seat)) return err('next');
+        s.ready.push(a.seat); if (s.ready.length === s.n) finishSeason(s); return { ok: true };
+      }
+      default: return err('type');
+    }
+  }
+  function endSeason(s) { s.phase = 'reveal'; s.ready = []; s.houses.forEach((h, i) => { s.looks[i] = lookFor(s, i); }); }
+  function finishSeason(s) {
+    s.houses.forEach((h, i) => {
+      const L = s.looks[i]; s.scores[i].push(L.total);
+      for (const c of Object.values(L.picks)) if (c && isOnce(c)) { const k = h.hand.indexOf(c); if (k >= 0) { h.hand.splice(k, 1); s.stacks[def(c).type].push(c); } }
+    });
+    s.season++;
+    if (s.season >= s.rules.seasonCount) {
+      s.phase = 'over'; const tot = s.houses.map((h, i) => total(s, i)), top = Math.max(...tot); s.winners = tot.map((t, i) => t === top ? i : -1).filter(i => i >= 0);
+    } else startSeason(s);
+  }
+  const total = (s, i) => s.scores[i].reduce((a, b) => a + b, 0) + (s.phase === 'over' ? s.houses[i].coins * s.rules.coinPoints : 0);
+
+  // What a seat may see: its own hand and any cards it has drawn; everyone's coins and card counts; only the size of each stack.
+  function viewFor(s, seat) {
+    return { n: s.n, seat, rules: s.rules, season: s.season, phase: s.phase, level: s.level, scores: s.scores, done: s.done, ready: s.ready, winners: s.winners,
+      stacks: Object.fromEntries(TYPES.map(t => [t, s.stacks[t].length])), drawn: s.drawn[seat] || null, log: s.log,
+      looks: s.phase === 'reveal' || s.phase === 'over' ? s.looks : { [seat]: s.looks[seat] },
+      houses: s.houses.map((h, i) => ({ name: h.name, coins: h.coins, human: h.human, handCount: h.hand.length, hand: i === seat || s.phase === 'reveal' ? h.hand.slice() : null })) };
+  }
+  return { newGame, apply, pending, viewFor, bestLook, scoreLook, lookFor, total, def, isOnce, handPenalty, seasonValue, TYPES, clone };
+})();
+</script>
+<script id="bots">
+// Computer shoppers. They see only Engine.viewFor: their own hand, everyone's coins and card counts, the size of each stack.
+const Bots = (() => {
+  const D = GAME_DATA, E = Engine, TYPES = E.TYPES;
+  const level = s => D.ai.levels[s.level] || D.ai.levels.normal;
+  const rnd = s => { s.rng = (s.rng + 0x9E3779B9) | 0; let t = s.rng; t = Math.imul(t ^ (t >>> 15), t | 1); t ^= t + Math.imul(t ^ (t >>> 7), t | 61); return ((t ^ (t >>> 14)) >>> 0) / 4294967296; };
+  // How good a card is for me: this season's number, and the coming seasons' numbers at lower weight; penalty cards are bad to hold.
+  function worth(s, card, lv) {
+    let w = 0; const cnt = s.rules.seasonCount;
+    lv.weights.forEach((wt, k) => { const se = s.season + k; if (se < cnt) w += wt * E.seasonValue(card, se); });
+    return w - E.handPenalty(card) * 1.2;
+  }
+  // The best card I own in each type, by worth.
+  function bestByType(s, hand, lv) {
+    const b = {}; for (const t of TYPES) { let best = null, bw = -Infinity; for (const c of hand) if (E.def(c).type === t) { const w = worth(s, c, lv); if (w > bw) { bw = w; best = c; } } b[t] = { card: best, w: best ? bw : 0 }; }
+    return b;
+  }
+  // One action for a shopper: sell, buy (draw and keep), or stop. Returns false when it has finished the season.
+  function act(s, seat) {
+    const H = s.houses[seat], lv = level(s);
+    if (s.phase !== 'shop' || s.done.includes(seat)) return false;
+    if (H.budget <= 0 || rnd(s) < lv.passChance) { E.apply(s, { type: 'done', seat }); return false; }
+    H.budget--;
+    const best = bestByType(s, H.hand, lv);
+    // sell a card that is not my best of its type, or a penalty card, when it brings coins in
+    const keep = new Set(Object.values(best).map(x => x.card));
+    const sellable = H.hand.filter(c => !keep.has(c) && E.def(c).resale > 0 || E.handPenalty(c) && H.coins + E.def(c).resale >= 0);
+    if (sellable.length && (H.coins < 4 || rnd(s) < 0.5)) { sellable.sort((a, b) => E.def(b).resale - E.def(a).resale); E.apply(s, { type: 'sell', seat, card: sellable[0] }); return true; }
+    // buy where my look has the most room (lowest worth), paying what I can spare
+    const price = s.rules.pricePerCard, maxN = Math.min(lv.buyMax, s.rules.maxBuy, Math.floor(H.coins / price));
+    if (maxN < 1) { const spare = H.hand.filter(c => E.def(c).resale > 0 && !keep.has(c)); if (spare.length) { E.apply(s, { type: 'sell', seat, card: spare[0] }); return true; } if (H.hand.some(c => E.def(c).resale > 0)) { const c = H.hand.slice().sort((a, b) => worth(s, a, lv) - worth(s, b, lv))[0]; if (E.def(c).resale > 0) { E.apply(s, { type: 'sell', seat, card: c }); return true; } } E.apply(s, { type: 'done', seat }); return false; }
+    const order = TYPES.filter(t => s.stacks[t].length >= 1).sort((a, b) => best[a].w - best[b].w + (rnd(s) - 0.5) * (lv.sloppy * 6));
+    const stack = order[0]; if (!stack) { E.apply(s, { type: 'done', seat }); return false; }
+    const n = Math.max(1, Math.min(maxN, s.stacks[stack].length, 1 + Math.floor(rnd(s) * maxN)));
+    const r = E.apply(s, { type: 'draw', seat, stack, n }); if (!r.ok) { E.apply(s, { type: 'done', seat }); return false; }
+    let bi = 0, bw = -Infinity; r.cards.forEach((c, i) => { const w = worth(s, c, lv) + (rnd(s) - 0.5) * lv.sloppy * 6; if (w > bw) { bw = w; bi = i; } });
+    E.apply(s, { type: 'keep', seat, i: bi }); return true;
+  }
+  // The look a shopper wears: the best one (the engine's picker); it is already in place when the season ends.
+  const tickAll = s => { let any = false; for (let i = 0; i < s.n; i++) if (!s.houses[i].human && s.phase === 'shop' && !s.done.includes(i)) any = act(s, i) || any; return any; };
+  const finish = s => { for (let g = 0; g < 500 && s.phase === 'shop' && s.houses.some((h, i) => !h.human && !s.done.includes(i)); g++) tickAll(s); };
+  const autoReady = s => { if (s.phase === 'reveal') s.houses.forEach((h, i) => { if (!h.human && !s.ready.includes(i)) E.apply(s, { type: 'next', seat: i }); }); };
+  function playOut(s) {
+    for (let g = 0; g < 10000 && s.phase !== 'over'; g++) {
+      if (s.phase === 'shop') { if (!tickAll(s) && s.phase === 'shop' && s.houses.every((h, i) => h.human || s.done.includes(i))) { s.houses.forEach((h, i) => { if (h.human) E.apply(s, { type: 'done', seat: i }); }); } }
+      else if (s.phase === 'reveal') { autoReady(s); s.houses.forEach((h, i) => { if (h.human) E.apply(s, { type: 'next', seat: i }); }); }
+    }
+    return s;
+  }
+  return { act, tickAll, finish, autoReady, playOut };
+})();
+
+// Simulate: shoppers play many whole games on a rule set and report numbers (the Rules Lab uses this).
+const Sim = (() => {
+  function one(rules, o, seed) {
+    const s = Engine.newGame({ humans: [], players: o.players, level: o.level, rules, seed }); Bots.playOut(s);
+    const tot = s.houses.map((h, i) => Engine.total(s, i)), sorted = tot.slice().sort((a, b) => b - a);
+    return { done: s.phase === 'over', top: sorted[0], last: sorted[sorted.length - 1], mean: tot.reduce((a, b) => a + b, 0) / tot.length, seasons: s.scores[0].map((_, k) => s.scores.reduce((a, r) => a + (r[k] || 0), 0) / s.n), seat0: s.winners && s.winners.includes(0), ties: s.winners && s.winners.length > 1, actions: s.actions, coins: s.houses.reduce((a, h) => a + h.coins, 0) / s.n };
+  }
+  function summarize(rec) {
+    const f = rec.filter(r => r.done), m = k => f.length ? f.reduce((a, r) => a + r[k], 0) / f.length : 0, sc = []; for (let k = 0; k < 4; k++) sc.push(f.length ? f.reduce((a, r) => a + (r.seasons[k] || 0), 0) / f.length : 0);
+    return { games: rec.length, finished: f.length, top: m('top'), last: m('last'), mean: m('mean'), margin: m('top') - m('last'), seasons: sc, seat0: f.length ? f.filter(r => r.seat0).length / f.length : 0, ties: f.length ? f.filter(r => r.ties).length / f.length : 0, actions: m('actions'), coins: m('coins') };
+  }
+  function runSync(rules, o) { const rec = []; for (let g = 0; g < o.games; g++) rec.push(one(rules, o, (o.seed || 1) * 1000 + g)); return summarize(rec); }
+  function run(rules, o, progress, done) {
+    const rec = []; let g = 0, stop = false;
+    (function tick() { if (stop) return; for (let k = 0; k < 6 && g < o.games; k++, g++) rec.push(one(rules, o, (o.seed || 1) * 1000 + g)); if (progress) progress(g / o.games); if (g < o.games) setTimeout(tick, 0); else done(summarize(rec)); })();
+    return () => { stop = true; };
+  }
+  return { run, runSync };
+})();
+</script>
+<script id="ui">
+// Screens: menu, setup, the shop, the season reveal, the Rules Lab and Simulate. Numbers shown come from the rules in play.
+(() => {
+  const D = GAME_DATA, E = Engine, B = Bots, ME = 0, TYPES = D.types;
+  const $ = document.getElementById('app');
+  const esc = t => String(t == null ? '' : t).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+  const store = { get(k, d) { try { const v = localStorage.getItem('thriftshop-' + k); return v == null ? d : JSON.parse(v); } catch (e) { return d; } }, set(k, v) { try { localStorage.setItem('thriftshop-' + k, JSON.stringify(v)); } catch (e) { /* no storage */ } } };
+  const fromLibrary = () => { let came = /[?&]from=library\b/.test(location.search); try { if (came) sessionStorage.setItem('tabletop-library-from', '1'); else { const nav = (performance.getEntriesByType && performance.getEntriesByType('navigation')[0]) || {}; if (nav.type === 'navigate') sessionStorage.removeItem('tabletop-library-from'); else came = sessionStorage.getItem('tabletop-library-from') === '1'; } } catch (e) { /* no storage */ } return /^https?:$/.test(location.protocol) && came; };
+  const LIB = fromLibrary();
+  const buildStamp = () => { const m = document.querySelector('meta[name=build]'), b = m ? m.content : ''; return b === '__BUILD__' ? 'local file' : b; };
+  const same = (a, b) => JSON.stringify(a) === JSON.stringify(b);
+  const clone = o => JSON.parse(JSON.stringify(o));
+  const tcolor = id => TYPES.find(t => t.id === id).color;
+  const SEASON_ICON = ['❄️', '🌷', '☀️', '🍂'];
+  const ui = { screen: 'menu', s: null, sheet: null, sel: null, toast: '', rules: store.get('rules', {}), players: store.get('players', D.playerRange.default), level: store.get('level', 'normal'), timed: store.get('timed', false), teach: store.get('teach', true),
+    simSet: { players: 3, level: 'normal', games: 100 }, sim: null, simBase: {}, quit: false, clock: 0, timer: null, tipsSeen: {}, deal: null };
+  const rules = () => Object.assign(clone(D.rules), clone(ui.rules));
+  const changed = () => Object.keys(ui.rules).length;
+  function setRule(k, v) { if (same(v, D.rules[k])) delete ui.rules[k]; else ui.rules[k] = clone(v); store.set('rules', ui.rules); }
+  const toast = t => { ui.toast = t; render(); clearTimeout(toast.t); toast.t = setTimeout(() => { ui.toast = ''; render(); }, 1500); };
+  const narrow = () => innerWidth < 560;
+
+  // ---------- art ----------
+  const crest = () => `<svg class="crest" viewBox="0 0 300 220" role="img" aria-label="A clothes rack"><rect x="30" y="20" width="240" height="10" rx="5" fill="#e9d9a8" stroke="#0f2a2b" stroke-width="4"/><path d="M150 20 V6 q0 -8 10 -8" fill="none" stroke="#e9d9a8" stroke-width="5"/>
+    <g stroke="#0f2a2b" stroke-width="4" stroke-linejoin="round"><path d="M50 30 l-18 14 12 14 14 -8 V120 H100 V50 l14 8 12 -14 -18 -14 q-18 10 -32 0Z" fill="#e0584f" transform="translate(6 6)"/>
+    <path d="M150 34 l-18 14 12 14 14 -8 V124 H200 V54 l14 8 12 -14 -18 -14 q-18 10 -32 0Z" fill="#3f7fd0" transform="translate(-4 2)"/>
+    <path d="M212 36 h50 l8 90 h-30 l-3 -50 -3 50 h-30Z" fill="#4aa56a" transform="translate(-6 4)"/></g>
+    <g stroke="#0f2a2b" stroke-width="4"><rect x="40" y="150" width="64" height="40" rx="8" fill="#f2b63a"/><circle cx="56" cy="198" r="10" fill="#fff"/><circle cx="88" cy="198" r="10" fill="#fff"/><path d="M130 190 h44 v-16 h-44Z" fill="#d9a21b"/><path d="M200 186 q10 -34 40 -34 v34Z" fill="#e0584f"/></g></svg>`;
+
+  // ---------- text from the rules ----------
+  function rulesText() {
+    const R = rules();
+    return `<h3>The goal</h3><p>Build the highest-scoring look: one <b>top, bottom, shoes and accessory</b>. Each card is worth a different number in each season. After ${R.seasonCount === 4 ? 'Winter, Spring, Summer and Fall' : R.seasonCount + ' season' + (R.seasonCount > 1 ? 's' : '')} the most points wins.</p>
+    <h3>Each season</h3><ul><li>Everyone starts with <b>${R.startCoins} coins</b> and ${R.startCards} card from each stack. Coins and cards carry over from season to season.</li>
+    <li><b>Buy:</b> tap a stack, pay ${R.pricePerCard} coin${R.pricePerCard > 1 ? 's' : ''} per card (up to ${R.maxBuy}), draw that many, <b>keep one</b>; the rest go to the bottom of the stack.</li>
+    <li><b>Sell:</b> tap a card, then Sell: it goes to the bottom of its stack and you take its resale value (the small number in the corner).</li>
+    <li>Buy and sell in any order and keep any number of cards. The computer shoppers do the same at the same time${ui.timed ? '; the clock runs out in ' + R.clockSecs + ' seconds' : '. You end the season with “Done shopping”'}.</li>
+    <li><b>Reveal:</b> your best look is chosen for you, one card of each type from your hand. You can tap a slot to wear something else. Add up the four numbers for the season.</li></ul>
+    <h3>Special cards</h3><ul><li><b>Ripped Jeans</b> are thrown away after you wear them once.</li>${R.penaltyCards ? '<li><b>The four gym cards</b> (stinky shirt, shorts, socks, shoes) cost coins to sell and lose you points if still in your hand when a season ends. Wearing one spares you the penalty.</li>' : ''}</ul>
+    <h3>What this app is</h3><p>A playtest table against computer shoppers. Coins are worth ${R.coinPoints ? R.coinPoints + ' point' + (R.coinPoints > 1 ? 's' : '') + ' each' : 'nothing'} at the end. The <b>Rules Lab</b> changes any number and <b>Simulate</b> has the shoppers play whole games to show what a change does.</p>
+    <h3>My calls where the rulebook is silent</h3><ul><li>${R.copies} copies of every card in the stacks; you play ${ui.players}.</li><li>The shoppers act once for every move you make (no clock unless you turn on Timed).</li><li>A gym card you wear counts as 0 points and is not penalised.</li></ul>`;
+  }
+
+  // ---------- menu / setup ----------
+  function menuHTML() {
+    return `<div class="screen menu">${LIB ? `<a class="libback" href="${D.library.href}">‹ Library</a>` : ''}${crest()}<h1>Thrift Shop</h1>
+      <div class="sub">Dig through the racks. Buy, sell, and build the best look for every season.</div>
+      <div class="stack-btns" style="display:flex;flex-direction:column;gap:14px;width:min(460px,92vw);margin-top:8px"><button class="btn gold" data-act="setup">Go thrifting</button>
+        <button class="btn" data-act="lab">⚙ Rules Lab &amp; Simulate${changed() ? ` · ${changed()} changed` : ''}</button><button class="btn alt" data-act="sheet" data-s="how">How to play</button></div>
+      <div class="credit">A game by Latrelle Bright, Emily Blim &amp; Patrick Blim-Hockberger · ${esc(buildStamp())}</div></div>`;
+  }
+  function setupHTML() {
+    const lv = [['easy', 'Easy', 'Impulse buyers'], ['normal', 'Normal', 'Know a bargain'], ['hard', 'Hard', 'Plan every season']];
+    return `<div class="screen"><div class="top"><button class="btn sm alt" data-act="menu">‹ Back</button><h2>New game</h2></div>
+      <div class="scroll"><div class="panel"><h3>Shoppers</h3><div class="row">${Array.from({ length: D.playerRange.max - D.playerRange.min + 1 }, (_, i) => D.playerRange.min + i).map(n => `<button class="chip ${ui.players === n ? 'on' : ''}" data-act="players" data-n="${n}">${n} players</button>`).join('')}</div><div class="hint">You and ${ui.players - 1} computer shopper${ui.players > 2 ? 's' : ''}.</div></div>
+      <div class="panel"><h3>Computer shoppers</h3><div class="row">${lv.map(([k, n]) => `<button class="chip ${ui.level === k ? 'on' : ''}" data-act="level" data-k="${k}">${n}</button>`).join('')}</div><div class="hint">${lv.find(l => l[0] === ui.level)[2]}.</div></div>
+      <div class="panel"><h3>Clock</h3><div class="row"><button class="chip ${!ui.timed ? 'on' : ''}" data-act="timed" data-v="0">Relaxed</button><button class="chip ${ui.timed ? 'on' : ''}" data-act="timed" data-v="1">Timed ${Math.floor(rules().clockSecs / 60)}:${String(rules().clockSecs % 60).padStart(2, '0')}</button></div><div class="hint">${ui.timed ? 'A real countdown each season, like the table game.' : 'No clock: the shoppers move when you do, and you end the season yourself.'}</div></div>
+      <div class="panel"><h3>Rules</h3><div class="hint">${changed() ? `<b style="color:var(--gold)">${changed()} rule${changed() > 1 ? 's' : ''} changed</b> from the rulebook.` : 'The rulebook (with my guesses where it is silent).'}</div><button class="btn sm alt" data-act="lab">Open the Rules Lab</button></div>
+      <div class="panel"><div class="ctl" style="border:0"><label>Teach me: short tips the first time something comes up</label><button class="chip ${ui.teach ? 'on' : ''}" data-act="teach">${ui.teach ? 'On' : 'Off'}</button></div></div></div>
+      <button class="btn gold" style="width:min(760px,100%)" data-act="start">Begin</button></div>`;
+  }
+
+  // ---------- Rules Lab ----------
+  function ctlHTML(c) {
+    const R = rules(), val = R[c.key], chg = !same(val, D.rules[c.key]), k = esc(c.key);
+    const right = c.kind === 'num' ? `<div class="step"><button data-act="num" data-k="${k}" data-d="-${c.step}" aria-label="less">−</button><b>${val}</b><button data-act="num" data-k="${k}" data-d="${c.step}" aria-label="more">+</button></div>`
+      : `<button class="chip ${val ? 'on' : ''}" data-act="tog" data-k="${k}">${val ? 'On' : 'Off'}</button>`;
+    return `<div class="ctl ${chg ? 'chg' : ''}"><label>${esc(c.label)}${chg ? ' · changed' : ''}</label>${right}</div>`;
+  }
+  const f1 = v => v.toFixed(1), pct = v => Math.round(v * 100) + '%';
+  const METRICS = [['Winner’s points', 'top', f1], ['Last place’s points', 'last', f1], ['Gap between first and last', 'margin', f1], ['Average points per player', 'mean', f1],
+    ['Average points in a season (1st–4th)', null, r => r.seasons.map(f1).join(' · ')], ['Seat 1 wins', 'seat0', pct], ['Games ending in a tie', 'ties', pct], ['Buys and sells per game', 'actions', f1], ['Coins left per player', 'coins', f1]];
+  function simHTML() {
+    const S = ui.simSet, sm = ui.sim, base = sm && sm.base, mine = sm && sm.mine; let out = '';
+    if (sm && sm.running) out = `<div class="bar"><i style="width:${Math.round(sm.progress * 100)}%"></i></div><div class="hint">The shoppers are shopping… ${Math.round(sm.progress * 100)}%</div>`;
+    else if (base && mine) out = `<table class="cmp"><tr><th></th><th>Rulebook</th><th>Your rules</th></tr>${METRICS.map(([l, k, f]) => { const a = k ? base[k] : null, b = k ? mine[k] : null; return `<tr><td>${l}</td><td>${k ? f(base[k]) : f(base)}</td><td>${k ? f(mine[k]) : f(mine)}${k && Math.abs(b - a) > 1e-9 ? `<br><span style="font-size:13px;color:var(--gold)">${b > a ? '▲' : '▼'} ${f === pct ? Math.round(Math.abs(b - a) * 100) + ' pts' : Math.abs(b - a).toFixed(1)}</span>` : ''}</td></tr>`; }).join('')}</table>
+      <div class="hint">${S.games} games each, ${S.players} players at ${S.level}. Same seeds for both. The shoppers are not people: read the swing, not the exact number.${same(rules(), D.rules) ? ' (No rules changed yet, so both columns match.)' : ''}</div>`;
+    return `<div class="panel"><h3>Simulate</h3><div class="hint">The computer shoppers play whole games on your rules and on the rulebook, so you can see what an idea does.</div>
+      <div class="row">${[2, 3, 4, 6].map(n => `<button class="chip ${S.players === n ? 'on' : ''}" data-act="simset" data-k="players" data-v="${n}">${n} players</button>`).join('')}</div>
+      <div class="row">${['easy', 'normal', 'hard'].map(k => `<button class="chip ${S.level === k ? 'on' : ''}" data-act="simset" data-k="level" data-v="${k}">${k[0].toUpperCase() + k.slice(1)}</button>`).join('')}</div>
+      <div class="row">${[50, 100, 300].map(n => `<button class="chip ${S.games === n ? 'on' : ''}" data-act="simset" data-k="games" data-v="${n}">${n} games</button>`).join('')}</div>
+      <button class="btn gold" data-act="simrun" ${sm && sm.running ? 'disabled' : ''}>Run the simulation</button>${out}</div>`;
+  }
+  function labHTML() {
+    return `<div class="screen"><div class="top"><button class="btn sm alt" data-act="menu">‹ Back</button><h2>Rules Lab</h2><button class="btn sm alt" data-act="resetrules" ${changed() ? '' : 'disabled'}>Reset</button></div>
+      <div class="scroll"><div class="panel"><div class="hint">Change any rule, then <b>Simulate</b> to see what it does or <b>Play</b> to feel it. Changes are kept on this device.</div><button class="btn gold" data-act="setup">Play with these rules</button></div>${simHTML()}<div class="panel"><h3>Rules</h3>${D.lab.map(ctlHTML).join('')}</div></div></div>`;
+  }
+
+  // ---------- the shop ----------
+  const cardNums = (name, season) => { const d = E.def(name); return d.v.map((v, i) => `<span class="${i === season ? 'now' : ''} ${v < 0 ? 'neg' : ''}"><small>${D.seasons[i].slice(0, 3).toUpperCase()}</small>${v}</span>`).join(''); };
+  function cardHTML(name, o = {}) {
+    const d = E.def(name), c = tcolor(d.type), ab = d.ability === 'once' ? 'Thrown away after you wear it once' : Array.isArray(d.ability) ? `−${d.ability[1]} points if left in your hand` : '';
+    return `<div class="tcard ${o.sel ? 'sel' : ''}" style="--c:${c}" ${o.act ? `data-act="${o.act}" data-i="${o.i}" data-c="${esc(name)}" role="button" tabindex="0"` : ''}><i>${esc(D.types.find(t => t.id === d.type).one)}</i><h4>${esc(name)}</h4><span class="res">${d.resale < 0 ? '−' + Math.abs(d.resale) : d.resale}🪙</span>${ab ? `<div class="ab">${esc(ab)}</div>` : ''}<div class="nums">${cardNums(name, o.season)}</div>${o.worn ? '<span class="worn">✓ IN YOUR LOOK</span>' : ''}${o.sell || ''}</div>`;
+  }
+  const fmtClock = n => Math.floor(n / 60) + ':' + String(n % 60).padStart(2, '0');
+  function shopHTML() {
+    const s = ui.s, v = E.viewFor(s, ME), me = v.houses[ME], R = s.rules;
+    const picks = E.bestLook(s.houses[ME].hand, s.season, R), L = E.scoreLook(s.houses[ME].hand, picks, s.season), worn = new Set(Object.values(picks).filter(Boolean));
+    const hand = s.houses[ME].hand.slice().sort((a, b) => TYPES.findIndex(t => t.id === E.def(a).type) - TYPES.findIndex(t => t.id === E.def(b).type) || a.localeCompare(b));
+    const wornLeft = new Set(worn);
+    const tiles = hand.map((c, i) => { const w = wornLeft.has(c); if (w) wornLeft.delete(c); const sel = ui.sel === i; const sell = sel ? `<button class="sell" data-act="sell" data-c="${esc(c)}">Sell for ${E.def(c).resale < 0 ? '−' + Math.abs(E.def(c).resale) : E.def(c).resale} 🪙</button>` : ''; return cardHTML(c, { act: 'selcard', i, sel, season: s.season, worn: w, sell }); }).join('');
+    const last = v.log.length ? v.log[v.log.length - 1] : null;
+    return `<div class="screen game"><div class="bar-top"><button class="menubtn" data-act="sheet" data-s="menu" aria-label="Menu">☰</button>
+      <div class="status"><b>${SEASON_ICON[s.season]} ${D.seasons[s.season]}</b><span>Season ${s.season + 1} of ${R.seasonCount}${ui.timed ? ` · <span class="clock">${fmtClock(Math.max(0, ui.clock))}</span>` : ''}</span></div><div class="vault" aria-label="Your coins">🪙 ${me.coins}</div></div>
+      <div class="shoppers">${v.houses.map((h, i) => i === ME ? '' : `<div class="shopper"><b>${esc(h.name)}</b><span>🪙 ${h.coins} · 👚 ${h.handCount}${v.done.includes(i) ? ' · ✓' : ''}</span></div>`).join('')}</div>
+      <div class="stacks">${TYPES.map(t => `<button class="stack" style="--c:${t.color}" data-act="stack" data-t="${t.id}" ${v.stacks[t.id] ? '' : 'disabled'}><b>${t.name}</b><span>${v.stacks[t.id]} cards</span></button>`).join('')}</div>
+      <div class="logline">${last ? esc(v.houses[last.seat].name + ' ' + last.text) : '&nbsp;'}</div>
+      <div class="lookbar"><span>Your look this season</span><b>${L.total >= 0 ? '+' : ''}${L.total}</b></div>
+      <div class="hand" style="--cols:${narrow() ? 2 : 3}">${tiles || '<div class="say" style="grid-column:1/-1">Your hand is empty. Tap a stack to buy.</div>'}</div>
+      <div class="actions"><button class="btn gold" data-act="doneshop">Done shopping</button></div></div>`;
+  }
+  function buySheet() {
+    const sh = ui.sheet, s = ui.s, R = s.rules, t = TYPES.find(x => x.id === sh.kind), me = s.houses[ME], maxN = Math.min(R.maxBuy, s.stacks[sh.kind].length, Math.floor(me.coins / R.pricePerCard));
+    if (s.drawn[ME]) return `<h3>Keep one</h3><div class="say">Tap the card you keep. The rest go to the bottom of the ${esc(t.name.toLowerCase())} stack.</div><div class="deal" style="--cols:${narrow() ? 2 : Math.min(3, s.drawn[ME].cards.length)}">${s.drawn[ME].cards.map((c, i) => cardHTML(c, { act: 'keep', i, season: s.season })).join('')}</div>`;
+    if (maxN < 1) return `<h3>${esc(t.name)}</h3><div class="say">You cannot afford a card here.</div><button class="btn alt" data-act="closesheet">Back</button>`;
+    sh.n = Math.max(1, Math.min(sh.n || 1, maxN));
+    return `<h3>Buy ${esc(t.name.toLowerCase())}</h3><div class="say">Pay ${R.pricePerCard} coin${R.pricePerCard > 1 ? 's' : ''} per card, draw that many, keep one. More cards means a better choice.</div>
+      <div class="ctl" style="border:0;justify-content:center;gap:20px"><div class="step"><button data-act="buyn" data-d="-1">−</button><b style="font-size:34px">${sh.n}</b><button data-act="buyn" data-d="1">+</button></div></div>
+      <button class="btn gold" data-act="draw">Draw ${sh.n} for ${sh.n * R.pricePerCard} 🪙</button><button class="btn alt" data-act="closesheet">Never mind</button>`;
+  }
+  function revealHTML() {
+    const s = ui.s, v = E.viewFor(s, ME), done = s.phase === 'over', seasonIdx = done ? s.season - 1 : s.season;
+    const rows = s.houses.map((h, i) => {
+      const L = s.looks[i], mine = i === ME && !done && !s.ready.includes(ME);
+      const slots = TYPES.map(t => { const c = L && L.picks[t.id]; const inner = c ? `<b>${esc(c)}</b><span class="${E.seasonValue(c, s.season) < 0 ? 'neg' : ''}">${E.seasonValue(c, s.season)}</span>` : `<b>${esc(t.one)}</b><span>–</span>`; return mine ? `<button class="slot ${c ? '' : 'empty'}" style="--c:${t.color}" data-act="slot" data-t="${t.id}">${inner}</button>` : `<div class="slot ${c ? '' : 'empty'}" style="--c:${t.color}">${inner}</div>`; }).join('');
+      return `<div class="look ${i === ME ? 'me' : ''}"><div class="hd"><b>${i === ME ? 'Your look' : esc(h.name)}</b><span>${L && L.penalty ? `penalty ${L.penalty} · ` : ''}running ${E.total(s, i) + (done ? 0 : (L ? L.total : 0))}</span><em>${L ? (L.total >= 0 ? '+' : '') + L.total : ''}</em></div><div class="slots">${slots}</div></div>`;
+    }).join('');
+    return rows;
+  }
+  function overlayHTML() {
+    const s = ui.s; if (s.phase === 'shop') return '';
+    if (s.phase === 'over') {
+      const tot = s.houses.map((h, i) => E.total(s, i)), order = tot.map((t, i) => i).sort((a, b) => tot[b] - tot[a]);
+      return `<div class="over-bg"><h2>👑 ${s.winners.map(i => i === ME ? 'You' : esc(s.houses[i].name)).join(' and ')} ${s.winners.length > 1 || s.winners[0] === ME && false ? 'are' : (s.winners[0] === ME ? 'are' : 'is')} the Ultimate Thrifter!</h2>
+        ${order.map(i => `<div class="look ${i === ME ? 'me' : ''}"><div class="hd"><b>${i === ME ? 'You' : esc(s.houses[i].name)}</b><span>${s.scores[i].join(' + ')}${s.rules.coinPoints ? ' + ' + s.houses[i].coins * s.rules.coinPoints + ' coins' : ''}</span><em>${tot[i]}</em></div></div>`).join('')}
+        <div class="row"><button class="btn gold" data-act="start">Play again</button><button class="btn" data-act="menu">Menu</button>${changed() ? '<button class="btn alt" data-act="lab">Rules Lab</button>' : ''}</div></div>`;
+    }
+    return `<div class="over-bg"><h2>${SEASON_ICON[s.season]} ${D.seasons[s.season]} is over</h2><div class="say">Your best look is on. Tap a slot to wear something else.</div>${revealHTML()}<button class="btn gold" data-act="nextseason">${s.season + 1 >= s.rules.seasonCount ? 'See the final scores' : 'On to ' + D.seasons[s.season + 1]}</button></div>`;
+  }
+  function sheetHTML() {
+    const sh = ui.sheet; if (!sh) return '';
+    let body = '';
+    if (sh.t === 'how') body = `<div class="howto"><h3 style="font-size:28px">How to play Thrift Shop</h3>${rulesText()}</div><button class="btn gold" data-act="closesheet">Got it</button>`;
+    else if (sh.t === 'menu') body = `<h3>Menu</h3><button class="btn" data-act="sheet" data-s="how">How to play</button><div class="hint" style="font-size:15px;color:var(--dim)">${changed() ? changed() + ' rule' + (changed() > 1 ? 's' : '') + ' changed from the rulebook.' : 'The rulebook rules.'}</div><button class="btn ${ui.quit ? 'gold' : ''}" data-act="newgame">${ui.quit ? 'Tap again to abandon this game' : 'New game'}</button><button class="btn" data-act="menu">Main menu</button>${LIB ? `<a class="btn" href="${D.library.href}">‹ Library</a>` : ''}<button class="btn alt" data-act="closesheet">Back to the shop</button>`;
+    else if (sh.t === 'tip') body = `<h3>${esc(sh.title)}</h3><p style="font-size:19px;line-height:1.4">${esc(sh.text)}</p><button class="btn gold" data-act="closesheet">Got it</button>`;
+    else body = buySheet();
+    const locked = ui.s && ui.s.drawn && ui.s.drawn[ME];
+    return `<div class="sheet-bg" data-act="${locked ? 'none' : 'bg'}"><div class="sheet ${sh.t === 'how' ? 'full' : ''}">${body}</div></div>`;
+  }
+
+  // ---------- render + flow ----------
+  function render() {
+    let h = ui.screen === 'menu' ? menuHTML() : ui.screen === 'setup' ? setupHTML() : ui.screen === 'lab' ? labHTML() : shopHTML() + overlayHTML();
+    h += sheetHTML(); if (ui.toast) h += `<div class="toast">${esc(ui.toast)}</div>`;
+    const sc = $.querySelector('.scroll,.hand,.over-bg'), top = sc ? sc.scrollTop : 0;
+    $.innerHTML = h; const n = $.querySelector('.scroll,.hand,.over-bg'); if (n && top) n.scrollTop = top;
+  }
+  function tipOnce(key, title, text) { if (!ui.teach || ui.tipsSeen[key] || store.get('tip-' + key, false)) return false; ui.tipsSeen[key] = true; store.set('tip-' + key, true); ui.sheet = { t: 'tip', title, text }; return true; }
+  function stopClock() { clearInterval(ui.timer); ui.timer = null; }
+  function afterAction() {
+    const s = ui.s;
+    if (s.phase === 'reveal') { stopClock(); B.autoReady(s); }
+    if (!ui.sheet && s.phase === 'shop' && s.season === 0) tipOnce('first', 'Your first season', 'Tap a stack to buy: pay coins, draw cards, keep one. Tap a card in your hand to sell it for its small corner number. The coloured numbers show what each card scores this season; your best look is picked for you.');
+    if (!ui.sheet && s.phase === 'reveal') tipOnce('reveal', 'Reveal', 'Everyone shows a look. Yours was chosen for you; tap a slot to wear a different card. Ripped Jeans are thrown away after one wearing.');
+    render();
+  }
+  function startClock() {
+    stopClock(); if (!ui.timed) return; const s = ui.s; ui.clock = s.rules.clockSecs; let t = 0;
+    ui.timer = setInterval(() => {
+      if (ui.screen !== 'game' || s.phase !== 'shop' || ui.sheet && ui.sheet.t !== 'buy') { if (ui.screen !== 'game' || s.phase !== 'shop') stopClock(); return; }
+      ui.clock--; t++; if (t % D.ai.timedEverySecs === 0) B.tickAll(s);
+      if (ui.clock <= 0) { if (s.drawn[ME]) E.apply(s, { type: 'keep', seat: ME, i: 0 }); ui.sheet = null; endShop(); } else render();
+    }, 1000);
+  }
+  function endShop() { const s = ui.s; if (s.phase === 'shop') { if (!s.done.includes(ME)) E.apply(s, { type: 'done', seat: ME }); B.finish(s); if (s.phase === 'shop') s.houses.forEach((h, i) => { if (!s.done.includes(i)) E.apply(s, { type: 'done', seat: i }); }); } afterAction(); }
+  function startGame() {
+    stopClock(); ui.s = E.newGame({ players: ui.players, level: ui.level, humans: [ME], rules: ui.rules }); ui.sheet = null; ui.sel = null; ui.quit = false; ui.screen = 'game'; startClock(); afterAction();
+  }
+  const bots = () => { if (!ui.timed) B.tickAll(ui.s); };
+
+  const H = {
+    setup() { ui.screen = 'setup'; render(); }, menu() { stopClock(); ui.screen = 'menu'; ui.sheet = null; ui.quit = false; if (ui.simCancel) ui.simCancel(); render(); }, lab() { ui.screen = 'lab'; ui.sheet = null; render(); },
+    players(d) { ui.players = +d.n; store.set('players', ui.players); render(); }, level(d) { ui.level = d.k; store.set('level', ui.level); render(); },
+    timed(d) { ui.timed = d.v === '1'; store.set('timed', ui.timed); render(); },
+    teach() { ui.teach = !ui.teach; store.set('teach', ui.teach); if (ui.teach) for (const k of ['first', 'reveal']) { store.set('tip-' + k, false); delete ui.tipsSeen[k]; } render(); },
+    start() { startGame(); },
+    sheet(d) { ui.sheet = { t: d.s }; render(); }, closesheet() { ui.sheet = null; render(); }, bg() { ui.sheet = null; render(); }, none() {},
+    newgame() { if (!ui.quit) { ui.quit = true; return render(); } ui.quit = false; ui.sheet = null; startGame(); },
+    selcard(d) { ui.sel = ui.sel === +d.i ? null : +d.i; render(); },
+    sell(d) { const r = E.apply(ui.s, { type: 'sell', seat: ME, card: d.c }); if (!r.ok) return toast(r.error === 'coins' ? 'You cannot afford to sell that' : 'Not allowed'); ui.sel = null; bots(); afterAction(); },
+    stack(d) { ui.sheet = { t: 'buy', kind: d.t, n: 1 }; render(); },
+    buyn(d) { ui.sheet.n = (ui.sheet.n || 1) + (+d.d); render(); },
+    draw() { const r = E.apply(ui.s, { type: 'draw', seat: ME, stack: ui.sheet.kind, n: ui.sheet.n }); if (!r.ok) return toast('Cannot draw that many'); render(); },
+    keep(d) { E.apply(ui.s, { type: 'keep', seat: ME, i: +d.i }); ui.sheet = null; ui.sel = null; bots(); afterAction(); },
+    doneshop() { ui.sel = null; endShop(); },
+    slot(d) {
+      const s = ui.s, hand = s.houses[ME].hand, L = s.looks[ME], cur = L.picks[d.t]; const opts = [...new Set(hand.filter(c => E.def(c).type === d.t))]; const choices = [null].concat(opts);
+      const nx = choices[(choices.indexOf(cur || null) + 1) % choices.length]; E.apply(s, { type: 'setlook', seat: ME, picks: Object.assign({}, L.picks, { [d.t]: nx }) }); render();
+    },
+    nextseason() { const s = ui.s; E.apply(s, { type: 'next', seat: ME }); B.autoReady(s); if (s.phase === 'shop') { ui.sel = null; startClock(); } afterAction(); },
+    num(d) { const c = D.lab.find(x => x.key === d.k), R = rules(); setRule(d.k, Math.max(c.min, Math.min(c.max, R[d.k] + (+d.d)))); render(); },
+    tog(d) { setRule(d.k, !rules()[d.k]); render(); },
+    resetrules() { ui.rules = {}; store.set('rules', ui.rules); render(); },
+    simset(d) { ui.simSet[d.k] = d.k === 'level' ? d.v : +d.v; render(); },
+    simrun() {
+      const S = Object.assign({}, ui.simSet), key = JSON.stringify(S); ui.sim = { running: true, progress: 0, base: ui.simBase[key] || null, mine: null }; render();
+      const o = { players: S.players, level: S.level, games: S.games, seed: 7 }, fin = () => { ui.sim.running = false; render(); };
+      const mine = () => { ui.simCancel = Sim.run(rules(), o, p => { ui.sim.progress = (ui.sim.base ? 0 : 0.5) + p * (ui.sim.base ? 1 : 0.5); if (ui.screen === 'lab') render(); }, r => { ui.sim.mine = r; fin(); }); };
+      if (ui.sim.base) mine(); else ui.simCancel = Sim.run({}, o, p => { ui.sim.progress = p * 0.5; if (ui.screen === 'lab') render(); }, r => { ui.sim.base = ui.simBase[key] = r; mine(); });
+    },
+  };
+  $.addEventListener('click', e => {
+    const el = e.target.closest('[data-act]'); if (!el) return;
+    if (el.dataset.act === 'bg' && e.target !== el) return;
+    const f = H[el.dataset.act]; if (!f) return; if (!['newgame', 'sheet'].includes(el.dataset.act)) ui.quit = false;
+    f(el.dataset, e);
+  });
+  addEventListener('resize', () => { if (ui.screen !== 'lab') render(); });
+  window.__ts = { ui, E, B, Sim };
+  render();
+})();
+</script>
+</body>
+</html>

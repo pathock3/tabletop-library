@@ -184,6 +184,17 @@ const LIBRARY = {
       path: 'games/kingslayer/index.html',
       listed: true,
     },
+    {
+      id: 'thrift-shop',
+      title: 'Thrift Shop',
+      tagline: 'Dig through the racks, buy and sell, and build the best outfit for every season. Play against computer shoppers.',
+      players: '2–6 players (you + computer shoppers)',
+      icon: '👚',
+      art: 'thrift-shop',
+      accent: '#2d8a85',
+      path: 'games/thrift-shop/index.html',
+      listed: true,
+    },
   ],
 };
 </script>
@@ -292,6 +303,19 @@ const LIBRARY = {
           <circle cx="150" cy="62" r="11" fill="#c8322f" stroke="#1a0d12" stroke-width="4"/><circle cx="50" cy="92" r="9" fill="#3a74c2" stroke="#1a0d12" stroke-width="4"/><circle cx="250" cy="92" r="9" fill="#4e9a43" stroke="#1a0d12" stroke-width="4"/><circle cx="150" cy="197" r="8" fill="#c8322f" stroke="#1a0d12" stroke-width="3"/><circle cx="104" cy="197" r="6" fill="#fff" stroke="#1a0d12" stroke-width="3"/><circle cx="196" cy="197" r="6" fill="#fff" stroke="#1a0d12" stroke-width="3"/></g>
         ${title('KINGSLAYER', 62, 40)}
         <rect x="30" y="344" width="240" height="26" rx="13" fill="#1a0d12" fill-opacity=".88" stroke="#e8b84a" stroke-opacity=".7"/><text x="150" y="358" text-anchor="middle" dominant-baseline="central" font-size="12.5" font-weight="800" textLength="206" lengthAdjust="spacing" fill="#ffe9a8">A GAME OF THRONES NEGOTIATION</text></svg>`;
+    },
+    // Thrift Shop: a clothes rack with a top, trousers and a dress under a price tag
+    'thrift-shop': () => {
+      const title = (s, y, sz) => `<text x="150" y="${y}" text-anchor="middle" font-size="${sz}" font-weight="900" letter-spacing="2" fill="#fff1cc" stroke="#0a2324" stroke-width="8" stroke-linejoin="round" paint-order="stroke" font-family="Georgia,serif">${s}</text>`;
+      return `<svg viewBox="0 0 300 380" role="img" aria-label="Thrift Shop"><defs><linearGradient id="tsB" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#2d8a85"/><stop offset=".6" stop-color="#17595a"/><stop offset="1" stop-color="#0f2a2b"/></linearGradient></defs>
+        <rect width="300" height="380" fill="url(#tsB)"/>
+        <rect x="24" y="130" width="252" height="10" rx="5" fill="#e9d9a8" stroke="#0a2324" stroke-width="4"/><path d="M150 130 V112 q0 -10 12 -10" fill="none" stroke="#e9d9a8" stroke-width="5"/>
+        <g stroke="#0a2324" stroke-width="4" stroke-linejoin="round"><path d="M50 150 l-20 16 14 16 16 -10 V250 H108 V172 l16 10 14 -16 -20 -16 q-20 12 -36 0Z" fill="#e0584f"/>
+          <path d="M150 156 h50 l6 100 h-26 l-5 -52 -5 52 h-26Z" fill="#3f7fd0"/><path d="M222 150 q28 4 40 14 l-10 14 -8 -4 18 84 h-60 l18 -84 -8 4 -10 -14 q12 -10 20 -14Z" fill="#4aa56a"/></g>
+        <g transform="rotate(-10 70 290)"><rect x="34" y="262" width="72" height="44" rx="8" fill="#f2b63a" stroke="#0a2324" stroke-width="4"/><circle cx="48" cy="276" r="5" fill="#0a2324"/><text x="76" y="295" text-anchor="middle" font-size="20" font-weight="900" fill="#0a2324" font-family="Georgia,serif">$2</text></g>
+        ${[[70, 300], [150, 320], [222, 306], [262, 280]].map(([x, y]) => `<circle cx="${x}" cy="${y}" r="9" fill="#f2b63a" stroke="#0a2324" stroke-width="3"/>`).join('')}<path d="M120 292 h40 q10 0 10 10 v8 h-60 v-8 q0 -10 10 -10Z" fill="#e9d9a8" stroke="#0a2324" stroke-width="4"/><path d="M178 300 l20 -10 14 8 -6 14 -28 4Z" fill="#3f7fd0" stroke="#0a2324" stroke-width="4"/>
+        ${title('THRIFT', 70, 46)}${title('SHOP', 112, 40)}
+        <rect x="30" y="344" width="240" height="26" rx="13" fill="#0f2a2b" fill-opacity=".88" stroke="#f2b63a" stroke-opacity=".7"/><text x="150" y="358" text-anchor="middle" dominant-baseline="central" font-size="12.5" font-weight="800" textLength="206" lengthAdjust="spacing" fill="#ffe9a8">FOUR SEASONS, ONE LOOK</text></svg>`;
     },
     'this-means-war': () => {
       const hexPts = (cx, cy, r) => Array.from({ length: 6 }, (_, i) => { const a = Math.PI / 180 * (60 * i - 30); return (cx + r * Math.cos(a)).toFixed(1) + ',' + (cy + r * Math.sin(a)).toFixed(1); }).join(' ');

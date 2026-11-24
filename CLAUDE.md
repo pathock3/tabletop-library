@@ -41,6 +41,11 @@ The primary target is the iPad **in portrait**, opened from the home screen as a
 - **Rules Lab**: changes live in `localStorage` (`kingslayer-rules`) as differences from `GAME_DATA.rules`, passed to `Engine.newGame({rules})`. To add a rule: add the key to `D.rules`, read it in the engine, add a control to `D.lab`, mention it in `rulesText()`.
 - Rulebook gaps (tracker amounts, start coins, duration lengths, the sovereign-blocks reading, council timing) are my defaults, logged in `DECISIONS.md`. Not built yet: Winter is Coming, objectives, 7 Kingdoms, sovereign deck, pass-and-play table mode.
 
+## Thrift Shop (`games/thrift-shop/`)
+- Patrick, Latrelle and Emily's thrifting game: four seasons, buy (pay N coins, draw N cards from one of four stacks, keep one, the rest go to the bottom) and sell (resale value) at the same time as the other players, then wear one top, bottom, shoes and accessory for the season's score. Against 1–5 computer shoppers; relaxed by default (the shoppers act once per human move), optional Timed clock.
+- Scripts: `data` (rules, the 61 cards of the sheet "cards 1.1" as rows, the four gym penalty cards, ai levers, Rules Lab controls), `engine` (pure; `apply/pending/viewFor/bestLook/scoreLook`), `bots` (`Bots.act/tickAll/finish/playOut`; also `Sim`), `ui`. The Rules Lab / Simulate copy the Kingslayer pattern; changes live in `localStorage` (`thriftshop-rules`).
+- Calls where the sheet is silent (copies per card, outfit auto-pick, coins worth nothing, wearing a gym card) are in `DECISIONS.md`. Not built: the Halloween variant.
+
 ## Mini Roll & Writes (`games/mini-roll-writes/`)
 - Four two-player dice games from Patrick's "Mini Roll & Writes" doc in one box: Wizard Darts, Wizard Battleship, Where's the Lie?, Target Practice. Against the computer (Easy / Normal / Hard) or Pass & Play (hand-off screens before secrets). Rules, numbers and variants are in the `data` script; `engine` is pure (seeded RNG, `Engine.viewFor` strips what a seat may not see); `bots` only read that view; `ui`, `sound`. Open rules questions and calls are in `DECISIONS.md`. Tests: `tests/engine.test.js`, `tests/ui.test.js` (a whole game of each, at iPad and iPhone size).
 
