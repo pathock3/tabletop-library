@@ -1,5 +1,6 @@
 # Changelog
 
+- New in the library: **Mini Roll & Writes** — Patrick's four tiny dice games in one box (Wizard Darts, Wizard Battleship, Where's the Lie?, Target Practice), for two players against the computer (Easy / Normal / Hard) or Pass & Play.
 - Pokémon Roll: Professor Oak is a third possible secret last opponent (Blue, Red or Oak, random per game): the level-40 card of every starter line plus a random legendary. Like every trainer who holds a legendary, he keeps it (and his starter cards that live in the wild) out of the piles until he is beaten.
 - Pokémon Roll: the Elite Four member is a mystery tile too until Giovanni is beaten. Both mystery tiles (Elite Four member, secret last opponent) have an info button: it says how many trainers it could be, lists the ones you have met before (on this device) and opens their info when tapped.
 - Pokémon Roll: trainers slide in like in Crystal (in a few steps, from the side) when a fight starts and when a leader comes to talk.

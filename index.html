@@ -162,6 +162,17 @@ const LIBRARY = {
       path: 'games/this-means-war/index.html',
       listed: true,
     },
+    {
+      id: 'mini-roll-writes',
+      title: 'Mini Roll & Writes',
+      tagline: 'Four tiny dice games for two wizards: Wizard Darts, Wizard Battleship, Where’s the Lie? and Target Practice.',
+      players: '2 players',
+      icon: '🧙',
+      art: 'mini-roll-writes',
+      accent: '#5b3fd1',
+      path: 'games/mini-roll-writes/index.html',
+      listed: true,
+    },
   ],
 };
 </script>
@@ -248,6 +259,18 @@ const LIBRARY = {
         </svg>`;
     },
     // This Means WAR!: two armies' banners over a hex map of castles, a hidden flag in the middle
+    // Mini Roll & Writes: a wizard hat on a starry night with two dice
+    'mini-roll-writes': () => {
+      const title = (t, y, sz) => `<text x="150" y="${y}" text-anchor="middle" font-size="${sz || 40}" font-weight="900" fill="#fff6d8" stroke="#1a1144" stroke-width="8" stroke-linejoin="round" paint-order="stroke" font-family="Georgia,serif">${t}</text>`;
+      const star = (x, y, r) => `<path d="M${x} ${y - r}L${x + r * .3} ${y - r * .3} ${x + r} ${y} ${x + r * .3} ${y + r * .3} ${x} ${y + r} ${x - r * .3} ${y + r * .3} ${x - r} ${y} ${x - r * .3} ${y - r * .3}Z" fill="#ffe9a8"/>`;
+      const pips = (x, y, n) => ({ 1: [[0, 0]], 2: [[-9, -9], [9, 9]], 3: [[-9, -9], [0, 0], [9, 9]], 4: [[-9, -9], [9, -9], [-9, 9], [9, 9]], 5: [[-9, -9], [9, -9], [0, 0], [-9, 9], [9, 9]], 6: [[-9, -9], [9, -9], [-9, 0], [9, 0], [-9, 9], [9, 9]] }[n]).map(([a, b]) => `<circle cx="${x + a}" cy="${y + b}" r="4" fill="#2a1f3d"/>`).join('');
+      return `<svg viewBox="0 0 300 380" role="img" aria-label="Mini Roll &amp; Writes"><defs><radialGradient id="mrB" cx="50%" cy="25%" r="90%"><stop offset="0" stop-color="#5b3fd1"/><stop offset=".55" stop-color="#2a1f7a"/><stop offset="1" stop-color="#0b0820"/></radialGradient></defs>
+        <rect width="300" height="380" fill="url(#mrB)"/>${star(40, 150, 9)}${star(262, 126, 8)}${star(50, 300, 6)}${star(256, 300, 8)}${star(150, 330, 5)}${star(24, 240, 5)}${star(280, 214, 5)}
+        <g transform="translate(150 212)"><ellipse cx="0" cy="56" rx="112" ry="20" fill="#2b1f72" stroke="#f2c14e" stroke-width="5"/><path d="M-62 50 Q-28 2 -6 -60 Q22 -26 20 -10 Q58 -2 64 50 Z" fill="#4a36ad" stroke="#f2c14e" stroke-width="5" stroke-linejoin="round"/><path d="M-60 36 Q0 56 60 36" fill="none" stroke="#f2c14e" stroke-width="9"/><path d="M-12 10l4 8 8 4-8 4-4 8-4-8-8-4 8-4z" fill="#ffe9a8"/><circle cx="26" cy="26" r="4" fill="#ffe9a8"/></g>
+        <g transform="rotate(-12 96 310)"><rect x="70" y="284" width="52" height="52" rx="11" fill="#fff" stroke="#2a1f3d" stroke-width="3"/>${pips(96, 310, 5)}</g><g transform="rotate(14 206 304)"><rect x="180" y="278" width="52" height="52" rx="11" fill="#fff" stroke="#2a1f3d" stroke-width="3"/>${pips(206, 304, 3)}</g>
+        ${title('MINI ROLL', 60, 46)}${title('&amp; WRITES', 108, 38)}
+        <rect x="30" y="344" width="240" height="26" rx="13" fill="#0b0820" fill-opacity=".88" stroke="#f2c14e" stroke-opacity=".7"/><text x="150" y="358" text-anchor="middle" dominant-baseline="central" font-size="12.5" font-weight="800" textLength="206" lengthAdjust="spacing" fill="#ffe9a8">FOUR TINY DICE GAMES</text></svg>`;
+    },
     'this-means-war': () => {
       const hexPts = (cx, cy, r) => Array.from({ length: 6 }, (_, i) => { const a = Math.PI / 180 * (60 * i - 30); return (cx + r * Math.cos(a)).toFixed(1) + ',' + (cy + r * Math.sin(a)).toFixed(1); }).join(' ');
       const hexes = []; for (let q = -2; q <= 2; q++) for (let r = -2; r <= 2; r++) if (Math.abs(q + r) <= 2) hexes.push([150 + 38 * Math.sqrt(3) * (q + r / 2) * .62, 214 + 38 * 1.5 * r * .62]);
