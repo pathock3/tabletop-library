@@ -1,0 +1,419 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="OMG Babies!">
+<meta name="build" content="__BUILD__">
+<meta name="theme-color" content="#ffd6e7">
+<title>OMG Babies!</title>
+<meta property="og:type" content="website">
+<meta property="og:title" content="OMG Babies!">
+<meta name="description" content="Take care of babies, roll dice, clean up the poop, and collect the most Joy.">
+<link rel="icon" type="image/png" href="../../assets/favicon.png">
+<link rel="apple-touch-icon" href="../../assets/apple-touch-icon.png">
+<style>
+:root { --ink: #4a2f5a; --pink: #ff8fb8; --pink-d: #e0589f; --sky: #8ad4f0; --sun: #ffd23f; --mint: #8fe3c0; --cream: #fff8ec; --lav: #cdb4f0; --brown: #8a5a2e;
+  --sans: -apple-system, BlinkMacSystemFont, "SF Pro Rounded", "SF Pro Text", system-ui, "Segoe UI", Roboto, sans-serif; --serif: "Avenir Next Rounded", "Marker Felt", "Trebuchet MS", system-ui, sans-serif; }
+* { box-sizing: border-box; -webkit-tap-highlight-color: transparent; -webkit-touch-callout: none; user-select: none; -webkit-user-select: none; }
+html, body { margin: 0; height: 100%; width: 100%; position: fixed; inset: 0; overflow: hidden; overscroll-behavior: none; color: var(--ink); font-family: var(--sans); touch-action: manipulation; background: #ffe3ee; }
+body::before { content: ""; position: absolute; inset: 0; background: radial-gradient(circle at 12% 10%, #fff 0 4%, transparent 4.2%), radial-gradient(circle at 88% 18%, #fff 0 3%, transparent 3.2%), radial-gradient(circle at 70% 92%, #fff8 0 5%, transparent 5.2%), linear-gradient(#ffe3ee, #d9f1ff); pointer-events: none; }
+#app { position: absolute; inset: 0; z-index: 1; }
+button { font: inherit; color: inherit; border: 0; background: none; padding: 0; cursor: pointer; touch-action: manipulation; }
+a { color: inherit; } h1, h2, h3, p { margin: 0; } h1, h2, h3 { font-family: var(--serif); }
+.screen { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; gap: 8px; padding: max(8px, env(safe-area-inset-top)) max(10px, env(safe-area-inset-right)) max(10px, env(safe-area-inset-bottom)) max(10px, env(safe-area-inset-left)); }
+.btn { min-height: 56px; padding: 0 22px; border-radius: 18px; font-size: 20px; font-weight: 900; background: #fff; border: 3px solid var(--ink); box-shadow: 0 5px 0 var(--ink); display: inline-flex; align-items: center; justify-content: center; gap: 8px; text-align: center; }
+.btn:active { transform: translateY(3px); box-shadow: 0 2px 0 var(--ink); }
+.btn.go { background: linear-gradient(#ffb3d0, #ff8fb8); font-size: 24px; min-height: 66px; }
+.btn.sky { background: linear-gradient(#bfeaff, #8ad4f0); } .btn.sun { background: linear-gradient(#ffe98a, #ffd23f); } .btn.mint { background: linear-gradient(#c8f5e0, #8fe3c0); }
+.btn[disabled] { opacity: .4; pointer-events: none; }
+.chip { min-height: 48px; padding: 0 16px; border-radius: 24px; font-size: 17px; font-weight: 800; background: #fff; border: 3px solid var(--ink); display: inline-flex; align-items: center; gap: 6px; } .chip.on { background: var(--sun); }
+.row { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; align-items: center; }
+.libback { position: absolute; z-index: 5; top: max(10px, env(safe-area-inset-top)); left: max(12px, env(safe-area-inset-left)); padding: 10px 16px; border-radius: 22px; background: #fff; border: 3px solid var(--ink); font-weight: 800; font-size: 16px; text-decoration: none; min-height: 44px; display: flex; align-items: center; }
+/* menu */
+.menu { justify-content: flex-start; padding-top: max(76px, env(safe-area-inset-top)); overflow: hidden; }
+.menu .logo { font-family: var(--serif); font-size: clamp(46px, 11vw, 96px); line-height: .9; text-align: center; color: #fff; -webkit-text-stroke: 3px var(--ink); paint-order: stroke fill; text-shadow: 0 6px 0 var(--ink); letter-spacing: 1px; transform: rotate(-2deg); }
+.menu .logo b { color: var(--pink); display: block; font-size: 1.15em; }
+.menu .tagline { font-size: clamp(16px, 2.6vw, 22px); font-weight: 800; text-align: center; max-width: 560px; }
+.crib { position: relative; flex: 1; min-height: 0; width: min(640px, 96vw); display: flex; align-items: center; justify-content: center; }
+.crib .bb { position: absolute; width: clamp(90px, 24vw, 170px); animation: bounce 2.4s ease-in-out infinite; filter: drop-shadow(0 8px 0 #4a2f5a33); }
+@keyframes bounce { 50% { transform: translateY(-14px) rotate(3deg); } }
+.menu .stack { display: flex; flex-direction: column; gap: 12px; width: min(460px, 92vw); }
+.credit { font-size: 13px; text-align: center; opacity: .75; font-weight: 700; }
+/* game */
+.bar { width: 100%; display: flex; gap: 8px; align-items: center; flex: none; max-width: 860px; }
+.menubtn { width: 52px; height: 52px; border-radius: 16px; background: #fff; border: 3px solid var(--ink); font-size: 24px; box-shadow: 0 4px 0 var(--ink); flex: none; }
+.round { flex: 1; text-align: center; font-family: var(--serif); font-size: 22px; font-weight: 900; line-height: 1.1; } .round small { display: block; font-size: 14px; font-weight: 800; opacity: .8; font-family: var(--sans); }
+.joy { background: var(--sun); border: 3px solid var(--ink); border-radius: 16px; padding: 4px 12px; text-align: center; font-weight: 900; line-height: 1.05; box-shadow: 0 4px 0 var(--ink); } .joy b { font-size: 26px; display: block; font-family: var(--serif); } .joy small { font-size: 12px; font-weight: 800; }
+.rivals { width: 100%; max-width: 860px; display: flex; gap: 6px; flex: none; overflow-x: auto; touch-action: pan-x; }
+.rival { flex: 1 0 96px; background: #fff; border: 3px solid var(--ink); border-radius: 14px; padding: 4px 6px; text-align: center; font-size: 13px; font-weight: 800; line-height: 1.2; } .rival.turn { background: var(--mint); } .rival b { display: block; font-size: 15px; }
+.home { width: 100%; max-width: 860px; flex: none; background: var(--cream); border: 4px solid var(--ink); border-radius: 22px; padding: 8px 10px 10px; box-shadow: 0 6px 0 var(--ink); display: flex; flex-direction: column; gap: 6px; }
+.home h3 { font-size: 18px; display: flex; justify-content: space-between; align-items: baseline; } .home h3 small { font-size: 13px; font-weight: 800; opacity: .8; font-family: var(--sans); }
+.babies { display: flex; gap: 8px; flex-wrap: wrap; min-height: 92px; align-items: stretch; }
+.baby { width: 84px; border-radius: 14px; border: 3px solid var(--ink); background: #fff; padding: 2px 2px 3px; text-align: center; font-size: 13px; font-weight: 900; line-height: 1.1; position: relative; } .baby svg { width: 100%; height: 66px; display: block; }
+.baby.down { background: repeating-linear-gradient(45deg, #cfd8f5, #cfd8f5 6px, #e4eafc 6px, #e4eafc 12px); } .baby.down svg { opacity: .35; } .baby.down::after { content: "Daycare"; position: absolute; left: 0; right: 0; top: 24px; font-size: 12px; font-weight: 900; }
+.baby.pick { outline: 4px solid var(--pink-d); transform: translateY(-4px); } .baby.new { animation: pop .45s; } @keyframes pop { from { transform: scale(.3) rotate(-10deg); } }
+.meters { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; font-weight: 900; font-size: 16px; }
+.meter { background: #fff; border: 3px solid var(--ink); border-radius: 12px; padding: 3px 8px; min-height: 40px; display: flex; align-items: center; gap: 4px; flex-wrap: wrap; line-height: 1; } .meter small { font-size: 12px; opacity: .8; width: 100%; }
+.pip { font-size: 18px; } .pip.off { opacity: .2; }
+.panel { width: 100%; max-width: 860px; flex: 1; min-height: 0; display: flex; flex-direction: column; gap: 8px; overflow-y: auto; touch-action: pan-y; padding-bottom: 4px; }
+.tiles { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; }
+.tile { border-radius: 16px; border: 3px solid var(--ink); background: #fff; box-shadow: 0 5px 0 var(--ink); padding: 8px 10px; text-align: left; min-height: 74px; display: flex; flex-direction: column; justify-content: center; gap: 2px; } .tile:active { transform: translateY(3px); box-shadow: 0 2px 0 var(--ink); }
+.tile b { font-family: var(--serif); font-size: 20px; } .tile small { font-size: 14px; font-weight: 700; } .tile[disabled] { opacity: .4; pointer-events: none; }
+.say { width: 100%; text-align: center; font-size: 16px; font-weight: 800; background: #fff; border: 3px dashed var(--ink); border-radius: 14px; padding: 6px 10px; line-height: 1.25; }
+.dice { display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; }
+.die { width: 74px; height: 84px; border-radius: 16px; border: 3px solid var(--ink); background: #fff; box-shadow: 0 5px 0 var(--ink); font-weight: 900; font-size: 13px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; position: relative; } .die i { font-style: normal; font-size: 34px; line-height: 1; } .die.sel { outline: 5px solid var(--pink-d); transform: translateY(-6px); } .die.fixed::after { content: "🎓"; position: absolute; right: 2px; top: 0; font-size: 14px; }
+.die.roll { animation: tumble .5s; } @keyframes tumble { 0% { transform: rotate(-200deg) scale(.4); } 70% { transform: rotate(12deg) scale(1.1); } }
+.goals { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 8px; }
+.goal { border-radius: 14px; border: 3px solid var(--ink); background: #fff; padding: 6px 8px; text-align: left; display: flex; flex-direction: column; gap: 3px; min-height: 92px; } .goal b { font-size: 15px; line-height: 1.1; font-family: var(--serif); } .goal .joyv { margin-left: auto; background: var(--sun); border-radius: 10px; padding: 0 8px; border: 2px solid var(--ink); font-weight: 900; font-size: 14px; }
+.goal.ok { background: #e8ffe8; box-shadow: 0 0 0 4px var(--mint); } .goal.pick { outline: 4px solid var(--pink-d); } .goal.skill { background: #eaf6ff; } .goal.empty { opacity: .3; }
+.goal .cost { display: flex; gap: 3px; flex-wrap: wrap; font-weight: 900; font-size: 14px; } .goal .cost span { background: #f3ecff; border-radius: 8px; padding: 0 5px; border: 2px solid #4a2f5a33; }
+.night td, .night th { padding: 4px 8px; text-align: left; font-weight: 800; } .night table { width: 100%; border-collapse: collapse; background: #fff; border: 3px solid var(--ink); border-radius: 14px; overflow: hidden; }
+.sheet-bg { position: absolute; inset: 0; z-index: 40; background: #4a2f5aaa; display: flex; align-items: flex-end; justify-content: center; }
+.sheet { width: min(720px, 100%); max-height: 92%; background: var(--cream); border: 4px solid var(--ink); border-bottom: 0; border-radius: 24px 24px 0 0; padding: 14px 14px max(14px, env(safe-area-inset-bottom)); display: flex; flex-direction: column; gap: 10px; overflow-y: auto; touch-action: pan-y; }
+.sheet h3 { font-size: 26px; } .sheet .li { background: #fff; border: 3px solid var(--ink); border-radius: 14px; padding: 6px 10px; font-weight: 700; font-size: 16px; line-height: 1.3; } .sheet .li b { font-family: var(--serif); }
+.howto p, .howto li { font-size: 17px; line-height: 1.4; font-weight: 600; } .howto ul { margin: 4px 0; padding-left: 22px; }
+.toast { position: absolute; left: 50%; bottom: 90px; transform: translateX(-50%); z-index: 50; background: var(--sun); border: 3px solid var(--ink); padding: 8px 16px; border-radius: 20px; font-weight: 900; pointer-events: none; }
+.final .r { display: flex; align-items: center; gap: 10px; background: #fff; border: 3px solid var(--ink); border-radius: 14px; padding: 8px 12px; font-weight: 900; } .final .r.win { background: var(--sun); } .final .r b { flex: 1; font-size: 20px; } .final .r em { font-style: normal; font-size: 28px; font-family: var(--serif); }
+</style>
+</head>
+<body>
+<div id="app"></div>
+<script id="data">
+// OMG Babies! All rules, numbers, goal cards and baby names live here (rulebook Dec 2023 + the Babies Photo Cards sheet).
+const GAME_DATA = {
+  title: 'OMG Babies!',
+  library: { href: '../../index.html' },
+  rules: {
+    rounds: 7,              // "a week"; the rulebook says play as long as it is fun, so the app ends after this many rounds (settings)
+    energyMax: 10,          // the trackers' top (not in the rulebook)
+    startPoop: 1,           // everyone gains 1 Poop and draws a Baby
+    startEnergy: 'order',   // first player starts with 1 Energy, the next with 2, and so on (capped by startEnergyCap)
+    startEnergyCap: 5,      // the Setup says 5: no one starts with more than this
+    newBabyCost: 1, daycareCost: 1, deepCleanCost: 1, rerollCost: 1,
+    baseDice: 5, maxDice: 10,            // 5 dice, plus 1 for each Baby in your Home, at most 10
+    diaperRemoves: 2, restGives: 2,      // each Diaper removes up to 2 Poop; each Rest gives 2 Energy
+    nightJoyPerPoops: 2,                 // -1 Joy for every 2 Poop in your Home
+    goalSlots: 5,                        // face-up Goal cards to buy from
+    skillCost: 3,                        // the sheet leaves Skill costs blank: 3 of the matching die
+  },
+  // The dice: 1 Learn, 2 Move, 3 Social, 4 Diaper, 5 Rest, 6 Play (wild).
+  faces: [
+    { n: 1, id: 'L', name: 'Learn', icon: '💡', color: '#f5c542' }, { n: 2, id: 'M', name: 'Move', icon: '👟', color: '#5fb36b' }, { n: 3, id: 'S', name: 'Social', icon: '💬', color: '#e0589f' },
+    { n: 4, id: 'D', name: 'Diaper', icon: '🧷', color: '#4aa6d9' }, { n: 5, id: 'R', name: 'Rest', icon: '😴', color: '#8a7ad0' }, { n: 6, id: 'P', name: 'Play', icon: '⭐', color: '#ff8a4a' },
+  ],
+  joyTable: { 2: 1, 3: 2, 4: 4, 5: 6, 6: 8, 7: 10, 8: 12, 9: 14, 10: 15 },   // n of a kind (Learn, Move or Social) -> Joy
+  // Goal cards (sheet "Babies Photo Cards"). Skill: a permanent extra die face. Memory: pay the dice, gain the Joy.
+  goals: [
+    { name: 'First Word', type: 'Skill', gives: 'L' }, { name: 'Baby Sign Language Class', type: 'Skill', gives: 'L' }, { name: 'First Steps', type: 'Skill', gives: 'M' }, { name: 'First Friend', type: 'Skill', gives: 'S' },
+    { name: 'Play Date', type: 'Memory', cost: '1M 1S', joy: 1 }, { name: 'Visit the Playground', type: 'Memory', cost: '1M 1S', joy: 1 }, { name: 'Story Time at the Library', type: 'Memory', cost: '2L', joy: 1 },
+    { name: 'Music Class', type: 'Memory', cost: '1L 1S', joy: 1 }, { name: 'Puppet Show', type: 'Memory', cost: '1L 1S', joy: 1 }, { name: 'Neighborhood Walk', type: 'Memory', cost: '2M', joy: 1 },
+    { name: 'Go to the Zoo', type: 'Memory', cost: '2M 1L', joy: 2 }, { name: 'Visit the Park', type: 'Memory', cost: '2M 1S', joy: 2 }, { name: 'Go for a Hike', type: 'Memory', cost: '3M', joy: 2 },
+    { name: 'Out on the Lake', type: 'Memory', cost: '3S', joy: 2 }, { name: 'First Day of Daycare', type: 'Memory', cost: '1S 1M 1L', joy: 2 }, { name: 'Aquarium', type: 'Memory', cost: '2L 1M', joy: 2 },
+    { name: 'Family Picnic', type: 'Memory', cost: '2S 1M', joy: 2 }, { name: 'Beach Day', type: 'Memory', cost: '2M 2S', joy: 3 },
+    // the unnamed cards of the sheet: named here by what they are
+    { name: 'Tummy Time', type: 'Memory', cost: '2M', joy: 1 }, { name: 'Bedtime Story', type: 'Memory', cost: '2L', joy: 1 }, { name: 'Peekaboo', type: 'Memory', cost: '2S', joy: 1 }, { name: 'Cozy Nap', type: 'Memory', cost: '2R', joy: 1 },
+    { name: 'Crawling Race', type: 'Memory', cost: '3M', joy: 2 }, { name: 'Picture Book', type: 'Memory', cost: '3L', joy: 2 }, { name: 'Giggle Party', type: 'Memory', cost: '3S', joy: 2 }, { name: 'Lazy Sunday', type: 'Memory', cost: '3R', joy: 2 },
+    { name: 'Big Adventure', type: 'Memory', cost: '4M', joy: 4 }, { name: 'First Birthday', type: 'Memory', cost: '4L', joy: 4 }, { name: 'Family Reunion', type: 'Memory', cost: '4S', joy: 4 }, { name: 'Perfect Day', type: 'Memory', cost: '4R', joy: 4 },
+  ],
+  babyNames: ['Ella', 'Noah', 'Mia', 'Leo', 'Ava', 'Max', 'Zoe', 'Finn', 'Ivy', 'Jack', 'Lily', 'Sam', 'Ruby', 'Ben', 'Nora', 'Theo', 'Cleo', 'Owen', 'Maya', 'Eli', 'Rosie', 'Gus', 'Hazel', 'Milo', 'Pearl', 'Otto', 'Daisy', 'Felix', 'June', 'Ollie', 'Poppy', 'Rex', 'Wren', 'Bo', 'Tess', 'Jude', 'Opal', 'Hank', 'Lulu', 'Moe'],
+  names: ['Maya', 'Theo', 'Priya', 'Jonas', 'Alma', 'Ravi', 'Lena'],
+  settings: { bots: 3, rounds: 7, level: 'normal' },
+  limits: { bots: [1, 7], rounds: [3, 20] },
+  ai: { levels: {
+    easy:   { babies: 1, rerolls: 0, reserve: 1, buys: 1 },
+    normal: { babies: 2, rerolls: 1, reserve: 1, buys: 2 },
+    hard:   { babies: 3, rerolls: 3, reserve: 1, buys: 3 },
+  } },
+};
+</script>
+<script id="engine">
+// OMG Babies! rules: pure, no DOM. State is plain JSON changed in place by apply().
+const Engine = (() => {
+  const D = GAME_DATA, R = D.rules, F = Object.fromEntries(D.faces.map(f => [f.id, f]));
+  const clone = o => JSON.parse(JSON.stringify(o));
+  const rnd = s => { s.rng = (s.rng + 0x6D2B79F5) | 0; let t = s.rng; t = Math.imul(t ^ (t >>> 15), t | 1); t ^= t + Math.imul(t ^ (t >>> 7), t | 61); return ((t ^ (t >>> 14)) >>> 0) / 4294967296; };
+  const shuffle = (s, a) => { for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(rnd(s) * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
+  const clamp = (v, [lo, hi]) => Math.max(lo, Math.min(hi, v));
+  const parseCost = c => { const o = {}; for (const m of String(c || '').match(/\d[A-Z]/g) || []) o[m[1]] = (o[m[1]] || 0) + +m[0]; return o; };
+  const home = p => p.babies.filter(b => b.up);
+  const log = (s, seat, text) => { s.log.push({ round: s.round, seat, text }); if (s.log.length > 200) s.log.shift(); };
+  const addJoy = (p, n) => { p.joy = Math.max(0, p.joy + n); p.peak = Math.max(p.peak, p.joy); };
+  const cleanSettings = o => { const c = Object.assign(clone(D.settings), o || {}); for (const k of Object.keys(D.limits)) c[k] = clamp(Math.round(+c[k] || D.settings[k]), D.limits[k]); if (!D.ai.levels[c.level]) c.level = 'normal'; return c; };
+
+  function newGame(opts = {}) {
+    const o = Object.assign({ seed: (Math.random() * 2 ** 31) | 0, humans: [0], settings: {} }, opts), cfg = cleanSettings(o.settings), n = cfg.bots + 1;
+    const s = { v: 1, cfg, rng: o.seed | 0, n, round: 1, turn: 0, phase: 'morning', players: [], babyDeck: [], goalDeck: [], goalRow: [], log: [], winners: null, summary: null };
+    s.babyDeck = shuffle(s, D.babyNames.map((nm, i) => i)); s.goalDeck = shuffle(s, D.goals.map((g, i) => i));
+    for (let i = 0; i < n; i++) s.players.push({ name: i === 0 && o.humans.includes(0) ? 'You' : D.names[(i - 1) % D.names.length], human: o.humans.includes(i), energy: R.startEnergy === 'order' ? Math.min(R.startEnergyCap, i + 1) : R.startEnergyCap, joy: 0, peak: 0, poop: R.startPoop, babies: [], goals: [], skills: [], dice: [], rolled: false, rerolls: 0, mem: {} });
+    for (const p of s.players) drawBaby(s, p);
+    for (let k = 0; k < R.goalSlots; k++) s.goalRow.push(s.goalDeck.length ? s.goalDeck.pop() : null);
+    startTurn(s); return s;
+  }
+  function drawBaby(s, p) { if (!s.babyDeck.length) return false; p.babies.push({ id: s.babyDeck.pop(), up: true }); return true; }
+  function startTurn(s) { const p = s.players[s.turn]; p.dice = []; p.rolled = false; p.rerolls = 0; s.phase = 'morning'; s.summary = { before: { joy: p.joy, poop: p.poop, energy: p.energy, babies: home(p).length }, notes: [] }; }
+  const refill = s => { for (let k = 0; k < R.goalSlots; k++) if (s.goalRow[k] == null && s.goalDeck.length) s.goalRow[k] = s.goalDeck.pop(); };
+  const roll1 = s => 1 + Math.floor(rnd(s) * 6);
+  const diceCount = p => Math.min(R.maxDice, R.baseDice + home(p).length);
+
+  // ---------- the afternoon: what a set of dice is worth ----------
+  const countsOf = dice => { const c = { L: 0, M: 0, S: 0, D: 0, R: 0, P: 0 }; for (const d of dice) c[D.faces[d.f - 1].id]++; return c; };
+  const joyFor = (c, hasBaby) => hasBaby ? ['L', 'M', 'S'].reduce((a, k) => a + (D.joyTable[Math.min(10, c[k])] || 0), 0) : 0;
+  // Play dice are wild: give them to whatever pays best. Returns the best split and what it does.
+  function bestUse(p, dice) {
+    const c = countsOf(dice), wild = c.P, hasBaby = home(p).length > 0; let best = null;
+    const kinds = ['L', 'M', 'S', 'D', 'R'];
+    (function go(i, left, add) {
+      if (i === kinds.length - 1) { add[kinds[i]] = left; evalIt(add); return; }
+      for (let k = 0; k <= left; k++) { add[kinds[i]] = k; go(i + 1, left - k, add); }
+    })(0, wild, {});
+    function evalIt(add) {
+      const t = { L: c.L + add.L, M: c.M + add.M, S: c.S + add.S, D: c.D + add.D, R: c.R + add.R };
+      const joy = joyFor(t, hasBaby), poop = Math.min(p.poop, R.diaperRemoves * t.D), energy = Math.min(R.energyMax - p.energy, R.restGives * t.R), value = joy + poop * 0.7 + energy * 0.8;
+      if (!best || value > best.value) best = { value, joy, poop, energy, t };
+    }
+    return best || { value: 0, joy: 0, poop: 0, energy: 0, t: c };
+  }
+  // Can these dice pay a cost like {M:1,S:1}? Natural dice first, Play dice fill in. Returns the dice indices to spend, or null.
+  function payment(dice, cost) {
+    const used = new Set(), need = Object.entries(cost);
+    for (const [k, n] of need) { let left = n; dice.forEach((d, i) => { if (left && !used.has(i) && D.faces[d.f - 1].id === k) { used.add(i); left--; } }); cost = cost; if (left) { dice.forEach((d, i) => { if (left && !used.has(i) && D.faces[d.f - 1].id === 'P') { used.add(i); left--; } }); } if (left) return null; }
+    return [...used];
+  }
+  const goalCost = g => g.type === 'Skill' ? { [g.gives]: R.skillCost } : parseCost(g.cost);
+
+  // ---------- actions ----------
+  const err = e => ({ ok: false, error: e });
+  function spend(s, p, n) { if (p.energy < n) return false; p.energy -= n; return true; }
+  function apply(s, a) {
+    const p = s.players[a.seat]; if (s.phase === 'over' || !p || a.seat !== s.turn) return err('turn');
+    switch (a.type) {
+      case 'newBaby': {
+        if (s.phase !== 'morning') return err('phase'); if (!s.babyDeck.length) return err('deck'); if (!spend(s, p, R.newBabyCost)) return err('energy');
+        drawBaby(s, p); s.summary.notes.push('drew a baby: ' + D.babyNames[p.babies[p.babies.length - 1].id]); return { ok: true, baby: p.babies[p.babies.length - 1] };
+      }
+      case 'daycare': { // flip any number of babies face down or up for 1 Energy
+        if (s.phase !== 'morning') return err('phase'); const ids = a.babies || []; if (!ids.length) return err('none'); if (!spend(s, p, R.daycareCost)) return err('energy');
+        for (const i of ids) if (p.babies[i]) p.babies[i].up = !p.babies[i].up; s.summary.notes.push('daycare for ' + ids.length); return { ok: true };
+      }
+      case 'deepClean': {
+        if (s.phase !== 'morning') return err('phase'); if (!spend(s, p, R.deepCleanCost)) return err('energy');
+        p.poop = 0; p.joy = 0; p.energy = 0; s.summary.notes.push('deep clean: lost all Poop, Joy and Energy'); return { ok: true };
+      }
+      case 'toAfternoon': {
+        if (s.phase !== 'morning') return err('phase'); s.phase = 'afternoon'; p.dice = [];
+        for (let i = 0; i < diceCount(p); i++) p.dice.push({ f: roll1(s) });
+        for (const k of p.skills) p.dice.push({ f: D.faces.find(f => f.id === k).n, fixed: true });
+        p.rolled = true; return { ok: true };
+      }
+      case 'reroll': { // for 1 Energy, reroll any number of (rolled, not skill) dice
+        if (s.phase !== 'afternoon') return err('phase'); const idx = (a.dice || []).filter(i => p.dice[i] && !p.dice[i].fixed); if (!idx.length) return err('none'); if (!spend(s, p, R.rerollCost)) return err('energy');
+        for (const i of idx) p.dice[i].f = roll1(s); p.rerolls++; return { ok: true };
+      }
+      case 'buy': {
+        if (s.phase !== 'afternoon') return err('phase'); const gi = s.goalRow[a.slot]; if (gi == null) return err('slot'); const g = D.goals[gi], pay = payment(p.dice, goalCost(g)); if (!pay) return err('cost');
+        p.dice = p.dice.filter((d, i) => !pay.includes(i));
+        if (g.type === 'Skill') { p.skills.push(g.gives); p.goals.push(gi); s.summary.notes.push('learned ' + g.name); } else { addJoy(p, g.joy); p.goals.push(gi); s.summary.notes.push(g.name + ' (+' + g.joy + ' Joy)'); }
+        s.goalRow[a.slot] = null; refill(s); return { ok: true, goal: g };
+      }
+      case 'finish': return finishAfternoon(s, p);
+      case 'next': { if (s.phase !== 'night') return err('phase'); return nextTurn(s); }
+      default: return err('type');
+    }
+  }
+  // Resolve the dice, then the Night, in one go; the turn waits on 'next' (so you can read what happened).
+  function finishAfternoon(s, p) {
+    if (s.phase !== 'afternoon') return err('phase');
+    const u = bestUse(p, p.dice); p.dice = [];
+    addJoy(p, u.joy); p.poop -= u.poop; p.energy = Math.min(R.energyMax, p.energy + u.energy);
+    s.summary.dice = { joy: u.joy, poop: u.poop, energy: u.energy, t: u.t };
+    // Night
+    const babies = home(p).length, lose = Math.floor(p.poop / R.nightJoyPerPoops);
+    addJoy(p, -lose); p.poop += babies; p.energy = Math.max(0, p.energy - babies);
+    s.summary.night = { joy: -lose, poop: babies, energy: -babies };
+    s.summary.after = { joy: p.joy, poop: p.poop, energy: p.energy, peak: p.peak };
+    s.phase = 'night'; return { ok: true };
+  }
+  function nextTurn(s) {
+    s.turn = (s.turn + 1) % s.n; if (s.turn === 0) { s.round++; if (s.round > s.cfg.rounds) { s.phase = 'over'; const top = Math.max(...s.players.map(p => p.peak)); s.winners = s.players.map((p, i) => p.peak === top ? i : -1).filter(i => i >= 0); return { ok: true }; } }
+    startTurn(s); return { ok: true };
+  }
+  // What a seat may see: everything on the table is public in this game (dice are rolled in the open).
+  const viewFor = s => s;
+  return { newGame, apply, home, diceCount, bestUse, payment, goalCost, parseCost, countsOf, joyFor, cleanSettings, viewFor, clone, rnd, F };
+})();
+</script>
+<script id="bots">
+// Computer parents: they play a whole turn with the same actions as a person.
+const Bots = (() => {
+  const D = GAME_DATA, E = Engine, R = D.rules;
+  const lv = s => D.ai.levels[s.cfg.level] || D.ai.levels.normal;
+  // the kind (Learn / Move / Social) a hand of dice is closest to a big set of
+  const topKind = (dice) => { const c = E.countsOf(dice); return ['L', 'M', 'S'].sort((a, b) => c[b] - c[a])[0]; };
+  function morning(s, seat) {
+    const p = s.players[seat], L = lv(s);
+    while (E.home(p).length < L.babies && p.energy > L.reserve && s.babyDeck.length) E.apply(s, { type: 'newBaby', seat });
+    // too much poop and several babies: put the extras in daycare for a round
+    if (p.poop >= 8 && E.home(p).length > 1 && p.energy > L.reserve) { const idx = p.babies.map((b, i) => b.up ? i : -1).filter(i => i >= 0).slice(1); E.apply(s, { type: 'daycare', seat, babies: idx }); }
+    else if (E.home(p).length === 0 && p.babies.length && p.energy > 0) E.apply(s, { type: 'daycare', seat, babies: p.babies.map((b, i) => i) });
+  }
+  function afternoon(s, seat) {
+    const p = s.players[seat], L = lv(s);
+    for (let k = 0; k < L.rerolls && p.energy > L.reserve; k++) {
+      const kind = topKind(p.dice), keep = new Set(['P', kind]); if (p.poop > 2) keep.add('D'); if (p.energy <= 2) keep.add('R');
+      const idx = p.dice.map((d, i) => keep.has(D.faces[d.f - 1].id) || d.fixed ? -1 : i).filter(i => i >= 0); if (idx.length < 2) break; E.apply(s, { type: 'reroll', seat, dice: idx });
+    }
+    for (let b = 0; b < L.buys; b++) {
+      let best = null; s.goalRow.forEach((gi, slot) => { if (gi == null) return; const g = D.goals[gi], ok = E.payment(p.dice, E.goalCost(g)); if (!ok) return; const v = g.type === 'Skill' ? 1.5 : g.joy; if (!best || v > best.v) best = { v, slot }; });
+      if (!best || best.v < 1) break; E.apply(s, { type: 'buy', seat, slot: best.slot });
+    }
+    E.apply(s, { type: 'finish', seat });
+  }
+  // One whole turn for a bot; returns the summary of it.
+  function turn(s, seat) {
+    morning(s, seat); E.apply(s, { type: 'toAfternoon', seat }); afternoon(s, seat); const sum = s.summary; return sum;
+  }
+  function playGame(s) {
+    for (let g = 0; g < 5000 && s.phase !== 'over'; g++) { turn(s, s.turn); E.apply(s, { type: 'next', seat: s.turn }); }
+    return s;
+  }
+  return { turn, playGame, morning, afternoon };
+})();
+</script>
+<script id="ui">
+// Screens: menu, setup, the home board and turn (morning / afternoon / night), the recap of the computer parents' turns, the end.
+(() => {
+  const D = GAME_DATA, R = D.rules, E = Engine, B = Bots, ME = 0;
+  const $ = document.getElementById('app');
+  const esc = t => String(t == null ? '' : t).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+  const store = { get(k, d) { try { const v = localStorage.getItem('omgbabies-' + k); return v == null ? d : JSON.parse(v); } catch (e) { return d; } }, set(k, v) { try { localStorage.setItem('omgbabies-' + k, JSON.stringify(v)); } catch (e) { /* no storage */ } } };
+  const fromLibrary = () => { let came = /[?&]from=library\b/.test(location.search); try { if (came) sessionStorage.setItem('tabletop-library-from', '1'); else { const nav = (performance.getEntriesByType && performance.getEntriesByType('navigation')[0]) || {}; if (nav.type === 'navigate') sessionStorage.removeItem('tabletop-library-from'); else came = sessionStorage.getItem('tabletop-library-from') === '1'; } } catch (e) { /* no storage */ } return /^https?:$/.test(location.protocol) && came; };
+  const LIB = fromLibrary();
+  const buildStamp = () => { const m = document.querySelector('meta[name=build]'), b = m ? m.content : ''; return b === '__BUILD__' ? 'local file' : b; };
+  const ui = { screen: 'menu', s: null, sheet: null, hold: [], pick: null, goalPick: null, daycare: null, toast: '', recap: null, rolled: false, settings: E.cleanSettings(store.get('settings', {})), newBaby: null, quit: false };
+  const saveSettings = () => store.set('settings', ui.settings);
+  const F = D.faces;
+
+  // ---------- art: a cartoon baby, different for every baby card ----------
+  const SKIN = ['#f9d3b4', '#f2c19a', '#d9a07a', '#b97f5a', '#8a5a3c', '#fbe0c8'], HAIR = ['#6a3f1e', '#2b1d12', '#e0a838', '#b9501e', '#3a3a3a', '#f0c870'], SUIT = ['#ff8fb8', '#8ad4f0', '#ffd23f', '#8fe3c0', '#cdb4f0', '#ffb08a'];
+  function babyFace(id, big) {
+    const sk = SKIN[id % 6], hr = HAIR[(id * 5 + 1) % 6], su = SUIT[(id * 7 + 2) % 6], style = id % 4, eyes = id % 3;
+    const tuft = [`<path d="M40 22Q50 6 60 22Q50 14 40 22Z" fill="${hr}"/>`, `<path d="M32 28Q50 4 68 28Q50 18 32 28Z" fill="${hr}"/>`, `<circle cx="50" cy="16" r="8" fill="${hr}"/><circle cx="40" cy="20" r="6" fill="${hr}"/><circle cx="60" cy="20" r="6" fill="${hr}"/>`, ''][style];
+    const eye = [`<circle cx="38" cy="48" r="4.5" fill="#2b1d12"/><circle cx="62" cy="48" r="4.5" fill="#2b1d12"/><circle cx="39.5" cy="46.5" r="1.5" fill="#fff"/><circle cx="63.5" cy="46.5" r="1.5" fill="#fff"/>`, `<path d="M32 48Q38 42 44 48M56 48Q62 42 68 48" fill="none" stroke="#2b1d12" stroke-width="3.5" stroke-linecap="round"/>`, `<circle cx="38" cy="48" r="5.5" fill="#fff" stroke="#2b1d12" stroke-width="2.5"/><circle cx="62" cy="48" r="5.5" fill="#fff" stroke="#2b1d12" stroke-width="2.5"/><circle cx="39" cy="48.5" r="2.6" fill="#2b1d12"/><circle cx="61" cy="48.5" r="2.6" fill="#2b1d12"/>`][eyes];
+    const mouth = id % 5 === 0 ? `<ellipse cx="50" cy="66" rx="6" ry="7" fill="#c0455a" stroke="#4a2f5a" stroke-width="2"/>` : `<path d="M42 64Q50 72 58 64" fill="none" stroke="#4a2f5a" stroke-width="3" stroke-linecap="round"/>`;
+    return `<svg viewBox="0 0 100 100" aria-hidden="true"><path d="M22 100Q22 80 50 80Q78 80 78 100Z" fill="${su}" stroke="#4a2f5a" stroke-width="3" stroke-linejoin="round"/><circle cx="50" cy="48" r="30" fill="${sk}" stroke="#4a2f5a" stroke-width="3"/><circle cx="20" cy="50" r="6" fill="${sk}" stroke="#4a2f5a" stroke-width="3"/><circle cx="80" cy="50" r="6" fill="${sk}" stroke="#4a2f5a" stroke-width="3"/>${tuft}${eye}<circle cx="30" cy="58" r="5" fill="#ff9aa8" opacity=".55"/><circle cx="70" cy="58" r="5" fill="#ff9aa8" opacity=".55"/>${mouth}</svg>`;
+  }
+  const babyEl = (b, i, o = {}) => `<button class="baby ${b.up ? '' : 'down'} ${o.pick ? 'pick' : ''} ${o.isNew ? 'new' : ''}" ${o.act ? `data-act="${o.act}" data-i="${i}"` : 'disabled'}>${babyFace(b.id)}${esc(D.babyNames[b.id])}</button>`;
+  const toast = t => { ui.toast = t; render(); clearTimeout(toast.t); toast.t = setTimeout(() => { ui.toast = ''; render(); }, 1500); };
+  const costChips = g => { const c = E.goalCost(g); return Object.entries(c).map(([k, n]) => `<span>${n}${F.find(f => f.id === k).icon}</span>`).join(''); };
+
+  // ---------- menu ----------
+  function menuHTML() {
+    const S = ui.settings;
+    return `<div class="screen menu">${LIB ? `<a class="libback" href="${D.library.href}">‹ Library</a>` : ''}<div class="logo">OMG<b>Babies!</b></div><div class="tagline">Take care of babies. Roll the dice. Clean up the poop. Collect the most Joy!</div>
+      <div class="crib">${[0, 7, 14].map((id, k) => `<div class="bb" style="left:${[6, 36, 66][k]}%;top:${[18, 4, 22][k]}%;animation-delay:${k * .4}s">${babyFace(id)}</div>`).join('')}<div style="position:absolute;bottom:2%;font-size:54px">💩 ⭐ 🧸</div></div>
+      <div class="stack"><div class="row" style="gap:6px">${[1, 3, 5, 7].map(n => `<button class="chip ${S.bots === n ? 'on' : ''}" data-act="bots" data-n="${n}">${n + 1} players</button>`).join('')}</div>
+        <div class="row" style="gap:6px">${['easy', 'normal', 'hard'].map(k => `<button class="chip ${S.level === k ? 'on' : ''}" data-act="level" data-k="${k}">${k[0].toUpperCase() + k.slice(1)}</button>`).join('')}<button class="chip" data-act="rounds">${S.rounds} rounds ▸</button></div>
+        <button class="btn go" data-act="play">Start the day!</button><button class="btn sky" data-act="sheet" data-s="how">How to play</button></div>
+      <div class="credit">A game by Emily &amp; Patrick Blim-Hockberger · ${esc(buildStamp())}</div></div>`;
+  }
+
+  // ---------- the game ----------
+  const keyOf = (n, d) => n;
+  function homeHTML(p, s) {
+    const hm = E.home(p).length, mode = ui.daycare;
+    const babies = p.babies.map((b, i) => babyEl(b, i, { act: mode ? 'daybaby' : null, pick: mode && mode.includes(i), isNew: ui.newBaby === i })).join('') || '<div class="say">No babies yet.</div>';
+    const bolts = Array.from({ length: R.energyMax }, (_, i) => `<span class="pip ${i < p.energy ? '' : 'off'}">⚡</span>`).join('');
+    return `<div class="home"><h3>Your Home <small>${hm === 1 ? '1 baby' : hm + ' babies'} at home${p.babies.length - hm ? ` · ${p.babies.length - hm} at daycare` : ''}</small></h3><div class="babies">${babies}</div>
+      <div class="meters"><div class="meter"><small>Poop (−1 Joy per ${R.nightJoyPerPoops})</small>${p.poop ? Array.from({ length: Math.min(p.poop, 24) }, () => '<span class="pip">💩</span>').join('') : '<span style="opacity:.5">none!</span>'}${p.poop > 24 ? '+' + (p.poop - 24) : ''}</div><div class="meter"><small>Energy ${p.energy}</small>${bolts}</div></div>
+      ${p.skills.length ? `<div class="say">Skills: ${p.skills.map(k => F.find(f => f.id === k).icon + ' +1 ' + F.find(f => f.id === k).name).join(' · ')}</div>` : ''}</div>`;
+  }
+  function morningHTML(s, p) {
+    const e = p.energy, mode = ui.daycare;
+    if (mode) return `<div class="say">Daycare: tap the babies to send to daycare (face down) or bring home (face up). <b>${mode.length}</b> picked.</div><div class="row"><button class="btn mint" data-act="daydo" ${mode.length && e >= R.daycareCost ? '' : 'disabled'}>Do it (${R.daycareCost}⚡)</button><button class="btn" data-act="daycancel">Cancel</button></div>`;
+    return `<div class="say">Morning: spend Energy, or go straight to the afternoon. (You have ${e}⚡.)</div>
+      <div class="tiles"><button class="tile" data-act="newbaby" ${e >= R.newBabyCost && s.babyDeck.length ? '' : 'disabled'}><b>👶 New Baby</b><small>${R.newBabyCost}⚡ · draw a baby (${s.babyDeck.length} left)</small></button>
+      <button class="tile" data-act="daystart" ${e >= R.daycareCost && p.babies.length ? '' : 'disabled'}><b>🏠 Daycare</b><small>${R.daycareCost}⚡ · flip babies face down or up</small></button>
+      <button class="tile" data-act="clean" ${e >= R.deepCleanCost ? '' : 'disabled'}><b>🧹 Deep Clean</b><small>${R.deepCleanCost}⚡ · lose all Poop, Joy and Energy</small></button>
+      <button class="tile" data-act="toafternoon" style="background:var(--sun)"><b>☀️ To the afternoon</b><small>roll ${E.diceCount(p)} dice${p.skills.length ? ' + ' + p.skills.length + ' skill' : ''}</small></button></div>`;
+  }
+  function afternoonHTML(s, p) {
+    const dice = p.dice.map((d, i) => { const f = F[d.f - 1]; return `<button class="die ${ui.hold.includes(i) ? 'sel' : ''} ${d.fixed ? 'fixed' : ''} ${ui.rolled ? 'roll' : ''}" style="background:${f.color}33" data-act="${d.fixed ? 'none' : 'die'}" data-i="${i}"><i>${f.icon}</i>${f.name}</button>`; }).join('') || '<div class="say">No dice left.</div>';
+    const u = E.bestUse(p, p.dice), hm = E.home(p).length, goals = s.goalRow.map((gi, slot) => {
+      if (gi == null) return '<div class="goal empty"></div>'; const g = D.goals[gi], ok = !!E.payment(p.dice, E.goalCost(g));
+      return `<button class="goal ${ok ? 'ok' : ''} ${ui.goalPick === slot ? 'pick' : ''} ${g.type === 'Skill' ? 'skill' : ''}" data-act="goal" data-i="${slot}"><div style="display:flex;align-items:center"><span class="cost">${costChips(g)}</span>${g.type === 'Memory' ? `<span class="joyv">+${g.joy} Joy</span>` : '<span class="joyv" style="background:#bfeaff">Skill</span>'}</div><b>${esc(g.name)}</b>${g.type === 'Skill' ? `<small>forever +1 ${F.find(f => f.id === g.gives).name}</small>` : ''}${ui.goalPick === slot ? '<small><b>Tap again to buy</b></small>' : ''}</button>`;
+    }).join('');
+    const nh = hm, nightJoy = Math.floor((p.poop - u.poop) / R.nightJoyPerPoops);
+    return `<div class="say">Afternoon: tap dice to pick the ones to reroll (${R.rerollCost}⚡ per reroll, you have ${p.energy}⚡). ⭐ is wild. Spend dice on Goals, then finish.</div><div class="dice">${dice}</div>
+      <div class="row"><button class="btn sun" data-act="reroll" ${ui.hold.length && p.energy >= R.rerollCost ? '' : 'disabled'}>Reroll ${ui.hold.length || ''} (${R.rerollCost}⚡)</button><button class="btn mint" data-act="finish">Finish afternoon ▸</button></div>
+      <div class="say">If you finish now: ${hm ? `<b>+${u.joy} Joy</b>` : 'no Joy (you need a baby at home)'} · 🧷 −${u.poop} poop · 😴 +${u.energy}⚡<br>Then night: −${nightJoy} Joy, +${nh} 💩, −${nh}⚡</div><h3>Goals to buy</h3><div class="goals">${goals}</div>`;
+  }
+  function nightHTML(s, p) {
+    const m = s.summary, d = m.dice || {}, n = m.night || {}, a = m.after || {};
+    return `<div class="night"><table><tr><th></th><th>Joy</th><th>Poop</th><th>Energy</th></tr><tr><td>Afternoon dice</td><td>+${d.joy || 0}</td><td>−${d.poop || 0}</td><td>+${d.energy || 0}</td></tr>${m.notes.length ? `<tr><td colspan="4">${esc(m.notes.join(' · '))}</td></tr>` : ''}
+      <tr><td>Night</td><td>${n.joy || 0}</td><td>+${n.poop || 0}</td><td>${n.energy || 0}</td></tr><tr><th>Now</th><th>${a.joy}</th><th>${a.poop}</th><th>${a.energy}</th></tr></table></div><button class="btn go" data-act="next">Next ▸</button>`;
+  }
+  function gameHTML() {
+    const s = ui.s, p = s.players[ME], my = s.turn === ME, over = s.phase === 'over';
+    const rivals = s.players.map((q, i) => i === ME ? '' : `<div class="rival ${s.turn === i ? 'turn' : ''}"><b>${esc(q.name)}</b>${q.joy} Joy · best ${q.peak}<br>👶${E.home(q).length} 💩${q.poop} ⚡${q.energy}</div>`).join('');
+    let panel = '';
+    if (over) panel = finalHTML(s); else if (s.phase === 'morning') panel = morningHTML(s, p); else if (s.phase === 'afternoon') panel = afternoonHTML(s, p); else panel = nightHTML(s, p);
+    return `<div class="screen"><div class="bar"><button class="menubtn" data-act="sheet" data-s="menu" aria-label="Menu">☰</button><div class="round">Round ${Math.min(s.round, s.cfg.rounds)} of ${s.cfg.rounds}<small>${over ? 'Game over' : { morning: '🌅 Morning', afternoon: '☀️ Afternoon', night: '🌙 Night' }[s.phase]}</small></div><div class="joy"><b>${p.joy}</b><small>best ${p.peak}</small></div></div>
+      <div class="rivals">${rivals}</div>${homeHTML(p, s)}<div class="panel" id="panel">${panel}</div></div>`;
+  }
+  function finalHTML(s) {
+    const order = s.players.map((p, i) => i).sort((a, b) => s.players[b].peak - s.players[a].peak), win = s.winners;
+    return `<div class="final"><h2 style="font-size:34px;text-align:center">🏆 ${win.map(i => i === ME ? 'You' : esc(s.players[i].name)).join(' and ')} ${win.length > 1 ? 'tie' : win[0] === ME ? 'win' : 'wins'}!</h2><p style="text-align:center;font-weight:800">The most Joy at any point wins.</p>
+      ${order.map(i => `<div class="r ${win.includes(i) ? 'win' : ''}"><b>${i === ME ? 'You' : esc(s.players[i].name)}</b><span>${E.home(s.players[i]).length} babies · ${s.players[i].goals.length} goals</span><em>${s.players[i].peak}</em></div>`).join('')}</div><div class="row" style="margin-top:10px"><button class="btn go" data-act="play">Play again</button><button class="btn" data-act="menu">Menu</button></div>`;
+  }
+  function sheetHTML() {
+    const sh = ui.sheet; if (!sh) return ''; let body = '';
+    if (sh.t === 'how') body = `<div class="howto"><h3>How to play OMG Babies!</h3><p>You take care of babies. The player with the most <b>Joy at any point</b> wins. Play ${ui.settings.rounds} rounds; each turn has a Morning, an Afternoon and a Night.</p>
+      <ul><li><b>Morning</b> (each costs ${R.newBabyCost}⚡): draw a <b>New Baby</b>; send babies to <b>Daycare</b> (face down: they are not in your Home) or bring them back; or <b>Deep Clean</b> (lose all Poop, Joy and Energy).</li>
+      <li><b>Afternoon</b>: roll ${R.baseDice} dice plus 1 for each baby at home (at most ${R.maxDice}). Reroll any dice for ${R.rerollCost}⚡. 💡 Learn, 👟 Move, 💬 Social, 🧷 Diaper (removes up to ${R.diaperRemoves} Poop each), 😴 Rest (+${R.restGives}⚡ each), ⭐ Play (wild).</li>
+      <li><b>Joy</b> (you need a baby at home): matching Learn, Move or Social dice: 2 of a kind 1 Joy, 3 → 2, 4 → 4, 5 → 6 … 10 → 15.</li>
+      <li><b>Goals</b>: spend dice to buy a Memory (gain its Joy) or a Skill (a permanent extra die face).</li>
+      <li><b>Night</b>: −1 Joy per ${R.nightJoyPerPoops} Poop, then +1 Poop and −1⚡ for each baby at home.</li></ul></div><button class="btn go" data-act="closesheet">Got it</button>`;
+    else if (sh.t === 'menu') body = `<h3>Menu</h3><button class="btn sky" data-act="sheet" data-s="how">How to play</button><button class="btn ${ui.quit ? 'sun' : ''}" data-act="newgame">${ui.quit ? 'Tap again to abandon this game' : 'New game'}</button><button class="btn" data-act="menu">Main menu</button>${LIB ? `<a class="btn" href="${D.library.href}">‹ Library</a>` : ''}<button class="btn go" data-act="closesheet">Back to the babies</button>`;
+    else if (sh.t === 'recap') body = `<h3>While you slept…</h3>${ui.recap.map(r => `<div class="li"><b>${esc(r.name)}</b>: ${r.joy >= 0 ? '+' : ''}${r.joy} Joy now (${r.joy2} Joy, best ${r.peak}). ${esc(r.notes)}</div>`).join('')}<button class="btn go" data-act="closesheet">${ui.s.phase === 'over' ? 'See the winner' : 'My turn!'}</button>`;
+    return `<div class="sheet-bg" data-act="bg"><div class="sheet">${body}</div></div>`;
+  }
+  function render() {
+    let h = ui.screen === 'menu' ? menuHTML() : gameHTML(); h += sheetHTML(); if (ui.toast) h += `<div class="toast">${esc(ui.toast)}</div>`;
+    const pn = $.querySelector('#panel'), top = pn ? pn.scrollTop : 0; $.innerHTML = h; const n = $.querySelector('#panel'); if (n && top) n.scrollTop = top; ui.newBaby = null; ui.rolled = false;
+  }
+
+  // ---------- flow ----------
+  function start() { ui.s = E.newGame({ settings: ui.settings }); ui.screen = 'game'; ui.sheet = null; ui.hold = []; ui.goalPick = null; ui.daycare = null; ui.recap = null; ui.quit = false; render(); }
+  function afterNight() { // you tapped Next: the computer parents take their turns at once, then the recap waits for you
+    const s = ui.s; E.apply(s, { type: 'next', seat: ME }); const recap = [];
+    while (s.phase !== 'over' && s.turn !== ME) { const q = s.players[s.turn], before = q.joy, sum = B.turn(s, s.turn); recap.push({ name: q.name, joy: q.joy - before, joy2: q.joy, peak: q.peak, notes: (sum.notes.length ? sum.notes.join(', ') + '. ' : '') + (sum.dice && sum.dice.joy ? `Dice gave +${sum.dice.joy} Joy.` : '') }); E.apply(s, { type: 'next', seat: s.turn }); }
+    ui.recap = recap; ui.hold = []; ui.goalPick = null; ui.sheet = recap.length ? { t: 'recap' } : null; render();
+  }
+  const act = a => { const r = E.apply(ui.s, Object.assign({ seat: ME }, a)); if (!r.ok) toast({ energy: 'Not enough Energy', cost: 'You cannot pay for that', deck: 'No more babies' }[r.error] || 'Not allowed'); return r; };
+  const H = {
+    play() { start(); }, menu() { ui.screen = 'menu'; ui.sheet = null; ui.quit = false; render(); },
+    bots(d) { ui.settings.bots = +d.n; saveSettings(); render(); }, level(d) { ui.settings.level = d.k; saveSettings(); render(); },
+    rounds() { const r = ui.settings.rounds + 2; ui.settings.rounds = r > 11 ? 3 : r; ui.settings = E.cleanSettings(ui.settings); saveSettings(); render(); },
+    sheet(d) { ui.sheet = { t: d.s }; render(); }, closesheet() { ui.sheet = null; render(); }, bg() { H.closesheet(); },
+    newgame() { if (!ui.quit) { ui.quit = true; return render(); } ui.quit = false; start(); },
+    newbaby() { const r = act({ type: 'newBaby' }); if (r.ok) { ui.newBaby = ui.s.players[ME].babies.length - 1; render(); } },
+    daystart() { ui.daycare = []; render(); }, daybaby(d) { const i = +d.i, m = ui.daycare, k = m.indexOf(i); if (k >= 0) m.splice(k, 1); else m.push(i); render(); },
+    daydo() { const r = act({ type: 'daycare', babies: ui.daycare }); ui.daycare = null; render(); }, daycancel() { ui.daycare = null; render(); },
+    clean() { if (act({ type: 'deepClean' }).ok) { toast('All clean (and tired)'); } },
+    toafternoon() { ui.hold = []; ui.goalPick = null; if (act({ type: 'toAfternoon' }).ok) { ui.rolled = true; render(); } },
+    die(d) { const i = +d.i, k = ui.hold.indexOf(i); if (k >= 0) ui.hold.splice(k, 1); else ui.hold.push(i); render(); },
+    reroll() { const r = act({ type: 'reroll', dice: ui.hold }); if (r.ok) { ui.hold = []; ui.rolled = true; render(); } },
+    goal(d) { const slot = +d.i; if (ui.goalPick !== slot) { ui.goalPick = slot; return render(); } const r = act({ type: 'buy', slot }); ui.goalPick = null; ui.hold = []; if (r.ok) toast('Got it: ' + r.goal.name); else render(); },
+    finish() { ui.hold = []; ui.goalPick = null; act({ type: 'finish' }); render(); }, next() { afterNight(); }, none() {},
+  };
+  $.addEventListener('click', e => { const el = e.target.closest('[data-act]'); if (!el) return; if (el.dataset.act === 'bg' && e.target !== el) return; const f = H[el.dataset.act]; if (!f) return; if (!['newgame', 'sheet'].includes(el.dataset.act)) ui.quit = false; f(el.dataset); });
+  window.__ob = { ui, E, B };
+  render();
+})();
+</script>
+</body>
+</html>

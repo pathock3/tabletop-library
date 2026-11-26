@@ -48,6 +48,11 @@ The primary target is the iPad **in portrait**, opened from the home screen as a
 - **Art rule**: to add or change a card's picture, edit its entry in `art.js` (silhouette + colours); never draw a print motif by hand: the art test fails if the prints drawn differ from the sheet row. The debug menu (Settings → Debug) has the art gallery and the parsed invite rules.
 - Calls where the notes are silent are in `DECISIONS.md`. Not built: sound, online play, the headless simulation UI.
 
+## OMG Babies! (`games/omg-babies/`)
+- Emily and Patrick's baby-care dice game (rulebook Dec 2023 + the "Babies Photo Cards" sheet in Drive folder "OMG Babies!") as one human vs 1–7 computer parents. Turn = Morning (New Baby / Daycare / Deep Clean, each 1 Energy) → Afternoon (roll 5 dice + 1 per baby at home, max 10; reroll any dice for 1 Energy; Learn/Move/Social sets give Joy per `joyTable`; Diaper removes Poop; Rest gives Energy; Play is wild; spend dice on Goal cards) → Night (−1 Joy per 2 Poop, then +1 Poop and −1 Energy per baby at home). Highest **peak** Joy wins after `rules.rounds` rounds.
+- Scripts: `data` (every number, the 30 goal cards, the 40 baby names, ai levels), `engine` (pure; `apply`; `bestUse` auto-assigns Play dice and values a finish; the Night runs when you finish the afternoon and waits on `next`), `bots` (a whole turn at once, same actions as a person), `ui` (code-drawn baby faces). Everything on the table is public, so there is no `viewFor`.
+- Rulebook gaps are my calls in `DECISIONS.md`: starting Energy (first player 1, next 2 … capped at 5), Skill cost (3 matching dice), 7 rounds, the 12 unnamed goal cards named, Events and Items not built.
+
 ## Mini Roll & Writes (`games/mini-roll-writes/`)
 - Four two-player dice games from Patrick's "Mini Roll & Writes" doc in one box: Wizard Darts, Wizard Battleship, Where's the Lie?, Target Practice. Against the computer (Easy / Normal / Hard) or Pass & Play (hand-off screens before secrets). Rules, numbers and variants are in the `data` script; `engine` is pure (seeded RNG, `Engine.viewFor` strips what a seat may not see); `bots` only read that view; `ui`, `sound`. Open rules questions and calls are in `DECISIONS.md`. Tests: `tests/engine.test.js`, `tests/ui.test.js` (a whole game of each, at iPad and iPhone size).
 
