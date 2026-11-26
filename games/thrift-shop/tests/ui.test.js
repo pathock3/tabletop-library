@@ -73,9 +73,9 @@ test('Thrift Shop: settings change the game, and the menu works in portrait and 
 
 test('Thrift Shop: the debug menu has an art gallery (all 120 cards match their sheet prints) and the parsed invite rules', { skip: !chromium, timeout: 60000 }, async () => {
   const b = await launch(); const { p, errs } = await open(b, 1180, 820, JSON.stringify({ debug: true }));
-  assert.ok(await p.locator('[data-act=gallery]').count()); await p.click('[data-act=gallery]');
+  await p.click('[data-act=settings]'); assert.ok(await p.locator('[data-act=gallery]').count()); await p.click('[data-act=gallery]');
   for (const t of ['Head', 'Top', 'Bottom', 'Accessory']) { await p.click(`[data-act=gtype][data-t=${t}]`); assert.equal(await p.locator('.gcell').count(), 30, t); assert.equal(await p.locator('.gcell.bad').count(), 0, t + ' art disagrees with the sheet'); assert.equal(await p.locator('.gcell svg').count(), 30); }
   await p.click('[data-act=gfig]'); assert.equal(await p.locator('.gcell svg.figure-svg').count(), 30); assert.match(await p.locator('.top').innerText(), /All 120 match the sheet/);
-  await p.click('[data-act=menu]'); await p.click('[data-act=rulesview]'); assert.equal(await p.locator('.rrow').count(), 37); assert.match(await p.locator('.rrow code').first().innerText(), /"kind":"rank"/);
-  await p.click('[data-act=menu]'); await p.click('[data-act=settings]'); await p.click('[data-act=debug]'); await p.click('[data-act=menu]'); assert.equal(await p.locator('[data-act=gallery]').count(), 0); assert.deepEqual(errs, []);
+  await p.click('[data-act=menu]'); await p.click('[data-act=settings]'); await p.click('[data-act=rulesview]'); assert.equal(await p.locator('.rrow').count(), 37); assert.match(await p.locator('.rrow code').first().innerText(), /"kind":"rank"/);
+  await p.click('[data-act=menu]'); await p.click('[data-act=settings]'); await p.click('[data-act=debug]'); assert.equal(await p.locator('[data-act=gallery]').count(), 0); assert.deepEqual(errs, []);
 });
