@@ -253,6 +253,23 @@ textarea.log { width: 100%; height: 320px; font-size: 13px; font-family: ui-mono
 @media (max-height: 640px) { .hero { display: none; } }
 @media (min-aspect-ratio: 5/4) { .sign h1 br { display: none; } .sign { width: min(780px, 90vw); } .sign h1 { font-size: clamp(40px, 9vh, 70px); } .fc { transform: translateX(calc(var(--x) * 4.2)) rotate(var(--r)); height: 66%; } .fc .nm { font-size: 13px; } }
 .figure-svg { overflow: visible; }
+
+/* v4 cards: horizontal, one garment per picture, every fact visible (type, name, Impressions, prints, ability) */
+.hc { display: grid; grid-template-columns: 3.7em 1fr; grid-template-rows: auto minmax(0, 1fr) auto; grid-template-areas: "hd hd" "imps art" "pr pr"; gap: .3em .4em; font-size: 14px; padding: .35em .45em .4em; overflow: hidden; min-height: 0; }
+.hc .hd { grid-area: hd; display: flex; align-items: baseline; gap: .4em; min-width: 0; }
+.hc .ty { font-style: normal; font-size: .72em; font-weight: 900; letter-spacing: .08em; text-transform: uppercase; color: #fff; background: var(--t); padding: .12em .55em; border-radius: 1em; flex: none; }
+.hc .nm { font-size: 1em; line-height: 1.05; font-family: var(--serif); display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.hc .imps { grid-area: imps; width: auto; display: flex; flex-direction: column; gap: .25em; justify-content: center; }
+.hc .im { font-size: 1.15em; padding: .05em .35em; }
+.hc .artbox { grid-area: art; min-height: 0; border-radius: .5em; overflow: hidden; background: #fff6dc; border: 2px solid #00000022; display: flex; }
+.hc .artbox svg { width: 100%; height: 100%; display: block; }
+.hc .pr { grid-area: pr; display: flex; flex-wrap: wrap; gap: .25em; } .hc .pr span { font-size: .78em; font-weight: 800; background: #00000018; border-radius: .6em; padding: 0 .5em; }
+.hc.acc { grid-template-columns: 1fr 1.2fr; grid-template-rows: auto minmax(0, 1fr); grid-template-areas: "hd hd" "art ab"; }
+.hc .ab { grid-area: ab; font-size: .95em; font-weight: 800; line-height: 1.18; color: #6a1f12; display: flex; align-items: center; background: #fff0c8; border-radius: .5em; padding: .3em .5em; }
+.handwrap { height: 158px; } .handrow { min-height: 0; }
+.build .hc { font-size: 17px; } .build .handrow { grid-template-columns: 1fr 1fr; grid-template-rows: repeat(3, 1fr); width: 520px; }
+.fc .hc { font-size: 13px; flex-direction: initial; } .fc .hc .nm { font-size: 1em; }
+.hc.sel { transform: translateY(-6px); }
 </style>
 </head>
 <body>
@@ -660,7 +677,7 @@ const Art = (() => {
   };
 
   // ---------------- assembling ----------------
-  const REGION = { Head: [28, -34, 140, 140], Top: [20, 90, 160, 134], Bottom: [8, 196, 184, 146], Accessory: [0, 0, 100, 100] };
+  const REGION = { Head: [22, -30, 156, 128], Top: [6, 62, 188, 176], Bottom: [6, 196, 188, 150], Accessory: [0, 0, 100, 100] };   // a card shows only its garment, cropped to this box
   const KINDS = { Head: HEADS, Top: {}, Bottom: {}, Accessory: {} }, SPECS = { Head: HEAD_SPEC, Top: {}, Bottom: {}, Accessory: {} };
   function extend(type, kinds, specs) { Object.assign(KINDS[type], kinds); Object.assign(SPECS[type], specs); }
   const indexOf = name => CARDS.findIndex(c => c.name === name);
@@ -674,9 +691,9 @@ const Art = (() => {
   // A card's picture: the garment worn on the figure, cropped to its slot.
   function card(idx) {
     const c = CARDS[idx];
-    if (c.type === 'Accessory') return `<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" class="art" role="img" aria-label="${c.name}"><rect width="100" height="100" fill="#fff6dc"/>${layer(idx)}</svg>`;
+    if (c.type === 'Accessory') return `<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" class="art" role="img" aria-label="${c.name}"><g class="garment">${layer(idx)}</g></svg>`;
     const [x, y, w, h] = REGION[c.type];
-    return `<svg viewBox="${x} ${y} ${w} ${h}" xmlns="http://www.w3.org/2000/svg" class="art" role="img" aria-label="${c.name}"><rect x="${x}" y="${y}" width="${w}" height="${h}" fill="#fff6dc"/>${figureBase}${layer(idx)}</svg>`;
+    return `<svg viewBox="${x} ${y} ${w} ${h}" xmlns="http://www.w3.org/2000/svg" class="art" role="img" aria-label="${c.name}"><g class="garment">${layer(idx)}</g></svg>`;
   }
   // The whole outfit on the figure: bald, undershirt, heart boxers and an empty hand unless a card is played there.
   function figure(board, opts = {}) {
@@ -833,13 +850,16 @@ Art.extend('Accessory', (() => {
 
   // ---------- small pieces ----------
   const impsOf = c => D.impressions.map((im, i) => [im, c.v[i]]).filter(([, v]) => v !== 0);
+  // each card picture is cropped to its own garment (measured in the browser) so it fills its frame
+  const fitArt = root => (root || document).querySelectorAll('.artbox svg, .gart svg').forEach(svg => { const g = svg.querySelector('.garment'); if (!g || svg.dataset.fit) return; svg.dataset.fit = 1; try { const b = g.getBBox(), p = Math.max(b.width, b.height) * 0.07; if (b.width > 4 && b.height > 4) svg.setAttribute('viewBox', `${b.x - p} ${b.y - p} ${b.width + 2 * p} ${b.height + 2 * p}`); } catch (e) { /* not rendered yet */ } });
   const hint = t => { const st = document.getElementById('stage'); if (!st) return; const old = st.querySelector('.hint'); if (old) old.remove(); const h = document.createElement('div'); h.className = 'hint'; h.textContent = t; st.appendChild(h); setTimeout(() => h.remove(), 1500); };
   const impChips = card => impsOf(card).map(([im, v]) => `<span class="im" style="--c:${im.color}"><i>${im.icon}</i><b class="${v < 0 ? 'neg' : ''}">${v}</b></span>`).join('');
   // a hand card: stats on the left, the art on the right, the name under it (an accessory shows its ability instead of stats)
   function handCardHTML(idx, hi, o = {}) {
     const c = CARDS[idx], acc = c.type === 'Accessory';
-    return `<div class="hc ${o.sel ? 'sel' : ''} ${o.played ? 'played' : ''} ${o.arrive ? 'arrive' : ''} ${o.cls || ''}" style="--t:${TYPE_COLOR[c.type]}" ${hi >= 0 ? `data-hand="${hi}"` : ''} data-card="${idx}">${acc ? '' : `<div class="imps">${impChips(c)}</div>`}
-      <div class="info"><div class="artbox">${Art.card(idx)}</div><b class="nm">${esc(c.name)}</b>${acc ? `<div class="ab">${esc(c.abilityText)}</div>` : ''}</div></div>`;
+    return `<div class="hc ${acc ? 'acc' : ''} ${o.sel ? 'sel' : ''} ${o.played ? 'played' : ''} ${o.arrive ? 'arrive' : ''} ${o.cls || ''}" style="--t:${TYPE_COLOR[c.type]}" ${hi >= 0 ? `data-hand="${hi}"` : ''} data-card="${idx}">
+      <div class="hd"><em class="ty">${c.type}</em><b class="nm">${esc(c.name)}</b></div>${acc ? '' : `<div class="imps">${impChips(c)}</div>`}<div class="artbox">${Art.card(idx)}</div>
+      ${acc ? `<div class="ab">${esc(c.abilityText)}</div>` : c.prints.length ? `<div class="pr">${c.prints.map(p => `<span>${esc(p)}</span>`).join('')}</div>` : ''}</div>`;
   }
   function tileHTML(i, extra = '') {
     const cell = ui.s.cells[i];
@@ -866,7 +886,7 @@ Art.extend('Accessory', (() => {
     return `<div class="handrow" style="grid-template-columns:repeat(${cols},1fr)">${cards}</div><div class="handside"><small>Your hand</small><b>${p.hand.length}/${s.cfg.handLimit}</b>
       <button class="btn gold" data-act="putback" ${n && s.phase === 'thrift' ? '' : 'disabled'}>Put back${n ? ` (${n})` : ''}</button><small>${n ? 'Tap Put back to confirm' : full ? 'Hand full: select cards to put back' : 'Tap cards to select'}</small></div>`;
   }
-  const patchHand = () => { if (ui.drag) return; const el = document.getElementById('handwrap'); if (el) { el.innerHTML = handInner(); ui.arrive = null; } };
+  const patchHand = () => { if (ui.drag) return; const el = document.getElementById('handwrap'); if (el) { el.innerHTML = handInner(); ui.arrive = null; fitArt(el); } };
   function patchTile(i, extra) { const el = document.querySelector(`.tile[data-cell="${i}"]`); if (el) el.outerHTML = tileHTML(i, extra || ''); }
   function patchDebug() {
     const el = document.getElementById('dbg'), s = ui.s; if (!el) return;
@@ -902,7 +922,7 @@ Art.extend('Accessory', (() => {
     return `<div class="handrow" id="handrow">${cards}</div>${figureWithZones(p.board, true)}<div class="buildside">${totalsPanel(s)}<button class="btn gold" data-act="done" style="min-height:64px">Done</button></div>`;
   }
   const buildHTML = () => `${topBar(ui.s, 'build')}<div class="build" id="build">${buildInner()}</div>`;
-  const patchBuild = () => { if (ui.drag) return; const el = document.getElementById('build'); if (el) el.innerHTML = buildInner(); };
+  const patchBuild = () => { if (ui.drag) return; const el = document.getElementById('build'); if (el) { el.innerHTML = buildInner(); fitArt(el); } };
 
   // ---------- reveal and final ----------
   function revealHTML() {
@@ -937,7 +957,7 @@ Art.extend('Accessory', (() => {
   function menuHTML() {
     if (!ui.look) ui.look = menuLook(); const L = ui.look, tilt = [-18, -9, 0, 9, 18];
     const bulbs = Array.from({ length: 22 }, (_, i) => `<i style="--d:${(i % 4) * 0.25}s"></i>`).join('');
-    const fan = L.fan.map((c, k) => `<div class="fc" style="--r:${tilt[k]}deg;--x:${(k - 2) * 44}px;z-index:${k < 3 ? k : 4 - k}"><div class="hc" style="--t:${TYPE_COLOR[CARDS[c].type]}"><div class="info"><div class="artbox">${Art.card(c)}</div><b class="nm">${esc(CARDS[c].name)}</b></div></div></div>`).join('');
+    const fan = L.fan.map((c, k) => `<div class="fc" style="--r:${tilt[k]}deg;--x:${(k - 2) * 44}px;z-index:${k < 3 ? k : 4 - k}">${handCardHTML(c, -1)}</div>`).join('');
     const mess = Array.from({ length: 36 }, (_, i) => `<span style="--i:${i}"></span>`).join('');
     return `<div class="screen menu shopfront">${LIB ? `<a class="libback" href="${D.library.href}">‹ Library</a>` : ''}
       <div class="awning"></div>
@@ -1004,7 +1024,7 @@ Art.extend('Accessory', (() => {
       const portrait = innerHeight > innerWidth && !ui.rotateOff;
       h = `<div id="stage">${body}</div>${portrait ? '<div class="rotate"><span>Thrift Shop is built for a sideways iPad.</span><button class="btn sm" data-act="rotateoff" style="min-height:40px">Carry on</button></div>' : ''}`;
     }
-    h += sheetHTML(); $.innerHTML = h; fit(); if (ui.screen === 'game') { patchDebug(); updateTimer(); }
+    h += sheetHTML(); $.innerHTML = h; fitArt($); fit(); if (ui.screen === 'game') { patchDebug(); updateTimer(); }
   }
   function updateTimer() {
     const s = ui.s; if (!s || s.phase !== 'thrift') return; const f = Math.max(0, 1 - ui.elapsed / s.cfg.thriftSecs), left = Math.max(0, Math.ceil(s.cfg.thriftSecs - ui.elapsed));
