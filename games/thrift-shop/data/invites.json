@@ -3,38 +3,37 @@
   "name": "Prom",
   "category": "School",
   "rewards": [
-   "Cool",
-   "Important"
+   "Fancy"
   ],
   "penalizes": [],
-  "shape": "Two winners",
-  "payout": "Coolest is crowned Prom King/Queen: 5. Most Important: 3.",
-  "story": "The crown goes to the coolest kid; the photographer wants the best dressed.",
+  "shape": "Winner and runner-up",
+  "payout": "Fanciest is crowned Prom King/Queen: 5. 2nd Fanciest: 2.",
+  "story": "The crown goes to whoever looks most like royalty.",
   "notes": ""
  },
  {
   "name": "Student Council Election",
   "category": "School",
   "rewards": [
-   "Cool"
+   "Cute"
   ],
   "penalizes": [],
   "shape": "Winner and runner-up",
-  "payout": "Coolest (President): 5. 2nd Coolest (Vice President): 3.",
-  "story": "Nobody reads the platforms.",
+  "payout": "Cutest (President): 5. 2nd Cutest (Vice President): 3.",
+  "story": "Nobody reads the platforms; everyone votes for the most likable face.",
   "notes": ""
  },
  {
   "name": "Homecoming Court",
   "category": "School",
   "rewards": [
-   "Cool",
+   "Fancy",
    "Cute"
   ],
   "penalizes": [],
   "shape": "Combined",
-  "payout": "Add Cool and Cute. 1st 4, 2nd 3, 3rd 1.",
-  "story": "Royalty needs status and charm.",
+  "payout": "Add Fancy and Cute. 1st 5, 2nd 3, 3rd 1.",
+  "story": "Royalty needs a crown and a smile.",
   "notes": ""
  },
  {
@@ -48,20 +47,6 @@
   "payout": "Cutest 4, 2nd 2, last place 3.",
   "story": "The yearbook gives last place the Most Memorable award.",
   "notes": "At 2 players: Cutest 4, the other player 3."
- },
- {
-  "name": "Science Fair",
-  "category": "School",
-  "rewards": [
-   "Important"
-  ],
-  "penalizes": [
-   "Cool"
-  ],
-  "shape": "Subtract",
-  "payout": "Score Important minus Cool. 1st 4, 2nd 3, 3rd 1.",
-  "story": "The lab coat wins; the judges don't trust anyone in sunglasses.",
-  "notes": ""
  },
  {
   "name": "Field Trip",
@@ -91,13 +76,13 @@
   "name": "Battle of the Bands",
   "category": "School",
   "rewards": [
-   "Cool",
+   "Fancy",
    "Wacky"
   ],
   "penalizes": [],
   "shape": "Combined",
-  "payout": "Add Cool and Wacky. 1st 5, 2nd 2.",
-  "story": "Rock stars need attitude and showmanship.",
+  "payout": "Add Fancy and Wacky. 1st 5, 2nd 2.",
+  "story": "Glam rock: rhinestones and rubber chickens.",
   "notes": ""
  },
  {
@@ -130,40 +115,27 @@
   "name": "Detention",
   "category": "School",
   "rewards": [
-   "Cool"
+   "Spooky"
   ],
   "penalizes": [
    "Cute"
   ],
   "shape": "Subtract",
-  "payout": "Score Cool minus Cute. 1st 4, 2nd 2, 3rd 1.",
+  "payout": "Score Spooky minus Cute. 1st 4, 2nd 2, 3rd 1.",
   "story": "Rebels get respect; teacher's pets don't.",
-  "notes": ""
- },
- {
-  "name": "Club Officer Election",
-  "category": "School",
-  "rewards": [
-   "Important",
-   "Cute"
-  ],
-  "penalizes": [],
-  "shape": "Two winners",
-  "payout": "Most Important (President): 4. Cutest (Social Chair): 4.",
-  "story": "One runs the meetings, one runs the parties.",
   "notes": ""
  },
  {
   "name": "Up for a Promotion",
   "category": "Work",
   "rewards": [
-   "Important"
+   "Fancy"
   ],
   "penalizes": [
    "Wacky"
   ],
   "shape": "Subtract",
-  "payout": "Score Important minus Wacky. 1st 5, 2nd 2.",
+  "payout": "Score Fancy minus Wacky. 1st 5, 2nd 2.",
   "story": "Dress for the job you want, not the circus you want.",
   "notes": ""
  },
@@ -171,11 +143,11 @@
   "name": "Job Interview",
   "category": "Work",
   "rewards": [
-   "Important"
+   "Fancy"
   ],
   "penalizes": [],
   "shape": "Threshold",
-  "payout": "Everyone with 4+ Important is hired: 2. Most Important also gets the corner office: 2 more.",
+  "payout": "Everyone with 6+ Fancy is hired: 2. Fanciest also gets the corner office: 2 more.",
   "story": "Nobody checked the resumes.",
   "notes": ""
  },
@@ -203,7 +175,7 @@
    "Spooky"
   ],
   "shape": "Podium plus bonus",
-  "payout": "Cutest 4, 2nd 2. Everyone with 0 Spooky gets 1 more.",
+  "payout": "Cutest 4, 2nd 2. Everyone with 0 or less Spooky gets 1 more.",
   "story": "Nobody wants fangs near the baby.",
   "notes": ""
  },
@@ -211,24 +183,24 @@
   "name": "Wedding",
   "category": "Family",
   "rewards": [
-   "Important"
+   "Fancy"
   ],
   "penalizes": [],
   "shape": "Second place wins",
-  "payout": "2nd most Important 4, 3rd 2. Most Important 0.",
+  "payout": "2nd Fanciest 5, 3rd 2. Fanciest 0.",
   "story": "Never upstage the couple.",
-  "notes": "At 2 players: the less Important player scores 3."
+  "notes": "At 2 players: the less Fancy player scores 3."
  },
  {
   "name": "Reading of the Will",
   "category": "Family",
   "rewards": [
-   "Important",
+   "Fancy",
    "Spooky"
   ],
   "penalizes": [],
   "shape": "Two winners",
-  "payout": "Most Important inherits the company: 4. Spookiest inherits the haunted mansion: 4.",
+  "payout": "Fanciest inherits the company: 4. Spookiest inherits the haunted mansion: 4.",
   "story": "Great-aunt had two kinds of heirs in mind.",
   "notes": ""
  },
@@ -252,7 +224,7 @@
   ],
   "penalizes": [],
   "shape": "Threshold",
-  "payout": "Everyone with 3+ Wacky: 2. Wackiest also gets booked for next year: 2 more.",
+  "payout": "Everyone with 6+ Wacky: 2. Wackiest also gets booked for next year: 2 more.",
   "story": "The kids decide who's fun.",
   "notes": ""
  },
@@ -260,17 +232,17 @@
   "name": "21st Birthday",
   "category": "Celebration",
   "rewards": [
-   "Cool",
+   "Fancy",
    "Wacky"
   ],
   "penalizes": [],
   "shape": "Balance (lower of two)",
-  "payout": "Score your lower of Cool and Wacky. 1st 4, 2nd 2.",
-  "story": "Be fun, but not a mess.",
+  "payout": "Score your lower of Fancy and Wacky. 1st 4, 2nd 2.",
+  "story": "Classy enough for the bouncer, silly enough for the party.",
   "notes": "The only balance invite; slower to score."
  },
  {
-  "name": "Halloween Party",
+  "name": "Halloween Costume Contest",
   "category": "Holiday",
   "rewards": [
    "Spooky",
@@ -279,34 +251,20 @@
   "penalizes": [],
   "shape": "Combined",
   "payout": "Add Spooky and Wacky. 1st 5, 2nd 3, 3rd 1.",
-  "story": "The costume contest.",
+  "story": "Scary, funny, or both.",
   "notes": ""
  },
  {
   "name": "New Year's Eve",
   "category": "Holiday",
   "rewards": [
-   "Important",
+   "Fancy",
    "Wacky"
   ],
   "penalizes": [],
   "shape": "Two winners",
-  "payout": "Most Important gets the VIP table: 4. Wackiest leads the countdown: 4.",
+  "payout": "Fanciest gets the VIP table: 4. Wackiest leads the countdown: 4.",
   "story": "Two ways to own midnight.",
-  "notes": ""
- },
- {
-  "name": "4th of July",
-  "category": "Holiday",
-  "rewards": [
-   "Wacky"
-  ],
-  "penalizes": [
-   "Important"
-  ],
-  "shape": "Subtract",
-  "payout": "Score Wacky minus Important. 1st 4, 2nd 2, 3rd 1.",
-  "story": "Nobody wears a suit to a barbecue.",
   "notes": ""
  },
  {
@@ -317,7 +275,7 @@
   ],
   "penalizes": [],
   "shape": "No winner",
-  "payout": "Everyone scores 1 Like for every 2 Cute, up to 3.",
+  "payout": "Everyone scores 1 Like for every 3 Cute, up to 3.",
   "story": "Nobody's racing; everyone's posting.",
   "notes": ""
  },
@@ -328,11 +286,11 @@
    "Wacky"
   ],
   "penalizes": [
-   "Cool"
+   "Fancy"
   ],
   "shape": "Subtract",
-  "payout": "Score Wacky minus Cool. 1st 4, 2nd 2, 3rd 1.",
-  "story": "Trying to look cool is the one way to lose.",
+  "payout": "Score Wacky minus Fancy. 1st 4, 2nd 2, 3rd 1.",
+  "story": "Trying to look nice is the one way to lose.",
   "notes": ""
  },
  {
@@ -348,41 +306,29 @@
   "notes": "If 3 or more players tie for least, they each score 2."
  },
  {
-  "name": "Ski Trip",
-  "category": "Outing",
-  "rewards": [
-   "Cool"
-  ],
-  "penalizes": [],
-  "shape": "Consolation prize",
-  "payout": "Coolest 4, 2nd 2, last place 3.",
-  "story": "Last place's wipeout video goes viral.",
-  "notes": "At 2 players: Coolest 4, the other player 3."
- },
- {
   "name": "Beach Day",
   "category": "Outing",
   "rewards": [
-   "Cool"
+   "Wacky"
   ],
   "penalizes": [
-   "Important"
+   "Spooky"
   ],
   "shape": "Subtract",
-  "payout": "Score Cool minus Important. 1st 4, 2nd 2, 3rd 1.",
-  "story": "Leave the briefcase at home.",
+  "payout": "Score Wacky minus Spooky. 1st 4, 2nd 2, 3rd 1.",
+  "story": "Sunny and silly beats pale and brooding.",
   "notes": ""
  },
  {
   "name": "Fancy Restaurant",
   "category": "Outing",
   "rewards": [
-   "Important"
+   "Fancy"
   ],
   "penalizes": [],
   "shape": "Threshold",
-  "payout": "Everyone with 3+ Important gets seated: 3. Most Important scores 0 instead.",
-  "story": "The most important-looking guest gets stuck with the bill.",
+  "payout": "Everyone with 5+ Fancy gets seated: 3. Fanciest scores 0 instead.",
+  "story": "The fanciest-looking guest gets stuck with the bill.",
   "notes": ""
  },
  {
@@ -392,10 +338,10 @@
    "Spooky"
   ],
   "penalizes": [
-   "Important"
+   "Fancy"
   ],
   "shape": "Podium plus bonus",
-  "payout": "Spookiest 3, 2nd 2. Everyone with 0 Important gets 1 more.",
+  "payout": "Spookiest 3, 2nd 2. Everyone with 0 or less Fancy gets 1 more.",
   "story": "Best campfire ghost story, plus points for roughing it.",
   "notes": ""
  },
@@ -432,49 +378,59 @@
   "rewards": [
    "Spooky"
   ],
-  "penalizes": [
-   "Cute"
-  ],
-  "shape": "Subtract",
-  "payout": "Score Spooky minus Cute. 1st 4, 2nd 2, 3rd 1.",
-  "story": "The bunny ears are a dealbreaker.",
+  "penalizes": [],
+  "shape": "Winner and runner-up",
+  "payout": "Spookiest goes backstage: 5. 2nd Spookiest: 3.",
+  "story": "The band spots you from the stage.",
   "notes": ""
  },
  {
-  "name": "Vampire Movie Premiere",
+  "name": "Midnight Movie Marathon",
+  "category": "Outing",
+  "rewards": [
+   "Spooky"
+  ],
+  "penalizes": [],
+  "shape": "Threshold",
+  "payout": "Everyone with 6+ Spooky: 2. Spookiest also gets the best seat: 2 more.",
+  "story": "Only the truly creepy make it to the end.",
+  "notes": ""
+ },
+ {
+  "name": "Vampire Ball",
   "category": "Social",
   "rewards": [
-   "Cool",
+   "Fancy",
    "Spooky"
   ],
   "penalizes": [],
   "shape": "Combined",
-  "payout": "Add Cool and Spooky. 1st 5, 2nd 2.",
-  "story": "The fans dress like the vampires they love.",
+  "payout": "Add Fancy and Spooky. 1st 5, 2nd 2.",
+  "story": "Velvet, candlelight, and very pointy teeth.",
   "notes": ""
  },
  {
   "name": "First Date",
   "category": "Social",
   "rewards": [
-   "Cool"
+   "Cute"
   ],
   "penalizes": [],
   "shape": "Second place wins",
-  "payout": "2nd Coolest 5, 3rd 2. Coolest 0.",
+  "payout": "2nd Cutest 5, 3rd 2. Cutest 0.",
   "story": "Don't try too hard.",
-  "notes": "At 2 players: the less Cool player scores 3."
+  "notes": "At 2 players: the less Cute player scores 3."
  },
  {
   "name": "Red Carpet Premiere",
   "category": "Social",
   "rewards": [
-   "Important"
+   "Fancy"
   ],
   "penalizes": [],
   "shape": "Both ends",
-  "payout": "Most Important 4. Least Important 2.",
-  "story": "Least Important tops the worst-dressed list, and that's still press.",
+  "payout": "Fanciest 4. Least Fancy 2.",
+  "story": "Least Fancy tops the worst-dressed list, and that's still press.",
   "notes": "If 3 or more players tie for least, they each score 1."
  },
  {

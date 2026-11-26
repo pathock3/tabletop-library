@@ -1,71 +1,520 @@
 {
-  "Prom": [
-    {"kind":"rank","metric":"Cool","places":[5]},
-    {"kind":"rank","metric":"Important","places":[3]}
-  ],
-  "Student Council Election": [{"kind":"rank","metric":"Cool","places":[5,3]}],
-  "Homecoming Court": [{"kind":"rank","metric":{"sum":["Cool","Cute"]},"places":[4,3,1]}],
-  "School Picture Day": [{"kind":"rank","metric":"Cute","places":[4,2],"last":3,
-                          "twoPlayer":{"places":[4],"last":3}}],
-  "Science Fair": [{"kind":"rank","metric":{"diff":["Important","Cool"]},"places":[4,3,1]}],
-  "Field Trip": [{"kind":"rank","metric":"Wacky","places":[0,5,2],"twoPlayer":{"places":[0,3]}}],
-  "Talent Show": [{"kind":"rank","metric":"Wacky","places":[3,1],"last":4,"leastTie3":2}],
-  "Battle of the Bands": [{"kind":"rank","metric":{"sum":["Cool","Wacky"]},"places":[5,2]}],
-  "Fall Fling": [{"kind":"perPoints","metric":{"sum":["Cute","Wacky"]},"per":3,"cap":3}],
-  "Yearbook Superlatives": [
-    {"kind":"rank","metric":"Wacky","places":[4]},
-    {"kind":"rank","metric":"Spooky","places":[4]}
-  ],
-  "Detention": [{"kind":"rank","metric":{"diff":["Cool","Cute"]},"places":[4,2,1]}],
-  "Club Officer Election": [
-    {"kind":"rank","metric":"Important","places":[4]},
-    {"kind":"rank","metric":"Cute","places":[4]}
-  ],
-  "Up for a Promotion": [{"kind":"rank","metric":{"diff":["Important","Wacky"]},"places":[5,2]}],
-  "Job Interview": [
-    {"kind":"threshold","metric":"Important","atLeast":4,"award":2},
-    {"kind":"rank","metric":"Important","places":[2]}
-  ],
-  "Meeting the In-Laws": [{"kind":"rank","metric":{"diff":["Cute","Spooky"]},"places":[4,2,1]}],
-  "Baby Shower": [
-    {"kind":"rank","metric":"Cute","places":[4,2]},
-    {"kind":"ifAtMost","metric":"Spooky","atMost":0,"award":1}
-  ],
-  "Wedding": [{"kind":"rank","metric":"Important","places":[0,4,2],"twoPlayer":{"places":[0,3]}}],
-  "Reading of the Will": [
-    {"kind":"rank","metric":"Important","places":[4]},
-    {"kind":"rank","metric":"Spooky","places":[4]}
-  ],
-  "Family Photo Day": [{"kind":"rivalry","metric":"Cute","neighbor":"right","award":3}],
-  "Kid's Birthday Party": [
-    {"kind":"threshold","metric":"Wacky","atLeast":3,"award":2},
-    {"kind":"rank","metric":"Wacky","places":[2]}
-  ],
-  "21st Birthday": [{"kind":"rank","metric":{"min":["Cool","Wacky"]},"places":[4,2]}],
-  "Halloween Party": [{"kind":"rank","metric":{"sum":["Spooky","Wacky"]},"places":[5,3,1]}],
-  "New Year's Eve": [
-    {"kind":"rank","metric":"Important","places":[4]},
-    {"kind":"rank","metric":"Wacky","places":[4]}
-  ],
-  "4th of July": [{"kind":"rank","metric":{"diff":["Wacky","Important"]},"places":[4,2,1]}],
-  "Turkey Trot": [{"kind":"perPoints","metric":"Cute","per":2,"cap":3}],
-  "Ugly Sweater Party": [{"kind":"rank","metric":{"diff":["Wacky","Cool"]},"places":[4,2,1]}],
-  "Haunted House Tour": [{"kind":"rank","metric":"Spooky","places":[4],"last":3,"leastTie3":2}],
-  "Ski Trip": [{"kind":"rank","metric":"Cool","places":[4,2],"last":3,
-                "twoPlayer":{"places":[4],"last":3}}],
-  "Beach Day": [{"kind":"rank","metric":{"diff":["Cool","Important"]},"places":[4,2,1]}],
-  "Fancy Restaurant": [{"kind":"threshold","metric":"Important","atLeast":3,"award":3,"topGetsZero":true}],
-  "Camping Trip": [
-    {"kind":"rank","metric":"Spooky","places":[3,2]},
-    {"kind":"ifAtMost","metric":"Important","atMost":0,"award":1}
-  ],
-  "Sleepover": [{"kind":"rank","metric":{"sum":["Cute","Spooky"]},"places":[4,2,1]}],
-  "Art Gallery Opening": [{"kind":"rank","metric":{"diff":["Spooky","Wacky"]},"places":[4,2,1]}],
-  "Goth Concert": [{"kind":"rank","metric":{"diff":["Spooky","Cute"]},"places":[4,2,1]}],
-  "Vampire Movie Premiere": [{"kind":"rank","metric":{"sum":["Cool","Spooky"]},"places":[5,2]}],
-  "First Date": [{"kind":"rank","metric":"Cool","places":[0,5,2],"twoPlayer":{"places":[0,3]}}],
-  "Red Carpet Premiere": [{"kind":"rank","metric":"Important","places":[4],"last":2,"leastTie3":1}],
-  "Circus Audition": [{"kind":"rank","metric":"Wacky","places":[6]}],
-  "Pet Adoption Day": [{"kind":"rank","metric":"Cute","places":[6]}],
-  "Mystery Dinner Party": [{"kind":"rank","metric":"Spooky","places":[0,5,2],"twoPlayer":{"places":[0,3]}}]
+ "Prom": [
+  {
+   "kind": "rank",
+   "metric": "Fancy",
+   "places": [
+    5,
+    2
+   ]
+  }
+ ],
+ "Student Council Election": [
+  {
+   "kind": "rank",
+   "metric": "Cute",
+   "places": [
+    5,
+    3
+   ]
+  }
+ ],
+ "Homecoming Court": [
+  {
+   "kind": "rank",
+   "metric": {
+    "sum": [
+     "Fancy",
+     "Cute"
+    ]
+   },
+   "places": [
+    5,
+    3,
+    1
+   ]
+  }
+ ],
+ "School Picture Day": [
+  {
+   "kind": "rank",
+   "metric": "Cute",
+   "places": [
+    4,
+    2
+   ],
+   "last": 3,
+   "twoPlayer": {
+    "places": [
+     4
+    ],
+    "last": 3
+   }
+  }
+ ],
+ "Field Trip": [
+  {
+   "kind": "rank",
+   "metric": "Wacky",
+   "places": [
+    0,
+    5,
+    2
+   ],
+   "twoPlayer": {
+    "places": [
+     0,
+     3
+    ]
+   }
+  }
+ ],
+ "Talent Show": [
+  {
+   "kind": "rank",
+   "metric": "Wacky",
+   "places": [
+    3,
+    1
+   ],
+   "last": 4,
+   "leastTie3": 2
+  }
+ ],
+ "Battle of the Bands": [
+  {
+   "kind": "rank",
+   "metric": {
+    "sum": [
+     "Fancy",
+     "Wacky"
+    ]
+   },
+   "places": [
+    5,
+    2
+   ]
+  }
+ ],
+ "Fall Fling": [
+  {
+   "kind": "perPoints",
+   "metric": {
+    "sum": [
+     "Cute",
+     "Wacky"
+    ]
+   },
+   "per": 3,
+   "cap": 3
+  }
+ ],
+ "Yearbook Superlatives": [
+  {
+   "kind": "rank",
+   "metric": "Wacky",
+   "places": [
+    4
+   ]
+  },
+  {
+   "kind": "rank",
+   "metric": "Spooky",
+   "places": [
+    4
+   ]
+  }
+ ],
+ "Detention": [
+  {
+   "kind": "rank",
+   "metric": {
+    "diff": [
+     "Spooky",
+     "Cute"
+    ]
+   },
+   "places": [
+    4,
+    2,
+    1
+   ]
+  }
+ ],
+ "Up for a Promotion": [
+  {
+   "kind": "rank",
+   "metric": {
+    "diff": [
+     "Fancy",
+     "Wacky"
+    ]
+   },
+   "places": [
+    5,
+    2
+   ]
+  }
+ ],
+ "Job Interview": [
+  {
+   "kind": "threshold",
+   "metric": "Fancy",
+   "atLeast": 6,
+   "award": 2
+  },
+  {
+   "kind": "rank",
+   "metric": "Fancy",
+   "places": [
+    2
+   ]
+  }
+ ],
+ "Meeting the In-Laws": [
+  {
+   "kind": "rank",
+   "metric": {
+    "diff": [
+     "Cute",
+     "Spooky"
+    ]
+   },
+   "places": [
+    4,
+    2,
+    1
+   ]
+  }
+ ],
+ "Baby Shower": [
+  {
+   "kind": "rank",
+   "metric": "Cute",
+   "places": [
+    4,
+    2
+   ]
+  },
+  {
+   "kind": "ifAtMost",
+   "metric": "Spooky",
+   "atMost": 0,
+   "award": 1
+  }
+ ],
+ "Wedding": [
+  {
+   "kind": "rank",
+   "metric": "Fancy",
+   "places": [
+    0,
+    5,
+    2
+   ],
+   "twoPlayer": {
+    "places": [
+     0,
+     3
+    ]
+   }
+  }
+ ],
+ "Reading of the Will": [
+  {
+   "kind": "rank",
+   "metric": "Fancy",
+   "places": [
+    4
+   ]
+  },
+  {
+   "kind": "rank",
+   "metric": "Spooky",
+   "places": [
+    4
+   ]
+  }
+ ],
+ "Family Photo Day": [
+  {
+   "kind": "rivalry",
+   "metric": "Cute",
+   "neighbor": "right",
+   "award": 3
+  }
+ ],
+ "Kid's Birthday Party": [
+  {
+   "kind": "threshold",
+   "metric": "Wacky",
+   "atLeast": 6,
+   "award": 2
+  },
+  {
+   "kind": "rank",
+   "metric": "Wacky",
+   "places": [
+    2
+   ]
+  }
+ ],
+ "21st Birthday": [
+  {
+   "kind": "rank",
+   "metric": {
+    "min": [
+     "Fancy",
+     "Wacky"
+    ]
+   },
+   "places": [
+    4,
+    2
+   ]
+  }
+ ],
+ "Halloween Costume Contest": [
+  {
+   "kind": "rank",
+   "metric": {
+    "sum": [
+     "Spooky",
+     "Wacky"
+    ]
+   },
+   "places": [
+    5,
+    3,
+    1
+   ]
+  }
+ ],
+ "New Year's Eve": [
+  {
+   "kind": "rank",
+   "metric": "Fancy",
+   "places": [
+    4
+   ]
+  },
+  {
+   "kind": "rank",
+   "metric": "Wacky",
+   "places": [
+    4
+   ]
+  }
+ ],
+ "Turkey Trot": [
+  {
+   "kind": "perPoints",
+   "metric": "Cute",
+   "per": 3,
+   "cap": 3
+  }
+ ],
+ "Ugly Sweater Party": [
+  {
+   "kind": "rank",
+   "metric": {
+    "diff": [
+     "Wacky",
+     "Fancy"
+    ]
+   },
+   "places": [
+    4,
+    2,
+    1
+   ]
+  }
+ ],
+ "Haunted House Tour": [
+  {
+   "kind": "rank",
+   "metric": "Spooky",
+   "places": [
+    4
+   ],
+   "last": 3,
+   "leastTie3": 2
+  }
+ ],
+ "Beach Day": [
+  {
+   "kind": "rank",
+   "metric": {
+    "diff": [
+     "Wacky",
+     "Spooky"
+    ]
+   },
+   "places": [
+    4,
+    2,
+    1
+   ]
+  }
+ ],
+ "Fancy Restaurant": [
+  {
+   "kind": "threshold",
+   "metric": "Fancy",
+   "atLeast": 5,
+   "award": 3,
+   "topGetsZero": true
+  }
+ ],
+ "Camping Trip": [
+  {
+   "kind": "rank",
+   "metric": "Spooky",
+   "places": [
+    3,
+    2
+   ]
+  },
+  {
+   "kind": "ifAtMost",
+   "metric": "Fancy",
+   "atMost": 0,
+   "award": 1
+  }
+ ],
+ "Sleepover": [
+  {
+   "kind": "rank",
+   "metric": {
+    "sum": [
+     "Cute",
+     "Spooky"
+    ]
+   },
+   "places": [
+    4,
+    2,
+    1
+   ]
+  }
+ ],
+ "Art Gallery Opening": [
+  {
+   "kind": "rank",
+   "metric": {
+    "diff": [
+     "Spooky",
+     "Wacky"
+    ]
+   },
+   "places": [
+    4,
+    2,
+    1
+   ]
+  }
+ ],
+ "Goth Concert": [
+  {
+   "kind": "rank",
+   "metric": "Spooky",
+   "places": [
+    5,
+    3
+   ]
+  }
+ ],
+ "Midnight Movie Marathon": [
+  {
+   "kind": "threshold",
+   "metric": "Spooky",
+   "atLeast": 6,
+   "award": 2
+  },
+  {
+   "kind": "rank",
+   "metric": "Spooky",
+   "places": [
+    2
+   ]
+  }
+ ],
+ "Vampire Ball": [
+  {
+   "kind": "rank",
+   "metric": {
+    "sum": [
+     "Fancy",
+     "Spooky"
+    ]
+   },
+   "places": [
+    5,
+    2
+   ]
+  }
+ ],
+ "First Date": [
+  {
+   "kind": "rank",
+   "metric": "Cute",
+   "places": [
+    0,
+    5,
+    2
+   ],
+   "twoPlayer": {
+    "places": [
+     0,
+     3
+    ]
+   }
+  }
+ ],
+ "Red Carpet Premiere": [
+  {
+   "kind": "rank",
+   "metric": "Fancy",
+   "places": [
+    4
+   ],
+   "last": 2,
+   "leastTie3": 1
+  }
+ ],
+ "Circus Audition": [
+  {
+   "kind": "rank",
+   "metric": "Wacky",
+   "places": [
+    6
+   ]
+  }
+ ],
+ "Pet Adoption Day": [
+  {
+   "kind": "rank",
+   "metric": "Cute",
+   "places": [
+    6
+   ]
+  }
+ ],
+ "Mystery Dinner Party": [
+  {
+   "kind": "rank",
+   "metric": "Spooky",
+   "places": [
+    0,
+    5,
+    2
+   ],
+   "twoPlayer": {
+    "places": [
+     0,
+     3
+    ]
+   }
+  }
+ ]
 }

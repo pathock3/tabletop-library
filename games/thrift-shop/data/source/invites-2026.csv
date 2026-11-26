@@ -1,41 +1,38 @@
 Invite,Category,Rewards,Penalizes,Payout shape,Payout (Likes),Story,Notes
-Prom,School,"Cool, Important",,Two winners,Coolest is crowned Prom King/Queen: 5. Most Important: 3.,The crown goes to the coolest kid; the photographer wants the best dressed.,
-Student Council Election,School,Cool,,Winner and runner-up,Coolest (President): 5. 2nd Coolest (Vice President): 3.,Nobody reads the platforms.,
-Homecoming Court,School,"Cool, Cute",,Combined,"Add Cool and Cute. 1st 4, 2nd 3, 3rd 1.",Royalty needs status and charm.,
+Prom,School,Fancy,,Winner and runner-up,Fanciest is crowned Prom King/Queen: 5. 2nd Fanciest: 2.,The crown goes to whoever looks most like royalty.,
+Student Council Election,School,Cute,,Winner and runner-up,Cutest (President): 5. 2nd Cutest (Vice President): 3.,Nobody reads the platforms; everyone votes for the most likable face.,
+Homecoming Court,School,"Fancy, Cute",,Combined,"Add Fancy and Cute. 1st 5, 2nd 3, 3rd 1.",Royalty needs a crown and a smile.,
 School Picture Day,School,Cute,,Consolation prize,"Cutest 4, 2nd 2, last place 3.",The yearbook gives last place the Most Memorable award.,"At 2 players: Cutest 4, the other player 3."
-Science Fair,School,Important,Cool,Subtract,"Score Important minus Cool. 1st 4, 2nd 3, 3rd 1.",The lab coat wins; the judges don't trust anyone in sunglasses.,
 Field Trip,School,Wacky,,Second place wins,"2nd Wackiest 5, 3rd 2. Wackiest 0.",The wackiest kid spends the trip on the bus.,At 2 players: the less Wacky player scores 3.
 Talent Show,School,Wacky,,Shoot the moon,"Least Wacky 4. Wackiest 3, 2nd Wackiest 1.",The most boring act goes viral.,"If 3 or more players tie for least, they each score 2."
-Battle of the Bands,School,"Cool, Wacky",,Combined,"Add Cool and Wacky. 1st 5, 2nd 2.",Rock stars need attitude and showmanship.,
+Battle of the Bands,School,"Fancy, Wacky",,Combined,"Add Fancy and Wacky. 1st 5, 2nd 2.",Glam rock: rhinestones and rubber chickens.,
 Fall Fling,School,"Cute, Wacky",,No winner,"Everyone scores 1 Like for every 3 Cute and Wacky combined, up to 3.",It's just a dance; everyone posts their fit.,
 Yearbook Superlatives,School,"Wacky, Spooky",,Two winners,Wackiest is Class Clown: 4. Spookiest is Most Likely to Haunt the School: 4.,Two awards nobody campaigns for.,
-Detention,School,Cool,Cute,Subtract,"Score Cool minus Cute. 1st 4, 2nd 2, 3rd 1.",Rebels get respect; teacher's pets don't.,
-Club Officer Election,School,"Important, Cute",,Two winners,Most Important (President): 4. Cutest (Social Chair): 4.,"One runs the meetings, one runs the parties.",
-Up for a Promotion,Work,Important,Wacky,Subtract,"Score Important minus Wacky. 1st 5, 2nd 2.","Dress for the job you want, not the circus you want.",
-Job Interview,Work,Important,,Threshold,Everyone with 4+ Important is hired: 2. Most Important also gets the corner office: 2 more.,Nobody checked the resumes.,
+Detention,School,Spooky,Cute,Subtract,"Score Spooky minus Cute. 1st 4, 2nd 2, 3rd 1.",Rebels get respect; teacher's pets don't.,
+Up for a Promotion,Work,Fancy,Wacky,Subtract,"Score Fancy minus Wacky. 1st 5, 2nd 2.","Dress for the job you want, not the circus you want.",
+Job Interview,Work,Fancy,,Threshold,Everyone with 6+ Fancy is hired: 2. Fanciest also gets the corner office: 2 more.,Nobody checked the resumes.,
 Meeting the In-Laws,Family,Cute,Spooky,Subtract,"Score Cute minus Spooky. 1st 4, 2nd 2, 3rd 1.","They want someone sweet, not someone who brought a bat.",
-Baby Shower,Family,Cute,Spooky,Podium plus bonus,"Cutest 4, 2nd 2. Everyone with 0 Spooky gets 1 more.",Nobody wants fangs near the baby.,
-Wedding,Family,Important,,Second place wins,"2nd most Important 4, 3rd 2. Most Important 0.",Never upstage the couple.,At 2 players: the less Important player scores 3.
-Reading of the Will,Family,"Important, Spooky",,Two winners,Most Important inherits the company: 4. Spookiest inherits the haunted mansion: 4.,Great-aunt had two kinds of heirs in mind.,
+Baby Shower,Family,Cute,Spooky,Podium plus bonus,"Cutest 4, 2nd 2. Everyone with 0 or less Spooky gets 1 more.",Nobody wants fangs near the baby.,
+Wedding,Family,Fancy,,Second place wins,"2nd Fanciest 5, 3rd 2. Fanciest 0.",Never upstage the couple.,At 2 players: the less Fancy player scores 3.
+Reading of the Will,Family,"Fancy, Spooky",,Two winners,Fanciest inherits the company: 4. Spookiest inherits the haunted mansion: 4.,Great-aunt had two kinds of heirs in mind.,
 Family Photo Day,Family,Cute,,Rivalry,Out-Cute the player on your right: 3.,Grandma is comparing.,
-Kid's Birthday Party,Celebration,Wacky,,Threshold,Everyone with 3+ Wacky: 2. Wackiest also gets booked for next year: 2 more.,The kids decide who's fun.,
-21st Birthday,Celebration,"Cool, Wacky",,Balance (lower of two),"Score your lower of Cool and Wacky. 1st 4, 2nd 2.","Be fun, but not a mess.",The only balance invite; slower to score.
-Halloween Party,Holiday,"Spooky, Wacky",,Combined,"Add Spooky and Wacky. 1st 5, 2nd 3, 3rd 1.",The costume contest.,
-New Year's Eve,Holiday,"Important, Wacky",,Two winners,Most Important gets the VIP table: 4. Wackiest leads the countdown: 4.,Two ways to own midnight.,
-4th of July,Holiday,Wacky,Important,Subtract,"Score Wacky minus Important. 1st 4, 2nd 2, 3rd 1.",Nobody wears a suit to a barbecue.,
-Turkey Trot,Holiday,Cute,,No winner,"Everyone scores 1 Like for every 2 Cute, up to 3.",Nobody's racing; everyone's posting.,
-Ugly Sweater Party,Holiday,Wacky,Cool,Subtract,"Score Wacky minus Cool. 1st 4, 2nd 2, 3rd 1.",Trying to look cool is the one way to lose.,
+Kid's Birthday Party,Celebration,Wacky,,Threshold,Everyone with 6+ Wacky: 2. Wackiest also gets booked for next year: 2 more.,The kids decide who's fun.,
+21st Birthday,Celebration,"Fancy, Wacky",,Balance (lower of two),"Score your lower of Fancy and Wacky. 1st 4, 2nd 2.","Classy enough for the bouncer, silly enough for the party.",The only balance invite; slower to score.
+Halloween Costume Contest,Holiday,"Spooky, Wacky",,Combined,"Add Spooky and Wacky. 1st 5, 2nd 3, 3rd 1.","Scary, funny, or both.",
+New Year's Eve,Holiday,"Fancy, Wacky",,Two winners,Fanciest gets the VIP table: 4. Wackiest leads the countdown: 4.,Two ways to own midnight.,
+Turkey Trot,Holiday,Cute,,No winner,"Everyone scores 1 Like for every 3 Cute, up to 3.",Nobody's racing; everyone's posting.,
+Ugly Sweater Party,Holiday,Wacky,Fancy,Subtract,"Score Wacky minus Fancy. 1st 4, 2nd 2, 3rd 1.",Trying to look nice is the one way to lose.,
 Haunted House Tour,Outing,Spooky,,Both ends,Spookiest 4. Least Spooky 3.,The staff think the spookiest guest works there; the least spooky guest's scream goes viral.,"If 3 or more players tie for least, they each score 2."
-Ski Trip,Outing,Cool,,Consolation prize,"Coolest 4, 2nd 2, last place 3.",Last place's wipeout video goes viral.,"At 2 players: Coolest 4, the other player 3."
-Beach Day,Outing,Cool,Important,Subtract,"Score Cool minus Important. 1st 4, 2nd 2, 3rd 1.",Leave the briefcase at home.,
-Fancy Restaurant,Outing,Important,,Threshold,Everyone with 3+ Important gets seated: 3. Most Important scores 0 instead.,The most important-looking guest gets stuck with the bill.,
-Camping Trip,Outing,Spooky,Important,Podium plus bonus,"Spookiest 3, 2nd 2. Everyone with 0 Important gets 1 more.","Best campfire ghost story, plus points for roughing it.",
+Beach Day,Outing,Wacky,Spooky,Subtract,"Score Wacky minus Spooky. 1st 4, 2nd 2, 3rd 1.",Sunny and silly beats pale and brooding.,
+Fancy Restaurant,Outing,Fancy,,Threshold,Everyone with 5+ Fancy gets seated: 3. Fanciest scores 0 instead.,The fanciest-looking guest gets stuck with the bill.,
+Camping Trip,Outing,Spooky,Fancy,Podium plus bonus,"Spookiest 3, 2nd 2. Everyone with 0 or less Fancy gets 1 more.","Best campfire ghost story, plus points for roughing it.",
 Sleepover,Outing,"Cute, Spooky",,Combined,"Add Cute and Spooky. 1st 4, 2nd 2, 3rd 1.",Ghost stories in onesies.,
 Art Gallery Opening,Outing,Spooky,Wacky,Subtract,"Score Spooky minus Wacky. 1st 4, 2nd 2, 3rd 1.","The art crowd wants moody, not loud.",
-Goth Concert,Outing,Spooky,Cute,Subtract,"Score Spooky minus Cute. 1st 4, 2nd 2, 3rd 1.",The bunny ears are a dealbreaker.,
-Vampire Movie Premiere,Social,"Cool, Spooky",,Combined,"Add Cool and Spooky. 1st 5, 2nd 2.",The fans dress like the vampires they love.,
-First Date,Social,Cool,,Second place wins,"2nd Coolest 5, 3rd 2. Coolest 0.",Don't try too hard.,At 2 players: the less Cool player scores 3.
-Red Carpet Premiere,Social,Important,,Both ends,Most Important 4. Least Important 2.,"Least Important tops the worst-dressed list, and that's still press.","If 3 or more players tie for least, they each score 1."
+Goth Concert,Outing,Spooky,,Winner and runner-up,Spookiest goes backstage: 5. 2nd Spookiest: 3.,The band spots you from the stage.,
+Midnight Movie Marathon,Outing,Spooky,,Threshold,Everyone with 6+ Spooky: 2. Spookiest also gets the best seat: 2 more.,Only the truly creepy make it to the end.,
+Vampire Ball,Social,"Fancy, Spooky",,Combined,"Add Fancy and Spooky. 1st 5, 2nd 2.","Velvet, candlelight, and very pointy teeth.",
+First Date,Social,Cute,,Second place wins,"2nd Cutest 5, 3rd 2. Cutest 0.",Don't try too hard.,At 2 players: the less Cute player scores 3.
+Red Carpet Premiere,Social,Fancy,,Both ends,Fanciest 4. Least Fancy 2.,"Least Fancy tops the worst-dressed list, and that's still press.","If 3 or more players tie for least, they each score 1."
 Circus Audition,Social,Wacky,,Winner takes all,Wackiest 6. Everyone else 0.,There's only one opening.,
 Pet Adoption Day,Social,Cute,,Winner takes all,Cutest 6. Everyone else 0.,The puppy picks the cutest person in the room.,
 Mystery Dinner Party,Social,Spooky,,Second place wins,"2nd Spookiest 5, 3rd 2. Spookiest 0.",The spookiest guest obviously did it.,At 2 players: the less Spooky player scores 3.

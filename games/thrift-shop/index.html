@@ -171,6 +171,49 @@ textarea.log { width: 100%; height: 320px; font-size: 13px; font-family: ui-mono
 .howto h3 { margin-top: 6px; } .howto p, .howto li { font-size: 17px; line-height: 1.4; color: #e6f3ee; } .howto ul { margin: 4px 0; padding-left: 22px; }
 .say { width: 100%; text-align: center; font-size: 17px; color: #fff1cc; background: #00000050; border-radius: 12px; padding: 7px 10px; line-height: 1.25; }
 .stagehost { position: absolute; inset: 0; overflow: hidden; }
+
+/* v3: art cards, two invites, figure board, gallery */
+.hc { gap: 5px; padding: 4px 5px 5px; }
+.hc .imps { width: 52px; gap: 4px; }
+.hc .info { gap: 3px; }
+.hc .artbox { flex: 1; min-height: 0; border-radius: 8px; overflow: hidden; background: #fff6dc; border: 2px solid #00000022; display: flex; align-items: center; justify-content: center; }
+.hc .artbox svg { width: 100%; height: 100%; display: block; }
+.hc .nm { font-size: 15px; line-height: 1.05; }
+.hc .ab { font-size: 12px; line-height: 1.12; }
+.hc.sel { transform: translateY(-8px); box-shadow: 0 0 0 4px #fff, 0 10px 0 #0006; }
+.topbar { gap: 6px; }
+.invitecard { padding: 4px 9px; gap: 1px; min-width: 0; }
+.invitecard h2 { font-size: 19px; line-height: 1.05; display: block; }
+.invitecard h2 small { display: block; font-size: 10px; letter-spacing: 1.5px; }
+.invitecard .pay { font-size: 12px; line-height: 1.12; font-weight: 700; }
+.invitecard .ichip { font-size: 11px; padding: 0 6px; }
+.timerbox { width: 118px; flex-direction: column; gap: 0; } .timerbox .rd { font-size: 12px; font-weight: 800; color: var(--dim); letter-spacing: .5px; }
+.timerbox b { font-size: 34px; } .timerbox small { font-size: 12px; text-align: center; }
+.board { width: 190px; }
+.tile.down { background: repeating-linear-gradient(45deg, #1d6f72, #1d6f72 5px, #2a8a8c 5px, #2a8a8c 10px); border: 2px solid #0a2a2b; box-shadow: inset 0 0 0 1px #ffffff30; border-radius: 7px; }
+.tile.down.dbg { display: flex; align-items: center; justify-content: center; text-align: center; padding: 1px; } .tile.down.dbg b { font-size: 9.5px; line-height: 1.05; color: #fff; position: relative; z-index: 1; text-shadow: 0 1px 2px #000; }
+.tile.gone { animation: poof .36s forwards; } @keyframes poof { 0% { transform: scale(1); } 40% { transform: scale(1.25) rotate(6deg); } 100% { transform: scale(.1); opacity: 0; } }
+.invitepanel { gap: 10px; }
+.invitepanel .two { display: flex; gap: 20px; width: 100%; max-width: 1040px; justify-content: center; }
+.invitepanel .one { flex: 1; background: #ffffff10; border: 2px solid #ffffff25; border-radius: 16px; padding: 12px 16px; display: flex; flex-direction: column; gap: 6px; align-items: center; }
+.invitepanel .one small { letter-spacing: 2px; font-weight: 800; color: var(--gold); font-size: 13px; } .invitepanel h1 { font-size: 36px; } .invitepanel .story { font-size: 18px; } .invitepanel .pay { font-size: 18px; }
+.build { gap: 8px; } .build .handrow { grid-template-columns: 1fr 1fr; grid-template-rows: repeat(3, 1fr); width: 500px; }
+.build .hc { padding: 5px; }
+.figwrap { position: relative; align-self: center; height: 100%; aspect-ratio: 240 / 340; flex: none; } .figwrap svg { width: 100%; height: 100%; display: block; }
+.zone { position: absolute; border-radius: 14px; border: 3px dashed #ffffff30; display: flex; align-items: flex-start; justify-content: flex-start; }
+.zone .lab { margin: 3px 6px; font-size: 11px; font-weight: 800; letter-spacing: .5px; color: #fff; background: #0009; padding: 1px 7px; border-radius: 8px; }
+.zone.target { border-color: var(--gold); background: #f2b63a33; } .zone.bad { animation: shake .3s; border-color: var(--red); } @keyframes shake { 25% { transform: translateX(-6px); } 75% { transform: translateX(6px); } }
+.buildside { width: 232px; display: flex; flex-direction: column; gap: 8px; margin-left: auto; }
+.buildside .totals { flex: 1; }
+.rv svg.figure-svg { width: 100%; height: auto; max-height: 300px; align-self: center; }
+.rv h4 { font-size: 16px; } .rv h4 em { font-size: 22px; }
+.rv .parts { font-size: 10.5px; line-height: 1.2; border-top: 1px solid #ffffff20; padding-top: 2px; } .rv .parts b { color: #fff1cc; display: block; font-size: 11px; }
+.rv .fx { font-size: 10.5px; }
+.gallery { display: grid; grid-template-columns: repeat(auto-fill, minmax(210px, 1fr)); gap: 10px; align-content: start; width: min(1180px, 100%); }
+.gcell { background: #ffffff12; border: 2px solid #ffffff22; border-radius: 12px; padding: 6px; display: flex; flex-direction: column; gap: 2px; }
+.gcell.bad { border-color: #ff6a6a; background: #ff6a6a22; } .gcell small { font-size: 11.5px; color: var(--dim); line-height: 1.2; } .gcell b { font-size: 14px; color: #fff1cc; }
+.gart svg { width: 100%; height: auto; display: block; border-radius: 8px; max-height: 170px; }
+.rules { width: min(1000px, 100%); } .rrow { background: #ffffff10; border-radius: 10px; padding: 8px 10px; font-size: 14px; line-height: 1.3; } .rrow code { display: block; font-size: 11px; color: #9fe3c8; user-select: text; -webkit-user-select: text; word-break: break-all; } .rrow small { color: var(--gold); }
 </style>
 </head>
 <body>
@@ -182,42 +225,40 @@ const GAME_DATA = {
   library: { href: '../../index.html' },
   // The five Impressions, always in this order.
   impressions: [
-    { id: 'Important', icon: '👑', color: '#d9a21b' },
-    { id: 'Cool', icon: '😎', color: '#3f7fd0' },
-    { id: 'Cute', icon: '🧸', color: '#e0589f' },
+    { id: 'Fancy', icon: '👑', color: '#d9a21b' },
     { id: 'Wacky', icon: '🤪', color: '#ee8a22' },
+    { id: 'Cute', icon: '🧸', color: '#e0589f' },
     { id: 'Spooky', icon: '👻', color: '#8a55d0' },
   ],
-  // The board slots, in order. A card only fits the slot of its own type. The last one is the accessory slot.
+  // The board slots, in order. A card only fits the slot of its own type. The last one is the accessory slot (held, beside the figure).
   slots: [
     { id: 'Head', icon: '🎩', bare: 'Bald' }, { id: 'Top', icon: '👕', bare: 'Plain undershirt' }, { id: 'Bottom', icon: '👖', bare: 'Heart boxers' },
-    { id: 'Shoes', icon: '👟', bare: 'Barefoot' }, { id: 'Accessory', icon: '👜', bare: 'Empty hand' },
+    { id: 'Accessory', icon: '👜', bare: 'Empty hand' },
   ],
-  // Settings (the settings panel edits these; stored on the device). min / max are the panel's limits.
+  // Settings (the settings panel edits these; stored on the device). `limits` are the panel's bounds.
   settings: {
-    bots: 3, rounds: 7, thriftSecs: 60, startHand: 5, handLimit: 6, maxPlayed: 5, botSpeed: 'normal', debug: false,
+    bots: 3, rounds: 7, thriftSecs: 60, startHand: 5, handLimit: 5, maxPlayed: 4, botSpeed: 'normal', debug: false,
   },
   limits: {
-    bots: [1, 7], rounds: [1, 40], thriftSecs: [10, 180], startHand: [1, 6], handLimit: [2, 8], maxPlayed: [1, 5],
+    bots: [1, 7], rounds: [1, 18], thriftSecs: [10, 180], startHand: [1, 5], handLimit: [2, 8], maxPlayed: [1, 4],
   },
+  invitesPerRound: 2,                 // both invites score for everyone; round Likes = invite A + invite B
   steps: { bots: 1, rounds: 1, thriftSecs: 10, startHand: 1, handLimit: 1, maxPlayed: 1 },
   botSpeeds: { slow: { label: 'Slow', min: 2.5, max: 5 }, normal: { label: 'Normal', min: 1.5, max: 3.5 }, fast: { label: 'Fast', min: 0.8, max: 2 } },
-  mess: { cols: 15 },                 // the mess is a grid with one space per card (150); this many columns
-  bot: { takeFaceUpGain: 2 },         // a bot takes a face-up card if it raises its outfit score by at least this much
+  mess: { cols: 15 },                 // the mess is a grid with one space per card (120); this many columns
   names: ['Maya', 'Theo', 'Priya', 'Jonas', 'Alma', 'Ravi', 'Lena'],
-  holdPreviewMs: 450,                 // press and hold a face-up card in the mess to see it large without taking it
 };
 </script>
 <script id="sheet">
 // Generated by games/thrift-shop/tools/sync-sheet.js from the Thrift Shop cards sheet (tabs Cards 2026 and Invites 2026) and data/scoring.json. Do not edit by hand.
-const SHEET = {"cards":[{"name":"Tiara","type":"Head","v":[5,0,1,0,0],"prints":["crowns"],"power":"Star","abilityText":"","ability":null},{"name":"Powdered Judge's Wig","type":"Head","v":[4,-1,0,0,0],"prints":[],"power":"Solid","abilityText":"","ability":null},{"name":"Top Hat","type":"Head","v":[3,0,0,0,0],"prints":["pinstripes"],"power":"Solid","abilityText":"","ability":null},{"name":"Monocle","type":"Head","v":[2,0,0,0,0],"prints":[],"power":"Ordinary","abilityText":"","ability":null},{"name":"Yacht Captain's Hat","type":"Head","v":[2,1,0,0,0],"prints":["stripes"],"power":"Ordinary","abilityText":"","ability":null},{"name":"Mohawk","type":"Head","v":[0,4,0,0,2],"prints":["flames"],"power":"Star","abilityText":"","ability":null},{"name":"Backwards Cap","type":"Head","v":[0,3,0,0,0],"prints":["checkerboard"],"power":"Solid","abilityText":"","ability":null},{"name":"Aviator Sunglasses","type":"Head","v":[1,3,0,0,0],"prints":[],"power":"Solid","abilityText":"","ability":null},{"name":"Skull Bandana","type":"Head","v":[0,2,0,0,1],"prints":["skulls"],"power":"Ordinary","abilityText":"","ability":null},{"name":"Lightning Bolt Headphones","type":"Head","v":[0,2,0,0,0],"prints":["lightning bolts"],"power":"Ordinary","abilityText":"","ability":null},{"name":"Bunny Ears","type":"Head","v":[0,0,4,0,-2],"prints":["animals"],"power":"Solid","abilityText":"","ability":null},{"name":"Pigtails with Polka Dot Bows","type":"Head","v":[0,0,3,0,0],"prints":["polka dots"],"power":"Solid","abilityText":"","ability":null},{"name":"Flower Crown","type":"Head","v":[1,0,3,0,0],"prints":["flowers"],"power":"Solid","abilityText":"","ability":null},{"name":"Kitty Ear Headband","type":"Head","v":[0,0,2,0,1],"prints":["leopard"],"power":"Ordinary","abilityText":"","ability":null},{"name":"Baby Bonnet","type":"Head","v":[0,-2,5,0,0],"prints":["hearts"],"power":"Star","abilityText":"","ability":null},{"name":"Propeller Beanie","type":"Head","v":[0,0,1,4,0],"prints":["stripes"],"power":"Solid","abilityText":"","ability":null},{"name":"Rainbow Clown Wig","type":"Head","v":[0,0,0,5,1],"prints":["polka dots"],"power":"Star","abilityText":"","ability":null},{"name":"Fruit Basket Hat","type":"Head","v":[1,0,0,3,0],"prints":["bananas"],"power":"Solid","abilityText":"","ability":null},{"name":"Googly-Eye Glasses","type":"Head","v":[0,0,0,2,-1],"prints":[],"power":"Ordinary","abilityText":"","ability":null},{"name":"Shark Hat","type":"Head","v":[0,0,1,2,0],"prints":["animals"],"power":"Ordinary","abilityText":"","ability":null},{"name":"Vampire Fangs","type":"Head","v":[0,1,0,0,4],"prints":[],"power":"Solid","abilityText":"","ability":null},{"name":"Witch Hat","type":"Head","v":[0,0,0,0,3],"prints":["stars","bats"],"power":"Solid","abilityText":"","ability":null},{"name":"Skull Face Paint","type":"Head","v":[0,0,-2,0,5],"prints":["skulls"],"power":"Star","abilityText":"","ability":null},{"name":"Black Lace Veil","type":"Head","v":[0,0,0,-1,3],"prints":["spiderwebs"],"power":"Solid","abilityText":"","ability":null},{"name":"Bat Hair Clips","type":"Head","v":[0,0,1,0,2],"prints":["bats"],"power":"Ordinary","abilityText":"","ability":null},{"name":"Fedora","type":"Head","v":[1,1,1,1,1],"prints":["pinstripes"],"power":"Generalist","abilityText":"","ability":null},{"name":"Leopard Shower Cap","type":"Head","v":[0,-2,1,0,0],"prints":["leopard"],"power":"Dud","abilityText":"","ability":null},{"name":"Lampshade","type":"Head","v":[-2,0,0,1,0],"prints":[],"power":"Dud","abilityText":"","ability":null},{"name":"Flame Decal Bike Helmet","type":"Head","v":[0,-1,1,0,0],"prints":["flames"],"power":"Dud","abilityText":"","ability":null},{"name":"Paper Fast-Food Crown","type":"Head","v":[0,-1,0,1,0],"prints":["crowns"],"power":"Dud","abilityText":"","ability":null},{"name":"Sequin Gown","type":"Top","v":[5,1,0,0,0],"prints":["stars"],"power":"Star","abilityText":"","ability":null},{"name":"Pinstripe Blazer","type":"Top","v":[4,0,0,-1,0],"prints":["pinstripes"],"power":"Solid","abilityText":"","ability":null},{"name":"Leopard Fur Coat","type":"Top","v":[4,1,0,0,0],"prints":["leopard"],"power":"Solid","abilityText":"","ability":null},{"name":"Tuxedo Jacket","type":"Top","v":[3,1,0,0,0],"prints":["pinstripes"],"power":"Solid","abilityText":"","ability":null},{"name":"Striped Polo Shirt","type":"Top","v":[2,-1,0,0,0],"prints":["stripes"],"power":"Ordinary","abilityText":"","ability":null},{"name":"Leather Jacket","type":"Top","v":[0,5,0,0,1],"prints":["flames"],"power":"Star","abilityText":"","ability":null},{"name":"Band Tee","type":"Top","v":[0,3,0,0,1],"prints":["skulls","checkerboard"],"power":"Solid","abilityText":"","ability":null},{"name":"Varsity Jacket","type":"Top","v":[1,3,0,0,0],"prints":["lightning bolts"],"power":"Solid","abilityText":"","ability":null},{"name":"Camo Hoodie","type":"Top","v":[0,2,0,0,0],"prints":["camo"],"power":"Ordinary","abilityText":"","ability":null},{"name":"Hockey Jersey","type":"Top","v":[0,2,0,0,0],"prints":["crowns","stripes"],"power":"Ordinary","abilityText":"","ability":null},{"name":"Grandma's Kitten Cardigan","type":"Top","v":[-1,0,4,0,0],"prints":["animals"],"power":"Solid","abilityText":"","ability":null},{"name":"Heart Sweater","type":"Top","v":[0,0,3,0,-1],"prints":["hearts"],"power":"Solid","abilityText":"","ability":null},{"name":"Teddy Bear Onesie","type":"Top","v":[0,0,5,1,0],"prints":["animals","hearts"],"power":"Star","abilityText":"","ability":null},{"name":"Puff-Sleeve Flower Blouse","type":"Top","v":[1,0,2,0,0],"prints":["flowers"],"power":"Ordinary","abilityText":"","ability":null},{"name":"Sailor Shirt","type":"Top","v":[0,0,2,0,0],"prints":["stripes"],"power":"Ordinary","abilityText":"","ability":null},{"name":"Hawaiian Shirt","type":"Top","v":[0,1,0,4,0],"prints":["flowers","bananas"],"power":"Solid","abilityText":"","ability":null},{"name":"Barrel","type":"Top","v":[-2,0,0,5,0],"prints":[],"power":"Star","abilityText":"","ability":null},{"name":"Tie-Dye Tee","type":"Top","v":[0,1,0,3,0],"prints":["lightning bolts"],"power":"Solid","abilityText":"","ability":null},{"name":"Banana Costume","type":"Top","v":[0,0,1,3,0],"prints":["bananas"],"power":"Solid","abilityText":"","ability":null},{"name":"Lobster Bib","type":"Top","v":[-1,0,0,2,0],"prints":["animals"],"power":"Ordinary","abilityText":"","ability":null},{"name":"Vampire Cape","type":"Top","v":[2,0,0,0,5],"prints":["bats"],"power":"Star","abilityText":"","ability":null},{"name":"Spiderweb Sweater","type":"Top","v":[0,0,-1,0,3],"prints":["spiderwebs"],"power":"Solid","abilityText":"","ability":null},{"name":"Skeleton Shirt","type":"Top","v":[0,1,0,0,3],"prints":["skulls"],"power":"Solid","abilityText":"","ability":null},{"name":"Black Lace Blouse","type":"Top","v":[1,0,0,0,2],"prints":["spiderwebs","bats"],"power":"Ordinary","abilityText":"","ability":null},{"name":"Mummy Wrap Top","type":"Top","v":[0,0,-1,0,2],"prints":[],"power":"Ordinary","abilityText":"","ability":null},{"name":"Plain White T-Shirt","type":"Top","v":[1,1,1,1,1],"prints":[],"power":"Generalist","abilityText":"","ability":null},{"name":"Stinky Gym Shirt","type":"Top","v":[0,0,-1,0,0],"prints":["camo"],"power":"Dud","abilityText":"","ability":null},{"name":"Ketchup-Stained Flannel","type":"Top","v":[-2,0,0,1,0],"prints":["plaid"],"power":"Dud","abilityText":"","ability":null},{"name":"Itchy Reindeer Sweater","type":"Top","v":[0,-2,0,1,0],"prints":["animals"],"power":"Dud","abilityText":"","ability":null},{"name":"Trash Bag Poncho","type":"Top","v":[0,0,-1,1,0],"prints":[],"power":"Dud","abilityText":"","ability":null},{"name":"Ball Gown Skirt","type":"Bottom","v":[5,0,1,0,0],"prints":["crowns"],"power":"Star","abilityText":"","ability":null},{"name":"Pinstripe Trousers","type":"Bottom","v":[3,0,0,-1,0],"prints":["pinstripes"],"power":"Solid","abilityText":"","ability":null},{"name":"Plaid Pleated Slacks","type":"Bottom","v":[3,0,0,-1,0],"prints":["plaid"],"power":"Solid","abilityText":"","ability":null},{"name":"Leopard Pencil Skirt","type":"Bottom","v":[2,1,0,0,0],"prints":["leopard"],"power":"Ordinary","abilityText":"","ability":null},{"name":"Khakis","type":"Bottom","v":[2,-1,0,0,0],"prints":[],"power":"Ordinary","abilityText":"","ability":null},{"name":"Ripped Jeans","type":"Bottom","v":[-1,4,0,0,0],"prints":["lightning bolts"],"power":"Solid","abilityText":"","ability":null},{"name":"Leather Pants","type":"Bottom","v":[0,4,0,0,2],"prints":["flames"],"power":"Star","abilityText":"","ability":null},{"name":"Camo Cargo Pants","type":"Bottom","v":[0,3,0,0,0],"prints":["camo"],"power":"Solid","abilityText":"","ability":null},{"name":"Checkered Skate Shorts","type":"Bottom","v":[0,2,0,1,0],"prints":["checkerboard"],"power":"Ordinary","abilityText":"","ability":null},{"name":"Striped Track Pants","type":"Bottom","v":[0,2,0,0,0],"prints":["stripes"],"power":"Ordinary","abilityText":"","ability":null},{"name":"Tutu","type":"Bottom","v":[0,0,4,1,0],"prints":["stars"],"power":"Solid","abilityText":"","ability":null},{"name":"Heart-Patch Overalls","type":"Bottom","v":[-1,0,3,0,0],"prints":["hearts","plaid"],"power":"Solid","abilityText":"","ability":null},{"name":"Polka Dot Skirt","type":"Bottom","v":[0,0,2,1,0],"prints":["polka dots"],"power":"Ordinary","abilityText":"","ability":null},{"name":"Footie Pajama Bottoms","type":"Bottom","v":[0,-1,3,0,0],"prints":["animals"],"power":"Solid","abilityText":"","ability":null},{"name":"Flower Print Shorts","type":"Bottom","v":[0,0,2,0,0],"prints":["flowers"],"power":"Ordinary","abilityText":"","ability":null},{"name":"Clown Pants","type":"Bottom","v":[-1,0,1,5,0],"prints":["polka dots","checkerboard"],"power":"Star","abilityText":"","ability":null},{"name":"Banana Print Shorts","type":"Bottom","v":[0,0,0,3,0],"prints":["bananas"],"power":"Solid","abilityText":"","ability":null},{"name":"Kilt","type":"Bottom","v":[1,0,0,2,0],"prints":["plaid"],"power":"Ordinary","abilityText":"","ability":null},{"name":"Flamingo Pool Floatie","type":"Bottom","v":[0,0,1,3,0],"prints":["animals"],"power":"Solid","abilityText":"","ability":null},{"name":"Grass Skirt","type":"Bottom","v":[0,0,0,2,0],"prints":["flowers"],"power":"Ordinary","abilityText":"","ability":null},{"name":"Witch's Striped Tights","type":"Bottom","v":[0,1,0,0,3],"prints":["stripes"],"power":"Solid","abilityText":"","ability":null},{"name":"Skeleton Leggings","type":"Bottom","v":[0,0,-1,0,4],"prints":["skulls"],"power":"Solid","abilityText":"","ability":null},{"name":"Tattered Mummy Pants","type":"Bottom","v":[0,0,0,-1,2],"prints":[],"power":"Ordinary","abilityText":"","ability":null},{"name":"Black Velvet Skirt","type":"Bottom","v":[0,1,0,0,2],"prints":["crowns"],"power":"Ordinary","abilityText":"","ability":null},{"name":"Cobweb Ball Skirt","type":"Bottom","v":[2,0,0,0,4],"prints":["spiderwebs"],"power":"Star","abilityText":"","ability":null},{"name":"Classic Jeans","type":"Bottom","v":[1,1,1,1,1],"prints":[],"power":"Generalist","abilityText":"","ability":null},{"name":"Stinky Gym Shorts","type":"Bottom","v":[0,0,-1,0,0],"prints":["camo"],"power":"Dud","abilityText":"","ability":null},{"name":"Holey Plaid Pajama Pants","type":"Bottom","v":[-2,0,1,0,0],"prints":["plaid"],"power":"Dud","abilityText":"","ability":null},{"name":"Flame Swim Trunks","type":"Bottom","v":[-1,0,0,1,0],"prints":["flames"],"power":"Dud","abilityText":"","ability":null},{"name":"Corduroy Pants","type":"Bottom","v":[0,0,0,0,0],"prints":[],"power":"Dud","abilityText":"","ability":null},{"name":"Glass Slippers","type":"Shoes","v":[4,0,2,0,0],"prints":[],"power":"Star","abilityText":"","ability":null},{"name":"Shiny Dress Shoes","type":"Shoes","v":[3,0,0,-1,0],"prints":[],"power":"Solid","abilityText":"","ability":null},{"name":"Gold Shoes","type":"Shoes","v":[3,1,0,0,0],"prints":["crowns"],"power":"Solid","abilityText":"","ability":null},{"name":"Leopard Heels","type":"Shoes","v":[2,1,0,0,0],"prints":["leopard"],"power":"Ordinary","abilityText":"","ability":null},{"name":"Boat Shoes","type":"Shoes","v":[2,0,0,0,0],"prints":["crowns"],"power":"Ordinary","abilityText":"","ability":null},{"name":"Light-Up Sneakers","type":"Shoes","v":[0,5,-1,0,0],"prints":["lightning bolts"],"power":"Star","abilityText":"","ability":null},{"name":"High-Top Sneakers","type":"Shoes","v":[0,4,0,0,0],"prints":["lightning bolts","checkerboard"],"power":"Solid","abilityText":"","ability":null},{"name":"Checkered Slip-Ons","type":"Shoes","v":[0,3,0,0,0],"prints":["checkerboard"],"power":"Solid","abilityText":"","ability":null},{"name":"Cowboy Boots","type":"Shoes","v":[1,2,0,0,0],"prints":["stars"],"power":"Ordinary","abilityText":"","ability":null},{"name":"Combat Boots","type":"Shoes","v":[0,2,0,0,1],"prints":["camo"],"power":"Ordinary","abilityText":"","ability":null},{"name":"Bunny Slippers","type":"Shoes","v":[0,0,4,0,-1],"prints":["animals"],"power":"Solid","abilityText":"","ability":null},{"name":"Mary Janes","type":"Shoes","v":[1,0,3,0,0],"prints":["hearts"],"power":"Solid","abilityText":"","ability":null},{"name":"Duck Rain Boots","type":"Shoes","v":[0,0,3,0,-1],"prints":["animals"],"power":"Solid","abilityText":"","ability":null},{"name":"Jelly Sandals","type":"Shoes","v":[0,0,2,0,0],"prints":["flowers"],"power":"Ordinary","abilityText":"","ability":null},{"name":"Glitter Toddler Shoes","type":"Shoes","v":[0,0,2,1,0],"prints":["stars"],"power":"Ordinary","abilityText":"","ability":null},{"name":"Clown Shoes","type":"Shoes","v":[-2,0,0,5,0],"prints":["polka dots"],"power":"Star","abilityText":"","ability":null},{"name":"Flippers","type":"Shoes","v":[0,0,0,3,-1],"prints":[],"power":"Solid","abilityText":"","ability":null},{"name":"Striped Roller Skates","type":"Shoes","v":[0,1,0,3,0],"prints":["stripes"],"power":"Solid","abilityText":"","ability":null},{"name":"Tissue Box Shoes","type":"Shoes","v":[0,0,0,2,0],"prints":["polka dots"],"power":"Ordinary","abilityText":"","ability":null},{"name":"Banana Slippers","type":"Shoes","v":[0,0,1,2,0],"prints":["bananas"],"power":"Ordinary","abilityText":"","ability":null},{"name":"Pointy Witch Boots","type":"Shoes","v":[1,0,0,0,4],"prints":["spiderwebs","stars"],"power":"Solid","abilityText":"","ability":null},{"name":"Skull Sneakers","type":"Shoes","v":[0,1,0,0,3],"prints":["skulls","flames"],"power":"Solid","abilityText":"","ability":null},{"name":"Coffin-Toe Boots","type":"Shoes","v":[0,0,0,-1,3],"prints":["bats"],"power":"Solid","abilityText":"","ability":null},{"name":"Bat Wing Heels","type":"Shoes","v":[1,0,0,0,2],"prints":["bats"],"power":"Ordinary","abilityText":"","ability":null},{"name":"Rubber Zombie Feet","type":"Shoes","v":[0,0,-1,0,3],"prints":[],"power":"Ordinary","abilityText":"","ability":null},{"name":"White Sneakers","type":"Shoes","v":[1,1,1,1,1],"prints":[],"power":"Generalist","abilityText":"","ability":null},{"name":"Plaid Socks with Sandals","type":"Shoes","v":[0,-2,0,1,0],"prints":["plaid"],"power":"Dud","abilityText":"","ability":null},{"name":"Fuzzy Heart Slippers","type":"Shoes","v":[0,-2,1,0,0],"prints":["hearts"],"power":"Dud","abilityText":"","ability":null},{"name":"One Flip-Flop","type":"Shoes","v":[0,0,0,1,-1],"prints":[],"power":"Dud","abilityText":"","ability":null},{"name":"Muddy Galoshes","type":"Shoes","v":[-1,0,0,0,0],"prints":[],"power":"Dud","abilityText":"","ability":null},{"name":"Briefcase","type":"Accessory","v":[0,0,0,0,0],"prints":[],"power":"Common","abilityText":"+2 Important per item with pinstripes","ability":{"kind":"perPrint","n":2,"imp":"Important","prints":["pinstripes"]}},{"name":"Royal Scepter","type":"Accessory","v":[0,0,0,0,0],"prints":[],"power":"Common","abilityText":"+2 Important per item with crowns","ability":{"kind":"perPrint","n":2,"imp":"Important","prints":["crowns"]}},{"name":"Feather Boa","type":"Accessory","v":[0,0,0,0,0],"prints":[],"power":"Common","abilityText":"+2 Important per item with leopard","ability":{"kind":"perPrint","n":2,"imp":"Important","prints":["leopard"]}},{"name":"Pocket Dog in a Designer Bag","type":"Accessory","v":[0,0,0,0,0],"prints":[],"power":"Common","abilityText":"+1 Important per animal pictured in your outfit","ability":{"kind":"perPrint","n":1,"imp":"Important","prints":["animals","bats"]}},{"name":"Personal Assistant with Clipboard","type":"Accessory","v":[0,0,0,0,0],"prints":[],"power":"Common","abilityText":"Add your Cool to your Important","ability":{"kind":"add","from":"Cool","to":"Important"}},{"name":"Golden Trophy","type":"Accessory","v":[0,0,0,0,0],"prints":[],"power":"Rare","abilityText":"Your highest Impression counts double","ability":{"kind":"doubleHighest"}},{"name":"Skateboard","type":"Accessory","v":[0,0,0,0,0],"prints":[],"power":"Common","abilityText":"+2 Cool per item with checkerboard","ability":{"kind":"perPrint","n":2,"imp":"Cool","prints":["checkerboard"]}},{"name":"Boombox","type":"Accessory","v":[0,0,0,0,0],"prints":[],"power":"Common","abilityText":"+2 Cool per item with lightning bolts","ability":{"kind":"perPrint","n":2,"imp":"Cool","prints":["lightning bolts"]}},{"name":"Motorcycle Helmet","type":"Accessory","v":[0,0,0,0,0],"prints":[],"power":"Common","abilityText":"+2 Cool per item with flames","ability":{"kind":"perPrint","n":2,"imp":"Cool","prints":["flames"]}},{"name":"Walkie-Talkie","type":"Accessory","v":[0,0,0,0,0],"prints":[],"power":"Common","abilityText":"+2 Cool per item with camo","ability":{"kind":"perPrint","n":2,"imp":"Cool","prints":["camo"]}},{"name":"Microphone","type":"Accessory","v":[0,0,0,0,0],"prints":[],"power":"Common","abilityText":"+2 Cool per item with stars","ability":{"kind":"perPrint","n":2,"imp":"Cool","prints":["stars"]}},{"name":"Electric Guitar","type":"Accessory","v":[0,0,0,0,0],"prints":[],"power":"Common","abilityText":"Add your Wacky to your Cool","ability":{"kind":"add","from":"Wacky","to":"Cool"}},{"name":"Puppy on a Leash","type":"Accessory","v":[0,0,0,0,0],"prints":[],"power":"Common","abilityText":"+1 Cute per animal pictured in your outfit","ability":{"kind":"perPrint","n":1,"imp":"Cute","prints":["animals","bats"]}},{"name":"Heart Balloon","type":"Accessory","v":[0,0,0,0,0],"prints":[],"power":"Common","abilityText":"+2 Cute per item with hearts","ability":{"kind":"perPrint","n":2,"imp":"Cute","prints":["hearts"]}},{"name":"Flower Basket","type":"Accessory","v":[0,0,0,0,0],"prints":[],"power":"Common","abilityText":"+2 Cute per item with flowers","ability":{"kind":"perPrint","n":2,"imp":"Cute","prints":["flowers"]}},{"name":"Picnic Basket","type":"Accessory","v":[0,0,0,0,0],"prints":[],"power":"Common","abilityText":"+2 Cute per item with plaid","ability":{"kind":"perPrint","n":2,"imp":"Cute","prints":["plaid"]}},{"name":"Candy Cane","type":"Accessory","v":[0,0,0,0,0],"prints":[],"power":"Common","abilityText":"+2 Cute per item with stripes","ability":{"kind":"perPrint","n":2,"imp":"Cute","prints":["stripes"]}},{"name":"Teddy Bear","type":"Accessory","v":[0,0,0,0,0],"prints":[],"power":"Common","abilityText":"Add your Spooky to your Cute (creepy-cute counts)","ability":{"kind":"add","from":"Spooky","to":"Cute"}},{"name":"Rubber Chicken","type":"Accessory","v":[0,0,0,0,0],"prints":[],"power":"Common","abilityText":"+2 Wacky per item with polka dots","ability":{"kind":"perPrint","n":2,"imp":"Wacky","prints":["polka dots"]}},{"name":"Unicycle","type":"Accessory","v":[0,0,0,0,0],"prints":[],"power":"Common","abilityText":"+2 Wacky per item with stripes","ability":{"kind":"perPrint","n":2,"imp":"Wacky","prints":["stripes"]}},{"name":"Banana Phone","type":"Accessory","v":[0,0,0,0,0],"prints":[],"power":"Common","abilityText":"+1 Wacky per banana pictured in your outfit","ability":{"kind":"perPrint","n":1,"imp":"Wacky","prints":["bananas"]}},{"name":"Bagpipes","type":"Accessory","v":[0,0,0,0,0],"prints":[],"power":"Common","abilityText":"+2 Wacky per item with plaid","ability":{"kind":"perPrint","n":2,"imp":"Wacky","prints":["plaid"]}},{"name":"Whoopee Cushion","type":"Accessory","v":[0,0,0,0,0],"prints":[],"power":"Common","abilityText":"Add your Important to your Wacky","ability":{"kind":"add","from":"Important","to":"Wacky"}},{"name":"Mystery Shopping Bag","type":"Accessory","v":[0,0,0,0,0],"prints":[],"power":"Common","abilityText":"+2 Wacky per empty clothing slot","ability":{"kind":"perEmptySlot","n":2,"imp":"Wacky"}},{"name":"Pet Bat","type":"Accessory","v":[0,0,0,0,0],"prints":[],"power":"Common","abilityText":"+1 Spooky per bat pictured in your outfit","ability":{"kind":"perPrint","n":1,"imp":"Spooky","prints":["bats"]}},{"name":"Crystal Ball","type":"Accessory","v":[0,0,0,0,0],"prints":[],"power":"Common","abilityText":"+2 Spooky per item with skulls","ability":{"kind":"perPrint","n":2,"imp":"Spooky","prints":["skulls"]}},{"name":"Candelabra","type":"Accessory","v":[0,0,0,0,0],"prints":[],"power":"Common","abilityText":"+2 Spooky per item with spiderwebs","ability":{"kind":"perPrint","n":2,"imp":"Spooky","prints":["spiderwebs"]}},{"name":"Broomstick","type":"Accessory","v":[0,0,0,0,0],"prints":[],"power":"Common","abilityText":"+2 Spooky per item with stripes","ability":{"kind":"perPrint","n":2,"imp":"Spooky","prints":["stripes"]}},{"name":"Black Cat","type":"Accessory","v":[0,0,0,0,0],"prints":[],"power":"Common","abilityText":"Add your Cute to your Spooky","ability":{"kind":"add","from":"Cute","to":"Spooky"}},{"name":"Magic Wand","type":"Accessory","v":[0,0,0,0,0],"prints":[],"power":"Rare","abilityText":"Add your Spooky to any one other Impression","ability":{"kind":"wand"}}],"invites":[{"name":"Prom","category":"School","rewards":["Cool","Important"],"penalizes":[],"shape":"Two winners","payout":"Coolest is crowned Prom King/Queen: 5. Most Important: 3.","story":"The crown goes to the coolest kid; the photographer wants the best dressed.","notes":""},{"name":"Student Council Election","category":"School","rewards":["Cool"],"penalizes":[],"shape":"Winner and runner-up","payout":"Coolest (President): 5. 2nd Coolest (Vice President): 3.","story":"Nobody reads the platforms.","notes":""},{"name":"Homecoming Court","category":"School","rewards":["Cool","Cute"],"penalizes":[],"shape":"Combined","payout":"Add Cool and Cute. 1st 4, 2nd 3, 3rd 1.","story":"Royalty needs status and charm.","notes":""},{"name":"School Picture Day","category":"School","rewards":["Cute"],"penalizes":[],"shape":"Consolation prize","payout":"Cutest 4, 2nd 2, last place 3.","story":"The yearbook gives last place the Most Memorable award.","notes":"At 2 players: Cutest 4, the other player 3."},{"name":"Science Fair","category":"School","rewards":["Important"],"penalizes":["Cool"],"shape":"Subtract","payout":"Score Important minus Cool. 1st 4, 2nd 3, 3rd 1.","story":"The lab coat wins; the judges don't trust anyone in sunglasses.","notes":""},{"name":"Field Trip","category":"School","rewards":["Wacky"],"penalizes":[],"shape":"Second place wins","payout":"2nd Wackiest 5, 3rd 2. Wackiest 0.","story":"The wackiest kid spends the trip on the bus.","notes":"At 2 players: the less Wacky player scores 3."},{"name":"Talent Show","category":"School","rewards":["Wacky"],"penalizes":[],"shape":"Shoot the moon","payout":"Least Wacky 4. Wackiest 3, 2nd Wackiest 1.","story":"The most boring act goes viral.","notes":"If 3 or more players tie for least, they each score 2."},{"name":"Battle of the Bands","category":"School","rewards":["Cool","Wacky"],"penalizes":[],"shape":"Combined","payout":"Add Cool and Wacky. 1st 5, 2nd 2.","story":"Rock stars need attitude and showmanship.","notes":""},{"name":"Fall Fling","category":"School","rewards":["Cute","Wacky"],"penalizes":[],"shape":"No winner","payout":"Everyone scores 1 Like for every 3 Cute and Wacky combined, up to 3.","story":"It's just a dance; everyone posts their fit.","notes":""},{"name":"Yearbook Superlatives","category":"School","rewards":["Wacky","Spooky"],"penalizes":[],"shape":"Two winners","payout":"Wackiest is Class Clown: 4. Spookiest is Most Likely to Haunt the School: 4.","story":"Two awards nobody campaigns for.","notes":""},{"name":"Detention","category":"School","rewards":["Cool"],"penalizes":["Cute"],"shape":"Subtract","payout":"Score Cool minus Cute. 1st 4, 2nd 2, 3rd 1.","story":"Rebels get respect; teacher's pets don't.","notes":""},{"name":"Club Officer Election","category":"School","rewards":["Important","Cute"],"penalizes":[],"shape":"Two winners","payout":"Most Important (President): 4. Cutest (Social Chair): 4.","story":"One runs the meetings, one runs the parties.","notes":""},{"name":"Up for a Promotion","category":"Work","rewards":["Important"],"penalizes":["Wacky"],"shape":"Subtract","payout":"Score Important minus Wacky. 1st 5, 2nd 2.","story":"Dress for the job you want, not the circus you want.","notes":""},{"name":"Job Interview","category":"Work","rewards":["Important"],"penalizes":[],"shape":"Threshold","payout":"Everyone with 4+ Important is hired: 2. Most Important also gets the corner office: 2 more.","story":"Nobody checked the resumes.","notes":""},{"name":"Meeting the In-Laws","category":"Family","rewards":["Cute"],"penalizes":["Spooky"],"shape":"Subtract","payout":"Score Cute minus Spooky. 1st 4, 2nd 2, 3rd 1.","story":"They want someone sweet, not someone who brought a bat.","notes":""},{"name":"Baby Shower","category":"Family","rewards":["Cute"],"penalizes":["Spooky"],"shape":"Podium plus bonus","payout":"Cutest 4, 2nd 2. Everyone with 0 Spooky gets 1 more.","story":"Nobody wants fangs near the baby.","notes":""},{"name":"Wedding","category":"Family","rewards":["Important"],"penalizes":[],"shape":"Second place wins","payout":"2nd most Important 4, 3rd 2. Most Important 0.","story":"Never upstage the couple.","notes":"At 2 players: the less Important player scores 3."},{"name":"Reading of the Will","category":"Family","rewards":["Important","Spooky"],"penalizes":[],"shape":"Two winners","payout":"Most Important inherits the company: 4. Spookiest inherits the haunted mansion: 4.","story":"Great-aunt had two kinds of heirs in mind.","notes":""},{"name":"Family Photo Day","category":"Family","rewards":["Cute"],"penalizes":[],"shape":"Rivalry","payout":"Out-Cute the player on your right: 3.","story":"Grandma is comparing.","notes":""},{"name":"Kid's Birthday Party","category":"Celebration","rewards":["Wacky"],"penalizes":[],"shape":"Threshold","payout":"Everyone with 3+ Wacky: 2. Wackiest also gets booked for next year: 2 more.","story":"The kids decide who's fun.","notes":""},{"name":"21st Birthday","category":"Celebration","rewards":["Cool","Wacky"],"penalizes":[],"shape":"Balance (lower of two)","payout":"Score your lower of Cool and Wacky. 1st 4, 2nd 2.","story":"Be fun, but not a mess.","notes":"The only balance invite; slower to score."},{"name":"Halloween Party","category":"Holiday","rewards":["Spooky","Wacky"],"penalizes":[],"shape":"Combined","payout":"Add Spooky and Wacky. 1st 5, 2nd 3, 3rd 1.","story":"The costume contest.","notes":""},{"name":"New Year's Eve","category":"Holiday","rewards":["Important","Wacky"],"penalizes":[],"shape":"Two winners","payout":"Most Important gets the VIP table: 4. Wackiest leads the countdown: 4.","story":"Two ways to own midnight.","notes":""},{"name":"4th of July","category":"Holiday","rewards":["Wacky"],"penalizes":["Important"],"shape":"Subtract","payout":"Score Wacky minus Important. 1st 4, 2nd 2, 3rd 1.","story":"Nobody wears a suit to a barbecue.","notes":""},{"name":"Turkey Trot","category":"Holiday","rewards":["Cute"],"penalizes":[],"shape":"No winner","payout":"Everyone scores 1 Like for every 2 Cute, up to 3.","story":"Nobody's racing; everyone's posting.","notes":""},{"name":"Ugly Sweater Party","category":"Holiday","rewards":["Wacky"],"penalizes":["Cool"],"shape":"Subtract","payout":"Score Wacky minus Cool. 1st 4, 2nd 2, 3rd 1.","story":"Trying to look cool is the one way to lose.","notes":""},{"name":"Haunted House Tour","category":"Outing","rewards":["Spooky"],"penalizes":[],"shape":"Both ends","payout":"Spookiest 4. Least Spooky 3.","story":"The staff think the spookiest guest works there; the least spooky guest's scream goes viral.","notes":"If 3 or more players tie for least, they each score 2."},{"name":"Ski Trip","category":"Outing","rewards":["Cool"],"penalizes":[],"shape":"Consolation prize","payout":"Coolest 4, 2nd 2, last place 3.","story":"Last place's wipeout video goes viral.","notes":"At 2 players: Coolest 4, the other player 3."},{"name":"Beach Day","category":"Outing","rewards":["Cool"],"penalizes":["Important"],"shape":"Subtract","payout":"Score Cool minus Important. 1st 4, 2nd 2, 3rd 1.","story":"Leave the briefcase at home.","notes":""},{"name":"Fancy Restaurant","category":"Outing","rewards":["Important"],"penalizes":[],"shape":"Threshold","payout":"Everyone with 3+ Important gets seated: 3. Most Important scores 0 instead.","story":"The most important-looking guest gets stuck with the bill.","notes":""},{"name":"Camping Trip","category":"Outing","rewards":["Spooky"],"penalizes":["Important"],"shape":"Podium plus bonus","payout":"Spookiest 3, 2nd 2. Everyone with 0 Important gets 1 more.","story":"Best campfire ghost story, plus points for roughing it.","notes":""},{"name":"Sleepover","category":"Outing","rewards":["Cute","Spooky"],"penalizes":[],"shape":"Combined","payout":"Add Cute and Spooky. 1st 4, 2nd 2, 3rd 1.","story":"Ghost stories in onesies.","notes":""},{"name":"Art Gallery Opening","category":"Outing","rewards":["Spooky"],"penalizes":["Wacky"],"shape":"Subtract","payout":"Score Spooky minus Wacky. 1st 4, 2nd 2, 3rd 1.","story":"The art crowd wants moody, not loud.","notes":""},{"name":"Goth Concert","category":"Outing","rewards":["Spooky"],"penalizes":["Cute"],"shape":"Subtract","payout":"Score Spooky minus Cute. 1st 4, 2nd 2, 3rd 1.","story":"The bunny ears are a dealbreaker.","notes":""},{"name":"Vampire Movie Premiere","category":"Social","rewards":["Cool","Spooky"],"penalizes":[],"shape":"Combined","payout":"Add Cool and Spooky. 1st 5, 2nd 2.","story":"The fans dress like the vampires they love.","notes":""},{"name":"First Date","category":"Social","rewards":["Cool"],"penalizes":[],"shape":"Second place wins","payout":"2nd Coolest 5, 3rd 2. Coolest 0.","story":"Don't try too hard.","notes":"At 2 players: the less Cool player scores 3."},{"name":"Red Carpet Premiere","category":"Social","rewards":["Important"],"penalizes":[],"shape":"Both ends","payout":"Most Important 4. Least Important 2.","story":"Least Important tops the worst-dressed list, and that's still press.","notes":"If 3 or more players tie for least, they each score 1."},{"name":"Circus Audition","category":"Social","rewards":["Wacky"],"penalizes":[],"shape":"Winner takes all","payout":"Wackiest 6. Everyone else 0.","story":"There's only one opening.","notes":""},{"name":"Pet Adoption Day","category":"Social","rewards":["Cute"],"penalizes":[],"shape":"Winner takes all","payout":"Cutest 6. Everyone else 0.","story":"The puppy picks the cutest person in the room.","notes":""},{"name":"Mystery Dinner Party","category":"Social","rewards":["Spooky"],"penalizes":[],"shape":"Second place wins","payout":"2nd Spookiest 5, 3rd 2. Spookiest 0.","story":"The spookiest guest obviously did it.","notes":"At 2 players: the less Spooky player scores 3."}],"scoring":{"Prom":[{"kind":"rank","metric":"Cool","places":[5]},{"kind":"rank","metric":"Important","places":[3]}],"Student Council Election":[{"kind":"rank","metric":"Cool","places":[5,3]}],"Homecoming Court":[{"kind":"rank","metric":{"sum":["Cool","Cute"]},"places":[4,3,1]}],"School Picture Day":[{"kind":"rank","metric":"Cute","places":[4,2],"last":3,"twoPlayer":{"places":[4],"last":3}}],"Science Fair":[{"kind":"rank","metric":{"diff":["Important","Cool"]},"places":[4,3,1]}],"Field Trip":[{"kind":"rank","metric":"Wacky","places":[0,5,2],"twoPlayer":{"places":[0,3]}}],"Talent Show":[{"kind":"rank","metric":"Wacky","places":[3,1],"last":4,"leastTie3":2}],"Battle of the Bands":[{"kind":"rank","metric":{"sum":["Cool","Wacky"]},"places":[5,2]}],"Fall Fling":[{"kind":"perPoints","metric":{"sum":["Cute","Wacky"]},"per":3,"cap":3}],"Yearbook Superlatives":[{"kind":"rank","metric":"Wacky","places":[4]},{"kind":"rank","metric":"Spooky","places":[4]}],"Detention":[{"kind":"rank","metric":{"diff":["Cool","Cute"]},"places":[4,2,1]}],"Club Officer Election":[{"kind":"rank","metric":"Important","places":[4]},{"kind":"rank","metric":"Cute","places":[4]}],"Up for a Promotion":[{"kind":"rank","metric":{"diff":["Important","Wacky"]},"places":[5,2]}],"Job Interview":[{"kind":"threshold","metric":"Important","atLeast":4,"award":2},{"kind":"rank","metric":"Important","places":[2]}],"Meeting the In-Laws":[{"kind":"rank","metric":{"diff":["Cute","Spooky"]},"places":[4,2,1]}],"Baby Shower":[{"kind":"rank","metric":"Cute","places":[4,2]},{"kind":"ifAtMost","metric":"Spooky","atMost":0,"award":1}],"Wedding":[{"kind":"rank","metric":"Important","places":[0,4,2],"twoPlayer":{"places":[0,3]}}],"Reading of the Will":[{"kind":"rank","metric":"Important","places":[4]},{"kind":"rank","metric":"Spooky","places":[4]}],"Family Photo Day":[{"kind":"rivalry","metric":"Cute","neighbor":"right","award":3}],"Kid's Birthday Party":[{"kind":"threshold","metric":"Wacky","atLeast":3,"award":2},{"kind":"rank","metric":"Wacky","places":[2]}],"21st Birthday":[{"kind":"rank","metric":{"min":["Cool","Wacky"]},"places":[4,2]}],"Halloween Party":[{"kind":"rank","metric":{"sum":["Spooky","Wacky"]},"places":[5,3,1]}],"New Year's Eve":[{"kind":"rank","metric":"Important","places":[4]},{"kind":"rank","metric":"Wacky","places":[4]}],"4th of July":[{"kind":"rank","metric":{"diff":["Wacky","Important"]},"places":[4,2,1]}],"Turkey Trot":[{"kind":"perPoints","metric":"Cute","per":2,"cap":3}],"Ugly Sweater Party":[{"kind":"rank","metric":{"diff":["Wacky","Cool"]},"places":[4,2,1]}],"Haunted House Tour":[{"kind":"rank","metric":"Spooky","places":[4],"last":3,"leastTie3":2}],"Ski Trip":[{"kind":"rank","metric":"Cool","places":[4,2],"last":3,"twoPlayer":{"places":[4],"last":3}}],"Beach Day":[{"kind":"rank","metric":{"diff":["Cool","Important"]},"places":[4,2,1]}],"Fancy Restaurant":[{"kind":"threshold","metric":"Important","atLeast":3,"award":3,"topGetsZero":true}],"Camping Trip":[{"kind":"rank","metric":"Spooky","places":[3,2]},{"kind":"ifAtMost","metric":"Important","atMost":0,"award":1}],"Sleepover":[{"kind":"rank","metric":{"sum":["Cute","Spooky"]},"places":[4,2,1]}],"Art Gallery Opening":[{"kind":"rank","metric":{"diff":["Spooky","Wacky"]},"places":[4,2,1]}],"Goth Concert":[{"kind":"rank","metric":{"diff":["Spooky","Cute"]},"places":[4,2,1]}],"Vampire Movie Premiere":[{"kind":"rank","metric":{"sum":["Cool","Spooky"]},"places":[5,2]}],"First Date":[{"kind":"rank","metric":"Cool","places":[0,5,2],"twoPlayer":{"places":[0,3]}}],"Red Carpet Premiere":[{"kind":"rank","metric":"Important","places":[4],"last":2,"leastTie3":1}],"Circus Audition":[{"kind":"rank","metric":"Wacky","places":[6]}],"Pet Adoption Day":[{"kind":"rank","metric":"Cute","places":[6]}],"Mystery Dinner Party":[{"kind":"rank","metric":"Spooky","places":[0,5,2],"twoPlayer":{"places":[0,3]}}]}};
+const SHEET = {"cards":[{"name":"Tiara","type":"Head","v":[4,0,2,0],"prints":["crowns"],"power":"Solid","abilityText":"","ability":null},{"name":"Pearl Hair Bow","type":"Head","v":[2,0,1,0],"prints":["bows","pearls"],"power":"Solid","abilityText":"","ability":null},{"name":"Black Lace Veil","type":"Head","v":[3,0,0,3],"prints":["spiderwebs"],"power":"Solid","abilityText":"","ability":null},{"name":"Top Hat with a Pet Raven","type":"Head","v":[2,0,0,1],"prints":["animals","pinstripes"],"power":"Solid","abilityText":"","ability":null},{"name":"Propeller Beanie","type":"Head","v":[0,3,2,0],"prints":["polka dots"],"power":"Solid","abilityText":"","ability":null},{"name":"Bunny Ear Headband","type":"Head","v":[0,1,2,0],"prints":["animals"],"power":"Solid","abilityText":"","ability":null},{"name":"Rubber Monster Mask","type":"Head","v":[0,3,0,3],"prints":[],"power":"Solid","abilityText":"","ability":null},{"name":"Zombie Clown Wig","type":"Head","v":[0,2,0,1],"prints":["rainbows"],"power":"Solid","abilityText":"","ability":null},{"name":"Powdered Judge's Wig","type":"Head","v":[5,-5,0,0],"prints":[],"power":"Star","abilityText":"","ability":null},{"name":"Monocle on a Pearl Chain","type":"Head","v":[3,-1,0,0],"prints":["pearls"],"power":"Ordinary","abilityText":"","ability":null},{"name":"Rainbow Clown Wig","type":"Head","v":[-3,5,0,0],"prints":["rainbows"],"power":"Star","abilityText":"","ability":null},{"name":"Fruit Basket Hat","type":"Head","v":[-1,3,0,0],"prints":["bananas","crowns"],"power":"Ordinary","abilityText":"","ability":null},{"name":"Baby Bonnet","type":"Head","v":[0,0,5,-3],"prints":["bows","hearts"],"power":"Star","abilityText":"","ability":null},{"name":"Flower Crown","type":"Head","v":[0,0,3,-1],"prints":["flowers"],"power":"Ordinary","abilityText":"","ability":null},{"name":"Skull Face Paint","type":"Head","v":[0,0,-3,5],"prints":["skulls"],"power":"Star","abilityText":"","ability":null},{"name":"Witch Hat","type":"Head","v":[0,0,-1,3],"prints":["moons"],"power":"Ordinary","abilityText":"","ability":null},{"name":"Bowler Hat","type":"Head","v":[3,1,0,0],"prints":["pinstripes"],"power":"Solid","abilityText":"","ability":null},{"name":"Hooded Cloak Hood","type":"Head","v":[1,0,0,3],"prints":["spiderwebs"],"power":"Solid","abilityText":"","ability":null},{"name":"Yacht Captain's Hat","type":"Head","v":[3,0,1,0],"prints":["crowns","pinstripes"],"power":"Solid","abilityText":"","ability":null},{"name":"Black Beret","type":"Head","v":[1,0,0,2],"prints":["moons"],"power":"Solid","abilityText":"","ability":null},{"name":"Traffic Cone Hat","type":"Head","v":[0,4,-2,0],"prints":["checkerboard"],"power":"Solid","abilityText":"","ability":null},{"name":"Lampshade","type":"Head","v":[-2,1,0,0],"prints":["polka dots"],"power":"Dud","abilityText":"","ability":null},{"name":"Beach Ball Hat","type":"Head","v":[0,3,1,0],"prints":["rainbows"],"power":"Solid","abilityText":"","ability":null},{"name":"Fascinator with a Whole Bird on It","type":"Head","v":[3,2,0,0],"prints":["animals","leopard"],"power":"Solid","abilityText":"","ability":null},{"name":"Messy Pigtails","type":"Head","v":[0,1,3,0],"prints":["bows"],"power":"Solid","abilityText":"","ability":null},{"name":"Kitty Ear Beanie","type":"Head","v":[0,0,2,1],"prints":["animals","hearts"],"power":"Solid","abilityText":"","ability":null},{"name":"Halo","type":"Head","v":[1,0,3,0],"prints":[],"power":"Solid","abilityText":"","ability":null},{"name":"Shower Cap","type":"Head","v":[0,0,1,-2],"prints":["hearts"],"power":"Dud","abilityText":"","ability":null},{"name":"Spiked Mohawk","type":"Head","v":[0,1,0,3],"prints":["skulls"],"power":"Solid","abilityText":"","ability":null},{"name":"Bat-Wing Headband","type":"Head","v":[0,0,2,2],"prints":["bats"],"power":"Solid","abilityText":"","ability":null},{"name":"Puffy Princess Gown","type":"Top","v":[4,0,3,0],"prints":["bows","pearls"],"power":"Star","abilityText":"","ability":null},{"name":"Pearl Cardigan","type":"Top","v":[2,0,1,0],"prints":["pearls","flowers"],"power":"Solid","abilityText":"","ability":null},{"name":"Vampire Cape","type":"Top","v":[3,0,0,4],"prints":["bats","crowns"],"power":"Star","abilityText":"","ability":null},{"name":"Black Velvet Blazer","type":"Top","v":[2,0,0,1],"prints":["moons"],"power":"Solid","abilityText":"","ability":null},{"name":"Teddy Bear Onesie","type":"Top","v":[0,2,4,0],"prints":["animals","hearts"],"power":"Solid","abilityText":"","ability":null},{"name":"Rainbow Unicorn Sweater","type":"Top","v":[0,2,1,0],"prints":["rainbows"],"power":"Solid","abilityText":"","ability":null},{"name":"Skeleton Onesie","type":"Top","v":[0,3,0,3],"prints":["skulls"],"power":"Solid","abilityText":"","ability":null},{"name":"Mummy Wrap Top","type":"Top","v":[0,1,0,2],"prints":["spiderwebs"],"power":"Solid","abilityText":"","ability":null},{"name":"Pinstripe Blazer","type":"Top","v":[5,-3,0,0],"prints":["pinstripes"],"power":"Star","abilityText":"","ability":null},{"name":"Ringmaster Jacket","type":"Top","v":[3,2,0,0],"prints":["crowns","polka dots"],"power":"Solid","abilityText":"","ability":null},{"name":"Barrel","type":"Top","v":[-5,5,0,0],"prints":[],"power":"Star","abilityText":"","ability":null},{"name":"Hawaiian Shirt","type":"Top","v":[-1,3,0,0],"prints":["bananas","flowers"],"power":"Ordinary","abilityText":"","ability":null},{"name":"Heart Sweater","type":"Top","v":[0,0,5,-5],"prints":["hearts"],"power":"Star","abilityText":"","ability":null},{"name":"Grandma's Kitten Cardigan","type":"Top","v":[0,0,3,-1],"prints":["animals"],"power":"Ordinary","abilityText":"","ability":null},{"name":"Spiderweb Sweater","type":"Top","v":[0,0,-2,4],"prints":["spiderwebs"],"power":"Solid","abilityText":"","ability":null},{"name":"Band Tee","type":"Top","v":[0,0,-1,3],"prints":["skulls","checkerboard"],"power":"Ordinary","abilityText":"","ability":null},{"name":"Leopard Fur Coat","type":"Top","v":[3,0,0,1],"prints":["leopard"],"power":"Solid","abilityText":"","ability":null},{"name":"Mourning Coat","type":"Top","v":[1,0,0,3],"prints":["pearls"],"power":"Solid","abilityText":"","ability":null},{"name":"Sequin Gown","type":"Top","v":[3,1,0,0],"prints":["crowns","leopard"],"power":"Solid","abilityText":"","ability":null},{"name":"Black Turtleneck","type":"Top","v":[1,0,0,2],"prints":["bats"],"power":"Solid","abilityText":"","ability":null},{"name":"Hot Dog Costume","type":"Top","v":[0,4,-2,0],"prints":[],"power":"Solid","abilityText":"","ability":null},{"name":"Stinky Gym Shirt","type":"Top","v":[0,1,-2,0],"prints":["checkerboard"],"power":"Dud","abilityText":"","ability":null},{"name":"Tie-Dye Tee","type":"Top","v":[0,3,1,0],"prints":["rainbows"],"power":"Solid","abilityText":"","ability":null},{"name":"Banana Costume","type":"Top","v":[0,2,1,0],"prints":["bananas"],"power":"Solid","abilityText":"","ability":null},{"name":"Puppy Pajama Top","type":"Top","v":[0,1,3,0],"prints":["animals"],"power":"Solid","abilityText":"","ability":null},{"name":"Fuzzy Heart Sweatshirt","type":"Top","v":[0,1,2,0],"prints":["hearts"],"power":"Solid","abilityText":"","ability":null},{"name":"Angel Wings","type":"Top","v":[1,0,3,0],"prints":["pearls"],"power":"Solid","abilityText":"","ability":null},{"name":"Itchy Reindeer Sweater","type":"Top","v":[-2,0,1,0],"prints":["animals"],"power":"Dud","abilityText":"","ability":null},{"name":"Ripped Leather Jacket","type":"Top","v":[-2,0,0,4],"prints":["skulls"],"power":"Solid","abilityText":"","ability":null},{"name":"Black Hoodie","type":"Top","v":[0,0,1,2],"prints":["moons"],"power":"Solid","abilityText":"","ability":null},{"name":"Ball Gown Skirt","type":"Bottom","v":[4,0,2,0],"prints":["bows"],"power":"Solid","abilityText":"","ability":null},{"name":"Pleated Pastel Skirt","type":"Bottom","v":[1,0,2,0],"prints":["flowers"],"power":"Solid","abilityText":"","ability":null},{"name":"Cobweb Ball Skirt","type":"Bottom","v":[3,0,0,4],"prints":["spiderwebs"],"power":"Star","abilityText":"","ability":null},{"name":"Black Velvet Trousers","type":"Bottom","v":[2,0,0,1],"prints":["pinstripes"],"power":"Solid","abilityText":"","ability":null},{"name":"Tutu","type":"Bottom","v":[0,3,3,0],"prints":["polka dots"],"power":"Solid","abilityText":"","ability":null},{"name":"Patched Overalls","type":"Bottom","v":[0,2,1,0],"prints":["bananas","checkerboard"],"power":"Solid","abilityText":"","ability":null},{"name":"Skeleton Leggings","type":"Bottom","v":[0,2,0,3],"prints":["skulls"],"power":"Solid","abilityText":"","ability":null},{"name":"Witch's Tights","type":"Bottom","v":[0,1,0,2],"prints":["bats"],"power":"Solid","abilityText":"","ability":null},{"name":"Pinstripe Trousers","type":"Bottom","v":[4,-1,0,0],"prints":["pinstripes"],"power":"Solid","abilityText":"","ability":null},{"name":"Sequined Bell-Bottoms","type":"Bottom","v":[3,2,0,0],"prints":["leopard"],"power":"Solid","abilityText":"","ability":null},{"name":"Clown Pants","type":"Bottom","v":[-3,5,0,0],"prints":["polka dots","checkerboard"],"power":"Star","abilityText":"","ability":null},{"name":"Banana Print Shorts","type":"Bottom","v":[-1,3,0,0],"prints":["bananas"],"power":"Ordinary","abilityText":"","ability":null},{"name":"Bunny Pajama Pants","type":"Bottom","v":[0,0,4,-2],"prints":["animals"],"power":"Solid","abilityText":"","ability":null},{"name":"Flower Print Skirt","type":"Bottom","v":[0,0,3,-1],"prints":["flowers"],"power":"Ordinary","abilityText":"","ability":null},{"name":"Graveyard Skirt","type":"Bottom","v":[0,0,-5,5],"prints":["moons","spiderwebs"],"power":"Star","abilityText":"","ability":null},{"name":"Black Cargo Pants","type":"Bottom","v":[0,0,-1,2],"prints":["bats","skulls"],"power":"Ordinary","abilityText":"","ability":null},{"name":"Leopard Pencil Skirt","type":"Bottom","v":[3,0,0,1],"prints":["leopard"],"power":"Solid","abilityText":"","ability":null},{"name":"Corduroy Pants","type":"Bottom","v":[1,-2,0,0],"prints":[],"power":"Dud","abilityText":"","ability":null},{"name":"White Linen Trousers","type":"Bottom","v":[3,0,1,0],"prints":["pearls"],"power":"Solid","abilityText":"","ability":null},{"name":"Black Velvet Skirt","type":"Bottom","v":[1,0,0,2],"prints":["moons"],"power":"Solid","abilityText":"","ability":null},{"name":"Rubber Fishing Waders","type":"Bottom","v":[0,4,-2,0],"prints":["animals"],"power":"Solid","abilityText":"","ability":null},{"name":"Soggy Swim Trunks","type":"Bottom","v":[0,1,-2,0],"prints":["bananas"],"power":"Dud","abilityText":"","ability":null},{"name":"Rainbow Leggings","type":"Bottom","v":[0,3,1,0],"prints":["rainbows"],"power":"Solid","abilityText":"","ability":null},{"name":"Checkered Skate Shorts","type":"Bottom","v":[0,2,0,1],"prints":["checkerboard"],"power":"Solid","abilityText":"","ability":null},{"name":"Footie Pajama Bottoms","type":"Bottom","v":[0,1,3,0],"prints":["animals"],"power":"Solid","abilityText":"","ability":null},{"name":"Heart Sweatpants","type":"Bottom","v":[0,1,2,0],"prints":["hearts"],"power":"Solid","abilityText":"","ability":null},{"name":"Lace Petticoat","type":"Bottom","v":[1,0,3,0],"prints":["bows"],"power":"Solid","abilityText":"","ability":null},{"name":"Ripped Black Jeans","type":"Bottom","v":[-2,0,0,4],"prints":["skulls"],"power":"Solid","abilityText":"","ability":null},{"name":"Victorian Mourning Skirt","type":"Bottom","v":[1,0,0,3],"prints":["moons"],"power":"Solid","abilityText":"","ability":null},{"name":"Pumpkin Bloomers","type":"Bottom","v":[0,0,2,2],"prints":["bats"],"power":"Solid","abilityText":"","ability":null},{"name":"Briefcase","type":"Accessory","v":[0,0,0,0],"prints":[],"power":"Common","abilityText":"+2 Fancy per item with pinstripes","ability":{"kind":"perPrint","n":2,"imp":"Fancy","prints":["pinstripes"]}},{"name":"Royal Scepter","type":"Accessory","v":[0,0,0,0],"prints":[],"power":"Common","abilityText":"+2 Fancy per item with crowns","ability":{"kind":"perPrint","n":2,"imp":"Fancy","prints":["crowns"]}},{"name":"Feather Boa","type":"Accessory","v":[0,0,0,0],"prints":[],"power":"Common","abilityText":"+2 Fancy per item with leopard","ability":{"kind":"perPrint","n":2,"imp":"Fancy","prints":["leopard"]}},{"name":"Pearl Clutch","type":"Accessory","v":[0,0,0,0],"prints":[],"power":"Common","abilityText":"+2 Fancy per item with pearls","ability":{"kind":"perPrint","n":2,"imp":"Fancy","prints":["pearls"]}},{"name":"Poodle on a Jeweled Leash","type":"Accessory","v":[0,0,0,0],"prints":[],"power":"Common","abilityText":"+1 Fancy per animal pictured in your outfit","ability":{"kind":"perPrint","n":1,"imp":"Fancy","prints":["animals","bats"]}},{"name":"Tiny Tea Set","type":"Accessory","v":[0,0,0,0],"prints":[],"power":"Common","abilityText":"Add your Cute to your Fancy","ability":{"kind":"add","from":"Cute","to":"Fancy"}},{"name":"Silver Candelabra","type":"Accessory","v":[0,0,0,0],"prints":[],"power":"Common","abilityText":"Add your Spooky to your Fancy","ability":{"kind":"add","from":"Spooky","to":"Fancy"}},{"name":"Golden Trophy","type":"Accessory","v":[0,0,0,0],"prints":[],"power":"Rare","abilityText":"Your highest Impression counts double","ability":{"kind":"doubleHighest"}},{"name":"Rubber Chicken","type":"Accessory","v":[0,0,0,0],"prints":[],"power":"Common","abilityText":"+2 Wacky per item with polka dots","ability":{"kind":"perPrint","n":2,"imp":"Wacky","prints":["polka dots"]}},{"name":"Skateboard","type":"Accessory","v":[0,0,0,0],"prints":[],"power":"Common","abilityText":"+2 Wacky per item with checkerboard","ability":{"kind":"perPrint","n":2,"imp":"Wacky","prints":["checkerboard"]}},{"name":"Banana Phone","type":"Accessory","v":[0,0,0,0],"prints":[],"power":"Common","abilityText":"+1 Wacky per banana pictured in your outfit","ability":{"kind":"perPrint","n":1,"imp":"Wacky","prints":["bananas"]}},{"name":"Rainbow Kite","type":"Accessory","v":[0,0,0,0],"prints":[],"power":"Common","abilityText":"+2 Wacky per item with rainbows","ability":{"kind":"perPrint","n":2,"imp":"Wacky","prints":["rainbows"]}},{"name":"Whoopee Cushion","type":"Accessory","v":[0,0,0,0],"prints":[],"power":"Common","abilityText":"Add your Fancy to your Wacky","ability":{"kind":"add","from":"Fancy","to":"Wacky"}},{"name":"Balloon Animal","type":"Accessory","v":[0,0,0,0],"prints":[],"power":"Common","abilityText":"Add your Cute to your Wacky","ability":{"kind":"add","from":"Cute","to":"Wacky"}},{"name":"Mystery Shopping Bag","type":"Accessory","v":[0,0,0,0],"prints":[],"power":"Common","abilityText":"+2 Wacky per empty clothing slot","ability":{"kind":"perEmptySlot","n":2,"imp":"Wacky"}},{"name":"Megaphone","type":"Accessory","v":[0,0,0,0],"prints":[],"power":"Common","abilityText":"+1 Wacky per print in your outfit","ability":{"kind":"perAnyPrint","n":1,"imp":"Wacky"}},{"name":"Puppy on a Leash","type":"Accessory","v":[0,0,0,0],"prints":[],"power":"Common","abilityText":"+1 Cute per animal pictured in your outfit","ability":{"kind":"perPrint","n":1,"imp":"Cute","prints":["animals","bats"]}},{"name":"Heart Balloon","type":"Accessory","v":[0,0,0,0],"prints":[],"power":"Common","abilityText":"+2 Cute per item with hearts","ability":{"kind":"perPrint","n":2,"imp":"Cute","prints":["hearts"]}},{"name":"Flower Basket","type":"Accessory","v":[0,0,0,0],"prints":[],"power":"Common","abilityText":"+2 Cute per item with flowers","ability":{"kind":"perPrint","n":2,"imp":"Cute","prints":["flowers"]}},{"name":"Present with a Giant Bow","type":"Accessory","v":[0,0,0,0],"prints":[],"power":"Common","abilityText":"+2 Cute per item with bows","ability":{"kind":"perPrint","n":2,"imp":"Cute","prints":["bows"]}},{"name":"Teddy Bear","type":"Accessory","v":[0,0,0,0],"prints":[],"power":"Common","abilityText":"Add your Spooky to your Cute (creepy-cute counts)","ability":{"kind":"add","from":"Spooky","to":"Cute"}},{"name":"Lollipop","type":"Accessory","v":[0,0,0,0],"prints":[],"power":"Common","abilityText":"Add your Wacky to your Cute","ability":{"kind":"add","from":"Wacky","to":"Cute"}},{"name":"Sunshine Parasol","type":"Accessory","v":[0,0,0,0],"prints":[],"power":"Common","abilityText":"Your Spooky becomes 0","ability":{"kind":"becomesZero","imp":"Spooky"}},{"name":"Pet Bat","type":"Accessory","v":[0,0,0,0],"prints":[],"power":"Common","abilityText":"+1 Spooky per bat pictured in your outfit","ability":{"kind":"perPrint","n":1,"imp":"Spooky","prints":["bats"]}},{"name":"Crystal Ball","type":"Accessory","v":[0,0,0,0],"prints":[],"power":"Common","abilityText":"+2 Spooky per item with skulls","ability":{"kind":"perPrint","n":2,"imp":"Spooky","prints":["skulls"]}},{"name":"Haunted Lantern","type":"Accessory","v":[0,0,0,0],"prints":[],"power":"Common","abilityText":"+2 Spooky per item with spiderwebs","ability":{"kind":"perPrint","n":2,"imp":"Spooky","prints":["spiderwebs"]}},{"name":"Broomstick","type":"Accessory","v":[0,0,0,0],"prints":[],"power":"Common","abilityText":"+2 Spooky per item with moons","ability":{"kind":"perPrint","n":2,"imp":"Spooky","prints":["moons"]}},{"name":"Black Cat","type":"Accessory","v":[0,0,0,0],"prints":[],"power":"Common","abilityText":"Add your Cute to your Spooky","ability":{"kind":"add","from":"Cute","to":"Spooky"}},{"name":"Creepy Puppet","type":"Accessory","v":[0,0,0,0],"prints":[],"power":"Common","abilityText":"Add your Wacky to your Spooky","ability":{"kind":"add","from":"Wacky","to":"Spooky"}},{"name":"Magic Wand","type":"Accessory","v":[0,0,0,0],"prints":[],"power":"Rare","abilityText":"Add your Spooky to any one other Impression","ability":{"kind":"wand"}}],"invites":[{"name":"Prom","category":"School","rewards":["Fancy"],"penalizes":[],"shape":"Winner and runner-up","payout":"Fanciest is crowned Prom King/Queen: 5. 2nd Fanciest: 2.","story":"The crown goes to whoever looks most like royalty.","notes":""},{"name":"Student Council Election","category":"School","rewards":["Cute"],"penalizes":[],"shape":"Winner and runner-up","payout":"Cutest (President): 5. 2nd Cutest (Vice President): 3.","story":"Nobody reads the platforms; everyone votes for the most likable face.","notes":""},{"name":"Homecoming Court","category":"School","rewards":["Fancy","Cute"],"penalizes":[],"shape":"Combined","payout":"Add Fancy and Cute. 1st 5, 2nd 3, 3rd 1.","story":"Royalty needs a crown and a smile.","notes":""},{"name":"School Picture Day","category":"School","rewards":["Cute"],"penalizes":[],"shape":"Consolation prize","payout":"Cutest 4, 2nd 2, last place 3.","story":"The yearbook gives last place the Most Memorable award.","notes":"At 2 players: Cutest 4, the other player 3."},{"name":"Field Trip","category":"School","rewards":["Wacky"],"penalizes":[],"shape":"Second place wins","payout":"2nd Wackiest 5, 3rd 2. Wackiest 0.","story":"The wackiest kid spends the trip on the bus.","notes":"At 2 players: the less Wacky player scores 3."},{"name":"Talent Show","category":"School","rewards":["Wacky"],"penalizes":[],"shape":"Shoot the moon","payout":"Least Wacky 4. Wackiest 3, 2nd Wackiest 1.","story":"The most boring act goes viral.","notes":"If 3 or more players tie for least, they each score 2."},{"name":"Battle of the Bands","category":"School","rewards":["Fancy","Wacky"],"penalizes":[],"shape":"Combined","payout":"Add Fancy and Wacky. 1st 5, 2nd 2.","story":"Glam rock: rhinestones and rubber chickens.","notes":""},{"name":"Fall Fling","category":"School","rewards":["Cute","Wacky"],"penalizes":[],"shape":"No winner","payout":"Everyone scores 1 Like for every 3 Cute and Wacky combined, up to 3.","story":"It's just a dance; everyone posts their fit.","notes":""},{"name":"Yearbook Superlatives","category":"School","rewards":["Wacky","Spooky"],"penalizes":[],"shape":"Two winners","payout":"Wackiest is Class Clown: 4. Spookiest is Most Likely to Haunt the School: 4.","story":"Two awards nobody campaigns for.","notes":""},{"name":"Detention","category":"School","rewards":["Spooky"],"penalizes":["Cute"],"shape":"Subtract","payout":"Score Spooky minus Cute. 1st 4, 2nd 2, 3rd 1.","story":"Rebels get respect; teacher's pets don't.","notes":""},{"name":"Up for a Promotion","category":"Work","rewards":["Fancy"],"penalizes":["Wacky"],"shape":"Subtract","payout":"Score Fancy minus Wacky. 1st 5, 2nd 2.","story":"Dress for the job you want, not the circus you want.","notes":""},{"name":"Job Interview","category":"Work","rewards":["Fancy"],"penalizes":[],"shape":"Threshold","payout":"Everyone with 6+ Fancy is hired: 2. Fanciest also gets the corner office: 2 more.","story":"Nobody checked the resumes.","notes":""},{"name":"Meeting the In-Laws","category":"Family","rewards":["Cute"],"penalizes":["Spooky"],"shape":"Subtract","payout":"Score Cute minus Spooky. 1st 4, 2nd 2, 3rd 1.","story":"They want someone sweet, not someone who brought a bat.","notes":""},{"name":"Baby Shower","category":"Family","rewards":["Cute"],"penalizes":["Spooky"],"shape":"Podium plus bonus","payout":"Cutest 4, 2nd 2. Everyone with 0 or less Spooky gets 1 more.","story":"Nobody wants fangs near the baby.","notes":""},{"name":"Wedding","category":"Family","rewards":["Fancy"],"penalizes":[],"shape":"Second place wins","payout":"2nd Fanciest 5, 3rd 2. Fanciest 0.","story":"Never upstage the couple.","notes":"At 2 players: the less Fancy player scores 3."},{"name":"Reading of the Will","category":"Family","rewards":["Fancy","Spooky"],"penalizes":[],"shape":"Two winners","payout":"Fanciest inherits the company: 4. Spookiest inherits the haunted mansion: 4.","story":"Great-aunt had two kinds of heirs in mind.","notes":""},{"name":"Family Photo Day","category":"Family","rewards":["Cute"],"penalizes":[],"shape":"Rivalry","payout":"Out-Cute the player on your right: 3.","story":"Grandma is comparing.","notes":""},{"name":"Kid's Birthday Party","category":"Celebration","rewards":["Wacky"],"penalizes":[],"shape":"Threshold","payout":"Everyone with 6+ Wacky: 2. Wackiest also gets booked for next year: 2 more.","story":"The kids decide who's fun.","notes":""},{"name":"21st Birthday","category":"Celebration","rewards":["Fancy","Wacky"],"penalizes":[],"shape":"Balance (lower of two)","payout":"Score your lower of Fancy and Wacky. 1st 4, 2nd 2.","story":"Classy enough for the bouncer, silly enough for the party.","notes":"The only balance invite; slower to score."},{"name":"Halloween Costume Contest","category":"Holiday","rewards":["Spooky","Wacky"],"penalizes":[],"shape":"Combined","payout":"Add Spooky and Wacky. 1st 5, 2nd 3, 3rd 1.","story":"Scary, funny, or both.","notes":""},{"name":"New Year's Eve","category":"Holiday","rewards":["Fancy","Wacky"],"penalizes":[],"shape":"Two winners","payout":"Fanciest gets the VIP table: 4. Wackiest leads the countdown: 4.","story":"Two ways to own midnight.","notes":""},{"name":"Turkey Trot","category":"Holiday","rewards":["Cute"],"penalizes":[],"shape":"No winner","payout":"Everyone scores 1 Like for every 3 Cute, up to 3.","story":"Nobody's racing; everyone's posting.","notes":""},{"name":"Ugly Sweater Party","category":"Holiday","rewards":["Wacky"],"penalizes":["Fancy"],"shape":"Subtract","payout":"Score Wacky minus Fancy. 1st 4, 2nd 2, 3rd 1.","story":"Trying to look nice is the one way to lose.","notes":""},{"name":"Haunted House Tour","category":"Outing","rewards":["Spooky"],"penalizes":[],"shape":"Both ends","payout":"Spookiest 4. Least Spooky 3.","story":"The staff think the spookiest guest works there; the least spooky guest's scream goes viral.","notes":"If 3 or more players tie for least, they each score 2."},{"name":"Beach Day","category":"Outing","rewards":["Wacky"],"penalizes":["Spooky"],"shape":"Subtract","payout":"Score Wacky minus Spooky. 1st 4, 2nd 2, 3rd 1.","story":"Sunny and silly beats pale and brooding.","notes":""},{"name":"Fancy Restaurant","category":"Outing","rewards":["Fancy"],"penalizes":[],"shape":"Threshold","payout":"Everyone with 5+ Fancy gets seated: 3. Fanciest scores 0 instead.","story":"The fanciest-looking guest gets stuck with the bill.","notes":""},{"name":"Camping Trip","category":"Outing","rewards":["Spooky"],"penalizes":["Fancy"],"shape":"Podium plus bonus","payout":"Spookiest 3, 2nd 2. Everyone with 0 or less Fancy gets 1 more.","story":"Best campfire ghost story, plus points for roughing it.","notes":""},{"name":"Sleepover","category":"Outing","rewards":["Cute","Spooky"],"penalizes":[],"shape":"Combined","payout":"Add Cute and Spooky. 1st 4, 2nd 2, 3rd 1.","story":"Ghost stories in onesies.","notes":""},{"name":"Art Gallery Opening","category":"Outing","rewards":["Spooky"],"penalizes":["Wacky"],"shape":"Subtract","payout":"Score Spooky minus Wacky. 1st 4, 2nd 2, 3rd 1.","story":"The art crowd wants moody, not loud.","notes":""},{"name":"Goth Concert","category":"Outing","rewards":["Spooky"],"penalizes":[],"shape":"Winner and runner-up","payout":"Spookiest goes backstage: 5. 2nd Spookiest: 3.","story":"The band spots you from the stage.","notes":""},{"name":"Midnight Movie Marathon","category":"Outing","rewards":["Spooky"],"penalizes":[],"shape":"Threshold","payout":"Everyone with 6+ Spooky: 2. Spookiest also gets the best seat: 2 more.","story":"Only the truly creepy make it to the end.","notes":""},{"name":"Vampire Ball","category":"Social","rewards":["Fancy","Spooky"],"penalizes":[],"shape":"Combined","payout":"Add Fancy and Spooky. 1st 5, 2nd 2.","story":"Velvet, candlelight, and very pointy teeth.","notes":""},{"name":"First Date","category":"Social","rewards":["Cute"],"penalizes":[],"shape":"Second place wins","payout":"2nd Cutest 5, 3rd 2. Cutest 0.","story":"Don't try too hard.","notes":"At 2 players: the less Cute player scores 3."},{"name":"Red Carpet Premiere","category":"Social","rewards":["Fancy"],"penalizes":[],"shape":"Both ends","payout":"Fanciest 4. Least Fancy 2.","story":"Least Fancy tops the worst-dressed list, and that's still press.","notes":"If 3 or more players tie for least, they each score 1."},{"name":"Circus Audition","category":"Social","rewards":["Wacky"],"penalizes":[],"shape":"Winner takes all","payout":"Wackiest 6. Everyone else 0.","story":"There's only one opening.","notes":""},{"name":"Pet Adoption Day","category":"Social","rewards":["Cute"],"penalizes":[],"shape":"Winner takes all","payout":"Cutest 6. Everyone else 0.","story":"The puppy picks the cutest person in the room.","notes":""},{"name":"Mystery Dinner Party","category":"Social","rewards":["Spooky"],"penalizes":[],"shape":"Second place wins","payout":"2nd Spookiest 5, 3rd 2. Spookiest 0.","story":"The spookiest guest obviously did it.","notes":"At 2 players: the less Spooky player scores 3."}],"scoring":{"Prom":[{"kind":"rank","metric":"Fancy","places":[5,2]}],"Student Council Election":[{"kind":"rank","metric":"Cute","places":[5,3]}],"Homecoming Court":[{"kind":"rank","metric":{"sum":["Fancy","Cute"]},"places":[5,3,1]}],"School Picture Day":[{"kind":"rank","metric":"Cute","places":[4,2],"last":3,"twoPlayer":{"places":[4],"last":3}}],"Field Trip":[{"kind":"rank","metric":"Wacky","places":[0,5,2],"twoPlayer":{"places":[0,3]}}],"Talent Show":[{"kind":"rank","metric":"Wacky","places":[3,1],"last":4,"leastTie3":2}],"Battle of the Bands":[{"kind":"rank","metric":{"sum":["Fancy","Wacky"]},"places":[5,2]}],"Fall Fling":[{"kind":"perPoints","metric":{"sum":["Cute","Wacky"]},"per":3,"cap":3}],"Yearbook Superlatives":[{"kind":"rank","metric":"Wacky","places":[4]},{"kind":"rank","metric":"Spooky","places":[4]}],"Detention":[{"kind":"rank","metric":{"diff":["Spooky","Cute"]},"places":[4,2,1]}],"Up for a Promotion":[{"kind":"rank","metric":{"diff":["Fancy","Wacky"]},"places":[5,2]}],"Job Interview":[{"kind":"threshold","metric":"Fancy","atLeast":6,"award":2},{"kind":"rank","metric":"Fancy","places":[2]}],"Meeting the In-Laws":[{"kind":"rank","metric":{"diff":["Cute","Spooky"]},"places":[4,2,1]}],"Baby Shower":[{"kind":"rank","metric":"Cute","places":[4,2]},{"kind":"ifAtMost","metric":"Spooky","atMost":0,"award":1}],"Wedding":[{"kind":"rank","metric":"Fancy","places":[0,5,2],"twoPlayer":{"places":[0,3]}}],"Reading of the Will":[{"kind":"rank","metric":"Fancy","places":[4]},{"kind":"rank","metric":"Spooky","places":[4]}],"Family Photo Day":[{"kind":"rivalry","metric":"Cute","neighbor":"right","award":3}],"Kid's Birthday Party":[{"kind":"threshold","metric":"Wacky","atLeast":6,"award":2},{"kind":"rank","metric":"Wacky","places":[2]}],"21st Birthday":[{"kind":"rank","metric":{"min":["Fancy","Wacky"]},"places":[4,2]}],"Halloween Costume Contest":[{"kind":"rank","metric":{"sum":["Spooky","Wacky"]},"places":[5,3,1]}],"New Year's Eve":[{"kind":"rank","metric":"Fancy","places":[4]},{"kind":"rank","metric":"Wacky","places":[4]}],"Turkey Trot":[{"kind":"perPoints","metric":"Cute","per":3,"cap":3}],"Ugly Sweater Party":[{"kind":"rank","metric":{"diff":["Wacky","Fancy"]},"places":[4,2,1]}],"Haunted House Tour":[{"kind":"rank","metric":"Spooky","places":[4],"last":3,"leastTie3":2}],"Beach Day":[{"kind":"rank","metric":{"diff":["Wacky","Spooky"]},"places":[4,2,1]}],"Fancy Restaurant":[{"kind":"threshold","metric":"Fancy","atLeast":5,"award":3,"topGetsZero":true}],"Camping Trip":[{"kind":"rank","metric":"Spooky","places":[3,2]},{"kind":"ifAtMost","metric":"Fancy","atMost":0,"award":1}],"Sleepover":[{"kind":"rank","metric":{"sum":["Cute","Spooky"]},"places":[4,2,1]}],"Art Gallery Opening":[{"kind":"rank","metric":{"diff":["Spooky","Wacky"]},"places":[4,2,1]}],"Goth Concert":[{"kind":"rank","metric":"Spooky","places":[5,3]}],"Midnight Movie Marathon":[{"kind":"threshold","metric":"Spooky","atLeast":6,"award":2},{"kind":"rank","metric":"Spooky","places":[2]}],"Vampire Ball":[{"kind":"rank","metric":{"sum":["Fancy","Spooky"]},"places":[5,2]}],"First Date":[{"kind":"rank","metric":"Cute","places":[0,5,2],"twoPlayer":{"places":[0,3]}}],"Red Carpet Premiere":[{"kind":"rank","metric":"Fancy","places":[4],"last":2,"leastTie3":1}],"Circus Audition":[{"kind":"rank","metric":"Wacky","places":[6]}],"Pet Adoption Day":[{"kind":"rank","metric":"Cute","places":[6]}],"Mystery Dinner Party":[{"kind":"rank","metric":"Spooky","places":[0,5,2],"twoPlayer":{"places":[0,3]}}]}};
 </script>
 <script id="engine">
 // Thrift Shop rules: pure, no DOM, no clock. State is plain JSON changed in place by apply(); the RNG state lives in it.
 // The UI (or a simulator) decides when the thrifting time is up by calling { type: 'endThrift' }.
 const Engine = (() => {
   const D = GAME_DATA, SH = SHEET, CARDS = SH.cards;
-  const IMPS = D.impressions.map(i => i.id), SLOTS = D.slots.map(s => s.id), CLOTHING = SLOTS.slice(0, 4), ACC = SLOTS[4];
+  const IMPS = D.impressions.map(i => i.id), SLOTS = D.slots.map(s => s.id), ACC = SLOTS[SLOTS.length - 1], CLOTHING = SLOTS.slice(0, -1);
   const clone = o => JSON.parse(JSON.stringify(o));
   const rnd = s => { s.rng = (s.rng + 0x6D2B79F5) | 0; let t = s.rng; t = Math.imul(t ^ (t >>> 15), t | 1); t ^= t + Math.imul(t ^ (t >>> 7), t | 61); return ((t ^ (t >>> 14)) >>> 0) / 4294967296; };
   const shuffle = (s, a) => { for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(rnd(s) * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
@@ -228,7 +269,7 @@ const Engine = (() => {
   function cleanSettings(o) {
     const s = Object.assign(clone(D.settings), o || {});
     for (const k of Object.keys(D.limits)) s[k] = clamp(Math.round(+s[k] || D.settings[k]), D.limits[k]);
-    s.rounds = Math.min(s.rounds, SH.invites.length);
+    s.rounds = Math.min(s.rounds, Math.floor(SH.invites.length / D.invitesPerRound));
     s.startHand = Math.min(s.startHand, s.handLimit);
     if (!D.botSpeeds[s.botSpeed]) s.botSpeed = D.settings.botSpeed;
     s.debug = !!s.debug; return s;
@@ -237,35 +278,44 @@ const Engine = (() => {
   function newGame(opts = {}) {
     const o = Object.assign({ seed: (Math.random() * 2 ** 31) | 0, humans: [0], settings: {} }, opts);
     const cfg = cleanSettings(o.settings), n = cfg.bots + 1;
-    const s = { v: 2, cfg, rng: o.seed | 0, n, round: 0, phase: 'invite', cells: [], invites: [], players: [], results: null, roundLog: [], ready: [], lastTake: null };
+    const s = { v: 3, cfg, rng: o.seed | 0, n, round: 0, phase: 'invite', cells: [], invites: [], players: [], results: null, roundLog: [], ready: [] };
     for (let i = 0; i < n; i++) s.players.push({ name: i === 0 && o.humans.includes(0) ? 'You' : D.names[(i - 1) % D.names.length], human: o.humans.includes(i), hand: [], board: Object.fromEntries(SLOTS.map(k => [k, null])), wand: null, done: false, likes: [], mem: {} });
     // the whole thrift deck laid out in a grid, face down; the dealt hands leave empty spaces
-    const deck = shuffle(s, CARDS.map((_, i) => i)); s.cells = deck.map(c => ({ c, up: false }));
+    const deck = shuffle(s, CARDS.map((_, i) => i)); s.cells = deck.map(c => ({ c }));
     const spots = shuffle(s, s.cells.map((_, i) => i)); let k = 0;
     for (const p of s.players) for (let j = 0; j < cfg.startHand; j++) { const cell = spots[k++]; p.hand.push(s.cells[cell].c); s.cells[cell] = null; }
-    s.invites = shuffle(s, SH.invites.map((_, i) => i)).slice(0, cfg.rounds);
+    s.invites = shuffle(s, SH.invites.map((_, i) => i)).slice(0, cfg.rounds * D.invitesPerRound);
     startRound(s); return s;
   }
   function startRound(s) {
-    s.round++; s.phase = 'invite'; s.results = null; s.ready = []; s.lastTake = null;
-    for (const p of s.players) { p.done = false; p.wand = null; for (const k of SLOTS) p.board[k] = null; }
+    s.round++; s.phase = 'invite'; s.results = null; s.ready = [];
+    for (const p of s.players) { p.done = false; p.wand = null; p.mem = {}; for (const k of SLOTS) p.board[k] = null; }
   }
-  const inviteOf = s => SH.invites[s.invites[s.round - 1]];
+  // The two invites of the round: [A, B].
+  const invitesOf = s => Array.from({ length: D.invitesPerRound }, (_, k) => SH.invites[s.invites[(s.round - 1) * D.invitesPerRound + k]]);
+  const inviteNames = s => invitesOf(s).map(i => i.name);
   const handFull = (s, p) => p.hand.length >= s.cfg.handLimit;
   const filled = p => SLOTS.filter(k => p.board[k] != null).length;
 
   // ---------------- scoring ----------------
-  // The invite's Impressions in the order its rule names them (used for Golden Trophy ties and the bots' Magic Wand).
   const metricImps = m => typeof m === 'string' ? [m] : Object.values(m)[0];
-  function inviteImpOrder(name) { const out = []; for (const b of SH.scoring[name] || []) for (const x of metricImps(b.metric)) if (!out.includes(x)) out.push(x); return out; }
+  const asList = x => Array.isArray(x) ? x : x ? [x] : [];
+  // The Impressions the invites' rules name, in order (invite A first, then B): used for Golden Trophy ties.
+  function inviteImpOrder(names) { const out = []; for (const nm of asList(names)) for (const b of SH.scoring[nm] || []) for (const x of metricImps(b.metric)) if (!out.includes(x)) out.push(x); return out; }
   function metricValue(m, t) {
     if (typeof m === 'string') return t[m];
     if (m.sum) return m.sum.reduce((a, x) => a + t[x], 0);
     if (m.diff) return t[m.diff[0]] - t[m.diff[1]];
     return Math.min(...m.min.map(x => t[x]));
   }
-  // Clothing first, then the accessory, then (elsewhere) the invite. `wand` is the target Impression of a Magic Wand.
-  function impressionTotals(board, wand, inviteName) {
+  // The Impression a Magic Wand feeds by default: the first one the invites reward (invite A, then B), not Spooky if possible.
+  function defaultWand(names) {
+    const list = asList(names); const rewarded = [];
+    for (const nm of list) { const inv = SH.invites.find(i => i.name === nm); if (inv) rewarded.push(...inv.rewards); }
+    return rewarded.concat(inviteImpOrder(list)).find(x => x !== 'Spooky') || IMPS.find(x => x !== 'Spooky');
+  }
+  // Clothing first, then the accessory. `names` = the round's invite names (for Golden Trophy ties and the Wand default).
+  function impressionTotals(board, wand, names) {
     const t = Object.fromEntries(IMPS.map(i => [i, 0])); let effect = '';
     const clothes = CLOTHING.map(k => board[k]).filter(c => c != null).map(cardOf);
     for (const c of clothes) IMPS.forEach((imp, i) => { t[imp] += c.v[i]; });
@@ -273,28 +323,25 @@ const Engine = (() => {
     if (acc && acc.ability) {
       const a = acc.ability;
       if (a.kind === 'perPrint') { const cnt = clothes.filter(c => c.prints.some(p => a.prints.includes(p))).length; t[a.imp] += a.n * cnt; effect = `+${a.n * cnt} ${a.imp}`; }
+      else if (a.kind === 'perAnyPrint') { const cnt = clothes.reduce((x, c) => x + c.prints.length, 0); t[a.imp] += a.n * cnt; effect = `+${a.n * cnt} ${a.imp}`; }
       else if (a.kind === 'perEmptySlot') { const cnt = CLOTHING.filter(k => board[k] == null).length; t[a.imp] += a.n * cnt; effect = `+${a.n * cnt} ${a.imp}`; }
       else if (a.kind === 'add') { t[a.to] += t[a.from]; effect = `+${t[a.from]} ${a.to}`; }
+      else if (a.kind === 'becomesZero') { effect = t[a.imp] ? `${a.imp} ${t[a.imp]} becomes 0` : `${a.imp} is already 0`; t[a.imp] = 0; }
       else if (a.kind === 'doubleHighest') {
         const top = Math.max(...IMPS.map(i => t[i]));
-        if (top > 0) { const tied = IMPS.filter(i => t[i] === top), order = inviteImpOrder(inviteName || ''), pick = order.find(x => tied.includes(x)) || tied[0]; t[pick] += top; effect = `${pick} doubled (+${top})`; }
+        if (top > 0) { const tied = IMPS.filter(i => t[i] === top), order = inviteImpOrder(names), pick = order.find(x => tied.includes(x)) || tied[0]; t[pick] += top; effect = `${pick} doubled (+${top})`; }
         else effect = 'nothing to double';
       } else if (a.kind === 'wand') {
-        const target = wand && wand !== 'Spooky' && IMPS.includes(wand) ? wand : defaultWand(inviteName);
+        const target = wand && wand !== 'Spooky' && IMPS.includes(wand) ? wand : defaultWand(names);
         t[target] += t.Spooky; effect = `+${t.Spooky} ${target} (from Spooky)`;
       }
     }
     return { totals: t, effect };
   }
-  // The Impression a Magic Wand feeds by default: the first one the invite rewards, not Spooky if possible.
-  function defaultWand(inviteName) {
-    const inv = SH.invites.find(i => i.name === inviteName), list = (inv && inv.rewards.length ? inv.rewards : inviteImpOrder(inviteName)).filter(x => x !== 'Spooky');
-    return list[0] || 'Cool';
-  }
   // Dense ranking: equal values share a place; the next distinct value takes the next place.
   function denseRanks(values) { const d = [...new Set(values)].sort((a, b) => b - a); return values.map(v => d.indexOf(v)); }
 
-  // Likes for every player, with the reasons. totalsList is in seat order.
+  // Likes for every player from ONE invite, with the reasons. totalsList is in seat order.
   function scoreInvite(name, totalsList) {
     const blocks = SH.scoring[name]; if (!blocks) throw new Error('no scoring rule for ' + name);
     const n = totalsList.length, likes = Array(n).fill(0), parts = totalsList.map(() => []);
@@ -323,11 +370,13 @@ const Engine = (() => {
     return { likes, parts };
   }
 
+  // Both invites score for everyone; the round's Likes are the two added together.
   function scoreRound(s) {
-    const inv = inviteOf(s), calc = s.players.map(p => impressionTotals(p.board, p.wand, inv.name)), sc = scoreInvite(inv.name, calc.map(c => c.totals));
-    s.results = { invite: inv.name, players: s.players.map((p, i) => ({ totals: calc[i].totals, effect: calc[i].effect, likes: sc.likes[i], parts: sc.parts[i], board: clone(p.board) })) };
-    s.players.forEach((p, i) => p.likes.push(sc.likes[i]));
-    s.roundLog.push({ round: s.round, invite: inv.name, story: inv.story, payout: inv.payout, players: s.players.map((p, i) => ({ name: p.name, board: Object.fromEntries(SLOTS.map(k => [k, p.board[k] != null ? cardOf(p.board[k]).name : null])), totals: calc[i].totals, effect: calc[i].effect, likes: sc.likes[i] })) });
+    const names = inviteNames(s), calc = s.players.map(p => impressionTotals(p.board, p.wand, names)), tl = calc.map(c => c.totals);
+    const per = names.map(nm => scoreInvite(nm, tl)), total = s.players.map((_, i) => per.reduce((a, r) => a + r.likes[i], 0));
+    s.results = { invites: names, players: s.players.map((p, i) => ({ totals: calc[i].totals, effect: calc[i].effect, likes: total[i], board: clone(p.board), byInvite: per.map((r, k) => ({ name: names[k], likes: r.likes[i], parts: r.parts[i] })) })) };
+    s.players.forEach((p, i) => p.likes.push(total[i]));
+    s.roundLog.push({ round: s.round, invites: invitesOf(s).map(v => ({ name: v.name, payout: v.payout })), players: s.players.map((p, i) => ({ name: p.name, board: Object.fromEntries(SLOTS.map(k => [k, p.board[k] != null ? cardOf(p.board[k]).name : null])), totals: calc[i].totals, effect: calc[i].effect, byInvite: s.results.players[i].byInvite.map(x => ({ name: x.name, likes: x.likes })), likes: total[i] })) });
     s.phase = 'reveal';
   }
   const totalLikes = (s, i) => s.players[i].likes.reduce((a, b) => a + b, 0);
@@ -344,12 +393,14 @@ const Engine = (() => {
       case 'take': {
         if (s.phase !== 'thrift' || !p) return err('phase'); const cell = s.cells[a.cell];
         if (!cell) return err('empty'); if (handFull(s, p)) return err('full');
-        p.hand.push(cell.c); s.cells[a.cell] = null; s.lastTake = { seat: a.seat, cell: a.cell }; return { ok: true, card: cell.c, wasUp: cell.up };
+        p.hand.push(cell.c); s.cells[a.cell] = null; return { ok: true, card: cell.c };
       }
-      case 'putBack': {
-        if (s.phase !== 'thrift' || !p) return err('phase'); const k = p.hand.indexOf(a.card); if (k < 0) return err('card');
-        const empty = []; s.cells.forEach((c, i) => { if (!c) empty.push(i); }); if (!empty.length) return err('nospace');
-        const cell = empty[Math.floor(rnd(s) * empty.length)]; p.hand.splice(k, 1); s.cells[cell] = { c: a.card, up: true }; return { ok: true, cell };
+      case 'putBack': { // one or several cards at once; each goes face down into a random empty space
+        if (s.phase !== 'thrift' || !p) return err('phase'); const cards = a.cards || [];
+        if (!cards.length) return err('none');
+        const rest = p.hand.slice(); for (const c of cards) { const k = rest.indexOf(c); if (k < 0) return err('card'); rest.splice(k, 1); }
+        const empty = []; s.cells.forEach((c, i) => { if (!c) empty.push(i); }); if (empty.length < cards.length) return err('nospace');
+        p.hand = rest; shuffle(s, empty); const placed = []; cards.forEach((c, k) => { s.cells[empty[k]] = { c }; placed.push(empty[k]); }); return { ok: true, cells: placed };
       }
       case 'reorder': {
         if (!p || a.from === a.to || a.from < 0 || a.to < 0 || a.from >= p.hand.length || a.to >= p.hand.length) return err('reorder');
@@ -373,89 +424,75 @@ const Engine = (() => {
       }
       case 'next': {
         if (s.phase !== 'reveal') return err('phase');
-        if (s.round >= s.invites.length) { s.phase = 'over'; return { ok: true }; }
+        if (s.round >= s.cfg.rounds) { s.phase = 'over'; return { ok: true }; }
         startRound(s); return { ok: true };
       }
       default: return err('type');
     }
   }
 
-  // What a seat may see: its own hand and board, the face-up cards of the mess (the face-down ones are only a count), others' hands as counts.
+  // What a seat may see: its own hand and board, the mess as face-down backs (names only in the debug view), others' hands as counts.
   function viewFor(s, seat, reveal) {
-    return { n: s.n, seat, cfg: s.cfg, round: s.round, phase: s.phase, invite: inviteOf(s), likes: s.players.map(p => p.likes.slice()), lastTake: s.lastTake,
-      cells: s.cells.map(c => c ? (c.up || reveal ? { c: c.c, up: c.up } : { c: null, up: false }) : null),
+    return { n: s.n, seat, cfg: s.cfg, round: s.round, phase: s.phase, invites: invitesOf(s), likes: s.players.map(p => p.likes.slice()),
+      cells: s.cells.map(c => c ? { c: reveal ? c.c : null } : null),
       players: s.players.map((p, i) => ({ name: p.name, handCount: p.hand.length, done: p.done, hand: i === seat || reveal ? p.hand.slice() : null, board: i === seat || s.phase === 'reveal' || reveal ? Object.assign({}, p.board) : null })),
       results: s.phase === 'reveal' ? s.results : null };
   }
   function logText(s) {
     const lines = [];
     for (const r of s.roundLog) {
-      lines.push(`Round ${r.round}: ${r.invite} — ${r.payout}`);
-      for (const p of r.players) lines.push(`  ${p.name}: ${SLOTS.map(k => `${k}=${p.board[k] || '-'}`).join(', ')} | ${IMPS.map(i => `${i} ${p.totals[i]}`).join(', ')}${p.effect ? ' | ' + p.effect : ''} | +${p.likes} Likes`);
+      lines.push(`Round ${r.round}: ${r.invites.map(v => `${v.name} (${v.payout})`).join('  +  ')}`);
+      for (const p of r.players) lines.push(`  ${p.name}: ${SLOTS.map(k => `${k}=${p.board[k] || '-'}`).join(', ')} | ${IMPS.map(i => `${i} ${p.totals[i]}`).join(', ')}${p.effect ? ' | ' + p.effect : ''} | ${p.byInvite.map(x => `${x.name} +${x.likes}`).join(', ')} = +${p.likes} Likes`);
     }
     if (s.phase === 'over') lines.push('Final: ' + s.players.map((p, i) => `${p.name} ${totalLikes(s, i)}`).join(', '));
     return lines.join('\n');
   }
-  return { newGame, apply, viewFor, cleanSettings, impressionTotals, scoreInvite, scoreRound, metricValue, denseRanks, defaultWand, inviteImpOrder, inviteOf, handFull, filled, totalLikes, logText, cardOf, shuffle, rnd, clone, IMPS, SLOTS, CLOTHING, ACC };
+  return { newGame, apply, viewFor, cleanSettings, impressionTotals, scoreInvite, scoreRound, metricValue, denseRanks, defaultWand, inviteImpOrder, invitesOf, inviteNames, handFull, filled, totalLikes, logText, cardOf, shuffle, rnd, clone, IMPS, SLOTS, CLOTHING, ACC };
 })();
 </script>
 <script id="bots">
 // Computer shoppers. Pure decisions (no timers): the UI asks for one action at a time at the pace in the settings.
-// A bot sees its own hand, the face-up cards of the mess and how many face-down cards remain; never a face-down card or another hand.
+// A bot sees only its own hand and the two invites. The mess is all face down, so it takes blind (it never sees a face-down card or another hand).
 const Bots = (() => {
   const D = GAME_DATA, E = Engine, SH = SHEET, CARDS = SH.cards;
   const SLOTS = E.SLOTS;
   const firstMetric = name => SH.scoring[name][0].metric;
-  // The best look from a hand for an invite: one card per slot, at most maxPlayed cards; scored by the invite's first metric.
-  function bestLook(hand, inviteName, maxPlayed) {
-    const metric = firstMetric(inviteName), wand = E.defaultWand(inviteName);
+  // The best look from a hand for one invite (its first block's metric); `names` are both invites (Golden Trophy ties, Wand default).
+  function bestLook(hand, target, maxPlayed, names) {
+    const metric = firstMetric(target), wand = E.defaultWand(names || target);
     const byType = {}; for (const k of SLOTS) byType[k] = [null];
     for (const c of [...new Set(hand)]) byType[CARDS[c].type].push(c);
     let best = { score: -Infinity, board: null };
     const board = Object.fromEntries(SLOTS.map(k => [k, null]));
     (function go(i, used) {
-      if (i === SLOTS.length) { const score = E.metricValue(metric, E.impressionTotals(board, wand, inviteName).totals); if (score > best.score) best = { score, board: Object.assign({}, board) }; return; }
+      if (i === SLOTS.length) { const score = E.metricValue(metric, E.impressionTotals(board, wand, names || target).totals); if (score > best.score) best = { score, board: Object.assign({}, board) }; return; }
       for (const c of byType[SLOTS[i]]) { if (c != null && used >= maxPlayed) continue; board[SLOTS[i]] = c; go(i + 1, used + (c != null ? 1 : 0)); }
       board[SLOTS[i]] = null;
     })(0, 0);
     return best;
   }
-  // How much one card contributes to the metric on its own (a cheap filter for the face-up cards worth a full look).
-  const proxy = (c, name) => { const card = CARDS[c]; const t = Object.fromEntries(E.IMPS.map((i, k) => [i, card.v[k]])); return E.metricValue(firstMetric(name), t); };
+  // At the start of thrifting a bot picks whichever of the round's two invites its hand fits best (a sum of two Impressions is halved so pairs are not favoured) and builds for it all round.
+  function targetInvite(s, seat) {
+    const p = s.players[seat]; if (p.mem.target != null) return p.mem.target;
+    const names = E.inviteNames(s), scores = names.map(nm => { const m = firstMetric(nm), v = bestLook(p.hand, nm, s.cfg.maxPlayed, names).score; return m && m.sum ? v / 2 : v; });
+    p.mem.target = scores[1] > scores[0] ? 1 : 0; return p.mem.target;
+  }
+  const usedCards = board => { const u = []; for (const k of SLOTS) if (board[k] != null) u.push(board[k]); return u; };
 
   // One action for a bot during thrifting, or null when there is nothing to do.
   function decide(s, seat) {
-    const p = s.players[seat], name = E.inviteOf(s).name, mp = s.cfg.maxPlayed, mem = p.mem, full = E.handFull(s, p);
-    const ups = [], downs = []; s.cells.forEach((c, i) => { if (c) (c.up ? ups : downs).push(i); });
-    if (mem.plan != null && !full) { const cell = mem.plan; mem.plan = null; if (s.cells[cell]) return { type: 'take', seat, cell }; }
-    const base = bestLook(p.hand, name, mp).score;
-    const skipUp = mem.skipUp; mem.skipUp = false;
-    if (!skipUp && ups.length) {
-      const clothes = ups.filter(i => CARDS[s.cells[i].c].type !== 'Accessory').sort((a, b) => proxy(s.cells[b].c, name) - proxy(s.cells[a].c, name)).slice(0, 8);
-      const cands = clothes.concat(ups.filter(i => CARDS[s.cells[i].c].type === 'Accessory'));
-      let bestGain = 0, pick = null, drop = null;
-      for (const cell of cands) {
-        const c = s.cells[cell].c;
-        if (!full) { const g = bestLook(p.hand.concat(c), name, mp).score - base; if (g > bestGain) { bestGain = g; pick = cell; drop = null; } }
-        else for (const r of p.hand) { const rest = p.hand.slice(); rest.splice(rest.indexOf(r), 1); const g = bestLook(rest.concat(c), name, mp).score - base; if (g > bestGain) { bestGain = g; pick = cell; drop = r; } }
-      }
-      if (pick != null && bestGain >= D.bot.takeFaceUpGain) { if (drop == null) return { type: 'take', seat, cell: pick }; mem.plan = pick; return { type: 'putBack', seat, card: drop }; }
-    }
-    if (!full) {
-      if (downs.length) return { type: 'take', seat, cell: downs[Math.floor(E.rnd(s) * downs.length)] };
-      if (ups.length) return { type: 'take', seat, cell: ups[Math.floor(E.rnd(s) * ups.length)] };
-      return null;
-    }
-    // hand full: put back the card whose removal lowers the outfit score least, then take a random face-down card next time
-    let worst = null, keep = -Infinity;
-    for (const r of p.hand) { const rest = p.hand.slice(); rest.splice(rest.indexOf(r), 1); const sc = bestLook(rest, name, mp).score; if (sc > keep) { keep = sc; worst = r; } }
-    mem.skipUp = true; return { type: 'putBack', seat, card: worst };
+    const p = s.players[seat], names = E.inviteNames(s), t = targetInvite(s, seat), full = E.handFull(s, p);
+    if (!full) { const cells = []; s.cells.forEach((c, i) => { if (c) cells.push(i); }); if (!cells.length) return null; return { type: 'take', seat, cell: cells[Math.floor(E.rnd(s) * cells.length)] }; }
+    // hand full: put back, all at once, every card its best look does not use
+    const best = bestLook(p.hand, names[t], s.cfg.maxPlayed, names), rest = p.hand.slice(); for (const c of usedCards(best.board)) rest.splice(rest.indexOf(c), 1);
+    if (!rest.length) return null;
+    return { type: 'putBack', seat, cards: rest };
   }
-  // A bot plays its best look at once.
+  // A bot plays its best look for its target invite at once.
   function build(s, seat) {
-    const p = s.players[seat], name = E.inviteOf(s).name, b = bestLook(p.hand, name, s.cfg.maxPlayed);
+    const p = s.players[seat], names = E.inviteNames(s), t = targetInvite(s, seat), b = bestLook(p.hand, names[t], s.cfg.maxPlayed, names);
     for (const k of SLOTS) if (b.board[k] != null) E.apply(s, { type: 'place', seat, card: b.board[k] });
-    E.apply(s, { type: 'setWand', seat, imp: E.defaultWand(name) }); E.apply(s, { type: 'done', seat });
+    E.apply(s, { type: 'setWand', seat, imp: E.defaultWand(names) }); E.apply(s, { type: 'done', seat });
   }
   const buildAll = s => { for (let i = 0; i < s.n; i++) if (!s.players[i].human && !s.players[i].done) build(s, i); };
   const delaySecs = (cfg, r) => { const sp = D.botSpeeds[cfg.botSpeed] || D.botSpeeds.normal; return sp.min + r * (sp.max - sp.min); };
@@ -464,17 +501,282 @@ const Bots = (() => {
     const per = actionsPerRound || Math.round(s.cfg.thriftSecs / 2.5);
     for (let g = 0; g < 10000 && s.phase !== 'over'; g++) {
       if (s.phase === 'invite') { for (let i = 0; i < s.n; i++) E.apply(s, { type: 'start', seat: i }); }
-      else if (s.phase === 'thrift') { for (let k = 0; k < per; k++) for (let i = 0; i < s.n; i++) { const a = decide(s, i); if (a) E.apply(s, a); } E.apply(s, { type: 'endThrift' }); }
+      else if (s.phase === 'thrift') { for (let i = 0; i < s.n; i++) targetInvite(s, i); for (let k = 0; k < per; k++) for (let i = 0; i < s.n; i++) { const a = decide(s, i); if (a) E.apply(s, a); } E.apply(s, { type: 'endThrift' }); }
       else if (s.phase === 'build') { for (let i = 0; i < s.n; i++) if (!s.players[i].done) build(s, i); }
       else if (s.phase === 'reveal') E.apply(s, { type: 'next', seat: 0 });
     }
     return s;
   }
-  return { bestLook, decide, build, buildAll, delaySecs, playGame };
+  return { bestLook, decide, build, buildAll, targetInvite, delaySecs, playGame };
 })();
 </script>
+<script id="art">
+// Original card art, drawn in code: one flat cartoon style on one shared figure, so a card's picture is the garment as worn.
+// Every card is a small entry (silhouette + colours); its PRINTS always come from the sheet row and are drawn only by the stamp library
+// (each wrapped in data-print="..."), so a card shows exactly the prints listed in its row and no others.
+const Art = (() => {
+  const SH = SHEET, CARDS = SH.cards;
+  const INK = '#2b2036', SKIN = '#f3c9a1', SW = 3, W = 240, H = 340;     // the figure's viewBox is 240 x 340
+  let uidN = 0; const uid = p => p + (++uidN);
+  const path = (d, fill, o = '') => `<path d="${d}" fill="${fill}" stroke="${INK}" stroke-width="${SW}" stroke-linejoin="round" stroke-linecap="round" ${o}/>`;
+  const rect = (x, y, w, h, fill, r = 0, o = '') => `<rect x="${x}" y="${y}" width="${w}" height="${h}" rx="${r}" fill="${fill}" stroke="${INK}" stroke-width="${SW}" stroke-linejoin="round" ${o}/>`;
+  const circ = (cx, cy, r, fill, o = '') => `<circle cx="${cx}" cy="${cy}" r="${r}" fill="${fill}" stroke="${INK}" stroke-width="${SW}" ${o}/>`;
+  const ell = (cx, cy, rx, ry, fill, o = '') => `<ellipse cx="${cx}" cy="${cy}" rx="${rx}" ry="${ry}" fill="${fill}" stroke="${INK}" stroke-width="${SW}" ${o}/>`;
+  const line = (x1, y1, x2, y2, stroke = INK, w = 2.5) => `<path d="M${x1} ${y1}L${x2} ${y2}" stroke="${stroke}" stroke-width="${w}" stroke-linecap="round" fill="none"/>`;
+  const at = (inner, x, y, s = 1, r = 0) => `<g transform="translate(${x} ${y}) rotate(${r}) scale(${s})">${inner}</g>`;
+
+  // ---------------- the print stamp library (16 prints) ----------------
+  const ST = (d, fill, w = 1.2) => `<path d="${d}" fill="${fill}" stroke="${INK}" stroke-width="${w}" stroke-linejoin="round" stroke-linecap="round"/>`;
+  const SYMBOL = {
+    crowns: ST('M-6 4L-6 -3L-3 0L0 -5L3 0L6 -3L6 4Z', '#f5c542'),
+    pearls: `<circle cx="-3" cy="2" r="2.6" fill="#fff" stroke="#8a8a9a" stroke-width="1"/><circle cx="3" cy="2" r="2.6" fill="#fff" stroke="#8a8a9a" stroke-width="1"/><circle cx="0" cy="-3" r="2.6" fill="#fff" stroke="#8a8a9a" stroke-width="1"/>`,
+    bananas: ST('M-6 -3Q-2 6 6 4Q1 8 -7 1Z', '#ffe14d'),
+    rainbows: `<path d="M-6 3A6 6 0 0 1 6 3" fill="none" stroke="#e0484f" stroke-width="2.2"/><path d="M-3.8 3A3.8 3.8 0 0 1 3.8 3" fill="none" stroke="#f5c542" stroke-width="2.2"/><path d="M-1.6 3A1.6 1.6 0 0 1 1.6 3" fill="none" stroke="#3f7fd0" stroke-width="2"/>`,
+    hearts: ST('M0 5L-5 0Q-7 -4 -3 -5Q0 -5 0 -2Q0 -5 3 -5Q7 -4 5 0Z', '#ee4a6a'),
+    flowers: `<g fill="#ff8fb8" stroke="${INK}" stroke-width="1"><circle cx="0" cy="-3.2" r="2.4"/><circle cx="3" cy="-1" r="2.4"/><circle cx="1.8" cy="2.6" r="2.4"/><circle cx="-1.8" cy="2.6" r="2.4"/><circle cx="-3" cy="-1" r="2.4"/></g><circle cx="0" cy="0" r="1.8" fill="#ffd23f"/>`,
+    bows: ST('M0 0L-6 -4L-6 4ZM0 0L6 -4L6 4Z', '#ff7eb6') + `<circle cx="0" cy="0" r="1.6" fill="#d94a86" stroke="${INK}" stroke-width="1"/>`,
+    animals: `<path d="M-4 -2L-5 -7L-1.5 -4ZM4 -2L5 -7L1.5 -4Z" fill="#c98a52" stroke="${INK}" stroke-width="1" stroke-linejoin="round"/><circle cx="0" cy="0.5" r="5" fill="#e4a96a" stroke="${INK}" stroke-width="1.2"/><circle cx="-1.8" cy="-0.3" r=".8" fill="${INK}"/><circle cx="1.8" cy="-0.3" r=".8" fill="${INK}"/><path d="M-.8 1.6L.8 1.6L0 2.6Z" fill="#c25a6a"/>`,
+    skulls: ST('M-5 0Q-5 -6 0 -6Q5 -6 5 0Q5 2 3 3L3 5L-3 5L-3 3Q-5 2 -5 0Z', '#f4f1e6') + `<circle cx="-2" cy="-.5" r="1.3" fill="${INK}"/><circle cx="2" cy="-.5" r="1.3" fill="${INK}"/>`,
+    bats: ST('M0 -2L2 -4L3 -2Q6 -6 8 -3Q7 -1 8 1Q5 0 3 2L0 4L-3 2Q-5 0 -8 1Q-7 -1 -8 -3Q-6 -6 -3 -2L-2 -4Z', '#7a5cc0'),
+    spiderwebs: `<g fill="none" stroke="#b9b9c9" stroke-width="1"><path d="M0 -6L0 6M-6 0L6 0M-4.2 -4.2L4.2 4.2M4.2 -4.2L-4.2 4.2"/><path d="M0 -2.2L2.2 0L0 2.2L-2.2 0Z"/><path d="M0 -4.4L4.4 0L0 4.4L-4.4 0Z"/></g>`,
+    moons: ST('M2 -6A6 6 0 1 0 5 3A5 5 0 1 1 2 -6Z', '#ffe27a'),
+  };
+  const PATTERNS = ['pinstripes', 'leopard', 'polka dots', 'checkerboard'];
+  // deterministic scatter for the leopard spots
+  const rng = seed => { let t = seed | 0; return () => { t = (t + 0x6D2B79F5) | 0; let x = Math.imul(t ^ (t >>> 15), t | 1); x ^= x + Math.imul(x ^ (x >>> 7), x | 61); return ((x ^ (x >>> 14)) >>> 0) / 4294967296; }; };
+  function pattern(name, clipD, box, base) {
+    const [bx, by, bw, bh] = box, id = uid('clp'); let inner = '';
+    if (name === 'pinstripes') { for (let x = bx; x < bx + bw; x += 7) inner += `<rect x="${x}" y="${by}" width="2" height="${bh}" fill="#fff" opacity=".75"/>`; }
+    else if (name === 'polka dots') { inner = `<rect x="${bx}" y="${by}" width="${bw}" height="${bh}" fill="${base}"/>`; for (let y = by + 4, r = 0; y < by + bh; y += 11, r++) for (let x = bx + (r % 2 ? 9 : 3); x < bx + bw; x += 14) inner += `<circle cx="${x}" cy="${y}" r="3.2" fill="#fff"/>`; }
+    else if (name === 'checkerboard') { for (let y = by, r = 0; y < by + bh; y += 9, r++) for (let x = bx + ((r % 2) ? 9 : 0), c = 0; x < bx + bw; x += 18, c++) inner += `<rect x="${x}" y="${y}" width="9" height="9" fill="#2b2036"/>`; inner = `<rect x="${bx}" y="${by}" width="${bw}" height="${bh}" fill="#f5f2e8"/>` + inner; }
+    else { const r = rng(bw * 7 + bh); inner = `<rect x="${bx}" y="${by}" width="${bw}" height="${bh}" fill="#e6b055"/>`; for (let i = 0; i < Math.max(6, bw * bh / 160); i++) { const x = bx + r() * bw, y = by + r() * bh; inner += `<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="3.4" fill="#7a4a1e"/><circle cx="${(x + .6).toFixed(1)}" cy="${(y + .6).toFixed(1)}" r="1.4" fill="#e6b055"/>`; } }
+    return `<g data-print="${name}"><clipPath id="${id}"><path d="${clipD}"/></clipPath><g clip-path="url(#${id})">${inner}</g></g>`;
+  }
+  const GRID = [[.25, .3], [.75, .3], [.5, .55], [.25, .8], [.75, .8], [.5, .12]];
+  function stamps(prints, box, order) {
+    const sym = prints.filter(p => SYMBOL[p]); if (!sym.length) return '';
+    const [bx, by, bw, bh] = box, s = Math.max(1.1, Math.min(2.7, Math.min(bw, bh) / 8)), n = Math.max(3, Math.min(5, sym.length * 2)); let out = '';
+    for (let k = 0; k < n; k++) { const p = sym[k % sym.length], [fx, fy] = GRID[(k + (order || 0)) % GRID.length]; out += `<g data-print="${p}" transform="translate(${(bx + bw * fx).toFixed(1)} ${(by + bh * fy).toFixed(1)}) scale(${s.toFixed(2)})">${SYMBOL[p]}</g>`; }
+    return out;
+  }
+  // body (fabric + details) -> patterns clipped to the fabric -> symbol stamps -> over (details that sit on top of the prints)
+  function dress(card, g) {
+    const pl = card.prints.filter(p => PATTERNS.includes(p)), pats = pl.map((p, i) => pattern(p, g.clip, [g.box[0] + g.box[2] * i / pl.length, g.box[1], g.box[2] / pl.length, g.box[3]], g.base || '#ccc')).join('');   // two patterns share the garment side by side
+    return g.body + pats + stamps(card.prints, g.sbox || g.box, g.order || 0) + (g.over || '');
+  }
+
+  // ---------------- the figure ----------------
+  // head centre (100,52); torso y 96-212; legs to y 318; feet bare. Everything is drawn in this one coordinate system.
+  const HEADY = 52;
+  const figureBase = `${path('M70 100Q100 92 130 100L134 214L66 214Z', SKIN)}${path('M44 112Q40 150 46 198L60 198Q58 150 64 108Z', SKIN)}${path('M156 112Q160 150 154 198L140 198Q142 150 136 108Z', SKIN)}${circ(50, 202, 8, SKIN)}${circ(150, 202, 8, SKIN)}
+    ${path('M68 214L96 214L94 318L74 318Z', SKIN)}${path('M104 214L132 214L126 318L106 318Z', SKIN)}${ell(82, 326, 16, 8, SKIN)}${ell(118, 326, 16, 8, SKIN)}${path('M90 86L110 86L110 100L90 100Z', SKIN)}
+    ${circ(100, HEADY, 34, SKIN)}${circ(88, 50, 3.2, INK, 'stroke="none"')}${circ(112, 50, 3.2, INK, 'stroke="none"')}<path d="M90 66Q100 74 110 66" fill="none" stroke="${INK}" stroke-width="2.6" stroke-linecap="round"/><circle cx="82" cy="60" r="4" fill="#f7a8a0" opacity=".7"/><circle cx="118" cy="60" r="4" fill="#f7a8a0" opacity=".7"/>`;
+  const bareTop = `${path('M70 104L130 104L128 200L72 200Z', '#fff')}${line(84, 112, 84, 196, '#d7d7e0', 2)}${line(116, 112, 116, 196, '#d7d7e0', 2)}`;   // plain undershirt
+  const bareBottom = `${path('M66 200L134 200L132 238L106 238L100 226L94 238L68 238Z', '#fff')}${stampOnly('hearts', [70, 202, 60, 34])}`;                              // heart boxers
+  function stampOnly(name, box) { return stamps([name], box, 0).replace(/data-print="[^"]*" /g, ''); }
+
+  // ---------------- HEAD silhouettes ----------------
+  const HEADS = {
+    crown: c => ({ body: path('M62 34L68 8L84 24L100 4L116 24L132 8L138 34Z', c[0]) + circ(68, 8, 3.2, c[1]) + circ(100, 4, 3.6, c[1]) + circ(132, 8, 3.2, c[1]), clip: 'M62 34L68 8L84 24L100 4L116 24L132 8L138 34Z', box: [64, 8, 72, 26], base: c[0] }),
+    bowSmall: c => ({ body: path('M126 30L106 16Q100 30 106 44ZM126 30L146 16Q152 30 146 44Z', c[0]) + circ(126, 30, 5, c[1]), clip: 'M126 30L106 16Q100 30 106 44ZM126 30L146 16Q152 30 146 44Z', box: [104, 14, 44, 32], base: c[0] }),
+    veil: c => ({ body: path('M62 34Q60 8 100 6Q140 8 138 34L150 100L128 88L128 40Q100 22 72 40L72 88L50 100Z', c[0]), clip: 'M62 34Q60 8 100 6Q140 8 138 34L150 100L128 88L128 40Q100 22 72 40L72 88L50 100Z', box: [52, 8, 96, 90], sbox: [62, 8, 76, 24], base: c[0] }),
+    tophat: c => ({ body: ell(100, 26, 44, 9, c[0]) + rect(74, 0, 52, 26, c[0], 3) + rect(74, 16, 52, 9, c[1]), clip: 'M74 0H126V26H74Z', box: [74, 0, 52, 26], base: c[0], over: '' }),
+    bowler: c => ({ body: ell(100, 28, 42, 8, c[0]) + path('M70 28Q70 2 100 2Q130 2 130 28Z', c[0]) + rect(70, 20, 60, 7, c[1], 2), clip: 'M70 28Q70 2 100 2Q130 2 130 28Z', box: [70, 2, 60, 26], base: c[0] }),
+    captain: c => ({ body: path('M66 32Q70 6 100 6Q130 6 134 32Z', c[0]) + ell(100, 32, 38, 7, c[1]) + circ(100, 18, 5, '#f5c542'), clip: 'M66 32Q70 6 100 6Q130 6 134 32Z', box: [66, 6, 68, 26], base: c[0] }),
+    beanie: c => ({ body: path('M64 36Q64 6 100 6Q136 6 136 36Z', c[0]) + rect(62, 30, 76, 9, c[1], 3), clip: 'M64 36Q64 6 100 6Q136 6 136 36Z', box: [64, 6, 72, 30], base: c[0] }),
+    propeller: c => ({ body: path('M64 36Q64 8 100 8Q136 8 136 36Z', c[0]) + rect(62, 30, 76, 9, c[1], 3) + line(100, 8, 100, 0, INK, 3) + ell(84, 0, 18, 4, '#ee4a6a') + ell(116, 0, 18, 4, '#3f7fd0'), clip: 'M64 36Q64 8 100 8Q136 8 136 36Z', box: [64, 8, 72, 28], base: c[0] }),
+    beret: c => ({ body: path('M60 34Q58 10 100 10Q148 8 142 34Q100 24 60 34Z', c[0]) + line(100, 10, 102, 2, INK, 3), clip: 'M60 34Q58 10 100 10Q148 8 142 34Q100 24 60 34Z', box: [60, 10, 84, 24], base: c[0] }),
+    bonnet: c => ({ body: path('M58 74Q54 12 100 10Q146 12 142 74Q134 42 100 40Q66 42 58 74Z', c[0]) + path('M92 84L100 92L108 84L100 80Z', c[1]), clip: 'M58 74Q54 12 100 10Q146 12 142 74Q134 42 100 40Q66 42 58 74Z', box: [58, 10, 84, 60], sbox: [62, 12, 76, 24], base: c[0] }),
+    shower: c => ({ body: path('M58 36Q62 4 100 4Q138 4 142 36Q130 44 120 38Q110 46 100 38Q90 46 80 38Q70 44 58 36Z', c[0]), clip: 'M58 36Q62 4 100 4Q138 4 142 36Q130 44 120 38Q110 46 100 38Q90 46 80 38Q70 44 58 36Z', box: [58, 4, 84, 36], base: c[0] }),
+    witch: c => ({ body: ell(100, 30, 48, 9, c[0]) + path('M96 0Q94 14 72 30L128 30Q106 14 104 0Z', c[0]) + rect(72, 22, 56, 8, c[1], 1), clip: 'M96 0Q94 14 72 30L128 30Q106 14 104 0Z', box: [72, 2, 56, 28], base: c[0] }),
+    cone: c => ({ body: path('M100 0L128 34L72 34Z', c[0]) + rect(62, 32, 76, 8, c[0], 2) + path('M92 12L108 12L112 20L88 20ZM84 26L116 26L120 32L80 32Z', '#fff'), clip: 'M100 0L128 34L72 34Z', box: [74, 4, 52, 30], base: c[0] }),
+    shade: c => ({ body: path('M72 4L128 4L144 42L56 42Z', c[0]) + rect(70, 0, 60, 6, c[1], 2), clip: 'M72 4L128 4L144 42L56 42Z', box: [58, 4, 84, 38], base: c[0] }),
+    ball: c => ({ body: circ(100, 18, 28, '#fff') + `<path d="M100 -10Q86 18 100 46M100 -10Q114 18 100 46M72 18H128" stroke="${INK}" stroke-width="2.5" fill="none"/><path d="M100 -10Q86 18 100 46Q80 40 76 18Q80 0 100 -10Z" fill="${c[0]}" opacity=".9"/><path d="M100 -10Q114 18 100 46Q120 40 124 18Q120 0 100 -10Z" fill="${c[1]}" opacity=".9"/>`, clip: 'M72 -10H128V46H72Z', box: [72, -6, 56, 48], base: '#fff' }),
+    basket: c => ({ body: path('M62 38Q100 62 138 38L132 24L68 24Z', c[0]) + circ(80, 18, 9, '#e0484f') + circ(100, 14, 9, '#ffae3b') + circ(120, 18, 9, '#8ac34a') + line(66, 28, 134, 28, '#6a4a2a', 2), clip: 'M62 38Q100 62 138 38L132 24L68 24Z', box: [64, 22, 72, 30], base: c[0] }),
+    fascinator: c => ({ body: ell(124, 20, 28, 9, c[0], 'transform="rotate(-14 124 20)"') + path('M110 14Q116 0 126 8Q140 2 142 14Q132 14 126 20Z', '#4ea3e0') + circ(134, 8, 2, INK, 'stroke="none"'), clip: 'M96 20Q124 4 152 20Q124 34 96 20Z', box: [98, 8, 54, 22], base: c[0] }),
+    wigJudge: c => ({ body: path('M60 54Q54 8 100 6Q146 8 140 54L142 84Q128 66 124 42Q100 24 76 42Q72 66 58 84Z', c[0]) + circ(52, 84, 10, c[0]) + circ(148, 84, 10, c[0]) + circ(48, 64, 9, c[0]) + circ(152, 64, 9, c[0]), clip: 'M60 54Q54 8 100 6Q146 8 140 54L142 84Q128 66 124 42Q100 24 76 42Q72 66 58 84Z', box: [58, 8, 84, 76], sbox: [62, 8, 76, 24], base: c[0] }),
+    wigClown: c => { const cols = [c[0], c[1], c[2] || c[0], c[1], c[0], c[2] || c[1], c[0]]; const pts = [[52, 54], [58, 30], [76, 12], [100, 6], [124, 12], [142, 30], [148, 54]]; return { body: pts.map((p, i) => circ(p[0], p[1], 15, cols[i])).join(''), clip: 'M50 70L46 30L100 0L154 30L150 70L100 24Z', box: [46, 6, 108, 56], sbox: [56, 8, 88, 22], base: c[0] }; },
+    pigtails: c => ({ body: path('M62 48Q58 10 100 8Q142 10 138 48Q126 30 100 30Q74 30 62 48Z', c[0]) + path('M58 44L36 70L44 96L62 70Z', c[0]) + path('M142 44L164 70L156 96L138 70Z', c[0]), clip: 'M58 44L36 70L44 96L62 70ZM142 44L164 70L156 96L138 70Z', box: [36, 44, 128, 52], base: c[0] }),
+    mohawk: c => ({ body: path('M80 22L88 -4L96 18L100 -8L106 18L114 -2L120 22Z', c[0]), clip: 'M80 22L88 -4L96 18L100 -8L106 18L114 -2L120 22Z', box: [80, -6, 40, 28], base: c[0] }),
+    halo: c => ({ body: ell(100, 12, 28, 8, 'none', `stroke="#f5c542" stroke-width="6"`) + ell(100, 12, 28, 8, 'none', 'stroke-width="1.5" stroke="#ffe9a8"'), clip: 'M72 4H128V20H72Z', box: [72, 4, 56, 16], base: '#f5c542' }),
+    flowerCrown: c => ({ body: `<path d="M60 40Q100 -2 140 40" fill="none" stroke="#4ea34a" stroke-width="6" stroke-linecap="round"/>` + [[66, 32], [80, 16], [100, 10], [120, 16], [134, 32]].map((p, i) => circ(p[0], p[1], 8, i % 2 ? c[0] : c[1])).join(''), clip: 'M60 40Q100 -2 140 40L140 46Q100 8 60 46Z', box: [60, 6, 80, 36], base: c[0] }),
+    earsBunny: c => ({ body: `<path d="M64 36Q100 14 136 36" fill="none" stroke="${c[1]}" stroke-width="6" stroke-linecap="round"/>` + ell(80, 0, 9, 24, c[0]) + ell(120, 0, 9, 24, c[0]) + ell(80, 2, 4, 16, '#ffb3c8', 'stroke="none"') + ell(120, 2, 4, 16, '#ffb3c8', 'stroke="none"'), clip: 'M71 -24H89V24H71ZM111 -24H129V24H111Z', box: [71, -10, 58, 30], base: c[0] }),
+    earsKitty: c => ({ body: path('M62 38Q62 8 100 8Q138 8 138 38Z', c[0]) + path('M66 22L64 0L84 12Z', c[0]) + path('M134 22L136 0L116 12Z', c[0]) + rect(62, 32, 76, 8, c[1], 3), clip: 'M62 38Q62 8 100 8Q138 8 138 38Z', box: [64, 8, 72, 30], base: c[0] }),
+    batWings: c => ({ body: `<path d="M64 38Q100 14 136 38" fill="none" stroke="${c[1]}" stroke-width="6" stroke-linecap="round"/>` + path('M70 28L40 6Q38 20 48 24Q42 30 54 36Q60 30 66 34Z', c[0]) + path('M130 28L160 6Q162 20 152 24Q158 30 146 36Q140 30 134 34Z', c[0]), clip: 'M70 28L40 6Q38 20 48 24Q42 30 54 36Q60 30 66 34ZM130 28L160 6Q162 20 152 24Q158 30 146 36Q140 30 134 34Z', box: [40, 6, 120, 30], base: c[0] }),
+    hood: c => ({ body: `<path d="M50 104Q44 6 100 4Q156 6 150 104Q100 76 50 104ZM76 38Q76 26 100 26Q124 26 124 38L124 70Q100 90 76 70Z" fill="${c[0]}" fill-rule="evenodd" stroke="${INK}" stroke-width="${SW}" stroke-linejoin="round"/>`, clip: 'M50 104Q44 6 100 4Q156 6 150 104Q100 76 50 104Z', box: [48, 6, 104, 90], sbox: [58, 8, 84, 22], base: c[0] }),
+    maskMonster: c => ({ body: circ(100, HEADY, 36, c[0]) + path('M72 44L90 52L72 56Z', '#fff') + path('M128 44L110 52L128 56Z', '#fff') + circ(86, 46, 7, '#fff') + circ(114, 46, 7, '#fff') + circ(86, 46, 3, INK, 'stroke="none"') + circ(114, 46, 3, INK, 'stroke="none"') + path('M74 68Q100 86 126 68Q100 74 74 68Z', '#fff'), clip: 'M64 20H136V88H64Z', box: [64, 18, 72, 40], base: c[0] }),
+    paintSkull: c => ({ body: circ(100, HEADY, 35, '#f4f1e6') + ell(86, 48, 8, 10, INK) + ell(114, 48, 8, 10, INK) + path('M96 62L100 56L104 62Z', INK) + `<path d="M82 74H118M88 70V80M96 70V80M104 70V80M112 70V80" stroke="${INK}" stroke-width="2.5" fill="none"/>`, clip: 'M68 22H132V84H68Z', box: [68, 20, 64, 20], base: '#f4f1e6' }),
+    monocle: c => ({ body: circ(112, 50, 12, 'rgba(180,220,255,.35)', `stroke="${c[1]}"`) + `<path d="M124 56Q150 70 144 110" fill="none" stroke="${c[0]}" stroke-width="3" stroke-linecap="round" stroke-dasharray="1 5"/>` + circ(144, 112, 4, c[0]), clip: 'M120 56Q150 70 144 110L148 112Q154 70 126 54Z', box: [124, 56, 26, 56], base: c[0] }),
+  };
+  // sheet row -> [silhouette, colours]
+  const HEAD_SPEC = {
+    'Tiara': ['crown', ['#f5c542', '#7ad7ff']], 'Pearl Hair Bow': ['bowSmall', ['#f7d6e6', '#ffffff']], 'Black Lace Veil': ['veil', ['#3b2f55']], 'Top Hat with a Pet Raven': ['tophat', ['#3a3a4a', '#8a8aa0']],
+    'Propeller Beanie': ['propeller', ['#ffe14d', '#3f7fd0']], 'Bunny Ear Headband': ['earsBunny', ['#fff', '#ff8fb8']], 'Rubber Monster Mask': ['maskMonster', ['#8ac34a']], 'Zombie Clown Wig': ['wigClown', ['#8ac34a', '#e0484f', '#ffe14d']],
+    "Powdered Judge's Wig": ['wigJudge', ['#f4f1e6']], 'Monocle on a Pearl Chain': ['monocle', ['#f5c542', '#d9a21b']], 'Rainbow Clown Wig': ['wigClown', ['#e0484f', '#f5c542', '#3f7fd0']], 'Fruit Basket Hat': ['basket', ['#b9854a']],
+    'Baby Bonnet': ['bonnet', ['#ffd1e6', '#ff8fb8']], 'Flower Crown': ['flowerCrown', ['#ff8fb8', '#ffd23f']], 'Skull Face Paint': ['paintSkull', ['#f4f1e6']], 'Witch Hat': ['witch', ['#3b2f55', '#8a55d0']],
+    'Bowler Hat': ['bowler', ['#3a3a4a', '#d9a21b']], 'Hooded Cloak Hood': ['hood', ['#4a3a6a']], "Yacht Captain's Hat": ['captain', ['#fff', '#2b3f7a']], 'Black Beret': ['beret', ['#2b2036']],
+    'Traffic Cone Hat': ['cone', ['#ff8a2a']], 'Lampshade': ['shade', ['#f3e3b0', '#d9b36a']], 'Beach Ball Hat': ['ball', ['#e0484f', '#3f7fd0']], 'Fascinator with a Whole Bird on It': ['fascinator', ['#7a3a8a']],
+    'Messy Pigtails': ['pigtails', ['#c0702e']], 'Kitty Ear Beanie': ['earsKitty', ['#b0b0c0', '#ff8fb8']], 'Halo': ['halo', ['#f5c542']], 'Shower Cap': ['shower', ['#bfe3f5']],
+    'Spiked Mohawk': ['mohawk', ['#7a2fd0']], 'Bat-Wing Headband': ['batWings', ['#3b2f55', '#8a55d0']],
+  };
+
+  // ---------------- assembling ----------------
+  const REGION = { Head: [28, -34, 140, 140], Top: [20, 90, 160, 134], Bottom: [8, 196, 184, 146], Accessory: [0, 0, 100, 100] };
+  const KINDS = { Head: HEADS, Top: {}, Bottom: {}, Accessory: {} }, SPECS = { Head: HEAD_SPEC, Top: {}, Bottom: {}, Accessory: {} };
+  function extend(type, kinds, specs) { Object.assign(KINDS[type], kinds); Object.assign(SPECS[type], specs); }
+  const indexOf = name => CARDS.findIndex(c => c.name === name);
+  const has = idx => { const c = CARDS[idx]; return !!(c && SPECS[c.type][c.name]); };
+  // the garment of a card, in figure coordinates (accessories are drawn in a 100 x 100 box)
+  function layer(idx) {
+    const c = CARDS[idx], sp = SPECS[c.type][c.name]; if (!sp) return `<text x="100" y="60" text-anchor="middle" font-size="12" fill="#c0262d">no art</text>`;
+    return dress(c, KINDS[c.type][sp[0]](sp[1], sp[2]));
+  }
+  const heldAt = idx => at(layer(idx), 140, 150, 0.95);        // an accessory is held in the figure's right hand
+  // A card's picture: the garment worn on the figure, cropped to its slot.
+  function card(idx) {
+    const c = CARDS[idx];
+    if (c.type === 'Accessory') return `<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" class="art" role="img" aria-label="${c.name}"><rect width="100" height="100" fill="#fff6dc"/>${layer(idx)}</svg>`;
+    const [x, y, w, h] = REGION[c.type];
+    return `<svg viewBox="${x} ${y} ${w} ${h}" xmlns="http://www.w3.org/2000/svg" class="art" role="img" aria-label="${c.name}"><rect x="${x}" y="${y}" width="${w}" height="${h}" fill="#fff6dc"/>${figureBase}${layer(idx)}</svg>`;
+  }
+  // The whole outfit on the figure: bald, undershirt, heart boxers and an empty hand unless a card is played there.
+  function figure(board, opts = {}) {
+    const g = board || {}, has4 = k => g[k] != null;
+    const order = ['Bottom', 'Top', 'Head'].map(k => has4(k) ? layer(g[k]) : (k === 'Top' ? bareTop : k === 'Bottom' ? bareBottom : '')).join('');
+    return `<svg viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg" class="figure-svg" role="img" aria-label="Outfit">${figureBase}${has4('Bottom') ? layer(g.Bottom) : bareBottom}${has4('Top') ? layer(g.Top) : bareTop}${has4('Head') ? layer(g.Head) : ''}${has4('Accessory') ? heldAt(g.Accessory) : ''}</svg>`;
+  }
+  // The prints actually drawn in a card's art (read back from the data-print marks).
+  const printsDrawn = idx => { const out = new Set(); const re = /data-print="([^"]+)"/g; let m; const s = layer(idx); while ((m = re.exec(s))) out.add(m[1]); return [...out].sort(); };
+  return { card, figure, layer, heldAt, has, printsDrawn, extend, helpers: { path, rect, circ, ell, line, at, ST, SYMBOL, INK, SKIN, SW, HEADY }, PRINT_NAMES: [...Object.keys(SYMBOL), ...PATTERNS], REGION };
+})();
+
+// ---------------- TOPS: worn on the torso (y 96-214), arms and sleeves included ----------------
+Art.extend('Top', (() => {
+  const { path, rect, circ, ell, line } = Art.helpers;
+  const TEE = 'M70 100Q100 94 130 100L158 124L144 144L134 134L134 214L66 214L66 134L56 144L42 124Z';
+  const LONG = 'M70 100Q100 94 130 100L160 128L156 198L138 198L134 140L134 214L66 214L66 140L62 198L44 198L40 128Z';
+  const GOWN = 'M72 100Q100 94 128 100L152 112Q166 132 150 142L136 128L142 222Q100 236 58 222L64 128L50 142Q34 132 48 112Z';
+  const CAPE = 'M64 98Q100 90 136 98L164 150L174 232Q100 250 26 232L36 150Z';
+  const NECK = (c) => path('M86 98Q100 112 114 98Z', c);
+  const lapels = (c) => path('M100 108L84 100L72 150L100 214ZM100 108L116 100L128 150L100 214Z', c);
+  const buttons = (n, c = '#f5c542') => Array.from({ length: n }, (_, i) => circ(100, 130 + i * 20, 3.2, c)).join('');
+  const cuffs = c => rect(44, 190, 17, 9, c, 2) + rect(139, 190, 17, 9, c, 2);
+  const tee = c => ({ body: path(TEE, c[0]) + NECK(c[1] || '#e8c9a8'), clip: TEE, box: [68, 110, 64, 96], base: c[0] });
+  const long = c => ({ body: path(LONG, c[0]) + NECK(c[1] || '#e8c9a8') + cuffs(c[1] || c[0]), clip: LONG, box: [68, 112, 64, 92], base: c[0] });
+  const sweater = c => ({ body: path(LONG, c[0]) + rect(66, 206, 68, 9, c[1] || c[0], 3) + cuffs(c[1] || c[0]) + path('M84 98Q100 116 116 98Q100 102 84 98Z', c[1] || c[0]), clip: LONG, box: [68, 112, 64, 92], base: c[0] });
+  const turtle = c => ({ body: path(LONG, c[0]) + rect(86, 90, 28, 16, c[0], 5) + cuffs(c[0]), clip: LONG, box: [68, 112, 64, 92], base: c[0] });
+  const jacket = c => ({ body: path(LONG, c[0]) + lapels(c[1] || c[0]) + buttons(3, c[2] || '#f5c542') + cuffs(c[1] || c[0]), clip: LONG, box: [46, 112, 108, 84], base: c[0] });
+  const cardigan = c => ({ body: path(LONG, c[0]) + path('M100 108L90 214L110 214Z', c[1] || '#f4f1e6') + buttons(3, c[2] || '#f5c542') + cuffs(c[0]), clip: LONG, box: [46, 112, 108, 84], base: c[0] });
+  const coat = c => ({ body: path(LONG, c[0]) + path('M70 100L84 94L100 112L116 94L130 100L124 120L100 126L76 120Z', c[1] || c[0]) + buttons(3, c[2] || '#2b2036'), clip: LONG, box: [46, 112, 108, 90], base: c[0] });
+  const mourning = c => ({ body: path(LONG, c[0]) + rect(84, 90, 32, 16, c[0], 4) + line(100, 106, 100, 212, '#fff3', 2) + buttons(4, c[1] || '#d9d9e6') + cuffs(c[0]), clip: LONG, box: [46, 112, 108, 90], base: c[0] });
+  const hoodie = c => ({ body: path('M62 96Q100 76 138 96Q130 112 100 110Q70 112 62 96Z', c[0]) + path(LONG, c[0]) + path('M84 114L84 140M116 114L116 140', c[1] || '#fff', '') + rect(78, 176, 44, 24, c[0], 6), clip: LONG, box: [46, 112, 108, 80], base: c[0] });
+  const gown = c => ({ body: path(GOWN, c[0]) + path('M86 100Q100 118 114 100Z', c[1] || '#fff') + path('M64 220Q82 230 100 220Q118 230 136 220', 'none'), clip: GOWN, box: [56, 112, 88, 100], base: c[0] });
+  const cape = c => ({ body: path(CAPE, c[0]) + path('M76 96L100 124L124 96L132 100L100 150L68 100Z', c[1] || '#a3151d') + circ(100, 128, 5, '#f5c542') + path('M64 98L52 80L76 96ZM136 98L148 80L124 96Z', c[0]), clip: CAPE, box: [30, 150, 140, 80], base: c[0] });
+  const wings = c => ({ body: path('M66 140Q20 138 14 98Q54 100 72 116Z', c[0]) + path('M134 140Q180 138 186 98Q146 100 128 116Z', c[0]) + path('M70 100L130 100L128 204L72 204Z', '#fff'), clip: 'M66 140Q20 138 14 98Q54 100 72 116ZM134 140Q180 138 186 98Q146 100 128 116Z', box: [14, 100, 172, 36], base: c[0] });
+  const onesie = c => ({ body: path('M70 100Q100 94 130 100L160 128L156 198L138 198L134 140L136 226L66 226L66 140L62 198L44 198L40 128Z', c[0]) + (c[2] ? path('M62 86Q62 66 76 66L84 86Z', c[0]) + path('M138 86Q138 66 124 66L116 86Z', c[0]) : ''), clip: 'M70 100Q100 94 130 100L160 128L156 198L138 198L134 140L136 226L66 226L66 140L62 198L44 198L40 128Z', box: [68, 112, 64, 100], base: c[0] });
+  const barrel = c => ({ body: path('M62 102Q46 160 62 214L138 214Q154 160 138 102Z', c[0]) + `<path d="M54 128Q100 138 146 128M50 160Q100 170 150 160M54 192Q100 202 146 192" fill="none" stroke="#4a3118" stroke-width="5"/>` + line(80, 102, 76, 214, '#7a5428', 3) + line(120, 102, 124, 214, '#7a5428', 3), clip: 'M62 102Q46 160 62 214L138 214Q154 160 138 102Z', box: [60, 104, 80, 100], base: c[0] });
+  const hotdog = c => ({ body: rect(52, 98, 96, 118, c[0], 30) + rect(66, 104, 68, 106, c[1], 24) + `<path d="M74 120L90 132L74 144L90 156L74 168L90 180L74 192" fill="none" stroke="#ffd23f" stroke-width="4" stroke-linejoin="round"/>`, clip: 'M52 98H148V216H52Z', box: [60, 106, 80, 100], base: c[0] });
+  const bananaCostume = c => ({ body: path('M72 98Q58 156 74 216L126 216Q142 156 128 98Q100 108 72 98Z', c[0]) + path('M72 98Q60 76 76 70L86 96ZM128 98Q140 76 124 70L114 96Z', c[1]) + line(86, 118, 82, 206, '#d9b21f', 2.5) + line(114, 118, 118, 206, '#d9b21f', 2.5), clip: 'M72 98Q58 156 74 216L126 216Q142 156 128 98Q100 108 72 98Z', box: [70, 112, 60, 94], base: c[0] });
+  const bandage = c => ({ body: path(TEE, c[0]) + NECK('#e8c9a8'), clip: TEE, box: [68, 110, 64, 96], base: c[0], over: [118, 140, 162, 184].map((y, i) => line(i % 2 ? 66 : 70, y, i % 2 ? 128 : 134, y + 8, '#cfc7b3', 3)).join('') });
+  const ringmaster = c => ({ body: path(LONG, c[0]) + lapels('#f5c542') + buttons(3, '#f5c542') + circ(46, 124, 6, '#f5c542') + circ(154, 124, 6, '#f5c542') + cuffs('#f5c542'), clip: LONG, box: [46, 112, 108, 84], base: c[0] });
+  const ripped = c => ({ body: path(LONG, c[0]) + lapels('#4a4a5a') + buttons(2, '#c0c0d0') + cuffs(c[0]), clip: LONG, box: [46, 112, 108, 84], base: c[0], over: `<path d="M74 160L84 166L78 176M122 140L132 148M54 160L60 170" stroke="${Art.helpers.INK}" stroke-width="2.4" fill="none"/>` });
+  const furCoat = c => ({ body: path(LONG, c[0]) + path('M66 98Q100 82 134 98Q130 120 100 124Q70 120 66 98Z', c[1] || '#e6b055') + buttons(3, '#2b2036') + cuffs(c[1] || c[0]), clip: LONG, box: [46, 126, 108, 76], base: c[0] });
+  return { tee, long, sweater, turtle, jacket, cardigan, coat, mourning, hoodie, gown, cape, wings, onesie, barrel, hotdog, bananaCostume, bandage, ringmaster, ripped, furCoat };
+})(), {
+  'Puffy Princess Gown': ['gown', ['#ffc2dd', '#fff']], 'Pearl Cardigan': ['cardigan', ['#f4f1e6', '#e8d9c0', '#8a8a9a']], 'Vampire Cape': ['cape', ['#2b2036', '#a3151d']], 'Black Velvet Blazer': ['jacket', ['#2b2036', '#4a3a6a', '#d9d9e6']],
+  'Teddy Bear Onesie': ['onesie', ['#c98a52', '#fff', true]], 'Rainbow Unicorn Sweater': ['sweater', ['#f4f1e6', '#ffb3c8']], 'Skeleton Onesie': ['onesie', ['#2b2036', '#fff']], 'Mummy Wrap Top': ['bandage', ['#f4f1e6']],
+  'Pinstripe Blazer': ['jacket', ['#3a3a5a', '#2b2036', '#d9a21b']], 'Ringmaster Jacket': ['ringmaster', ['#d0302f']], 'Barrel': ['barrel', ['#b9854a']], 'Hawaiian Shirt': ['tee', ['#3fb0b0', '#e8c9a8']],
+  'Heart Sweater': ['sweater', ['#ffc2dd', '#ff8fb8']], "Grandma's Kitten Cardigan": ['cardigan', ['#cdb4e6', '#f4f1e6', '#f5c542']], 'Spiderweb Sweater': ['sweater', ['#3b2f55', '#2b2036']], 'Band Tee': ['tee', ['#2b2036', '#4a4a5a']],
+  'Leopard Fur Coat': ['furCoat', ['#e6b055', '#c98a52']], 'Mourning Coat': ['mourning', ['#2b2036', '#d9d9e6']], 'Sequin Gown': ['gown', ['#7a3fd0', '#f5c542']], 'Black Turtleneck': ['turtle', ['#2b2036']],
+  'Hot Dog Costume': ['hotdog', ['#e6b055', '#e0484f']], 'Stinky Gym Shirt': ['tee', ['#bdbdc9', '#e8c9a8']], 'Tie-Dye Tee': ['tee', ['#a875e0', '#e8c9a8']], 'Banana Costume': ['bananaCostume', ['#ffe14d', '#e6c52a']],
+  'Puppy Pajama Top': ['long', ['#aee0ff', '#fff']], 'Fuzzy Heart Sweatshirt': ['sweater', ['#ff9ec0', '#ffc2dd']], 'Angel Wings': ['wings', ['#f4f1e6']], 'Itchy Reindeer Sweater': ['sweater', ['#a3402f', '#6a2a20']],
+  'Ripped Leather Jacket': ['ripped', ['#2b2036']], 'Black Hoodie': ['hoodie', ['#2b2036', '#d9d9e6']],
+});
+
+// ---------------- BOTTOMS: worn from the hips (y 200) down to the ankles (y 318); the figure is always barefoot ----------------
+Art.extend('Bottom', (() => {
+  const { path, rect, circ, ell, line, INK } = Art.helpers;
+  const WAIST = c => rect(64, 198, 72, 10, c, 3);
+  const TROUS = 'M66 204L134 204L130 316L104 316L100 238L96 316L70 316Z';
+  const BELL = 'M66 204L134 204L140 318L104 318L100 240L96 318L60 318Z';
+  const SHORTS = 'M66 204L134 204L138 264L104 264L100 240L96 264L62 264Z';
+  const trousers = c => ({ body: path(TROUS, c[0]) + WAIST(c[1] || c[0]), clip: TROUS, box: [66, 210, 68, 100], base: c[0] });
+  const bell = c => ({ body: path(BELL, c[0]) + WAIST(c[1] || c[0]), clip: BELL, box: [62, 210, 76, 106], base: c[0] });
+  const shorts = c => ({ body: path(SHORTS, c[0]) + WAIST(c[1] || c[0]), clip: SHORTS, box: [64, 210, 72, 52], base: c[0] });
+  const skirt = (c, len = 266) => { const d = `M68 204L132 204L150 ${len}Q100 ${len + 10} 50 ${len}Z`; return { body: path(d, c[0]) + WAIST(c[1] || c[0]), clip: d, box: [56, 212, 88, len - 214], base: c[0] }; };
+  const pencil = c => { const d = 'M70 204L130 204L126 270L74 270Z'; return { body: path(d, c[0]) + WAIST(c[1] || c[0]), clip: d, box: [72, 210, 56, 56], base: c[0] }; };
+  const longskirt = c => { const d = 'M68 204L132 204L156 296L140 288L126 300L112 288L100 302L88 288L74 300L60 288L44 296Z'; return { body: path(d, c[0]) + WAIST(c[1] || c[0]), clip: d, box: [50, 214, 100, 76], base: c[0] }; };
+  const ball = c => { const d = 'M66 204L134 204L188 312Q100 336 12 312Z'; return { body: path(d, c[0]) + WAIST(c[1] || c[0]), clip: d, box: [30, 224, 140, 80], base: c[0] }; };
+  const tutu = c => ({ body: ell(100, 250, 70, 24, c[0]) + ell(100, 238, 62, 20, c[1] || c[0]) + ell(100, 224, 52, 16, c[0]) + WAIST(c[1] || c[0]), clip: 'M30 250A70 24 0 1 0 170 250A70 24 0 1 0 30 250Z', box: [34, 226, 132, 44], base: c[0] });
+  const petticoat = c => { const d = 'M68 204L132 204L148 262Q140 274 130 264Q120 276 110 266Q100 278 90 266Q80 276 70 264Q60 274 52 262Z'; return { body: path(d, c[0]) + WAIST(c[1] || c[0]), clip: d, box: [54, 214, 92, 48], base: c[0] }; };
+  const bloomers = c => { const d = 'M62 204L138 204Q160 232 142 256L104 246L100 238L96 246L58 256Q40 232 62 204Z'; return { body: path(d, c[0]) + WAIST(c[1] || c[0]), clip: d, box: [50, 210, 100, 42], base: c[0] }; };
+  const overalls = c => ({ body: path(TROUS, c[0]) + path('M76 204L76 168L124 168L124 204Z', c[0]) + rect(70, 198, 60, 8, c[1] || c[0], 2) + circ(80, 176, 3.4, '#f5c542') + circ(120, 176, 3.4, '#f5c542'), clip: TROUS, box: [66, 210, 68, 100], base: c[0] });
+  const cargo = c => ({ body: path(TROUS, c[0]) + WAIST(c[1] || c[0]) + rect(70, 244, 22, 20, c[1] || c[0], 2) + rect(108, 244, 22, 20, c[1] || c[0], 2), clip: TROUS, box: [66, 210, 68, 100], base: c[0] });
+  const ripped = c => ({ body: path(TROUS, c[0]) + WAIST(c[1] || c[0]), clip: TROUS, box: [66, 210, 68, 100], base: c[0], over: `<path d="M76 250L88 254L80 262M114 270L126 274L118 282M78 286L88 290" stroke="${INK}" stroke-width="2.4" fill="none"/><rect x="76" y="258" width="10" height="3" fill="#fff" opacity=".7"/>` });
+  const waders = c => ({ body: path(TROUS, c[0]) + path('M72 204L72 150L82 150L84 204ZM128 204L128 150L118 150L116 204Z', c[1] || c[0]) + rect(70, 200, 60, 8, c[1] || c[0], 2), clip: TROUS, box: [66, 210, 68, 100], base: c[0] });
+  const cuffed = c => ({ body: path(TROUS, c[0]) + WAIST(c[1] || c[0]) + rect(70, 304, 26, 9, c[1] || c[0], 2) + rect(104, 304, 26, 9, c[1] || c[0], 2), clip: TROUS, box: [66, 210, 68, 92], base: c[0] });
+  const baggy = c => { const d = 'M64 204L136 204L146 274L106 274L100 242L94 274L54 274Z'; return { body: path(d, c[0]) + WAIST(c[1] || c[0]), clip: d, box: [58, 210, 84, 60], base: c[0] }; };
+  return { trousers, bell, shorts, skirt, pencil, longskirt, ball, tutu, petticoat, bloomers, overalls, cargo, ripped, waders, cuffed, baggy };
+})(), {
+  'Ball Gown Skirt': ['ball', ['#e8b6ff', '#c98ad8']], 'Pleated Pastel Skirt': ['skirt', ['#ffd3e8', '#ffb3d0'], 270], 'Cobweb Ball Skirt': ['ball', ['#3b2f55', '#2b2036']], 'Black Velvet Trousers': ['trousers', ['#2b2036', '#3b2f55']],
+  'Tutu': ['tutu', ['#ffb3d9', '#ff8fc4']], 'Patched Overalls': ['overalls', ['#4a7ac0', '#2f5aa0']], 'Skeleton Leggings': ['trousers', ['#2b2036']], "Witch's Tights": ['trousers', ['#5b3f9a', '#3b2f55']],
+  'Pinstripe Trousers': ['trousers', ['#3a3a5a', '#2b2036']], 'Sequined Bell-Bottoms': ['bell', ['#7a3fd0', '#f5c542']], 'Clown Pants': ['baggy', ['#ff8a2a', '#e0484f']], 'Banana Print Shorts': ['shorts', ['#fff2a8', '#f5c542']],
+  'Bunny Pajama Pants': ['cuffed', ['#ffc2dd', '#fff']], 'Flower Print Skirt': ['skirt', ['#c8f0b0', '#8ac34a'], 262], 'Graveyard Skirt': ['longskirt', ['#2b2036', '#3b2f55']], 'Black Cargo Pants': ['cargo', ['#2b2a3a', '#3b3a4a']],
+  'Leopard Pencil Skirt': ['pencil', ['#e6b055', '#c98a52']], 'Corduroy Pants': ['trousers', ['#b9854a', '#a07038']], 'White Linen Trousers': ['trousers', ['#f4f1e6', '#e8e0c8']], 'Black Velvet Skirt': ['skirt', ['#2b2036', '#3b2f55'], 258],
+  'Rubber Fishing Waders': ['waders', ['#6a8a3a', '#4a6a2a']], 'Soggy Swim Trunks': ['shorts', ['#7ec8e0', '#4ea3c0']], 'Rainbow Leggings': ['trousers', ['#ffd23f', '#f5a623']], 'Checkered Skate Shorts': ['baggy', ['#6a7a8a', '#4a5a6a']],
+  'Footie Pajama Bottoms': ['cuffed', ['#c8e0ff', '#a0c0f0']], 'Heart Sweatpants': ['cuffed', ['#ffb3c8', '#ff8fb8']], 'Lace Petticoat': ['petticoat', ['#fff', '#f4f1e6']], 'Ripped Black Jeans': ['ripped', ['#2b2a3a', '#3b3a4a']],
+  'Victorian Mourning Skirt': ['longskirt', ['#2b2036', '#4a3a6a']], 'Pumpkin Bloomers': ['bloomers', ['#ff8a2a', '#e0701a']],
+});
+
+// ---------------- ACCESSORIES: held items drawn in a 100 x 100 box (no print stamps: an accessory lists no prints) ----------------
+Art.extend('Accessory', (() => {
+  const { path, rect, circ, ell, line, INK } = Art.helpers;
+  const NONE = { clip: 'M0 0H1V1Z', box: [0, 0, 1, 1] };
+  const k = body => Object.assign({ body: `<g transform="translate(7 7) scale(.86)">${body}</g>` }, NONE);
+  const stem = (x, y1, y2, w, c) => rect(x - w / 2, y1, w, y2 - y1, c, 2);
+  const wavy = (d, c, w) => `<path d="${d}" fill="none" stroke="${INK}" stroke-width="${w + 6}" stroke-linecap="round"/><path d="${d}" fill="none" stroke="${c}" stroke-width="${w}" stroke-linecap="round"/>`;
+  const briefcase = () => k(path('M36 36Q36 22 50 22Q64 22 64 36', 'none', 'stroke-width="5"') + rect(12, 36, 76, 50, '#8a5a2e', 6) + line(12, 56, 88, 56, INK, 3) + rect(44, 52, 12, 10, '#f5c542', 2));
+  const scepter = () => k(stem(50, 30, 96, 8, '#f5c542') + circ(50, 22, 15, '#e0484f') + path('M40 10L44 2L50 8L56 2L60 10Z', '#f5c542') + ell(50, 62, 9, 4, '#f5c542'));
+  const boa = () => k(wavy('M10 64Q30 30 50 62T90 60', '#ff8fb8', 16) + [[20, 48], [34, 40], [50, 62], [66, 76], [80, 52]].map(p => circ(p[0], p[1], 7, '#ffc2dd')).join(''));
+  const clutch = () => k(rect(14, 36, 72, 46, '#f4f1e6', 12) + path('M14 46Q50 70 86 46', 'none') + circ(50, 54, 7, '#fff') + [24, 36, 64, 76].map(x => circ(x, 74, 4, '#fff')).join(''));
+  const poodle = () => k(`<path d="M52 20Q70 20 76 44" fill="none" stroke="#f5c542" stroke-width="3" stroke-dasharray="1 5" stroke-linecap="round"/>` + circ(34, 56, 18, '#fff') + circ(60, 60, 14, '#fff') + circ(28, 36, 12, '#fff') + circ(18, 42, 7, '#fff') + circ(38, 40, 7, '#fff') + circ(26, 38, 2, INK) + circ(34, 36, 1.6, INK) + circ(22, 44, 2.4, INK) + stem(30, 74, 94, 7, '#fff') + stem(52, 74, 94, 7, '#fff') + stem(68, 72, 92, 7, '#fff') + circ(76, 46, 6, '#7ad7ff'));
+  const teaset = () => k(ell(40, 62, 26, 20, '#fff') + path('M64 56Q84 52 80 68L64 68Z', '#fff') + path('M14 54L4 40L18 48Z', '#fff') + ell(40, 44, 14, 5, '#ffb3d0') + circ(40, 36, 4, '#ffb3d0') + circ(40, 62, 6, '#ff8fb8') + rect(60, 74, 26, 16, '#fff', 4) + ell(73, 90, 18, 4, '#ff8fb8'));
+  const candelabra = () => k(rect(30, 86, 40, 8, '#c9c9d9', 3) + stem(50, 44, 86, 8, '#c9c9d9') + path('M20 50Q20 70 50 72Q80 70 80 50', 'none', 'stroke-width="5" stroke="#c9c9d9"') + [20, 50, 80].map(x => rect(x - 4, 28, 8, 22, '#fff', 2) + path(`M${x} 14Q${x - 6} 24 ${x} 28Q${x + 6} 24 ${x} 14Z`, '#ffae3b')).join(''));
+  const trophy = () => k(path('M30 14L70 14L66 46Q60 60 50 60Q40 60 34 46Z', '#f5c542') + path('M30 20Q10 20 14 36Q18 46 34 44', 'none', 'stroke-width="5"') + path('M70 20Q90 20 86 36Q82 46 66 44', 'none', 'stroke-width="5"') + stem(50, 60, 76, 8, '#f5c542') + rect(32, 76, 36, 14, '#d9a21b', 3) + circ(50, 32, 7, '#fff3c0'));
+  const chicken = () => k(ell(44, 64, 28, 22, '#ffe14d') + path('M68 60Q82 40 86 22', 'none', 'stroke="#ffe14d" stroke-width="12"') + circ(86, 20, 12, '#ffe14d') + path('M96 20L106 24L96 28Z', '#ff8a2a') + path('M80 10L84 2L88 10L92 2L94 12Z', '#e0484f') + circ(84, 18, 2.4, INK) + path('M16 60L4 52L8 68Z', '#ffe14d') + stem(38, 84, 96, 5, '#ff8a2a') + stem(52, 84, 96, 5, '#ff8a2a'));
+  const skate = () => k(`<g transform="rotate(-18 50 56)">${rect(8, 46, 84, 14, '#4a7ac0', 7)}${circ(24, 68, 7, '#f4f1e6')}${circ(76, 68, 7, '#f4f1e6')}${rect(18, 60, 12, 4, '#8a8a9a', 1)}${rect(70, 60, 12, 4, '#8a8a9a', 1)}</g>`);
+  const bananaPhone = () => k(path('M20 14Q14 70 50 90Q78 94 90 70Q62 78 40 56Q30 36 36 14Z', '#ffe14d') + path('M20 14L36 14L34 22L22 22Z', '#8a6a2a') + circ(46, 56, 3, INK) + circ(58, 66, 3, INK) + circ(70, 72, 3, INK) + path('M24 28Q28 40 36 50', 'none', 'stroke="#d9b21f" stroke-width="2"'));
+  const kite = () => k(`<path d="M50 62Q62 80 44 98" fill="none" stroke="${INK}" stroke-width="2.5"/>` + path('M50 4L82 38L50 70L18 38Z', '#e0484f') + path('M50 4L82 38L50 38Z', '#f5c542') + path('M50 38L82 38L50 70Z', '#3f7fd0') + path('M50 38L18 38L50 70Z', '#8ac34a') + line(50, 4, 50, 70, INK, 2.5) + line(18, 38, 82, 38, INK, 2.5) + path('M46 82L38 78L40 90ZM54 90L62 86L60 98Z', '#ff7eb6'));
+  const whoopee = () => k(ell(50, 58, 38, 20, '#e8b87a') + path('M14 58Q50 40 86 58', 'none', 'stroke-width="3" stroke="#b9854a"') + circ(84, 52, 5, '#e8b87a') + `<path d="M12 30L20 36M8 44L18 46M90 30L82 36" stroke="${INK}" stroke-width="3" stroke-linecap="round"/>`);
+  const balloonAnimal = () => k(ell(46, 60, 30, 12, '#ff7eb6') + ell(46, 60, 30, 12, 'none', 'stroke-width="0"') + circ(80, 40, 13, '#ff7eb6') + ell(82, 24, 6, 10, '#ff7eb6', 'transform="rotate(20 82 24)"') + ell(70, 28, 6, 10, '#ff7eb6') + stem(24, 66, 92, 10, '#ff7eb6') + stem(66, 66, 92, 10, '#ff7eb6') + path('M16 56Q4 44 12 36', 'none', 'stroke="#ff7eb6" stroke-width="9"') + circ(84, 38, 2.2, INK));
+  const shopBag = () => k(path('M20 30L80 30L84 94L16 94Z', '#d9b27a') + path('M38 30Q38 12 50 12Q62 12 62 30', 'none', 'stroke-width="4"') + `<text x="50" y="76" text-anchor="middle" font-size="40" font-weight="900" fill="${INK}" font-family="Georgia,serif">?</text>`);
+  const megaphone = () => k(path('M14 40L66 16L66 78L14 58Z', '#e0484f') + rect(66, 14, 14, 66, '#f4f1e6', 4) + rect(8, 38, 10, 22, '#2b2036', 3) + path('M22 62L30 90L42 90L38 68Z', '#2b2036') + `<path d="M88 30Q96 48 88 66M94 22Q106 48 94 74" fill="none" stroke="${INK}" stroke-width="3" stroke-linecap="round"/>`);
+  const puppy = () => k(`<path d="M50 24Q84 14 90 40" fill="none" stroke="#e0484f" stroke-width="3" stroke-linecap="round"/>` + ell(40, 62, 26, 18, '#c98a52') + circ(28, 40, 15, '#c98a52') + ell(14, 42, 6, 12, '#7a4a1e') + ell(42, 40, 6, 12, '#7a4a1e') + circ(26, 38, 2.2, INK) + circ(34, 38, 2.2, INK) + circ(30, 46, 3, INK) + stem(28, 76, 94, 8, '#c98a52') + stem(52, 76, 94, 8, '#c98a52') + path('M64 56Q82 46 80 36', 'none', 'stroke="#c98a52" stroke-width="7"'));
+  const heartBalloon = () => k(`<path d="M50 74Q42 84 54 98" fill="none" stroke="${INK}" stroke-width="2.5"/>` + path('M50 72L20 40Q8 22 26 14Q44 8 50 28Q56 8 74 14Q92 22 80 40Z', '#ee4a6a') + path('M34 24Q28 28 30 36', 'none', 'stroke="#fff" stroke-width="3" opacity=".7"'));
+  const flowerBasket = () => k(path('M14 52L86 52L76 92L24 92Z', '#d9a35a') + path('M20 52Q50 -6 80 52', 'none', 'stroke-width="5"') + [[34, 38, '#ff8fb8'], [50, 30, '#ffd23f'], [66, 38, '#a875e0'], [42, 48, '#e0484f'], [60, 48, '#7ad7ff']].map(p => circ(p[0], p[1], 9, p[2]) + circ(p[0], p[1], 3, '#fff3c0', 'stroke="none"')).join('') + line(30, 62, 70, 62, '#a8742e', 2.5) + line(28, 74, 72, 74, '#a8742e', 2.5));
+  const present = () => k(rect(14, 44, 72, 48, '#4a9ae0', 4) + rect(10, 36, 80, 14, '#3a8ad0', 3) + rect(44, 36, 12, 56, '#ffe14d', 1) + path('M50 36L30 16Q22 28 36 38ZM50 36L70 16Q78 28 64 38Z', '#ff7eb6') + circ(50, 36, 6, '#d94a86'));
+  const teddy = () => k(circ(26, 24, 9, '#c98a52') + circ(74, 24, 9, '#c98a52') + circ(50, 36, 22, '#c98a52') + circ(50, 42, 9, '#f0c898') + circ(42, 32, 2.4, INK) + circ(58, 32, 2.4, INK) + path('M47 40L53 40L50 44Z', INK) + ell(50, 72, 22, 22, '#c98a52') + ell(50, 74, 12, 14, '#f0c898') + circ(24, 62, 9, '#c98a52') + circ(76, 62, 9, '#c98a52') + circ(34, 92, 9, '#c98a52') + circ(66, 92, 9, '#c98a52'));
+  const lollipop = () => k(stem(50, 50, 98, 5, '#f4f1e6') + circ(50, 32, 28, '#ff8fb8') + `<path d="M50 32m-4 0a4 4 0 1 1 8 0a8 8 0 1 1 -16 0a12 12 0 1 1 24 0a16 16 0 1 1 -32 0" fill="none" stroke="#fff" stroke-width="4" stroke-linecap="round"/>`);
+  const parasol = () => k(stem(50, 30, 94, 4, '#8a5a2e') + path('M6 48Q10 8 50 6Q90 8 94 48Q82 38 72 48Q62 38 50 48Q38 38 28 48Q18 38 6 48Z', '#ffe14d') + circ(50, 24, 8, '#ff8a2a') + path('M50 94Q50 100 58 98', 'none', 'stroke-width="4"'));
+  const petBat = () => k(path('M50 30L58 20L64 34Q84 20 96 36Q88 40 90 50Q76 44 62 52L50 66L38 52Q24 44 10 50Q12 40 4 36Q16 20 36 34L42 20Z', '#5b3fa8') + circ(50, 46, 14, '#3b2f55') + circ(44, 42, 3, '#ffe14d', 'stroke="none"') + circ(56, 42, 3, '#ffe14d', 'stroke="none"') + path('M46 50L50 58L54 50', 'none', 'stroke="#fff" stroke-width="2"'));
+  const crystal = () => k(path('M22 90L30 76L70 76L78 90Z', '#8a55d0') + circ(50, 46, 32, '#b9a0f0') + path('M34 28Q40 18 52 18', 'none', 'stroke="#fff" stroke-width="4" stroke-linecap="round"') + `<path d="M48 54L52 40L56 54L68 58L56 62L52 74L48 62L36 58Z" fill="#fff" opacity=".6"/>`);
+  const lantern = () => k(path('M36 24Q50 6 64 24', 'none', 'stroke-width="4"') + rect(32, 24, 36, 8, '#4a4a5a', 3) + path('M34 32L66 32L72 80L28 80Z', '#ffd23f') + rect(26, 80, 48, 10, '#4a4a5a', 3) + path('M42 46Q42 38 50 38Q58 38 58 46L58 64L54 60L50 66L46 60L42 64Z', '#fff') + circ(46, 50, 2, INK, 'stroke="none"') + circ(54, 50, 2, INK, 'stroke="none"'));
+  const broom = () => k(`<g transform="rotate(35 50 50)">${rect(46, 4, 8, 62, '#8a5a2e', 3)}${path('M34 62L66 62L74 96L26 96Z', '#e6c25a')}${rect(32, 60, 36, 8, '#8a5a2e', 2)}${[34, 42, 50, 58, 66].map(x => line(x, 74, x - (50 - x) / 4, 94, '#a07a20', 2)).join('')}</g>`);
+  const blackCat = () => k(path('M24 94Q16 60 34 44Q30 30 38 24L42 36L58 36L62 24Q70 30 66 44Q84 60 76 94Z', '#2b2036') + circ(42, 44, 4, '#ffe14d', 'stroke="none"') + circ(58, 44, 4, '#ffe14d', 'stroke="none"') + path('M76 90Q96 84 90 64', 'none', 'stroke="#2b2036" stroke-width="7" stroke-linecap="round"') + path('M48 52L50 56L52 52Z', '#ff8fb8'));
+  const puppet = () => k(path('M28 94L32 46Q50 12 68 46L72 94Z', '#7a9a4a') + circ(40, 44, 9, '#fff') + circ(60, 44, 9, '#fff') + circ(40, 44, 3.4, INK) + circ(60, 44, 3.4, INK) + `<path d="M34 64L40 70L46 64L52 70L58 64L64 70" fill="none" stroke="${INK}" stroke-width="3" stroke-linecap="round"/>` + `<path d="M38 22L44 12M62 22L56 12" stroke="${INK}" stroke-width="3" stroke-linecap="round"/>`);
+  const wand = () => k(`<g transform="rotate(-35 50 50)">${rect(46, 30, 8, 66, '#2b2036', 3)}${rect(46, 42, 8, 8, '#f4f1e6', 1)}${path('M50 -4L56 12L72 12L60 22L64 38L50 28L36 38L40 22L28 12L44 12Z', '#ffe14d')}</g>` + `<path d="M84 18L86 26L94 28L86 30L84 38L82 30L74 28L82 26Z" fill="#fff" stroke="${INK}" stroke-width="1.5"/>`);
+  return { briefcase, scepter, boa, clutch, poodle, teaset, candelabra, trophy, chicken, skate, bananaPhone, kite, whoopee, balloonAnimal, shopBag, megaphone, puppy, heartBalloon, flowerBasket, present, teddy, lollipop, parasol, petBat, crystal, lantern, broom, blackCat, puppet, wand };
+})(), {
+  'Briefcase': ['briefcase', []], 'Royal Scepter': ['scepter', []], 'Feather Boa': ['boa', []], 'Pearl Clutch': ['clutch', []], 'Poodle on a Jeweled Leash': ['poodle', []], 'Tiny Tea Set': ['teaset', []], 'Silver Candelabra': ['candelabra', []], 'Golden Trophy': ['trophy', []],
+  'Rubber Chicken': ['chicken', []], 'Skateboard': ['skate', []], 'Banana Phone': ['bananaPhone', []], 'Rainbow Kite': ['kite', []], 'Whoopee Cushion': ['whoopee', []], 'Balloon Animal': ['balloonAnimal', []], 'Mystery Shopping Bag': ['shopBag', []], 'Megaphone': ['megaphone', []],
+  'Puppy on a Leash': ['puppy', []], 'Heart Balloon': ['heartBalloon', []], 'Flower Basket': ['flowerBasket', []], 'Present with a Giant Bow': ['present', []], 'Teddy Bear': ['teddy', []], 'Lollipop': ['lollipop', []], 'Sunshine Parasol': ['parasol', []], 'Pet Bat': ['petBat', []],
+  'Crystal Ball': ['crystal', []], 'Haunted Lantern': ['lantern', []], 'Broomstick': ['broom', []], 'Black Cat': ['blackCat', []], 'Creepy Puppet': ['puppet', []], 'Magic Wand': ['wand', []],
+});
+
+</script>
 <script id="ui">
-// Screens: menu, settings, the thrift table, build, reveal and the final standings. Plays in a fixed 1180 x 820 landscape stage scaled to fit.
+// Screens: menu, settings, the thrift table, build, reveal, the final standings, and the debug tools (art gallery, invite rules).
+// Plays in a fixed 1180 x 820 landscape stage scaled to fit.
 (() => {
   const D = GAME_DATA, E = Engine, B = Bots, SH = SHEET, CARDS = SH.cards, ME = 0;
   const $ = document.getElementById('app');
@@ -484,99 +786,96 @@ const Bots = (() => {
   const LIB = fromLibrary();
   const buildStamp = () => { const m = document.querySelector('meta[name=build]'), b = m ? m.content : ''; return b === '__BUILD__' ? 'local file' : b; };
   const IMP = Object.fromEntries(D.impressions.map(i => [i.id, i]));
-  const TYPE_COLOR = { Head: '#8a55d0', Top: '#e0584f', Bottom: '#3f7fd0', Shoes: '#4aa56a', Accessory: '#d9a21b' };
+  const TYPE_COLOR = { Head: '#8a55d0', Top: '#e0584f', Bottom: '#3f7fd0', Accessory: '#d9a21b' };
   const SLOT = Object.fromEntries(D.slots.map(s => [s.id, s]));
-  const ui = { screen: 'menu', s: null, sel: null, sheet: null, paused: false, elapsed: 0, botNext: [], arrive: null, drag: false, handDirty: false, rotateOff: false, quit: false, last: 0, settings: E.cleanSettings(store.get('settings', {})) };
+  const ui = { screen: 'menu', s: null, sel: [], sheet: null, paused: false, elapsed: 0, botNext: [], arrive: null, drag: false, rotateOff: false, quit: false, last: 0, galleryType: 'Head', onFigure: false, settings: E.cleanSettings(store.get('settings', {})) };
   const saveSettings = () => store.set('settings', ui.settings);
+  const isSel = i => ui.sel.includes(i);
 
   // ---------- small pieces ----------
   const impsOf = c => D.impressions.map((im, i) => [im, c.v[i]]).filter(([, v]) => v !== 0);
-  const accIcon = c => { const a = c.ability; if (!a) return ''; if (a.imp) return IMP[a.imp].icon; if (a.kind === 'add') return IMP[a.to].icon; if (a.kind === 'doubleHighest') return '×2'; return '🪄'; };
   const hint = t => { const st = document.getElementById('stage'); if (!st) return; const old = st.querySelector('.hint'); if (old) old.remove(); const h = document.createElement('div'); h.className = 'hint'; h.textContent = t; st.appendChild(h); setTimeout(() => h.remove(), 1500); };
   const impChips = card => impsOf(card).map(([im, v]) => `<span class="im" style="--c:${im.color}"><i>${im.icon}</i><b class="${v < 0 ? 'neg' : ''}">${v}</b></span>`).join('');
+  // a hand card: stats on the left, the art on the right, the name under it (an accessory shows its ability instead of stats)
   function handCardHTML(idx, hi, o = {}) {
     const c = CARDS[idx], acc = c.type === 'Accessory';
     return `<div class="hc ${o.sel ? 'sel' : ''} ${o.played ? 'played' : ''} ${o.arrive ? 'arrive' : ''} ${o.cls || ''}" style="--t:${TYPE_COLOR[c.type]}" ${hi >= 0 ? `data-hand="${hi}"` : ''} data-card="${idx}">${acc ? '' : `<div class="imps">${impChips(c)}</div>`}
-      <div class="info"><b class="nm">${esc(c.name)}</b><em class="ty">${c.type}</em>${c.prints.length ? `<div class="pr">${c.prints.map(p => `<span>${esc(p)}</span>`).join('')}</div>` : ''}${acc ? `<div class="ab">${esc(c.abilityText)}</div>` : ''}</div></div>`;
+      <div class="info"><div class="artbox">${Art.card(idx)}</div><b class="nm">${esc(c.name)}</b>${acc ? `<div class="ab">${esc(c.abilityText)}</div>` : ''}</div></div>`;
   }
   function tileHTML(i, extra = '') {
-    const s = ui.s, cell = s.cells[i];
+    const cell = ui.s.cells[i];
     if (!cell) return `<div class="tile empty ${extra}" data-cell="${i}"></div>`;
-    if (!cell.up && !ui.settings.debug) return `<div class="tile down ${extra}" data-cell="${i}"></div>`;
-    return faceTile(cell.c, i, (cell.up ? '' : 'dbg ') + extra);
-  }
-  function faceTile(cardIdx, i, extra = '') {
-    const c = CARDS[cardIdx], vals = c.type === 'Accessory' ? `<span style="--c2:#7a2a1a">${accIcon(c)}</span>` : impsOf(c).map(([im, v]) => `<span class="${v < 0 ? 'neg' : ''}" style="--c2:${im.color}">${im.icon}${v}</span>`).join('');
-    return `<div class="tile up ${extra}" data-cell="${i}" style="--c:${TYPE_COLOR[c.type]}"><b>${esc(c.name)}</b><div class="vals">${vals}</div></div>`;
+    if (!ui.settings.debug) return `<div class="tile down ${extra}" data-cell="${i}"></div>`;
+    const c = CARDS[cell.c]; return `<div class="tile down dbg ${extra}" data-cell="${i}"><b>${esc(c.name)}</b></div>`;
   }
   const inviteChips = inv => D.impressions.map(im => inv.rewards.includes(im.id) ? `<span class="ichip on" style="--c:${im.color}">${im.icon} ${im.id}</span>` : inv.penalizes.includes(im.id) ? `<span class="ichip minus" style="--c:${im.color}">− ${im.icon} ${im.id}</span>` : '').join('');
   const sandSVG = () => `<svg viewBox="0 0 40 56" width="36" height="52"><defs><clipPath id="hgT"><path d="M6 4H34L20 28Z"/></clipPath><clipPath id="hgB"><path d="M20 28L34 52H6Z"/></clipPath></defs>
     <path d="M6 4H34L20 28L34 52H6L20 28Z" fill="#ffffff14" stroke="#fff1cc" stroke-width="2.5" stroke-linejoin="round"/><rect id="sandT" x="0" y="4" width="40" height="24" fill="#f2b63a" clip-path="url(#hgT)"/><rect id="sandB" x="0" y="52" width="40" height="0" fill="#f2b63a" clip-path="url(#hgB)"/></svg>`;
   const boardRows = s => s.players.map((p, i) => `<div class="${i === ME ? 'me' : ''}"><span>${esc(p.name)}</span><b>${E.totalLikes(s, i)}</b></div>`).join('');
+  const inviteCardHTML = (inv, tag) => `<div class="invitecard"><h2><small>${tag}</small>${esc(inv.name)}</h2><div class="pay">${esc(inv.payout)}</div><div class="impchips">${inviteChips(inv)}</div></div>`;
   function topBar(s, mode) {
-    const inv = E.inviteOf(s), left = Math.max(0, Math.ceil(s.cfg.thriftSecs - ui.elapsed));
-    return `<div class="topbar"><button class="menubtn" data-act="sheet" data-s="menu" aria-label="Menu">☰</button>
-      <div class="invitecard"><h2>${esc(inv.name)}<small>${esc(inv.category)}</small></h2><div class="story">${esc(inv.story)}</div><div class="pay">${esc(inv.payout)}</div><div class="impchips">${inviteChips(inv)}</div></div>
-      <div class="roundbox"><small>Round</small><b>${s.round}/${s.invites.length}</b></div>
-      ${mode === 'thrift' ? `<div class="timerbox ${left <= 10 ? 'low' : ''}" id="timerbox">${sandSVG()}<b id="secs">${left}</b></div>` : `<div class="timerbox"><small>${mode === 'build' ? 'Build your look' : mode === 'invite' ? 'Get ready' : 'Likes'}</small></div>`}
+    const inv = E.invitesOf(s), left = Math.max(0, Math.ceil(s.cfg.thriftSecs - ui.elapsed));
+    return `<div class="topbar"><button class="menubtn" data-act="sheet" data-s="menu" aria-label="Menu">☰</button>${inviteCardHTML(inv[0], 'Invite A')}${inviteCardHTML(inv[1], 'Invite B')}
+      ${mode === 'thrift' ? `<div class="timerbox ${left <= 10 ? 'low' : ''}" id="timerbox"><div class="rd">Round ${s.round}/${s.cfg.rounds}</div>${sandSVG()}<b id="secs">${left}</b></div>` : `<div class="timerbox"><div class="rd">Round ${s.round}/${s.cfg.rounds}</div><small>${mode === 'build' ? 'Build your look' : mode === 'invite' ? 'Get ready' : 'Likes'}</small></div>`}
       <div class="board" id="board">${boardRows(s)}</div></div>`;
   }
 
   // ---------- thrift screen ----------
   function handInner() {
-    const s = ui.s, p = s.players[ME], full = E.handFull(s, p), cols = Math.max(6, s.cfg.handLimit);
-    const cards = p.hand.map((c, i) => handCardHTML(c, i, { sel: ui.sel === i, arrive: ui.arrive === c })).join('');
+    const s = ui.s, p = s.players[ME], full = E.handFull(s, p), cols = Math.max(5, s.cfg.handLimit), n = ui.sel.length;
+    const cards = p.hand.map((c, i) => handCardHTML(c, i, { sel: isSel(i), arrive: ui.arrive === c })).join('');
     return `<div class="handrow" style="grid-template-columns:repeat(${cols},1fr)">${cards}</div><div class="handside"><small>Your hand</small><b>${p.hand.length}/${s.cfg.handLimit}</b>
-      <button class="btn gold" data-act="putback" ${ui.sel == null || s.phase !== 'thrift' ? 'disabled' : ''}>Put back</button><small>${full ? 'Hand full' : ui.sel != null ? 'Tap Put back to confirm' : 'Tap a card to select'}</small></div>`;
+      <button class="btn gold" data-act="putback" ${n && s.phase === 'thrift' ? '' : 'disabled'}>Put back${n ? ` (${n})` : ''}</button><small>${n ? 'Tap Put back to confirm' : full ? 'Hand full: select cards to put back' : 'Tap cards to select'}</small></div>`;
   }
-  const patchHand = () => { if (ui.drag) { ui.handDirty = true; return; } const el = document.getElementById('handwrap'); if (el) { el.innerHTML = handInner(); ui.arrive = null; } };
+  const patchHand = () => { if (ui.drag) return; const el = document.getElementById('handwrap'); if (el) { el.innerHTML = handInner(); ui.arrive = null; } };
   function patchTile(i, extra) { const el = document.querySelector(`.tile[data-cell="${i}"]`); if (el) el.outerHTML = tileHTML(i, extra || ''); }
   function patchDebug() {
     const el = document.getElementById('dbg'), s = ui.s; if (!el) return;
     el.innerHTML = s.players.map((p, i) => i === ME ? '' : `<div><b>${esc(p.name)}</b>: ${p.hand.map(c => esc(CARDS[c].name)).join(', ')}</div>`).join('');
   }
   function thriftHTML() {
-    const s = ui.s, inv = E.inviteOf(s), n = s.cells.length;
+    const s = ui.s, inv = E.invitesOf(s), n = s.cells.length;
     const tiles = s.cells.map((_, i) => tileHTML(i)).join('');
-    const panel = s.phase === 'invite' ? `<div class="invitepanel"><small style="letter-spacing:2px;font-weight:800;color:var(--dim)">ROUND ${s.round} OF ${s.invites.length}</small><h1>${esc(inv.name)}</h1><div class="story">${esc(inv.story)}</div><div class="pay">${esc(inv.payout)}</div><div class="impchips">${inviteChips(inv)}</div>
+    const panel = s.phase === 'invite' ? `<div class="invitepanel"><small style="letter-spacing:2px;font-weight:800;color:var(--dim)">ROUND ${s.round} OF ${s.cfg.rounds} · TWO INVITES, BOTH SCORE</small>
+      <div class="two">${inv.map((v, k) => `<div class="one"><small>Invite ${k ? 'B' : 'A'}</small><h1>${esc(v.name)}</h1><div class="story">${esc(v.story)}</div><div class="pay">${esc(v.payout)}</div><div class="impchips">${inviteChips(v)}</div></div>`).join('')}</div>
       <div class="say" style="width:auto;padding:8px 18px">Look over your hand, then start the ${s.cfg.thriftSecs}-second scramble.</div><button class="btn gold" data-act="begin" style="min-width:300px">Start</button></div>` : '';
     return `${topBar(s, s.phase === 'invite' ? 'invite' : 'thrift')}<div style="position:relative;flex:1;min-height:0;display:flex"><div class="mess" id="mess" style="--cols:${D.mess.cols};grid-template-rows:repeat(${Math.ceil(n / D.mess.cols)},1fr)">${tiles}</div>${panel}</div>
       <div class="handwrap" id="handwrap">${handInner()}</div>${ui.settings.debug ? '<div class="dbgpanel" id="dbg"></div>' : ''}`;
   }
 
-  // ---------- build screen ----------
-  function totalsPanel(s) {
-    const p = s.players[ME], inv = E.inviteOf(s), { totals, effect } = E.impressionTotals(p.board, p.wand, inv.name), m = SH.scoring[inv.name][0].metric;
-    const hasWand = p.board.Accessory != null && CARDS[p.board.Accessory].ability.kind === 'wand', target = p.wand && p.wand !== 'Spooky' ? p.wand : E.defaultWand(inv.name);
-    const lbl = typeof m === 'string' ? m : Object.keys(m)[0] === 'sum' ? m.sum.join(' + ') : Object.keys(m)[0] === 'diff' ? m.diff.join(' − ') : 'lower of ' + m.min.join(' & ');
-    return `<div class="totals">${D.impressions.map(im => `<div class="im" style="--c:${im.color}"><span><i>${im.icon}</i> ${im.id}</span><b class="${totals[im.id] < 0 ? 'neg' : ''}">${totals[im.id]}</b></div>`).join('')}
-      <div class="metric">${esc(lbl)}<br><b>${E.metricValue(m, totals)}</b></div>${effect ? `<div class="metric" style="color:var(--gold)">${esc(effect)}</div>` : ''}
-      ${hasWand ? `<div class="metric">Wand feeds:</div><div style="display:flex;gap:4px;flex-wrap:wrap;justify-content:center">${D.impressions.filter(i => i.id !== 'Spooky').map(i => `<button class="chip ${target === i.id ? 'on' : ''}" style="min-height:44px;padding:0 10px" data-act="wand" data-imp="${i.id}">${i.icon}</button>`).join('')}</div>` : ''}</div>`;
+  // ---------- build screen: the figure shows the outfit as it is built ----------
+  const ZONES = { Head: [14, 0, 150, 92], Top: [14, 92, 150, 124], Bottom: [14, 216, 150, 124], Accessory: [160, 140, 80, 120] };   // hit areas in the figure's 240 x 340 box
+  function figureWithZones(board, interactive) {
+    const zones = E.SLOTS.map(k => { const [x, y, w, h] = ZONES[k], target = interactive && ui.sel.length === 1 && CARDS[ui.s.players[ME].hand[ui.sel[0]]] && CARDS[ui.s.players[ME].hand[ui.sel[0]]].type === k; return `<div class="zone ${target ? 'target' : ''}" data-slot="${k}" data-act="slot" style="left:${x / 2.4}%;top:${y / 3.4}%;width:${w / 2.4}%;height:${h / 3.4}%"><span class="lab">${k}${board[k] == null ? ' · ' + esc(SLOT[k].bare) : ''}</span></div>`; }).join('');
+    return `<div class="figwrap">${Art.figure(board)}${interactive ? zones : ''}</div>`;
   }
-  function slotHTML(s, k) {
-    const p = s.players[ME], c = p.board[k], sl = SLOT[k], selCard = ui.sel != null ? p.hand[ui.sel] : null, target = selCard != null && CARDS[selCard].type === k;
-    return `<div class="slot ${target ? 'target' : ''}" data-slot="${k}" data-act="slot"><span class="lab">${k}</span>${c != null ? handCardHTML(c, -1, { cls: 'slotcard' }) : `<div class="bare"><i>${sl.icon}</i>${esc(sl.bare)}</div>`}</div>`;
+  function totalsPanel(s) {
+    const p = s.players[ME], names = E.inviteNames(s), { totals, effect } = E.impressionTotals(p.board, p.wand, names), invs = E.invitesOf(s);
+    const hasWand = p.board.Accessory != null && CARDS[p.board.Accessory].ability.kind === 'wand', target = p.wand && p.wand !== 'Spooky' ? p.wand : E.defaultWand(names);
+    const lbl = m => typeof m === 'string' ? m : Object.keys(m)[0] === 'sum' ? m.sum.join(' + ') : Object.keys(m)[0] === 'diff' ? m.diff.join(' − ') : 'lower of ' + m.min.join(' & ');
+    return `<div class="totals">${D.impressions.map(im => `<div class="im" style="--c:${im.color}"><span><i>${im.icon}</i> ${im.id}</span><b class="${totals[im.id] < 0 ? 'neg' : ''}">${totals[im.id]}</b></div>`).join('')}
+      ${invs.map((v, k) => { const m = SH.scoring[v.name][0].metric; return `<div class="metric">${k ? 'B' : 'A'}: ${esc(lbl(m))} <b>${E.metricValue(m, totals)}</b></div>`; }).join('')}${effect ? `<div class="metric" style="color:var(--gold)">${esc(effect)}</div>` : ''}
+      ${hasWand ? `<div class="metric">Wand feeds:</div><div style="display:flex;gap:4px;flex-wrap:wrap;justify-content:center">${D.impressions.filter(i => i.id !== 'Spooky').map(i => `<button class="chip ${target === i.id ? 'on' : ''}" style="min-height:44px;padding:0 10px" data-act="wand" data-imp="${i.id}">${i.icon}</button>`).join('')}</div>` : ''}</div>`;
   }
   function buildInner() {
     const s = ui.s, p = s.players[ME];
-    const cards = p.hand.map((c, i) => handCardHTML(c, i, { sel: ui.sel === i, played: p.board[CARDS[c].type] === c })).join('');
-    return `<div class="handrow" id="handrow">${cards}</div><div class="figure"><div class="fig">${E.CLOTHING.map(k => slotHTML(s, k)).join('')}</div><div class="accwrap">${slotHTML(s, E.ACC)}${totalsPanel(s)}<button class="btn gold" data-act="done" style="min-height:64px">Done</button></div></div>`;
+    const cards = p.hand.map((c, i) => handCardHTML(c, i, { sel: isSel(i), played: p.board[CARDS[c].type] === c })).join('');
+    return `<div class="handrow" id="handrow">${cards}</div>${figureWithZones(p.board, true)}<div class="buildside">${totalsPanel(s)}<button class="btn gold" data-act="done" style="min-height:64px">Done</button></div>`;
   }
   const buildHTML = () => `${topBar(ui.s, 'build')}<div class="build" id="build">${buildInner()}</div>`;
-  const patchBuild = () => { if (ui.drag) { ui.handDirty = true; return; } const el = document.getElementById('build'); if (el) el.innerHTML = buildInner(); };
+  const patchBuild = () => { if (ui.drag) return; const el = document.getElementById('build'); if (el) el.innerHTML = buildInner(); };
 
   // ---------- reveal and final ----------
   function revealHTML() {
-    const s = ui.s, R = s.results, inv = E.inviteOf(s), best = Math.max(...R.players.map(r => r.likes));
+    const s = ui.s, R = s.results, inv = E.invitesOf(s), best = Math.max(...R.players.map(r => r.likes));
     const cols = R.players.map((r, i) => {
       const win = r.likes === best && best > 0;
-      const slots = E.SLOTS.map(k => { const c = r.board[k]; if (c == null) return `<div class="mini none">${esc(SLOT[k].bare)}</div>`; const cd = CARDS[c]; return `<div class="mini" style="--t:${TYPE_COLOR[cd.type]}"><b>${esc(cd.name)}</b><div class="vals">${cd.type === 'Accessory' ? `<span>${accIcon(cd)}</span>` : impsOf(cd).map(([im, v]) => `<span class="${v < 0 ? 'neg' : ''}" style="color:${v < 0 ? '#c0262d' : im.color}">${im.icon}${v}</span>`).join('')}</div></div>`; }).join('');
-      return `<div class="rv ${i === ME ? 'me' : ''} ${win ? 'win' : ''}" style="animation-delay:${i * 120}ms"><h4><span>${esc(s.players[i].name)}${win ? ' 🎉' : ''}</span><em>+${r.likes}</em></h4>${slots}
+      return `<div class="rv ${i === ME ? 'me' : ''} ${win ? 'win' : ''}" style="animation-delay:${i * 120}ms"><h4><span>${esc(s.players[i].name)}${win ? ' 🎉' : ''}</span><em>+${r.likes}</em></h4>${Art.figure(r.board)}
         <div class="tot">${D.impressions.map(im => `<span class="ichip ${r.totals[im.id] === 0 ? 'zero' : ''}" style="--c:${im.color}">${im.icon}${r.totals[im.id]}</span>`).join('')}</div><div class="fx">${esc(r.effect)}</div>
-        <div class="parts">${r.parts.map(pt => `<div>${esc(pt.text)} <span>${pt.likes ? '+' + pt.likes : '0'}</span></div>`).join('')}</div></div>`;
+        ${r.byInvite.map((b, k) => `<div class="parts"><b>${k ? 'B' : 'A'} ${esc(b.name)} <span>+${b.likes}</span></b>${b.parts.map(pt => `<div>${esc(pt.text)} <span>${pt.likes ? '+' + pt.likes : '0'}</span></div>`).join('')}</div>`).join('')}</div>`;
     }).join('');
-    const last = s.round >= s.invites.length;
-    return `${topBar(s, 'reveal')}<div class="reveal"><div class="say" style="font-size:20px"><b>${esc(inv.name)}</b> — ${esc(inv.story)}</div><div class="rvrow">${cols}</div><button class="btn gold" data-act="next" style="align-self:center;min-width:320px">${last ? 'See final results' : 'Next round'}</button></div>`;
+    const last = s.round >= s.cfg.rounds;
+    return `${topBar(s, 'reveal')}<div class="reveal"><div class="say" style="font-size:18px"><b>${esc(inv[0].name)}</b>: ${esc(inv[0].story)}  ·  <b>${esc(inv[1].name)}</b>: ${esc(inv[1].story)}</div><div class="rvrow">${cols}</div><button class="btn gold" data-act="next" style="align-self:center;min-width:320px">${last ? 'See final results' : 'Next round'}</button></div>`;
   }
   function finalHTML() {
     const s = ui.s, tot = s.players.map((p, i) => E.totalLikes(s, i)), top = Math.max(...tot), order = tot.map((_, i) => i).sort((a, b) => tot[b] - tot[a]);
@@ -586,12 +885,12 @@ const Bots = (() => {
       <div class="row" style="margin-top:auto"><button class="btn gold" data-act="again">Play again</button><button class="btn" data-act="log">Round log</button><button class="btn alt" data-act="menu">Menu</button></div></div>`;
   }
 
-  // ---------- menu / settings / sheets ----------
+  // ---------- menu / settings / debug tools / sheets ----------
   const crest = () => `<svg class="crest" viewBox="0 0 300 200" role="img" aria-label="A clothes rack"><rect x="30" y="20" width="240" height="10" rx="5" fill="#e9d9a8" stroke="#0f2a2b" stroke-width="4"/><path d="M150 20 V6 q0 -8 10 -8" fill="none" stroke="#e9d9a8" stroke-width="5"/>
     <g stroke="#0f2a2b" stroke-width="4" stroke-linejoin="round"><path d="M50 36 l-18 14 12 14 14 -8 V126 H100 V56 l14 8 12 -14 -18 -14 q-18 10 -32 0Z" fill="#e0584f"/><path d="M146 40 h50 l6 100 h-26 l-5 -52 -5 52 h-26Z" fill="#3f7fd0"/><path d="M222 40 q28 4 40 14 l-10 14 -8 -4 18 84 h-60 l18 -84 -8 4 -10 -14 q12 -10 20 -14Z" fill="#4aa56a"/></g></svg>`;
   function menuHTML() {
-    return `<div class="screen menu">${LIB ? `<a class="libback" href="${D.library.href}">‹ Library</a>` : ''}${crest()}<h1>Thrift Shop</h1><div class="sub">Grab clothes from the pile, build a look, and win the most Likes at seven events.</div>
-      <div style="display:flex;flex-direction:column;gap:14px;width:min(460px,92vw);margin-top:8px"><button class="btn gold" data-act="play">Go thrifting</button><button class="btn" data-act="settings">⚙ Settings</button><button class="btn alt" data-act="sheet" data-s="how">How to play</button></div>
+    return `<div class="screen menu">${LIB ? `<a class="libback" href="${D.library.href}">‹ Library</a>` : ''}${crest()}<h1>Thrift Shop</h1><div class="sub">Dig through the mess, dress for the event, and post your fit.</div>
+      <div style="display:flex;flex-direction:column;gap:14px;width:min(460px,92vw);margin-top:8px"><button class="btn gold" data-act="play">Go thrifting</button><button class="btn" data-act="settings">⚙ Settings</button><button class="btn alt" data-act="sheet" data-s="how">How to play</button>${ui.settings.debug ? '<button class="btn alt" data-act="gallery">🎨 Art gallery</button><button class="btn alt" data-act="rulesview">📋 Invite rules</button>' : ''}</div>
       <div class="credit">A game by Latrelle Bright, Emily Blim &amp; Patrick Blim-Hockberger · ${esc(buildStamp())}</div></div>`;
   }
   const LABELS = { bots: 'Computer shoppers', rounds: 'Rounds per game', thriftSecs: 'Thrifting timer (seconds)', startHand: 'Starting hand', handLimit: 'Hand limit', maxPlayed: 'Most cards in a look' };
@@ -599,24 +898,39 @@ const Bots = (() => {
     const S = ui.settings, rows = Object.keys(LABELS).map(k => `<div class="ctl ${S[k] !== D.settings[k] ? 'chg' : ''}"><label>${LABELS[k]}</label><div class="step"><button data-act="num" data-k="${k}" data-d="-${D.steps[k]}" aria-label="less">−</button><b>${S[k]}</b><button data-act="num" data-k="${k}" data-d="${D.steps[k]}" aria-label="more">+</button></div></div>`).join('');
     return `<div class="screen"><div class="top"><button class="btn sm alt" data-act="menu">‹ Back</button><h2>Settings</h2><button class="btn sm alt" data-act="resetsettings">Defaults</button></div><div class="scroll"><div class="panel"><div style="color:var(--dim);font-size:15px">Changes apply to the next game. They are kept on this device.</div>${rows}
       <div class="ctl"><label>Bot speed</label><div class="row">${Object.keys(D.botSpeeds).map(k => `<button class="chip ${S.botSpeed === k ? 'on' : ''}" data-act="speed" data-k="${k}">${D.botSpeeds[k].label}</button>`).join('')}</div></div>
-      <div class="ctl"><label>Debug: show every face-down card and the bots’ hands</label><button class="chip ${S.debug ? 'on' : ''}" data-act="debug">${S.debug ? 'On' : 'Off'}</button></div></div></div>
+      <div class="ctl"><label>Debug: show every face-down card and the bots’ hands, and unlock the art gallery and invite rules</label><button class="chip ${S.debug ? 'on' : ''}" data-act="debug">${S.debug ? 'On' : 'Off'}</button></div>
+      ${S.debug ? '<div class="row"><button class="btn sm" data-act="gallery">🎨 Art gallery</button><button class="btn sm" data-act="rulesview">📋 Invite rules</button></div>' : ''}</div></div>
       <button class="btn gold" style="width:min(760px,100%)" data-act="play">Play with these settings</button></div>`;
+  }
+  // the art gallery: every card with its sheet prints against the prints actually drawn in its art
+  function galleryHTML() {
+    const t = ui.galleryType, idxs = CARDS.map((c, i) => i).filter(i => CARDS[i].type === t);
+    const ok = i => JSON.stringify(Art.printsDrawn(i)) === JSON.stringify(CARDS[i].prints.slice().sort());
+    const bad = CARDS.map((c, i) => i).filter(i => !ok(i)).length;
+    const cells = idxs.map(i => { const c = CARDS[i], good = ok(i); return `<div class="gcell ${good ? '' : 'bad'}"><div class="gart">${ui.onFigure && c.type !== 'Accessory' ? Art.figure({ [c.type]: i }) : ui.onFigure ? Art.figure({ Accessory: i }) : Art.card(i)}</div><b>${esc(c.name)}</b>
+      <small>${c.power ? esc(c.power) + ' · ' : ''}${c.type === 'Accessory' ? esc(c.abilityText) : impsOf(c).map(([im, v]) => im.icon + v).join(' ')}</small><small>sheet: ${c.prints.length ? esc(c.prints.join(', ')) : 'no prints'}</small><small>art: ${Art.printsDrawn(i).length ? esc(Art.printsDrawn(i).join(', ')) : 'no prints'} ${good ? '✓' : '✗'}</small></div>`; }).join('');
+    return `<div class="screen"><div class="top"><button class="btn sm alt" data-act="${ui.s && ui.screen === 'gallery' && ui.fromGame ? 'backgame' : 'menu'}">‹ Back</button><h2>Art gallery</h2><span style="color:${bad ? '#ff8a8a' : 'var(--gold)'};font-weight:800">${bad ? bad + ' cards disagree with the sheet' : 'All 120 match the sheet ✓'}</span></div>
+      <div class="row" style="gap:6px">${['Head', 'Top', 'Bottom', 'Accessory'].map(k => `<button class="chip ${t === k ? 'on' : ''}" data-act="gtype" data-t="${k}">${k}</button>`).join('')}<button class="chip ${ui.onFigure ? 'on' : ''}" data-act="gfig">${ui.onFigure ? 'On the figure' : 'Card art'}</button></div><div class="scroll gallery">${cells}</div></div>`;
+  }
+  function rulesViewHTML() {
+    const rows = SH.invites.map(v => `<div class="rrow"><b>${esc(v.name)}</b> <small>${esc(v.shape)}</small><div>${esc(v.payout)}${v.notes ? ' <i>' + esc(v.notes) + '</i>' : ''}</div><code>${esc(JSON.stringify(SH.scoring[v.name]))}</code></div>`).join('');
+    return `<div class="screen"><div class="top"><button class="btn sm alt" data-act="menu">‹ Back</button><h2>Invite rules (${SH.invites.length})</h2></div><div class="scroll rules">${rows}</div></div>`;
   }
   function howText() {
     const S = ui.settings;
-    return `<h3>The goal</h3><p>Win the most <b>Likes</b> over ${S.rounds} events. Each round has an <b>Invite</b> that says which Impressions earn Likes: 👑 Important, 😎 Cool, 🧸 Cute, 🤪 Wacky and 👻 Spooky.</p>
-    <h3>Thrift (${S.thriftSecs} seconds, everyone at once)</h3><ul><li>Tap any card in the mess to take it. Face-down cards are a surprise: you cannot peek. Face-up cards can be looked at by pressing and holding.</li>
-    <li>Your hand holds ${S.handLimit} cards. To take another, select a card in your hand and press <b>Put back</b>: it goes back into the mess face up.</li><li>Drag cards in your hand to reorder them.</li></ul>
-    <h3>Build (no timer)</h3><ul><li>Play up to ${S.maxPlayed} cards: one Head, Top, Bottom, Shoes and Accessory. Drag a card to its slot, or tap the card and then the slot. An empty slot is allowed (bald, undershirt, heart boxers, barefoot…).</li>
-    <li>Clothes add their Impressions. The accessory then adds its bonus. The Invite turns everyone’s totals into Likes.</li></ul>
-    <h3>Reveal</h3><p>Everyone’s look is shown with the totals, the accessory effect and the Likes earned. Your whole hand carries into the next round; the mess is not reshuffled.</p>
+    return `<h3>The goal</h3><p>Win the most <b>Likes</b> over ${S.rounds} rounds. Each round has <b>two Invites</b>; both score for everyone, so your round Likes are A + B. They reward the four Impressions: 👑 Fancy, 🤪 Wacky, 🧸 Cute and 👻 Spooky.</p>
+    <h3>Thrift (${S.thriftSecs} seconds, everyone at once)</h3><ul><li>Tap any card in the mess to take it. Every card is face down: you cannot peek.</li>
+    <li>Your hand holds ${S.handLimit} cards, and you start every round with a full hand. Tap cards in your hand to select them, then press <b>Put back (N)</b>: they go back into the mess face down.</li><li>Drag cards in your hand to reorder them.</li></ul>
+    <h3>Build (no timer)</h3><ul><li>Play up to ${S.maxPlayed} cards: one Head, Top, Bottom and Accessory. Drag a card onto the figure, or tap the card and then the part of the figure. Empty slots are allowed (bald, undershirt, heart boxers, empty hand).</li>
+    <li>Clothes add their Impressions. The accessory then adds its bonus. Each Invite turns everyone’s totals into Likes.</li></ul>
+    <h3>Reveal</h3><p>Everyone’s look is shown on their figure with the totals, the accessory effect and the Likes from each Invite. Your whole hand carries into the next round; the mess is not reshuffled.</p>
     <h3>Ties</h3><p>Tied players share a place and both get the better payout.</p>`;
   }
   function sheetHTML() {
     const sh = ui.sheet; if (!sh) return '';
     let body = '';
     if (sh.t === 'how') body = `<div class="howto"><h3 style="font-size:28px">How to play Thrift Shop</h3>${howText()}</div><button class="btn gold" data-act="closesheet">Got it</button>`;
-    else if (sh.t === 'menu') body = `<h3>Menu</h3><button class="btn" data-act="sheet" data-s="how">How to play</button><button class="btn" data-act="log">Round log</button><div class="ctl" style="border:0"><label>Debug view (show all cards)</label><button class="chip ${ui.settings.debug ? 'on' : ''}" data-act="debug">${ui.settings.debug ? 'On' : 'Off'}</button></div>
+    else if (sh.t === 'menu') body = `<h3>Menu</h3><button class="btn" data-act="sheet" data-s="how">How to play</button><button class="btn" data-act="log">Round log</button><div class="ctl" style="border:0"><label>Debug view (show all cards)</label><button class="chip ${ui.settings.debug ? 'on' : ''}" data-act="debug">${ui.settings.debug ? 'On' : 'Off'}</button></div>${ui.settings.debug ? '<button class="btn alt" data-act="gallery">🎨 Art gallery</button><button class="btn alt" data-act="rulesview">📋 Invite rules</button>' : ''}
       <button class="btn ${ui.quit ? 'gold' : ''}" data-act="newgame">${ui.quit ? 'Tap again to abandon this game' : 'New game'}</button><button class="btn" data-act="menu">Main menu</button>${LIB ? `<a class="btn" href="${D.library.href}">‹ Library</a>` : ''}<button class="btn alt" data-act="closesheet">Back to the table</button>`;
     else if (sh.t === 'log') body = `<h3>Round log</h3><textarea class="log" id="logtext" readonly>${esc(ui.s ? E.logText(ui.s) : '')}</textarea><div class="row"><button class="btn gold" data-act="copylog">Copy</button><button class="btn alt" data-act="closesheet">Close</button></div>`;
     else if (sh.t === 'wand') body = `<h3>🪄 Magic Wand</h3><p style="font-size:18px">Add your Spooky to which Impression?</p><div class="row">${D.impressions.filter(i => i.id !== 'Spooky').map(i => `<button class="chip" style="min-height:64px;font-size:22px" data-act="wand" data-imp="${i.id}">${i.icon} ${i.id}</button>`).join('')}</div>`;
@@ -629,6 +943,8 @@ const Bots = (() => {
     let h;
     if (ui.screen === 'menu') h = menuHTML();
     else if (ui.screen === 'settings') h = settingsHTML();
+    else if (ui.screen === 'gallery') h = galleryHTML();
+    else if (ui.screen === 'rules') h = rulesViewHTML();
     else {
       const s = ui.s, body = s.phase === 'invite' || s.phase === 'thrift' ? thriftHTML() : s.phase === 'build' ? buildHTML() : s.phase === 'reveal' ? revealHTML() : finalHTML();
       const portrait = innerHeight > innerWidth && !ui.rotateOff;
@@ -643,18 +959,20 @@ const Bots = (() => {
   }
 
   // ---------- game flow ----------
-  function startGame() { ui.s = E.newGame({ settings: ui.settings }); ui.screen = 'game'; ui.sel = null; ui.sheet = null; ui.paused = false; ui.elapsed = 0; ui.botNext = []; ui.quit = false; ui.last = Date.now(); render(); }
-  function beginThrift() { const s = ui.s; E.apply(s, { type: 'start', seat: ME }); ui.elapsed = 0; ui.botNext = s.players.map((p, i) => i === ME ? 0 : Date.now() + B.delaySecs(s.cfg, E.rnd(s)) * 1000); ui.last = Date.now(); render(); }
+  function startGame() { ui.s = E.newGame({ settings: ui.settings }); ui.screen = 'game'; ui.sel = []; ui.sheet = null; ui.paused = false; ui.elapsed = 0; ui.botNext = []; ui.quit = false; ui.last = Date.now(); render(); }
+  function beginThrift() {
+    const s = ui.s; E.apply(s, { type: 'start', seat: ME }); ui.elapsed = 0; for (let i = 1; i < s.n; i++) B.targetInvite(s, i);
+    ui.botNext = s.players.map((p, i) => i === ME ? 0 : Date.now() + B.delaySecs(s.cfg, E.rnd(s)) * 1000); ui.last = Date.now(); render();
+  }
   function endThrift() {
-    const s = ui.s; if (s.phase !== 'thrift') return; cancelGesture(); ui.sel = null; E.apply(s, { type: 'endThrift' }); B.buildAll(s); ui.sheet = null; ui.paused = false;
-    const me = s.players[ME]; if (me.hand.some(c => CARDS[c].ability && CARDS[c].ability.kind === 'wand')) me.wand = E.defaultWand(E.inviteOf(s).name);
+    const s = ui.s; if (s.phase !== 'thrift') return; cancelGesture(); ui.sel = []; E.apply(s, { type: 'endThrift' }); B.buildAll(s); ui.sheet = null; ui.paused = false;
+    const me = s.players[ME]; if (me.hand.some(c => CARDS[c].ability && CARDS[c].ability.kind === 'wand')) me.wand = E.defaultWand(E.inviteNames(s));
     render();
   }
-  function animateTake(i, cellData) { const el = document.querySelector(`.tile[data-cell="${i}"]`); if (el) el.outerHTML = faceTile(cellData.c, i, 'gone'); setTimeout(() => patchTile(i), 380); }
+  function animateTake(i) { const el = document.querySelector(`.tile[data-cell="${i}"]`); if (el) el.classList.add('gone'); setTimeout(() => patchTile(i), 380); }
   function botAct(i) {
-    const s = ui.s, a = B.decide(s, i); if (!a) return;
-    const cellBefore = a.type === 'take' ? s.cells[a.cell] : null, r = E.apply(s, a); if (!r.ok) return;
-    if (a.type === 'take') animateTake(a.cell, cellBefore); else if (a.type === 'putBack') { patchTile(r.cell, 'landed flash'); setTimeout(() => patchTile(r.cell), 1200); }
+    const s = ui.s, a = B.decide(s, i); if (!a) return; const r = E.apply(s, a); if (!r.ok) return;
+    if (a.type === 'take') animateTake(a.cell); else if (a.type === 'putBack') r.cells.forEach(c => { patchTile(c, 'landed flash'); setTimeout(() => patchTile(c), 1200); });
     if (ui.settings.debug) patchDebug();
   }
   function tick() {
@@ -671,42 +989,37 @@ const Bots = (() => {
     const s = ui.s, cell = s.cells[i]; if (!cell || s.phase !== 'thrift' || ui.paused) return;
     if (E.handFull(s, s.players[ME])) { hint('Hand full. Put a card back first.'); return; }
     const r = E.apply(s, { type: 'take', seat: ME, cell: i }); if (!r.ok) return;
-    animateTake(i, cell); ui.arrive = r.card; ui.sel = null; patchHand(); if (ui.settings.debug) patchDebug();
+    animateTake(i); ui.arrive = r.card; ui.sel = []; patchHand(); if (ui.settings.debug) patchDebug();
   }
   function putBack() {
-    const s = ui.s, p = s.players[ME]; if (ui.sel == null || s.phase !== 'thrift') return; const card = p.hand[ui.sel]; if (card == null) { ui.sel = null; return patchHand(); }
-    const r = E.apply(s, { type: 'putBack', seat: ME, card }); ui.sel = null; if (r.ok) patchTile(r.cell, 'landed'); patchHand();
+    const s = ui.s, p = s.players[ME]; if (!ui.sel.length || s.phase !== 'thrift') return; const cards = ui.sel.map(i => p.hand[i]).filter(c => c != null);
+    const r = E.apply(s, { type: 'putBack', seat: ME, cards }); ui.sel = []; if (r.ok) r.cells.forEach(c => patchTile(c, 'landed')); patchHand();
   }
   function placeCard(handIdx, slot) {
     const s = ui.s, p = s.players[ME], card = p.hand[handIdx]; if (card == null) return false;
     const r = E.apply(s, { type: 'place', seat: ME, card, slot });
-    if (!r.ok) { hint(r.error === 'limit' ? `You can only play ${s.cfg.maxPlayed} cards.` : `That slot takes a ${slot}.`); patchBuild(); const el = document.querySelector(`.slot[data-slot="${slot}"]`); if (el) { el.classList.add('bad'); setTimeout(() => el.classList.remove('bad'), 350); } return false; }
-    ui.sel = null;
-    if (CARDS[card].ability && CARDS[card].ability.kind === 'wand') { p.wand = p.wand || E.defaultWand(E.inviteOf(s).name); ui.sheet = { t: 'wand' }; render(); return true; }
+    if (!r.ok) { hint(r.error === 'limit' ? `You can only play ${s.cfg.maxPlayed} cards.` : `That part of the figure takes a ${CARDS[card].type}.`); patchBuild(); const el = document.querySelector(`.zone[data-slot="${slot}"]`); if (el) { el.classList.add('bad'); setTimeout(() => el.classList.remove('bad'), 350); } return false; }
+    ui.sel = [];
+    if (CARDS[card].ability && CARDS[card].ability.kind === 'wand') { p.wand = p.wand || E.defaultWand(E.inviteNames(s)); ui.sheet = { t: 'wand' }; render(); return true; }
     patchBuild(); return true;
   }
 
-  // ---------- touch: taps, holds and drags (Pointer Events; HTML5 drag-and-drop is unreliable on iPad Safari) ----------
+  // ---------- touch: taps and drags (Pointer Events; HTML5 drag-and-drop is unreliable on iPad Safari) ----------
   let g = null, ghost = null;
-  function hidePreview() { const p = document.getElementById('preview'); if (p) p.remove(); }
-  function cancelGesture() { if (g && g.timer) clearTimeout(g.timer); hidePreview(); if (ghost) { ghost.remove(); ghost = null; } ui.drag = false; g = null; }
-  function showPreview(cardIdx) { const st = document.getElementById('stage'); if (!st) return; hidePreview(); const d = document.createElement('div'); d.className = 'preview'; d.id = 'preview'; d.innerHTML = handCardHTML(cardIdx, -1); st.appendChild(d); }
+  function cancelGesture() { if (ghost) { ghost.remove(); ghost = null; } ui.drag = false; g = null; }
   const repatch = () => { if (ui.s.phase === 'build') patchBuild(); else patchHand(); };
   $.addEventListener('pointerdown', e => {
     if (ui.screen !== 'game' || ui.sheet || e.button > 0) return; const s = ui.s;
-    if (ui.sel != null && !e.target.closest('.hc, [data-act=putback], .slot')) { ui.sel = null; repatch(); }
+    if (ui.sel.length && s.phase === 'build' && !e.target.closest('.hc, .zone')) { ui.sel = []; repatch(); }
     const tile = e.target.closest('.tile[data-cell]');
-    if (tile && s.phase === 'thrift') {
-      const cell = +tile.dataset.cell, c = s.cells[cell]; if (!c) return; g = { kind: 'tile', id: e.pointerId, cell, x0: e.clientX, y0: e.clientY, moved: false, held: false };
-      if (c.up) g.timer = setTimeout(() => { if (g && g.kind === 'tile') { g.held = true; showPreview(c.c); } }, D.holdPreviewMs); return;
-    }
+    if (tile && s.phase === 'thrift') { const cell = +tile.dataset.cell; if (!s.cells[cell]) return; g = { kind: 'tile', id: e.pointerId, cell, x0: e.clientX, y0: e.clientY, moved: false }; return; }
     const hc = e.target.closest('.hc[data-hand]');
     if (hc && (s.phase === 'thrift' || s.phase === 'build')) { g = { kind: 'hand', id: e.pointerId, hand: +hc.dataset.hand, el: hc, x0: e.clientX, y0: e.clientY, drag: false, ox: 0, oy: 0 }; try { hc.setPointerCapture(e.pointerId); } catch (err) { /* ok */ } }
   });
   function hitAt(x, y, selfHand) { const els = document.elementsFromPoint(x, y); return { over: els.find(el => el.classList && el.classList.contains('hc') && el.dataset.hand != null && +el.dataset.hand !== selfHand), slot: els.find(el => el.dataset && el.dataset.slot) }; }
   document.addEventListener('pointermove', e => {
     if (!g || e.pointerId !== g.id) return; const moved = Math.hypot(e.clientX - g.x0, e.clientY - g.y0) > 12;
-    if (g.kind === 'tile') { if (moved) { g.moved = true; if (g.timer) clearTimeout(g.timer); } return; }
+    if (g.kind === 'tile') { if (moved) g.moved = true; return; }
     if (!g.drag && moved) {
       g.drag = true; ui.drag = true; const r = g.el.getBoundingClientRect(); g.ox = g.x0 - r.left; g.oy = g.y0 - r.top;
       ghost = g.el.cloneNode(true); ghost.classList.add('ghost'); ghost.style.width = r.width + 'px'; ghost.style.height = r.height + 'px'; document.body.appendChild(ghost); g.el.classList.add('dragging');
@@ -718,19 +1031,22 @@ const Bots = (() => {
     }
   });
   function endGesture(e, cancel) {
-    if (!g || e.pointerId !== g.id) return; const gg = g, s = ui.s; if (gg.timer) clearTimeout(gg.timer); const held = gg.held; hidePreview(); g = null;
-    if (gg.kind === 'tile') { if (!cancel && !held && !gg.moved) takeCell(gg.cell); return; }
+    if (!g || e.pointerId !== g.id) return; const gg = g, s = ui.s; g = null;
+    if (gg.kind === 'tile') { if (!cancel && !gg.moved) takeCell(gg.cell); return; }
     if (ghost) { ghost.remove(); ghost = null; } ui.drag = false;
     if (cancel) { repatch(); return; }
     if (gg.drag) {
       const { over, slot } = hitAt(e.clientX, e.clientY, gg.hand);
-      if (over) { E.apply(s, { type: 'reorder', seat: ME, from: gg.hand, to: +over.dataset.hand }); ui.sel = null; }
-      else if (slot && s.phase === 'build') { placeCard(gg.hand, slot.dataset.slot); return; }
+      if (over) { E.apply(s, { type: 'reorder', seat: ME, from: gg.hand, to: +over.dataset.hand }); ui.sel = []; }
+      else if (slot && s.phase === 'build') { ui.sel = []; placeCard(gg.hand, slot.dataset.slot); return; }
       repatch(); return;
     }
     const p = s.players[ME], card = p.hand[gg.hand];   // a tap on a hand card
-    if (s.phase === 'build' && card != null && p.board[CARDS[card].type] === card) { E.apply(s, { type: 'unplace', seat: ME, slot: CARDS[card].type }); ui.sel = null; patchBuild(); return; }
-    ui.sel = ui.sel === gg.hand ? null : gg.hand; repatch();
+    if (s.phase === 'build') {
+      if (card != null && p.board[CARDS[card].type] === card) { E.apply(s, { type: 'unplace', seat: ME, slot: CARDS[card].type }); ui.sel = []; patchBuild(); return; }
+      ui.sel = isSel(gg.hand) ? [] : [gg.hand]; patchBuild(); return;
+    }
+    ui.sel = isSel(gg.hand) ? ui.sel.filter(i => i !== gg.hand) : ui.sel.concat(gg.hand).sort((a, b) => a - b); patchHand();   // thrifting: taps toggle a multi-selection
   }
   document.addEventListener('pointerup', e => endGesture(e, false));
   document.addEventListener('pointercancel', e => endGesture(e, true));
@@ -742,17 +1058,19 @@ const Bots = (() => {
     speed(d) { ui.settings.botSpeed = d.k; saveSettings(); render(); },
     debug() { ui.settings.debug = !ui.settings.debug; saveSettings(); render(); },
     resetsettings() { ui.settings = E.cleanSettings({}); saveSettings(); render(); },
+    gallery() { ui.fromGame = !!(ui.s && ui.screen === 'game'); ui.sheet = null; ui.screen = 'gallery'; render(); }, rulesview() { ui.sheet = null; ui.screen = 'rules'; render(); },
+    gtype(d) { ui.galleryType = d.t; render(); }, gfig() { ui.onFigure = !ui.onFigure; render(); }, backgame() { ui.screen = 'game'; ui.paused = false; ui.last = Date.now(); render(); },
     sheet(d) { ui.sheet = { t: d.s }; ui.paused = true; render(); }, closesheet() { ui.sheet = null; ui.paused = false; ui.last = Date.now(); render(); }, bg() { H.closesheet(); },
     newgame() { if (!ui.quit) { ui.quit = true; return render(); } ui.quit = false; startGame(); },
     begin() { beginThrift(); }, putback() { putBack(); },
     slot(d) {
       const s = ui.s; if (s.phase !== 'build') return; const p = s.players[ME];
-      if (ui.sel != null) { placeCard(ui.sel, d.slot); return; }
+      if (ui.sel.length === 1) { placeCard(ui.sel[0], d.slot); return; }
       if (p.board[d.slot] != null) { E.apply(s, { type: 'unplace', seat: ME, slot: d.slot }); patchBuild(); }
     },
     wand(d) { E.apply(ui.s, { type: 'setWand', seat: ME, imp: d.imp }); if (ui.sheet && ui.sheet.t === 'wand') { ui.sheet = null; render(); } else patchBuild(); },
-    done() { E.apply(ui.s, { type: 'done', seat: ME }); ui.sel = null; render(); },
-    next() { E.apply(ui.s, { type: 'next', seat: ME }); ui.elapsed = 0; ui.sel = null; render(); },
+    done() { E.apply(ui.s, { type: 'done', seat: ME }); ui.sel = []; render(); },
+    next() { E.apply(ui.s, { type: 'next', seat: ME }); ui.elapsed = 0; ui.sel = []; render(); },
     again() { startGame(); }, log() { ui.sheet = { t: 'log' }; ui.paused = true; render(); },
     copylog() { const ta = document.getElementById('logtext'); if (!ta) return; ta.select(); let ok = false; try { if (navigator.clipboard) { navigator.clipboard.writeText(ta.value); ok = true; } else ok = document.execCommand('copy'); } catch (err) { /* the text stays selected */ } const b = document.querySelector('[data-act=copylog]'); if (b) b.textContent = ok ? 'Copied' : 'Selected: copy it'; },
     rotateoff() { ui.rotateOff = true; render(); },
