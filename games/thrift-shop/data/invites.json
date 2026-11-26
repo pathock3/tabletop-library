@@ -32,7 +32,7 @@
   ],
   "penalizes": [],
   "shape": "Combined",
-  "payout": "Add Fancy and Cute. 1st 5, 2nd 3, 3rd 1.",
+  "payout": "Add Fancy and Cute. 1st 5, 2nd 2.",
   "story": "Royalty needs a crown and a smile.",
   "notes": ""
  },
@@ -89,13 +89,12 @@
   "name": "Fall Fling",
   "category": "School",
   "rewards": [
-   "Cute",
    "Wacky"
   ],
   "penalizes": [],
   "shape": "No winner",
-  "payout": "Everyone scores 1 Like for every 3 Cute and Wacky combined, up to 3.",
-  "story": "It's just a dance; everyone posts their fit.",
+  "payout": "Everyone scores 1 Like for every 3 Wacky, up to 3.",
+  "story": "It's just a dance; everyone busts out their silliest moves and posts the video.",
   "notes": ""
  },
  {
@@ -121,7 +120,7 @@
    "Cute"
   ],
   "shape": "Subtract",
-  "payout": "Score Spooky minus Cute. 1st 4, 2nd 2, 3rd 1.",
+  "payout": "Score Spooky minus Cute. 1st 5, 2nd 2.",
   "story": "Rebels get respect; teacher's pets don't.",
   "notes": ""
  },
@@ -161,7 +160,7 @@
    "Spooky"
   ],
   "shape": "Subtract",
-  "payout": "Score Cute minus Spooky. 1st 4, 2nd 2, 3rd 1.",
+  "payout": "Score Cute minus Spooky. 1st 5, 2nd 2.",
   "story": "They want someone sweet, not someone who brought a bat.",
   "notes": ""
  },
@@ -171,12 +170,10 @@
   "rewards": [
    "Cute"
   ],
-  "penalizes": [
-   "Spooky"
-  ],
-  "shape": "Podium plus bonus",
-  "payout": "Cutest 4, 2nd 2. Everyone with 0 or less Spooky gets 1 more.",
-  "story": "Nobody wants fangs near the baby.",
+  "penalizes": [],
+  "shape": "Podium",
+  "payout": "Cutest 4, 2nd 2, 3rd 1.",
+  "story": "The cutest guest ends up in all the baby photos.",
   "notes": ""
  },
  {
@@ -232,14 +229,13 @@
   "name": "21st Birthday",
   "category": "Celebration",
   "rewards": [
-   "Fancy",
    "Wacky"
   ],
   "penalizes": [],
-  "shape": "Balance (lower of two)",
-  "payout": "Score your lower of Fancy and Wacky. 1st 4, 2nd 2.",
-  "story": "Classy enough for the bouncer, silly enough for the party.",
-  "notes": "The only balance invite; slower to score."
+  "shape": "Consolation prize",
+  "payout": "Wackiest 4, 2nd 2, last place 3.",
+  "story": "Last place is the designated driver, and everyone loves them for it.",
+  "notes": "At 2 players: Wackiest 4, the other player 3."
  },
  {
   "name": "Halloween Costume Contest",
@@ -250,7 +246,7 @@
   ],
   "penalizes": [],
   "shape": "Combined",
-  "payout": "Add Spooky and Wacky. 1st 5, 2nd 3, 3rd 1.",
+  "payout": "Add Spooky and Wacky. 1st 5, 2nd 2.",
   "story": "Scary, funny, or both.",
   "notes": ""
  },
@@ -289,7 +285,7 @@
    "Fancy"
   ],
   "shape": "Subtract",
-  "payout": "Score Wacky minus Fancy. 1st 4, 2nd 2, 3rd 1.",
+  "payout": "Score Wacky minus Fancy. 1st 5, 2nd 2.",
   "story": "Trying to look nice is the one way to lose.",
   "notes": ""
  },
@@ -309,14 +305,12 @@
   "name": "Beach Day",
   "category": "Outing",
   "rewards": [
-   "Wacky"
+   "Cute"
   ],
-  "penalizes": [
-   "Spooky"
-  ],
-  "shape": "Subtract",
-  "payout": "Score Wacky minus Spooky. 1st 4, 2nd 2, 3rd 1.",
-  "story": "Sunny and silly beats pale and brooding.",
+  "penalizes": [],
+  "shape": "Rivalry",
+  "payout": "Out-Cute the player on your left: 3.",
+  "story": "Sun hats and sandcastles: everyone's comparing towels.",
   "notes": ""
  },
  {
@@ -337,12 +331,10 @@
   "rewards": [
    "Spooky"
   ],
-  "penalizes": [
-   "Fancy"
-  ],
-  "shape": "Podium plus bonus",
-  "payout": "Spookiest 3, 2nd 2. Everyone with 0 or less Fancy gets 1 more.",
-  "story": "Best campfire ghost story, plus points for roughing it.",
+  "penalizes": [],
+  "shape": "Podium",
+  "payout": "Spookiest 4, 2nd 2, 3rd 1.",
+  "story": "Best campfire ghost story wins.",
   "notes": ""
  },
  {
@@ -354,7 +346,7 @@
   ],
   "penalizes": [],
   "shape": "Combined",
-  "payout": "Add Cute and Spooky. 1st 4, 2nd 2, 3rd 1.",
+  "payout": "Add Cute and Spooky. 1st 5, 2nd 2.",
   "story": "Ghost stories in onesies.",
   "notes": ""
  },
@@ -364,12 +356,10 @@
   "rewards": [
    "Spooky"
   ],
-  "penalizes": [
-   "Wacky"
-  ],
-  "shape": "Subtract",
-  "payout": "Score Spooky minus Wacky. 1st 4, 2nd 2, 3rd 1.",
-  "story": "The art crowd wants moody, not loud.",
+  "penalizes": [],
+  "shape": "Winner takes all",
+  "payout": "Spookiest 6. Everyone else 0.",
+  "story": "The spookiest guest's portrait gets hung in the gallery.",
   "notes": ""
  },
  {

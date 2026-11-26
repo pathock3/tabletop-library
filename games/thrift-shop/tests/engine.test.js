@@ -25,16 +25,29 @@ test('two players: School Picture Day pays 4 and 3; Wedding, First Date and Myst
   assert.deepEqual(likes('School Picture Day', 'Cute', [5, 1]), [4, 3]); assert.deepEqual(likes('Wedding', 'Fancy', [5, 1]), [0, 3]);
   assert.deepEqual(likes('First Date', 'Cute', [1, 5]), [3, 0]); assert.deepEqual(likes('Mystery Dinner Party', 'Spooky', [2, 3]), [3, 0]);
 });
-test('thresholds with a top prize and 0-or-less bonuses: Job Interview, Baby Shower, Camping Trip, Kid\'s Birthday', () => {
-  assert.deepEqual(likes('Job Interview', 'Fancy', [7, 6, 5]), [4, 2, 0]); assert.deepEqual(likes("Kid's Birthday Party", 'Wacky', [6, 8, 2]), [2, 4, 0]);
-  assert.deepEqual(E.scoreInvite('Baby Shower', [imp({ Cute: 5 }), imp({ Cute: 3, Spooky: 1 }), imp({ Cute: 1, Spooky: -1 })]).likes, [5, 2, 1]);
-  assert.deepEqual(E.scoreInvite('Camping Trip', [imp({ Spooky: 4 }), imp({ Spooky: 2, Fancy: 2 }), imp({ Spooky: 0 })]).likes, [4, 2, 1]);
+test('threshold invites with a top prize: Job Interview, Kid\'s Birthday, Midnight Movie Marathon', () => {
+  assert.deepEqual(likes('Job Interview', 'Fancy', [7, 6, 5]), [4, 2, 0]); assert.deepEqual(likes("Kid's Birthday Party", 'Wacky', [6, 8, 2]), [2, 4, 0]); assert.deepEqual(likes('Midnight Movie Marathon', 'Spooky', [9, 6, 3]), [4, 2, 0]);
 });
-test('combined, subtracted and lower-of-two metrics: Homecoming Court, Beach Day, 21st Birthday, Prom', () => {
-  assert.deepEqual(E.scoreInvite('Homecoming Court', [imp({ Fancy: 3, Cute: 3 }), imp({ Fancy: 4, Cute: 1 }), imp({ Fancy: 1 })]).likes, [5, 3, 1]);
-  assert.deepEqual(E.scoreInvite('Beach Day', [imp({ Wacky: 5, Spooky: 4 }), imp({ Wacky: 3 }), imp({ Wacky: 0, Spooky: 2 })]).likes, [2, 4, 1]);
-  assert.deepEqual(E.scoreInvite('21st Birthday', [imp({ Fancy: 4, Wacky: 1 }), imp({ Fancy: 3, Wacky: 3 }), imp({ Fancy: 5 })]).likes, [2, 4, 0]);
-  assert.deepEqual(likes('Prom', 'Fancy', [5, 3, 3]), [5, 2, 2]);
+test('every invite that combines or subtracts two Impressions pays "1st 5, 2nd 2" and nothing else', () => {
+  const two = SHEET.invites.filter(v => ['Combined', 'Subtract'].includes(v.shape)); assert.equal(two.length, 9);
+  for (const v of two) { const r = SHEET.scoring[v.name]; assert.equal(r.length, 1, v.name); assert.equal(r[0].kind, 'rank', v.name); assert.deepEqual(r[0].places, [5, 2], v.name); assert.ok(typeof r[0].metric === 'object', v.name); assert.equal(r[0].last, undefined); }
+  assert.deepEqual(E.scoreInvite('Homecoming Court', [imp({ Fancy: 3, Cute: 3 }), imp({ Fancy: 4, Cute: 1 }), imp({ Fancy: 1 })]).likes, [5, 2, 0]);
+  assert.deepEqual(E.scoreInvite('Beach Day', [imp({ Cute: 3 }), imp({ Cute: 2 }), imp({ Cute: 2 }), imp({ Cute: 5 })]).likes, [3, 0, 0, 3]);
+  assert.deepEqual(E.scoreInvite('Detention', [imp({ Spooky: 5, Cute: 1 }), imp({ Spooky: 3 }), imp({ Spooky: 1 })]).likes, [5, 2, 0]);
+});
+test('no invite uses the lower-of-two metric or a "0 or less gets 1 more" bonus any more; the block kinds are rank, threshold, perPoints and rivalry', () => {
+  const kinds = new Set(); for (const r of Object.values(SHEET.scoring)) for (const b of r) { kinds.add(b.kind); assert.ok(!(b.metric && b.metric.min), 'min metric'); }
+  assert.deepEqual([...kinds].sort(), ['perPoints', 'rank', 'rivalry', 'threshold']); assert.equal(SHEET.invites.length, 37);
+});
+test('Sleepover: Cute + Spooky combined, totals [7,4,4,1] -> Likes [5,2,2,0]', () => assert.deepEqual(E.scoreInvite('Sleepover', [imp({ Cute: 4, Spooky: 3 }), imp({ Cute: 4 }), imp({ Spooky: 4 }), imp({ Cute: 1 })]).likes, [5, 2, 2, 0]));
+test('21st Birthday is a consolation prize on Wacky: [6,3,1,0] -> [4,2,0,3]; two players: Wackiest 4, the other 3', () => { assert.deepEqual(likes('21st Birthday', 'Wacky', [6, 3, 1, 0]), [4, 2, 0, 3]); assert.deepEqual(likes('21st Birthday', 'Wacky', [6, 2]), [4, 3]); });
+test('Beach Day is a rivalry to the LEFT (next seat, wrapping): Cute [3,2,2,5] -> [3,0,0,3]; Family Photo Day still looks RIGHT', () => {
+  assert.deepEqual(likes('Beach Day', 'Cute', [3, 2, 2, 5]), [3, 0, 0, 3]); assert.equal(SHEET.scoring['Beach Day'][0].neighbor, 'left'); assert.equal(SHEET.scoring['Family Photo Day'][0].neighbor, 'right');
+  assert.deepEqual(likes('Beach Day', 'Cute', [4, 1]), [3, 0]); // two players: each looks at the other
+});
+test('Baby Shower and Camping Trip are plain podiums 4 / 2 / 1; Art Gallery Opening is Spookiest-takes-all; Fall Fling is Wacky per 3', () => {
+  assert.deepEqual(likes('Baby Shower', 'Cute', [5, 3, 1, 0]), [4, 2, 1, 0]); assert.deepEqual(likes('Camping Trip', 'Spooky', [5, 5, 3, 0]), [4, 4, 2, 1]);
+  assert.deepEqual(likes('Art Gallery Opening', 'Spooky', [5, 5, 2]), [6, 6, 0]); assert.deepEqual(likes('Fall Fling', 'Wacky', [10, 4, 2, -1]), [3, 1, 0, 0]);
 });
 test('every invite in the sheet scores any table of 2 to 8 players without error, and Likes are never negative', () => {
   for (const inv of SHEET.invites) for (const n of [2, 3, 4, 8]) {
@@ -76,7 +89,7 @@ test('Golden Trophy doubles the highest Impression; ties go to the first Impress
 test('Magic Wand adds Spooky to the chosen other Impression; default = first rewarded non-Spooky Impression of invite A then B', () => {
   const b = { Head: null, Top: idx('Vampire Cape'), Bottom: null, Accessory: idx('Magic Wand') };
   assert.equal(E.impressionTotals(b, 'Cute', ['Prom']).totals.Cute, 4); assert.equal(E.impressionTotals(b, null, ['Prom', 'Goth Concert']).totals.Fancy, 3 + 4);
-  assert.equal(E.impressionTotals(b, null, ['Goth Concert', 'Beach Day']).totals.Wacky, 4); assert.equal(E.impressionTotals(b, 'Spooky', ['Prom']).totals.Fancy, 7);
+  assert.equal(E.impressionTotals(b, null, ['Goth Concert', 'Beach Day']).totals.Cute, 4); assert.equal(E.impressionTotals(b, 'Spooky', ['Prom']).totals.Fancy, 7);
 });
 
 // ---- the round, the mess, the hand ----
@@ -153,3 +166,4 @@ test('the bots pace follows the speed setting', () => {
   for (const k of Object.keys(D.botSpeeds)) { assert.equal(B.delaySecs({ botSpeed: k }, 0), D.botSpeeds[k].min); assert.equal(B.delaySecs({ botSpeed: k }, 1), D.botSpeeds[k].max); }
   assert.equal(D.botSpeeds.normal.min, 1.5); assert.equal(D.botSpeeds.normal.max, 3.5);
 });
+test('Prom pays 1st 5 and 2nd 2 on Fancy', () => assert.deepEqual(likes('Prom', 'Fancy', [5, 3, 3]), [5, 2, 2]));

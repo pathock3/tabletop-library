@@ -100,7 +100,7 @@ function validateScoring(invites, scoring, cards, errors) {
   for (const k of Object.keys(scoring)) {
     if (!names.has(k)) errors.push(`scoring.json: rule "${k}" names an invite that is not in the sheet`);
     for (const b of scoring[k] || []) {
-      if (!['rank', 'threshold', 'perPoints', 'rivalry', 'ifAtMost'].includes(b.kind)) errors.push(`scoring.json: "${k}" has an unknown block kind "${b.kind}"`);
+      if (!['rank', 'threshold', 'perPoints', 'rivalry'].includes(b.kind)) errors.push(`scoring.json: "${k}" has an unknown block kind "${b.kind}"`);
       for (const x of metricImps(b.metric)) if (!IMPRESSIONS.includes(x)) errors.push(`scoring.json: "${k}" uses "${x}", which is not an Impression`);
     }
   }
@@ -112,7 +112,7 @@ function validateScoring(invites, scoring, cards, errors) {
 function ruleNumbers(blocks) {
   const n = new Set();
   for (const b of blocks) {
-    for (const k of ['last', 'leastTie3', 'award', 'atLeast', 'per', 'cap', 'atMost']) if (typeof b[k] === 'number') n.add(b[k]);
+    for (const k of ['last', 'leastTie3', 'award', 'atLeast', 'per', 'cap']) if (typeof b[k] === 'number') n.add(b[k]);
     for (const src of [b, b.twoPlayer || {}]) { if (src.places) src.places.forEach(x => n.add(x)); if (typeof src.last === 'number') n.add(src.last); }
     if (b.kind === 'perPoints') n.add(1);
   }

@@ -13,7 +13,8 @@ Source: the designer's prototype spec, the later change notes (they win where th
 
 ## Calls where the notes are silent (my defaults)
 - **Invite scoring rules** (`data/scoring.json`) are written by hand from each invite's "Payout (Likes)" and "Notes" text. A test cross-checks that every number in a rule is printed in the invite's text and every number in the payout line is paid by the rule. The debug view lists every invite with its text and parsed rule.
-- **Rivalry** ("on your right") = the previous seat in order, wrapping; you are seat 1. (The sheet says right; the Design Vision doc says left.)
+- **Rivalry**: Family Photo Day looks to the player on your **right** = the previous seat in order, wrapping; Beach Day looks to the player on your **left** = the next seat in order, wrapping. You are seat 1. At 2 players each looks at the other.
+- **Invites simplified**: every invite that combines or subtracts two Impressions pays "1st 5, 2nd 2" only; there are no lower-of-two invites and no "0 or less gets 1 more" bonuses; the scoring block kinds are rank, threshold, perPoints and rivalry.
 - **Golden Trophy** doubles the highest Impression only if it is above 0; a tie goes to the tied Impression named first in invite A's rule, then invite B's, then the fixed order.
 - **Magic Wand**: you choose the target (a picker opens when it is placed; Spooky is not allowed); the default and the bots' choice is the first Impression rewarded by invite A, then B, that is not Spooky.
 - **Prints** are drawn only by the 16-stamp library, straight from each sheet row; an accessory lists no prints, so its art carries none (a heart-shaped balloon is the object, not a "hearts" print). Two pattern prints on one garment (e.g. Clown Pants) share it side by side.

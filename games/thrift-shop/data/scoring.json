@@ -30,8 +30,7 @@
    },
    "places": [
     5,
-    3,
-    1
+    2
    ]
   }
  ],
@@ -99,12 +98,7 @@
  "Fall Fling": [
   {
    "kind": "perPoints",
-   "metric": {
-    "sum": [
-     "Cute",
-     "Wacky"
-    ]
-   },
+   "metric": "Wacky",
    "per": 3,
    "cap": 3
   }
@@ -135,9 +129,8 @@
     ]
    },
    "places": [
-    4,
-    2,
-    1
+    5,
+    2
    ]
   }
  ],
@@ -181,9 +174,8 @@
     ]
    },
    "places": [
-    4,
-    2,
-    1
+    5,
+    2
    ]
   }
  ],
@@ -193,14 +185,9 @@
    "metric": "Cute",
    "places": [
     4,
-    2
+    2,
+    1
    ]
-  },
-  {
-   "kind": "ifAtMost",
-   "metric": "Spooky",
-   "atMost": 0,
-   "award": 1
   }
  ],
  "Wedding": [
@@ -262,16 +249,18 @@
  "21st Birthday": [
   {
    "kind": "rank",
-   "metric": {
-    "min": [
-     "Fancy",
-     "Wacky"
-    ]
-   },
+   "metric": "Wacky",
    "places": [
     4,
     2
-   ]
+   ],
+   "last": 3,
+   "twoPlayer": {
+    "places": [
+     4
+    ],
+    "last": 3
+   }
   }
  ],
  "Halloween Costume Contest": [
@@ -285,8 +274,7 @@
    },
    "places": [
     5,
-    3,
-    1
+    2
    ]
   }
  ],
@@ -324,9 +312,8 @@
     ]
    },
    "places": [
-    4,
-    2,
-    1
+    5,
+    2
    ]
   }
  ],
@@ -343,18 +330,10 @@
  ],
  "Beach Day": [
   {
-   "kind": "rank",
-   "metric": {
-    "diff": [
-     "Wacky",
-     "Spooky"
-    ]
-   },
-   "places": [
-    4,
-    2,
-    1
-   ]
+   "kind": "rivalry",
+   "metric": "Cute",
+   "neighbor": "left",
+   "award": 3
   }
  ],
  "Fancy Restaurant": [
@@ -371,15 +350,10 @@
    "kind": "rank",
    "metric": "Spooky",
    "places": [
-    3,
-    2
+    4,
+    2,
+    1
    ]
-  },
-  {
-   "kind": "ifAtMost",
-   "metric": "Fancy",
-   "atMost": 0,
-   "award": 1
   }
  ],
  "Sleepover": [
@@ -392,25 +366,17 @@
     ]
    },
    "places": [
-    4,
-    2,
-    1
+    5,
+    2
    ]
   }
  ],
  "Art Gallery Opening": [
   {
    "kind": "rank",
-   "metric": {
-    "diff": [
-     "Spooky",
-     "Wacky"
-    ]
-   },
+   "metric": "Spooky",
    "places": [
-    4,
-    2,
-    1
+    6
    ]
   }
  ],
