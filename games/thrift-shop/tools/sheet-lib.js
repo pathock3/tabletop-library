@@ -3,8 +3,7 @@
 const IMPRESSIONS = ['Fancy', 'Wacky', 'Cute', 'Spooky'];
 const TYPES = ['Head', 'Top', 'Bottom', 'Accessory'];
 const PER_TYPE = 30;                                   // the deck: 30 cards of each type
-const PRINTS = ['pinstripes', 'crowns', 'leopard', 'pearls', 'polka dots', 'checkerboard', 'bananas', 'rainbows', 'hearts', 'flowers', 'bows', 'animals', 'skulls', 'bats', 'spiderwebs', 'moons'];
-const CARD_HEADER = ['Card', 'Type', ...IMPRESSIONS, 'Prints in the art', 'Power', 'Ability'];   // found by name; 'Total' and anything after is ignored
+const CARD_HEADER = ['Card', 'Type', ...IMPRESSIONS, 'Power', 'Ability'];   // found by name; 'Total' and 'Notes' (empty) are ignored
 const INVITE_HEADER = ['Invite', 'Category', 'Rewards', 'Penalizes', 'Payout shape', 'Payout (Likes)', 'Story', 'Notes'];
 const IMP = IMPRESSIONS.join('|');
 
@@ -23,20 +22,42 @@ function parseCsv(text) {
   return rows.filter(r => r.some(x => x.trim() !== ''));
 }
 
-// Accessory abilities: the patterns of the spec (section 5). Returns a structured effect or null if the text matches none.
+// Pinwheel's cell in the sheet reads #ERROR! (its text starts with "+", which Sheets takes for a formula). Until that cell is fixed
+// (put an apostrophe before the +) the importer uses this wording; any other "#" cell is an error.
+const ABILITY_OVERRIDES = { Pinwheel: '+1 to each trait whose total, after clothing, is above 0.' };
+
+// Accessory abilities. Returns { kind, step, pick, ... } or null if the text matches none.
+//   step: 1 clothing totals, 2 other bonuses/penalties, 3 Mixtape/Reversible Tote, 4 Invisible Dog Leash, 5 Golden Trophy; 0 = a rule (no totals)
+//   pick: how many traits the owner chooses in the build phase (1, 2, or 'pair' = Fancy/Wacky or Cute/Spooky)
 function parseAbility(text) {
-  const t = String(text || '').replace(/\s*\([^)]*\)\s*$/, '').trim();
-  let m;
-  if ((m = t.match(new RegExp(`^\\+(\\d+) (${IMP}) per item with (.+)$`)))) return { kind: 'perPrint', n: +m[1], imp: m[2], prints: [m[3].trim()] };
-  if ((m = t.match(new RegExp(`^\\+(\\d+) (${IMP}) per animal pictured in your outfit$`)))) return { kind: 'perPrint', n: +m[1], imp: m[2], prints: ['animals', 'bats'] };
-  if ((m = t.match(new RegExp(`^\\+(\\d+) (${IMP}) per banana pictured in your outfit$`)))) return { kind: 'perPrint', n: +m[1], imp: m[2], prints: ['bananas'] };
-  if ((m = t.match(new RegExp(`^\\+(\\d+) (${IMP}) per bat pictured in your outfit$`)))) return { kind: 'perPrint', n: +m[1], imp: m[2], prints: ['bats'] };
-  if ((m = t.match(new RegExp(`^\\+(\\d+) (${IMP}) per empty clothing slot$`)))) return { kind: 'perEmptySlot', n: +m[1], imp: m[2] };
-  if ((m = t.match(new RegExp(`^\\+(\\d+) (${IMP}) per print in your outfit$`)))) return { kind: 'perAnyPrint', n: +m[1], imp: m[2] };
-  if ((m = t.match(new RegExp(`^Your (${IMP}) becomes 0$`)))) return { kind: 'becomesZero', imp: m[1] };
-  if ((m = t.match(new RegExp(`^Add your (${IMP}) to your (${IMP})$`)))) return { kind: 'add', from: m[1], to: m[2] };
-  if (/^Your highest Impression counts double$/.test(t)) return { kind: 'doubleHighest' };
-  if (/^Add your Spooky to any one other Impression$/.test(t)) return { kind: 'wand' };
+  let t = String(text || '').replace(/\s+/g, ' ').trim().replace(/\.$/, ''), m, pick = 0;
+  if ((m = t.match(/^Choose two traits: (.*)$/))) { pick = 2; t = m[1]; }
+  else if ((m = t.match(/^Choose a trait\.? ?:? ?(.*)$/))) { pick = 1; t = m[1]; }
+  const num = s => parseInt(s, 10);
+  if (pick === 2 && (m = t.match(/^\+(\d+) to each$/))) return { kind: 'flatEach', step: 2, pick, n: num(m[1]) };
+  if (pick === 1) {
+    if ((m = t.match(/^([+-]\d+)$/))) return { kind: 'flat', step: 2, pick, n: num(m[1]) };
+    if ((m = t.match(/^\+(\d+) for each clothing card you wear with a positive amount of it$/))) return { kind: 'perPositive', step: 2, pick, n: num(m[1]) };
+    if ((m = t.match(/^\+(\d+), or \+(\d+) if your (Head|Top|Bottom) has a positive amount of it$/))) return { kind: 'orIf', step: 2, pick, base: num(m[1]), bonus: num(m[2]), slot: m[3] };
+    if ((m = t.match(/^\+(\d+) if your (Head|Top|Bottom) and (Head|Top|Bottom) both have a positive amount of it$/))) return { kind: 'ifAll', step: 2, pick, n: num(m[1]), slots: [m[2], m[3]] };
+    if ((m = t.match(/^\+(\d+) if all three clothing cards have a positive amount of it$/))) return { kind: 'ifAllThree', step: 2, pick, n: num(m[1]) };
+    if ((m = t.match(/^\+(\d+) if none of your clothing has a negative amount of it$/))) return { kind: 'ifNoneNegative', step: 2, pick, n: num(m[1]) };
+    if ((m = t.match(/^\+(\d+) for each empty clothing slot$/))) return { kind: 'perEmpty', step: 2, pick, n: num(m[1]) };
+    if ((m = t.match(/^\+(\d+) for each negative number in your outfit$/))) return { kind: 'perNegative', step: 2, pick, n: num(m[1]) };
+    if (/^the amount of it on your single best clothing card counts double$/.test(t)) return { kind: 'brooch', step: 1, pick };
+    if (/^your negative amounts of it count as 0$/.test(t)) return { kind: 'ductTape', step: 1, pick };
+    if (/^it becomes 0$/.test(t)) return { kind: 'zero', step: 4, pick };
+    if ((m = t.match(/^At the reveal, flip random face-down cards from the mess until you hit clothing\. If it has a positive amount of your trait, \+(\d+)\. Return it face down$/))) return { kind: 'scratch', step: 2, pick, n: num(m[1]) };
+  }
+  if ((m = t.match(/^\+(\d+) to each trait whose total, after clothing, is above 0$/))) return { kind: 'pinwheel', step: 2, pick: 0, n: num(m[1]) };
+  if (/^Swap a trait with its opposite \(Fancy and Wacky, or Cute and Spooky\)$/.test(t)) return { kind: 'swap', step: 3, pick: 'pair' };
+  if (/^Add any one trait to any other trait$/.test(t)) return { kind: 'mixtape', step: 3, pick: 2 };
+  if ((m = t.match(/^You may wear two (Head|Top|Bottom)(?: cards|s)\. Both count$/))) return { kind: 'extraSlot', step: 0, pick: 0, slot: m[1] };
+  if (/^You may also wear one more accessory$/.test(t)) return { kind: 'extraSlot', step: 0, pick: 0, slot: 'Accessory' };
+  if (/^After everyone reveals, you may swap one card you're wearing for one in your hand$/.test(t)) return { kind: 'key', step: 0, pick: 0 };
+  if (/^You win all ties$/.test(t)) return { kind: 'penny', step: 0, pick: 0 };
+  if (/^At the reveal, flip random face-down cards from the mess until you hit clothing\. Add its traits to your outfit \(even if that slot is filled\), then return it face down$/.test(t)) return { kind: 'grabBag', step: 1, pick: 0 };
+  if (/^Your highest trait counts double$/.test(t)) return { kind: 'doubleHighest', step: 5, pick: 0 };
   return null;
 }
 
@@ -58,20 +79,18 @@ function parseCards(rows, errors) {
     const type = String(cell(r, 'Type') || '').trim();
     if (!TYPES.includes(type)) errors.push(`${where} (${name}): type "${type}" is not one of ${TYPES.join(', ')}`);
     const v = IMPRESSIONS.map(imp => { const n = intOrBlank(cell(r, imp)); if (Number.isNaN(n)) errors.push(`${where} (${name}): ${imp} "${cell(r, imp)}" is not an integer`); else if (n < -5 || n > 5) errors.push(`${where} (${name}): ${imp} ${n} is outside -5 to 5`); return Number.isNaN(n) ? 0 : n; });
-    const prints = String(cell(r, 'Prints in the art') || '').split(',').map(x => x.trim()).filter(Boolean);
-    for (const p of prints) if (!PRINTS.includes(p)) errors.push(`${where} (${name}): print "${p}" is not in the print library (${PRINTS.join(', ')})`);
-    if (new Set(prints).size !== prints.length) errors.push(`${where} (${name}): a print is listed twice`);
-    const power = String(cell(r, 'Power') || '').trim(), abilityText = String(cell(r, 'Ability') || '').trim();
+    const power = String(cell(r, 'Power') || '').trim(); let abilityText = String(cell(r, 'Ability') || '').trim();
+    if (/^#/.test(abilityText)) { if (ABILITY_OVERRIDES[name]) abilityText = ABILITY_OVERRIDES[name]; else errors.push(`${where} (${name}): the Ability cell holds a spreadsheet error (${abilityText}); in the sheet put an apostrophe before a leading + or -`); }
     let ability = null;
     if (type === 'Accessory') {
-      if (v.some(x => x !== 0)) errors.push(`${where} (${name}): an accessory has no Impression values`);
+      if (v.some(x => x !== 0)) errors.push(`${where} (${name}): an accessory has no trait values`);
       if (!abilityText) errors.push(`${where} (${name}): an accessory needs an ability`);
       else { ability = parseAbility(abilityText); if (!ability) errors.push(`${where} (${name}): ability "${abilityText}" matches no known pattern`); }
     } else {
-      if (v.filter(x => x !== 0).length !== 2) errors.push(`${where} (${name}): a clothing card has exactly two nonzero Impressions, this one has ${v.filter(x => x !== 0).length}`);
+      if (v.filter(x => x !== 0).length !== 2) errors.push(`${where} (${name}): a clothing card has exactly two nonzero traits, this one has ${v.filter(x => x !== 0).length}`);
       if (abilityText) errors.push(`${where} (${name}): only accessories have an ability`);
     }
-    cards.push({ name, type, v, prints, power, abilityText, ability });
+    cards.push({ name, type, v, power, abilityText, ability });
   });
   for (const t of TYPES) { const n = cards.filter(c => c.type === t).length; if (n !== PER_TYPE) errors.push(`Cards 2026: ${n} ${t} cards, expected ${PER_TYPE}`); }
   return cards;
@@ -104,8 +123,6 @@ function validateScoring(invites, scoring, cards, errors) {
       for (const x of metricImps(b.metric)) if (!IMPRESSIONS.includes(x)) errors.push(`scoring.json: "${k}" uses "${x}", which is not an Impression`);
     }
   }
-  const prints = new Set(cards.flatMap(c => c.prints));
-  for (const c of cards) if (c.ability && c.ability.prints) for (const p of c.ability.prints) if (!prints.has(p)) errors.push(`Cards 2026 (${c.name}): ability looks for the print "${p}", which no card has`);
 }
 
 // Every number in a rule must be printed in the invite's text, and every number in its payout line (not an ordinal like 2nd) must be in the rule.
@@ -145,4 +162,4 @@ function embedInto(html, sheet, scoring) {
   return html.replace(/<script id="sheet">[\s\S]*?<\/script>/, () => embedBlock(sheet, scoring));
 }
 
-module.exports = { IMPRESSIONS, TYPES, PRINTS, PER_TYPE, parseCsv, parseAbility, parseCards, parseInvites, validateScoring, build, embedBlock, embedInto };
+module.exports = { IMPRESSIONS, TYPES, ABILITY_OVERRIDES, PER_TYPE, parseCsv, parseAbility, parseCards, parseInvites, validateScoring, build, embedBlock, embedInto };
